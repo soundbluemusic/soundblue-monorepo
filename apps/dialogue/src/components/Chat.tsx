@@ -1,7 +1,9 @@
 import { Component, createSignal, For, onMount, createEffect } from "solid-js";
 import { useI18n } from "~/i18n";
+import { translations } from "~/i18n/translations";
 import { searchKnowledge } from "~/lib/search";
 import { handleDynamicQuery } from "~/lib/handlers";
+import { detectLanguage } from "~/lib/language-detector";
 import { ChatMessage, Message } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { Header } from "./Header";
@@ -58,23 +60,27 @@ export const Chat: Component = () => {
 
     await new Promise((resolve) => setTimeout(resolve, 300));
 
+    // Detect language from user input (fallback to URL locale)
+    const detectedLocale = detectLanguage(content, locale());
+    const localizedT = translations[detectedLocale].app;
+
     let responseContent: string;
 
-    const dynamicResult = handleDynamicQuery(content, locale());
+    const dynamicResult = handleDynamicQuery(content, detectedLocale);
 
     if (dynamicResult.matched) {
       if (dynamicResult.isAsync && dynamicResult.asyncResponse) {
         responseContent = await dynamicResult.asyncResponse();
       } else {
-        responseContent = dynamicResult.response || t.noResults;
+        responseContent = dynamicResult.response || localizedT.noResults;
       }
     } else {
-      const results = searchKnowledge(content, locale());
+      const results = searchKnowledge(content, detectedLocale);
 
       if (results.length > 0) {
         responseContent = results[0].answer;
       } else {
-        responseContent = t.noResults;
+        responseContent = localizedT.noResults;
       }
     }
 
