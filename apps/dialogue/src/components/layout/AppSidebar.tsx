@@ -1,5 +1,5 @@
 import { A, useNavigate, useLocation } from "@solidjs/router";
-import { Component, Show, For, createSignal } from "solid-js";
+import { Component, Show, For, createSignal, onMount } from "solid-js";
 import { useI18n, Locale } from "~/i18n";
 import { useTheme } from "~/theme";
 import { uiActions, uiStore } from "~/stores/ui-store";
@@ -26,6 +26,11 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
   const { theme, toggleTheme } = useTheme();
   const isCollapsed = () => uiStore.sidebarCollapsed;
   const [moreExpanded, setMoreExpanded] = createSignal(false);
+
+  // SSG 호환: 클라이언트에서만 localStorage 로드
+  onMount(() => {
+    chatActions.hydrate();
+  });
 
   const languages: { code: Locale; label: string; flag: string }[] = [
     { code: "en", label: "English", flag: "EN" },
@@ -74,6 +79,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
   };
 
   const handleDeleteConversation = (e: MouseEvent, id: string) => {
+    e.preventDefault();
     e.stopPropagation();
     chatActions.deleteConversation(id);
   };
@@ -164,8 +170,8 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
           </Show>
         </button>
 
-        {/* Conversation History */}
-        <Show when={!isCollapsed()}>
+        {/* Conversation History - 클라이언트에서 hydration 후에만 표시 */}
+        <Show when={!isCollapsed() && chatStore.isHydrated}>
           <div class="mt-4">
             <Show
               when={chatStore.conversations.length > 0}
@@ -178,10 +184,12 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
               <div class="flex flex-col gap-1">
                 <For each={chatStore.conversations}>
                   {(conv) => (
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => handleLoadConversation(conv)}
-                      class={`${MENU_ITEM_CLASS} group`}
+                      onKeyDown={(e) => e.key === "Enter" && handleLoadConversation(conv)}
+                      class={`${MENU_ITEM_CLASS} group cursor-pointer`}
                       classList={{
                         "bg-accent-light text-accent": chatStore.activeConversationId === conv.id,
                         "text-text-secondary": chatStore.activeConversationId !== conv.id,
@@ -196,15 +204,22 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
                           {formatDate(conv.updatedAt)}
                         </div>
                       </div>
-                      <button
-                        type="button"
+                      <div
+                        role="button"
+                        tabIndex={0}
                         onClick={(e) => handleDeleteConversation(e, conv.id)}
-                        class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 hover:text-red-400 transition-all"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.stopPropagation();
+                            chatActions.deleteConversation(conv.id);
+                          }
+                        }}
+                        class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 hover:text-red-400 transition-all cursor-pointer"
                         title={t.deleteChat}
                       >
                         <TrashIcon />
-                      </button>
-                    </button>
+                      </div>
+                    </div>
                   )}
                 </For>
               </div>

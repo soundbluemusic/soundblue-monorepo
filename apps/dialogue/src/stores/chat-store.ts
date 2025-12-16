@@ -1,9 +1,9 @@
-import { createStore } from "solid-js/store";
-import { createEffect } from "solid-js";
+import { createStore, reconcile } from "solid-js/store";
 import { isServer } from "solid-js/web";
 
 // ========================================
 // Chat Store - 대화 기록 관리 (localStorage 연동)
+// SSG 호환: 서버에서는 빈 상태, 클라이언트에서 hydration 후 로드
 // ========================================
 
 export interface Message {
@@ -24,7 +24,8 @@ export interface Conversation {
 interface ChatState {
   conversations: Conversation[];
   activeConversationId: string | null;
-  ghostMode: boolean; // 고스트 모드 - 대화 저장 안함
+  ghostMode: boolean;
+  isHydrated: boolean; // 클라이언트 hydration 완료 여부
 }
 
 const STORAGE_KEY = "dialogue-conversations";
@@ -35,26 +36,19 @@ export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// Load from localStorage
-function loadFromStorage(): { conversations: Conversation[]; ghostMode: boolean } {
-  if (isServer) return { conversations: [], ghostMode: false };
+// SSG 호환: 항상 빈 상태로 시작 (서버/클라이언트 동일)
+const initialState: ChatState = {
+  conversations: [],
+  activeConversationId: null,
+  ghostMode: false,
+  isHydrated: false,
+};
 
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    const ghostMode = localStorage.getItem(GHOST_MODE_KEY) === "true";
-    return {
-      conversations: saved ? JSON.parse(saved) : [],
-      ghostMode,
-    };
-  } catch {
-    return { conversations: [], ghostMode: false };
-  }
-}
+const [chatStore, setChatStore] = createStore<ChatState>(initialState);
 
-// Save to localStorage
-function saveToStorage(conversations: Conversation[]): void {
+// Save to localStorage (클라이언트에서만)
+function saveConversations(conversations: Conversation[]): void {
   if (isServer) return;
-
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
   } catch {
@@ -62,45 +56,52 @@ function saveToStorage(conversations: Conversation[]): void {
   }
 }
 
-// Initial state
-const stored = loadFromStorage();
-const initialState: ChatState = {
-  conversations: stored.conversations,
-  activeConversationId: null,
-  ghostMode: stored.ghostMode,
-};
-
-const [chatStore, setChatStore] = createStore<ChatState>(initialState);
-
-// Auto-save when conversations change (but not in ghost mode)
-if (!isServer) {
-  createEffect(() => {
-    if (!chatStore.ghostMode) {
-      saveToStorage(chatStore.conversations);
-    }
-  });
+function saveGhostMode(enabled: boolean): void {
+  if (isServer) return;
+  try {
+    localStorage.setItem(GHOST_MODE_KEY, String(enabled));
+  } catch {
+    // Storage unavailable
+  }
 }
 
 export const chatActions = {
+  // 클라이언트에서 hydration 후 호출 (onMount에서 한 번만)
+  hydrate: () => {
+    if (isServer || chatStore.isHydrated) return;
+
+    try {
+      const savedConversations = localStorage.getItem(STORAGE_KEY);
+      const savedGhostMode = localStorage.getItem(GHOST_MODE_KEY);
+
+      setChatStore(
+        reconcile({
+          conversations: savedConversations ? JSON.parse(savedConversations) : [],
+          activeConversationId: null,
+          ghostMode: savedGhostMode === "true",
+          isHydrated: true,
+        })
+      );
+    } catch {
+      setChatStore("isHydrated", true);
+    }
+  },
+
   // Ghost Mode
   setGhostMode: (enabled: boolean) => {
     setChatStore("ghostMode", enabled);
-    if (!isServer) {
-      localStorage.setItem(GHOST_MODE_KEY, String(enabled));
-    }
+    saveGhostMode(enabled);
   },
+
   toggleGhostMode: () => {
     const newValue = !chatStore.ghostMode;
     setChatStore("ghostMode", newValue);
-    if (!isServer) {
-      localStorage.setItem(GHOST_MODE_KEY, String(newValue));
-    }
+    saveGhostMode(newValue);
   },
 
   // Create new conversation
   createConversation: (welcomeMessage: Message): Conversation | null => {
     if (chatStore.ghostMode) {
-      // In ghost mode, just set active to null (no saving)
       setChatStore("activeConversationId", null);
       return null;
     }
@@ -113,8 +114,11 @@ export const chatActions = {
       updatedAt: Date.now(),
     };
 
-    setChatStore("conversations", (prev) => [newConversation, ...prev]);
+    const newConversations = [newConversation, ...chatStore.conversations];
+    setChatStore("conversations", newConversations);
     setChatStore("activeConversationId", newConversation.id);
+    saveConversations(newConversations);
+
     return newConversation;
   },
 
@@ -125,15 +129,30 @@ export const chatActions = {
     const activeId = chatStore.activeConversationId;
     if (!activeId) return;
 
-    setChatStore("conversations", (conv) => conv.id === activeId, "messages", (msgs) => [...msgs, message]);
-    setChatStore("conversations", (conv) => conv.id === activeId, "updatedAt", Date.now());
+    const convIndex = chatStore.conversations.findIndex((c) => c.id === activeId);
+    if (convIndex === -1) return;
+
+    const conversation = chatStore.conversations[convIndex];
+    const updatedMessages = [...conversation.messages, message];
+    let updatedTitle = conversation.title;
 
     // Update title from first user message
-    const conversation = chatStore.conversations.find((c) => c.id === activeId);
-    if (conversation && !conversation.title && message.role === "user") {
-      const title = message.content.slice(0, 30) + (message.content.length > 30 ? "..." : "");
-      setChatStore("conversations", (conv) => conv.id === activeId, "title", title);
+    if (!updatedTitle && message.role === "user") {
+      updatedTitle = message.content.slice(0, 30) + (message.content.length > 30 ? "..." : "");
     }
+
+    const updatedConversation: Conversation = {
+      ...conversation,
+      messages: updatedMessages,
+      title: updatedTitle,
+      updatedAt: Date.now(),
+    };
+
+    const newConversations = [...chatStore.conversations];
+    newConversations[convIndex] = updatedConversation;
+
+    setChatStore("conversations", newConversations);
+    saveConversations(newConversations);
   },
 
   // Load conversation
@@ -147,10 +166,14 @@ export const chatActions = {
 
   // Delete conversation
   deleteConversation: (id: string) => {
-    setChatStore("conversations", (prev) => prev.filter((c) => c.id !== id));
+    const newConversations = chatStore.conversations.filter((c) => c.id !== id);
+    setChatStore("conversations", newConversations);
+
     if (chatStore.activeConversationId === id) {
       setChatStore("activeConversationId", null);
     }
+
+    saveConversations(newConversations);
   },
 
   // Clear active conversation (for new chat)

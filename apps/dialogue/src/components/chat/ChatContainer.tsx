@@ -1,4 +1,4 @@
-import { Component, createSignal, For, createEffect, onMount } from "solid-js";
+import { Component, createSignal, For, createEffect, onMount, Show } from "solid-js";
 import { useI18n } from "~/i18n";
 import { translations } from "~/i18n/translations";
 import { searchKnowledge } from "~/lib/search";
@@ -152,11 +152,11 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
       <div class="flex items-center justify-between border-b border-border bg-bg-secondary px-4 py-3">
         <div class="flex items-center gap-2">
           <h2 class="font-semibold text-sm text-text-primary">{t.title}</h2>
-          {chatStore.ghostMode && (
+          <Show when={chatStore.ghostMode}>
             <span class="px-2 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-400 rounded-full">
               {t.ghostMode}
             </span>
-          )}
+          </Show>
         </div>
       </div>
 
