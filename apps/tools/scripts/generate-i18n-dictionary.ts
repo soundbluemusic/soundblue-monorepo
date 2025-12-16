@@ -16,6 +16,31 @@ import { join } from 'node:path';
 const MESSAGES_DIR = 'messages';
 const OUTPUT_DIR = 'src/tools/translator/dictionary';
 
+// ========================================
+// Type Definitions
+// ========================================
+
+/**
+ * Recursive JSON value type for i18n message files.
+ * Represents valid JSON values that can appear in translation files.
+ */
+type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
+
+/** JSON object type (key-value pairs) */
+interface JsonObject {
+  [key: string]: JsonValue;
+}
+
+/** JSON array type */
+type JsonArray = JsonValue[];
+
+/**
+ * i18n message file structure.
+ * Translation files contain nested string values with dot-notation keys.
+ */
+type I18nMessages = JsonObject;
+
+/** Translation pair extracted from i18n files */
 interface TranslationPair {
   ko: string;
   en: string;
@@ -24,8 +49,11 @@ interface TranslationPair {
 
 /**
  * JSON 객체를 평탄화하여 key-value 쌍 추출
+ * @param obj - Nested i18n message object
+ * @param prefix - Current key prefix for nested keys
+ * @returns Flattened object with dot-notation keys
  */
-function flattenObject(obj: Record<string, unknown>, prefix = ''): Record<string, string> {
+function flattenObject(obj: JsonObject, prefix = ''): Record<string, string> {
   const result: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(obj)) {
@@ -33,23 +61,32 @@ function flattenObject(obj: Record<string, unknown>, prefix = ''): Record<string
 
     if (typeof value === 'string') {
       result[fullKey] = value;
-    } else if (typeof value === 'object' && value !== null) {
-      Object.assign(result, flattenObject(value as Record<string, unknown>, fullKey));
+    } else if (isJsonObject(value)) {
+      Object.assign(result, flattenObject(value, fullKey));
     }
+    // Ignore arrays, numbers, booleans, and null (not valid for i18n strings)
   }
 
   return result;
 }
 
 /**
+ * Type guard to check if a value is a JSON object
+ */
+function isJsonObject(value: JsonValue): value is JsonObject {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
  * i18n 파일에서 번역 쌍 추출
+ * @returns Array of Korean-English translation pairs
  */
 function extractTranslationPairs(): TranslationPair[] {
   const koPath = join(MESSAGES_DIR, 'ko.json');
   const enPath = join(MESSAGES_DIR, 'en.json');
 
-  const koJson = JSON.parse(readFileSync(koPath, 'utf-8'));
-  const enJson = JSON.parse(readFileSync(enPath, 'utf-8'));
+  const koJson: I18nMessages = JSON.parse(readFileSync(koPath, 'utf-8'));
+  const enJson: I18nMessages = JSON.parse(readFileSync(enPath, 'utf-8'));
 
   const koFlat = flattenObject(koJson);
   const enFlat = flattenObject(enJson);

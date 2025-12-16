@@ -8,6 +8,35 @@ export interface DynamicResponse {
   asyncResponse?: () => Promise<string>;
 }
 
+// ========================================
+// Weather API Type Definitions
+// ========================================
+
+/** Open-Meteo API current weather response */
+interface OpenMeteoCurrentWeather {
+  temperature_2m: number;
+  relative_humidity_2m: number;
+  weather_code: number;
+  wind_speed_10m: number;
+}
+
+/** Open-Meteo API response structure */
+interface OpenMeteoResponse {
+  current: OpenMeteoCurrentWeather;
+}
+
+/** Nominatim reverse geocoding address */
+interface NominatimAddress {
+  city?: string;
+  town?: string;
+  county?: string;
+}
+
+/** Nominatim reverse geocoding response */
+interface NominatimResponse {
+  address?: NominatimAddress;
+}
+
 // Pattern matchers for different query types
 const TIME_PATTERNS = {
   ko: [/몇\s*시/, /시간/, /지금\s*몇/, /현재\s*시/],
@@ -135,7 +164,7 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
     const response = await fetch(weatherUrl);
     if (!response.ok) throw new Error("Weather API error");
 
-    const data = await response.json();
+    const data: OpenMeteoResponse = await response.json();
     const current = data.current;
 
     const temp = Math.round(current.temperature_2m);
@@ -150,7 +179,7 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
     let locationName = "";
     try {
       const geoResponse = await fetch(geoUrl);
-      const geoData = await geoResponse.json();
+      const geoData: NominatimResponse = await geoResponse.json();
       locationName = geoData.address?.city || geoData.address?.town || geoData.address?.county || "";
     } catch {
       locationName = "";
