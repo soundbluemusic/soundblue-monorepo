@@ -31,6 +31,10 @@ export const translations = {
       featureMultilangDesc: "한국어, 영어, 일본어를 지원합니다.",
       featureTheme: "다크/라이트 모드",
       featureThemeDesc: "원하는 테마를 선택할 수 있습니다.",
+      notFoundCode: "404",
+      notFoundTitle: "페이지를 찾을 수 없습니다",
+      notFoundMessage: "요청하신 페이지가 존재하지 않거나 이동되었습니다.",
+      notFoundBackHome: "홈으로 돌아가기",
     },
   },
   en: {
@@ -63,6 +67,10 @@ export const translations = {
       featureMultilangDesc: "Supports Korean, English, and Japanese.",
       featureTheme: "Dark/Light Mode",
       featureThemeDesc: "Choose your preferred theme.",
+      notFoundCode: "404",
+      notFoundTitle: "Page Not Found",
+      notFoundMessage: "The page you're looking for doesn't exist or has been moved.",
+      notFoundBackHome: "Return to Home",
     },
   },
   ja: {
@@ -95,6 +103,10 @@ export const translations = {
       featureMultilangDesc: "韓国語、英語、日本語をサポート。",
       featureTheme: "ダーク/ライトモード",
       featureThemeDesc: "お好みのテーマを選択できます。",
+      notFoundCode: "404",
+      notFoundTitle: "ページが見つかりません",
+      notFoundMessage: "お探しのページは存在しないか、移動されました。",
+      notFoundBackHome: "ホームに戻る",
     },
   },
 } as const;
