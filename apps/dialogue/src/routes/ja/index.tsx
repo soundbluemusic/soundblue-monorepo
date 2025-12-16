@@ -1,5 +1,5 @@
 import { Title, Meta } from "@solidjs/meta";
-import { Chat } from "~/components";
+import { MainLayout } from "~/components";
 
 export default function JapaneseHome() {
   return (
@@ -9,7 +9,7 @@ export default function JapaneseHome() {
         name="description"
         content="100%オフラインで動作する対話型学習ツール"
       />
-      <Chat />
+      <MainLayout />
     </>
   );
 }

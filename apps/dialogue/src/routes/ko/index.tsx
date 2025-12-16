@@ -1,5 +1,5 @@
 import { Title, Meta } from "@solidjs/meta";
-import { Chat } from "~/components";
+import { MainLayout } from "~/components";
 
 export default function KoreanHome() {
   return (
@@ -9,7 +9,7 @@ export default function KoreanHome() {
         name="description"
         content="100% 오프라인에서 작동하는 대화형 학습 도구"
       />
-      <Chat />
+      <MainLayout />
     </>
   );
 }

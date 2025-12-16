@@ -1,5 +1,5 @@
 import { Title, Meta } from "@solidjs/meta";
-import { Chat } from "~/components";
+import { MainLayout } from "~/components";
 
 export default function Home() {
   return (
@@ -9,7 +9,7 @@ export default function Home() {
         name="description"
         content="A conversational learning tool that works 100% offline"
       />
-      <Chat />
+      <MainLayout />
     </>
   );
 }

@@ -85,6 +85,12 @@
   "language": {
     "switchTo": "Switch to 한국어"
   },
+  "notFound": {
+    "code": "404",
+    "title": "Page Not Found",
+    "message": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Return to Home"
+  },
   "about": {
     "title": "About",
     "intro": "SoundBlueMusic Tools is a collection of free, browser-based utilities for musicians, creators, and everyday use.",
