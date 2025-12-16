@@ -1583,10 +1583,448 @@ export const koToEnWords: Record<string, string> = {
   ...manualKoToEnWords,
 };
 
-// 역방향 사전 (영→한) 자동 생성
+// ========================================
+// 영→한 전용 사전 (자동 생성 보완)
+// 영어 특유의 단어/표현들
+// ========================================
+const manualEnToKoWords: Record<string, string> = {
+  // === 대명사 ===
+  i: '나',
+  you: '당신',
+  he: '그',
+  she: '그녀',
+  it: '그것',
+  we: '우리',
+  they: '그들',
+  me: '나를',
+  him: '그를',
+  her: '그녀를',
+  us: '우리를',
+  them: '그들을',
+  my: '나의',
+  your: '당신의',
+  his: '그의',
+  its: '그것의',
+  our: '우리의',
+  their: '그들의',
+  this: '이것',
+  that: '저것',
+  these: '이것들',
+  those: '저것들',
+
+  // === 관사/한정사 ===
+  the: '',
+  a: '',
+  an: '',
+  every: '매',
+
+  // === be 동사 ===
+  am: '',
+  is: '',
+  are: '',
+  was: '',
+  were: '',
+  been: '',
+  being: '',
+  be: '',
+
+  // === have 동사 ===
+  have: '가지다',
+  has: '가지다',
+  had: '가졌다',
+
+  // === do 동사 ===
+  do: '하다',
+  does: '하다',
+  did: '했다',
+  done: '한',
+
+  // === 핵심 동사 (기본형 + 활용형) ===
+  run: '달리다',
+  runs: '달린다',
+  ran: '달렸다',
+  running: '달리는',
+
+  get: '받다',
+  gets: '받다',
+  got: '받았다',
+  gotten: '받은',
+
+  go: '가다',
+  goes: '간다',
+  went: '갔다',
+  gone: '간',
+  going: '가는',
+
+  come: '오다',
+  comes: '온다',
+  came: '왔다',
+  coming: '오는',
+
+  make: '만들다',
+  makes: '만든다',
+  made: '만들었다',
+
+  take: '가져가다',
+  takes: '가져간다',
+  took: '가져갔다',
+  taken: '가져간',
+
+  see: '보다',
+  sees: '본다',
+  saw: '보았다',
+  seen: '본',
+
+  know: '알다',
+  knows: '안다',
+  knew: '알았다',
+  known: '알려진',
+
+  think: '생각하다',
+  thinks: '생각한다',
+  thought: '생각했다',
+
+  want: '원하다',
+  wants: '원한다',
+  wanted: '원했다',
+
+  find: '찾다',
+  finds: '찾는다',
+  found: '찾았다',
+
+  give: '주다',
+  gives: '준다',
+  gave: '주었다',
+  given: '준',
+
+  tell: '말하다',
+  tells: '말한다',
+  told: '말했다',
+
+  say: '말하다',
+  says: '말한다',
+  said: '말했다',
+
+  speak: '말하다',
+  speaks: '말한다',
+  spoke: '말했다',
+  spoken: '말한',
+
+  ask: '묻다',
+  asks: '묻는다',
+  asked: '물었다',
+
+  feel: '느끼다',
+  feels: '느낀다',
+  felt: '느꼈다',
+
+  become: '되다',
+  becomes: '된다',
+  became: '되었다',
+
+  leave: '떠나다',
+  leaves: '떠난다',
+  left: '떠났다',
+
+  put: '놓다',
+  puts: '놓는다',
+
+  keep: '유지하다',
+  keeps: '유지한다',
+  kept: '유지했다',
+
+  let: '허락하다',
+  lets: '허락한다',
+
+  begin: '시작하다',
+  begins: '시작한다',
+  began: '시작했다',
+  begun: '시작된',
+
+  help: '돕다',
+  helps: '돕는다',
+  helped: '도왔다',
+
+  show: '보여주다',
+  shows: '보여준다',
+  showed: '보여주었다',
+  shown: '보여진',
+
+  hear: '듣다',
+  hears: '듣는다',
+  heard: '들었다',
+
+  play: '놀다',
+  plays: '논다',
+  played: '놀았다',
+
+  live: '살다',
+  lives: '산다',
+  lived: '살았다',
+
+  believe: '믿다',
+  believes: '믿는다',
+  believed: '믿었다',
+
+  hold: '잡다',
+  holds: '잡는다',
+  held: '잡았다',
+
+  bring: '가져오다',
+  brings: '가져온다',
+  brought: '가져왔다',
+
+  write: '쓰다',
+  writes: '쓴다',
+  wrote: '썼다',
+  written: '쓴',
+
+  sit: '앉다',
+  sits: '앉는다',
+  sat: '앉았다',
+
+  stand: '서다',
+  stands: '선다',
+  stood: '섰다',
+
+  lose: '잃다',
+  loses: '잃는다',
+  lost: '잃었다',
+
+  meet: '만나다',
+  meets: '만난다',
+  met: '만났다',
+
+  learn: '배우다',
+  learns: '배운다',
+  learned: '배웠다',
+
+  understand: '이해하다',
+  understands: '이해한다',
+  understood: '이해했다',
+
+  watch: '보다',
+  watches: '본다',
+  watched: '보았다',
+
+  buy: '사다',
+  buys: '산다',
+  bought: '샀다',
+
+  wait: '기다리다',
+  waits: '기다린다',
+  waited: '기다렸다',
+
+  eat: '먹다',
+  eats: '먹는다',
+  ate: '먹었다',
+  eaten: '먹은',
+
+  drink: '마시다',
+  drinks: '마신다',
+  drank: '마셨다',
+  drunk: '마신',
+
+  sleep: '자다',
+  sleeps: '잔다',
+  slept: '잤다',
+
+  wish: '바라다',
+  wishes: '바란다',
+  wished: '바랐다',
+
+  accept: '받아들이다',
+  accepts: '받아들인다',
+  accepted: '받아들였다',
+
+  turn: '돌리다',
+  turns: '돌린다',
+  turned: '돌렸다',
+
+  break: '깨다',
+  breaks: '깬다',
+  broke: '깼다',
+  broken: '깨진',
+
+  postpone: '연기하다',
+  postpones: '연기한다',
+  postponed: '연기되었다',
+
+  // === 형용사 ===
+  good: '좋은',
+  bad: '나쁜',
+  great: '훌륭한',
+  big: '큰',
+  small: '작은',
+  large: '큰',
+  high: '높은',
+  low: '낮은',
+  long: '긴',
+  short: '짧은',
+  new: '새로운',
+  old: '오래된',
+  young: '젊은',
+  right: '맞는',
+  wrong: '틀린',
+  true: '진실한',
+  important: '중요한',
+  different: '다른',
+  same: '같은',
+  easy: '쉬운',
+  hard: '어려운',
+  difficult: '어려운',
+  free: '자유로운',
+  full: '가득 찬',
+  empty: '비어 있는',
+  hot: '뜨거운',
+  cold: '차가운',
+  warm: '따뜻한',
+  cool: '시원한',
+  fast: '빠른',
+  slow: '느린',
+  quick: '빠른',
+  early: '이른',
+  late: '늦은',
+  strong: '강한',
+  weak: '약한',
+  happy: '행복한',
+  sad: '슬픈',
+  angry: '화난',
+  beautiful: '아름다운',
+  pretty: '예쁜',
+  busy: '바쁜',
+  tired: '피곤한',
+  hungry: '배고픈',
+  delicious: '맛있는',
+  expensive: '비싼',
+  cheap: '싼',
+  fluent: '유창한',
+  fluently: '유창하게',
+  standing: '서 있는',
+
+  // === 부사 ===
+  very: '매우',
+  really: '정말',
+  too: '너무',
+  so: '그래서',
+  just: '그냥',
+  only: '오직',
+  also: '또한',
+  never: '절대',
+  always: '항상',
+  often: '자주',
+  sometimes: '때때로',
+  usually: '보통',
+  again: '다시',
+  here: '여기',
+  there: '저기',
+  now: '지금',
+  then: '그때',
+  today: '오늘',
+  yesterday: '어제',
+  tomorrow: '내일',
+  soon: '곧',
+  well: '잘',
+  slowly: '천천히',
+  together: '함께',
+  alone: '혼자',
+
+  // === 전치사 ===
+  in: '안에',
+  on: '위에',
+  at: '에서',
+  to: '',
+  for: '위해',
+  with: '함께',
+  from: '부터',
+  by: '에 의해',
+  about: '대해',
+  of: '의',
+
+  // === 접속사 ===
+  and: '그리고',
+  or: '또는',
+  but: '그러나',
+  because: '왜냐하면',
+  if: '만약',
+  when: '때',
+  while: '동안',
+
+  // === 조동사 ===
+  can: '~할 수 있다',
+  could: '~할 수 있었다',
+  will: '~할 것이다',
+  would: '~할 것이다',
+  should: '~해야 한다',
+  may: '~할 수도 있다',
+  might: '~일 수도 있다',
+  must: '~해야 한다',
+
+  // === 부정어 ===
+  not: '아니',
+  "don't": '~하지 마',
+  "doesn't": '~하지 않는다',
+  "didn't": '~하지 않았다',
+
+  // === 명사 ===
+  morning: '아침',
+  afternoon: '오후',
+  evening: '저녁',
+  night: '밤',
+  day: '날',
+  time: '시간',
+  life: '삶',
+  world: '세계',
+  home: '집',
+  house: '집',
+  room: '방',
+  door: '문',
+  window: '창문',
+  water: '물',
+  food: '음식',
+  money: '돈',
+  job: '직업',
+  business: '사업',
+  book: '책',
+  word: '단어',
+  words: '말',
+  question: '질문',
+  answer: '답',
+  problem: '문제',
+  idea: '아이디어',
+  way: '방법',
+  place: '장소',
+  thing: '것',
+  man: '남자',
+  woman: '여자',
+  child: '아이',
+  person: '사람',
+  people: '사람들',
+  family: '가족',
+  friend: '친구',
+  mother: '어머니',
+  father: '아버지',
+  car: '자동차',
+  gift: '선물',
+  offer: '제안',
+  meeting: '회의',
+  dictionary: '사전',
+  dream: '꿈',
+  dreams: '꿈들',
+  korean: '한국어',
+  leg: '다리',
+  horse: '말',
+  eyes: '눈',
+  eye: '눈',
+  kids: '아이들',
+};
+
+// 역방향 사전 (영→한) 자동 생성 + 수동 사전 병합
 export const enToKoWords: Record<string, string> = {
   ...i18nEnToKo,
   ...Object.fromEntries(
     Object.entries(manualKoToEnWords).map(([ko, en]) => [en.toLowerCase(), ko])
   ),
+  // 수동 영→한 사전이 최우선
+  ...manualEnToKoWords,
 };

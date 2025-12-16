@@ -1229,23 +1229,91 @@ function applyEnglishTense(verb: string, tense: string): string {
 }
 
 /**
- * 영어 단어들을 한국어로 번역 (조사 자동 선택 포함)
+ * 영어 단어들을 한국어로 번역 (문장 구조 분석 포함)
  */
 function translateEnWordsToKo(text: string): string {
-  const words = text.split(' ');
-  const result: string[] = [];
+  // 문장 구조 패턴 매칭 (관계대명사, 가정법, 수동태 등)
+  let result = text;
 
-  for (const word of words) {
+  // 1. 수동태 패턴: "was/were + PP + by + noun"
+  const passiveByPattern =
+    /\b(was|were|is|are|has been|have been)\s+(\w+)\s+by\s+(?:the\s+)?(\w+)/gi;
+  result = result.replace(passiveByPattern, (_, __, verb, agent) => {
+    const agentKo = enToKoWords[agent.toLowerCase()] || agent;
+    const verbKo = enToKoWords[verb.toLowerCase()] || verb;
+    return `${agentKo}이/가 ${verbKo}`;
+  });
+
+  // 2. 수동태 패턴 (agent 없음): "has been postponed"
+  const passivePattern = /\b(has been|have been|was|were|is|are)\s+(\w+ed)\b/gi;
+  result = result.replace(passivePattern, (_, __, verb) => {
+    const verbBase = verb.replace(/ed$/, '').replace(/ied$/, 'y');
+    const verbKo = enToKoWords[verbBase.toLowerCase()] || enToKoWords[verb.toLowerCase()] || verb;
+    return `${verbKo}되었다`;
+  });
+
+  // 3. 관계대명사 패턴: "The N who/that V" → "V하는 N"
+  const relativeWhoPattern =
+    /\b(?:the\s+)?(\w+)\s+who\s+(?:is\s+)?(\w+(?:ing)?)\s+(?:there\s+)?(?:is\s+)?(?:my\s+)?(\w+)/gi;
+  result = result.replace(relativeWhoPattern, (_, noun, verb, complement) => {
+    const nounKo = enToKoWords[noun.toLowerCase()] || noun;
+    const verbKo = enToKoWords[verb.toLowerCase()] || verb;
+    const complementKo = enToKoWords[complement.toLowerCase()] || complement;
+    // "저기 서 있는 남자가 우리 아버지야" 형태로
+    return `${verbKo} ${nounKo}가 ${complementKo}`;
+  });
+
+  // 4. 관계대명사 that 패턴: "The N that I V" → "내가 V한 N"
+  const relativeThatPattern = /\b(?:the\s+)?(\w+)\s+that\s+I\s+(\w+)\s+(\w+)/gi;
+  result = result.replace(relativeThatPattern, (_, noun, verb, time) => {
+    const nounKo = enToKoWords[noun.toLowerCase()] || noun;
+    const verbKo = enToKoWords[verb.toLowerCase()] || verb;
+    const timeKo = enToKoWords[time.toLowerCase()] || time;
+    return `${timeKo} 내가 ${verbKo} ${nounKo}`;
+  });
+
+  // 5. 가정법 패턴: "If I were you, I would V"
+  const conditionalPattern = /\bif\s+I\s+were\s+you,?\s+I\s+would\s+(\w+)\b/gi;
+  result = result.replace(conditionalPattern, (_, verb) => {
+    const verbKo = enToKoWords[verb.toLowerCase()] || verb;
+    return `내가 너라면 ${verbKo}할 거야`;
+  });
+
+  // 6. I wish I could 패턴
+  const wishPattern = /\bI\s+wish\s+I\s+could\s+(\w+)\s+(\w+)\s*(\w*)/gi;
+  result = result.replace(wishPattern, (_, verb, obj, adv) => {
+    const verbKo = enToKoWords[verb.toLowerCase()] || verb;
+    const objKo = enToKoWords[obj.toLowerCase()] || obj;
+    const advKo = adv ? (enToKoWords[adv.toLowerCase()] || adv) : '';
+    return `${objKo}를 ${advKo} ${verbKo}할 수 있으면 좋겠어`;
+  });
+
+  // 7. 기본 단어별 번역 (나머지)
+  const words = result.split(/\s+/);
+  const translatedWords: string[] = [];
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    if (!word) continue;
     const lowerWord = word.toLowerCase().replace(/[.,!?]/g, '');
+
+    // 이미 한국어로 번역된 부분은 그대로 유지
+    if (/[\uAC00-\uD7AF]/.test(word)) {
+      translatedWords.push(word);
+      continue;
+    }
+
     const translated = enToKoWords[lowerWord];
-    if (translated) {
-      result.push(translated);
+    if (translated !== undefined) {
+      // 빈 문자열인 경우 (관사 등) 생략
+      if (translated === '') continue;
+      translatedWords.push(translated);
     } else {
-      result.push(word);
+      translatedWords.push(word);
     }
   }
 
-  return result.join(' ');
+  return translatedWords.join(' ').replace(/\s+/g, ' ').trim();
 }
 
 // ========================================
