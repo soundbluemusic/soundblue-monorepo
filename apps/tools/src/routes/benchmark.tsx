@@ -13,6 +13,7 @@ import {
   type BenchmarkProgress,
   BenchmarkRunner,
   BenchmarkSelector,
+  type DirectionFilter,
   getAllBenchmarks,
 } from '@/benchmark';
 import { Footer } from '@/components/layout/Footer';
@@ -37,8 +38,12 @@ const BenchmarkContent: Component<{
   const [isRunning, setIsRunning] = createSignal(false);
   const [progress, setProgress] = createSignal<BenchmarkProgress | null>(null);
   const [report, setReport] = createSignal<unknown>(null);
+  const [direction, setDirection] = createSignal<DirectionFilter>('all');
 
   const isKorean = () => props.locale === 'ko';
+
+  // 방향별 테스트 수
+  const directionCounts = () => props.benchmark.getDirectionCounts?.();
 
   const handleRunBenchmark = (quick: boolean) => {
     setIsRunning(true);
@@ -49,7 +54,7 @@ const BenchmarkContent: Component<{
     setTimeout(() => {
       const runFn =
         quick && props.benchmark.runQuick ? props.benchmark.runQuick : props.benchmark.run;
-      const result = runFn((p) => setProgress(p));
+      const result = runFn((p) => setProgress(p), direction());
       setReport(result);
       setIsRunning(false);
     }, 100);
@@ -99,6 +104,15 @@ const BenchmarkContent: Component<{
           runQuick: isKorean() ? '빠른 테스트' : 'Quick Test',
           running: isKorean() ? '테스트 중...' : 'Testing...',
         }}
+        supportsDirection={props.benchmark.supportsDirection}
+        direction={direction()}
+        onDirectionChange={setDirection}
+        directionCounts={directionCounts()}
+        directionLabels={
+          isKorean()
+            ? { all: '전체', 'ko-en': '한→영', 'en-ko': '영→한' }
+            : { all: 'All', 'ko-en': 'Ko→En', 'en-ko': 'En→Ko' }
+        }
       />
 
       {/* Results */}

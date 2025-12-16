@@ -9,6 +9,11 @@
 export type Direction = 'ko-en' | 'en-ko';
 
 /**
+ * 방향 필터 (전체 또는 특정 방향)
+ */
+export type DirectionFilter = Direction | 'all';
+
+/**
  * 테스트 카테고리 ID
  */
 export type CategoryId =

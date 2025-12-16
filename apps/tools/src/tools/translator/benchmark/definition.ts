@@ -4,8 +4,8 @@
 // ========================================
 
 import { Languages } from 'lucide-solid';
-import type { BenchmarkDefinition } from '@/benchmark/types';
-import { runBenchmark, runQuickBenchmark } from './runner';
+import type { BenchmarkDefinition, DirectionFilter } from '@/benchmark/types';
+import { getTestCountByDirection, runBenchmark, runQuickBenchmark } from './runner';
 import { TranslatorBenchmarkResult } from './TranslatorBenchmarkResult';
 import type { BenchmarkReport } from './types';
 
@@ -25,24 +25,30 @@ export const translatorBenchmark: BenchmarkDefinition<BenchmarkReport> = {
   icon: Languages,
   category: 'translation',
   toolId: 'translator',
-  run: (onProgress) => {
-    return runBenchmark((p) =>
-      onProgress({
-        current: p.current,
-        total: p.total,
-        percentage: p.percentage,
-        message: p.currentTestId,
-      })
+  supportsDirection: true,
+  getDirectionCounts: getTestCountByDirection,
+  run: (onProgress, direction?: DirectionFilter) => {
+    return runBenchmark(
+      (p) =>
+        onProgress({
+          current: p.current,
+          total: p.total,
+          percentage: p.percentage,
+          message: p.currentTestId,
+        }),
+      direction ?? 'all'
     );
   },
-  runQuick: (onProgress) => {
-    return runQuickBenchmark((p) =>
-      onProgress({
-        current: p.current,
-        total: p.total,
-        percentage: p.percentage,
-        message: p.currentTestId,
-      })
+  runQuick: (onProgress, direction?: DirectionFilter) => {
+    return runQuickBenchmark(
+      (p) =>
+        onProgress({
+          current: p.current,
+          total: p.total,
+          percentage: p.percentage,
+          message: p.currentTestId,
+        }),
+      direction ?? 'all'
     );
   },
   ResultComponent: TranslatorBenchmarkResult,
