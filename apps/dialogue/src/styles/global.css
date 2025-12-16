@@ -1,23 +1,60 @@
 @import "tailwindcss";
 
-@theme {
-  /* Colors - Dark theme (default) */
-  --color-bg-primary: #1a1a2e;
-  --color-bg-secondary: #16213e;
-  --color-bg-tertiary: #0f0f1a;
-  --color-bg-chat: #1e1e32;
-  --color-text-primary: #e8e8e8;
-  --color-text-secondary: #a0a0a0;
-  --color-text-muted: #6a6a6a;
-  --color-accent: #4f7cff;
-  --color-accent-hover: #3d6ae8;
-  --color-accent-light: rgba(79, 124, 255, 0.1);
-  --color-user-bubble: #4f7cff;
-  --color-assistant-bubble: #2a2a40;
-  --color-border: #2a2a40;
-  --color-shadow: rgba(0, 0, 0, 0.3);
-  --color-green-badge: rgba(76, 175, 80, 0.15);
-  --color-green-text: #4caf50;
+/**
+ * Dialogue App - Global Styles
+ * Matching SoundBlueMusic design system (sound-blue, tools apps)
+ * Light Mode: "Morning Mist" - soft pastels with teal accent
+ * Dark Mode: "Deep Lagoon" - rich dark with teal undertones
+ */
+
+/* Dark mode selector for Tailwind v4 */
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ============================================
+ * CSS Variables - Light Mode ("Morning Mist")
+ * Soft, friendly pastels with teal/mint brand colors
+ * ============================================ */
+:root {
+  /* Backgrounds */
+  --color-bg-primary: #F7FAFA;
+  --color-bg-secondary: #EFF5F4;
+  --color-bg-tertiary: #E5EFEC;
+  --color-bg-chat: #FFFFFF;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-glass: rgba(247, 250, 250, 0.8);
+
+  /* Text */
+  --color-text-primary: #2A3836;
+  --color-text-secondary: #4A5E5A;
+  --color-text-muted: #6B807A;
+  --color-text-inverse: #F7FAFA;
+
+  /* Accent - Sound Blue Teal */
+  --color-accent: #4A9E95;
+  --color-accent-hover: #3D8880;
+  --color-accent-light: rgba(74, 158, 149, 0.12);
+
+  /* Chat Bubbles */
+  --color-user-bubble: #4A9E95;
+  --color-assistant-bubble: #FFFFFF;
+
+  /* Borders */
+  --color-border: #D5E0DD;
+  --color-border-hover: #C5D5D0;
+
+  /* Shadows - soft teal-tinted */
+  --color-shadow: rgba(42, 70, 65, 0.08);
+
+  /* Status Colors */
+  --color-green-badge: rgba(74, 144, 112, 0.12);
+  --color-green-text: #4A9070;
+  --color-error: #C45858;
+  --color-success: #4A9070;
+  --color-warning: #B08830;
+
+  /* Interactive States */
+  --color-interactive-hover: rgba(74, 158, 149, 0.08);
+  --color-interactive-active: rgba(74, 158, 149, 0.15);
 
   /* Radius */
   --radius-sm: 8px;
@@ -25,8 +62,8 @@
   --radius-lg: 20px;
 
   /* Font families */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Helvetica Neue", "Segoe UI", Roboto, system-ui, sans-serif;
   --font-mono: "SF Mono", "Fira Code", "Fira Mono", Menlo, monospace;
 
   /* Animations */
@@ -34,24 +71,113 @@
   --animate-typing: typing 1.4s infinite ease-in-out;
 }
 
-/* Light Theme */
-[data-theme="light"] {
-  --color-bg-primary: #f5f7fa;
-  --color-bg-secondary: #ffffff;
-  --color-bg-tertiary: #e8ecf0;
-  --color-bg-chat: #f0f2f5;
-  --color-text-primary: #1a1a2e;
-  --color-text-secondary: #5a5a6e;
-  --color-text-muted: #8a8a9a;
-  --color-accent: #4f7cff;
-  --color-accent-hover: #3d6ae8;
-  --color-accent-light: rgba(79, 124, 255, 0.12);
-  --color-user-bubble: #4f7cff;
-  --color-assistant-bubble: #ffffff;
-  --color-border: #e0e4e8;
-  --color-shadow: rgba(0, 0, 0, 0.1);
+/* ============================================
+ * Dark Mode ("Deep Lagoon")
+ * Rich dark with teal undertones
+ * ============================================ */
+[data-theme="dark"] {
+  /* Backgrounds - teal undertones */
+  --color-bg-primary: #0F1716;
+  --color-bg-secondary: #161F1E;
+  --color-bg-tertiary: #1E2928;
+  --color-bg-chat: #1A2423;
+  --color-bg-elevated: #253332;
+  --color-bg-glass: rgba(22, 31, 30, 0.85);
+
+  /* Text - cool tones */
+  --color-text-primary: #E5F0EE;
+  --color-text-secondary: #B0C5C2;
+  --color-text-muted: #8AA5A0;
+  --color-text-inverse: #0F1716;
+
+  /* Accent - Lighter teal for dark mode */
+  --color-accent: #6ECEC5;
+  --color-accent-hover: #85D8D0;
+  --color-accent-light: rgba(110, 206, 197, 0.15);
+
+  /* Chat Bubbles */
+  --color-user-bubble: #4A9E95;
+  --color-assistant-bubble: #253332;
+
+  /* Borders */
+  --color-border: #2E3E3C;
+  --color-border-hover: #3A4E4B;
+
+  /* Shadows */
+  --color-shadow: rgba(0, 15, 12, 0.30);
+
+  /* Status Colors - soft pastels */
+  --color-green-badge: rgba(144, 200, 168, 0.15);
+  --color-green-text: #90C8A8;
+  --color-error: #F0A0A0;
+  --color-success: #90C8A8;
+  --color-warning: #E8C87C;
+
+  /* Interactive States */
+  --color-interactive-hover: rgba(110, 206, 197, 0.10);
+  --color-interactive-active: rgba(110, 206, 197, 0.18);
 }
 
+/* System preference auto-detect */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-bg-primary: #0F1716;
+    --color-bg-secondary: #161F1E;
+    --color-bg-tertiary: #1E2928;
+    --color-bg-chat: #1A2423;
+    --color-bg-elevated: #253332;
+    --color-bg-glass: rgba(22, 31, 30, 0.85);
+    --color-text-primary: #E5F0EE;
+    --color-text-secondary: #B0C5C2;
+    --color-text-muted: #8AA5A0;
+    --color-text-inverse: #0F1716;
+    --color-accent: #6ECEC5;
+    --color-accent-hover: #85D8D0;
+    --color-accent-light: rgba(110, 206, 197, 0.15);
+    --color-user-bubble: #4A9E95;
+    --color-assistant-bubble: #253332;
+    --color-border: #2E3E3C;
+    --color-border-hover: #3A4E4B;
+    --color-shadow: rgba(0, 15, 12, 0.30);
+    --color-green-badge: rgba(144, 200, 168, 0.15);
+    --color-green-text: #90C8A8;
+    --color-error: #F0A0A0;
+    --color-success: #90C8A8;
+    --color-warning: #E8C87C;
+    --color-interactive-hover: rgba(110, 206, 197, 0.10);
+    --color-interactive-active: rgba(110, 206, 197, 0.18);
+  }
+}
+
+/* ============================================
+ * Tailwind v4 Theme Extension
+ * ============================================ */
+@theme {
+  /* Custom Colors for Tailwind utilities */
+  --color-bg-primary: var(--color-bg-primary);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-tertiary: var(--color-bg-tertiary);
+  --color-bg-chat: var(--color-bg-chat);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-light: var(--color-accent-light);
+  --color-user-bubble: var(--color-user-bubble);
+  --color-assistant-bubble: var(--color-assistant-bubble);
+  --color-border: var(--color-border);
+  --color-green-badge: var(--color-green-badge);
+  --color-green-text: var(--color-green-text);
+
+  /* Animations */
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-typing: typing 1.4s infinite ease-in-out;
+}
+
+/* ============================================
+ * Keyframe Animations
+ * ============================================ */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -75,6 +201,15 @@
   }
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+ * Base Styles
+ * ============================================ */
 @layer base {
   * {
     @apply m-0 p-0 box-border;
@@ -82,38 +217,49 @@
 
   html,
   body {
-    @apply h-full font-sans bg-bg-primary text-text-primary leading-relaxed overflow-hidden;
+    @apply h-full font-sans leading-relaxed overflow-hidden;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   #app {
     @apply h-full flex flex-col;
   }
 
-  /* Scrollbar */
+  /* Scrollbar - Apple style minimal */
   ::-webkit-scrollbar {
     @apply w-2 h-2;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-bg-secondary;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded;
+    background: var(--color-border);
+    border-radius: 100px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-text-muted;
+    background: var(--color-text-muted);
   }
 
   /* Selection */
   ::selection {
-    @apply bg-accent text-white;
+    background: var(--color-accent-light);
+    color: inherit;
   }
 
   /* Focus */
   :focus-visible {
-    @apply outline-2 outline-accent outline-offset-2;
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
   }
 
   /* Buttons */
@@ -125,5 +271,40 @@
   input,
   textarea {
     @apply font-sans border-none bg-transparent;
+  }
+
+  /* Links */
+  a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+/* ============================================
+ * Reduced Motion
+ * ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+ * Touch Optimization
+ * ============================================ */
+@media (hover: none) and (pointer: coarse) {
+  button:not(.inline-btn),
+  a:not(.inline-link),
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
