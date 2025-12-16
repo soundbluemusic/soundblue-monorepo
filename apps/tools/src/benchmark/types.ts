@@ -119,6 +119,20 @@ export interface BaseBenchmarkReport {
 }
 
 /**
+ * 방향 필터 옵션 (번역 벤치마크용)
+ */
+export type DirectionFilter = 'ko-en' | 'en-ko' | 'all';
+
+/**
+ * 방향별 테스트 수
+ */
+export interface DirectionTestCounts {
+  all: number;
+  'ko-en': number;
+  'en-ko': number;
+}
+
+/**
  * 벤치마크 정의 인터페이스
  */
 export interface BenchmarkDefinition<TReport = unknown> {
@@ -135,11 +149,17 @@ export interface BenchmarkDefinition<TReport = unknown> {
   /** 연결된 도구 ID (선택) - 도구 페이지로 링크 */
   toolId?: string;
 
+  /** 방향 필터 지원 여부 (번역 벤치마크용) */
+  supportsDirection?: boolean;
+
+  /** 방향별 테스트 수 조회 함수 (선택) */
+  getDirectionCounts?: () => DirectionTestCounts;
+
   /** 벤치마크 실행 함수 */
-  run: (onProgress: ProgressCallback) => TReport;
+  run: (onProgress: ProgressCallback, direction?: DirectionFilter) => TReport;
 
   /** 빠른 테스트 실행 함수 (선택) */
-  runQuick?: (onProgress: ProgressCallback) => TReport;
+  runQuick?: (onProgress: ProgressCallback, direction?: DirectionFilter) => TReport;
 
   /** 결과 렌더링 컴포넌트 */
   ResultComponent: Component<{ report: TReport; locale: string }>;

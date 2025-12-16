@@ -11,6 +11,7 @@ import type {
   BenchmarkReport,
   CategoryResult,
   CriteriaScores,
+  DirectionFilter,
   TestResult,
 } from './types';
 import { CRITERIA_WEIGHTS } from './types';
@@ -101,12 +102,48 @@ function calculateCriteriaAverages(allResults: TestResult[]): CriteriaScores {
 }
 
 /**
- * 전체 벤치마크 실행
+ * 방향에 따라 테스트 케이스 필터링
  */
-export function runBenchmark(onProgress?: ProgressCallback): BenchmarkReport {
+function filterTestsByDirection(
+  tests: typeof TEST_CASES,
+  direction: DirectionFilter
+): typeof TEST_CASES {
+  if (direction === 'all') {
+    return tests;
+  }
+  return tests.filter((t) => t.direction === direction);
+}
+
+/**
+ * 방향별 테스트 케이스 수 조회
+ */
+export function getTestCountByDirection(): {
+  all: number;
+  'ko-en': number;
+  'en-ko': number;
+} {
+  return {
+    all: TEST_CASES.length,
+    'ko-en': TEST_CASES.filter((t) => t.direction === 'ko-en').length,
+    'en-ko': TEST_CASES.filter((t) => t.direction === 'en-ko').length,
+  };
+}
+
+/**
+ * 전체 벤치마크 실행
+ * @param onProgress 진행 상황 콜백
+ * @param direction 번역 방향 필터 (기본: 'all')
+ */
+export function runBenchmark(
+  onProgress?: ProgressCallback,
+  direction: DirectionFilter = 'all'
+): BenchmarkReport {
   const startTime = performance.now();
   const allResults: TestResult[] = [];
   const categoryResultsMap = new Map<string, TestResult[]>();
+
+  // 방향에 따라 테스트 필터링
+  const filteredTests = filterTestsByDirection(TEST_CASES, direction);
 
   // 카테고리별로 결과 초기화
   for (const category of CATEGORIES) {
@@ -114,10 +151,10 @@ export function runBenchmark(onProgress?: ProgressCallback): BenchmarkReport {
   }
 
   // 모든 테스트 실행
-  const totalTests = TEST_CASES.length;
+  const totalTests = filteredTests.length;
   let currentIndex = 0;
 
-  for (const testCase of TEST_CASES) {
+  for (const testCase of filteredTests) {
     // 진행 상황 보고
     if (onProgress) {
       onProgress({
@@ -254,16 +291,24 @@ export function runCategoryBenchmark(
 /**
  * 빠른 테스트 (샘플링)
  * - 각 카테고리에서 1-2개씩만 테스트
+ * @param onProgress 진행 상황 콜백
+ * @param direction 번역 방향 필터 (기본: 'all')
  */
-export function runQuickBenchmark(onProgress?: ProgressCallback): BenchmarkReport {
+export function runQuickBenchmark(
+  onProgress?: ProgressCallback,
+  direction: DirectionFilter = 'all'
+): BenchmarkReport {
   const startTime = performance.now();
   const allResults: TestResult[] = [];
   const categoryResultsMap = new Map<string, TestResult[]>();
 
+  // 방향에 따라 테스트 필터링
+  const filteredTests = filterTestsByDirection(TEST_CASES, direction);
+
   // 각 카테고리에서 최대 2개씩 샘플링
   const sampledTests: (typeof TEST_CASES)[number][] = [];
   for (const category of CATEGORIES) {
-    const categoryTests = TEST_CASES.filter((t) => t.categoryId === category.id);
+    const categoryTests = filteredTests.filter((t) => t.categoryId === category.id);
     const sampled = categoryTests.slice(0, 2);
     sampledTests.push(...sampled);
     categoryResultsMap.set(category.id, []);
