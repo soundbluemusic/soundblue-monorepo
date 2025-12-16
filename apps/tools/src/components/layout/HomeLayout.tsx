@@ -1,5 +1,5 @@
 import { A, useNavigate } from '@solidjs/router';
-import { Globe, Moon, Search, Sun } from 'lucide-solid';
+import { Code2, FileText, Globe, Info, Menu, Moon, Search, Sun, X } from 'lucide-solid';
 import { type Component, createSignal, For, Show } from 'solid-js';
 import { useTheme } from '@/components/providers/theme-provider';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ export const HomeLayout: Component = () => {
   const { language, toggleLanguage, locale, t } = useLanguage();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = createSignal('');
+  const [menuOpen, setMenuOpen] = createSignal(false);
 
   // Filter tools based on search query
   const filteredTools = () => {
@@ -42,7 +43,7 @@ export const HomeLayout: Component = () => {
   return (
     <div class="flex min-h-screen flex-col bg-background">
       {/* Header */}
-      <header class="flex h-14 items-center justify-between border-b px-4">
+      <header class="relative z-30 flex h-14 items-center justify-between border-b px-4">
         <A
           href={getLocalizedPath('/', locale())}
           class="text-lg font-semibold tracking-tight text-brand"
@@ -73,8 +74,82 @@ export const HomeLayout: Component = () => {
             <Globe class="h-4 w-4" />
             <span class="text-xs font-semibold">{language() === 'ko' ? 'KO' : 'EN'}</span>
           </Button>
+
+          {/* Menu Button */}
+          <div class="relative">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setMenuOpen(!menuOpen())}
+              aria-label={t().common.menu}
+              aria-expanded={menuOpen()}
+              class="text-muted-foreground hover:text-foreground"
+            >
+              <Show when={menuOpen()} fallback={<Menu class="h-[18px] w-[18px]" />}>
+                <X class="h-[18px] w-[18px]" />
+              </Show>
+            </Button>
+
+            {/* Dropdown Menu */}
+            <Show when={menuOpen()}>
+              <div
+                class={cn(
+                  'absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border bg-card p-1 shadow-lg',
+                  'animate-in fade-in-0 zoom-in-95 slide-in-from-top-2'
+                )}
+              >
+                <A
+                  href={getLocalizedPath('/built-with', locale())}
+                  onClick={() => setMenuOpen(false)}
+                  class={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
+                    'text-muted-foreground transition-colors',
+                    'hover:bg-primary/10 hover:text-foreground'
+                  )}
+                >
+                  <Code2 class="h-4 w-4" />
+                  <span>{t().navigation.builtWith}</span>
+                </A>
+                <A
+                  href={getLocalizedPath('/about', locale())}
+                  onClick={() => setMenuOpen(false)}
+                  class={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
+                    'text-muted-foreground transition-colors',
+                    'hover:bg-primary/10 hover:text-foreground'
+                  )}
+                >
+                  <Info class="h-4 w-4" />
+                  <span>{t().navigation.about}</span>
+                </A>
+                <a
+                  href="/sitemap.xml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMenuOpen(false)}
+                  class={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
+                    'text-muted-foreground transition-colors',
+                    'hover:bg-primary/10 hover:text-foreground'
+                  )}
+                >
+                  <FileText class="h-4 w-4" />
+                  <span>{t().sidebar.sitemap}</span>
+                </a>
+              </div>
+            </Show>
+          </div>
         </div>
       </header>
+
+      {/* Click outside to close menu */}
+      <Show when={menuOpen()}>
+        <div
+          class="fixed inset-0 z-20"
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
+      </Show>
 
       {/* Main Content */}
       <main class="flex-1 overflow-auto">
