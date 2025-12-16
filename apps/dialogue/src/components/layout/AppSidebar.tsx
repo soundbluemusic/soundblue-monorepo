@@ -1,4 +1,4 @@
-import { A, useNavigate } from "@solidjs/router";
+import { A, useNavigate, useLocation } from "@solidjs/router";
 import { Component, Show } from "solid-js";
 import { useI18n, Locale } from "~/i18n";
 import { useTheme } from "~/theme";
@@ -20,6 +20,7 @@ interface AppSidebarProps {
 
 export const AppSidebar: Component<AppSidebarProps> = (props) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t, locale, setLocale } = useI18n();
   const { theme, toggleTheme } = useTheme();
   const isCollapsed = () => uiStore.sidebarCollapsed;
@@ -30,13 +31,36 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
     { code: "ja", label: "日本語", flag: "JA" },
   ];
 
+  // Get current path without language prefix
+  const getPathWithoutLocale = () => {
+    const pathname = location.pathname;
+    // Remove /ko or /ja prefix if exists
+    if (pathname.startsWith("/ko")) {
+      return pathname.slice(3) || "/";
+    }
+    if (pathname.startsWith("/ja")) {
+      return pathname.slice(3) || "/";
+    }
+    return pathname;
+  };
+
+  // Build path with new locale
+  const buildLocalizedPath = (newLocale: Locale) => {
+    const basePath = getPathWithoutLocale();
+    if (newLocale === "en") {
+      return basePath;
+    }
+    // For ko and ja, prepend the locale
+    if (basePath === "/") {
+      return `/${newLocale}`;
+    }
+    return `/${newLocale}${basePath}`;
+  };
+
   const handleLanguageChange = (lang: Locale) => {
     setLocale(lang);
-    if (lang === "en") {
-      navigate("/", { replace: true });
-    } else {
-      navigate(`/${lang}`, { replace: true });
-    }
+    const newPath = buildLocalizedPath(lang);
+    navigate(newPath, { replace: true });
   };
 
   const getAboutUrl = () => (locale() === "en" ? "/about" : `/${locale()}/about`);
