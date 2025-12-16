@@ -50,6 +50,7 @@
     "clean": "rm -rf .output .vinxi .turbo .tsbuildinfo node_modules/.cache"
   },
   "dependencies": {
+    "@soundblue/shared": "workspace:*",
     "@solid-primitives/i18n": "^2.2.1",
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.15.4",
