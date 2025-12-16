@@ -31,7 +31,7 @@
  * ### Example: 0x04bd8 (year 1900)
  * - Binary: 0 0100 1011 1101 1000
  * - Bits 0-3 (0x8): Leap month is the 8th month
- * - Bits 4-15: Months 1-12 have lengths [29,30,29,29,30,30,29,30,30,29,30,30]
+ * - Bits 4-15: Months 1-12 have lengths [29,30,29,29,30,29,30,30,30,30,29,30]
  * - Bit 16 (0): Leap month (8th) has 29 days
  *
  * ## Reference Date
@@ -111,7 +111,8 @@ const LUNAR_DATA = [
  * @example
  * ```typescript
  * getLunarYearDays(1900); // Returns 384 (leap year with 29-day leap month)
- * getLunarYearDays(2024); // Returns 384 (leap year)
+ * getLunarYearDays(2023); // Returns 384 (leap year with leap 2nd month)
+ * getLunarYearDays(2024); // Returns 354 (regular year, no leap month)
  * ```
  *
  * @internal
@@ -209,8 +210,8 @@ function getLeapDays(year: number): number {
  *
  * @example
  * ```typescript
- * getMonthDays(2024, 1);  // Returns 30 (1st month of 2024)
- * getMonthDays(2024, 2);  // Returns 29 (2nd month of 2024)
+ * getMonthDays(2024, 1);  // Returns 29 (1st month of 2024)
+ * getMonthDays(2024, 2);  // Returns 30 (2nd month of 2024)
  * ```
  *
  * @internal
@@ -297,9 +298,9 @@ export interface LunarDate {
  * // { year: 2024, month: 8, day: 15, isLeapMonth: false }
  *
  * // Convert a date in a leap month
- * const leapDate = solarToLunar(new Date(2023, 3, 20)); // Apr 20, 2023
+ * const leapDate = solarToLunar(new Date(2023, 3, 5)); // Apr 5, 2023
  * console.log(leapDate);
- * // { year: 2023, month: 2, day: 30, isLeapMonth: true }
+ * // { year: 2023, month: 2, day: 15, isLeapMonth: true }
  * // This is in 윤2월 (leap 2nd month) of 2023
  *
  * // Convert Seollal (Lunar New Year) 2024
