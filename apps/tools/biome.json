@@ -42,7 +42,7 @@
         "useImportType": "warn"
       },
       "suspicious": {
-        "noExplicitAny": "warn",
+        "noExplicitAny": "error",
         "useIterableCallbackReturn": "warn",
         "noArrayIndexKey": "warn"
       },

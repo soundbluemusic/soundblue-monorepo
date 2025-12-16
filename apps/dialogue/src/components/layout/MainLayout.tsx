@@ -45,7 +45,7 @@ export const MainLayout: Component = () => {
   const [isResizing, setIsResizing] = createSignal(false);
 
   // Chat container ref for new chat
-  let chatContainerRef: any;
+  const [chatResetTrigger, setChatResetTrigger] = createSignal(0);
 
   // Check screen size
   const checkScreenSize = () => {
@@ -120,12 +120,9 @@ export const MainLayout: Component = () => {
   // Mobile sidebar overlay
   const showMobileOverlay = () => isMobile() && uiStore.sidebarOpen;
 
-  // Handle new chat
+  // Handle new chat - trigger reset via signal
   const handleNewChat = () => {
-    // Reset chat through ChatContainer
-    if (chatContainerRef?.handleNewChat) {
-      chatContainerRef.handleNewChat();
-    }
+    setChatResetTrigger((prev) => prev + 1);
   };
 
   return (
@@ -181,7 +178,7 @@ export const MainLayout: Component = () => {
               {/* Tab Content */}
               <div class="flex-1 overflow-auto min-h-[150px]">
                 <Show when={activeTab() === "chat"}>
-                  <ChatContainer ref={chatContainerRef} onNewChat={handleNewChat} />
+                  <ChatContainer resetTrigger={chatResetTrigger()} onNewChat={handleNewChat} />
                 </Show>
                 <Show when={activeTab() === "result"}>
                   <ResultPanel />
@@ -197,7 +194,7 @@ export const MainLayout: Component = () => {
               class="relative flex-shrink-0 border-r border-border min-h-[200px]"
               style={{ width: `${chatWidth()}px` }}
             >
-              <ChatContainer ref={chatContainerRef} onNewChat={handleNewChat} />
+              <ChatContainer resetTrigger={chatResetTrigger()} onNewChat={handleNewChat} />
 
               {/* Resize Handle */}
               <div

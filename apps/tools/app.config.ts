@@ -1,5 +1,6 @@
 import { defineConfig } from '@solidjs/start/config';
 import tailwindcss from '@tailwindcss/vite';
+import type { Plugin } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -14,12 +15,10 @@ export default defineConfig({
 
   vite: {
     plugins: [
-      // Tailwind CSS 4
-      // @ts-expect-error - vite version mismatch between vinxi (vite 6) and plugins (vite 7)
-      tailwindcss(),
+      // Tailwind CSS 4 - cast to Plugin for vinxi compatibility
+      tailwindcss() as Plugin,
 
       // PWA Support - Enhanced offline capabilities
-      // @ts-expect-error - vite version mismatch between vinxi (vite 6) and plugins (vite 7)
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'icons/*.png', 'og-image.png'],

@@ -96,15 +96,42 @@ export const audioActions: AudioActions = {
     if (audioStore.isInitialized) return;
 
     try {
-      // TODO: Initialize AudioContext, load WASM, setup AudioWorklet
+      // Create AudioContext with optimal settings for low latency
+      const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) {
+        throw new Error('Web Audio API not supported');
+      }
+
+      const audioContext = new AudioContextClass({
+        sampleRate: 48000,
+        latencyHint: 'interactive',
+      });
+
+      // Resume context if suspended (required for user gesture policy)
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+
+      const actualSampleRate = audioContext.sampleRate;
+      const bufferSize = 128;
+      const latencyMs = (bufferSize / actualSampleRate) * 1000;
+
       setAudioStore({
         isInitialized: true,
-        sampleRate: 48000,
-        bufferSize: 128,
-        latency: (128 / 48000) * 1000, // ~2.67ms
+        sampleRate: actualSampleRate,
+        bufferSize: bufferSize,
+        latency: latencyMs,
       });
-    } catch {
-      // Audio engine initialization failed - handled silently
+
+      // Store audioContext reference for later use
+      (window as Window & { __audioContext?: AudioContext }).__audioContext = audioContext;
+    } catch (error) {
+      // Log error in development, report to monitoring in production
+      if (import.meta.env.DEV) {
+        console.error('Audio engine initialization failed:', error);
+      }
+      // Re-throw to allow caller to handle
+      throw error;
     }
   },
 

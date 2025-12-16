@@ -17,6 +17,7 @@ function generateId(): string {
 
 interface ChatContainerProps {
   onNewChat?: () => void;
+  resetTrigger?: number;
 }
 
 export const ChatContainer: Component<ChatContainerProps> = (props) => {
@@ -41,7 +42,7 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     }
   });
 
-  const handleNewChat = () => {
+  const resetChat = () => {
     setMessages([
       {
         id: generateId(),
@@ -52,6 +53,14 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     ]);
     props.onNewChat?.();
   };
+
+  // Listen for reset trigger from parent
+  createEffect(() => {
+    const trigger = props.resetTrigger;
+    if (trigger !== undefined && trigger > 0) {
+      resetChat();
+    }
+  });
 
   const handleSend = async (content: string) => {
     const userMessage: Message = {
@@ -100,9 +109,6 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     setIsThinking(false);
     setMessages((prev) => [...prev, assistantMessage]);
   };
-
-  // Export handleNewChat for parent components
-  (ChatContainer as any).handleNewChat = handleNewChat;
 
   return (
     <div class="flex h-full flex-col bg-bg-chat">
