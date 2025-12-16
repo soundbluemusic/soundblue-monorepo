@@ -293,6 +293,9 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
     devDependencies:
+      solid-js:
+        specifier: ^1.9.10
+        version: 1.9.10
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

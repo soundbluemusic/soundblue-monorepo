@@ -16,6 +16,10 @@
     "./types": {
       "types": "./src/types/index.ts",
       "import": "./src/types/index.ts"
+    },
+    "./providers": {
+      "types": "./src/providers/index.ts",
+      "import": "./src/providers/index.ts"
     }
   },
   "main": "./src/index.ts",
@@ -28,14 +32,19 @@
     "tailwind-merge": "^3.4.0"
   },
   "peerDependencies": {
+    "solid-js": "^1.8.0",
     "zod": "^3.0.0"
   },
   "peerDependenciesMeta": {
+    "solid-js": {
+      "optional": true
+    },
     "zod": {
       "optional": true
     }
   },
   "devDependencies": {
+    "solid-js": "^1.9.10",
     "typescript": "^5.9.3",
     "zod": "^3.25.67"
   }

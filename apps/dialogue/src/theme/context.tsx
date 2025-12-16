@@ -1,12 +1,15 @@
-import {
-  createContext,
-  useContext,
-  createSignal,
-  ParentComponent,
-  onMount,
-} from "solid-js";
+/**
+ * @fileoverview Theme Provider for Dialogue
+ * Re-exports shared ThemeProvider with app-specific configuration.
+ */
 
-export type Theme = "dark" | "light";
+import {
+  ThemeProvider as SharedThemeProvider,
+  useTheme as sharedUseTheme,
+} from '@soundblue/shared/providers';
+import type { ParentComponent } from 'solid-js';
+
+export type Theme = 'dark' | 'light';
 
 type ThemeContextType = {
   theme: () => Theme;
@@ -14,59 +17,26 @@ type ThemeContextType = {
   toggleTheme: () => void;
 };
 
-const ThemeContext = createContext<ThemeContextType>();
-
-const STORAGE_KEY = "dialogue-theme";
-
-function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
-
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "dark" || stored === "light") {
-    return stored;
-  }
-
-  // Check system preference
-  if (window.matchMedia("(prefers-color-scheme: light)").matches) {
-    return "light";
-  }
-
-  return "dark";
-}
-
+/**
+ * Theme context provider component for Dialogue.
+ * Uses shared provider with 'dialogue-theme' storage key and 'dark' as default.
+ */
 export const ThemeProvider: ParentComponent = (props) => {
-  const [theme, setThemeState] = createSignal<Theme>("dark");
-
-  onMount(() => {
-    const initial = getInitialTheme();
-    setThemeState(initial);
-    document.documentElement.setAttribute("data-theme", initial);
-  });
-
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, newTheme);
-    }
-  };
-
-  const toggleTheme = () => {
-    const newTheme = theme() === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-  };
-
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <SharedThemeProvider storageKey="dialogue-theme" defaultTheme="dark" ssrDefault="dark">
       {props.children}
-    </ThemeContext.Provider>
+    </SharedThemeProvider>
   );
 };
 
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error("useTheme must be used within ThemeProvider");
-  }
-  return context;
+/**
+ * Hook to access the theme context.
+ */
+export function useTheme(): ThemeContextType {
+  const shared = sharedUseTheme();
+  return {
+    theme: shared.resolvedTheme as () => Theme,
+    setTheme: (t: Theme) => shared.setTheme(t),
+    toggleTheme: shared.toggleTheme,
+  };
 }
