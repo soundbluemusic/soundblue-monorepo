@@ -115,6 +115,13 @@ function extractStem(word: string): string {
     '았',
     '었',
     '겠',
+    // 단일 연결어미 (짧은 것 마지막에)
+    '서',
+    '며',
+    '고',
+    '니',
+    '게',
+    '지',
   ];
   for (const e of endings) {
     if (word.endsWith(e) && word.length > e.length) {
@@ -123,6 +130,21 @@ function extractStem(word: string): string {
   }
 
   return word;
+}
+
+/**
+ * 원본 단어와 어간 모두에서 트리거 매칭
+ */
+function matchesTrigger(word: string, stem: string, trigger: string): boolean {
+  // 어간에서 트리거를 포함하는지 체크
+  if (stem.includes(trigger)) {
+    return true;
+  }
+  // 원본 단어에서도 트리거를 포함하는지 체크
+  if (word.includes(trigger)) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -146,9 +168,9 @@ function calculateTriggerScore(
   const otherMatchedPositions = new Set<number>();
   let fullTextMatched = false;
 
-  // 어간 미리 추출
-  const firstAfter = afterWords[0];
-  const lastBefore = beforeWords[beforeWords.length - 1];
+  // 원본 단어와 어간 미리 추출
+  const firstAfter = afterWords[0] || '';
+  const lastBefore = beforeWords[beforeWords.length - 1] || '';
   const firstAfterStem = firstAfter ? extractStem(firstAfter) : '';
   const lastBeforeStem = lastBefore ? extractStem(lastBefore) : '';
   const otherContext = [...beforeWords.slice(0, -1), ...afterWords.slice(1)];
@@ -157,9 +179,9 @@ function calculateTriggerScore(
   for (const trigger of triggers) {
     // 바로 뒤 단어 체크 (목적어-동사 관계에서 가장 중요, 가중치: 4.0)
     // 한 번만 점수 부여
-    // 어간이 트리거를 포함하는지만 체크 (역방향 제외 - 트리거가 어간 포함은 오탐 유발)
-    if (!firstAfterMatched && firstAfterStem) {
-      if (firstAfterStem.includes(trigger)) {
+    // 원본 단어와 어간 모두에서 트리거 매칭
+    if (!firstAfterMatched && firstAfter) {
+      if (matchesTrigger(firstAfter, firstAfterStem, trigger)) {
         score += 4.0;
         firstAfterMatched = true;
         continue;
@@ -167,8 +189,8 @@ function calculateTriggerScore(
     }
 
     // 바로 앞 단어 체크 (형용사-명사 관계, 가중치: 3.0)
-    if (!lastBeforeMatched && lastBeforeStem) {
-      if (lastBeforeStem.includes(trigger)) {
+    if (!lastBeforeMatched && lastBefore) {
+      if (matchesTrigger(lastBefore, lastBeforeStem, trigger)) {
         score += 3.0;
         lastBeforeMatched = true;
         continue;
@@ -177,10 +199,11 @@ function calculateTriggerScore(
 
     // 나머지 문맥 단어에서 매칭 (가중치: 1.5, 각 위치당 한 번)
     let foundInOther = false;
-    for (let i = 0; i < otherStems.length; i++) {
+    for (let i = 0; i < otherContext.length; i++) {
       if (otherMatchedPositions.has(i)) continue;
-      const otherStem = otherStems[i];
-      if (otherStem && otherStem.includes(trigger)) {
+      const otherWord = otherContext[i] || '';
+      const otherStem = otherStems[i] || '';
+      if (matchesTrigger(otherWord, otherStem, trigger)) {
         score += 1.5;
         otherMatchedPositions.add(i);
         foundInOther = true;
