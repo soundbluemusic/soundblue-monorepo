@@ -1,6 +1,6 @@
 import { Link, Meta, Title } from '@solidjs/meta';
 import { onMount } from 'solid-js';
-import { MainLayout } from '@/components/layout';
+import { HomeLayout } from '@/components/layout';
 import { toolActions } from '@/stores/tool-store';
 
 // Import tools to trigger registration
@@ -28,7 +28,7 @@ export default function Home() {
       <Link rel="alternate" hreflang="en" href={SITE_URL} />
       <Link rel="alternate" hreflang="ko" href={`${SITE_URL}/ko`} />
       <Link rel="alternate" hreflang="x-default" href={SITE_URL} />
-      <MainLayout />
+      <HomeLayout />
     </>
   );
 }
