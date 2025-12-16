@@ -51,8 +51,8 @@ export const ResultPanel: Component = () => {
 
             {/* Content */}
             <div class="flex-1 overflow-y-auto p-4">
-              <div class="prose prose-sm max-w-none text-text-primary">
-                <div innerHTML={resultContent().content} />
+              <div class="prose prose-sm max-w-none text-text-primary whitespace-pre-wrap">
+                {resultContent().content}
               </div>
             </div>
           </>

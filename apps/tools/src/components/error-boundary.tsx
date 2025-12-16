@@ -14,18 +14,41 @@ interface ErrorReport {
   componentStack?: string;
 }
 
-// 에러 리포트 전송 (Sentry 등 서비스 연동 가능)
-function reportError(_error: Error, _componentStack?: string): void {
-  // TODO: 프로덕션에서 Sentry, LogRocket 등으로 전송
-  // const report: ErrorReport = {
-  //   message: error.message,
-  //   stack: error.stack,
-  //   url: typeof window !== 'undefined' ? window.location.href : '',
-  //   userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
-  //   timestamp: new Date().toISOString(),
-  //   componentStack,
-  // };
-  // Sentry.captureException(error, { extra: report });
+// 에러 리포트 전송
+function reportError(error: Error, componentStack?: string): void {
+  const report: ErrorReport = {
+    message: error.message,
+    stack: error.stack,
+    url: typeof window !== 'undefined' ? window.location.href : '',
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+    timestamp: new Date().toISOString(),
+    componentStack,
+  };
+
+  // Development: log to console
+  if (import.meta.env.DEV) {
+    console.group('🔴 Error Report');
+    console.error('Message:', report.message);
+    console.error('Stack:', report.stack);
+    if (componentStack) {
+      console.error('Component Stack:', componentStack);
+    }
+    console.error('URL:', report.url);
+    console.error('Timestamp:', report.timestamp);
+    console.groupEnd();
+  }
+
+  // Production: send to error tracking service via beacon API (non-blocking)
+  if (import.meta.env.PROD && typeof navigator !== 'undefined' && navigator.sendBeacon) {
+    // Use a simple endpoint that could be configured for error tracking
+    // For now, we'll use a no-op endpoint pattern that can be replaced with actual service
+    const errorEndpoint = '/api/errors'; // Can be replaced with Sentry, LogRocket, etc.
+    try {
+      navigator.sendBeacon(errorEndpoint, JSON.stringify(report));
+    } catch {
+      // Beacon failed silently - error tracking is best-effort
+    }
+  }
 }
 
 // ========================================
