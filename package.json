@@ -1,0 +1,9 @@
+{
+  "name": "soundblue-monorepo",
+  "private": true,
+  "scripts": {
+    "dev:tools": "pnpm --filter tools dev",
+    "dev:main": "pnpm --filter sound-blue dev",
+    "dev:dialogue": "pnpm --filter dialogue dev"
+  }
+}

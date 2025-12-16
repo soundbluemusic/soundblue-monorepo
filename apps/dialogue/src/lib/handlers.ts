@@ -1,0 +1,302 @@
+import type { Locale } from "~/i18n";
+import { solarToLunar, formatLunarDate } from "./lunar";
+
+export interface DynamicResponse {
+  matched: boolean;
+  response?: string;
+  isAsync?: boolean;
+  asyncResponse?: () => Promise<string>;
+}
+
+// Pattern matchers for different query types
+const TIME_PATTERNS = {
+  ko: [/몇\s*시/, /시간/, /지금\s*몇/, /현재\s*시/],
+  en: [/what\s*time/i, /current\s*time/i, /time\s*now/i, /what's\s*the\s*time/i],
+  ja: [/何時/, /今.*時/, /時間/],
+};
+
+const DATE_PATTERNS = {
+  ko: [/몇\s*일/, /며칠/, /오늘.*날짜/, /무슨\s*요일/, /몇\s*월/, /오늘이/],
+  en: [/what\s*date/i, /what\s*day/i, /today.*date/i, /current\s*date/i],
+  ja: [/何日/, /今日.*日/, /何曜日/, /何月/],
+};
+
+const LUNAR_PATTERNS = {
+  ko: [/음력/, /구정/, /한가위/, /추석/],
+  en: [/lunar/i, /chinese\s*calendar/i],
+  ja: [/旧暦/, /陰暦/, /太陰暦/],
+};
+
+const WEATHER_PATTERNS = {
+  ko: [/날씨/, /기온/, /온도/, /비\s*오/, /눈\s*오/, /춥/, /더워/, /덥/],
+  en: [/weather/i, /temperature/i, /rain/i, /snow/i, /cold/i, /hot/i, /forecast/i],
+  ja: [/天気/, /気温/, /温度/, /雨/, /雪/, /寒い/, /暑い/],
+};
+
+function matchesPatterns(query: string, patterns: RegExp[]): boolean {
+  return patterns.some((pattern) => pattern.test(query));
+}
+
+// Time response generator
+function getTimeResponse(locale: Locale): string {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+
+  const timeStr = now.toLocaleTimeString(
+    locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US",
+    { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: locale !== "ja" }
+  );
+
+  if (locale === "ko") {
+    const period = hours < 12 ? "오전" : "오후";
+    const h = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+    return `지금은 ${period} ${h}시 ${minutes}분 ${seconds}초입니다. (${timeStr})`;
+  } else if (locale === "ja") {
+    return `現在の時刻は${hours}時${minutes}分${seconds}秒です。`;
+  } else {
+    const period = hours < 12 ? "AM" : "PM";
+    const h = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+    return `It's currently ${h}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")} ${period}.`;
+  }
+}
+
+// Date response generator
+function getDateResponse(locale: Locale): string {
+  const now = new Date();
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  };
+
+  const dateStr = now.toLocaleDateString(
+    locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US",
+    options
+  );
+
+  if (locale === "ko") {
+    return `오늘은 ${dateStr}입니다.`;
+  } else if (locale === "ja") {
+    return `今日は${dateStr}です。`;
+  } else {
+    return `Today is ${dateStr}.`;
+  }
+}
+
+// Lunar date response generator
+function getLunarDateResponse(locale: Locale): string {
+  const now = new Date();
+  const lunar = solarToLunar(now);
+  const lunarStr = formatLunarDate(lunar, locale);
+
+  const solarOptions: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  const solarStr = now.toLocaleDateString(
+    locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US",
+    solarOptions
+  );
+
+  if (locale === "ko") {
+    return `오늘 양력 ${solarStr}은 음력으로 ${lunarStr}입니다.`;
+  } else if (locale === "ja") {
+    return `今日の${solarStr}は、旧暦で${lunarStr}です。`;
+  } else {
+    return `Today (${solarStr}) is ${lunarStr} in the lunar calendar.`;
+  }
+}
+
+// Weather response generator (async - uses Geolocation + OpenMeteo API)
+async function getWeatherResponse(locale: Locale): Promise<string> {
+  try {
+    // Get user's location
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation not supported"));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000, // 5 minutes cache
+      });
+    });
+
+    const { latitude, longitude } = position.coords;
+
+    // Fetch weather from Open-Meteo (free, no API key needed)
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`;
+
+    const response = await fetch(weatherUrl);
+    if (!response.ok) throw new Error("Weather API error");
+
+    const data = await response.json();
+    const current = data.current;
+
+    const temp = Math.round(current.temperature_2m);
+    const humidity = current.relative_humidity_2m;
+    const windSpeed = Math.round(current.wind_speed_10m);
+    const weatherCode = current.weather_code;
+
+    const weatherDesc = getWeatherDescription(weatherCode, locale);
+
+    // Get location name using reverse geocoding
+    const geoUrl = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=${locale}`;
+    let locationName = "";
+    try {
+      const geoResponse = await fetch(geoUrl);
+      const geoData = await geoResponse.json();
+      locationName = geoData.address?.city || geoData.address?.town || geoData.address?.county || "";
+    } catch {
+      locationName = "";
+    }
+
+    if (locale === "ko") {
+      return `${locationName ? locationName + "의 " : ""}현재 날씨입니다:\n` +
+        `🌡️ 기온: ${temp}°C\n` +
+        `💧 습도: ${humidity}%\n` +
+        `💨 바람: ${windSpeed}km/h\n` +
+        `☁️ 상태: ${weatherDesc}`;
+    } else if (locale === "ja") {
+      return `${locationName ? locationName + "の" : ""}現在の天気：\n` +
+        `🌡️ 気温: ${temp}°C\n` +
+        `💧 湿度: ${humidity}%\n` +
+        `💨 風速: ${windSpeed}km/h\n` +
+        `☁️ 状態: ${weatherDesc}`;
+    } else {
+      return `Current weather${locationName ? " in " + locationName : ""}:\n` +
+        `🌡️ Temperature: ${temp}°C\n` +
+        `💧 Humidity: ${humidity}%\n` +
+        `💨 Wind: ${windSpeed}km/h\n` +
+        `☁️ Condition: ${weatherDesc}`;
+    }
+  } catch (error) {
+    if (locale === "ko") {
+      return "날씨 정보를 가져올 수 없습니다. 위치 접근 권한을 허용해주세요.";
+    } else if (locale === "ja") {
+      return "天気情報を取得できません。位置情報へのアクセスを許可してください。";
+    } else {
+      return "Unable to get weather information. Please allow location access.";
+    }
+  }
+}
+
+// WMO Weather interpretation codes
+function getWeatherDescription(code: number, locale: Locale): string {
+  const descriptions: Record<string, Record<number, string>> = {
+    ko: {
+      0: "맑음 ☀️",
+      1: "대체로 맑음 🌤️",
+      2: "약간 흐림 ⛅",
+      3: "흐림 ☁️",
+      45: "안개 🌫️",
+      48: "안개 (서리) 🌫️",
+      51: "이슬비 🌧️",
+      53: "이슬비 🌧️",
+      55: "이슬비 🌧️",
+      61: "약한 비 🌧️",
+      63: "비 🌧️",
+      65: "강한 비 🌧️",
+      71: "약한 눈 🌨️",
+      73: "눈 🌨️",
+      75: "강한 눈 🌨️",
+      80: "소나기 🌧️",
+      81: "소나기 🌧️",
+      82: "강한 소나기 🌧️",
+      95: "뇌우 ⛈️",
+      96: "뇌우 (우박) ⛈️",
+      99: "뇌우 (강한 우박) ⛈️",
+    },
+    ja: {
+      0: "晴れ ☀️",
+      1: "おおむね晴れ 🌤️",
+      2: "やや曇り ⛅",
+      3: "曇り ☁️",
+      45: "霧 🌫️",
+      48: "霧（霜） 🌫️",
+      51: "霧雨 🌧️",
+      53: "霧雨 🌧️",
+      55: "霧雨 🌧️",
+      61: "小雨 🌧️",
+      63: "雨 🌧️",
+      65: "大雨 🌧️",
+      71: "小雪 🌨️",
+      73: "雪 🌨️",
+      75: "大雪 🌨️",
+      80: "にわか雨 🌧️",
+      81: "にわか雨 🌧️",
+      82: "強いにわか雨 🌧️",
+      95: "雷雨 ⛈️",
+      96: "雷雨（雹） ⛈️",
+      99: "雷雨（強い雹） ⛈️",
+    },
+    en: {
+      0: "Clear sky ☀️",
+      1: "Mainly clear 🌤️",
+      2: "Partly cloudy ⛅",
+      3: "Overcast ☁️",
+      45: "Fog 🌫️",
+      48: "Depositing rime fog 🌫️",
+      51: "Light drizzle 🌧️",
+      53: "Moderate drizzle 🌧️",
+      55: "Dense drizzle 🌧️",
+      61: "Light rain 🌧️",
+      63: "Moderate rain 🌧️",
+      65: "Heavy rain 🌧️",
+      71: "Light snow 🌨️",
+      73: "Moderate snow 🌨️",
+      75: "Heavy snow 🌨️",
+      80: "Light showers 🌧️",
+      81: "Moderate showers 🌧️",
+      82: "Violent showers 🌧️",
+      95: "Thunderstorm ⛈️",
+      96: "Thunderstorm with hail ⛈️",
+      99: "Thunderstorm with heavy hail ⛈️",
+    },
+  };
+
+  return descriptions[locale]?.[code] || descriptions.en[code] || `Unknown (${code})`;
+}
+
+// Main handler function
+export function handleDynamicQuery(query: string, locale: Locale): DynamicResponse {
+  // Check for lunar date (most specific first)
+  if (matchesPatterns(query, LUNAR_PATTERNS[locale])) {
+    return {
+      matched: true,
+      response: getLunarDateResponse(locale),
+    };
+  }
+
+  // Check for weather
+  if (matchesPatterns(query, WEATHER_PATTERNS[locale])) {
+    return {
+      matched: true,
+      isAsync: true,
+      asyncResponse: () => getWeatherResponse(locale),
+    };
+  }
+
+  // Check for time
+  if (matchesPatterns(query, TIME_PATTERNS[locale])) {
+    return {
+      matched: true,
+      response: getTimeResponse(locale),
+    };
+  }
+
+  // Check for date
+  if (matchesPatterns(query, DATE_PATTERNS[locale])) {
+    return {
+      matched: true,
+      response: getDateResponse(locale),
+    };
+  }
+
+  return { matched: false };
+}

@@ -1,0 +1,30 @@
+{
+  "name": "dialogue",
+  "version": "0.1.0",
+  "description": "A conversational learning tool that works 100% offline",
+  "type": "module",
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start",
+    "preview": "vinxi build && vinxi start"
+  },
+  "dependencies": {
+    "@solidjs/meta": "^0.29.4",
+    "@solidjs/router": "^0.15.3",
+    "@solidjs/start": "^1.0.10",
+    "@tailwindcss/vite": "^4.1.18",
+    "solid-js": "^1.9.3",
+    "tailwindcss": "^4.1.18",
+    "vinxi": "^0.5.9"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite-plugin-pwa": "^0.21.1",
+    "workbox-precaching": "^7.3.0",
+    "workbox-routing": "^7.3.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

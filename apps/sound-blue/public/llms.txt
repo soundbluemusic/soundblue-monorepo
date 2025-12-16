@@ -1,0 +1,38 @@
+# Sound Blue
+
+> South Korean indie music artist and producer creating original BGM, soundtracks, and instrumental music.
+
+## About
+
+Sound Blue (SoundBlueMusic) is an independent music artist and label based in South Korea. The artist specializes in creating ambient, instrumental, and soundtrack music for creative projects including games, videos, and other media.
+
+## Website
+
+- URL: https://soundbluemusic.com
+- Languages: English, Korean (한국어)
+
+## Main Sections
+
+- Home: Introduction to Sound Blue
+- About: Artist biography and vision
+- News: Latest updates and announcements
+- Blog: Music production tips and stories
+- Sound Recording: Field recording library for creative works
+- Built With: Technologies used to build the website
+
+## Music
+
+- Genres: BGM, Soundtrack, Instrumental, Ambient
+- Platform: YouTube (@SoundBlueMusic)
+- Use: Music for games, videos, and creative projects
+
+## Sound Recording License
+
+Sound recordings (field recordings) may only be used for creating original works:
+- Permitted: Use in creative works, modify, transform, derivative works
+- Prohibited: Redistribution, standalone sale, resale as sound libraries
+
+## Contact
+
+- GitHub: https://github.com/soundbluemusic/sound-blue
+- YouTube: https://www.youtube.com/@SoundBlueMusic
