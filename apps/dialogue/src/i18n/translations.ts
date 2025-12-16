@@ -35,6 +35,14 @@ export const translations = {
       notFoundTitle: "페이지를 찾을 수 없습니다",
       notFoundMessage: "요청하신 페이지가 존재하지 않거나 이동되었습니다.",
       notFoundBackHome: "홈으로 돌아가기",
+      // Chat history
+      history: "대화 기록",
+      more: "더보기",
+      deleteChat: "삭제",
+      untitled: "새 대화",
+      ghostMode: "고스트 모드",
+      ghostModeDesc: "대화가 저장되지 않습니다",
+      noHistory: "대화 기록이 없습니다",
     },
   },
   en: {
@@ -71,6 +79,14 @@ export const translations = {
       notFoundTitle: "Page Not Found",
       notFoundMessage: "The page you're looking for doesn't exist or has been moved.",
       notFoundBackHome: "Return to Home",
+      // Chat history
+      history: "History",
+      more: "More",
+      deleteChat: "Delete",
+      untitled: "New Chat",
+      ghostMode: "Ghost Mode",
+      ghostModeDesc: "Chats won't be saved",
+      noHistory: "No chat history",
     },
   },
   ja: {
@@ -107,6 +123,14 @@ export const translations = {
       notFoundTitle: "ページが見つかりません",
       notFoundMessage: "お探しのページは存在しないか、移動されました。",
       notFoundBackHome: "ホームに戻る",
+      // Chat history
+      history: "履歴",
+      more: "その他",
+      deleteChat: "削除",
+      untitled: "新しい会話",
+      ghostMode: "ゴーストモード",
+      ghostModeDesc: "会話は保存されません",
+      noHistory: "履歴がありません",
     },
   },
 } as const;
