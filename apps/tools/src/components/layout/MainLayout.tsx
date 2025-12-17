@@ -1,10 +1,10 @@
 import { type Component, createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { BREAKPOINTS, Footer } from '@soundblue/shared';
-import { ToolSidebar } from '@/components/sidebar';
-import { ToolContainer } from '@/components/tools';
-import { cn } from '@/lib/utils';
-import { toolActions, toolStore } from '@/stores/tool-store';
+import { ToolSidebar } from '~/components/sidebar';
+import { ToolContainer } from '~/components/tools';
+import { cn } from '~/lib/utils';
+import { toolActions, toolStore } from '~/stores/tool-store';
 import { Header } from './Header';
 
 // ========================================

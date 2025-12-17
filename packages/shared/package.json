@@ -9,6 +9,10 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     },
+    "./hooks": {
+      "types": "./src/hooks/index.ts",
+      "import": "./src/hooks/index.ts"
+    },
     "./utils": {
       "types": "./src/utils/index.ts",
       "import": "./src/utils/index.ts"

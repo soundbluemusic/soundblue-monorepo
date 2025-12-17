@@ -3,8 +3,8 @@
 // ========================================
 
 // Engine hooks
-export { useMIDI } from '@/engine/midi';
-export { useAutoSave, useProjectStorage } from '@/engine/storage';
+export { useMIDI } from '~/engine/midi';
+export { useAutoSave, useProjectStorage } from '~/engine/storage';
 
 // Audio hooks
 export { type UseAudioContextReturn, useAudioContext } from './use-audio-context';
@@ -15,6 +15,7 @@ export {
   useEventBusChannel,
   useEventEmitter,
 } from './use-event-bus';
+
 // Keyboard shortcuts hooks
 export {
   DEFAULT_SHORTCUTS,
@@ -24,19 +25,23 @@ export {
   useKeyboardShortcuts,
   useShortcut,
 } from './use-keyboard-shortcuts';
-// PWA / Online status hooks
+
+// PWA / Online status hooks (re-exported from shared)
 export {
-  getOnlineStatus,
-  type OnlineStatus,
-  onOnlineStatusChange,
   useOnlineStatus,
-} from './use-online-status';
-export {
-  checkForUpdates,
-  type ServiceWorkerState,
-  skipWaiting,
+  getOnlineStatus,
+  onOnlineStatusChange,
+  type OnlineStatus,
+  type UseOnlineStatusReturn,
   useServiceWorker,
-} from './use-service-worker';
+  checkForUpdates,
+  skipWaiting,
+  onUpdateAvailable,
+  getServiceWorkerState,
+  type ServiceWorkerState,
+  type UseServiceWorkerReturn,
+} from '@soundblue/shared';
+
 // Tempo synchronization hooks
 export {
   type UseTempoReturn,

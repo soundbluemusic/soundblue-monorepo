@@ -190,7 +190,7 @@ const SCALE_FACTOR = 1000000;
  * ## Usage Example
  *
  * ```typescript
- * import { audioEngine } from '@/engine/audio-engine';
+ * import { audioEngine } from '~/engine/audio-engine';
  *
  * // Initialize on user gesture (required by browsers)
  * button.onclick = async () => {
@@ -665,7 +665,7 @@ class AudioEngine {
  *
  * @example
  * ```typescript
- * import { audioEngine } from '@/engine/audio-engine';
+ * import { audioEngine } from '~/engine/audio-engine';
  *
  * await audioEngine.initialize();
  * audioEngine.play();

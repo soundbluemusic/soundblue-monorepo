@@ -1,10 +1,10 @@
 import { A, useIsRouting, useLocation } from '@solidjs/router';
 import { Code2, Globe, Home, Loader2, Menu, Moon, Sun } from 'lucide-solid';
 import { type Component, Show } from 'solid-js';
-import { useTheme } from '@/components/providers/theme-provider';
-import { Button } from '@/components/ui/button';
-import { getLocalizedPath, getPathWithoutLocale, useLanguage } from '@/i18n';
-import { toolActions, toolStore } from '@/stores/tool-store';
+import { useTheme } from '~/components/providers/theme-provider';
+import { Button } from '~/components/ui/button';
+import { getLocalizedPath, getPathWithoutLocale, useLanguage } from '~/i18n';
+import { toolActions, toolStore } from '~/stores/tool-store';
 
 // ========================================
 // Header Component - 헤더 (새 레이아웃용)

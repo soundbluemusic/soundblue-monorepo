@@ -6,8 +6,8 @@
 import { Play } from 'lucide-solid';
 import type { Component } from 'solid-js';
 import { For, Show } from 'solid-js';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Button } from '~/components/ui/button';
+import { cn } from '~/lib/utils';
 import type { BenchmarkProgress, DirectionFilter, DirectionTestCounts } from '../types';
 
 interface BenchmarkRunnerProps {

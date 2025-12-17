@@ -1,6 +1,6 @@
 import { Switch as KobalteSwitch } from '@kobalte/core/switch';
 import { type Component, splitProps } from 'solid-js';
-import { cn } from '@/lib/utils';
+import { cn } from '~/lib/utils';
 
 interface SwitchProps {
   class?: string;

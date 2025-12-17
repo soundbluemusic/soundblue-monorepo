@@ -8,10 +8,10 @@ import {
   PanelLeftOpen,
 } from 'lucide-solid';
 import { type Component, createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
-import { getLocalizedPath, useLanguage } from '@/i18n';
-import { getToolInfo, TOOL_CATEGORIES } from '@/lib/toolCategories';
-import { cn } from '@/lib/utils';
-import { type ToolType, toolActions, toolStore } from '@/stores/tool-store';
+import { getLocalizedPath, useLanguage } from '~/i18n';
+import { getToolInfo, TOOL_CATEGORIES } from '~/lib/toolCategories';
+import { cn } from '~/lib/utils';
+import { type ToolType, toolActions, toolStore } from '~/stores/tool-store';
 import { ToolCategory } from './ToolCategory';
 
 // ========================================

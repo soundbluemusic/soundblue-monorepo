@@ -21,7 +21,7 @@
  * @module commands
  */
 
-import type { ToolType } from '@/stores/tool-store';
+import type { ToolType } from '~/stores/tool-store';
 
 // ========================================
 // Command Parser - 채팅 명령어 파싱

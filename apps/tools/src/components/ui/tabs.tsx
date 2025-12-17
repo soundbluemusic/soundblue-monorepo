@@ -1,6 +1,6 @@
 import { Tabs as KobalteTabs } from '@kobalte/core/tabs';
 import { type JSX, type ParentComponent, splitProps } from 'solid-js';
-import { cn } from '@/lib/utils';
+import { cn } from '~/lib/utils';
 
 const Tabs = KobalteTabs;
 

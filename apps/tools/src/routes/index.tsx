@@ -1,10 +1,10 @@
 import { Link, Meta, Title } from '@solidjs/meta';
 import { onMount } from 'solid-js';
-import { HomeLayout } from '@/components/layout';
-import { toolActions } from '@/stores/tool-store';
+import { HomeLayout } from '~/components/layout';
+import { toolActions } from '~/stores/tool-store';
 
 // Import tools to trigger registration
-import '@/tools';
+import '~/tools';
 
 const SITE_URL = 'https://tools.soundbluemusic.com';
 

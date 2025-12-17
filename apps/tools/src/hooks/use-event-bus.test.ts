@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { eventBus } from '@/lib/event-bus';
+import { eventBus } from '~/lib/event-bus';
 import { useEventBusChannel, useEventEmitter } from './use-event-bus';
 
 describe('useEventBus hooks', () => {

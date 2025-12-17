@@ -5,7 +5,7 @@
 
 import type { Component } from 'solid-js';
 import { For } from 'solid-js';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import type { BenchmarkDefinition } from '../types';
 
 interface BenchmarkSelectorProps {

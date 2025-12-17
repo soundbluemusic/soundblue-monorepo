@@ -3,9 +3,8 @@
 // ========================================
 // Shows online/offline status and PWA update notifications
 
-import { type Component, createEffect, createSignal, Show } from "solid-js";
-import { useOnlineStatus } from "~/hooks/use-online-status";
-import { useServiceWorker, skipWaiting } from "~/hooks/use-service-worker";
+import { type Component, createEffect, createSignal, Show } from 'solid-js';
+import { useOnlineStatus, useServiceWorker, skipWaiting } from '~/hooks';
 
 export const OfflineIndicator: Component = () => {
   const { isOnline, wasOffline } = useOnlineStatus();

@@ -13,32 +13,32 @@ import {
   Suspense,
   Switch,
 } from 'solid-js';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 // Widget for default view
-import { WorldClockWidget } from '@/components/widgets';
-import { getLocalizedPath, useLanguage } from '@/i18n';
-import { getToolInfo } from '@/lib/toolCategories';
-import { cn } from '@/lib/utils';
-import { audioStore } from '@/stores/audio-store';
-import { toolActions, toolStore } from '@/stores/tool-store';
+import { WorldClockWidget } from '~/components/widgets';
+import { getLocalizedPath, useLanguage } from '~/i18n';
+import { getToolInfo } from '~/lib/toolCategories';
+import { cn } from '~/lib/utils';
+import { audioStore } from '~/stores/audio-store';
+import { toolActions, toolStore } from '~/stores/tool-store';
 // Import tool types and default settings only (not components)
-import { type DrumMachineSettings, defaultDrumMachineSettings } from '@/tools/drum-machine';
-import { defaultMetronomeSettings, type MetronomeSettings } from '@/tools/metronome';
-import { defaultQRSettings, type QRSettings } from '@/tools/qr-generator';
-import { defaultTranslatorSettings, type TranslatorSettings } from '@/tools/translator';
+import { type DrumMachineSettings, defaultDrumMachineSettings } from '~/tools/drum-machine';
+import { defaultMetronomeSettings, type MetronomeSettings } from '~/tools/metronome';
+import { defaultQRSettings, type QRSettings } from '~/tools/qr-generator';
+import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator';
 
 // Lazy load tool components for code splitting
 const LazyMetronome = lazy(() =>
-  import('@/tools/metronome').then((m) => ({ default: m.metronomeTool.component }))
+  import('~/tools/metronome').then((m) => ({ default: m.metronomeTool.component }))
 );
 const LazyDrumMachine = lazy(() =>
-  import('@/tools/drum-machine').then((m) => ({ default: m.drumMachineTool.component }))
+  import('~/tools/drum-machine').then((m) => ({ default: m.drumMachineTool.component }))
 );
 const LazyQRGenerator = lazy(() =>
-  import('@/tools/qr-generator').then((m) => ({ default: m.qrGeneratorTool.component }))
+  import('~/tools/qr-generator').then((m) => ({ default: m.qrGeneratorTool.component }))
 );
 const LazyTranslator = lazy(() =>
-  import('@/tools/translator').then((m) => ({ default: m.translatorTool.component }))
+  import('~/tools/translator').then((m) => ({ default: m.translatorTool.component }))
 );
 
 // Loading fallback component

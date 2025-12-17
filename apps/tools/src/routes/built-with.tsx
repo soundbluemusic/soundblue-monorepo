@@ -2,8 +2,8 @@ import { Link, Meta, Title } from '@solidjs/meta';
 import { ExternalLink } from 'lucide-solid';
 import { type Component, For } from 'solid-js';
 import { Footer } from '@soundblue/shared';
-import { Header } from '@/components/layout/Header';
-import { useLanguage } from '@/i18n';
+import { Header } from '~/components/layout/Header';
+import { useLanguage } from '~/i18n';
 
 const SITE_URL = 'https://tools.soundbluemusic.com';
 

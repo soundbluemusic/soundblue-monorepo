@@ -1,8 +1,8 @@
 import type { Component } from 'solid-js';
-import { useLanguage } from '@/i18n';
-import type { ToolInfo } from '@/lib/toolCategories';
-import { cn } from '@/lib/utils';
-import { type ToolType, toolStore } from '@/stores/tool-store';
+import { useLanguage } from '~/i18n';
+import type { ToolInfo } from '~/lib/toolCategories';
+import { cn } from '~/lib/utils';
+import { type ToolType, toolStore } from '~/stores/tool-store';
 
 // ========================================
 // ToolItem Component - 개별 도구 아이템

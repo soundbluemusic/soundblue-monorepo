@@ -1,8 +1,8 @@
 import { Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
 import type { JSX } from 'solid-js';
-import { useLanguage } from '@/i18n/context';
-import { buttonVariants } from '@/components/ui/button';
+import { useLanguage } from '~/i18n/context';
+import { buttonVariants } from '~/components/ui/button';
 
 export default function NotFound(): JSX.Element {
   const { t } = useLanguage();

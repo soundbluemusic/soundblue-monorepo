@@ -1,8 +1,8 @@
 import { createStore } from 'solid-js/store';
-import type { DrumMachineSettings } from '@/tools/drum-machine';
-import type { MetronomeSettings } from '@/tools/metronome';
-import type { QRSettings } from '@/tools/qr-generator';
-import type { TranslatorSettings } from '@/tools/translator';
+import type { DrumMachineSettings } from '~/tools/drum-machine';
+import type { MetronomeSettings } from '~/tools/metronome';
+import type { QRSettings } from '~/tools/qr-generator';
+import type { TranslatorSettings } from '~/tools/translator';
 
 // ========================================
 // Tool Store - 현재 활성 도구 상태 관리

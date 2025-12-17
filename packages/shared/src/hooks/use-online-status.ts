@@ -32,11 +32,15 @@ const [lastChanged, setLastChanged] = createSignal<number | null>(null);
 type OnlineStatusListener = (online: boolean) => void;
 const listeners = new Set<OnlineStatusListener>();
 
+let initialized = false;
+
 /**
- * Initialize online status tracking
+ * Initialize online status tracking (called once)
  */
 function initOnlineStatus(): (() => void) | undefined {
-  if (isServer) return undefined;
+  if (isServer || initialized) return undefined;
+
+  initialized = true;
 
   // Set initial state
   setIsOnline(navigator.onLine);
@@ -60,6 +64,7 @@ function initOnlineStatus(): (() => void) | undefined {
   return () => {
     window.removeEventListener('online', handleOnline);
     window.removeEventListener('offline', handleOffline);
+    initialized = false;
   };
 }
 

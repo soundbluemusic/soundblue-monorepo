@@ -1,9 +1,9 @@
 import { Check, Copy, Download } from 'lucide-solid';
 import QRCode from 'qrcode';
 import { type Component, createEffect, createSignal, Show } from 'solid-js';
-import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/i18n';
-import { cn } from '@/lib/utils';
+import { Button } from '~/components/ui/button';
+import { useLanguage } from '~/i18n';
+import { cn } from '~/lib/utils';
 import { registerTool } from '../registry';
 import type { ToolDefinition, ToolProps } from '../types';
 
