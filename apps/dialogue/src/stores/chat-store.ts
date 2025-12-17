@@ -29,9 +29,12 @@ interface ChatState {
   isHydrated: boolean;
 }
 
-// Generate unique ID
+// Generate cryptographically secure unique ID
 export function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  const array = new Uint8Array(8);
+  crypto.getRandomValues(array);
+  const randomPart = Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
+  return Date.now().toString(36) + randomPart;
 }
 
 // SSG 호환: 항상 빈 상태로 시작

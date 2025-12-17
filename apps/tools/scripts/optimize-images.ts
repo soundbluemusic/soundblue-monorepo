@@ -101,7 +101,7 @@ async function processImage(filePath: string): Promise<void> {
       webpSavings: `${webpSavings}%`,
       avifSavings: `${avifSavings}%`,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`❌ Error processing ${filePath}:`, error);
   }
 }

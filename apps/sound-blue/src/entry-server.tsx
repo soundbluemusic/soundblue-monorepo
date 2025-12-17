@@ -13,20 +13,9 @@ export default createHandler(() => (
           <meta name="theme-color" content="#1c1917" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-          {/* Inline script to prevent FOUC for theme */}
+          {/* Inline script to prevent FOUC for theme - validates localStorage value */}
           <script
-            innerHTML={`
-              (function() {
-                try {
-                  var theme = localStorage.getItem('sb-theme');
-                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.setAttribute('data-theme', 'dark');
-                  }
-                } catch {
-                  // Theme detection failed, fallback to light theme
-                }
-              })();
-            `}
+            textContent={`(function(){try{if(typeof localStorage==='undefined')return;var t=localStorage.getItem('sb-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.dataset.theme='dark'}}catch(e){}})();`}
           />
           {assets}
         </head>

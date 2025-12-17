@@ -298,7 +298,7 @@ class AudioEngine {
       await this.loadWorklet();
 
       this.isInitialized = true;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to initialize Audio Engine:', error);
       throw error;
     }
@@ -362,7 +362,7 @@ class AudioEngine {
       }
 
       this.isWorkletReady = true;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to load AudioWorklet:', error);
       // Graceful degradation: engine works without worklet
       // Consider ScriptProcessorNode fallback (deprecated)

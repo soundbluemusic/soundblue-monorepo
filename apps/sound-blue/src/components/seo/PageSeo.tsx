@@ -178,10 +178,10 @@ export function PageSeo(props: PageSeoProps): JSX.Element {
       <Meta name="twitter:description" content={seoData().description} />
       <Meta name="twitter:image" content={`${BRAND.siteUrl}/og-image.png`} />
 
-      {/* JSON-LD Structured Data */}
-      <script type="application/ld+json" innerHTML={JSON.stringify(jsonLd())} />
+      {/* JSON-LD Structured Data - using textContent for safety */}
+      <script type="application/ld+json" textContent={JSON.stringify(jsonLd())} />
       {personJsonLd() && (
-        <script type="application/ld+json" innerHTML={JSON.stringify(personJsonLd())} />
+        <script type="application/ld+json" textContent={JSON.stringify(personJsonLd())} />
       )}
     </>
   );

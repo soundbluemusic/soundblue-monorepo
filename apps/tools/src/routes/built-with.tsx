@@ -89,13 +89,19 @@ const TECH_STACK: TechSection[] = [
   },
 ];
 
+/** Get a translation value safely with fallback to key */
+function getTranslationValue(translations: Record<string, unknown>, key: string): string {
+  const value = translations[key];
+  return typeof value === 'string' ? value : key;
+}
+
 const TechLink: Component<{
   item: TechItem;
-  builtWith: Record<string, string>;
+  builtWith: Record<string, unknown>;
 }> = (props) => {
-  const getItemName = () => {
+  const getItemName = (): string => {
     if (props.item.nameKey) {
-      return props.builtWith[props.item.nameKey] ?? props.item.nameKey;
+      return getTranslationValue(props.builtWith, props.item.nameKey);
     }
     return props.item.name ?? '';
   };
@@ -116,9 +122,9 @@ const TechLink: Component<{
 export default function BuiltWithPage() {
   const { t, locale } = useLanguage();
 
-  const getSectionTitle = (titleKey: string) => {
-    const builtWith = t().builtWith as Record<string, string>;
-    return builtWith[titleKey] ?? titleKey;
+  const getSectionTitle = (titleKey: string): string => {
+    const builtWith = t().builtWith as Record<string, unknown>;
+    return getTranslationValue(builtWith, titleKey);
   };
 
   const isKorean = () => locale() === 'ko';
@@ -159,7 +165,7 @@ export default function BuiltWithPage() {
                           <li class="text-muted-foreground">
                             <TechLink
                               item={item}
-                              builtWith={t().builtWith as Record<string, string>}
+                              builtWith={t().builtWith as Record<string, unknown>}
                             />
                           </li>
                         )}

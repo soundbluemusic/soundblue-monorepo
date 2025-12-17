@@ -125,7 +125,7 @@ export const audioActions: AudioActions = {
 
       // Store audioContext reference for later use
       (window as Window & { __audioContext?: AudioContext }).__audioContext = audioContext;
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error in development, report to monitoring in production
       if (import.meta.env.DEV) {
         console.error('Audio engine initialization failed:', error);
