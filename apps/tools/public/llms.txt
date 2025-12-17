@@ -38,7 +38,7 @@
 
 - **Framework**: SolidJS with SolidStart
 - **Audio**: Web Audio API, AudioWorklet
-- **Rendering**: Canvas API, Pixi.js
+- **Rendering**: Canvas API
 - **Storage**: IndexedDB (Dexie)
 - **Hosting**: Cloudflare Pages
 

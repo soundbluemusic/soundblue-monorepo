@@ -259,7 +259,7 @@ See **[CLAUDE.md](./CLAUDE.md)** for full development rules for AI assistants.
 
 - [Website](https://soundbluemusic.com) (웹사이트)
 - [YouTube](https://www.youtube.com/@SoundBlueMusic) (유튜브)
-- [GitHub](https://github.com/soundbluemusic/sound-blue) (깃허브)
+- [GitHub](https://github.com/soundbluemusic/soundblue-monorepo/tree/main/apps/sound-blue) (깃허브)
 
 ---
 
