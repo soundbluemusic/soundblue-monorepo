@@ -1,9 +1,14 @@
-import { ArrowLeftRight, Check, Copy, Trash2 } from 'lucide-solid';
-import { type Component, createEffect, createSignal, onCleanup } from 'solid-js';
+import { ArrowLeftRight, Check, Copy, Share2, Trash2, X } from 'lucide-solid';
+import { type Component, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import { useLanguage } from '@/i18n';
 import { registerTool } from '../registry';
 import type { ToolDefinition, ToolProps } from '../types';
 import { translate } from './translator-service';
+import {
+  createShareUrl,
+  getSharedDataFromCurrentUrl,
+  getTextLengthWarning,
+} from './url-sharing';
 
 // ========================================
 // Translator Tool - 번역기 (한-영 전용)
@@ -35,6 +40,24 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
   const [inputText, setInputText] = createSignal(settings().lastInput || '');
   const [outputText, setOutputText] = createSignal('');
   const [isCopied, setIsCopied] = createSignal(false);
+  const [shareStatus, setShareStatus] = createSignal<'idle' | 'copied' | 'error'>('idle');
+
+  // Load shared translation from URL on mount
+  onMount(() => {
+    const sharedData = getSharedDataFromCurrentUrl();
+    if (sharedData) {
+      setInputText(sharedData.text);
+      if (sharedData.direction !== settings().direction) {
+        props.onSettingsChange({ direction: sharedData.direction });
+      }
+      // Clean up URL without reload
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('s');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  });
 
   // Translate function
   const doTranslate = () => {
@@ -115,6 +138,40 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
     props.onSettingsChange({ lastInput: '' });
   };
 
+  // Share translation via URL
+  const shareTranslation = async () => {
+    const text = inputText().trim();
+    if (!text) return;
+
+    const baseUrl =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}${window.location.pathname}`
+        : '';
+
+    const result = createShareUrl(baseUrl, {
+      text,
+      direction: settings().direction,
+    });
+
+    if (result.error) {
+      setShareStatus('error');
+      setTimeout(() => setShareStatus('idle'), 3000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(result.url!);
+      setShareStatus('copied');
+      setTimeout(() => setShareStatus('idle'), 2000);
+    } catch {
+      setShareStatus('error');
+      setTimeout(() => setShareStatus('idle'), 3000);
+    }
+  };
+
+  // Text length warning for share button
+  const textWarning = () => getTextLengthWarning(inputText());
+
   // Save input on change
   createEffect(() => {
     const text = inputText();
@@ -188,6 +245,43 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
         >
           <Trash2 class="h-3.5 w-3.5" />
           <span>{settings().direction === 'ko-en' ? '지우기' : 'Clear'}</span>
+        </button>
+
+        {/* Share button */}
+        <button
+          type="button"
+          onClick={shareTranslation}
+          disabled={!inputText().trim() || textWarning() === 'danger'}
+          class="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-black/[0.08] dark:hover:bg-white/[0.12]"
+          classList={{
+            'text-muted-foreground hover:text-foreground': shareStatus() === 'idle',
+            'text-green-600 dark:text-green-400': shareStatus() === 'copied',
+            'text-red-600 dark:text-red-400': shareStatus() === 'error',
+          }}
+          title={
+            textWarning() === 'danger'
+              ? settings().direction === 'ko-en'
+                ? '텍스트가 너무 깁니다'
+                : 'Text too long'
+              : t().tools.shareUrl
+          }
+        >
+          {shareStatus() === 'copied' ? (
+            <>
+              <Check class="h-3.5 w-3.5" />
+              <span>{t().tools.urlCopied}</span>
+            </>
+          ) : shareStatus() === 'error' ? (
+            <>
+              <X class="h-3.5 w-3.5" />
+              <span>{settings().direction === 'ko-en' ? '너무 깁니다' : 'Too long'}</span>
+            </>
+          ) : (
+            <>
+              <Share2 class="h-3.5 w-3.5" />
+              <span>{settings().direction === 'ko-en' ? '공유' : 'Share'}</span>
+            </>
+          )}
         </button>
 
         <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
