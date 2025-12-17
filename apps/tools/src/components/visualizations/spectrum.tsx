@@ -1,6 +1,38 @@
+/**
+ * @fileoverview 실시간 스펙트럼 분석기 컴포넌트 (Real-time Spectrum Analyzer)
+ *
+ * Web Audio API의 AnalyserNode를 사용하여 오디오 주파수 데이터를
+ * Canvas 2D로 시각화하는 컴포넌트입니다.
+ *
+ * @module spectrum
+ */
+
 import { createEffect, onCleanup, onMount } from 'solid-js';
 import { getAudioContext } from '@/lib/audio-context';
 
+/**
+ * Spectrum 컴포넌트 Props
+ *
+ * @interface SpectrumProps
+ * @property {number} [width=300] - 캔버스 너비 (px)
+ * @property {number} [height=100] - 캔버스 높이 (px)
+ * @property {AnalyserNode|null} [analyserNode] - 외부 AnalyserNode 연결.
+ *   미제공 시 내부에서 생성하며, 이 경우 오디오 소스를 직접 연결해야 함.
+ * @property {string} [barColor='#3b82f6'] - 주파수 바 색상 (CSS color)
+ * @property {string} [peakColor='#ef4444'] - 피크 표시 색상 (CSS color)
+ * @property {number} [barCount=32] - 표시할 주파수 바 개수
+ * @property {string} [class] - 추가 CSS 클래스
+ *
+ * @example
+ * // 외부 AnalyserNode 연결 방법
+ * const audioCtx = new AudioContext();
+ * const analyser = audioCtx.createAnalyser();
+ * const source = audioCtx.createMediaElementSource(audioElement);
+ * source.connect(analyser);
+ * analyser.connect(audioCtx.destination);
+ *
+ * <Spectrum analyserNode={analyser} width={400} height={150} barCount={64} />
+ */
 interface SpectrumProps {
   width?: number;
   height?: number;
