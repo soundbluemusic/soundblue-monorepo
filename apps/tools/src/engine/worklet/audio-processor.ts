@@ -336,7 +336,7 @@ class DAWAudioProcessor extends AudioWorkletProcessor {
 
       this.isWasmReady = true;
       this.port.postMessage({ type: 'initialized', wasmEnabled: true });
-    } catch (error) {
+    } catch (error: unknown) {
       // WASM initialization failed - continue with JS fallback
       console.warn('WASM initialization failed, using JS fallback:', error);
       this.isWasmReady = false;

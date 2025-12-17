@@ -165,13 +165,19 @@ export function setupGlobalErrorHandlers(): void {
   if (typeof window === 'undefined') return;
 
   // 일반 에러
-  window.onerror = (message, source, lineno, colno, error) => {
+  window.onerror = (
+    message: string | Event,
+    source?: string,
+    lineno?: number,
+    colno?: number,
+    error?: Error
+  ): boolean => {
     reportError(error || new Error(String(message)), `Global: ${source}:${lineno}:${colno}`);
     return false; // 기본 에러 처리 계속
   };
 
   // Promise rejection
-  window.onunhandledrejection = (event) => {
+  window.onunhandledrejection = (event: PromiseRejectionEvent): void => {
     const error = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
     reportError(error, 'Unhandled Promise Rejection');
   };

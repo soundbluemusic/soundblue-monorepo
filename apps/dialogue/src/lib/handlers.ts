@@ -204,7 +204,7 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
         `💨 Wind: ${windSpeed}km/h\n` +
         `☁️ Condition: ${weatherDesc}`;
     }
-  } catch (error) {
+  } catch (_error: unknown) {
     if (locale === "ko") {
       return "날씨 정보를 가져올 수 없습니다. 위치 접근 권한을 허용해주세요.";
     } else if (locale === "ja") {
