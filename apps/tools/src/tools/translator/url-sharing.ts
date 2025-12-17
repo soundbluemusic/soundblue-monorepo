@@ -1,4 +1,7 @@
-import LZString from 'lz-string';
+import {
+  compressToEncodedURIComponent,
+  decompressFromEncodedURIComponent,
+} from 'lz-string';
 
 // ========================================
 // URL Sharing Utilities for Translator
@@ -20,7 +23,7 @@ const MAX_COMPRESSED_LENGTH = 1800;
 export function compressForUrl(data: SharedTranslation): string | null {
   try {
     const json = JSON.stringify(data);
-    const compressed = LZString.compressToEncodedURIComponent(json);
+    const compressed = compressToEncodedURIComponent(json);
 
     if (compressed.length > MAX_COMPRESSED_LENGTH) {
       return null;
@@ -47,7 +50,7 @@ function isSharedTranslation(obj: unknown): obj is SharedTranslation {
  */
 export function decompressFromUrl(compressed: string): SharedTranslation | null {
   try {
-    const json = LZString.decompressFromEncodedURIComponent(compressed);
+    const json = decompressFromEncodedURIComponent(compressed);
     if (!json) return null;
 
     const parsed: unknown = JSON.parse(json);
