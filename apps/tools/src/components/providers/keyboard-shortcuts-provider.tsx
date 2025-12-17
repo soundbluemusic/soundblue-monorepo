@@ -1,3 +1,30 @@
+/**
+ * @fileoverview 키보드 단축키 프로바이더 (Keyboard Shortcuts Provider)
+ *
+ * 앱 전역 키보드 단축키를 관리하고 이벤트를 발행합니다.
+ * Professional DAW(Ableton, Logic, FL Studio) 스타일의 단축키를 제공합니다.
+ *
+ * ## 발행 이벤트 (Custom Events)
+ * 각 단축키 실행 시 window에 CustomEvent가 발행되어 도구 컴포넌트가 구독할 수 있습니다.
+ *
+ * | 이벤트 | 트리거 | 설명 |
+ * |--------|--------|------|
+ * | `shortcut:playStop` | Space | 재생/일시정지 토글 |
+ * | `shortcut:stop` | Enter | 정지 및 처음으로 |
+ *
+ * @example
+ * // 도구 컴포넌트에서 이벤트 구독
+ * onMount(() => {
+ *   const handlePlayStop = () => {
+ *     // 재생/정지 로직
+ *   };
+ *   window.addEventListener('shortcut:playStop', handlePlayStop);
+ *   onCleanup(() => window.removeEventListener('shortcut:playStop', handlePlayStop));
+ * });
+ *
+ * @module keyboard-shortcuts-provider
+ */
+
 // ========================================
 // Keyboard Shortcuts Provider
 // ========================================
@@ -17,7 +44,16 @@ import { audioActions, audioStore } from '@/stores/audio-store';
 import { toolActions, toolStore } from '@/stores/tool-store';
 import { ShortcutsHelpModal } from './shortcuts-help-modal';
 
-// Get the shortcut definition by ID
+/**
+ * 단축키 ID로 단축키 정의를 조회합니다.
+ *
+ * @param {string} id - 단축키 ID (예: 'transport.playStop', 'bpm.up')
+ * @returns {ShortcutDefinition | undefined} 단축키 정의 객체 또는 undefined
+ *
+ * @example
+ * const playStopShortcut = getShortcut('transport.playStop');
+ * // { id: 'transport.playStop', key: ' ', description: 'Play/Stop', ... }
+ */
 function getShortcut(id: string) {
   return DEFAULT_SHORTCUTS.find((s) => s.id === id);
 }

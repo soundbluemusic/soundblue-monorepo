@@ -1,3 +1,25 @@
+/**
+ * @fileoverview 동적 쿼리 핸들러 시스템 (Dynamic Query Handler System)
+ *
+ * 사용자의 자연어 쿼리를 분석하여 시간, 날짜, 날씨, 음력 정보를 실시간으로 제공합니다.
+ * Analyzes natural language queries and provides real-time time, date, weather, and lunar info.
+ *
+ * ## 매칭 우선순위 (Matching Priority)
+ * 1. **Lunar (음력)** - 가장 구체적인 쿼리 (regex 기반)
+ * 2. **Time (시간)** - 하이브리드 매칭 (키워드 + 퍼지)
+ * 3. **Weather (날씨)** - "오늘 날씨" vs "오늘 날짜" 충돌 방지를 위해 날짜보다 먼저 체크
+ * 4. **Date (날짜)** - 하이브리드 매칭 (키워드 + 퍼지)
+ *
+ * ## 매칭 전략 (Matching Strategy)
+ * - Lunar: RegExp 패턴 매칭 (오타 발생 확률 낮음)
+ * - Time/Date/Weather: 3단계 하이브리드 매칭
+ *   1. 정확한 키워드 매칭 (fastest)
+ *   2. 오타 패턴 매칭 (typo-patterns.ts)
+ *   3. 퍼지 매칭 (fuzzy.ts - Levenshtein distance)
+ *
+ * @module handlers
+ */
+
 import type { Locale } from "~/i18n";
 import { solarToLunar, formatLunarDate } from "./lunar";
 import { containsSimilarKeyword, normalizeForMatch } from "./fuzzy";
@@ -318,7 +340,49 @@ function getWeatherDescription(code: number, locale: Locale): string {
   return descriptions[locale]?.[code] || descriptions.en[code] || `Unknown (${code})`;
 }
 
-// Main handler function
+/**
+ * 사용자 쿼리를 분석하여 동적 응답을 생성합니다.
+ * Analyzes user query and generates dynamic response.
+ *
+ * ## 매칭 우선순위 (Matching Priority)
+ * 1. Lunar (음력) - regex 패턴 매칭
+ * 2. Time (시간) - 하이브리드 매칭
+ * 3. Weather (날씨) - 하이브리드 매칭 (비동기)
+ * 4. Date (날짜) - 하이브리드 매칭
+ *
+ * @param {string} query - 사용자 입력 쿼리
+ * @param {Locale} locale - 현재 로케일 ('ko' | 'en' | 'ja')
+ * @returns {DynamicResponse} 매칭 결과 및 응답
+ *
+ * @example
+ * // 시간 쿼리 (Time query)
+ * handleDynamicQuery("지금 몇 시야?", "ko");
+ * // { matched: true, response: "지금은 오후 3시 25분 10초입니다. (03:25:10 PM)" }
+ *
+ * @example
+ * // 날씨 쿼리 (Weather query) - 비동기 응답
+ * const result = handleDynamicQuery("오늘 날씨 어때?", "ko");
+ * // { matched: true, isAsync: true, asyncResponse: [Function] }
+ * if (result.isAsync && result.asyncResponse) {
+ *   const weather = await result.asyncResponse();
+ *   // "서울의 현재 날씨입니다:\n🌡️ 기온: 15°C\n💧 습도: 45%\n..."
+ * }
+ *
+ * @example
+ * // 음력 쿼리 (Lunar query)
+ * handleDynamicQuery("오늘 음력으로 며칠이야?", "ko");
+ * // { matched: true, response: "오늘 양력 2024년 12월 17일은 음력으로 11월 17일입니다." }
+ *
+ * @example
+ * // 날짜 쿼리 (Date query)
+ * handleDynamicQuery("오늘 무슨 요일이야?", "ko");
+ * // { matched: true, response: "오늘은 2024년 12월 17일 화요일입니다." }
+ *
+ * @example
+ * // 매칭 실패 (No match)
+ * handleDynamicQuery("안녕하세요", "ko");
+ * // { matched: false }
+ */
 export function handleDynamicQuery(query: string, locale: Locale): DynamicResponse {
   // Check for lunar date (most specific first - uses regex)
   if (matchesPatterns(query, LUNAR_PATTERNS[locale])) {

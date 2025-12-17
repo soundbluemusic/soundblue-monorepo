@@ -1,9 +1,50 @@
+/**
+ * @fileoverview 봇 명령어 파싱 시스템 (Bot Command Parser System)
+ *
+ * 사용자의 자연어 입력을 분석하여 도구 제어 인텐트로 변환합니다.
+ * Parses natural language input and converts it to tool control intents.
+ *
+ * ## 인텐트 타입 (Intent Types)
+ * - `OPEN_TOOL`: 특정 도구 열기 (예: "메트로놈 열어줘")
+ * - `CLOSE_TOOL`: 현재 도구 닫기 (예: "닫아", "종료")
+ * - `SET_PARAM`: 파라미터 설정 (예: "120 bpm", "볼륨 80")
+ * - `HELP`: 도움말 표시 (예: "도움말", "뭐해")
+ * - `UNKNOWN`: 인식 불가
+ *
+ * ## 파싱 우선순위 (Parsing Priority)
+ * 1. Help 키워드 체크
+ * 2. Close 키워드 체크
+ * 3. Parameter 패턴 매칭 (regex)
+ * 4. Tool 키워드 매칭
+ * 5. UNKNOWN 반환
+ *
+ * @module commands
+ */
+
 import type { ToolType } from '@/stores/tool-store';
 
 // ========================================
 // Command Parser - 채팅 명령어 파싱
 // ========================================
 
+/**
+ * 봇이 반환하는 인텐트 타입
+ *
+ * @typedef {Object} Intent
+ * @property {'OPEN_TOOL'} type - 도구 열기
+ * @property {ToolType} tool - 열 도구 ID
+ *
+ * @property {'CLOSE_TOOL'} type - 현재 도구 닫기
+ *
+ * @property {'SET_PARAM'} type - 파라미터 설정
+ * @property {ToolType} tool - 대상 도구
+ * @property {string} param - 파라미터 이름 (예: 'bpm', 'volume')
+ * @property {number|string} value - 설정할 값
+ *
+ * @property {'HELP'} type - 도움말 요청
+ *
+ * @property {'UNKNOWN'} type - 인식 불가
+ */
 export type Intent =
   | { type: 'OPEN_TOOL'; tool: ToolType }
   | { type: 'CLOSE_TOOL' }
@@ -11,7 +52,22 @@ export type Intent =
   | { type: 'HELP' }
   | { type: 'UNKNOWN' };
 
-// Tool keywords mapping
+/**
+ * 도구별 키워드 매핑 테이블
+ * Tool-to-keyword mapping table
+ *
+ * 각 도구(ToolType)에 대해 사용자가 입력할 수 있는 키워드 목록을 정의합니다.
+ * 한국어, 영어, 줄임말 등 다양한 표현을 지원합니다.
+ *
+ * @example
+ * // 키워드 구조
+ * {
+ *   metronome: ['메트로놈', 'metronome', ...],  // 메트로놈 도구
+ *   qr: ['qr', 'QR코드', ...],                  // QR 생성기
+ *   drumMachine: ['드럼머신', 'drum', ...],     // 드럼 머신
+ *   translator: ['번역', 'translate', ...],    // 번역기
+ * }
+ */
 const TOOL_KEYWORDS: Record<ToolType, string[]> = {
   metronome: ['메트로놈', '박자기', 'metronome', '메트로'],
   qr: ['qr', 'QR', '큐알', 'qr코드', 'QR코드', 'qr생성', 'qr 생성기'],
@@ -86,7 +142,33 @@ const HELP_KEYWORDS: readonly string[] = [
 ];
 
 /**
- * Parse user input and return intent
+ * 사용자 입력을 파싱하여 인텐트를 반환합니다.
+ * Parses user input and returns the detected intent.
+ *
+ * ## 반환 타입별 설명 (Intent Type Details)
+ *
+ * | 타입 | 트리거 예시 | 반환값 |
+ * |------|-------------|--------|
+ * | `HELP` | "도움말", "help" | `{ type: 'HELP' }` |
+ * | `CLOSE_TOOL` | "닫아", "종료" | `{ type: 'CLOSE_TOOL' }` |
+ * | `SET_PARAM` | "120 bpm" | `{ type: 'SET_PARAM', tool: 'metronome', param: 'bpm', value: 120 }` |
+ * | `OPEN_TOOL` | "메트로놈" | `{ type: 'OPEN_TOOL', tool: 'metronome' }` |
+ * | `UNKNOWN` | 인식 불가 | `{ type: 'UNKNOWN' }` |
+ *
+ * @param {string} input - 사용자 입력 문자열
+ * @returns {Intent} 파싱된 인텐트 객체
+ *
+ * @example
+ * parseCommand("메트로놈 열어줘");
+ * // { type: 'OPEN_TOOL', tool: 'metronome' }
+ *
+ * @example
+ * parseCommand("템포 140");
+ * // { type: 'SET_PARAM', tool: 'metronome', param: 'bpm', value: 140 }
+ *
+ * @example
+ * parseCommand("도구 닫아");
+ * // { type: 'CLOSE_TOOL' }
  */
 export function parseCommand(input: string): Intent {
   const trimmed = input.trim().toLowerCase();
