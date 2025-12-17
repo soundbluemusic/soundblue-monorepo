@@ -14,19 +14,19 @@ interface Logger {
 }
 
 export const logger: Logger = {
-  log: (...args) => {
+  log: (...args: unknown[]): void => {
     if (isDev) console.log(...args);
   },
-  warn: (...args) => {
+  warn: (...args: unknown[]): void => {
     if (isDev) console.warn(...args);
   },
-  error: (...args) => {
+  error: (...args: unknown[]): void => {
     if (isDev) console.error(...args);
   },
-  group: (label) => {
+  group: (label: string): void => {
     if (isDev) console.group(label);
   },
-  groupEnd: () => {
+  groupEnd: (): void => {
     if (isDev) console.groupEnd();
   },
 };

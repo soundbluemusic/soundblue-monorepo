@@ -113,31 +113,74 @@ export const ToolContainer: Component = () => {
     if (!tool) return;
 
     const params = URL_PARAMS[tool];
-    const urlSettings: Partial<MetronomeSettings & QRSettings & DrumMachineSettings> = {};
     let hasUrlSettings = false;
 
-    const numericParams = ['bpm', 'beatsPerMeasure', 'volume', 'swing', 'size'] as const;
-    type NumericParam = (typeof numericParams)[number];
-
-    for (const param of params) {
-      const rawValue = searchParams[param];
-      // Handle string[] case - use first value if array
+    // Type-safe URL param parsing per tool type
+    const parseUrlValue = (
+      param: string,
+      rawValue: string | string[] | undefined
+    ): { key: string; value: number | string } | null => {
       const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
-      if (value !== undefined && value !== null && value !== '') {
-        hasUrlSettings = true;
-        if (numericParams.includes(param as NumericParam)) {
-          const numValue = Number(value);
-          if (Number.isFinite(numValue)) {
-            urlSettings[param as keyof typeof urlSettings] = numValue as never;
-          }
-        } else {
-          urlSettings[param as keyof typeof urlSettings] = value as never;
+      if (value === undefined || value === null || value === '') return null;
+
+      const numericParams = ['bpm', 'beatsPerMeasure', 'volume', 'swing', 'size'];
+      if (numericParams.includes(param)) {
+        const numValue = Number(value);
+        if (Number.isFinite(numValue)) {
+          return { key: param, value: numValue };
+        }
+        return null;
+      }
+      return { key: param, value };
+    };
+
+    // Build type-safe settings object based on tool type
+    if (tool === 'metronome') {
+      const settings: Partial<MetronomeSettings> = {};
+      for (const param of params) {
+        const parsed = parseUrlValue(param, searchParams[param]);
+        if (parsed) {
+          hasUrlSettings = true;
+          if (parsed.key === 'bpm') settings.bpm = parsed.value as number;
+          if (parsed.key === 'beatsPerMeasure') settings.beatsPerMeasure = parsed.value as number;
+          if (parsed.key === 'volume') settings.volume = parsed.value as number;
         }
       }
-    }
-
-    if (hasUrlSettings) {
-      toolActions.updateToolSettings(tool, urlSettings);
+      if (hasUrlSettings) toolActions.updateToolSettings('metronome', settings);
+    } else if (tool === 'drumMachine') {
+      const settings: Partial<DrumMachineSettings> = {};
+      for (const param of params) {
+        const parsed = parseUrlValue(param, searchParams[param]);
+        if (parsed) {
+          hasUrlSettings = true;
+          if (parsed.key === 'bpm') settings.bpm = parsed.value as number;
+          if (parsed.key === 'swing') settings.swing = parsed.value as number;
+          if (parsed.key === 'volume') settings.volume = parsed.value as number;
+        }
+      }
+      if (hasUrlSettings) toolActions.updateToolSettings('drumMachine', settings);
+    } else if (tool === 'qr') {
+      const settings: Partial<QRSettings> = {};
+      for (const param of params) {
+        const parsed = parseUrlValue(param, searchParams[param]);
+        if (parsed) {
+          hasUrlSettings = true;
+          if (parsed.key === 'size') settings.size = parsed.value as number;
+          if (parsed.key === 'fgColor') settings.foregroundColor = parsed.value as string;
+          if (parsed.key === 'bgColor') settings.backgroundColor = parsed.value as string;
+        }
+      }
+      if (hasUrlSettings) toolActions.updateToolSettings('qr', settings);
+    } else if (tool === 'translator') {
+      const settings: Partial<TranslatorSettings> = {};
+      for (const param of params) {
+        const parsed = parseUrlValue(param, searchParams[param]);
+        if (parsed) {
+          hasUrlSettings = true;
+          if (parsed.key === 'direction') settings.direction = parsed.value as TranslatorSettings['direction'];
+        }
+      }
+      if (hasUrlSettings) toolActions.updateToolSettings('translator', settings);
     }
   });
 

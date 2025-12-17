@@ -168,7 +168,7 @@ export const WorldClockWidget: Component = () => {
         <div class="text-lg font-medium">
           {locale() === 'ko'
             ? `${currentDate().year}년 ${monthNames.ko[currentDate().month]}`
-            : `${monthNames.en[currentDate().month as number]} ${currentDate().year}`}
+            : `${monthNames.en[currentDate().month]} ${currentDate().year}`}
         </div>
 
         {/* 요일 헤더 */}

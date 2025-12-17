@@ -11,7 +11,7 @@ const DialogPortal = KobalteDialog.Portal;
 
 const DialogClose = KobalteDialog.CloseButton;
 
-interface DialogOverlayProps extends JSX.HTMLAttributes<HTMLDivElement> {}
+type DialogOverlayProps = JSX.HTMLAttributes<HTMLDivElement>;
 
 const DialogOverlay: Component<DialogOverlayProps> = (props) => {
   const [local, others] = splitProps(props, ['class']);
@@ -29,7 +29,7 @@ const DialogOverlay: Component<DialogOverlayProps> = (props) => {
   );
 };
 
-interface DialogContentProps extends JSX.HTMLAttributes<HTMLDivElement> {}
+type DialogContentProps = JSX.HTMLAttributes<HTMLDivElement>;
 
 const DialogContent: ParentComponent<DialogContentProps> = (props) => {
   const [local, others] = splitProps(props, ['class', 'children']);
@@ -75,7 +75,7 @@ const DialogContent: ParentComponent<DialogContentProps> = (props) => {
   );
 };
 
-interface DialogHeaderProps extends JSX.HTMLAttributes<HTMLDivElement> {}
+type DialogHeaderProps = JSX.HTMLAttributes<HTMLDivElement>;
 
 const DialogHeader: ParentComponent<DialogHeaderProps> = (props) => {
   const [local, others] = splitProps(props, ['class', 'children']);
@@ -87,7 +87,7 @@ const DialogHeader: ParentComponent<DialogHeaderProps> = (props) => {
   );
 };
 
-interface DialogFooterProps extends JSX.HTMLAttributes<HTMLDivElement> {}
+type DialogFooterProps = JSX.HTMLAttributes<HTMLDivElement>;
 
 const DialogFooter: ParentComponent<DialogFooterProps> = (props) => {
   const [local, others] = splitProps(props, ['class', 'children']);
@@ -102,7 +102,7 @@ const DialogFooter: ParentComponent<DialogFooterProps> = (props) => {
   );
 };
 
-interface DialogTitleProps extends JSX.HTMLAttributes<HTMLHeadingElement> {}
+type DialogTitleProps = JSX.HTMLAttributes<HTMLHeadingElement>;
 
 const DialogTitle: ParentComponent<DialogTitleProps> = (props) => {
   const [local, others] = splitProps(props, ['class', 'children']);
@@ -117,7 +117,7 @@ const DialogTitle: ParentComponent<DialogTitleProps> = (props) => {
   );
 };
 
-interface DialogDescriptionProps extends JSX.HTMLAttributes<HTMLParagraphElement> {}
+type DialogDescriptionProps = JSX.HTMLAttributes<HTMLParagraphElement>;
 
 const DialogDescription: ParentComponent<DialogDescriptionProps> = (props) => {
   const [local, others] = splitProps(props, ['class', 'children']);

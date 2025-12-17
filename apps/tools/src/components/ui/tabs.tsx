@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 const Tabs = KobalteTabs;
 
-interface TabsListProps extends JSX.HTMLAttributes<HTMLDivElement> {}
+type TabsListProps = JSX.HTMLAttributes<HTMLDivElement>;
 
 const TabsList: ParentComponent<TabsListProps> = (props) => {
   const [local, others] = splitProps(props, ['class', 'children']);

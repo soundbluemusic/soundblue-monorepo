@@ -8,7 +8,7 @@ const Tooltip = KobalteTooltip;
 
 const TooltipTrigger = KobalteTooltip.Trigger;
 
-interface TooltipContentProps extends JSX.HTMLAttributes<HTMLDivElement> {}
+type TooltipContentProps = JSX.HTMLAttributes<HTMLDivElement>;
 
 const TooltipContent: ParentComponent<TooltipContentProps> = (props) => {
   const [local, others] = splitProps(props, ['class', 'children']);
