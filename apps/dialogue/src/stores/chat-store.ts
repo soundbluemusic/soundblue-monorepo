@@ -142,11 +142,20 @@ export const chatActions = {
     void setSetting("ghostMode", newValue);
   },
 
-  // Create new conversation
+  // Create new conversation (with race condition prevention)
   createConversation: (welcomeMessage: Message): Conversation | null => {
     if (chatStore.ghostMode) {
       setChatStore("activeConversationId", null);
       return null;
+    }
+
+    // Prevent duplicate creation - if already have active conversation, return it
+    // 중복 생성 방지 - 이미 활성 대화가 있으면 해당 대화 반환
+    if (chatStore.activeConversationId) {
+      const existing = chatStore.conversations.find(
+        (c) => c.id === chatStore.activeConversationId
+      );
+      if (existing) return existing;
     }
 
     const newConversation: Conversation = {
@@ -157,10 +166,15 @@ export const chatActions = {
       updatedAt: Date.now(),
     };
 
-    const newConversations = [newConversation, ...chatStore.conversations];
-    setChatStore("conversations", newConversations);
+    // Set activeConversationId FIRST to prevent race conditions
+    // activeConversationId를 먼저 설정하여 race condition 방지
     setChatStore("activeConversationId", newConversation.id);
-    void saveConversation(newConversation);
+    setChatStore("conversations", [newConversation, ...chatStore.conversations]);
+
+    // Save with error handling
+    saveConversation(newConversation).catch((err) => {
+      console.error("Failed to save conversation:", err);
+    });
 
     return newConversation;
   },
@@ -195,7 +209,11 @@ export const chatActions = {
     newConversations[convIndex] = updatedConversation;
 
     setChatStore("conversations", newConversations);
-    void saveConversation(updatedConversation);
+
+    // Save with error handling
+    saveConversation(updatedConversation).catch((err) => {
+      console.error("Failed to save message:", err);
+    });
   },
 
   // Load conversation (sets active ID only - actual loading handled by ChatContainer via loadTrigger)
@@ -216,7 +234,10 @@ export const chatActions = {
       setChatStore("activeConversationId", null);
     }
 
-    void deleteConversationFromDB(id);
+    // Delete with error handling
+    deleteConversationFromDB(id).catch((err) => {
+      console.error("Failed to delete conversation:", err);
+    });
   },
 
   // Clear active conversation (for new chat)

@@ -36,6 +36,10 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
 
   // Initialize with welcome message
   const initializeChat = () => {
+    // Clear active conversation FIRST to prevent race conditions
+    // 먼저 활성 대화를 클리어하여 race condition 방지
+    chatActions.clearActive();
+
     const welcomeMessage: Message = {
       id: generateId(),
       role: "assistant",
@@ -44,7 +48,6 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     };
     setMessages([welcomeMessage]);
     setConversationStarted(false);
-    chatActions.clearActive();
   };
 
   onMount(() => {
@@ -59,14 +62,19 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
   });
 
   // Load conversation ONLY when explicitly triggered from sidebar (via loadTrigger)
+  // Also re-run when hydration completes
   createEffect(() => {
     const trigger = props.loadTrigger ?? 0;
+    const isHydrated = chatStore.isHydrated;
+
     // Only react to actual trigger changes
     if (trigger <= prevLoadTrigger) return;
-    prevLoadTrigger = trigger;
 
     // Must wait for hydration to complete
-    if (!chatStore.isHydrated) return;
+    // Effect will re-run when isHydrated changes due to SolidJS reactivity
+    if (!isHydrated) return;
+
+    prevLoadTrigger = trigger;
 
     const activeId = chatStore.activeConversationId;
     if (activeId) {
@@ -101,18 +109,20 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     };
 
     // Start a new conversation if needed (not in ghost mode)
-    if (!conversationStarted() && !chatStore.ghostMode) {
+    // Use activeConversationId check instead of conversationStarted for atomicity
+    // conversationStarted 대신 activeConversationId 체크하여 원자성 보장
+    if (!chatStore.activeConversationId && !chatStore.ghostMode) {
       const welcomeMsg = messages()[0];
       if (welcomeMsg) {
         chatActions.createConversation(welcomeMsg);
       }
-      setConversationStarted(true);
     }
+    setConversationStarted(true);
 
     setMessages((prev) => [...prev, userMessage]);
 
-    // Save to store (only if not in ghost mode)
-    if (!chatStore.ghostMode) {
+    // Save to store (only if not in ghost mode and has active conversation)
+    if (!chatStore.ghostMode && chatStore.activeConversationId) {
       chatActions.addMessage(userMessage);
     }
 
@@ -154,8 +164,8 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     setIsThinking(false);
     setMessages((prev) => [...prev, assistantMessage]);
 
-    // Save to store (only if not in ghost mode)
-    if (!chatStore.ghostMode) {
+    // Save to store (only if not in ghost mode and has active conversation)
+    if (!chatStore.ghostMode && chatStore.activeConversationId) {
       chatActions.addMessage(assistantMessage);
     }
   };
