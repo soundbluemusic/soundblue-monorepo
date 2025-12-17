@@ -1,6 +1,5 @@
 import { defineConfig } from '@solidjs/start/config';
 import tailwindcss from '@tailwindcss/vite';
-import type { Plugin } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -15,8 +14,8 @@ export default defineConfig({
 
   vite: {
     plugins: [
-      // Tailwind CSS 4 - cast to Plugin for vinxi compatibility
-      tailwindcss() as Plugin,
+      // Tailwind CSS 4 - spread array for vinxi compatibility
+      ...tailwindcss(),
 
       // PWA Support - Enhanced offline capabilities
       VitePWA({
@@ -222,7 +221,7 @@ export default defineConfig({
         output: {
           // Code splitting for better caching
           // Note: solid-js packages are externalized in SSR, so only include non-SSR dependencies
-          manualChunks: (id) => {
+          manualChunks: (id: string) => {
             // Only apply chunking to node_modules
             if (!id.includes('node_modules')) return undefined;
             // Skip externalized SSR packages

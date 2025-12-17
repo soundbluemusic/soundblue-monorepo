@@ -36,7 +36,7 @@ export const MainLayout: Component = () => {
   const [activeTab, setActiveTab] = createSignal<"chat" | "result">("chat");
 
   // Resizable chat panel
-  const [chatWidth, setChatWidth] = createSignal(CHAT_WIDTH.default);
+  const [chatWidth, setChatWidth] = createSignal<number>(CHAT_WIDTH.default);
   const [isResizing, setIsResizing] = createSignal(false);
 
   // Chat container triggers

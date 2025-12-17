@@ -6,12 +6,12 @@
  * setupFiles: ['@soundblue/shared/test/setup']
  */
 import '@testing-library/jest-dom/vitest';
-import { vi } from 'vitest';
+import { vi, type Mock } from 'vitest';
 
 // ============================================
 // Mock: window.matchMedia
 // ============================================
-export const mockMatchMedia = vi.fn().mockImplementation((query: string) => ({
+export const mockMatchMedia: Mock<(query: string) => MediaQueryList> = vi.fn().mockImplementation((query: string) => ({
   matches: false,
   media: query,
   onchange: null,
@@ -31,9 +31,9 @@ Object.defineProperty(window, 'matchMedia', {
 // Mock: ResizeObserver
 // ============================================
 export class MockResizeObserver implements ResizeObserver {
-  observe = vi.fn();
-  unobserve = vi.fn();
-  disconnect = vi.fn();
+  observe: Mock<(target: Element) => void> = vi.fn();
+  unobserve: Mock<(target: Element) => void> = vi.fn();
+  disconnect: Mock<() => void> = vi.fn();
 }
 
 Object.defineProperty(window, 'ResizeObserver', {
@@ -48,10 +48,10 @@ export class MockIntersectionObserver implements IntersectionObserver {
   readonly root: Element | Document | null = null;
   readonly rootMargin: string = '';
   readonly thresholds: ReadonlyArray<number> = [];
-  observe = vi.fn();
-  unobserve = vi.fn();
-  disconnect = vi.fn();
-  takeRecords = vi.fn((): IntersectionObserverEntry[] => []);
+  observe: Mock<(target: Element) => void> = vi.fn();
+  unobserve: Mock<(target: Element) => void> = vi.fn();
+  disconnect: Mock<() => void> = vi.fn();
+  takeRecords: Mock<() => IntersectionObserverEntry[]> = vi.fn(() => []);
 }
 
 Object.defineProperty(window, 'IntersectionObserver', {
@@ -115,6 +115,39 @@ Object.defineProperty(window, 'localStorage', {
 // ============================================
 // Mock: AudioContext (for tools app)
 // ============================================
+
+/** Mock GainNode return type */
+interface MockGainNode {
+  gain: { value: number; setValueAtTime: Mock };
+  connect: Mock;
+  disconnect: Mock;
+}
+
+/** Mock AnalyserNode return type */
+interface MockAnalyserNode {
+  fftSize: number;
+  frequencyBinCount: number;
+  getByteFrequencyData: Mock;
+  getByteTimeDomainData: Mock;
+  connect: Mock;
+  disconnect: Mock;
+}
+
+/** Mock OscillatorNode return type */
+interface MockOscillatorNode {
+  type: string;
+  frequency: { value: number };
+  connect: Mock;
+  disconnect: Mock;
+  start: Mock;
+  stop: Mock;
+}
+
+/** Mock AudioWorklet return type */
+interface MockAudioWorklet {
+  addModule: () => Promise<void>;
+}
+
 export class MockAudioContext {
   sampleRate = 48000;
   baseLatency = 0.01;
@@ -123,7 +156,7 @@ export class MockAudioContext {
   state = 'running' as AudioContextState;
   destination = {} as AudioDestinationNode;
 
-  createGain() {
+  createGain(): MockGainNode {
     return {
       gain: { value: 1, setValueAtTime: vi.fn() },
       connect: vi.fn(),
@@ -131,7 +164,7 @@ export class MockAudioContext {
     };
   }
 
-  createAnalyser() {
+  createAnalyser(): MockAnalyserNode {
     return {
       fftSize: 2048,
       frequencyBinCount: 1024,
@@ -142,7 +175,7 @@ export class MockAudioContext {
     };
   }
 
-  createOscillator() {
+  createOscillator(): MockOscillatorNode {
     return {
       type: 'sine',
       frequency: { value: 440 },
@@ -153,15 +186,15 @@ export class MockAudioContext {
     };
   }
 
-  resume() {
+  resume(): Promise<void> {
     return Promise.resolve();
   }
 
-  close() {
+  close(): Promise<void> {
     return Promise.resolve();
   }
 
-  get audioWorklet() {
+  get audioWorklet(): MockAudioWorklet {
     return {
       addModule: () => Promise.resolve(),
     };
