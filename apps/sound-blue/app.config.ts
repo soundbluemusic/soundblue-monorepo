@@ -66,9 +66,21 @@ export default defineConfig({
       rollupOptions: {
         output: {
           // Code splitting for better caching
-          manualChunks: {
-            'solid-vendor': ['solid-js', '@solidjs/router', '@solidjs/meta'],
-            'ui-vendor': ['class-variance-authority', 'clsx', 'tailwind-merge'],
+          // Note: solid-js packages are externalized in SSR, so only include non-SSR dependencies
+          manualChunks: (id) => {
+            // Only apply chunking to node_modules
+            if (!id.includes('node_modules')) return undefined;
+            // Skip externalized SSR packages
+            if (id.includes('solid-js') || id.includes('@solidjs')) return undefined;
+            // UI vendor chunk
+            if (
+              id.includes('class-variance-authority') ||
+              id.includes('clsx') ||
+              id.includes('tailwind-merge')
+            ) {
+              return 'ui-vendor';
+            }
+            return undefined;
           },
         },
       },
