@@ -1,22 +1,20 @@
 /**
- * @fileoverview Type-safe localStorage wrapper with SSR safety and Zod validation.
+ * @fileoverview Type-safe IndexedDB wrapper with SSR safety and Zod validation.
  *
- * This module provides a robust abstraction over the browser's localStorage API
- * with the following features:
+ * This module provides a robust abstraction over IndexedDB (via Dexie.js) with:
  *
  * - **SSR Safety**: All functions check for `window` availability before accessing
- *   localStorage, making them safe to call during server-side rendering.
+ *   IndexedDB, making them safe to call during server-side rendering.
  *
  * - **Type Safety**: Uses TypeScript generics for type-safe storage operations.
  *
  * - **Runtime Validation**: `getValidatedStorageItem` uses Zod schemas to validate
  *   data at runtime, ensuring corrupted/tampered data doesn't break the app.
  *
- * - **Silent Error Handling**: All localStorage operations are wrapped in try-catch
+ * - **Silent Error Handling**: All IndexedDB operations are wrapped in try-catch
  *   blocks that fail silently. This handles edge cases like:
  *   - Private/incognito browsing modes with disabled storage
  *   - Storage quota exceeded errors
- *   - SecurityError when cookies are disabled
  *   - Corrupted JSON data during parsing
  *
  * ## Three API Styles
@@ -34,26 +32,27 @@
  * @example
  * ```tsx
  * // Validated API - for data requiring runtime validation
- * const messages = getValidatedStorageItem('chat-history', MessagesSchema, []);
+ * const messages = await getValidatedStorageItem('chat-history', MessagesSchema, []);
  *
  * // Parsed API - for complex data
- * setStorageItem('language', { locale: 'ko', region: 'KR' });
- * const langSettings = getStorageItem('language', { locale: 'en' });
+ * await setStorageItem('language', { locale: 'ko', region: 'KR' });
+ * const langSettings = await getStorageItem('language', { locale: 'en' });
  *
  * // Raw API - for simple strings (theme preference)
- * setRawStorageItem('theme', 'dark');
- * const theme = getRawStorageItem('theme'); // 'dark' (not '"dark"')
+ * await setRawStorageItem('theme', 'dark');
+ * const theme = await getRawStorageItem('theme'); // 'dark' (not '"dark"')
  * ```
  *
  * @module utils/storage
  */
 
 import type { z } from 'zod';
+import { getPreference, setPreference, removePreference } from '../storage';
 
 /**
- * Retrieves and validates a value from localStorage using a Zod schema.
+ * Retrieves and validates a value from IndexedDB using a Zod schema.
  *
- * This is the safest way to retrieve complex data from localStorage as it:
+ * This is the safest way to retrieve complex data from IndexedDB as it:
  * - Handles SSR safely
  * - Parses JSON
  * - Validates the data structure with Zod
@@ -67,7 +66,7 @@ import type { z } from 'zod';
  *
  * @example
  * ```tsx
- * const messages = getValidatedStorageItem(
+ * const messages = await getValidatedStorageItem(
  *   'chat-history',
  *   MessagesSchema,
  *   []
@@ -75,15 +74,15 @@ import type { z } from 'zod';
  * // messages is guaranteed to be Message[] with correct structure
  * ```
  */
-export function getValidatedStorageItem<T>(
+export async function getValidatedStorageItem<T>(
   key: string,
   schema: z.ZodType<T>,
   defaultValue: T,
-): T {
+): Promise<T> {
   if (typeof window === 'undefined') return defaultValue;
 
   try {
-    const item = localStorage.getItem(key);
+    const item = await getPreference(key);
     if (item === null) return defaultValue;
 
     const parsed: unknown = JSON.parse(item);
@@ -96,13 +95,13 @@ export function getValidatedStorageItem<T>(
 }
 
 /**
- * Retrieves a JSON-parsed value from localStorage with SSR safety.
+ * Retrieves a JSON-parsed value from IndexedDB with SSR safety.
  *
  * This function safely handles:
  * - Server-side rendering (returns defaultValue when window is undefined)
  * - Missing keys (returns defaultValue)
  * - Invalid JSON (returns defaultValue)
- * - localStorage errors (returns defaultValue)
+ * - IndexedDB errors (returns defaultValue)
  *
  * @template T - The expected type of the stored value
  * @param key - The storage key to retrieve
@@ -112,17 +111,17 @@ export function getValidatedStorageItem<T>(
  * @example
  * ```tsx
  * // With object default
- * const prefs = getStorageItem('language', { locale: 'en' });
+ * const prefs = await getStorageItem('language', { locale: 'en' });
  *
  * // With primitive default
- * const count = getStorageItem('visit-count', 0);
+ * const count = await getStorageItem('visit-count', 0);
  * ```
  */
-export function getStorageItem<T>(key: string, defaultValue: T): T {
+export async function getStorageItem<T>(key: string, defaultValue: T): Promise<T> {
   if (typeof window === 'undefined') return defaultValue;
 
   try {
-    const item = localStorage.getItem(key);
+    const item = await getPreference(key);
     if (item === null) return defaultValue;
     return JSON.parse(item) as T;
   } catch {
@@ -131,14 +130,14 @@ export function getStorageItem<T>(key: string, defaultValue: T): T {
 }
 
 /**
- * Stores a JSON-serialized value in localStorage with SSR safety.
+ * Stores a JSON-serialized value in IndexedDB with SSR safety.
  *
  * The value is automatically serialized using `JSON.stringify()`.
  * Use `setRawStorageItem()` for plain string values to avoid JSON quotes.
  *
  * Fails silently if:
  * - Running on the server (SSR)
- * - localStorage is disabled (private browsing)
+ * - IndexedDB is disabled (private browsing)
  * - Storage quota is exceeded
  * - Value cannot be serialized (circular references)
  *
@@ -149,24 +148,24 @@ export function getStorageItem<T>(key: string, defaultValue: T): T {
  * @example
  * ```tsx
  * // Store an object
- * setStorageItem('language', { locale: 'ko', region: 'KR' });
+ * await setStorageItem('language', { locale: 'ko', region: 'KR' });
  *
  * // Store a primitive (will be JSON-wrapped: "true", "42")
- * setStorageItem('enabled', true);
+ * await setStorageItem('enabled', true);
  * ```
  */
-export function setStorageItem<T>(key: string, value: T): void {
+export async function setStorageItem<T>(key: string, value: T): Promise<void> {
   if (typeof window === 'undefined') return;
 
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    await setPreference(key, JSON.stringify(value));
   } catch {
-    // Silently fail if localStorage is not available or quota exceeded
+    // Silently fail if IndexedDB is not available or quota exceeded
   }
 }
 
 /**
- * Removes an item from localStorage with SSR safety.
+ * Removes an item from IndexedDB with SSR safety.
  *
  * Safe to call even if the key doesn't exist. Fails silently on any error.
  *
@@ -175,21 +174,21 @@ export function setStorageItem<T>(key: string, value: T): void {
  * @example
  * ```tsx
  * // Clear user's theme preference (revert to system default)
- * removeStorageItem('theme');
+ * await removeStorageItem('theme');
  * ```
  */
-export function removeStorageItem(key: string): void {
+export async function removeStorageItem(key: string): Promise<void> {
   if (typeof window === 'undefined') return;
 
   try {
-    localStorage.removeItem(key);
+    await removePreference(key);
   } catch {
-    // Silently fail if localStorage is not available
+    // Silently fail if IndexedDB is not available
   }
 }
 
 /**
- * Retrieves a raw string value from localStorage without JSON parsing.
+ * Retrieves a raw string value from IndexedDB without JSON parsing.
  *
  * Use this for simple string values like theme names where you don't want
  * the extra JSON quotes that `getStorageItem` would add.
@@ -200,24 +199,24 @@ export function removeStorageItem(key: string): void {
  * @example
  * ```tsx
  * // Theme is stored as 'dark', not '"dark"'
- * const theme = getRawStorageItem('theme');
+ * const theme = await getRawStorageItem('theme');
  * if (theme === 'dark') {
  *   document.documentElement.dataset.theme = 'dark';
  * }
  * ```
  */
-export function getRawStorageItem(key: string): string | null {
+export async function getRawStorageItem(key: string): Promise<string | null> {
   if (typeof window === 'undefined') return null;
 
   try {
-    return localStorage.getItem(key);
+    return await getPreference(key);
   } catch {
     return null;
   }
 }
 
 /**
- * Stores a raw string value in localStorage without JSON serialization.
+ * Stores a raw string value in IndexedDB without JSON serialization.
  *
  * Use this for simple string values like theme names to avoid unnecessary
  * JSON serialization overhead and quotes.
@@ -228,18 +227,18 @@ export function getRawStorageItem(key: string): string | null {
  * @example
  * ```tsx
  * // Store theme as plain string 'dark' instead of '"dark"'
- * setRawStorageItem('theme', 'dark');
+ * await setRawStorageItem('theme', 'dark');
  *
  * // Later retrieve without JSON parsing
- * const theme = getRawStorageItem('theme'); // 'dark'
+ * const theme = await getRawStorageItem('theme'); // 'dark'
  * ```
  */
-export function setRawStorageItem(key: string, value: string): void {
+export async function setRawStorageItem(key: string, value: string): Promise<void> {
   if (typeof window === 'undefined') return;
 
   try {
-    localStorage.setItem(key, value);
+    await setPreference(key, value);
   } catch {
-    // Silently fail if localStorage is not available or quota exceeded
+    // Silently fail if IndexedDB is not available or quota exceeded
   }
 }

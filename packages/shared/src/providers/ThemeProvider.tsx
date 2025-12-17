@@ -4,7 +4,7 @@
  * Provides application-wide theme management with support for:
  * - Light, dark, and system themes
  * - System color scheme preference detection with live updates
- * - Persistent theme storage via localStorage
+ * - Persistent theme storage via IndexedDB
  * - SSR/SSG compatibility (safe for server-side rendering)
  *
  * @module @soundblue/shared/providers/ThemeProvider
@@ -21,6 +21,7 @@ import {
   useContext,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import { getPreference, setPreference, migrateFromLocalStorage } from '../storage';
 
 /**
  * Available theme options.
@@ -53,7 +54,7 @@ export interface ThemeContextValue {
  * Props for ThemeProvider component.
  */
 export interface ThemeProviderProps {
-  /** localStorage key for persisting theme (default: 'theme') */
+  /** IndexedDB key for persisting theme (default: 'theme') */
   storageKey?: string;
   /** Default theme when no preference is stored (default: 'system') */
   defaultTheme?: Theme;
@@ -121,16 +122,13 @@ export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
   };
 
   /**
-   * Sets theme and persists to storage.
+   * Sets theme and persists to IndexedDB.
    */
   const setTheme = (newTheme: Theme): void => {
     if (isServer || typeof window === 'undefined') return;
     setThemeState(newTheme);
-    try {
-      localStorage.setItem(storageKey(), newTheme);
-    } catch {
-      // Silently fail if localStorage is not available
-    }
+    // Persist to IndexedDB (async, fire and forget)
+    setPreference(storageKey(), newTheme);
     applyTheme(newTheme);
   };
 
@@ -148,13 +146,16 @@ export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
     }
   };
 
-  onMount(() => {
-    // Get stored preference or use default
+  onMount(async () => {
+    // Migrate from localStorage if exists (one-time migration)
+    await migrateFromLocalStorage([storageKey()]);
+
+    // Get stored preference from IndexedDB
     let stored: Theme | null = null;
     try {
-      stored = localStorage.getItem(storageKey()) as Theme | null;
+      stored = await getPreference(storageKey()) as Theme | null;
     } catch {
-      // localStorage not available
+      // IndexedDB not available
     }
 
     const initial = stored && ['light', 'dark', 'system'].includes(stored)

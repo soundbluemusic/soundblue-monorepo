@@ -1,10 +1,11 @@
 // ========================================
 // Valibot Schemas - 런타임 타입 검증
 // ========================================
-// 외부 데이터(localStorage, API, URL params)의
+// 외부 데이터(IndexedDB, API, URL params)의
 // 타입 안전성을 런타임에 보장합니다.
 
 import * as v from 'valibot';
+import { getPreference, setPreference } from '../engine/storage';
 
 // ========================================
 // Tool Settings Schemas
@@ -68,7 +69,7 @@ export type QRSettingsOutput = v.InferOutput<typeof QRSettingsSchema>;
 // ========================================
 
 /**
- * 프로젝트 데이터 스키마 (localStorage/IndexedDB 저장용)
+ * 프로젝트 데이터 스키마 (IndexedDB 저장용)
  */
 export const ProjectDataSchema = v.object({
   name: v.optional(v.string()),
@@ -142,17 +143,17 @@ export function safeParseSchema<T extends v.GenericSchema>(
 }
 
 /**
- * localStorage에서 안전하게 데이터 로드
+ * IndexedDB에서 안전하게 데이터 로드 (비동기)
  */
-export function loadFromStorage<T extends v.GenericSchema>(
+export async function loadFromStorage<T extends v.GenericSchema>(
   key: string,
   schema: T,
   fallback: v.InferOutput<T>
-): v.InferOutput<T> {
+): Promise<v.InferOutput<T>> {
   if (typeof window === 'undefined') return fallback;
 
   try {
-    const stored = localStorage.getItem(key);
+    const stored = await getPreference(key);
     if (!stored) return fallback;
 
     const parsed: unknown = JSON.parse(stored);
@@ -164,20 +165,42 @@ export function loadFromStorage<T extends v.GenericSchema>(
 }
 
 /**
- * localStorage에 안전하게 데이터 저장
+ * IndexedDB에 안전하게 데이터 저장 (비동기)
  */
-export function saveToStorage<T extends v.GenericSchema>(
+export async function saveToStorage<T extends v.GenericSchema>(
   key: string,
   schema: T,
   data: v.InferInput<T>
-): boolean {
+): Promise<boolean> {
   if (typeof window === 'undefined') return false;
 
   try {
     const validated = v.parse(schema, data);
-    localStorage.setItem(key, JSON.stringify(validated));
+    await setPreference(key, JSON.stringify(validated));
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Migrates data from localStorage to IndexedDB (one-time migration)
+ */
+export async function migrateFromLocalStorage(keys: string[]): Promise<void> {
+  if (typeof window === 'undefined') return;
+
+  for (const key of keys) {
+    try {
+      const value = localStorage.getItem(key);
+      if (value !== null) {
+        const existing = await getPreference(key);
+        if (existing === null) {
+          await setPreference(key, value);
+        }
+        localStorage.removeItem(key);
+      }
+    } catch {
+      // Continue with next key
+    }
   }
 }

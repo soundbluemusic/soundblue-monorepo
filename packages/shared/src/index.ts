@@ -9,6 +9,19 @@ export {
   setRawStorageItem,
 } from './utils/storage';
 
+// Storage (IndexedDB)
+export {
+  SharedDatabase,
+  getSharedDb,
+  resetDbInstance,
+  type Preference,
+  getPreference,
+  setPreference,
+  removePreference,
+  getAllPreferences,
+  migrateFromLocalStorage,
+} from './storage';
+
 // Types
 export type {
   Branded,

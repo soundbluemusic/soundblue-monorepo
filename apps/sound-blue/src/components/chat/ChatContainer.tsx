@@ -368,21 +368,21 @@ export function ChatContainer(props: ChatContainerProps): JSX.Element {
   let messagesEndRef: HTMLLIElement | undefined;
 
   // Initialize chat: restore from redirect state, history, or show welcome
-  onMount(() => {
+  onMount(async () => {
     // First, check for redirect state (takes priority)
-    const redirectState = getStorageItem<SavedChatState | null>(CHAT_STATE_KEY, null);
+    const redirectState = await getStorageItem<SavedChatState | null>(CHAT_STATE_KEY, null);
 
     if (redirectState) {
       // Restore saved conversation state after redirect
       setMessages(redirectState.messages);
       setPendingMessage(redirectState.pendingMessage);
       // Clear redirect state after restoring
-      removeStorageItem(CHAT_STATE_KEY);
+      void removeStorageItem(CHAT_STATE_KEY);
       return;
     }
 
     // Second, try to load from persistent history
-    const savedHistory = getStorageItem<Message[] | null>(CHAT_HISTORY_KEY, null);
+    const savedHistory = await getStorageItem<Message[] | null>(CHAT_HISTORY_KEY, null);
 
     if (savedHistory && savedHistory.length > 0) {
       setMessages(savedHistory);
@@ -419,14 +419,14 @@ export function ChatContainer(props: ChatContainerProps): JSX.Element {
     }
   });
 
-  // Persist messages to localStorage whenever they change
+  // Persist messages to IndexedDB whenever they change
   createEffect(() => {
     const currentMessages = messages();
     // Only save if there are messages (skip empty state)
     if (currentMessages.length > 0) {
       // Limit to max history size, keeping most recent messages
       const messagesToSave = currentMessages.slice(-MAX_HISTORY_MESSAGES);
-      setStorageItem(CHAT_HISTORY_KEY, messagesToSave);
+      void setStorageItem(CHAT_HISTORY_KEY, messagesToSave);
     }
   });
 
@@ -534,7 +534,7 @@ export function ChatContainer(props: ChatContainerProps): JSX.Element {
         messages: updatedMessages,
         pendingMessage: message,
       };
-      setStorageItem(CHAT_STATE_KEY, stateToSave);
+      void setStorageItem(CHAT_STATE_KEY, stateToSave);
 
       // Redirect to Korean chat page
       navigate('/ko/chat/');

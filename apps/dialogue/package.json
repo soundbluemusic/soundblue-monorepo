@@ -18,10 +18,10 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "@soundblue/shared": "workspace:*",
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.15.4",
     "@solidjs/start": "^1.2.0",
+    "@soundblue/shared": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "solid-js": "^1.9.10",
     "tailwindcss": "^4.1.18",
@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
+    "@resvg/resvg-js": "^2.6.2",
     "@solidjs/testing-library": "^0.8.10",
     "@testing-library/jest-dom": "^6.9.1",
     "jsdom": "^27.3.0",

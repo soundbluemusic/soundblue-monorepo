@@ -9,6 +9,7 @@ import {
 } from "solid-js";
 import { useLocation } from "@solidjs/router";
 import { translations, Locale, TranslationKeys } from "./translations";
+import { getSetting, setSetting, migrateSettingFromLocalStorage } from "~/stores/db";
 
 type I18nContextType = {
   locale: () => Locale;
@@ -37,16 +38,15 @@ export const I18nProvider: ParentComponent = (props) => {
     setLocaleState(pathLocale);
   });
 
-  onMount(() => {
-    const pathLocale = getLocaleFromPath(window.location.pathname);
-    setLocaleState(pathLocale);
+  onMount(async () => {
+    // Migrate from localStorage if exists (one-time)
+    await migrateSettingFromLocalStorage(STORAGE_KEY);
   });
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, newLocale);
-    }
+    // Persist to IndexedDB (async, fire and forget)
+    void setSetting(STORAGE_KEY, newLocale);
   };
 
   const t = createMemo(() => translations[locale()].app);
