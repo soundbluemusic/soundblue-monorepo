@@ -4,7 +4,7 @@
 // ========================================
 
 import { Languages } from 'lucide-solid';
-import type { BenchmarkDefinition, DirectionFilter } from '@/benchmark/types';
+import type { BenchmarkDefinition, DirectionFilter } from '~/benchmark/types';
 import { getTestCountByDirection, runBenchmark, runQuickBenchmark } from './runner';
 import { TranslatorBenchmarkResult } from './TranslatorBenchmarkResult';
 import type { BenchmarkReport } from './types';

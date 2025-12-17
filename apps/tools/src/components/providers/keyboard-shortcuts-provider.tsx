@@ -39,9 +39,9 @@ import {
   initKeyboardShortcuts,
   registerShortcuts,
   toggleShortcutsHelp,
-} from '@/hooks/use-keyboard-shortcuts';
-import { audioActions, audioStore } from '@/stores/audio-store';
-import { toolActions, toolStore } from '@/stores/tool-store';
+} from '~/hooks/use-keyboard-shortcuts';
+import { audioActions, audioStore } from '~/stores/audio-store';
+import { toolActions, toolStore } from '~/stores/tool-store';
 import { ShortcutsHelpModal } from './shortcuts-help-modal';
 
 /**

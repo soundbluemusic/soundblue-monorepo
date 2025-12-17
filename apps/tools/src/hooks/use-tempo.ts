@@ -6,7 +6,7 @@ import {
   onBeatTick,
   onTempoChange,
   type TempoChangeEvent,
-} from '@/lib/event-bus';
+} from '~/lib/event-bus';
 
 interface UseTempoOptions {
   /** Source identifier for this hook instance */

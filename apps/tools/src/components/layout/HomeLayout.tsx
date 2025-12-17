@@ -1,12 +1,12 @@
 import { A, useNavigate } from '@solidjs/router';
 import { Code2, FileText, Globe, Info, Menu, Moon, Search, Sun, X } from 'lucide-solid';
 import { type Component, createSignal, For, Show } from 'solid-js';
-import { useTheme } from '@/components/providers/theme-provider';
-import { Button } from '@/components/ui/button';
-import { getLocalizedPath, useLanguage } from '@/i18n';
-import { ALL_TOOLS, type ToolInfo } from '@/lib/toolCategories';
-import { cn } from '@/lib/utils';
-import { toolActions } from '@/stores/tool-store';
+import { useTheme } from '~/components/providers/theme-provider';
+import { Button } from '~/components/ui/button';
+import { getLocalizedPath, useLanguage } from '~/i18n';
+import { ALL_TOOLS, type ToolInfo } from '~/lib/toolCategories';
+import { cn } from '~/lib/utils';
+import { toolActions } from '~/stores/tool-store';
 
 // ========================================
 // HomeLayout Component - 런처 스타일 홈 레이아웃

@@ -6,9 +6,9 @@
 import { ChevronDown, ChevronUp } from 'lucide-solid';
 import type { Component } from 'solid-js';
 import { createSignal, For, Show } from 'solid-js';
-import { CriteriaScoreList, ImprovementsList, ScoreCard, StatsGrid } from '@/benchmark/components';
-import type { CategoryResultData, CriteriaScore, ScoreData, StatItem } from '@/benchmark/types';
-import { getScoreColor } from '@/benchmark/types';
+import { CriteriaScoreList, ImprovementsList, ScoreCard, StatsGrid } from '~/benchmark/components';
+import type { CategoryResultData, CriteriaScore, ScoreData, StatItem } from '~/benchmark/types';
+import { getScoreColor } from '~/benchmark/types';
 import type { BenchmarkReport, CategoryResult } from './types';
 
 interface TranslatorBenchmarkResultProps {

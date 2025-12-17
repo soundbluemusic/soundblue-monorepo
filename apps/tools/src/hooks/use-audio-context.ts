@@ -8,7 +8,7 @@ import {
   getSampleRate,
   onAudioContextStateChange,
   resumeAudioContext,
-} from '@/lib/audio-context';
+} from '~/lib/audio-context';
 
 /** Return type for useAudioContext hook */
 export interface UseAudioContextReturn {

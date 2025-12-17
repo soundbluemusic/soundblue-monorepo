@@ -15,16 +15,16 @@ import {
   BenchmarkSelector,
   type DirectionFilter,
   getAllBenchmarks,
-} from '@/benchmark';
+} from '~/benchmark';
 import { Footer } from '@soundblue/shared';
-import { Header } from '@/components/layout/Header';
-import { ToolSidebar } from '@/components/sidebar';
-import { useLanguage } from '@/i18n';
-import { cn } from '@/lib/utils';
-import { toolActions, toolStore } from '@/stores/tool-store';
+import { Header } from '~/components/layout/Header';
+import { ToolSidebar } from '~/components/sidebar';
+import { useLanguage } from '~/i18n';
+import { cn } from '~/lib/utils';
+import { toolActions, toolStore } from '~/stores/tool-store';
 
 // 벤치마크 등록을 위해 import (side effect)
-import '@/tools/translator/benchmark';
+import '~/tools/translator/benchmark';
 
 const SITE_URL = 'https://tools.soundbluemusic.com';
 

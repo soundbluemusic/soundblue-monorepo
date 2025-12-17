@@ -1,8 +1,8 @@
 import { Pause, Play, RotateCcw } from 'lucide-solid';
 import { type Component, createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
-import { Slider } from '@/components/ui/slider';
-import { useLanguage } from '@/i18n';
-import { getAudioContext, resumeAudioContext } from '@/lib/audio-context';
+import { Slider } from '~/components/ui/slider';
+import { useLanguage } from '~/i18n';
+import { getAudioContext, resumeAudioContext } from '~/lib/audio-context';
 import { registerTool } from '../registry';
 import type { ToolDefinition, ToolProps } from '../types';
 

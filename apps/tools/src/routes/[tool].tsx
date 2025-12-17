@@ -1,13 +1,13 @@
 import { Link, Meta, Title } from '@solidjs/meta';
 import { useNavigate, useParams } from '@solidjs/router';
 import { onMount, Show } from 'solid-js';
-import { MainLayout } from '@/components/layout';
-import { useLanguage } from '@/i18n';
-import { ALL_TOOLS, getToolBySlug } from '@/lib/toolCategories';
-import { toolActions } from '@/stores/tool-store';
+import { MainLayout } from '~/components/layout';
+import { useLanguage } from '~/i18n';
+import { ALL_TOOLS, getToolBySlug } from '~/lib/toolCategories';
+import { toolActions } from '~/stores/tool-store';
 
 // Import tools to trigger registration
-import '@/tools';
+import '~/tools';
 
 const SITE_URL = 'https://tools.soundbluemusic.com';
 

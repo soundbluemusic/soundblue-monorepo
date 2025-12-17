@@ -1,7 +1,7 @@
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog';
 import { X } from 'lucide-solid';
 import { type Component, type JSX, type ParentComponent, splitProps } from 'solid-js';
-import { cn } from '@/lib/utils';
+import { cn } from '~/lib/utils';
 
 const Dialog = KobalteDialog;
 

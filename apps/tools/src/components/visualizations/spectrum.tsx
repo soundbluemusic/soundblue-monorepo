@@ -8,7 +8,7 @@
  */
 
 import { createEffect, onCleanup, onMount } from 'solid-js';
-import { getAudioContext } from '@/lib/audio-context';
+import { getAudioContext } from '~/lib/audio-context';
 
 /**
  * Spectrum 컴포넌트 Props

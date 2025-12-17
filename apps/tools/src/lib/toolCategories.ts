@@ -7,7 +7,7 @@
  * @module toolCategories
  */
 
-import type { ToolType } from '@/stores/tool-store';
+import type { ToolType } from '~/stores/tool-store';
 
 // ========================================
 // Tool Categories - 도구 카테고리 정의

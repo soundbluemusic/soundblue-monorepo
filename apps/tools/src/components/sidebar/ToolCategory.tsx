@@ -1,9 +1,9 @@
 import { ChevronDown } from 'lucide-solid';
 import { type Component, createSignal, For, Show } from 'solid-js';
-import { useLanguage } from '@/i18n';
-import type { ToolCategory as ToolCategoryType } from '@/lib/toolCategories';
-import { cn } from '@/lib/utils';
-import type { ToolType } from '@/stores/tool-store';
+import { useLanguage } from '~/i18n';
+import type { ToolCategory as ToolCategoryType } from '~/lib/toolCategories';
+import { cn } from '~/lib/utils';
+import type { ToolType } from '~/stores/tool-store';
 import { ToolItem } from './ToolItem';
 
 // ========================================

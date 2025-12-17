@@ -7,10 +7,15 @@ import { createSignal, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 
 export interface ServiceWorkerState {
+  /** Whether service worker is supported */
   isSupported: boolean;
+  /** Whether service worker is registered */
   isRegistered: boolean;
+  /** Whether an update is available */
   updateAvailable: boolean;
+  /** Whether the app is being controlled by a service worker */
   isControlled: boolean;
+  /** Registration object */
   registration: ServiceWorkerRegistration | null;
 }
 
@@ -22,6 +27,26 @@ const [state, setState] = createSignal<ServiceWorkerState>({
   registration: null,
 });
 
+// Listeners for update events
+type UpdateListener = () => void;
+const updateListeners = new Set<UpdateListener>();
+
+let initialized = false;
+
+/**
+ * Check for service worker updates
+ */
+export async function checkForUpdates(): Promise<void> {
+  const currentState = state();
+  if (!currentState.registration) return;
+
+  try {
+    await currentState.registration.update();
+  } catch {
+    // Update check failed silently
+  }
+}
+
 /**
  * Skip waiting and activate new service worker
  */
@@ -32,9 +57,29 @@ export function skipWaiting(): void {
   currentState.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 }
 
+/**
+ * Subscribe to update available events
+ */
+export function onUpdateAvailable(listener: UpdateListener): () => void {
+  updateListeners.add(listener);
+  return () => {
+    updateListeners.delete(listener);
+  };
+}
+
+/**
+ * Notify listeners of available update
+ */
+function notifyUpdateListeners(): void {
+  updateListeners.forEach((listener) => listener());
+}
+
+/** Return type for useServiceWorker hook */
 export interface UseServiceWorkerReturn {
   state: typeof state;
+  checkForUpdates: typeof checkForUpdates;
   skipWaiting: typeof skipWaiting;
+  onUpdateAvailable: typeof onUpdateAvailable;
 }
 
 /**
@@ -42,7 +87,10 @@ export interface UseServiceWorkerReturn {
  */
 export function useServiceWorker(): UseServiceWorkerReturn {
   onMount(async () => {
-    if (isServer) return;
+    if (isServer || initialized) return;
+
+    initialized = true;
+
     if (!('serviceWorker' in navigator)) {
       setState((prev) => ({ ...prev, isSupported: false }));
       return;
@@ -55,6 +103,7 @@ export function useServiceWorker(): UseServiceWorkerReturn {
     }));
 
     try {
+      // Listen for registration from vite-plugin-pwa
       const registration = await navigator.serviceWorker.ready;
 
       setState((prev) => ({
@@ -70,13 +119,16 @@ export function useServiceWorker(): UseServiceWorkerReturn {
 
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // New update available
             setState((prev) => ({ ...prev, updateAvailable: true }));
+            notifyUpdateListeners();
           }
         });
       });
 
       // Listen for controller change (update activated)
       navigator.serviceWorker.addEventListener('controllerchange', () => {
+        // Reload to get the new version
         window.location.reload();
       });
     } catch {
@@ -86,6 +138,15 @@ export function useServiceWorker(): UseServiceWorkerReturn {
 
   return {
     state,
+    checkForUpdates,
     skipWaiting,
+    onUpdateAvailable,
   };
+}
+
+/**
+ * Get current service worker state (non-reactive)
+ */
+export function getServiceWorkerState(): ServiceWorkerState {
+  return state();
 }

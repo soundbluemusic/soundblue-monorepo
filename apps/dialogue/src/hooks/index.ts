@@ -2,8 +2,6 @@
  * @fileoverview Hooks barrel export
  */
 
-export { useViewTransitionNavigate } from './useViewTransitionNavigate';
-
 // Re-export PWA hooks from shared
 export {
   useOnlineStatus,

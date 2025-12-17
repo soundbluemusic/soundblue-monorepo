@@ -5,15 +5,14 @@
 
 import { RefreshCw, Wifi, WifiOff, X } from 'lucide-solid';
 import { type Component, createEffect, createSignal, Show } from 'solid-js';
-import { useOnlineStatus } from '@/hooks/use-online-status';
-import { useServiceWorker } from '@/hooks/use-service-worker';
-import { useLanguage } from '@/i18n';
-import { cn } from '@/lib/utils';
+import { useOnlineStatus, useServiceWorker, skipWaiting } from '~/hooks';
+import { useLanguage } from '~/i18n';
+import { cn } from '~/lib/utils';
 
 export const OfflineIndicator: Component = () => {
   const { locale } = useLanguage();
   const { isOnline, wasOffline } = useOnlineStatus();
-  const { state: swState, skipWaiting } = useServiceWorker();
+  const { state: swState } = useServiceWorker();
 
   const [showOnlineNotification, setShowOnlineNotification] = createSignal(false);
   const [showUpdateBanner, setShowUpdateBanner] = createSignal(false);

@@ -1,10 +1,10 @@
 import { ChevronDown, Pause, Play, RotateCcw, Timer, Volume2 } from 'lucide-solid';
 import { type Component, createSignal, For, onCleanup, Show } from 'solid-js';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { useLanguage } from '@/i18n';
-import { getAudioContext, resumeAudioContext } from '@/lib/audio-context';
-import { cn } from '@/lib/utils';
+import { Button } from '~/components/ui/button';
+import { Slider } from '~/components/ui/slider';
+import { useLanguage } from '~/i18n';
+import { getAudioContext, resumeAudioContext } from '~/lib/audio-context';
+import { cn } from '~/lib/utils';
 import { registerTool } from '../registry';
 import type { ToolDefinition, ToolProps } from '../types';
 import { DrumGrid, type DrumId } from './components/DrumGrid';

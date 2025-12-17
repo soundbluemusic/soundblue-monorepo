@@ -1,5 +1,5 @@
 import { createEffect, onCleanup, onMount } from 'solid-js';
-import { getAudioContext } from '@/lib/audio-context';
+import { getAudioContext } from '~/lib/audio-context';
 
 interface WaveformProps {
   width?: number;

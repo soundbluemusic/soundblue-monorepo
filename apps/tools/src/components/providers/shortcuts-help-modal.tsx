@@ -6,9 +6,9 @@
 import { Keyboard, X } from 'lucide-solid';
 import { type Component, createSignal, For, onCleanup, onMount, Show } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import { DEFAULT_SHORTCUTS, type ShortcutDefinition } from '@/hooks/use-keyboard-shortcuts';
-import { useLanguage } from '@/i18n';
-import { cn } from '@/lib/utils';
+import { DEFAULT_SHORTCUTS, type ShortcutDefinition } from '~/hooks/use-keyboard-shortcuts';
+import { useLanguage } from '~/i18n';
+import { cn } from '~/lib/utils';
 
 // Local signal to track help modal state (synced with the hook)
 const [isOpen, setIsOpen] = createSignal(false);

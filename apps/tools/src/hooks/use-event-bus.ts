@@ -1,5 +1,5 @@
 import { onCleanup } from 'solid-js';
-import { eventBus } from '@/lib/event-bus';
+import { eventBus } from '~/lib/event-bus';
 
 /**
  * Hook to subscribe to event bus events

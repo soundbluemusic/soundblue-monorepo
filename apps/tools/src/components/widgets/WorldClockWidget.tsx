@@ -1,5 +1,5 @@
 import { type Component, createMemo, createSignal, For, onCleanup, onMount } from 'solid-js';
-import { useLanguage } from '@/i18n';
+import { useLanguage } from '~/i18n';
 
 // ========================================
 // World Clock Widget - AOD Style

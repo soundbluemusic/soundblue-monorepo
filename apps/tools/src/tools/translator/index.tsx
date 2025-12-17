@@ -1,6 +1,6 @@
 import { ArrowLeftRight, Check, Copy, Share2, Trash2, X } from 'lucide-solid';
 import { type Component, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
-import { useLanguage } from '@/i18n';
+import { useLanguage } from '~/i18n';
 import { registerTool } from '../registry';
 import type { ToolDefinition, ToolProps } from '../types';
 import { translate } from './translator-service';

@@ -1,5 +1,5 @@
 import { createSignal, type JSX, Show, ErrorBoundary as SolidErrorBoundary } from 'solid-js';
-import { Button } from '@/components/ui/button';
+import { Button } from '~/components/ui/button';
 
 // ========================================
 // Error Reporting - 클라이언트 에러 수집

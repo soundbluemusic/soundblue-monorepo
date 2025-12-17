@@ -1,5 +1,5 @@
 import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
-import { cn } from '@/lib/utils';
+import { cn } from '~/lib/utils';
 
 interface VUMeterProps {
   level: number; // 0-1
