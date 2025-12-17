@@ -3,10 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ThemeProvider, useTheme } from './ThemeProvider';
 
-// Mock storage module
+// Mock storage module with async functions
 vi.mock('~/utils/storage', () => ({
   getRawStorageItem: vi.fn(),
   setRawStorageItem: vi.fn(),
+  migrateFromLocalStorage: vi.fn(),
 }));
 
 import { getRawStorageItem, setRawStorageItem } from '~/utils/storage';
@@ -15,6 +16,9 @@ describe('ThemeProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     document.documentElement.removeAttribute('data-theme');
+    // Default mock implementations returning resolved promises
+    vi.mocked(getRawStorageItem).mockResolvedValue(null);
+    vi.mocked(setRawStorageItem).mockResolvedValue(undefined);
   });
 
   it('should provide theme context to children', () => {
@@ -33,7 +37,7 @@ describe('ThemeProvider', () => {
   });
 
   it('should default to light theme', () => {
-    vi.mocked(getRawStorageItem).mockReturnValue(null);
+    vi.mocked(getRawStorageItem).mockResolvedValue(null);
 
     function TestChild() {
       const { theme } = useTheme();
@@ -50,7 +54,7 @@ describe('ThemeProvider', () => {
   });
 
   it('should toggle theme from light to dark', async () => {
-    vi.mocked(getRawStorageItem).mockReturnValue(null);
+    vi.mocked(getRawStorageItem).mockResolvedValue(null);
     const user = userEvent.setup();
 
     function TestChild() {
@@ -84,7 +88,7 @@ describe('ThemeProvider', () => {
   });
 
   it('should set theme directly', async () => {
-    vi.mocked(getRawStorageItem).mockReturnValue(null);
+    vi.mocked(getRawStorageItem).mockResolvedValue(null);
     const user = userEvent.setup();
 
     function TestChild() {
@@ -120,8 +124,8 @@ describe('ThemeProvider', () => {
     );
   });
 
-  it('should read initial theme from localStorage', () => {
-    vi.mocked(getRawStorageItem).mockReturnValue('dark');
+  it('should read initial theme from IndexedDB', () => {
+    vi.mocked(getRawStorageItem).mockResolvedValue('dark');
 
     function TestChild() {
       const { theme } = useTheme();
@@ -134,12 +138,12 @@ describe('ThemeProvider', () => {
       </ThemeProvider>
     ));
 
-    // After mount, should read from localStorage
+    // After mount, should read from IndexedDB
     expect(getRawStorageItem).toHaveBeenCalledWith('sb-theme');
   });
 
-  it('should save theme to localStorage when changed', async () => {
-    vi.mocked(getRawStorageItem).mockReturnValue(null);
+  it('should save theme to IndexedDB when changed', async () => {
+    vi.mocked(getRawStorageItem).mockResolvedValue(null);
     const user = userEvent.setup();
 
     function TestChild() {
