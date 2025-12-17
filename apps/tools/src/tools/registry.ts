@@ -11,17 +11,36 @@ const toolRegistry = new Map<string, ToolDefinition>();
 let cachedTools: ToolDefinition[] | null = null;
 
 /**
+ * Validate tool definition structure at runtime
+ */
+function isValidToolDefinition(def: unknown): def is ToolDefinition {
+  if (typeof def !== 'object' || def === null) return false;
+  const d = def as Record<string, unknown>;
+  if (typeof d.meta !== 'object' || d.meta === null) return false;
+  const meta = d.meta as Record<string, unknown>;
+  return (
+    typeof meta.id === 'string' &&
+    typeof meta.name === 'object' &&
+    typeof meta.description === 'object' &&
+    typeof d.component === 'function'
+  );
+}
+
+/**
  * 도구 등록
  *
- * Note: We use a double cast through `unknown` because ToolDefinition<T>
+ * Note: We use a type assertion because ToolDefinition<T>
  * is not directly assignable to ToolDefinition<ToolSettings> due to
- * contravariance in the component's props type. This is safe because
- * the registry stores tools generically and consumers should use the
- * appropriate type when retrieving specific tools.
+ * contravariance in the component's props type. Runtime validation
+ * ensures the definition is valid before storing.
  */
 export function registerTool<T extends ToolSettings>(definition: ToolDefinition<T>): void {
+  // Runtime validation for type safety
+  if (!isValidToolDefinition(definition)) {
+    throw new Error(`Invalid tool definition: ${JSON.stringify(definition)}`);
+  }
   // Silently overwrite if already registered (expected during HMR)
-  toolRegistry.set(definition.meta.id, definition as unknown as ToolDefinition);
+  toolRegistry.set(definition.meta.id, definition as ToolDefinition);
   cachedTools = null; // Invalidate cache
 }
 

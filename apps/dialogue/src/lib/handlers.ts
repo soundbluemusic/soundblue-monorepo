@@ -158,11 +158,23 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
 
     const { latitude, longitude } = position.coords;
 
-    // Fetch weather from Open-Meteo (free, no API key needed)
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`;
+    // Validate coordinates
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      throw new Error("Invalid coordinates");
+    }
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      throw new Error("Coordinates out of range");
+    }
 
-    const response = await fetch(weatherUrl);
-    if (!response.ok) throw new Error("Weather API error");
+    // Fetch weather from Open-Meteo (free, no API key needed) - using URL constructor for safety
+    const weatherUrl = new URL("https://api.open-meteo.com/v1/forecast");
+    weatherUrl.searchParams.set("latitude", String(latitude));
+    weatherUrl.searchParams.set("longitude", String(longitude));
+    weatherUrl.searchParams.set("current", "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m");
+    weatherUrl.searchParams.set("timezone", "auto");
+
+    const response = await fetch(weatherUrl.toString());
+    if (!response.ok) throw new Error(`Weather API error: ${response.status}`);
 
     const data: OpenMeteoResponse = await response.json();
     const current = data.current;
@@ -174,11 +186,15 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
 
     const weatherDesc = getWeatherDescription(weatherCode, locale);
 
-    // Get location name using reverse geocoding
-    const geoUrl = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=${locale}`;
+    // Get location name using reverse geocoding - using URL constructor for safety
+    const geoUrl = new URL("https://nominatim.openstreetmap.org/reverse");
+    geoUrl.searchParams.set("lat", String(latitude));
+    geoUrl.searchParams.set("lon", String(longitude));
+    geoUrl.searchParams.set("format", "json");
+    geoUrl.searchParams.set("accept-language", locale);
     let locationName = "";
     try {
-      const geoResponse = await fetch(geoUrl);
+      const geoResponse = await fetch(geoUrl.toString());
       const geoData: NominatimResponse = await geoResponse.json();
       locationName = geoData.address?.city || geoData.address?.town || geoData.address?.county || "";
     } catch {

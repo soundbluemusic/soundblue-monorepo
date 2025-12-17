@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 // Error Reporting - 클라이언트 에러 수집
 // ========================================
 
+/** Full error report for development logging */
 interface ErrorReport {
   message: string;
   stack?: string;
@@ -12,6 +13,14 @@ interface ErrorReport {
   userAgent: string;
   timestamp: string;
   componentStack?: string;
+}
+
+/** Sanitized error report for production (no sensitive data) */
+interface SanitizedErrorReport {
+  message: string;
+  pathname: string;
+  timestamp: string;
+  context?: string;
 }
 
 // 에러 리포트 전송
@@ -25,7 +34,7 @@ function reportError(error: Error, componentStack?: string): void {
     componentStack,
   };
 
-  // Development: log to console
+  // Development: log to console with full details
   if (import.meta.env.DEV) {
     console.group('🔴 Error Report');
     console.error('Message:', report.message);
@@ -38,13 +47,23 @@ function reportError(error: Error, componentStack?: string): void {
     console.groupEnd();
   }
 
-  // Production: send to error tracking service via beacon API (non-blocking)
+  // Production: send sanitized report (no stack traces, no full URLs)
   if (import.meta.env.PROD && typeof navigator !== 'undefined' && navigator.sendBeacon) {
-    // Use a simple endpoint that could be configured for error tracking
-    // For now, we'll use a no-op endpoint pattern that can be replaced with actual service
-    const errorEndpoint = '/api/errors'; // Can be replaced with Sentry, LogRocket, etc.
+    // Only send if HTTPS for security
+    if (typeof window !== 'undefined' && window.location.protocol !== 'https:') {
+      return;
+    }
+
+    const sanitizedReport: SanitizedErrorReport = {
+      message: error.message.slice(0, 200), // Truncate long messages
+      pathname: typeof window !== 'undefined' ? window.location.pathname : '',
+      timestamp: new Date().toISOString(),
+      context: componentStack ? 'component' : 'global',
+    };
+
+    const errorEndpoint = '/api/errors';
     try {
-      navigator.sendBeacon(errorEndpoint, JSON.stringify(report));
+      navigator.sendBeacon(errorEndpoint, JSON.stringify(sanitizedReport));
     } catch {
       // Beacon failed silently - error tracking is best-effort
     }

@@ -113,19 +113,22 @@ export const ToolContainer: Component = () => {
     const urlSettings: Partial<MetronomeSettings & QRSettings & DrumMachineSettings> = {};
     let hasUrlSettings = false;
 
+    const numericParams = ['bpm', 'beatsPerMeasure', 'volume', 'swing', 'size'] as const;
+    type NumericParam = (typeof numericParams)[number];
+
     for (const param of params) {
       const rawValue = searchParams[param];
       // Handle string[] case - use first value if array
       const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
       if (value !== undefined && value !== null && value !== '') {
         hasUrlSettings = true;
-        if (['bpm', 'beatsPerMeasure', 'volume', 'swing', 'size'].includes(param)) {
+        if (numericParams.includes(param as NumericParam)) {
           const numValue = Number(value);
-          if (!Number.isNaN(numValue)) {
-            (urlSettings as Record<string, number>)[param] = numValue;
+          if (Number.isFinite(numValue)) {
+            urlSettings[param as keyof typeof urlSettings] = numValue as never;
           }
         } else {
-          (urlSettings as Record<string, string>)[param] = value;
+          urlSettings[param as keyof typeof urlSettings] = value as never;
         }
       }
     }
