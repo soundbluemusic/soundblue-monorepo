@@ -11,7 +11,7 @@ export default createHandler(() => (
           <meta name="theme-color" content="#1a1a2e" />
           <meta name="description" content="Dialogue - A conversational learning tool that works 100% offline" />
           <link rel="manifest" href="/manifest.json" />
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" type="image/png" href="/favicon.png" />
           <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
           {assets}
         </head>
