@@ -67,7 +67,7 @@ export default defineConfig({
         output: {
           // Code splitting for better caching
           // Note: solid-js packages are externalized in SSR, so only include non-SSR dependencies
-          manualChunks: (id) => {
+          manualChunks: (id: string) => {
             // Only apply chunking to node_modules
             if (!id.includes('node_modules')) return undefined;
             // Skip externalized SSR packages

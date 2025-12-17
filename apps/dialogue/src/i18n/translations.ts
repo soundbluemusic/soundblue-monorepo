@@ -135,4 +135,49 @@ export const translations = {
   },
 } as const;
 
-export type TranslationKeys = typeof translations.ko;
+// Use structural typing to allow different string values across locales
+export type AppTranslations = {
+  title: string;
+  subtitle: string;
+  placeholder: string;
+  send: string;
+  thinking: string;
+  welcome: string;
+  noResults: string;
+  offline: string;
+  newChat: string;
+  settings: string;
+  language: string;
+  theme: string;
+  darkMode: string;
+  lightMode: string;
+  about: string;
+  backToChat: string;
+  aboutFeatures: string;
+  aboutTech: string;
+  aboutInfo: string;
+  aboutMadeWith: string;
+  featureOffline: string;
+  featureOfflineDesc: string;
+  featureInstant: string;
+  featureInstantDesc: string;
+  featureMultilang: string;
+  featureMultilangDesc: string;
+  featureTheme: string;
+  featureThemeDesc: string;
+  notFoundCode: string;
+  notFoundTitle: string;
+  notFoundMessage: string;
+  notFoundBackHome: string;
+  history: string;
+  more: string;
+  deleteChat: string;
+  untitled: string;
+  ghostMode: string;
+  ghostModeDesc: string;
+  noHistory: string;
+};
+
+export type TranslationKeys = {
+  app: AppTranslations;
+};

@@ -16,13 +16,13 @@ let cachedTools: ToolDefinition[] | null = null;
 function isValidToolDefinition(def: unknown): def is ToolDefinition {
   if (typeof def !== 'object' || def === null) return false;
   const d = def as Record<string, unknown>;
-  if (typeof d.meta !== 'object' || d.meta === null) return false;
-  const meta = d.meta as Record<string, unknown>;
+  if (typeof d['meta'] !== 'object' || d['meta'] === null) return false;
+  const meta = d['meta'] as Record<string, unknown>;
   return (
-    typeof meta.id === 'string' &&
-    typeof meta.name === 'object' &&
-    typeof meta.description === 'object' &&
-    typeof d.component === 'function'
+    typeof meta['id'] === 'string' &&
+    typeof meta['name'] === 'object' &&
+    typeof meta['description'] === 'object' &&
+    typeof d['component'] === 'function'
   );
 }
 
