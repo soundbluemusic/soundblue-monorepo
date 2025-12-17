@@ -1,4 +1,102 @@
-<?xml version="1.0" encoding="UTF-8"?>
+#!/usr/bin/env npx tsx
+
+/**
+ * Sitemap generator for dialogue.soundbluemusic.com
+ * Generates sitemap index with pages sitemap (supports 3 languages: en, ko, ja)
+ */
+
+import { existsSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const SITE_URL = 'https://dialogue.soundbluemusic.com';
+const PUBLIC_DIR = 'public';
+const OUT_DIR = '.output/public'; // SolidStart output directory
+
+type Locale = 'en' | 'ko' | 'ja';
+const LOCALES: Locale[] = ['en', 'ko', 'ja'];
+
+function getLastmodDate(): string {
+  return new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+}
+
+// Page definition
+interface UrlDef {
+  path: string; // English path (without locale prefix)
+  priority: string;
+  changefreq: 'daily' | 'weekly' | 'monthly' | 'yearly';
+}
+
+// Static pages (actual existing pages)
+const PAGES: UrlDef[] = [
+  { path: '', priority: '1.0', changefreq: 'weekly' }, // Home
+  { path: 'about', priority: '0.8', changefreq: 'monthly' },
+];
+
+// Generate URL (no trailing slash for cleaner URLs)
+function getUrl(path: string, locale?: Locale): string {
+  if (path === '') {
+    return locale && locale !== 'en' ? `${SITE_URL}/${locale}` : SITE_URL;
+  }
+  return locale && locale !== 'en' ? `${SITE_URL}/${locale}/${path}` : `${SITE_URL}/${path}`;
+}
+
+// Generate hreflang links for a page
+function generateHreflangLinks(path: string): string {
+  const links = LOCALES.map((locale) => {
+    const url = getUrl(path, locale);
+    const hreflang = locale === 'en' ? 'en' : locale;
+    return `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${url}" />`;
+  });
+  // Add x-default pointing to English version
+  links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${getUrl(path, 'en')}" />`);
+  return links.join('\n');
+}
+
+// Generate URL entry for all locales
+function generateUrlEntries(item: UrlDef, lastmod: string): string {
+  return LOCALES.map((locale) => {
+    const url = getUrl(item.path, locale);
+    return `  <url>
+    <loc>${url}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${item.changefreq}</changefreq>
+    <priority>${item.priority}</priority>
+${generateHreflangLinks(item.path)}
+  </url>`;
+  }).join('\n');
+}
+
+// Generate sitemap index (sitemap.xml)
+function generateSitemapIndex(): string {
+  const lastmod = getLastmodDate();
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${SITE_URL}/sitemap-pages.xml</loc>
+    <lastmod>${lastmod}</lastmod>
+  </sitemap>
+</sitemapindex>
+`;
+}
+
+// Generate pages sitemap (sitemap-pages.xml)
+function generatePagesSitemap(): string {
+  const lastmod = getLastmodDate();
+  const urls = PAGES.map((page) => generateUrlEntries(page, lastmod)).join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${urls}
+</urlset>
+`;
+}
+
+// Generate XSL stylesheet (sitemap.xsl)
+function generateXslStylesheet(): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="2.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -198,4 +296,106 @@
     </div>
   </xsl:template>
 
-</xsl:stylesheet>
+</xsl:stylesheet>`;
+}
+
+// Generate robots.txt
+function generateRobotsTxt(): string {
+  return `# Robots.txt for ${SITE_URL}
+
+# Default rules for all crawlers
+User-agent: *
+Allow: /
+Crawl-delay: 1
+
+# Disallow build artifacts
+Disallow: /_build/
+Disallow: /_server/
+
+# ========================================
+# AI Chatbot Crawlers - Explicitly Allowed
+# ========================================
+
+# OpenAI (ChatGPT)
+User-agent: GPTBot
+Allow: /
+
+# OpenAI (ChatGPT plugins)
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic (Claude)
+User-agent: Claude-Web
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# Google (Gemini / Bard)
+User-agent: Google-Extended
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# Microsoft Copilot / Bing AI
+User-agent: Bingbot
+Allow: /
+
+# Meta AI
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+
+# Common Crawl (used by many AI training datasets)
+User-agent: CCBot
+Allow: /
+
+# ========================================
+# Sitemaps & LLM Info
+# ========================================
+
+Sitemap: ${SITE_URL}/sitemap.xml
+
+# AI Assistant Guide
+# See: ${SITE_URL}/llms.txt
+`;
+}
+
+function writeToDirectories(filename: string, content: string): void {
+  writeFileSync(join(PUBLIC_DIR, filename), content, 'utf-8');
+  console.log(`  ${filename}`);
+
+  if (existsSync(OUT_DIR)) {
+    writeFileSync(join(OUT_DIR, filename), content, 'utf-8');
+  }
+}
+
+function main(): void {
+  console.log('Generating sitemaps for Dialogue...\n');
+
+  // Sitemap Index
+  writeToDirectories('sitemap.xml', generateSitemapIndex());
+
+  // Pages Sitemap
+  writeToDirectories('sitemap-pages.xml', generatePagesSitemap());
+  console.log(`    └─ ${PAGES.length * LOCALES.length} URLs (${PAGES.length} pages × ${LOCALES.length} langs)`);
+
+  // XSL Stylesheet
+  writeToDirectories('sitemap.xsl', generateXslStylesheet());
+
+  // Robots.txt
+  writeToDirectories('robots.txt', generateRobotsTxt());
+
+  const totalUrls = PAGES.length * LOCALES.length;
+  console.log(`\nTotal: ${totalUrls} URLs across 1 sitemap`);
+}
+
+main();

@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
-    "build": "vinxi build",
+    "build": "pnpm sitemap && vinxi build",
+    "build:only": "vinxi build",
+    "sitemap": "npx tsx scripts/generate-sitemaps.ts",
     "start": "vinxi start",
-    "preview": "vinxi build && vinxi start",
+    "preview": "pnpm sitemap && vinxi build && vinxi start",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
