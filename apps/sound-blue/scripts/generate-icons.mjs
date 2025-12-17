@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
-const SOURCE_ICON = join(ROOT_DIR, 'public/branding asset/icon.png');
+const SOURCE_ICON = join(ROOT_DIR, 'public/branding-assets/icon.png');
 const OUTPUT_DIR = join(ROOT_DIR, 'public/icons');
 
 // Icon sizes for PWA manifest

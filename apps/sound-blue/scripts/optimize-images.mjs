@@ -79,7 +79,7 @@ async function generateFormat(sharpInstance, outputPath, format, quality) {
     case 'png':
       await sharpInstance
         .clone()
-        .png({ quality, compressionLevel: 9 })
+        .png({ compressionLevel: 9 })
         .toFile(`${outputPath}.png`);
       break;
     case 'webp':
@@ -158,7 +158,7 @@ async function compressIcon(iconPath) {
 
   try {
     await sharp(inputPath)
-      .png({ compressionLevel: 9, palette: true })
+      .png({ compressionLevel: 9 })
       .toFile(inputPath + '.tmp');
 
     fs.renameSync(inputPath + '.tmp', inputPath);
