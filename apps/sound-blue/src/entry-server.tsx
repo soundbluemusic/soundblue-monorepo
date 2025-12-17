@@ -13,9 +13,9 @@ export default createHandler(() => (
           <meta name="theme-color" content="#1c1917" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-          {/* Inline script to prevent FOUC for theme - validates localStorage value */}
+          {/* FOUC Prevention: Apply theme before paint */}
           <script
-            textContent={`(function(){try{if(typeof localStorage==='undefined')return;var t=localStorage.getItem('sb-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.dataset.theme='dark'}}catch(e){}})();`}
+            textContent={`(function(){try{var t=localStorage.getItem('sb-theme');if(t==='dark'){document.documentElement.dataset.theme='dark';document.documentElement.style.colorScheme='dark'}}catch(e){}})();`}
           />
           {assets}
         </head>

@@ -60,10 +60,14 @@ const jsonLd = {
 export default createHandler(() => (
   <StartServer
     document={({ assets, children, scripts }) => (
-      <html lang="ko">
+      <html lang="ko" data-theme="light">
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          {/* FOUC Prevention: Apply theme before paint */}
+          <script
+            textContent={`(function(){try{var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.dataset.theme='dark';document.documentElement.style.colorScheme='dark'}}catch(e){}})();`}
+          />
 
           {/* Favicon & Icons */}
           <link rel="icon" href="/favicon.ico" />

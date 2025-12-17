@@ -219,6 +219,26 @@ export default defineConfig({
       minify: 'esbuild',
       cssMinify: 'esbuild',
       rollupOptions: {
+        output: {
+          // Code splitting for better caching
+          // Note: solid-js packages are externalized in SSR, so only include non-SSR dependencies
+          manualChunks: (id) => {
+            // Only apply chunking to node_modules
+            if (!id.includes('node_modules')) return undefined;
+            // Skip externalized SSR packages
+            if (id.includes('solid-js') || id.includes('@solidjs')) return undefined;
+            // UI vendor chunk
+            if (
+              id.includes('@kobalte/core') ||
+              id.includes('class-variance-authority') ||
+              id.includes('clsx') ||
+              id.includes('tailwind-merge')
+            ) {
+              return 'ui-vendor';
+            }
+            return undefined;
+          },
+        },
         plugins: isAnalyze
           ? [
               visualizer({

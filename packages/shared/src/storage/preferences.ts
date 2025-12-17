@@ -35,7 +35,10 @@ export async function getPreference(key: string): Promise<string | null> {
 }
 
 /**
- * Stores a preference value in IndexedDB.
+ * Stores a preference value in both localStorage (sync cache) and IndexedDB.
+ *
+ * localStorage is used as a synchronous cache for FOUC prevention.
+ * IndexedDB is the primary storage for durability.
  *
  * @param key - The preference key to store
  * @param value - The value to store
@@ -49,6 +52,14 @@ export async function getPreference(key: string): Promise<string | null> {
 export async function setPreference(key: string, value: string): Promise<void> {
   if (typeof window === 'undefined') return;
 
+  // 1. Write to localStorage first (sync cache for FOUC prevention)
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // localStorage unavailable (e.g., private browsing)
+  }
+
+  // 2. Write to IndexedDB (primary storage)
   try {
     await getSharedDb().preferences.put({
       key,
@@ -56,12 +67,12 @@ export async function setPreference(key: string, value: string): Promise<void> {
       updatedAt: Date.now(),
     });
   } catch {
-    // Storage unavailable - fail silently
+    // IndexedDB unavailable - fail silently
   }
 }
 
 /**
- * Removes a preference from IndexedDB.
+ * Removes a preference from both localStorage and IndexedDB.
  *
  * @param key - The preference key to remove
  *
@@ -73,6 +84,14 @@ export async function setPreference(key: string, value: string): Promise<void> {
 export async function removePreference(key: string): Promise<void> {
   if (typeof window === 'undefined') return;
 
+  // Remove from localStorage (sync cache)
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // localStorage unavailable
+  }
+
+  // Remove from IndexedDB
   try {
     await getSharedDb().preferences.delete(key);
   } catch {
@@ -102,14 +121,14 @@ export async function getAllPreferences(): Promise<Preference[]> {
 }
 
 /**
- * Migrates data from localStorage to IndexedDB.
- * After successful migration, removes the localStorage entry.
+ * Syncs data from localStorage to IndexedDB.
+ * localStorage entries are kept as sync cache for FOUC prevention.
  *
- * @param keys - Array of localStorage keys to migrate
+ * @param keys - Array of localStorage keys to sync
  *
  * @example
  * ```typescript
- * // Migrate existing localStorage data on app startup
+ * // Sync localStorage data to IndexedDB on app startup
  * await migrateFromLocalStorage(['theme', 'locale', 'sidebar-collapsed']);
  * ```
  */
@@ -120,13 +139,17 @@ export async function migrateFromLocalStorage(keys: string[]): Promise<void> {
     try {
       const value = localStorage.getItem(key);
       if (value !== null) {
-        // Check if already migrated to IndexedDB
+        // Check if already exists in IndexedDB
         const existing = await getPreference(key);
         if (existing === null) {
-          await setPreference(key, value);
+          // Sync to IndexedDB (but keep localStorage as sync cache)
+          await getSharedDb().preferences.put({
+            key,
+            value,
+            updatedAt: Date.now(),
+          });
         }
-        // Remove from localStorage after successful migration
-        localStorage.removeItem(key);
+        // NOTE: Do NOT remove from localStorage - it's needed for FOUC prevention
       }
     } catch {
       // Continue with next key if one fails

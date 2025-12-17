@@ -1,3 +1,4 @@
+import { batch } from "solid-js";
 import { createStore } from "solid-js/store";
 import { isServer } from "solid-js/web";
 import { getDialogueDb, getSetting, setSetting, CONVERSATIONS_STORE } from "./db";
@@ -69,7 +70,8 @@ async function getAllConversations(): Promise<Conversation[]> {
       };
       request.onerror = () => reject(request.error);
     });
-  } catch {
+  } catch (error) {
+    console.error("Failed to get conversations:", error);
     return [];
   }
 }
@@ -85,8 +87,9 @@ async function saveConversation(conversation: Conversation): Promise<void> {
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
-  } catch {
-    // Storage unavailable
+  } catch (error) {
+    console.error("Failed to save conversation:", error);
+    throw error;
   }
 }
 
@@ -101,8 +104,9 @@ async function deleteConversationFromDB(id: string): Promise<void> {
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
-  } catch {
-    // Storage unavailable
+  } catch (error) {
+    console.error("Failed to delete conversation:", error);
+    throw error;
   }
 }
 
@@ -119,10 +123,12 @@ export const chatActions = {
         getSetting<boolean>("ghostMode"),
       ]);
 
-      // 개별 필드 업데이트 (reconcile 대신) - 기존 상태 보존
-      setChatStore("conversations", conversations || []);
-      setChatStore("ghostMode", ghostMode === true);
-      setChatStore("isHydrated", true);
+      // batch() 사용하여 단일 렌더링으로 최적화
+      batch(() => {
+        setChatStore("conversations", conversations || []);
+        setChatStore("ghostMode", ghostMode === true);
+        setChatStore("isHydrated", true);
+      });
     } catch {
       setChatStore("isHydrated", true);
     } finally {
