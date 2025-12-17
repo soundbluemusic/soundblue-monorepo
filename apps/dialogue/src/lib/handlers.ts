@@ -1,5 +1,11 @@
 import type { Locale } from "~/i18n";
 import { solarToLunar, formatLunarDate } from "./lunar";
+import { containsSimilarKeyword, normalizeForMatch } from "./fuzzy";
+import {
+  TIME_KEYWORDS,
+  DATE_KEYWORDS,
+  WEATHER_KEYWORDS,
+} from "./typo-patterns";
 
 export interface DynamicResponse {
   matched: boolean;
@@ -37,33 +43,37 @@ interface NominatimResponse {
   address?: NominatimAddress;
 }
 
-// Pattern matchers for different query types
-const TIME_PATTERNS = {
-  ko: [/몇\s*시/, /시간/, /지금\s*몇/, /현재\s*시/],
-  en: [/what\s*time/i, /current\s*time/i, /time\s*now/i, /what's\s*the\s*time/i],
-  ja: [/何時/, /今.*時/, /時間/],
-};
-
-const DATE_PATTERNS = {
-  ko: [/몇\s*일/, /며칠/, /오늘.*날짜/, /무슨\s*요일/, /몇\s*월/, /오늘이/],
-  en: [/what\s*date/i, /what\s*day/i, /today.*date/i, /current\s*date/i],
-  ja: [/何日/, /今日.*日/, /何曜日/, /何月/],
-};
-
+// Lunar calendar patterns (kept as regex - less prone to typos)
 const LUNAR_PATTERNS = {
   ko: [/음력/, /구정/, /한가위/, /추석/],
   en: [/lunar/i, /chinese\s*calendar/i],
   ja: [/旧暦/, /陰暦/, /太陰暦/],
 };
 
-const WEATHER_PATTERNS = {
-  ko: [/날씨/, /기온/, /온도/, /비\s*오/, /눈\s*오/, /춥/, /더워/, /덥/],
-  en: [/weather/i, /temperature/i, /rain/i, /snow/i, /cold/i, /hot/i, /forecast/i],
-  ja: [/天気/, /気温/, /温度/, /雨/, /雪/, /寒い/, /暑い/],
-};
-
+/**
+ * Check if query matches any regex patterns (for lunar)
+ */
 function matchesPatterns(query: string, patterns: RegExp[]): boolean {
   return patterns.some((pattern) => pattern.test(query));
+}
+
+/**
+ * Hybrid matching: exact keywords -> typo patterns -> fuzzy match
+ * 하이브리드 매칭: 정확한 키워드 -> 오타 패턴 -> 퍼지 매칭
+ */
+function matchesKeywords(query: string, keywords: string[]): boolean {
+  const normalized = normalizeForMatch(query);
+
+  // Step 1: Direct keyword match (fastest)
+  for (const keyword of keywords) {
+    const normalizedKeyword = normalizeForMatch(keyword);
+    if (normalized.includes(normalizedKeyword)) {
+      return true;
+    }
+  }
+
+  // Step 2: Fuzzy match with typo tolerance
+  return containsSimilarKeyword(query, keywords);
 }
 
 // Time response generator
@@ -310,7 +320,7 @@ function getWeatherDescription(code: number, locale: Locale): string {
 
 // Main handler function
 export function handleDynamicQuery(query: string, locale: Locale): DynamicResponse {
-  // Check for lunar date (most specific first)
+  // Check for lunar date (most specific first - uses regex)
   if (matchesPatterns(query, LUNAR_PATTERNS[locale])) {
     return {
       matched: true,
@@ -318,8 +328,17 @@ export function handleDynamicQuery(query: string, locale: Locale): DynamicRespon
     };
   }
 
-  // Check for weather
-  if (matchesPatterns(query, WEATHER_PATTERNS[locale])) {
+  // Check for time (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, TIME_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getTimeResponse(locale),
+    };
+  }
+
+  // Check for weather (hybrid keyword + fuzzy matching)
+  // 날씨를 날짜보다 먼저 체크 ("오늘 날씨" vs "오늘 날짜" 충돌 방지)
+  if (matchesKeywords(query, WEATHER_KEYWORDS[locale])) {
     return {
       matched: true,
       isAsync: true,
@@ -327,16 +346,8 @@ export function handleDynamicQuery(query: string, locale: Locale): DynamicRespon
     };
   }
 
-  // Check for time
-  if (matchesPatterns(query, TIME_PATTERNS[locale])) {
-    return {
-      matched: true,
-      response: getTimeResponse(locale),
-    };
-  }
-
-  // Check for date
-  if (matchesPatterns(query, DATE_PATTERNS[locale])) {
+  // Check for date (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, DATE_KEYWORDS[locale])) {
     return {
       matched: true,
       response: getDateResponse(locale),
