@@ -7,6 +7,10 @@ node_modules/
 dist/
 *.tsbuildinfo
 
+# Generated service workers (PWA build output)
+**/public/sw.js
+**/public/workbox-*.js
+
 # IDE
 .idea/
 .vscode/
