@@ -44,8 +44,9 @@ export const MainLayout: Component = () => {
   const [chatWidth, setChatWidth] = createSignal(CHAT_WIDTH.default);
   const [isResizing, setIsResizing] = createSignal(false);
 
-  // Chat container ref for new chat
+  // Chat container triggers
   const [chatResetTrigger, setChatResetTrigger] = createSignal(0);
+  const [chatLoadTrigger, setChatLoadTrigger] = createSignal(0);
 
   // Check screen size
   const checkScreenSize = () => {
@@ -125,6 +126,11 @@ export const MainLayout: Component = () => {
     setChatResetTrigger((prev) => prev + 1);
   };
 
+  // Handle load conversation - trigger load via signal
+  const handleLoadConversation = () => {
+    setChatLoadTrigger((prev) => prev + 1);
+  };
+
   return (
     <div class="flex h-screen flex-col bg-bg-primary">
       {/* Header */}
@@ -149,7 +155,7 @@ export const MainLayout: Component = () => {
             relative: !isMobile(),
           }}
         >
-          <AppSidebar onNewChat={handleNewChat} />
+          <AppSidebar onNewChat={handleNewChat} onLoadConversation={handleLoadConversation} />
         </div>
 
         {/* Main Area (Chat + Result Panel) */}
@@ -178,7 +184,7 @@ export const MainLayout: Component = () => {
               {/* Tab Content */}
               <div class="flex-1 overflow-auto min-h-[150px]">
                 <Show when={activeTab() === "chat"}>
-                  <ChatContainer resetTrigger={chatResetTrigger()} onNewChat={handleNewChat} />
+                  <ChatContainer resetTrigger={chatResetTrigger()} loadTrigger={chatLoadTrigger()} onNewChat={handleNewChat} />
                 </Show>
                 <Show when={activeTab() === "result"}>
                   <ResultPanel />
@@ -194,7 +200,7 @@ export const MainLayout: Component = () => {
               class="relative flex-shrink-0 border-r border-border min-h-[200px]"
               style={{ width: `${chatWidth()}px` }}
             >
-              <ChatContainer resetTrigger={chatResetTrigger()} onNewChat={handleNewChat} />
+              <ChatContainer resetTrigger={chatResetTrigger()} loadTrigger={chatLoadTrigger()} onNewChat={handleNewChat} />
 
               {/* Resize Handle */}
               <div

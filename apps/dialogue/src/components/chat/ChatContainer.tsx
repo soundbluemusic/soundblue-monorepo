@@ -20,6 +20,7 @@ import {
 interface ChatContainerProps {
   onNewChat?: () => void;
   resetTrigger?: number;
+  loadTrigger?: number;
 }
 
 export const ChatContainer: Component<ChatContainerProps> = (props) => {
@@ -53,8 +54,12 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     }
   });
 
-  // Load conversation when activeConversationId changes (after hydration)
+  // Load conversation ONLY when explicitly triggered from sidebar (via loadTrigger)
   createEffect(() => {
+    const trigger = props.loadTrigger;
+    // Skip initial render (trigger is 0 or undefined)
+    if (!trigger || trigger === 0) return;
+
     // Must wait for hydration to complete
     if (!chatStore.isHydrated) return;
 

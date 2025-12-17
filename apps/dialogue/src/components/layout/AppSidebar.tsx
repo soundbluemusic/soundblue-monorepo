@@ -17,6 +17,7 @@ const MENU_ITEM_CLASS = `flex w-full items-center gap-3 rounded-[--radius-sm] px
 
 interface AppSidebarProps {
   onNewChat: () => void;
+  onLoadConversation?: () => void;
 }
 
 export const AppSidebar: Component<AppSidebarProps> = (props) => {
@@ -76,6 +77,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
 
   const handleLoadConversation = (conv: Conversation) => {
     chatActions.loadConversation(conv.id);
+    props.onLoadConversation?.();
   };
 
   const handleDeleteConversation = (e: MouseEvent, id: string) => {

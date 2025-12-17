@@ -2,7 +2,7 @@ import { createStore, reconcile } from "solid-js/store";
 import { isServer } from "solid-js/web";
 
 // ========================================
-// Chat Store - 대화 기록 관리 (localStorage 연동)
+// Chat Store - 대화 기록 관리 (IndexedDB 연동)
 // SSG 호환: 서버에서는 빈 상태, 클라이언트에서 hydration 후 로드
 // ========================================
 
@@ -25,18 +25,20 @@ interface ChatState {
   conversations: Conversation[];
   activeConversationId: string | null;
   ghostMode: boolean;
-  isHydrated: boolean; // 클라이언트 hydration 완료 여부
+  isHydrated: boolean;
 }
 
-const STORAGE_KEY = "dialogue-conversations";
-const GHOST_MODE_KEY = "dialogue-ghost-mode";
+const DB_NAME = "dialogue-db";
+const DB_VERSION = 1;
+const STORE_NAME = "conversations";
+const SETTINGS_STORE = "settings";
 
 // Generate unique ID
 export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// SSG 호환: 항상 빈 상태로 시작 (서버/클라이언트 동일)
+// SSG 호환: 항상 빈 상태로 시작
 const initialState: ChatState = {
   conversations: [],
   activeConversationId: null,
@@ -46,20 +48,123 @@ const initialState: ChatState = {
 
 const [chatStore, setChatStore] = createStore<ChatState>(initialState);
 
-// Save to localStorage (클라이언트에서만)
-function saveConversations(conversations: Conversation[]): void {
-  if (isServer) return;
+// IndexedDB helper functions
+let dbInstance: IDBDatabase | null = null;
+
+async function openDB(): Promise<IDBDatabase> {
+  if (dbInstance) return dbInstance;
+
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onerror = () => reject(request.error);
+
+    request.onsuccess = () => {
+      dbInstance = request.result;
+      resolve(dbInstance);
+    };
+
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+
+      // Conversations store
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        const store = db.createObjectStore(STORE_NAME, { keyPath: "id" });
+        store.createIndex("updatedAt", "updatedAt", { unique: false });
+      }
+
+      // Settings store
+      if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
+        db.createObjectStore(SETTINGS_STORE, { keyPath: "key" });
+      }
+    };
+  });
+}
+
+async function getAllConversations(): Promise<Conversation[]> {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, "readonly");
+      const store = tx.objectStore(STORE_NAME);
+      const index = store.index("updatedAt");
+      const request = index.getAll();
+
+      request.onsuccess = () => {
+        // Sort by updatedAt descending (newest first)
+        const conversations = request.result.sort(
+          (a, b) => b.updatedAt - a.updatedAt
+        );
+        resolve(conversations);
+      };
+      request.onerror = () => reject(request.error);
+    });
   } catch {
-    // Storage full or unavailable
+    return [];
   }
 }
 
-function saveGhostMode(enabled: boolean): void {
-  if (isServer) return;
+async function saveConversation(conversation: Conversation): Promise<void> {
   try {
-    localStorage.setItem(GHOST_MODE_KEY, String(enabled));
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      const store = tx.objectStore(STORE_NAME);
+      const request = store.put(conversation);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  } catch {
+    // Storage unavailable
+  }
+}
+
+async function deleteConversationFromDB(id: string): Promise<void> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      const store = tx.objectStore(STORE_NAME);
+      const request = store.delete(id);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  } catch {
+    // Storage unavailable
+  }
+}
+
+async function getSetting<T>(key: string): Promise<T | null> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(SETTINGS_STORE, "readonly");
+      const store = tx.objectStore(SETTINGS_STORE);
+      const request = store.get(key);
+
+      request.onsuccess = () => {
+        resolve(request.result?.value ?? null);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function setSetting<T>(key: string, value: T): Promise<void> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(SETTINGS_STORE, "readwrite");
+      const store = tx.objectStore(SETTINGS_STORE);
+      const request = store.put({ key, value });
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
   } catch {
     // Storage unavailable
   }
@@ -67,18 +172,20 @@ function saveGhostMode(enabled: boolean): void {
 
 export const chatActions = {
   // 클라이언트에서 hydration 후 호출 (onMount에서 한 번만)
-  hydrate: () => {
+  hydrate: async () => {
     if (isServer || chatStore.isHydrated) return;
 
     try {
-      const savedConversations = localStorage.getItem(STORAGE_KEY);
-      const savedGhostMode = localStorage.getItem(GHOST_MODE_KEY);
+      const [conversations, ghostMode] = await Promise.all([
+        getAllConversations(),
+        getSetting<boolean>("ghostMode"),
+      ]);
 
       setChatStore(
         reconcile({
-          conversations: savedConversations ? JSON.parse(savedConversations) : [],
+          conversations: conversations || [],
           activeConversationId: null,
-          ghostMode: savedGhostMode === "true",
+          ghostMode: ghostMode === true,
           isHydrated: true,
         })
       );
@@ -90,13 +197,13 @@ export const chatActions = {
   // Ghost Mode
   setGhostMode: (enabled: boolean) => {
     setChatStore("ghostMode", enabled);
-    saveGhostMode(enabled);
+    setSetting("ghostMode", enabled);
   },
 
   toggleGhostMode: () => {
     const newValue = !chatStore.ghostMode;
     setChatStore("ghostMode", newValue);
-    saveGhostMode(newValue);
+    setSetting("ghostMode", newValue);
   },
 
   // Create new conversation
@@ -117,7 +224,7 @@ export const chatActions = {
     const newConversations = [newConversation, ...chatStore.conversations];
     setChatStore("conversations", newConversations);
     setChatStore("activeConversationId", newConversation.id);
-    saveConversations(newConversations);
+    saveConversation(newConversation);
 
     return newConversation;
   },
@@ -152,10 +259,10 @@ export const chatActions = {
     newConversations[convIndex] = updatedConversation;
 
     setChatStore("conversations", newConversations);
-    saveConversations(newConversations);
+    saveConversation(updatedConversation);
   },
 
-  // Load conversation
+  // Load conversation (sets active ID only - actual loading handled by ChatContainer via loadTrigger)
   loadConversation: (id: string): Conversation | undefined => {
     const conversation = chatStore.conversations.find((c) => c.id === id);
     if (conversation) {
@@ -173,7 +280,7 @@ export const chatActions = {
       setChatStore("activeConversationId", null);
     }
 
-    saveConversations(newConversations);
+    deleteConversationFromDB(id);
   },
 
   // Clear active conversation (for new chat)
