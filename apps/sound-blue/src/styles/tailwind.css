@@ -113,6 +113,57 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ============================================
+ * Container Queries Support
+ * Enable responsive component-level sizing
+ * Usage: Add container-type-inline to parent, use @sm/@md/@lg for children
+ * ============================================ */
+@utility container-type-inline {
+  container-type: inline-size;
+}
+
+@utility container-type-size {
+  container-type: size;
+}
+
+@utility container-type-normal {
+  container-type: normal;
+}
+
+/* Container query breakpoints - component-level responsive design */
+@container (min-width: 320px) {
+  .\@sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .\@sm\:flex-row {
+    flex-direction: row;
+  }
+}
+
+@container (min-width: 480px) {
+  .\@md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .\@md\:flex-row {
+    flex-direction: row;
+  }
+  .\@md\:gap-4 {
+    gap: 1rem;
+  }
+}
+
+@container (min-width: 640px) {
+  .\@lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .\@lg\:text-lg {
+    font-size: var(--font-size-lg);
+  }
+  .\@lg\:p-6 {
+    padding: 1.5rem;
+  }
+}
+
+/* ============================================
  * CSS Variables - Light Mode ("Morning Mist")
  * Soft, friendly pastels inspired by the blue cat mascot.
  * Warm yet harmonious with teal/mint brand colors.

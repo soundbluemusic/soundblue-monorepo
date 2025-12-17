@@ -219,6 +219,13 @@ export default defineConfig({
       minify: 'esbuild',
       cssMinify: 'esbuild',
       rollupOptions: {
+        output: {
+          // Code splitting for better caching
+          manualChunks: {
+            'solid-vendor': ['solid-js', '@solidjs/router', '@solidjs/meta'],
+            'ui-vendor': ['@kobalte/core', 'class-variance-authority', 'clsx', 'tailwind-merge'],
+          },
+        },
         plugins: isAnalyze
           ? [
               visualizer({

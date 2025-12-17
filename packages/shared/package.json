@@ -20,6 +20,10 @@
     "./providers": {
       "types": "./src/providers/index.ts",
       "import": "./src/providers/index.ts"
+    },
+    "./test/setup": {
+      "types": "./src/test/setup.ts",
+      "import": "./src/test/setup.ts"
     }
   },
   "main": "./src/index.ts",
@@ -45,8 +49,10 @@
     }
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
     "solid-js": "^1.9.10",
     "typescript": "^5.9.3",
+    "vitest": "^4.0.15",
     "zod": "^3.25.67"
   }
 }

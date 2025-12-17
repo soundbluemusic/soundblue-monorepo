@@ -63,6 +63,15 @@ export default defineConfig({
       minify: 'esbuild',
       sourcemap: false,
       cssMinify: 'esbuild',
+      rollupOptions: {
+        output: {
+          // Code splitting for better caching
+          manualChunks: {
+            'solid-vendor': ['solid-js', '@solidjs/router', '@solidjs/meta'],
+            'ui-vendor': ['class-variance-authority', 'clsx', 'tailwind-merge'],
+          },
+        },
+      },
     },
     css: {
       devSourcemap: true,
