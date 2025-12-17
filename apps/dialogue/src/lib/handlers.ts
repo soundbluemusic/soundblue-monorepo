@@ -34,6 +34,14 @@ import {
   HELP_KEYWORDS,
   MOOD_KEYWORDS,
   AGREE_KEYWORDS,
+  APOLOGY_KEYWORDS,
+  COMPLIMENT_KEYWORDS,
+  COMFORT_KEYWORDS,
+  CONGRATS_KEYWORDS,
+  DECLINE_KEYWORDS,
+  REQUEST_KEYWORDS,
+  SURPRISE_KEYWORDS,
+  COMPLAINT_KEYWORDS,
 } from "./typo-patterns";
 
 export interface DynamicResponse {
@@ -430,6 +438,182 @@ function getAgreeResponse(locale: Locale): string {
   return randomPick(responses[locale]);
 }
 
+// Apology response generator
+function getApologyResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "괜찮아요! 사과할 일 아니에요.",
+      "아니에요, 전혀요! 신경 쓰지 마세요.",
+      "괜찮습니다! 무엇을 도와드릴까요?",
+    ],
+    en: [
+      "No worries! Nothing to apologize for.",
+      "It's okay! Don't worry about it.",
+      "That's alright! How can I help you?",
+    ],
+    ja: [
+      "大丈夫ですよ！謝ることないです。",
+      "いいえ、気にしないでください！",
+      "問題ないですよ！何かお手伝いしましょうか？",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Compliment response generator
+function getComplimentResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "감사합니다! 칭찬해주셔서 기뻐요.",
+      "고마워요! 더 열심히 할게요.",
+      "와, 감사해요! 도움이 되었다니 보람있네요.",
+    ],
+    en: [
+      "Thank you! That means a lot.",
+      "Thanks! I appreciate the kind words.",
+      "Wow, thanks! Happy I could help.",
+    ],
+    ja: [
+      "ありがとうございます！嬉しいです。",
+      "ありがとう！もっと頑張ります。",
+      "わあ、ありがとうございます！お役に立てて光栄です。",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Comfort response generator
+function getComfortResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "힘내세요! 잘 될 거예요.",
+      "괜찮아요, 다 잘 될 거예요. 언제든 이야기해요.",
+      "힘들 땐 쉬어가도 괜찮아요. 응원할게요!",
+    ],
+    en: [
+      "Hang in there! Things will get better.",
+      "It's okay, you got this! I'm here if you need to talk.",
+      "Take it easy. I'm rooting for you!",
+    ],
+    ja: [
+      "頑張って！きっとうまくいきますよ。",
+      "大丈夫、なんとかなりますよ。いつでも話してください。",
+      "無理しないでくださいね。応援してます！",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Congrats response generator
+function getCongratsResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "축하해주셔서 감사합니다! 🎉",
+      "와, 고마워요! 정말 기쁘네요.",
+      "감사합니다! 좋은 소식이에요!",
+    ],
+    en: [
+      "Thanks for the congrats! 🎉",
+      "Wow, thank you! That's so kind.",
+      "Thanks! Great news indeed!",
+    ],
+    ja: [
+      "お祝いありがとうございます！🎉",
+      "わあ、ありがとう！嬉しいです。",
+      "ありがとうございます！いいニュースですね！",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Decline response generator
+function getDeclineResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "알겠어요! 필요하시면 언제든 말씀하세요.",
+      "네, 괜찮아요! 다른 게 필요하면 불러주세요.",
+      "알겠습니다! 다음에 도움이 필요하시면 말씀해주세요.",
+    ],
+    en: [
+      "Got it! Let me know if you need anything later.",
+      "Okay! Feel free to reach out anytime.",
+      "Understood! I'm here if you change your mind.",
+    ],
+    ja: [
+      "わかりました！必要なときはいつでも言ってください。",
+      "はい、大丈夫です！また何かあれば声かけてください。",
+      "了解です！いつでもお声がけください。",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Request response generator
+function getRequestResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "물론이죠! 무엇을 도와드릴까요?",
+      "네, 말씀하세요! 최선을 다해 도와드릴게요.",
+      "도와드릴게요! 어떤 게 필요하세요?",
+    ],
+    en: [
+      "Of course! What do you need help with?",
+      "Sure thing! Tell me what you need.",
+      "I'd be happy to help! What can I do for you?",
+    ],
+    ja: [
+      "もちろんです！何をお手伝いしましょうか？",
+      "はい、どうぞ！できる限りお手伝いします。",
+      "お手伝いします！何が必要ですか？",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Surprise response generator
+function getSurpriseResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "그러게요! 놀랍죠?",
+      "맞아요, 저도 놀랐어요!",
+      "와, 정말요? 대단하네요!",
+    ],
+    en: [
+      "I know right! Surprising, isn't it?",
+      "Yes, that's quite something!",
+      "Wow, really? That's amazing!",
+    ],
+    ja: [
+      "そうですよね！びっくりですね。",
+      "はい、驚きますよね！",
+      "わあ、本当ですか？すごいですね！",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Complaint response generator
+function getComplaintResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "아이고, 속상하셨겠어요. 괜찮으세요?",
+      "그럴 수 있어요. 잠시 쉬어가는 건 어때요?",
+      "힘드시죠... 뭐든 이야기해주세요.",
+    ],
+    en: [
+      "I hear you. That sounds frustrating.",
+      "That's understandable. Want to talk about it?",
+      "I'm sorry to hear that. How can I help?",
+    ],
+    ja: [
+      "大変でしたね。大丈夫ですか？",
+      "そうですよね。少し休んでみては？",
+      "お辛いですね...何でも話してください。",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
 // WMO Weather interpretation codes
 function getWeatherDescription(code: number, locale: Locale): string {
   const descriptions: Record<string, Record<number, string>> = {
@@ -638,6 +822,70 @@ export function handleDynamicQuery(query: string, locale: Locale): DynamicRespon
     return {
       matched: true,
       response: getAgreeResponse(locale),
+    };
+  }
+
+  // Check for apology (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, APOLOGY_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getApologyResponse(locale),
+    };
+  }
+
+  // Check for compliment (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, COMPLIMENT_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getComplimentResponse(locale),
+    };
+  }
+
+  // Check for comfort (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, COMFORT_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getComfortResponse(locale),
+    };
+  }
+
+  // Check for congrats (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, CONGRATS_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getCongratsResponse(locale),
+    };
+  }
+
+  // Check for decline (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, DECLINE_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getDeclineResponse(locale),
+    };
+  }
+
+  // Check for request (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, REQUEST_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getRequestResponse(locale),
+    };
+  }
+
+  // Check for surprise (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, SURPRISE_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getSurpriseResponse(locale),
+    };
+  }
+
+  // Check for complaint (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, COMPLAINT_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getComplaintResponse(locale),
     };
   }
 
