@@ -1,4 +1,4 @@
-import { createStore, reconcile } from "solid-js/store";
+import { createStore } from "solid-js/store";
 import { isServer } from "solid-js/web";
 
 // ========================================
@@ -47,6 +47,9 @@ const initialState: ChatState = {
 };
 
 const [chatStore, setChatStore] = createStore<ChatState>(initialState);
+
+// Hydration lock to prevent race conditions
+let isHydrating = false;
 
 // IndexedDB helper functions
 let dbInstance: IDBDatabase | null = null;
@@ -173,7 +176,9 @@ async function setSetting<T>(key: string, value: T): Promise<void> {
 export const chatActions = {
   // 클라이언트에서 hydration 후 호출 (onMount에서 한 번만)
   hydrate: async () => {
-    if (isServer || chatStore.isHydrated) return;
+    if (isServer || chatStore.isHydrated || isHydrating) return;
+
+    isHydrating = true;
 
     try {
       const [conversations, ghostMode] = await Promise.all([
@@ -181,16 +186,14 @@ export const chatActions = {
         getSetting<boolean>("ghostMode"),
       ]);
 
-      setChatStore(
-        reconcile({
-          conversations: conversations || [],
-          activeConversationId: null,
-          ghostMode: ghostMode === true,
-          isHydrated: true,
-        })
-      );
+      // 개별 필드 업데이트 (reconcile 대신) - 기존 상태 보존
+      setChatStore("conversations", conversations || []);
+      setChatStore("ghostMode", ghostMode === true);
+      setChatStore("isHydrated", true);
     } catch {
       setChatStore("isHydrated", true);
+    } finally {
+      isHydrating = false;
     }
   },
 
