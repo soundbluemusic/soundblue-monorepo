@@ -278,11 +278,354 @@ export const WEATHER_KEYWORDS: Record<Locale, string[]> = {
 };
 
 /**
+ * Greeting-related keywords and common typos
+ * 인사말 관련 키워드 및 흔한 오타
+ */
+export const GREETING_KEYWORDS: Record<Locale, string[]> = {
+  ko: [
+    // 기본 인사
+    "안녕",
+    "안녕하세요",
+    "안녕하십니까",
+    "반갑습니다",
+    "반가워",
+    "반갑다",
+    "반가워요",
+    // 오타/변형
+    "안냥",
+    "안뇽",
+    "안녕하셍요",
+    "안녕하세용",
+    "반갑슴다",
+    "방가",
+    "방가방가",
+    // 축약형
+    "ㅎㅇ",
+    "ㅎㅇㅎㅇ",
+    "ㅂㄱ",
+    "ㅂㄱㅂㄱ",
+    // 캐주얼
+    "하이",
+    "헬로",
+    "여보세요",
+    "계세요",
+    "있어요",
+    "거기",
+  ],
+  en: [
+    // 기본
+    "hello",
+    "hi",
+    "hey",
+    "greetings",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "howdy",
+    "sup",
+    "whats up",
+    "what's up",
+    "yo",
+    // 오타
+    "helo",
+    "hallo",
+    "hullo",
+    "hii",
+    "heya",
+    "heyyy",
+    "helllo",
+    "hellooo",
+  ],
+  ja: [
+    // 기본
+    "こんにちは",
+    "こんばんは",
+    "おはよう",
+    "おはようございます",
+    "はじめまして",
+    "よろしく",
+    "やあ",
+    "ども",
+    "どうも",
+    // 오타/변형
+    "こんちは",
+    "こんちわ",
+    "おはよー",
+    "よろしくー",
+    "こんばんわ",
+  ],
+};
+
+/**
+ * Thanks-related keywords
+ * 감사 관련 키워드
+ */
+export const THANKS_KEYWORDS: Record<Locale, string[]> = {
+  ko: [
+    "고마워",
+    "고마워요",
+    "고맙습니다",
+    "감사",
+    "감사해",
+    "감사해요",
+    "감사합니다",
+    "땡큐",
+    "ㄱㅅ",
+    "ㄱㅅㄱㅅ",
+    "고마워용",
+    "고맙슴다",
+    "감사용",
+  ],
+  en: [
+    "thanks",
+    "thank you",
+    "thx",
+    "ty",
+    "thank u",
+    "appreciated",
+    "thnx",
+    "thnks",
+    "thanx",
+    "thankss",
+  ],
+  ja: [
+    "ありがとう",
+    "ありがとうございます",
+    "サンキュー",
+    "さんきゅー",
+    "ありがと",
+    "あざす",
+    "あざっす",
+    "どうも",
+  ],
+};
+
+/**
+ * Goodbye-related keywords
+ * 작별 관련 키워드
+ */
+export const BYE_KEYWORDS: Record<Locale, string[]> = {
+  ko: [
+    "잘가",
+    "잘가요",
+    "안녕",
+    "바이",
+    "바이바이",
+    "ㅂㅂ",
+    "또봐",
+    "또봐요",
+    "나중에",
+    "다음에",
+    "끝",
+    "그만",
+  ],
+  en: [
+    "bye",
+    "goodbye",
+    "see ya",
+    "see you",
+    "cya",
+    "later",
+    "peace",
+    "byebye",
+    "bye bye",
+    "gotta go",
+    "gtg",
+  ],
+  ja: [
+    "さようなら",
+    "じゃあね",
+    "じゃね",
+    "またね",
+    "バイバイ",
+    "ばいばい",
+    "じゃあ",
+    "また",
+  ],
+};
+
+/**
+ * Identity-related keywords (who are you?)
+ * 정체성 관련 키워드
+ */
+export const IDENTITY_KEYWORDS: Record<Locale, string[]> = {
+  ko: [
+    "너뭐냐",
+    "너뭐야",
+    "누구야",
+    "누구냐",
+    "뭐야",
+    "뭐냐",
+    "니가뭔데",
+    "정체가뭐야",
+    "너누구",
+    "넌뭐야",
+    "넌누구",
+    "이름이뭐야",
+    "뭐하는애야",
+    "뭐하는거야",
+    "소개해",
+    "자기소개",
+  ],
+  en: [
+    "who are you",
+    "what are you",
+    "who is this",
+    "your name",
+    "whats your name",
+    "what's your name",
+    "who r u",
+    "what r u",
+    "introduce yourself",
+    "tell me about yourself",
+  ],
+  ja: [
+    "あなたは誰",
+    "君は何",
+    "お前は誰",
+    "誰ですか",
+    "何ですか",
+    "名前は",
+    "自己紹介",
+    "なにもの",
+    "何者",
+  ],
+};
+
+/**
+ * Help-related keywords
+ * 도움 요청 관련 키워드
+ */
+export const HELP_KEYWORDS: Record<Locale, string[]> = {
+  ko: [
+    "도와줘",
+    "도움",
+    "뭐할수있어",
+    "뭘할수있어",
+    "기능이뭐야",
+    "사용법",
+    "어떻게써",
+    "어떻게사용",
+    "할수있는게뭐야",
+    "뭐해줄수있어",
+    "뭘해줄수있어",
+  ],
+  en: [
+    "help",
+    "help me",
+    "what can you do",
+    "how to use",
+    "features",
+    "what do you do",
+    "capabilities",
+    "how does this work",
+  ],
+  ja: [
+    "助けて",
+    "ヘルプ",
+    "何ができる",
+    "使い方",
+    "機能は",
+    "どうやって使う",
+    "できること",
+  ],
+};
+
+/**
+ * Mood/Status-related keywords (how are you?)
+ * 기분/안부 관련 키워드
+ */
+export const MOOD_KEYWORDS: Record<Locale, string[]> = {
+  ko: [
+    "잘지내",
+    "잘지내?",
+    "잘있어?",
+    "뭐해",
+    "뭐하냐",
+    "뭐해?",
+    "어때",
+    "기분어때",
+    "컨디션",
+    "잘지냈어",
+    "별일없어",
+  ],
+  en: [
+    "how are you",
+    "how r u",
+    "hows it going",
+    "how's it going",
+    "what's up",
+    "whats up",
+    "how do you do",
+    "you good",
+    "you ok",
+  ],
+  ja: [
+    "元気",
+    "元気?",
+    "調子どう",
+    "お元気ですか",
+    "どうですか",
+    "いかがですか",
+    "大丈夫",
+  ],
+};
+
+/**
+ * Agreement/Confirmation keywords
+ * 동의/확인 관련 키워드
+ */
+export const AGREE_KEYWORDS: Record<Locale, string[]> = {
+  ko: [
+    "ㅇㅇ",
+    "ㅇㅋ",
+    "알겠어",
+    "알았어",
+    "그래",
+    "응",
+    "네",
+    "예",
+    "오케이",
+    "ㅇㅋㅇㅋ",
+    "굿",
+    "좋아",
+    "알겠습니다",
+  ],
+  en: [
+    "ok",
+    "okay",
+    "got it",
+    "yep",
+    "yes",
+    "sure",
+    "alright",
+    "right",
+    "fine",
+    "cool",
+    "good",
+    "understood",
+    "i see",
+  ],
+  ja: [
+    "わかった",
+    "おけ",
+    "オッケー",
+    "うん",
+    "はい",
+    "りょ",
+    "りょうかい",
+    "了解",
+    "いいよ",
+    "おk",
+  ],
+};
+
+/**
  * Get all keywords for a specific type and locale
  * 특정 유형 및 로케일에 대한 모든 키워드 가져오기
  */
 export function getKeywords(
-  type: "time" | "date" | "weather",
+  type: "time" | "date" | "weather" | "greeting" | "thanks" | "bye" | "identity" | "help" | "mood" | "agree",
   locale: Locale,
 ): string[] {
   switch (type) {
@@ -292,5 +635,19 @@ export function getKeywords(
       return DATE_KEYWORDS[locale];
     case "weather":
       return WEATHER_KEYWORDS[locale];
+    case "greeting":
+      return GREETING_KEYWORDS[locale];
+    case "thanks":
+      return THANKS_KEYWORDS[locale];
+    case "bye":
+      return BYE_KEYWORDS[locale];
+    case "identity":
+      return IDENTITY_KEYWORDS[locale];
+    case "help":
+      return HELP_KEYWORDS[locale];
+    case "mood":
+      return MOOD_KEYWORDS[locale];
+    case "agree":
+      return AGREE_KEYWORDS[locale];
   }
 }

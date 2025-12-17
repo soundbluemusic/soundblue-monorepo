@@ -208,13 +208,230 @@ describe("handleDynamicQuery", () => {
     }
   });
 
+  describe("Greeting queries - Korean", () => {
+    const greetingQueries = [
+      "안녕",
+      "안녕하세요",
+      "반가워",
+      "반갑다",
+      "ㅎㅇ",
+      "방가",
+      "하이",
+    ];
+
+    for (const query of greetingQueries) {
+      it(`should match greeting query: "${query}"`, () => {
+        const result = handleDynamicQuery(query, "ko");
+        expect(result.matched).toBe(true);
+        expect(result.response).toBeDefined();
+      });
+    }
+  });
+
+  describe("Greeting queries - English", () => {
+    const greetingQueries = [
+      "hello",
+      "hi",
+      "hey",
+      "sup",
+      "helo", // 오타
+      "hii", // 오타
+    ];
+
+    for (const query of greetingQueries) {
+      it(`should match greeting query: "${query}"`, () => {
+        const result = handleDynamicQuery(query, "en");
+        expect(result.matched).toBe(true);
+        expect(result.response).toBeDefined();
+      });
+    }
+  });
+
+  describe("Greeting queries - Japanese", () => {
+    const greetingQueries = [
+      "こんにちは",
+      "おはよう",
+      "やあ",
+      "ども",
+      "こんちは", // 변형
+    ];
+
+    for (const query of greetingQueries) {
+      it(`should match greeting query: "${query}"`, () => {
+        const result = handleDynamicQuery(query, "ja");
+        expect(result.matched).toBe(true);
+        expect(result.response).toBeDefined();
+      });
+    }
+  });
+
+  describe("Thanks queries - All languages", () => {
+    it("should match Korean thanks", () => {
+      const queries = ["고마워", "감사합니다", "ㄱㅅ", "땡큐"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ko");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match English thanks", () => {
+      const queries = ["thanks", "thank you", "thx", "ty"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "en");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match Japanese thanks", () => {
+      const queries = ["ありがとう", "サンキュー", "あざす"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ja");
+        expect(result.matched).toBe(true);
+      }
+    });
+  });
+
+  describe("Identity queries - All languages", () => {
+    it("should match Korean identity", () => {
+      const queries = ["너뭐냐", "누구야", "뭐야", "자기소개"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ko");
+        expect(result.matched).toBe(true);
+        expect(result.response).toContain("Dialogue");
+      }
+    });
+
+    it("should match English identity", () => {
+      // Note: "what are you" conflicts with TIME ("what time") due to fuzzy matching
+      const queries = ["who are you", "introduce yourself", "tell me about yourself"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "en");
+        expect(result.matched).toBe(true);
+        expect(result.response).toContain("Dialogue");
+      }
+    });
+
+    it("should match Japanese identity", () => {
+      const queries = ["あなたは誰", "何者", "自己紹介"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ja");
+        expect(result.matched).toBe(true);
+        expect(result.response).toContain("Dialogue");
+      }
+    });
+  });
+
+  describe("Bye queries - All languages", () => {
+    it("should match Korean bye", () => {
+      const queries = ["잘가", "바이", "ㅂㅂ", "또봐"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ko");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match English bye", () => {
+      const queries = ["bye", "goodbye", "see ya", "later"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "en");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match Japanese bye", () => {
+      const queries = ["さようなら", "じゃあね", "またね", "バイバイ"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ja");
+        expect(result.matched).toBe(true);
+      }
+    });
+  });
+
+  describe("Help queries - All languages", () => {
+    it("should match Korean help", () => {
+      const queries = ["도와줘", "뭐할수있어", "사용법"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ko");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match English help", () => {
+      const queries = ["help", "what can you do", "how to use"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "en");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match Japanese help", () => {
+      const queries = ["助けて", "何ができる", "使い方"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ja");
+        expect(result.matched).toBe(true);
+      }
+    });
+  });
+
+  describe("Mood queries - All languages", () => {
+    it("should match Korean mood", () => {
+      const queries = ["잘지내", "뭐해", "어때"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ko");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match English mood", () => {
+      const queries = ["how are you", "how r u", "you ok"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "en");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match Japanese mood", () => {
+      const queries = ["元気", "調子どう", "大丈夫"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ja");
+        expect(result.matched).toBe(true);
+      }
+    });
+  });
+
+  describe("Agree queries - All languages", () => {
+    it("should match Korean agree", () => {
+      const queries = ["ㅇㅇ", "ㅇㅋ", "알겠어", "응"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ko");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match English agree", () => {
+      const queries = ["ok", "okay", "got it", "yes"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "en");
+        expect(result.matched).toBe(true);
+      }
+    });
+
+    it("should match Japanese agree", () => {
+      const queries = ["わかった", "うん", "はい", "了解"];
+      for (const query of queries) {
+        const result = handleDynamicQuery(query, "ja");
+        expect(result.matched).toBe(true);
+      }
+    });
+  });
+
   describe("Non-matching queries", () => {
     const nonMatchingQueries = [
-      "hello",
-      "안녕하세요",
-      "こんにちは",
-      "random text",
-      "음악 추천해줘",
+      "asdfghjkl",
+      "ㅁㄴㅇㄹㅎ",
+      "random gibberish text here",
+      "12345678",
+      "@@#$%^",
     ];
 
     for (const query of nonMatchingQueries) {

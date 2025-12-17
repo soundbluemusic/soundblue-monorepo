@@ -2,7 +2,7 @@ import { Component, createSignal, For, onMount, createEffect } from "solid-js";
 import { useI18n } from "~/i18n";
 import { translations } from "~/i18n/translations";
 import { searchKnowledge } from "~/lib/search";
-import { handleDynamicQuery } from "~/lib/handlers";
+import { handleDynamicQuery, getFallbackResponse } from "~/lib/handlers";
 import { detectLanguage } from "~/lib/language-detector";
 import { ChatMessage, Message } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
@@ -80,7 +80,7 @@ export const Chat: Component = () => {
       if (results.length > 0) {
         responseContent = results[0].answer;
       } else {
-        responseContent = localizedT.noResults;
+        responseContent = getFallbackResponse(detectedLocale);
       }
     }
 

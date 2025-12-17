@@ -27,6 +27,13 @@ import {
   TIME_KEYWORDS,
   DATE_KEYWORDS,
   WEATHER_KEYWORDS,
+  GREETING_KEYWORDS,
+  THANKS_KEYWORDS,
+  BYE_KEYWORDS,
+  IDENTITY_KEYWORDS,
+  HELP_KEYWORDS,
+  MOOD_KEYWORDS,
+  AGREE_KEYWORDS,
 } from "./typo-patterns";
 
 export interface DynamicResponse {
@@ -263,6 +270,166 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
   }
 }
 
+// ========================================
+// Conversational Response Generators
+// ========================================
+
+/** Random picker utility */
+function randomPick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Greeting response generator
+function getGreetingResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "안녕하세요! 무엇이 궁금하신가요?",
+      "반가워요! 도움이 필요하시면 말씀하세요.",
+      "안녕하세요! 무엇을 도와드릴까요?",
+      "반갑습니다! 궁금한 게 있으시면 물어보세요.",
+    ],
+    en: [
+      "Hello! How can I help you?",
+      "Hi there! Feel free to ask anything.",
+      "Hey! What can I do for you?",
+      "Hello! What would you like to know?",
+    ],
+    ja: [
+      "こんにちは！何かお手伝いしましょうか？",
+      "はじめまして！何でも聞いてください。",
+      "こんにちは！どうされましたか？",
+      "やあ！何かお探しですか？",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Thanks response generator
+function getThanksResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "천만에요! 더 궁금한 거 있으시면 말씀하세요.",
+      "별말씀을요! 도움이 되었다니 기뻐요.",
+      "감사는요~ 언제든 물어보세요!",
+    ],
+    en: [
+      "You're welcome! Let me know if you need anything else.",
+      "No problem! Happy to help.",
+      "Anytime! Feel free to ask more questions.",
+    ],
+    ja: [
+      "どういたしまして！他にも何かあれば聞いてください。",
+      "いえいえ！お役に立てて嬉しいです。",
+      "どうも！また何かあればどうぞ。",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Goodbye response generator
+function getByeResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "안녕히 가세요! 다음에 또 만나요.",
+      "잘 가요! 또 놀러 오세요~",
+      "다음에 또 봐요! 좋은 하루 되세요.",
+    ],
+    en: [
+      "Goodbye! See you next time.",
+      "Bye! Come back anytime.",
+      "Take care! Have a great day.",
+    ],
+    ja: [
+      "さようなら！またお会いしましょう。",
+      "じゃあね！また来てね。",
+      "またね！良い一日を！",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Identity response generator
+function getIdentityResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "저는 Dialogue예요! 오프라인에서도 작동하는 Q&A 도우미입니다. 시간, 날짜, 날씨 등을 물어보세요!",
+      "Dialogue라고 해요! 인터넷 없이도 사용할 수 있는 대화형 도우미예요.",
+      "저는 Dialogue! 간단한 질문에 답변해 드리는 오프라인 도우미입니다.",
+    ],
+    en: [
+      "I'm Dialogue! An offline Q&A assistant. You can ask me about time, date, weather, and more!",
+      "I'm Dialogue, a conversational assistant that works offline. Feel free to ask questions!",
+      "Call me Dialogue! I'm here to help answer your questions, even without internet.",
+    ],
+    ja: [
+      "私はDialogueです！オフラインでも動作するQ&Aアシスタントです。時間、日付、天気などを聞いてください！",
+      "Dialogueと言います！インターネットなしでも使える対話型アシスタントです。",
+      "Dialogueです！簡単な質問にお答えするオフラインアシスタントです。",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Help response generator
+function getHelpResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "저한테 이런 걸 물어볼 수 있어요:\n• 지금 몇 시야?\n• 오늘 며칠이야?\n• 날씨 어때?\n• 오늘 음력으로 며칠이야?\n\n언제든 질문하세요!",
+    ],
+    en: [
+      "You can ask me things like:\n• What time is it?\n• What's today's date?\n• How's the weather?\n• What's today in lunar calendar?\n\nFeel free to ask!",
+    ],
+    ja: [
+      "こんなことが聞けます：\n• 今何時？\n• 今日は何日？\n• 天気はどう？\n• 今日の旧暦は？\n\nいつでも聞いてください！",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Mood response generator
+function getMoodResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "저는 잘 지내고 있어요! 도움이 필요하시면 말씀하세요.",
+      "좋아요! 오늘도 열심히 답변할 준비가 되어 있어요.",
+      "괜찮아요! 뭐가 궁금하세요?",
+    ],
+    en: [
+      "I'm doing great! Let me know if you need any help.",
+      "All good here! Ready to answer your questions.",
+      "I'm fine! What can I help you with?",
+    ],
+    ja: [
+      "元気ですよ！何かお手伝いしましょうか？",
+      "いい感じです！質問があればどうぞ。",
+      "大丈夫です！何かお探しですか？",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
+// Agree response generator
+function getAgreeResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "네! 더 궁금한 거 있으세요?",
+      "알겠어요! 또 물어보실 거 있으면 말씀하세요.",
+      "좋아요! 다른 질문 있으시면 언제든지요.",
+    ],
+    en: [
+      "Got it! Anything else you'd like to know?",
+      "Alright! Let me know if you have more questions.",
+      "Okay! Feel free to ask anything else.",
+    ],
+    ja: [
+      "はい！他に気になることはありますか？",
+      "了解です！また何かあれば聞いてください。",
+      "わかりました！他にも質問があればどうぞ。",
+    ],
+  };
+  return randomPick(responses[locale]);
+}
+
 // WMO Weather interpretation codes
 function getWeatherDescription(code: number, locale: Locale): string {
   const descriptions: Record<string, Record<number, string>> = {
@@ -418,5 +585,89 @@ export function handleDynamicQuery(query: string, locale: Locale): DynamicRespon
     };
   }
 
+  // Check for identity (hybrid keyword + fuzzy matching) - before greeting to prevent "your name" -> "yo"
+  if (matchesKeywords(query, IDENTITY_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getIdentityResponse(locale),
+    };
+  }
+
+  // Check for help (hybrid keyword + fuzzy matching) - before greeting for specificity
+  if (matchesKeywords(query, HELP_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getHelpResponse(locale),
+    };
+  }
+
+  // Check for thanks (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, THANKS_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getThanksResponse(locale),
+    };
+  }
+
+  // Check for goodbye (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, BYE_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getByeResponse(locale),
+    };
+  }
+
+  // Check for mood (hybrid keyword + fuzzy matching) - before greeting for specificity
+  if (matchesKeywords(query, MOOD_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getMoodResponse(locale),
+    };
+  }
+
+  // Check for greeting (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, GREETING_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getGreetingResponse(locale),
+    };
+  }
+
+  // Check for agreement (hybrid keyword + fuzzy matching)
+  if (matchesKeywords(query, AGREE_KEYWORDS[locale])) {
+    return {
+      matched: true,
+      response: getAgreeResponse(locale),
+    };
+  }
+
   return { matched: false };
+}
+
+/**
+ * 매칭 실패 시 친근한 폴백 응답을 반환합니다.
+ * Returns a friendly fallback response when no match is found.
+ */
+export function getFallbackResponse(locale: Locale): string {
+  const responses: Record<Locale, string[]> = {
+    ko: [
+      "음... 잘 모르겠어요. 다르게 물어봐 주시겠어요?",
+      "그건 제가 아직 모르는 내용이에요. 다른 질문 있으신가요?",
+      "죄송해요, 이해하지 못했어요. 다시 한번 말씀해 주세요.",
+      "흠, 그건 잘 모르겠네요. 시간, 날씨, 날짜 같은 걸 물어보시면 잘 답해드릴 수 있어요!",
+    ],
+    en: [
+      "Hmm... I'm not sure about that. Could you ask differently?",
+      "I don't know that yet. Do you have another question?",
+      "Sorry, I didn't understand. Could you try again?",
+      "I'm not sure about that one. Try asking about time, weather, or dates!",
+    ],
+    ja: [
+      "うーん...それはちょっとわからないです。別の聞き方で試してみてください。",
+      "それはまだ知らない内容です。他の質問はありますか？",
+      "すみません、理解できませんでした。もう一度お願いします。",
+      "それはちょっとわからないですね。時間、天気、日付などを聞いてみてください！",
+    ],
+  };
+  return randomPick(responses[locale]);
 }
