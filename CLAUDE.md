@@ -34,3 +34,20 @@ pnpm test          # 테스트 실행
 - 앱 간 의존성은 packages/shared를 통해서만 (Cross-app dependencies via packages/shared only)
 - 각 앱은 독립적으로 빌드/배포 가능 (Each app can be built/deployed independently)
 - 공통 설정은 루트에서 관리 (Common configs managed at root)
+
+## 타입 검증 (Type Validation)
+
+타입 에러 검색 시 `.claude/rules/common.md`의 타입 검증 프로세스를 따르세요.
+(Follow the Type Validation Process in `.claude/rules/common.md` when searching for type errors.)
+
+```bash
+# 병렬 실행 가능 (Can run in parallel)
+tsc --noEmit              # 기본 타입 체크
+tsc --noEmit --strict     # 엄격 타입 체크
+grep ": any"              # any 타입 찾기
+grep "as any"             # as any 찾기
+grep "as never"           # as never 찾기
+grep "as unknown"         # as unknown 찾기
+grep "@ts-ignore"         # ts-ignore 찾기
+grep "@ts-expect-error"   # ts-expect-error 찾기
+```

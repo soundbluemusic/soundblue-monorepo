@@ -130,6 +130,30 @@ pnpm dev:dialogue
 | `pnpm dev:dialogue` | Run Dialogue (Dialogue 실행) |
 | `pnpm build` | Build all apps (모든 앱 빌드) |
 | `pnpm test` | Run tests (테스트 실행) |
+| `pnpm check:fix` | Lint & format (린트 & 포맷) |
+
+---
+
+## 🔍 Type Validation Process (타입 검증 프로세스)
+
+> Use this process when finding type errors or code quality issues
+> (타입 에러나 코드 품질 문제를 찾을 때 사용)
+
+| Step | Action | Parallel |
+|------|--------|----------|
+| 1 | `tsc --noEmit` (all apps) | Yes |
+| 2 | `tsc --noEmit --strict` (all apps) | Yes |
+| 3 | `grep ": any"` | Yes |
+| 4 | `grep "as any"` | Yes |
+| 5 | `grep "as never"` | Yes |
+| 6 | `grep "as unknown"` | Yes |
+| 7 | `grep "@ts-ignore"` | Yes |
+| 8 | `grep "@ts-expect-error"` | Yes |
+| 9 | Collect & fix all issues (수집 후 수정) | - |
+| 10 | Verify with `tsc --noEmit --strict` (검증) | - |
+| 11 | Commit (커밋) | - |
+
+**Note:** Steps 1-8 can run in parallel. Steps 9-11 must run sequentially.
 
 ---
 

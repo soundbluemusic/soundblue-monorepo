@@ -48,6 +48,30 @@
 - package.json 수정 후 pnpm install 실행하고 pnpm-lock.yaml도 함께 커밋
   (Run pnpm install after modifying package.json and commit pnpm-lock.yaml together)
 
+## 타입 검증 프로세스 (Type Validation Process)
+
+타입 에러나 코드 품질 문제를 찾을 때 아래 프로세스를 따르세요.
+(Follow this process when finding type errors or code quality issues.)
+
+| 단계 | 실행 내용 | 병렬 가능 |
+|------|----------|----------|
+| 1 | `tsc --noEmit` (모든 앱) | Yes |
+| 2 | `tsc --noEmit --strict` (모든 앱) | Yes |
+| 3 | `grep ": any"` | Yes |
+| 4 | `grep "as any"` | Yes |
+| 5 | `grep "as never"` | Yes |
+| 6 | `grep "as unknown"` | Yes |
+| 7 | `grep "@ts-ignore"` | Yes |
+| 8 | `grep "@ts-expect-error"` | Yes |
+| 9 | 모든 결과 수집 후 한번에 수정 (Collect all results and fix at once) | - |
+| 10 | `tsc --noEmit --strict` 검증 (Verify) | - |
+| 11 | 커밋 (Commit) | - |
+
+**중요 (Important):**
+- 1~8단계는 병렬 실행 가능 (Steps 1-8 can run in parallel)
+- 9~11단계는 순차 실행 (Steps 9-11 must run sequentially)
+- 수정 전 모든 문제를 먼저 파악 (Identify all issues before fixing)
+
 ## 테스트 (Testing)
 - Vitest - 유닛 테스트 (Unit tests)
 - Playwright - E2E 테스트 (E2E tests)
