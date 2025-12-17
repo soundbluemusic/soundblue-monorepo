@@ -34,5 +34,5 @@ Sound recordings (field recordings) may only be used for creating original works
 
 ## Contact
 
-- GitHub: https://github.com/soundbluemusic/sound-blue
+- GitHub: https://github.com/soundbluemusic/soundblue-monorepo/tree/main/apps/sound-blue
 - YouTube: https://www.youtube.com/@SoundBlueMusic

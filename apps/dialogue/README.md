@@ -38,6 +38,11 @@ All pages (`/`, `/ko`, `/ja`) are pre-rendered at build time.
 - **Sidebar Navigation**: Clean UI with collapsible sidebar
 - **SEO Optimized**: Perfect SEO with static generation
 
+## Requirements
+
+- **Node.js** >= 20.0.0
+- **pnpm** (package manager)
+
 ## Getting Started
 
 ```bash

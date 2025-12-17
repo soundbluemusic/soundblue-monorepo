@@ -71,7 +71,7 @@ No sign-up required. No ads. Completely free.
 ### Prerequisites
 (### 필수 조건)
 
-- **Node.js** >= 24.0.0
+- **Node.js** >= 20.0.0
 - **pnpm** (recommended package manager / 권장 패키지 매니저)
 
 ### Installation and Running
@@ -79,8 +79,8 @@ No sign-up required. No ads. Completely free.
 
 ```bash
 # Clone the repository (저장소 클론)
-git clone https://github.com/soundbluemusic/tools.git
-cd tools
+git clone https://github.com/soundbluemusic/soundblue-monorepo.git
+cd soundblue-monorepo/apps/tools
 
 # Install dependencies (의존성 설치)
 pnpm install

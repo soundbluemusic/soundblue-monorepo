@@ -9,10 +9,11 @@
   "homepage": "https://soundbluemusic.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/soundbluemusic/sound-blue.git"
+    "url": "https://github.com/soundbluemusic/soundblue-monorepo.git",
+    "directory": "apps/sound-blue"
   },
   "bugs": {
-    "url": "https://github.com/soundbluemusic/sound-blue/issues"
+    "url": "https://github.com/soundbluemusic/soundblue-monorepo/issues"
   },
   "keywords": [
     "solidjs",
