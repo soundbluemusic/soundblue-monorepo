@@ -1,5 +1,6 @@
 import { defineConfig } from "@solidjs/start/config";
 import tailwindcss from "@tailwindcss/vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   server: {
@@ -10,7 +11,27 @@ export default defineConfig({
     },
   },
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+
+      // PWA Support - SSG optimized (100% offline)
+      VitePWA({
+        registerType: "autoUpdate",
+        includeAssets: ["favicon.png", "icons/*.png", "icons/*.svg"],
+        manifest: false, // Use existing manifest.json in public/
+        workbox: {
+          // SSG: precache all static files
+          globPatterns: ["**/*.{html,js,css,png,svg,ico,woff,woff2,json}"],
+          // SSG doesn't need navigateFallback (all pages are precached)
+          cleanupOutdatedCaches: true,
+          skipWaiting: true,
+          clientsClaim: true,
+        },
+        devOptions: {
+          enabled: false,
+        },
+      }),
+    ],
     resolve: {
       alias: {
         "~": "/src",

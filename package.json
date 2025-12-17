@@ -5,5 +5,8 @@
     "dev:tools": "pnpm --filter tools dev",
     "dev:main": "pnpm --filter sound-blue dev",
     "dev:dialogue": "pnpm --filter dialogue dev"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }

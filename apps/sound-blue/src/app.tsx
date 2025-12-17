@@ -3,6 +3,7 @@ import { Router, type RouteSectionProps, useIsRouting } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { type JSX, Show, Suspense } from 'solid-js';
 import { AppErrorBoundary } from '~/components/ErrorBoundary';
+import { OfflineIndicator } from '~/components/pwa';
 import { I18nProvider } from '~/components/providers/I18nProvider';
 import { KeyboardShortcutsProvider } from '~/components/providers/KeyboardShortcutsProvider';
 import { ThemeProvider } from '~/components/providers/ThemeProvider';
@@ -37,6 +38,7 @@ export default function App(): JSX.Element {
             <I18nProvider>
               <KeyboardShortcutsProvider>
                 <AppErrorBoundary>
+                  <OfflineIndicator />
                   <RoutingIndicator />
                   <Suspense fallback={<PageLoader />}>{props.children}</Suspense>
                 </AppErrorBoundary>

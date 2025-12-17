@@ -36,9 +36,7 @@
     "typescript": "^5.9.3",
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-solid": "^2.11.10",
-    "vitest": "^4.0.15",
-    "workbox-precaching": "^7.3.0",
-    "workbox-routing": "^7.3.0"
+    "vitest": "^4.0.15"
   },
   "engines": {
     "node": ">=20.0.0"
