@@ -5,8 +5,16 @@ export function vitePluginPwa() {
     registerType: 'autoUpdate',
     injectRegister: 'auto',
     workbox: {
-      globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-      navigateFallback: '/offline/',
+      // SSG: Precache all static files for 100% offline support
+      globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,webp,avif,json}'],
+      // Clean up old caches on update
+      cleanupOutdatedCaches: true,
+      // Activate new SW immediately
+      skipWaiting: true,
+      // Take control of all clients immediately
+      clientsClaim: true,
+      // SSG doesn't need navigateFallback - all pages are precached
+      // Only cache external resources (Google Fonts)
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -33,17 +41,6 @@ export function vitePluginPwa() {
             },
             cacheableResponse: {
               statuses: [0, 200],
-            },
-          },
-        },
-        {
-          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'images-cache',
-            expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
             },
           },
         },
