@@ -1,32 +1,41 @@
-import { Component, createSignal, For, createEffect, onMount } from "solid-js";
+import { Component, createSignal, For, createEffect, onMount, Show } from "solid-js";
 import { useI18n } from "~/i18n";
 import { translations } from "~/i18n/translations";
 import { searchKnowledge } from "~/lib/search";
 import { handleDynamicQuery } from "~/lib/handlers";
 import { detectLanguage } from "~/lib/language-detector";
-import { ChatMessage, Message } from "../ChatMessage";
+import { ChatMessage } from "../ChatMessage";
 import { ChatInput } from "../ChatInput";
+import {
+  chatStore,
+  chatActions,
+  generateId,
+  Message,
+} from "~/stores/chat-store";
 
 // ========================================
 // ChatContainer Component - 채팅 컨테이너
 // ========================================
 
-function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
 interface ChatContainerProps {
   onNewChat?: () => void;
   resetTrigger?: number;
+  loadTrigger?: number;
 }
 
 export const ChatContainer: Component<ChatContainerProps> = (props) => {
   const { t, locale } = useI18n();
   const [messages, setMessages] = createSignal<Message[]>([]);
   const [isThinking, setIsThinking] = createSignal(false);
+  const [conversationStarted, setConversationStarted] = createSignal(false);
   let messagesEndRef: HTMLDivElement | undefined;
 
-  onMount(() => {
+  // Track previous trigger values to detect actual changes
+  let prevResetTrigger = 0;
+  let prevLoadTrigger = 0;
+
+  // Initialize with welcome message
+  const initializeChat = () => {
     const welcomeMessage: Message = {
       id: generateId(),
       role: "assistant",
@@ -34,30 +43,51 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
       timestamp: Date.now(),
     };
     setMessages([welcomeMessage]);
+    setConversationStarted(false);
+    chatActions.clearActive();
+  };
+
+  onMount(() => {
+    initializeChat();
   });
 
+  // Scroll to bottom when messages change
   createEffect(() => {
-    if (messagesEndRef) {
+    if (messagesEndRef && messages().length > 0) {
       messagesEndRef.scrollIntoView({ behavior: "smooth" });
     }
   });
 
+  // Load conversation ONLY when explicitly triggered from sidebar (via loadTrigger)
+  createEffect(() => {
+    const trigger = props.loadTrigger ?? 0;
+    // Only react to actual trigger changes
+    if (trigger <= prevLoadTrigger) return;
+    prevLoadTrigger = trigger;
+
+    // Must wait for hydration to complete
+    if (!chatStore.isHydrated) return;
+
+    const activeId = chatStore.activeConversationId;
+    if (activeId) {
+      const conversation = chatStore.conversations.find((c) => c.id === activeId);
+      if (conversation && conversation.messages.length > 0) {
+        setMessages([...conversation.messages]);
+        setConversationStarted(true);
+      }
+    }
+  });
+
   const resetChat = () => {
-    setMessages([
-      {
-        id: generateId(),
-        role: "assistant",
-        content: t.welcome,
-        timestamp: Date.now(),
-      },
-    ]);
+    initializeChat();
     props.onNewChat?.();
   };
 
-  // Listen for reset trigger from parent
+  // Listen for reset trigger from parent (only when actually changed)
   createEffect(() => {
-    const trigger = props.resetTrigger;
-    if (trigger !== undefined && trigger > 0) {
+    const trigger = props.resetTrigger ?? 0;
+    if (trigger > prevResetTrigger) {
+      prevResetTrigger = trigger;
       resetChat();
     }
   });
@@ -69,7 +99,22 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
       content,
       timestamp: Date.now(),
     };
+
+    // Start a new conversation if needed (not in ghost mode)
+    if (!conversationStarted() && !chatStore.ghostMode) {
+      const welcomeMsg = messages()[0];
+      if (welcomeMsg) {
+        chatActions.createConversation(welcomeMsg);
+      }
+      setConversationStarted(true);
+    }
+
     setMessages((prev) => [...prev, userMessage]);
+
+    // Save to store (only if not in ghost mode)
+    if (!chatStore.ghostMode) {
+      chatActions.addMessage(userMessage);
+    }
 
     setIsThinking(true);
 
@@ -108,13 +153,25 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
 
     setIsThinking(false);
     setMessages((prev) => [...prev, assistantMessage]);
+
+    // Save to store (only if not in ghost mode)
+    if (!chatStore.ghostMode) {
+      chatActions.addMessage(assistantMessage);
+    }
   };
 
   return (
     <div class="flex h-full flex-col bg-bg-chat">
       {/* Header */}
       <div class="flex items-center justify-between border-b border-border bg-bg-secondary px-4 py-3">
-        <h2 class="font-semibold text-sm text-text-primary">{t.title}</h2>
+        <div class="flex items-center gap-2">
+          <h2 class="font-semibold text-sm text-text-primary">{t.title}</h2>
+          <Show when={chatStore.ghostMode}>
+            <span class="px-2 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-400 rounded-full">
+              {t.ghostMode}
+            </span>
+          </Show>
+        </div>
       </div>
 
       {/* Messages */}

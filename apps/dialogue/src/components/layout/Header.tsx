@@ -1,4 +1,4 @@
-import { A, useLocation } from "@solidjs/router";
+import { A, useLocation, useNavigate } from "@solidjs/router";
 import { Component, Show } from "solid-js";
 import { useI18n, Locale } from "~/i18n";
 import { useTheme } from "~/theme";
@@ -12,6 +12,7 @@ export const Header: Component = () => {
   const { t, locale, setLocale } = useI18n();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isAboutPage = () => location.pathname.includes("/about");
 
@@ -21,11 +22,40 @@ export const Header: Component = () => {
     uiActions.setSidebarOpen(!uiStore.sidebarOpen);
   };
 
+  // Get current path without language prefix
+  const getPathWithoutLocale = () => {
+    const pathname = location.pathname;
+    // Remove /ko or /ja prefix if exists
+    if (pathname.startsWith("/ko")) {
+      return pathname.slice(3) || "/";
+    }
+    if (pathname.startsWith("/ja")) {
+      return pathname.slice(3) || "/";
+    }
+    return pathname;
+  };
+
+  // Build path with new locale
+  const buildLocalizedPath = (newLocale: Locale) => {
+    const basePath = getPathWithoutLocale();
+    if (newLocale === "en") {
+      return basePath;
+    }
+    // For ko and ja, prepend the locale
+    if (basePath === "/") {
+      return `/${newLocale}`;
+    }
+    return `/${newLocale}${basePath}`;
+  };
+
   const cycleLanguage = () => {
     const langs: Locale[] = ["en", "ko", "ja"];
     const currentIndex = langs.indexOf(locale());
     const nextLang = langs[(currentIndex + 1) % langs.length];
     setLocale(nextLang);
+    // Navigate to the localized path
+    const newPath = buildLocalizedPath(nextLang);
+    navigate(newPath);
   };
 
   return (
