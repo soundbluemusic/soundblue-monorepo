@@ -2,7 +2,7 @@ import { Link, Meta, Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
 import { Activity, Drum, Languages, QrCode } from 'lucide-solid';
 import type { Component, JSX } from 'solid-js';
-import { Footer } from '@/components/layout/Footer';
+import { Footer } from '@soundblue/shared';
 import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/i18n';
 
@@ -224,7 +224,7 @@ export default function AboutPage() {
         </main>
 
         {/* Shared Footer */}
-        <Footer />
+        <Footer appName="Tools" tagline="UI/UX based on web standards" />
       </div>
     </>
   );

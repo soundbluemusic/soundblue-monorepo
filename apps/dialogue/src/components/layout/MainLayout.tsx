@@ -1,21 +1,16 @@
 import { Component, createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { isServer } from "solid-js/web";
+import { BREAKPOINTS, Footer } from "@soundblue/shared";
 import { useI18n } from "~/i18n";
 import { uiActions, uiStore } from "~/stores/ui-store";
 import { ChatContainer } from "../chat/ChatContainer";
 import { AppSidebar } from "./AppSidebar";
-import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { ResultPanel } from "./ResultPanel";
 
 // ========================================
 // MainLayout Component - 메인 3열 레이아웃
 // ========================================
-
-// Responsive breakpoints
-const BREAKPOINTS = {
-  mobile: 768, // md
-} as const;
 
 // Chat panel resize limits (px)
 const CHAT_WIDTH = {
@@ -223,7 +218,7 @@ export const MainLayout: Component = () => {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer appName="Dialogue" tagline="UI/UX based on web standards" />
     </div>
   );
 };

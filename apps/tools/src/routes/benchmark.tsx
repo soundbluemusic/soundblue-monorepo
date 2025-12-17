@@ -16,7 +16,7 @@ import {
   type DirectionFilter,
   getAllBenchmarks,
 } from '@/benchmark';
-import { Footer } from '@/components/layout/Footer';
+import { Footer } from '@soundblue/shared';
 import { Header } from '@/components/layout/Header';
 import { ToolSidebar } from '@/components/sidebar';
 import { useLanguage } from '@/i18n';
@@ -262,7 +262,7 @@ export default function BenchmarkPage() {
           </div>
         </main>
 
-        <Footer />
+        <Footer appName="Tools" tagline="UI/UX based on web standards" />
       </div>
     </>
   );

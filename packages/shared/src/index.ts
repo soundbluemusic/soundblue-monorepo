@@ -9,6 +9,19 @@ export {
   setRawStorageItem,
 } from './utils/storage';
 
+// i18n utilities
+export {
+  type BaseLocale,
+  type I18nPathConfig,
+  DEFAULT_I18N_CONFIG,
+  getLocaleFromPath,
+  getPathWithoutLocale,
+  getLocalizedPath,
+  createLocalizedPathBuilder,
+  hasLocalePrefix,
+  getOppositeLocale,
+} from './utils/i18n';
+
 // Storage (IndexedDB)
 export {
   SharedDatabase,
@@ -22,6 +35,19 @@ export {
   migrateFromLocalStorage,
 } from './storage';
 
+// Constants
+export {
+  BREAKPOINTS,
+  type BreakpointKey,
+  isBelowBreakpoint,
+  isAtOrAboveBreakpoint,
+  getCurrentBreakpoint,
+  getMediaQuery,
+} from './constants';
+
+// Components
+export { Footer, type FooterProps, type FooterLink } from './components';
+
 // Types
 export type {
   Branded,
@@ -30,6 +56,9 @@ export type {
   Success,
   Failure,
   Result,
+  MessageRole,
+  Message,
+  LegacyMessageType,
 } from './types';
 
 export {
@@ -44,4 +73,9 @@ export {
   assert,
   assertDefined,
   assertNever,
+  createMessage,
+  isMessage,
+  isMessageArray,
+  legacyTypeToRole,
+  roleToLegacyType,
 } from './types';

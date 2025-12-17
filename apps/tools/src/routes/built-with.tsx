@@ -1,7 +1,7 @@
 import { Link, Meta, Title } from '@solidjs/meta';
 import { ExternalLink } from 'lucide-solid';
 import { type Component, For } from 'solid-js';
-import { Footer } from '@/components/layout/Footer';
+import { Footer } from '@soundblue/shared';
 import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/i18n';
 
@@ -194,7 +194,7 @@ export default function BuiltWithPage() {
         </main>
 
         {/* Shared Footer */}
-        <Footer />
+        <Footer appName="Tools" tagline="UI/UX based on web standards" />
       </div>
     </>
   );

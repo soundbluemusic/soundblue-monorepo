@@ -1,20 +1,15 @@
 import { type Component, createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import { BREAKPOINTS, Footer } from '@soundblue/shared';
 import { ToolSidebar } from '@/components/sidebar';
 import { ToolContainer } from '@/components/tools';
 import { cn } from '@/lib/utils';
 import { toolActions, toolStore } from '@/stores/tool-store';
-import { Footer } from './Footer';
 import { Header } from './Header';
 
 // ========================================
 // MainLayout Component - 메인 2열 레이아웃 (사이드바 + 도구)
 // ========================================
-
-// Responsive breakpoints
-const BREAKPOINTS = {
-  mobile: 768, // md
-} as const;
 
 export const MainLayout: Component = () => {
   const [isMobile, setIsMobile] = createSignal(false);
@@ -89,7 +84,7 @@ export const MainLayout: Component = () => {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer appName="Tools" tagline="UI/UX based on web standards" />
     </div>
   );
 };
