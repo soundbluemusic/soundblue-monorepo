@@ -233,6 +233,143 @@ messages/               # Translation files (번역 파일)
 
 ---
 
+## Key Patterns (주요 패턴)
+
+### Tool Definition (도구 정의)
+
+```typescript
+// src/tools/[name]/index.tsx
+import type { Component } from 'solid-js';
+import { registerTool } from '../registry';
+import type { ToolDefinition, ToolProps } from '../types';
+
+export interface MyToolSettings {
+  value: number;
+  [key: string]: unknown;  // Required for ToolSettings compatibility
+}
+
+const MyToolComponent: Component<ToolProps<MyToolSettings>> = (props) => {
+  const settings = () => props.settings;
+  return (
+    <div class="p-4">
+      {/* Component implementation */}
+    </div>
+  );
+};
+
+export const myTool: ToolDefinition<MyToolSettings> = {
+  meta: {
+    id: 'my-tool',
+    name: { ko: '도구', en: 'Tool' },
+    description: { ko: '설명', en: 'Description' },
+    icon: '🔧',
+    category: 'utility',  // 'music' | 'utility' | 'visual' | 'productivity'
+    defaultSize: 'md',    // 'sm' | 'md' | 'lg' | 'xl' | 'full'
+    minSize: { width: 320, height: 240 },
+    tags: ['keyword1', 'keyword2'],
+  },
+  defaultSettings: { value: 0 },
+  component: MyToolComponent,
+};
+
+registerTool(myTool);  // Auto-register at module load
+```
+
+### Adding a New Tool (새 도구 추가)
+
+1. Create `src/tools/[name]/index.tsx` with ToolDefinition
+2. Import in `src/tools/index.ts` to trigger auto-registration
+3. Add export: `export { myTool } from './[name]';`
+
+### SolidJS Store (상태 저장소)
+
+```typescript
+import { createStore } from 'solid-js/store';
+
+interface MyState { value: number; }
+const [myStore, setMyStore] = createStore<MyState>({ value: 0 });
+
+export const myActions = {
+  setValue: (v: number) => setMyStore('value', v),
+};
+
+export { myStore, setMyStore };
+export const useValue = () => myStore.value;
+```
+
+### Event Bus - Inter-tool Communication (도구 간 통신)
+
+```typescript
+import { emitTempoChange, onTempoChange } from '@/lib/event-bus';
+
+// Subscribe
+onMount(() => {
+  const unsubscribe = onTempoChange((event) => {
+    if (event.source !== instanceId) setLocalBpm(event.bpm);
+  });
+  onCleanup(unsubscribe);
+});
+
+// Emit
+emitTempoChange(newBpm, instanceId);
+
+// Available events:
+// - TEMPO_CHANGE: { bpm, source }
+// - BEAT_TICK: { beat, measure, time }
+// - MIDI_NOTE_ON/OFF: { note, velocity, channel }
+// - MIDI_CC: { controller, value, channel }
+```
+
+### AudioContext - Shared Singleton (공유 싱글톤)
+
+```typescript
+import { getAudioContext, resumeAudioContext } from '@/lib/audio-context';
+
+const ctx = getAudioContext();           // Get or create
+await resumeAudioContext();              // Resume on user interaction (required)
+```
+
+### i18n - Internationalization (국제화)
+
+```typescript
+import { useLanguage, useTranslations } from '@/i18n';
+
+const MyComponent: Component = () => {
+  const t = useTranslations();
+  const { locale, toggleLocale } = useLanguage();
+  return <p>{t.common.title}</p>;
+};
+```
+
+### Path Aliases (경로 별칭)
+
+```typescript
+import { cn } from '@/lib/utils';
+import { audioStore } from '@/stores/audio-store';
+import { Button } from '@/components/ui/button';
+```
+
+---
+
+## Configuration Files (설정 파일)
+
+| File | Purpose |
+|------|---------|
+| `app.config.ts` | Vinxi/SolidStart config (SSG, Vite plugins, PWA) |
+| `biome.json` | Linter/formatter rules |
+| `tsconfig.json` | TypeScript config with path aliases |
+| `vitest.config.ts` | Unit test configuration |
+| `playwright.config.ts` | E2E test configuration |
+
+---
+
+## Protected Files (건드리지 않을 파일)
+
+- `public/` folder - auto-generated build files
+- `public/audio-worklet/*.js` - AudioWorklet technical constraint
+
+---
+
 ## Contributing
 (## 기여하기)
 

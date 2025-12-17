@@ -246,11 +246,76 @@ import { NavigationLayout } from '~/components';
 import { cn } from '~/lib/utils';
 ```
 
-### Detailed Guide
-(상세 가이드)
+### Theme System (테마 시스템)
 
-See **[CLAUDE.md](./CLAUDE.md)** for full development rules for AI assistants.
-(AI 어시스턴트용 전체 개발 규칙은 **[CLAUDE.md](./CLAUDE.md)** 참조.)
+- Two modes: `light`, `dark` (두 가지 모드: 라이트, 다크)
+- System preference + manual override (시스템 설정 + 수동 전환)
+- `data-theme` attribute on `<html>` (html 태그의 data-theme 속성)
+- LocalStorage key: `sb-theme` (로컬스토리지 키)
+
+```tsx
+import { useTheme } from '~/components/providers/ThemeProvider';
+const { theme, toggleTheme, setTheme } = useTheme();
+```
+
+### UI Components (UI 컴포넌트)
+
+**From `~/components/ui`:**
+- `BottomSheetClient` - Bottom sheet modal (client-only)
+- `Button`, `buttonVariants`, `LinkButton` - Action buttons
+- `OptimizedImage` - Lazy loading image
+- `SearchBox` - Search input
+- `ThemeIcon` - Theme toggle icon
+
+**From `~/components`:**
+- `ClientOnly` - Client-only rendering wrapper
+- `Header`, `Footer` - Site header/footer
+- `NavigationLayout` - Full layout wrapper
+- `AppErrorBoundary` - Error boundary
+- `CSSParticles` - Pure CSS particles
+- `ChatContainer`, `ChatInput`, `ChatMessage` - Chat components
+- `Sidebar`, `BottomNav` - Navigation
+- `PageSeo` - SEO meta tags
+- `I18nProvider`, `useLanguage` - i18n context
+
+### Client-Only Components (클라이언트 전용 컴포넌트)
+
+SSG에서 브라우저 API 사용 컴포넌트는 `clientOnly` 필요:
+
+```tsx
+// ComponentName.client.tsx
+import { clientOnly } from '@solidjs/start';
+export const ComponentNameClient = clientOnly(() => import('./ComponentName'));
+```
+
+### CSS Variables (CSS 변수)
+
+Eye-friendly design system in `src/styles/tailwind.css`:
+- **Light Mode**: "Warm Ivory" - cream-colored paper
+- **Dark Mode**: "Midnight Forest" - cool charcoal with blue-green undertones
+
+Key variables:
+```css
+--color-bg-primary, --color-bg-secondary, --color-bg-elevated
+--color-text-primary, --color-text-secondary
+--color-accent-primary: #C9553D (Muted Terracotta)
+--header-height: 56px
+--sidebar-width: 240px
+--bottom-nav-height: 56px
+```
+
+### Security Headers (보안 헤더)
+
+Defined in `public/_headers`:
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: SAMEORIGIN`
+- `Cross-Origin-Opener-Policy: same-origin` (COOP)
+- `Cross-Origin-Embedder-Policy: credentialless` (COEP)
+- `Content-Security-Policy` (CSP)
+
+### Protected Files (건드리지 않을 파일)
+
+- `public/` folder - auto-generated build files
 
 ---
 
