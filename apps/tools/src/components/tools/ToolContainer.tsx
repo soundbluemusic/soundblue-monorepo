@@ -60,6 +60,9 @@ const URL_PARAMS = {
   translator: ['direction'] as const,
 };
 
+// 보존해야 할 특수 파라미터 (각 도구에서 직접 관리)
+const PRESERVED_PARAMS = ['s'] as const;
+
 export const ToolContainer: Component = () => {
   const navigate = useNavigate();
   const { locale, t } = useLanguage();
@@ -139,14 +142,29 @@ export const ToolContainer: Component = () => {
   createEffect(() => {
     const tool = currentTool();
     if (!tool) {
-      // 도구 없으면 URL 파라미터 초기화
-      setSearchParams({}, { replace: true });
+      // 도구 없으면 URL 파라미터 초기화 (보존 파라미터 제외)
+      const preserved: Record<string, string | undefined> = {};
+      for (const param of PRESERVED_PARAMS) {
+        const value = searchParams[param];
+        if (value) {
+          preserved[param] = Array.isArray(value) ? value[0] : value;
+        }
+      }
+      setSearchParams(preserved, { replace: true });
       return;
     }
 
     const settings = toolStore.toolSettings[tool];
     const params = URL_PARAMS[tool];
     const urlUpdate: Record<string, string | undefined> = {};
+
+    // 보존 파라미터 유지
+    for (const param of PRESERVED_PARAMS) {
+      const value = searchParams[param];
+      if (value) {
+        urlUpdate[param] = Array.isArray(value) ? value[0] : value;
+      }
+    }
 
     for (const param of params) {
       const value = settings[param as keyof typeof settings];
