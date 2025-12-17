@@ -264,3 +264,18 @@ export function assertDefined<T>(value: T | null | undefined, message: string): 
 export function assertNever(_value: never, message?: string): never {
   throw new Error(message ?? 'Unexpected value in assertNever');
 }
+
+// ============================================================================
+// Message Types (for chat functionality)
+// ============================================================================
+
+export {
+  type MessageRole,
+  type Message,
+  createMessage,
+  isMessage,
+  isMessageArray,
+  type LegacyMessageType,
+  legacyTypeToRole,
+  roleToLegacyType,
+} from './message';

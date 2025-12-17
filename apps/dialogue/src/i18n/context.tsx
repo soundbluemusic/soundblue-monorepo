@@ -8,6 +8,7 @@ import {
   createEffect,
 } from "solid-js";
 import { useLocation } from "@solidjs/router";
+import { getLocaleFromPath as sharedGetLocaleFromPath, type I18nPathConfig } from "@soundblue/shared";
 import { translations, Locale, TranslationKeys } from "./translations";
 import { getSetting, setSetting, migrateSettingFromLocalStorage } from "~/stores/db";
 
@@ -21,11 +22,14 @@ const I18nContext = createContext<I18nContextType>();
 
 const STORAGE_KEY = "dialogue-locale";
 
+// Dialogue supports 3 locales including Japanese
+const DIALOGUE_I18N_CONFIG: I18nPathConfig = {
+  locales: ["en", "ko", "ja"],
+  defaultLocale: "en",
+};
+
 function getLocaleFromPath(pathname: string): Locale {
-  const path = pathname.split("/")[1];
-  if (path === "ko") return "ko";
-  if (path === "ja") return "ja";
-  return "en"; // Default to English
+  return sharedGetLocaleFromPath(pathname, DIALOGUE_I18N_CONFIG) as Locale;
 }
 
 export const I18nProvider: ParentComponent = (props) => {

@@ -1,45 +1,36 @@
 // Locale configuration for SolidStart
 // Server-side locale detection is handled by the routes
+// Re-exports shared i18n utilities with app-specific types
+
+import {
+  getLocaleFromPath as sharedGetLocaleFromPath,
+  getPathWithoutLocale as sharedGetPathWithoutLocale,
+  getLocalizedPath as sharedGetLocalizedPath,
+  type I18nPathConfig,
+} from '@soundblue/shared';
 
 export type Locale = 'ko' | 'en';
 
-export const locales: Locale[] = ['ko', 'en'];
+export const locales: readonly Locale[] = ['ko', 'en'] as const;
 export const defaultLocale: Locale = 'en';
 
-// Helper to extract locale from pathname
+// App-specific i18n config
+const i18nConfig: I18nPathConfig = {
+  locales: locales,
+  defaultLocale: defaultLocale,
+};
+
+// Re-export with app-specific typing
 export function getLocaleFromPath(pathname: string): Locale {
-  const segments = pathname.split('/').filter(Boolean);
-  const firstSegment = segments[0];
-
-  if (firstSegment === 'en') {
-    return 'en';
-  }
-  if (firstSegment === 'ko') {
-    return 'ko';
-  }
-
-  return defaultLocale;
+  return sharedGetLocaleFromPath(pathname, i18nConfig) as Locale;
 }
 
-// Helper to get path without locale prefix
 export function getPathWithoutLocale(pathname: string): string {
-  const segments = pathname.split('/').filter(Boolean);
-  const firstSegment = segments[0];
-
-  if (firstSegment === 'en' || firstSegment === 'ko') {
-    return `/${segments.slice(1).join('/')}`;
-  }
-
-  return pathname;
+  return sharedGetPathWithoutLocale(pathname, i18nConfig);
 }
 
-// Helper to add locale to path
 export function getLocalizedPath(pathname: string, locale: Locale): string {
-  const pathWithoutLocale = getPathWithoutLocale(pathname);
-
-  if (locale === defaultLocale) {
-    return pathWithoutLocale || '/';
-  }
-
-  return `/${locale}${pathWithoutLocale || ''}`;
+  // Remove trailing slash for consistency with original behavior
+  const result = sharedGetLocalizedPath(pathname, locale, i18nConfig);
+  return result.endsWith('/') && result !== '/' ? result.slice(0, -1) : result;
 }
