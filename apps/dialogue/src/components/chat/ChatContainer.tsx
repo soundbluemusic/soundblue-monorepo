@@ -53,8 +53,11 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     }
   });
 
-  // Load conversation when activeConversationId changes
+  // Load conversation when activeConversationId changes (after hydration)
   createEffect(() => {
+    // Must wait for hydration to complete
+    if (!chatStore.isHydrated) return;
+
     const activeId = chatStore.activeConversationId;
     if (activeId) {
       const conversation = chatStore.conversations.find((c) => c.id === activeId);
