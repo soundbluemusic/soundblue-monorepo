@@ -19,11 +19,12 @@ type ThemeContextType = {
 
 /**
  * Theme context provider component for Dialogue.
- * Uses shared provider with 'dialogue-theme' storage key and 'dark' as default.
+ * Uses shared provider with 'dialogue-theme' storage key and 'light' as default.
+ * Theme preference is persisted to IndexedDB.
  */
 export const ThemeProvider: ParentComponent = (props) => {
   return (
-    <SharedThemeProvider storageKey="dialogue-theme" defaultTheme="dark" ssrDefault="dark">
+    <SharedThemeProvider storageKey="dialogue-theme" defaultTheme="light" ssrDefault="light">
       {props.children}
     </SharedThemeProvider>
   );

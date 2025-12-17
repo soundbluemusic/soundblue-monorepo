@@ -16,11 +16,12 @@ export type { Theme, ResolvedTheme, ThemeContextValue };
 
 /**
  * Theme context provider component for Tools.
- * Uses shared provider with 'theme' storage key and 'system' as default.
+ * Uses shared provider with 'theme' storage key and 'light' as default.
+ * Theme preference is persisted to IndexedDB.
  */
 export const ThemeProvider: ParentComponent = (props) => {
   return (
-    <SharedThemeProvider storageKey="theme" defaultTheme="system" ssrDefault="dark">
+    <SharedThemeProvider storageKey="theme" defaultTheme="light" ssrDefault="light">
       {props.children}
     </SharedThemeProvider>
   );
