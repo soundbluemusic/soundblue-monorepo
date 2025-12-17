@@ -30,6 +30,10 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
   const [conversationStarted, setConversationStarted] = createSignal(false);
   let messagesEndRef: HTMLDivElement | undefined;
 
+  // Track previous trigger values to detect actual changes
+  let prevResetTrigger = 0;
+  let prevLoadTrigger = 0;
+
   // Initialize with welcome message
   const initializeChat = () => {
     const welcomeMessage: Message = {
@@ -56,9 +60,10 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
 
   // Load conversation ONLY when explicitly triggered from sidebar (via loadTrigger)
   createEffect(() => {
-    const trigger = props.loadTrigger;
-    // Skip initial render (trigger is 0 or undefined)
-    if (!trigger || trigger === 0) return;
+    const trigger = props.loadTrigger ?? 0;
+    // Only react to actual trigger changes
+    if (trigger <= prevLoadTrigger) return;
+    prevLoadTrigger = trigger;
 
     // Must wait for hydration to complete
     if (!chatStore.isHydrated) return;
@@ -78,10 +83,11 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     props.onNewChat?.();
   };
 
-  // Listen for reset trigger from parent
+  // Listen for reset trigger from parent (only when actually changed)
   createEffect(() => {
-    const trigger = props.resetTrigger;
-    if (trigger !== undefined && trigger > 0) {
+    const trigger = props.resetTrigger ?? 0;
+    if (trigger > prevResetTrigger) {
+      prevResetTrigger = trigger;
       resetChat();
     }
   });
