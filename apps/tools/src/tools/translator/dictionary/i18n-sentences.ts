@@ -20,6 +20,8 @@ export const i18nKoToEnSentences: Record<string, string> = {
   "웹 표준 기반 레이아웃": "Web standards-based layout",
   "메시지 입력": "Type a message",
   "안녕하세요! 어떤 도구를 열까요": "Hello! Which tool would you like to open",
+  "페이지를 찾을 수 없습니다": "Page Not Found",
+  "요청하신 페이지가 존재하지 않거나 이동되었습니다": "The page you're looking for doesn't exist or has been moved",
   "SoundBlueMusic Tools는 뮤지션, 크리에이터, 그리고 일상을 위한 무료 브라우저 기반 도구 모음입니다": "SoundBlueMusic Tools is a collection of free, browser-based utilities for musicians, creators, and everyday use",
   "강력한 도구는 모두에게 접근 가능해야 합니다. 설치 없이, 가입 없이, 추적 없이. 열고 바로 사용하세요": "We believe powerful tools should be accessible to everyone. No installation, no signup, no tracking. Just open and use",
   "모든 도구는 단순함과 성능을 염두에 두고 설계되었습니다": "Each tool is designed with simplicity and performance in mind",
