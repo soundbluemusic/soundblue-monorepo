@@ -1,9 +1,12 @@
 # SoundBlue Monorepo
 
+> **⚠️ 모든 응답 전 verification.md 규칙을 따를 것**
+> 확인 없이 단정 금지 | 추측은 추측으로 표시 | 출처 명시
+
+@./.claude/rules/verification.md
 @./README.md
 @./.claude/rules/common.md
 @./.claude/rules/analysis.md
-@./.claude/rules/verification.md
 
 ## 모노레포 구조 (Monorepo Structure)
 
