@@ -120,7 +120,7 @@ export function SearchBox(): JSX.Element {
 
   return (
     <div
-      class="relative flex-1 max-w-[280px] ml-4 max-sm:max-w-[160px] max-sm:ml-2 max-[480px]:max-w-[120px]"
+      class="relative flex-1 max-w-70 ml-4 max-sm:max-w-40 max-sm:ml-2 max-[480px]:max-w-30"
       ref={containerRef}
     >
       <div class="relative flex items-center">
@@ -139,7 +139,7 @@ export function SearchBox(): JSX.Element {
           ref={inputRef}
           type="search"
           role="combobox"
-          class="w-full h-9 pl-[34px] pr-8 text-sm font-inherit text-content bg-surface-dim border border-line rounded-lg outline-none transition-[border-color,background-color] duration-150 placeholder:text-content-subtle focus:border-line-focus focus:bg-surface-alt [&::-webkit-search-cancel-button]:hidden max-sm:h-8 max-sm:text-[0.8125rem] max-[480px]:placeholder:text-xs"
+          class="w-full h-9 pl-8.5 pr-8 text-sm font-inherit text-content bg-surface-dim border border-line rounded-lg outline-none transition-[border-color,background-color] duration-150 placeholder:text-content-subtle focus:border-line-focus focus:bg-surface-alt [&::-webkit-search-cancel-button]:hidden max-sm:h-8 max-sm:text-[0.8125rem] max-[480px]:placeholder:text-xs"
           placeholder={t().search.placeholder}
           value={query()}
           onInput={(e) => {
@@ -185,7 +185,7 @@ export function SearchBox(): JSX.Element {
 
       {isOpen() && results().length > 0 && (
         <div
-          class="absolute top-[calc(100%+4px)] left-0 right-0 z-700 max-h-[300px] overflow-y-auto bg-surface-alt border border-line rounded-lg shadow-lg m-0 p-1"
+          class="absolute top-[calc(100%+4px)] left-0 right-0 z-700 max-h-75 overflow-y-auto bg-surface-alt border border-line rounded-lg shadow-lg m-0 p-1"
           role="listbox"
         >
           <For each={results()}>
