@@ -2,6 +2,7 @@
 
 @./README.md
 @./.claude/rules/common.md
+@./.claude/rules/analysis.md
 
 ## 모노레포 구조 (Monorepo Structure)
 
@@ -51,3 +52,17 @@ grep "as unknown"         # as unknown 찾기
 grep "@ts-ignore"         # ts-ignore 찾기
 grep "@ts-expect-error"   # ts-expect-error 찾기
 ```
+
+## 코드 분석 규칙 (Code Analysis Rules)
+
+코드 분석, 리뷰, 개선 제안 시 `.claude/rules/analysis.md`를 반드시 따르세요.
+(Follow `.claude/rules/analysis.md` when analyzing code or suggesting improvements.)
+
+**금지 사항:**
+- 근거 없는 심각도(HIGH/MEDIUM/LOW) 부여
+- 검증 없는 개선 제안 (사용처, 테스트, 의도 확인 필수)
+- 에이전트 결과 무검증 전달
+
+**필수 사항:**
+- 제안 전 실제 코드에서 사용처 확인
+- 불확실하면 단정 짓지 말고 질문으로 전환

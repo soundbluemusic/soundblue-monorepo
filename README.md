@@ -157,6 +157,40 @@ pnpm dev:dialogue
 
 ---
 
+## 🔬 Code Analysis Rules (코드 분석 규칙)
+
+> Rules for AI assistants when analyzing code or suggesting improvements
+> (AI 어시스턴트가 코드 분석/개선 제안 시 따라야 하는 규칙)
+
+### Prohibited (금지)
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| Assign severity (HIGH/MEDIUM/LOW) without evidence | Verify actual impact before labeling |
+| Suggest improvements without verification | Check usage, tests, and intent first |
+| Pass agent results without validation | Manually verify each finding |
+| Assert when uncertain | Ask questions instead |
+
+### Required Checklist (필수 체크리스트)
+
+Before suggesting any improvement:
+
+- [ ] Is the code actually used? (실제 사용 여부)
+- [ ] Will tests break? (테스트 영향)
+- [ ] Could this be intentional? (의도적 설계 여부)
+- [ ] Does it cause runtime issues? (런타임 문제 여부)
+
+### Core Principles (핵심 원칙)
+
+1. **"Find issues" ≠ "There are issues"** - Search results aren't automatically problems
+2. **Evidence-based severity** - Labels only after verified impact analysis
+3. **Respect current code** - May be intentional design choice
+4. **Question > Assert** - When uncertain, ask don't tell
+
+📄 **Full documentation:** `.claude/rules/analysis.md`
+
+---
+
 ## ✨ Features (특징)
 
 - 🌐 **Bilingual** - English & Korean (영어 & 한국어 지원)
