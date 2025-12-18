@@ -12,7 +12,8 @@ import {
   useI18n,
   type Locale,
 } from '@soundblue/shared/providers';
-import type { Accessor, ParentComponent } from 'solid-js';
+import { createMemo, type ParentComponent } from 'solid-js';
+import { isServer, getRequestEvent } from 'solid-js/web';
 import enMessages from '../../messages/en.json';
 import koMessages from '../../messages/ko.json';
 
@@ -57,6 +58,34 @@ export interface LanguageContextValue {
 }
 
 /**
+ * Get pathname from request event (SSR) or window (client)
+ */
+function getPathname(): string {
+  if (isServer) {
+    try {
+      const event = getRequestEvent();
+      if (event?.request?.url) {
+        const url = new URL(event.request.url);
+        return url.pathname;
+      }
+    } catch {
+      // Fallback
+    }
+    return '/';
+  }
+  return typeof window !== 'undefined' ? window.location.pathname : '/';
+}
+
+/**
+ * Navigate to path (client-side only)
+ */
+function navigateTo(path: string): void {
+  if (!isServer && typeof window !== 'undefined') {
+    window.location.href = path;
+  }
+}
+
+/**
  * I18n Provider for Tools app.
  *
  * @example
@@ -67,8 +96,15 @@ export interface LanguageContextValue {
  * ```
  */
 export const LanguageProvider: ParentComponent = (props) => {
+  // Create reactive pathname accessor
+  const pathname = createMemo(() => getPathname());
+
   return (
-    <SharedI18nProvider messages={messages}>
+    <SharedI18nProvider
+      messages={messages}
+      pathname={pathname}
+      navigate={navigateTo}
+    >
       {props.children}
     </SharedI18nProvider>
   );

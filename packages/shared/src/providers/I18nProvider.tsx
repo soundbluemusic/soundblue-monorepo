@@ -16,7 +16,6 @@ import {
   createMemo,
   useContext,
 } from 'solid-js';
-import { useLocation, useNavigate } from '@solidjs/router';
 
 /**
  * Supported locale codes.
@@ -67,6 +66,10 @@ export interface I18nContextValue<T> {
 export interface I18nProviderProps<T> {
   /** Translation messages for each locale */
   messages: { en: T; ko: T } | Record<Locale, T>;
+  /** Current pathname (reactive accessor) */
+  pathname: Accessor<string>;
+  /** Navigation function for locale changes */
+  navigate: (path: string) => void;
   /** i18n configuration (optional, uses DEFAULT_I18N_CONFIG if not provided) */
   config?: I18nConfig;
 }
@@ -237,18 +240,16 @@ function getBasePath(pathname: string, config: I18nConfig): string {
  * ```
  */
 export function I18nProvider<T>(props: I18nProviderProps<T> & { children: any }): any {
-  const location = useLocation();
-  const navigate = useNavigate();
   const config = () => props.config ?? DEFAULT_I18N_CONFIG;
 
   // Derive locale from URL path (reactive)
-  const locale = createMemo(() => getLocaleFromPath(location.pathname, config()));
+  const locale = createMemo(() => getLocaleFromPath(props.pathname(), config()));
 
   // Get translation messages for current locale
   const t = createMemo(() => props.messages[locale()]);
 
   // Get base path without locale prefix
-  const basePath = createMemo(() => getBasePath(location.pathname, config()));
+  const basePath = createMemo(() => getBasePath(props.pathname(), config()));
 
   /**
    * Navigate to the equivalent page in a different locale.
@@ -263,7 +264,7 @@ export function I18nProvider<T>(props: I18nProviderProps<T> & { children: any })
       newPath = base === '/' ? `/${newLocale}/` : `/${newLocale}${base}/`;
     }
 
-    navigate(newPath);
+    props.navigate(newPath);
   };
 
   /**
