@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "응답 전 verification.md 규칙을 확인하세요: 확인 없이 단정 금지, 추측은 추측으로 표시, 출처 명시, 모르면 모른다고 말하기"
+          }
+        ]
+      }
+    ]
+  }
+}
