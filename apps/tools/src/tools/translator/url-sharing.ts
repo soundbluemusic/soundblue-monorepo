@@ -1,7 +1,6 @@
-import {
-  compressToEncodedURIComponent,
-  decompressFromEncodedURIComponent,
-} from 'lz-string';
+import LZString from 'lz-string';
+
+const { compressToEncodedURIComponent, decompressFromEncodedURIComponent } = LZString;
 
 // ========================================
 // URL Sharing Utilities for Translator

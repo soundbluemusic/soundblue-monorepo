@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
-  defaultLocale,
   getLocaleFromPath,
   getLocalizedPath,
   getPathWithoutLocale,
-  locales,
-} from './request';
+} from '@soundblue/shared/utils';
+
+// Test-specific constants (avoid loading context.tsx which depends on @solidjs/router)
+const locales = ['en', 'ko'] as const;
+const defaultLocale = 'en';
 
 describe('i18n request utilities', () => {
   describe('locales configuration', () => {
@@ -79,26 +81,27 @@ describe('i18n request utilities', () => {
   });
 
   describe('getLocalizedPath', () => {
+    // Note: shared i18n utility adds trailing slash for consistency
     it('should add ko prefix for Korean locale', () => {
       expect(getLocalizedPath('/', 'ko')).toBe('/ko/');
-      expect(getLocalizedPath('/about', 'ko')).toBe('/ko/about');
-      expect(getLocalizedPath('/tools/metronome', 'ko')).toBe('/ko/tools/metronome');
+      expect(getLocalizedPath('/about', 'ko')).toBe('/ko/about/');
+      expect(getLocalizedPath('/tools/metronome', 'ko')).toBe('/ko/tools/metronome/');
     });
 
-    it('should return path without prefix for default locale (en)', () => {
+    it('should return path with trailing slash for default locale (en)', () => {
       expect(getLocalizedPath('/', 'en')).toBe('/');
-      expect(getLocalizedPath('/about', 'en')).toBe('/about');
-      expect(getLocalizedPath('/tools/metronome', 'en')).toBe('/tools/metronome');
+      expect(getLocalizedPath('/about', 'en')).toBe('/about/');
+      expect(getLocalizedPath('/tools/metronome', 'en')).toBe('/tools/metronome/');
     });
 
     it('should handle paths that already have locale prefix', () => {
-      expect(getLocalizedPath('/ko/about', 'en')).toBe('/about');
-      expect(getLocalizedPath('/en/about', 'ko')).toBe('/ko/about');
-      expect(getLocalizedPath('/ko/about', 'ko')).toBe('/ko/about');
+      expect(getLocalizedPath('/ko/about', 'en')).toBe('/about/');
+      expect(getLocalizedPath('/en/about', 'ko')).toBe('/ko/about/');
+      expect(getLocalizedPath('/ko/about', 'ko')).toBe('/ko/about/');
     });
 
     it('should handle empty paths', () => {
-      expect(getLocalizedPath('', 'ko')).toBe('/ko');
+      expect(getLocalizedPath('', 'ko')).toBe('/ko/');
       expect(getLocalizedPath('', 'en')).toBe('/');
     });
   });

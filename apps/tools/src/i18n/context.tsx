@@ -1,124 +1,170 @@
-import { flatten, type Translator, translator } from '@solid-primitives/i18n';
-import { useLocation, useNavigate } from '@solidjs/router';
-import {
-  createContext,
-  createEffect,
-  createSignal,
-  type ParentComponent,
-  useContext,
-} from 'solid-js';
-import { isServer } from 'solid-js/web';
+/**
+ * @fileoverview I18n Provider wrapper for Tools app
+ *
+ * Re-exports shared I18nProvider with app-specific messages and types.
+ * Maintains backward compatibility with existing useLanguage API.
+ *
+ * @module I18nContext
+ */
 
-// Import messages statically for client-side switching
+import {
+  I18nProvider as SharedI18nProvider,
+  useI18n,
+  type Locale,
+} from '@soundblue/shared/providers';
+import { createMemo, type ParentComponent } from 'solid-js';
+import { isServer, getRequestEvent } from 'solid-js/web';
 import enMessages from '../../messages/en.json';
 import koMessages from '../../messages/ko.json';
-import { defaultLocale, getLocaleFromPath, getLocalizedPath, type Locale } from './request';
 
-// Flatten messages for translator
-const dictionaries = {
-  ko: flatten(koMessages),
-  en: flatten(enMessages),
-} as const;
+export type { Locale };
 
-type Messages = typeof koMessages;
-type FlatDict = ReturnType<typeof flatten<Messages>>;
+/**
+ * Type-safe translation messages structure
+ */
+export type Messages = typeof koMessages;
 
-interface LanguageContextValue {
-  locale: () => Locale;
-  setLocale: (locale: Locale) => void;
-  toggleLocale: () => void;
-  // Legacy compatibility
-  language: () => Locale;
-  setLanguage: (lang: Locale) => void;
-  toggleLanguage: () => void;
-  t: () => Messages;
-  // Translator function for flat key access
-  tr: Translator<FlatDict>;
-}
-
-// Default values for SSR and hydration safety
-const defaultMessages = {
-  ko: koMessages,
+/**
+ * Translation messages for each locale
+ */
+const messages = {
   en: enMessages,
+  ko: koMessages,
 } as const;
 
-// Create a safe default translator function that doesn't rely on reactive context
-const defaultTranslator: Translator<FlatDict> = ((key: string) => {
-  const dict = dictionaries[defaultLocale];
-  return dict[key as keyof typeof dict] ?? key;
-}) as Translator<FlatDict>;
+/**
+ * Default messages for SSR safety
+ */
+const defaultMessages = messages;
 
-const defaultContextValue: LanguageContextValue = {
-  locale: () => defaultLocale,
-  setLocale: () => {},
-  toggleLocale: () => {},
-  language: () => defaultLocale,
-  setLanguage: () => {},
-  toggleLanguage: () => {},
-  t: () => defaultMessages[defaultLocale],
-  tr: defaultTranslator,
-};
+/**
+ * Context value with backward-compatible naming
+ */
+export interface LanguageContextValue {
+  /** Current locale signal */
+  locale: () => Locale;
+  /** Set locale */
+  setLocale: (locale: Locale) => void;
+  /** Toggle locale */
+  toggleLocale: () => void;
+  /** Legacy: alias for locale */
+  language: () => Locale;
+  /** Legacy: alias for setLocale */
+  setLanguage: (lang: Locale) => void;
+  /** Legacy: alias for toggleLocale */
+  toggleLanguage: () => void;
+  /** Translation messages accessor */
+  t: () => Messages;
+}
 
-// Initialize context with default value to prevent undefined during hydration
-const LanguageContext = createContext<LanguageContextValue>(defaultContextValue);
+/**
+ * Get pathname from request event (SSR) or window (client)
+ */
+function getPathname(): string {
+  if (isServer) {
+    try {
+      const event = getRequestEvent();
+      if (event?.request?.url) {
+        const url = new URL(event.request.url);
+        return url.pathname;
+      }
+    } catch {
+      // Fallback
+    }
+    return '/';
+  }
+  return typeof window !== 'undefined' ? window.location.pathname : '/';
+}
 
+/**
+ * Navigate to path (client-side only)
+ */
+function navigateTo(path: string): void {
+  if (!isServer && typeof window !== 'undefined') {
+    window.location.href = path;
+  }
+}
+
+/**
+ * I18n Provider for Tools app.
+ *
+ * @example
+ * ```tsx
+ * <LanguageProvider>
+ *   <App />
+ * </LanguageProvider>
+ * ```
+ */
 export const LanguageProvider: ParentComponent = (props) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [locale, setLocaleState] = createSignal<Locale>(defaultLocale);
+  // Create reactive pathname accessor
+  const pathname = createMemo(() => getPathname());
 
-  // Sync locale from URL path
-  createEffect(() => {
-    if (isServer) return;
-    const urlLocale = getLocaleFromPath(location.pathname);
-    setLocaleState(urlLocale);
-  });
-
-  // Navigate to localized path when locale changes (client-side navigation)
-  const setLocale = (lang: Locale) => {
-    if (isServer) return;
-    const newPath = getLocalizedPath(location.pathname, lang);
-    navigate(newPath);
-  };
-
-  const toggleLocale = () => {
-    const next = locale() === 'ko' ? 'en' : 'ko';
-    setLocale(next);
-  };
-
-  // Create translator using @solid-primitives/i18n
-  const tr = translator(() => dictionaries[locale()]);
-
-  const contextValue: LanguageContextValue = {
-    locale,
-    setLocale,
-    toggleLocale,
-    // Legacy compatibility
-    language: locale,
-    setLanguage: setLocale,
-    toggleLanguage: toggleLocale,
-    // Reuse defaultMessages defined at module level instead of creating new object
-    t: () => defaultMessages[locale()],
-    tr,
-  };
-
-  return <LanguageContext.Provider value={contextValue}>{props.children}</LanguageContext.Provider>;
+  return (
+    <SharedI18nProvider
+      messages={messages}
+      pathname={pathname}
+      navigate={navigateTo}
+    >
+      {props.children}
+    </SharedI18nProvider>
+  );
 };
 
+/**
+ * Hook to access internationalization context.
+ *
+ * Backward-compatible wrapper around useI18n.
+ *
+ * @returns Language context value with locale utilities
+ *
+ * @example
+ * ```tsx
+ * const { t, locale, toggleLocale } = useLanguage();
+ * // or legacy API:
+ * const { t, language, toggleLanguage } = useLanguage();
+ * ```
+ */
 export function useLanguage(): LanguageContextValue {
-  const context = useContext(LanguageContext);
-  // Explicit fallback for hydration safety - useContext can return undefined during SSR/hydration
-  return context ?? defaultContextValue;
+  try {
+    const ctx = useI18n<Messages>();
+
+    return {
+      locale: ctx.locale,
+      setLocale: ctx.setLocale,
+      toggleLocale: ctx.toggleLocale,
+      // Legacy aliases
+      language: ctx.locale,
+      setLanguage: ctx.setLocale,
+      toggleLanguage: ctx.toggleLocale,
+      t: ctx.t,
+    };
+  } catch {
+    // Fallback for SSR/hydration safety
+    return {
+      locale: () => 'en',
+      setLocale: () => {},
+      toggleLocale: () => {},
+      language: () => 'en',
+      setLanguage: () => {},
+      toggleLanguage: () => {},
+      t: () => defaultMessages.en,
+    };
+  }
 }
 
-// Re-export translator function for new code
-export function useIntlTranslations() {
-  const { tr } = useLanguage();
-  return tr;
-}
-
-// Legacy compatibility - returns the full translations object like before
-export function useTranslations() {
+/**
+ * Legacy compatibility - returns the full translations object
+ */
+export function useTranslations(): Messages {
   const { t } = useLanguage();
   return t();
+}
+
+/**
+ * @deprecated Use useLanguage().t() instead
+ * Kept for backwards compatibility
+ */
+export function useIntlTranslations() {
+  const { t } = useLanguage();
+  return t;
 }

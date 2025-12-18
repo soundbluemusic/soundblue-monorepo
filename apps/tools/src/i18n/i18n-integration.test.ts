@@ -7,12 +7,14 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  defaultLocale,
   getLocaleFromPath,
   getLocalizedPath,
   getPathWithoutLocale,
-  locales,
-} from './request';
+} from '@soundblue/shared/utils';
+
+// Test-specific constants (avoid loading context.tsx which depends on @solidjs/router)
+const locales = ['en', 'ko'] as const;
+const defaultLocale = 'en';
 
 describe('i18n Integration Tests', () => {
   describe('Locale Detection from URL', () => {
@@ -52,15 +54,16 @@ describe('i18n Integration Tests', () => {
       expect(getPathWithoutLocale('/en/tools/drum-machine')).toBe('/tools/drum-machine');
     });
 
+    // Note: shared i18n utility adds trailing slash for consistency
     it('should add locale prefix correctly', () => {
-      expect(getLocalizedPath('/about', 'ko')).toBe('/ko/about');
-      expect(getLocalizedPath('/tools', 'ko')).toBe('/ko/tools');
+      expect(getLocalizedPath('/about', 'ko')).toBe('/ko/about/');
+      expect(getLocalizedPath('/tools', 'ko')).toBe('/ko/tools/');
     });
 
     it('should not double-prefix locale', () => {
       const path = getLocalizedPath('/ko/about', 'ko');
-      expect(path).toBe('/ko/about');
-      expect(path).not.toBe('/ko/ko/about');
+      expect(path).toBe('/ko/about/');
+      expect(path).not.toContain('/ko/ko/');
     });
   });
 
@@ -68,14 +71,14 @@ describe('i18n Integration Tests', () => {
     it('should switch from Korean to English', () => {
       const koPath = '/ko/about';
       const enPath = getLocalizedPath(koPath, 'en');
-      expect(enPath).toBe('/about');
+      expect(enPath).toBe('/about/');
       expect(getLocaleFromPath(enPath)).toBe('en');
     });
 
     it('should switch from English to Korean', () => {
       const enPath = '/about';
       const koPath = getLocalizedPath(enPath, 'ko');
-      expect(koPath).toBe('/ko/about');
+      expect(koPath).toBe('/ko/about/');
       expect(getLocaleFromPath(koPath)).toBe('ko');
     });
 
@@ -84,8 +87,8 @@ describe('i18n Integration Tests', () => {
       const enPath = getLocalizedPath(originalPath, 'en');
       const backToKo = getLocalizedPath(enPath, 'ko');
 
-      expect(enPath).toBe('/tools/metronome');
-      expect(backToKo).toBe('/ko/tools/metronome');
+      expect(enPath).toBe('/tools/metronome/');
+      expect(backToKo).toBe('/ko/tools/metronome/');
     });
   });
 
@@ -134,32 +137,33 @@ describe('i18n Integration Tests', () => {
       expect(getLocaleFromPath('/ko-KR')).toBe(defaultLocale);
     });
 
-    it('should handle case sensitivity', () => {
-      expect(getLocaleFromPath('/KO')).toBe(defaultLocale);
-      expect(getLocaleFromPath('/EN')).toBe(defaultLocale);
-      expect(getLocaleFromPath('/Ko')).toBe(defaultLocale);
+    it('should be case-insensitive for locale detection', () => {
+      // shared utility converts to lowercase for matching
+      expect(getLocaleFromPath('/KO')).toBe('ko');
+      expect(getLocaleFromPath('/EN')).toBe('en');
+      expect(getLocaleFromPath('/Ko')).toBe('ko');
     });
   });
 
   describe('Tool-specific Paths', () => {
     it('should handle metronome paths in both locales', () => {
-      expect(getLocalizedPath('/metronome', 'ko')).toBe('/ko/metronome');
-      expect(getLocalizedPath('/ko/metronome', 'en')).toBe('/metronome');
+      expect(getLocalizedPath('/metronome', 'ko')).toBe('/ko/metronome/');
+      expect(getLocalizedPath('/ko/metronome', 'en')).toBe('/metronome/');
     });
 
     it('should handle drum-machine paths', () => {
-      expect(getLocalizedPath('/drum-machine', 'ko')).toBe('/ko/drum-machine');
-      expect(getLocalizedPath('/ko/drum-machine', 'en')).toBe('/drum-machine');
+      expect(getLocalizedPath('/drum-machine', 'ko')).toBe('/ko/drum-machine/');
+      expect(getLocalizedPath('/ko/drum-machine', 'en')).toBe('/drum-machine/');
     });
 
     it('should handle qr-generator paths', () => {
-      expect(getLocalizedPath('/qr-generator', 'ko')).toBe('/ko/qr-generator');
-      expect(getLocalizedPath('/ko/qr-generator', 'en')).toBe('/qr-generator');
+      expect(getLocalizedPath('/qr-generator', 'ko')).toBe('/ko/qr-generator/');
+      expect(getLocalizedPath('/ko/qr-generator', 'en')).toBe('/qr-generator/');
     });
 
     it('should handle translator paths', () => {
-      expect(getLocalizedPath('/translator', 'ko')).toBe('/ko/translator');
-      expect(getLocalizedPath('/ko/translator', 'en')).toBe('/translator');
+      expect(getLocalizedPath('/translator', 'ko')).toBe('/ko/translator/');
+      expect(getLocalizedPath('/ko/translator', 'en')).toBe('/translator/');
     });
   });
 });
