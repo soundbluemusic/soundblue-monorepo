@@ -90,3 +90,14 @@
 | className | class |
 | {condition && <C/>} | <Show when={condition}><C/></Show> |
 | {arr.map(x => ...)} | <For each={arr}>{(x) => ...}</For> |
+
+## 코드 분석 규칙 (Code Analysis Rules)
+
+코드 분석, 리뷰, 개선 제안 시 `.claude/rules/analysis.md`를 따르세요.
+(Follow `.claude/rules/analysis.md` when analyzing code, reviewing, or suggesting improvements.)
+
+**핵심 원칙 (Core Principles):**
+- 근거 없는 심각도(HIGH/MEDIUM/LOW) 부여 금지
+- 검증 없는 개선 제안 금지 (사용처, 테스트, 의도 확인 필수)
+- 에이전트 결과 무검증 전달 금지
+- 불확실하면 단정 짓지 말고 질문
