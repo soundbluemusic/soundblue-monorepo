@@ -22,9 +22,9 @@ const I18nContext = createContext<I18nContextType>();
 
 const STORAGE_KEY = "dialogue-locale";
 
-// Dialogue supports 3 locales including Japanese
+// Dialogue supports 2 locales
 const DIALOGUE_I18N_CONFIG: I18nPathConfig = {
-  locales: ["en", "ko", "ja"],
+  locales: ["en", "ko"],
   defaultLocale: "en",
 };
 

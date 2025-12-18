@@ -25,11 +25,8 @@ export const Header: Component = () => {
   // Get current path without language prefix
   const getPathWithoutLocale = () => {
     const pathname = location.pathname;
-    // Remove /ko or /ja prefix if exists
+    // Remove /ko prefix if exists
     if (pathname.startsWith("/ko")) {
-      return pathname.slice(3) || "/";
-    }
-    if (pathname.startsWith("/ja")) {
       return pathname.slice(3) || "/";
     }
     return pathname;
@@ -41,7 +38,7 @@ export const Header: Component = () => {
     if (newLocale === "en") {
       return basePath;
     }
-    // For ko and ja, prepend the locale
+    // For ko, prepend the locale
     if (basePath === "/") {
       return `/${newLocale}`;
     }
@@ -49,7 +46,7 @@ export const Header: Component = () => {
   };
 
   const cycleLanguage = () => {
-    const langs: Locale[] = ["en", "ko", "ja"];
+    const langs: Locale[] = ["en", "ko"];
     const currentIndex = langs.indexOf(locale());
     const nextLang = langs[(currentIndex + 1) % langs.length];
     setLocale(nextLang);

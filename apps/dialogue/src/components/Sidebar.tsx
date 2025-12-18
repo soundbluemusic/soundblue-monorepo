@@ -17,7 +17,6 @@ export const Sidebar: Component<SidebarProps> = (props) => {
   const languages: { code: Locale; label: string; flag: string }[] = [
     { code: "en", label: "English", flag: "EN" },
     { code: "ko", label: "한국어", flag: "KO" },
-    { code: "ja", label: "日本語", flag: "JA" },
   ];
 
   const handleLanguageChange = (lang: Locale) => {

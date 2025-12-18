@@ -4,7 +4,7 @@ export interface KnowledgeItem {
   question: string;
   answer: string;
   category: string;
-  locale: "ko" | "en" | "ja" | "all";
+  locale: "ko" | "en" | "all";
 }
 
 export const knowledge: KnowledgeItem[] = [
@@ -47,10 +47,10 @@ export const knowledge: KnowledgeItem[] = [
   },
   {
     id: "language-ko",
-    keywords: ["언어", "한국어", "영어", "일본어", "다국어", "번역"],
+    keywords: ["언어", "한국어", "영어", "다국어", "번역"],
     question: "어떤 언어를 지원하나요?",
     answer:
-      "현재 한국어, 영어, 일본어를 지원합니다. 설정에서 원하는 언어로 변경할 수 있으며, 앞으로 더 많은 언어가 추가될 예정입니다.",
+      "현재 한국어와 영어를 지원합니다. 설정에서 원하는 언어로 변경할 수 있으며, 앞으로 더 많은 언어가 추가될 예정입니다.",
     category: "features",
     locale: "ko",
   },
@@ -84,23 +84,4 @@ export const knowledge: KnowledgeItem[] = [
     locale: "en",
   },
 
-  // Japanese
-  {
-    id: "dialogue-intro-ja",
-    keywords: ["dialogue", "ダイアログ", "何", "紹介", "アプリ"],
-    question: "Dialogueとは何ですか？",
-    answer:
-      "Dialogueは、100%オフラインで動作する対話型学習ツールです。インターネット接続なしでドキュメント化されたデータに基づいて即座にQ&Aを提供し、自分で学習し知識を探求できる環境を提供します。",
-    category: "general",
-    locale: "ja",
-  },
-  {
-    id: "offline-ja",
-    keywords: ["オフライン", "インターネット", "接続", "ネットワーク"],
-    question: "オフラインでも動作しますか？",
-    answer:
-      "はい！DialogueはPWA（Progressive Web App）技術を使用して、完全なオフラインサポートを提供します。一度読み込めば、インターネット接続なしですべての機能を使用できます。",
-    category: "features",
-    locale: "ja",
-  },
 ];

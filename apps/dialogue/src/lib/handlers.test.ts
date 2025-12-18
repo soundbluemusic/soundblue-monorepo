@@ -55,25 +55,6 @@ describe("handleDynamicQuery", () => {
     }
   });
 
-  describe("Time queries - Japanese", () => {
-    const timeQueries = [
-      // 정상
-      "何時",
-      "今何時",
-      "時間",
-      // 히라가나
-      "なんじ",
-      "いまなんじ",
-    ];
-
-    for (const query of timeQueries) {
-      it(`should match time query: "${query}"`, () => {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-        expect(result.response).toBeDefined();
-      });
-    }
-  });
 
   describe("Date queries - Korean", () => {
     const dateQueries = [
@@ -119,25 +100,6 @@ describe("handleDynamicQuery", () => {
     }
   });
 
-  describe("Date queries - Japanese", () => {
-    const dateQueries = [
-      // 정상
-      "何日",
-      "何曜日",
-      "日付",
-      // 히라가나
-      "なんにち",
-      "なんようび",
-    ];
-
-    for (const query of dateQueries) {
-      it(`should match date query: "${query}"`, () => {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-        expect(result.response).toBeDefined();
-      });
-    }
-  });
 
   describe("Weather queries - Korean", () => {
     const weatherQueries = [
@@ -187,26 +149,6 @@ describe("handleDynamicQuery", () => {
     }
   });
 
-  describe("Weather queries - Japanese", () => {
-    const weatherQueries = [
-      // 정상
-      "天気",
-      "気温",
-      // 히라가나
-      "てんき",
-      "きおん",
-      // 변형
-      "今日の天気",
-    ];
-
-    for (const query of weatherQueries) {
-      it(`should match weather query: "${query}"`, () => {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-        expect(result.isAsync).toBe(true);
-      });
-    }
-  });
 
   describe("Greeting queries - Korean", () => {
     const greetingQueries = [
@@ -247,23 +189,6 @@ describe("handleDynamicQuery", () => {
     }
   });
 
-  describe("Greeting queries - Japanese", () => {
-    const greetingQueries = [
-      "こんにちは",
-      "おはよう",
-      "やあ",
-      "ども",
-      "こんちは", // 변형
-    ];
-
-    for (const query of greetingQueries) {
-      it(`should match greeting query: "${query}"`, () => {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-        expect(result.response).toBeDefined();
-      });
-    }
-  });
 
   describe("Thanks queries - All languages", () => {
     it("should match Korean thanks", () => {
@@ -282,13 +207,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese thanks", () => {
-      const queries = ["ありがとう", "サンキュー", "あざす"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Identity queries - All languages", () => {
@@ -311,14 +229,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese identity", () => {
-      const queries = ["あなたは誰", "何者", "自己紹介"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-        expect(result.response).toContain("Dialogue");
-      }
-    });
   });
 
   describe("Bye queries - All languages", () => {
@@ -338,13 +248,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese bye", () => {
-      const queries = ["さようなら", "じゃあね", "またね", "バイバイ"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Help queries - All languages", () => {
@@ -364,13 +267,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese help", () => {
-      const queries = ["助けて", "何ができる", "使い方"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Mood queries - All languages", () => {
@@ -390,13 +286,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese mood", () => {
-      const queries = ["元気", "調子どう", "大丈夫"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Agree queries - All languages", () => {
@@ -416,13 +305,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese agree", () => {
-      const queries = ["わかった", "うん", "はい", "了解"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Apology queries - All languages", () => {
@@ -442,13 +324,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese apology", () => {
-      const queries = ["ごめん", "すみません", "すまん"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Compliment queries - All languages", () => {
@@ -468,13 +343,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese compliment", () => {
-      const queries = ["すごい", "さすが", "上手"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Comfort queries - All languages", () => {
@@ -494,13 +362,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese comfort", () => {
-      const queries = ["疲れた", "辛い", "しんどい"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Congrats queries - All languages", () => {
@@ -520,13 +381,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese congrats", () => {
-      const queries = ["おめでとう", "おめ", "やったね"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Decline queries - All languages", () => {
@@ -546,13 +400,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese decline", () => {
-      const queries = ["いや", "だめ", "むり"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Request queries - All languages", () => {
@@ -572,13 +419,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese request", () => {
-      const queries = ["お願い", "頼む", "ください"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Surprise queries - All languages", () => {
@@ -598,13 +438,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese surprise", () => {
-      const queries = ["うそ", "マジ", "びっくり"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Complaint queries - All languages", () => {
@@ -624,13 +457,6 @@ describe("handleDynamicQuery", () => {
       }
     });
 
-    it("should match Japanese complaint", () => {
-      const queries = ["イライラ", "ムカつく", "最悪"];
-      for (const query of queries) {
-        const result = handleDynamicQuery(query, "ja");
-        expect(result.matched).toBe(true);
-      }
-    });
   });
 
   describe("Non-matching queries", () => {
