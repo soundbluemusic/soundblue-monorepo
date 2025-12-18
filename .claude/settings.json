@@ -1,14 +1,37 @@
 {
-    "hooks": {
-          "UserPromptSubmit": [
-                  {
-                            "hooks": [
-                                        {
-                                                      "type": "command",
-                                                      "command": "echo '응답 전 verification.md 규칙을 확인하세요'"
-                                        }
-                            ]
-                  }
-          ]
-    }
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '## 응답 규칙\\n- 확인 전에 단정하지 않는다\\n- 추측은 추측이라고 표시한다\\n- 출처를 명시한다'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // .tool_input.files[0].file_path' 2>/dev/null); if [ -n \"$f\" ] && echo \"$f\" | grep -qE '\\.(ts|tsx)$'; then cd \"$CLAUDE_PROJECT_DIR\" && pnpm exec biome check --write \"$f\" 2>&1 | tail -5; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path'); if echo \"$f\" | grep -qE '(\\.env$|\\.env\\.|pnpm-lock\\.yaml$)'; then echo '{\"decision\":\"deny\",\"reason\":\"보호된 파일입니다\"}'; fi"
+          }
+        ]
+      }
+    ]
+  }
 }
