@@ -18,7 +18,7 @@ export function Header(props: HeaderProps): JSX.Element {
   const themeTitle = () => (theme() === 'light' ? t().header.themeDark : t().header.themeLight);
 
   return (
-    <header class="view-transition-header fixed top-0 left-0 right-0 z-[100] h-14 bg-surface-alt border-b border-line supports-[padding:env(safe-area-inset-top)]:pt-[env(safe-area-inset-top)] supports-[padding:env(safe-area-inset-top)]:h-[calc(56px+env(safe-area-inset-top))] max-sm:h-13 max-sm:supports-[padding:env(safe-area-inset-top)]:h-[calc(52px+env(safe-area-inset-top))]">
+    <header class="view-transition-header fixed top-0 left-0 right-0 z-100 h-14 bg-surface-alt border-b border-line supports-[padding:env(safe-area-inset-top)]:pt-[env(safe-area-inset-top)] supports-[padding:env(safe-area-inset-top)]:h-[calc(56px+env(safe-area-inset-top))] max-sm:h-13 max-sm:supports-[padding:env(safe-area-inset-top)]:h-[calc(52px+env(safe-area-inset-top))]">
       <div class="flex items-center gap-4 w-full h-full px-4 md:pl-[calc(var(--sidebar-width)+16px)] max-sm:px-3 max-sm:gap-2">
         {/* Sidebar Toggle - Desktop only */}
         {props.onSidebarToggle && (
@@ -31,7 +31,7 @@ export function Header(props: HeaderProps): JSX.Element {
             aria-expanded={isSidebarOpen()}
           >
             <svg
-              class="w-[18px] h-[18px] shrink-0"
+              class="w-4.5 h-4.5 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

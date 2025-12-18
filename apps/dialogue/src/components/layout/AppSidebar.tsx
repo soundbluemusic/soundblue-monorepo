@@ -72,7 +72,9 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
   };
 
   const handleLoadConversation = (conv: Conversation) => {
-    chatActions.loadConversation(conv.id);
+    // Navigate to conversation URL (this will trigger loadConversation via route effect)
+    const basePath = locale() === "en" ? `/c/${conv.id}` : `/${locale()}/c/${conv.id}`;
+    navigate(basePath);
     props.onLoadConversation?.();
   };
 

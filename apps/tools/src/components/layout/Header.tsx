@@ -49,7 +49,7 @@ export const Header: Component = () => {
             variant="ghost"
             size="icon-sm"
             onClick={toggleMobileSidebar}
-            class="md:hidden text-muted-foreground hover:text-foreground hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:bg-black/[0.12] dark:active:bg-white/[0.18]"
+            class="md:hidden text-muted-foreground hover:text-foreground hover:bg-black/8 dark:hover:bg-white/12 active:bg-black/12 dark:active:bg-white/18"
             aria-label={t().common.menu}
           >
             <Menu class="h-5 w-5" />
@@ -84,7 +84,7 @@ export const Header: Component = () => {
           fallback={
             <A
               href={builtWithPath()}
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:bg-black/[0.12] dark:active:bg-white/[0.18] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-black/8 dark:hover:bg-white/12 active:bg-black/12 dark:active:bg-white/18 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
             >
               <Code2 class="h-4 w-4" />
               <span>Built With</span>
@@ -93,7 +93,7 @@ export const Header: Component = () => {
         >
           <A
             href={homePath()}
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:bg-black/[0.12] dark:active:bg-white/[0.18] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-black/8 dark:hover:bg-white/12 active:bg-black/12 dark:active:bg-white/18 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
           >
             <Home class="h-4 w-4" />
             <span>{t().navigation.home}</span>
@@ -106,14 +106,14 @@ export const Header: Component = () => {
           size="icon-sm"
           onClick={() => setTheme(resolvedTheme() === 'dark' ? 'light' : 'dark')}
           aria-label={resolvedTheme() === 'dark' ? t().theme.light : t().theme.dark}
-          class="relative text-muted-foreground hover:text-foreground hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:bg-black/[0.12] dark:active:bg-white/[0.18]"
+          class="relative text-muted-foreground hover:text-foreground hover:bg-black/8 dark:hover:bg-white/12 active:bg-black/12 dark:active:bg-white/18"
         >
           <Sun
-            class="h-[18px] w-[18px] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+            class="h-4.5 w-4.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
             aria-hidden="true"
           />
           <Moon
-            class="absolute h-[18px] w-[18px] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+            class="absolute h-4.5 w-4.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
             aria-hidden="true"
           />
         </Button>
@@ -123,7 +123,7 @@ export const Header: Component = () => {
           variant="ghost"
           size="sm"
           onClick={toggleLanguage}
-          class="gap-1.5 px-3 text-muted-foreground hover:text-foreground hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:bg-black/[0.12] dark:active:bg-white/[0.18]"
+          class="gap-1.5 px-3 text-muted-foreground hover:text-foreground hover:bg-black/8 dark:hover:bg-white/12 active:bg-black/12 dark:active:bg-white/18"
           aria-label={language() === 'ko' ? 'Switch to English' : '한국어로 전환'}
         >
           <Globe class="h-4 w-4" />

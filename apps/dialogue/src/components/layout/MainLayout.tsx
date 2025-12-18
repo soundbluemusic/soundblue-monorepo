@@ -157,7 +157,7 @@ export const MainLayout: Component = () => {
         <div class="flex flex-1 overflow-hidden">
           {/* Mobile: Tab-based view */}
           <Show when={isMobile()}>
-            <div class="flex flex-1 flex-col min-h-[200px]">
+            <div class="flex flex-1 flex-col min-h-50">
               {/* Tab Switcher */}
               <div class="flex shrink-0 border-b border-border bg-bg-secondary">
                 <button
@@ -177,7 +177,7 @@ export const MainLayout: Component = () => {
               </div>
 
               {/* Tab Content */}
-              <div class="flex-1 overflow-auto min-h-[150px]">
+              <div class="flex-1 overflow-auto min-h-37.5">
                 <Show when={activeTab() === "chat"}>
                   <ChatContainer resetTrigger={chatResetTrigger()} loadTrigger={chatLoadTrigger()} onNewChat={handleNewChat} />
                 </Show>
@@ -192,7 +192,7 @@ export const MainLayout: Component = () => {
           <Show when={!isMobile()}>
             {/* Chat Area */}
             <div
-              class="relative flex-shrink-0 border-r border-border min-h-[200px]"
+              class="relative shrink-0 border-r border-border min-h-50"
               style={{ width: `${chatWidth()}px` }}
             >
               <ChatContainer resetTrigger={chatResetTrigger()} loadTrigger={chatLoadTrigger()} onNewChat={handleNewChat} />

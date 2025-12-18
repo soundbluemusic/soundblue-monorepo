@@ -1,4 +1,5 @@
 import { Component, createSignal, For, createEffect, onMount, Show } from "solid-js";
+import { useNavigate, useLocation } from "@solidjs/router";
 import { useI18n } from "~/i18n";
 import { translations } from "~/i18n/translations";
 import { searchKnowledge } from "~/lib/search";
@@ -25,6 +26,8 @@ interface ChatContainerProps {
 
 export const ChatContainer: Component<ChatContainerProps> = (props) => {
   const { t, locale } = useI18n();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [messages, setMessages] = createSignal<Message[]>([]);
   const [isThinking, setIsThinking] = createSignal(false);
   const [conversationStarted, setConversationStarted] = createSignal(false);
@@ -33,6 +36,18 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
   // Track previous trigger values to detect actual changes
   let prevResetTrigger = 0;
   let prevLoadTrigger = 0;
+
+  // Helper to get localized chat path
+  const getChatPath = (id: string) => {
+    const isKorean = location.pathname.startsWith("/ko");
+    return isKorean ? `/ko/c/${id}` : `/c/${id}`;
+  };
+
+  // Helper to get home path
+  const getHomePath = () => {
+    const isKorean = location.pathname.startsWith("/ko");
+    return isKorean ? "/ko" : "/";
+  };
 
   // Initialize with welcome message
   const initializeChat = () => {
@@ -61,22 +76,20 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     }
   });
 
-  // Load conversation ONLY when explicitly triggered from sidebar (via loadTrigger)
-  // Also re-run when hydration completes
+  // Load conversation when activeConversationId changes (from route or sidebar)
+  // Track previous active ID to detect actual changes
+  let prevActiveId: string | null = null;
+
   createEffect(() => {
-    const trigger = props.loadTrigger ?? 0;
     const isHydrated = chatStore.isHydrated;
-
-    // Only react to actual trigger changes
-    if (trigger <= prevLoadTrigger) return;
-
-    // Must wait for hydration to complete
-    // Effect will re-run when isHydrated changes due to SolidJS reactivity
     if (!isHydrated) return;
 
-    prevLoadTrigger = trigger;
-
     const activeId = chatStore.activeConversationId;
+
+    // Only react to actual ID changes
+    if (activeId === prevActiveId) return;
+    prevActiveId = activeId;
+
     if (activeId) {
       const conversation = chatStore.conversations.find((c) => c.id === activeId);
       if (conversation && conversation.messages.length > 0) {
@@ -86,8 +99,22 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     }
   });
 
+  // Also handle explicit load trigger from sidebar (for backwards compatibility)
+  createEffect(() => {
+    const trigger = props.loadTrigger ?? 0;
+    if (trigger <= prevLoadTrigger) return;
+    prevLoadTrigger = trigger;
+    // The activeConversationId effect above will handle the actual loading
+  });
+
   const resetChat = () => {
     initializeChat();
+    // Navigate to home when starting new chat
+    const currentPath = location.pathname;
+    const homePath = getHomePath();
+    if (currentPath !== homePath && currentPath !== homePath + "/") {
+      navigate(homePath, { replace: true });
+    }
     props.onNewChat?.();
   };
 
@@ -114,7 +141,11 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     if (!chatStore.activeConversationId && !chatStore.ghostMode) {
       const welcomeMsg = messages()[0];
       if (welcomeMsg) {
-        chatActions.createConversation(welcomeMsg);
+        const newConversation = chatActions.createConversation(welcomeMsg);
+        // Update URL to reflect new conversation
+        if (newConversation) {
+          navigate(getChatPath(newConversation.id), { replace: true });
+        }
       }
     }
     setConversationStarted(true);
