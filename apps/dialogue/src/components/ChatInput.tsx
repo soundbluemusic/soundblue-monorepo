@@ -28,9 +28,9 @@ export const ChatInput: Component<ChatInputProps> = (props) => {
 
   return (
     <form class="px-6 py-4 bg-bg-secondary border-t border-border max-md:px-4 max-md:py-3" onSubmit={handleSubmit}>
-      <div class="flex items-end gap-3 max-w-[900px] mx-auto bg-bg-tertiary rounded-[--radius-md] p-2 pl-4 border border-border transition-colors duration-200 focus-within:border-accent max-md:p-1 max-md:pl-3">
+      <div class="flex items-end gap-3 max-w-225 mx-auto bg-bg-tertiary rounded-[--radius-md] p-2 pl-4 border border-border transition-colors duration-200 focus-within:border-accent max-md:p-1 max-md:pl-3">
         <textarea
-          class="flex-1 resize-none min-h-6 max-h-[150px] py-2 text-base leading-normal text-text-primary bg-transparent outline-none placeholder:text-text-muted disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex-1 resize-none min-h-6 max-h-37.5 py-2 text-base leading-normal text-text-primary bg-transparent outline-none placeholder:text-text-muted disabled:opacity-50 disabled:cursor-not-allowed"
           value={input()}
           onInput={(e) => setInput(e.currentTarget.value)}
           onKeyDown={handleKeyDown}

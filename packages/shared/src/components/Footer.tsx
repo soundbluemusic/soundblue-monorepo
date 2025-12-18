@@ -72,7 +72,7 @@ export const Footer: Component<FooterProps> = (props) => {
 
   return (
     <footer
-      class={`border-t bg-[var(--color-bg-secondary,var(--background))] px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] ${props.class ?? ''}`}
+      class={`border-t bg-(--color-bg-secondary,var(--background)) px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] ${props.class ?? ''}`}
     >
       {/* Navigation links */}
       <Show when={props.links && props.links.length > 0}>
@@ -86,7 +86,7 @@ export const Footer: Component<FooterProps> = (props) => {
                 href={link.href}
                 target={link.external ? '_blank' : undefined}
                 rel={link.external ? 'noopener noreferrer' : undefined}
-                class="inline-flex items-center justify-center text-[var(--color-text-muted,var(--muted-foreground))] no-underline text-sm py-2 px-3 rounded-lg cursor-pointer transition-all duration-150 hover:text-[var(--color-text,var(--foreground))] hover:bg-black/5 dark:hover:bg-white/10"
+                class="inline-flex items-center justify-center text-(--color-text-muted,var(--muted-foreground)) no-underline text-sm py-2 px-3 rounded-lg cursor-pointer transition-all duration-150 hover:text-(--color-text,var(--foreground)) hover:bg-black/5 dark:hover:bg-white/10"
               >
                 {link.label}
               </a>
@@ -97,7 +97,7 @@ export const Footer: Component<FooterProps> = (props) => {
 
       {/* Tagline */}
       <Show when={props.tagline}>
-        <p class="text-center text-xs text-[var(--color-text-muted,var(--muted-foreground))] mb-1">
+        <p class="text-center text-xs text-(--color-text-muted,var(--muted-foreground)) mb-1">
           {props.tagline}
         </p>
       </Show>
@@ -107,13 +107,13 @@ export const Footer: Component<FooterProps> = (props) => {
 
       {/* App name and brand */}
       <Show when={props.appName}>
-        <p class="text-center text-xs text-[var(--color-text-muted,var(--muted-foreground))]">
+        <p class="text-center text-xs text-(--color-text-muted,var(--muted-foreground))">
           {props.appName} by{' '}
           <a
             href={brandUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            class="text-[var(--color-accent,var(--primary))] transition-all duration-200 hover:underline hover:opacity-80"
+            class="text-(--color-accent,var(--primary)) transition-all duration-200 hover:underline hover:opacity-80"
           >
             {brandName()}
           </a>

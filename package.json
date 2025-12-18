@@ -7,9 +7,12 @@
     "dev:dialogue": "pnpm --filter dialogue dev"
   },
   "devDependencies": {
+    "lighthouse": "^13.0.1",
     "sharp": "^0.34.5"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["sharp"]
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
   }
 }
