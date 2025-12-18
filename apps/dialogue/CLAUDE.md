@@ -26,7 +26,6 @@ pnpm test:run     # 테스트 실행
 |-----|----------|
 | `/` | English (default) |
 | `/ko` | Korean (한국어) |
-| `/ja` | Japanese (日本語) |
 
 ### 지식 추가 (Adding Knowledge)
 `src/data/knowledge.ts` 수정:
@@ -37,7 +36,7 @@ pnpm test:run     # 테스트 실행
   question: "Question text",
   answer: "Answer text",
   category: "category-name",
-  locale: "ko" // or "en", "ja", "all"
+  locale: "ko" // or "en", "all"
 }
 ```
 

@@ -25,15 +25,15 @@ This project is intentionally built as a **fully static site** with no server-si
 - **Simple Deployment**: Just upload static files - no Node.js server needed
 - **CDN-Friendly**: Easily distributed via CDN for global low-latency access
 
-All pages (`/`, `/ko`, `/ja`) are pre-rendered at build time.
+All pages (`/`, `/ko`) are pre-rendered at build time.
 
 ## Features
 
 - **Offline First**: Works perfectly without internet connection
 - **Instant Response**: No neural networks, document-based instant answers
 - **PWA Support**: Install and use like a native app
-- **i18n**: Multi-language support (English, Korean, Japanese)
-  - URL-based routing: `/` (English), `/ko` (Korean), `/ja` (Japanese)
+- **i18n**: Multi-language support (English, Korean)
+  - URL-based routing: `/` (English), `/ko` (Korean)
 - **Dark/Light Mode**: Theme toggle with system preference detection
 - **Sidebar Navigation**: Clean UI with collapsible sidebar
 - **SEO Optimized**: Perfect SEO with static generation
@@ -81,8 +81,7 @@ src/
 │   └── search.ts
 ├── routes/           # Pages (SSG)
 │   ├── index.tsx     # English (default)
-│   ├── ko.tsx        # Korean
-│   └── ja.tsx        # Japanese
+│   └── ko.tsx        # Korean
 └── styles/           # Global styles
     └── global.css
 ```
@@ -93,7 +92,6 @@ src/
 |-----|----------|
 | `/` | English (default) |
 | `/ko` | Korean (한국어) |
-| `/ja` | Japanese (日本語) |
 
 ## Adding Knowledge
 
@@ -106,7 +104,7 @@ Edit `src/data/knowledge.ts` to add new Q&A entries:
   question: "Question text",
   answer: "Answer text",
   category: "category-name",
-  locale: "ko" // or "en", "ja", "all"
+  locale: "ko" // or "en", "all"
 }
 ```
 

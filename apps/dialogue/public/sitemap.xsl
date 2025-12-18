@@ -26,7 +26,6 @@
             --link-hover: #1d4ed8;
             --en-badge: #22c55e;
             --ko-badge: #eab308;
-            --ja-badge: #ec4899;
             --header-bg: #f8fafc;
           }
 
@@ -94,7 +93,6 @@
 
           .badge-en { background: var(--en-badge); color: white; }
           .badge-ko { background: var(--ko-badge); color: #1a1a1a; }
-          .badge-ja { background: var(--ja-badge); color: white; }
 
           .stats {
             margin-top: 2rem;
@@ -174,9 +172,6 @@
           <tr>
             <td>
               <xsl:choose>
-                <xsl:when test="contains(sitemap:loc, '/ja')">
-                  <span class="badge badge-ja">JA</span>
-                </xsl:when>
                 <xsl:when test="contains(sitemap:loc, '/ko')">
                   <span class="badge badge-ko">KO</span>
                 </xsl:when>

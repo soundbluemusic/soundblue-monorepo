@@ -36,16 +36,12 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
   const languages: { code: Locale; label: string; flag: string }[] = [
     { code: "en", label: "English", flag: "EN" },
     { code: "ko", label: "한국어", flag: "KO" },
-    { code: "ja", label: "日本語", flag: "JA" },
   ];
 
   // Get current path without language prefix
   const getPathWithoutLocale = () => {
     const pathname = location.pathname;
     if (pathname.startsWith("/ko")) {
-      return pathname.slice(3) || "/";
-    }
-    if (pathname.startsWith("/ja")) {
       return pathname.slice(3) || "/";
     }
     return pathname;

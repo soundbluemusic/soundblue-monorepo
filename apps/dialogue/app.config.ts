@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     preset: "static",
     prerender: {
-      routes: ["/", "/ko", "/ja", "/about", "/ko/about", "/ja/about"],
+      routes: ["/", "/ko", "/about", "/ko/about"],
       crawlLinks: true,
     },
   },

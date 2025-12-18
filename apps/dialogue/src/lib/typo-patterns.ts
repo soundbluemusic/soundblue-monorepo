@@ -65,23 +65,6 @@ export const TIME_KEYWORDS: Record<Locale, string[]> = {
     "curent time",
     "currnet time",
   ],
-  ja: [
-    // 정상
-    "何時",
-    "今何時",
-    "時間",
-    "現在時刻",
-    "今の時間",
-    // 히라가나
-    "なんじ",
-    "いまなんじ",
-    "じかん",
-    "いまのじかん",
-    // 변형
-    "何時ですか",
-    "今何時ですか",
-    "時間は",
-  ],
 };
 
 /**
@@ -145,23 +128,6 @@ export const DATE_KEYWORDS: Record<Locale, string[]> = {
     "toaday",
     "toady",
     "curent date",
-  ],
-  ja: [
-    // 정상 (날짜/요일 관련 핵심 키워드)
-    "何日",
-    "何曜日",
-    "日付",
-    "今日の日付",
-    "何月何日",
-    // 히라가나
-    "なんにち",
-    "なんようび",
-    "ひづけ",
-    // 변형
-    "今日は何日",
-    "今日は何曜日",
-    "何日ですか",
-    "何曜日ですか",
   ],
 };
 
@@ -246,35 +212,6 @@ export const WEATHER_KEYWORDS: Record<Locale, string[]> = {
     "forcast",
     "forecats",
   ],
-  ja: [
-    // 정상
-    "天気",
-    "気温",
-    "温度",
-    "雨",
-    "雪",
-    "晴れ",
-    "曇り",
-    // 히라가나
-    "てんき",
-    "きおん",
-    "おんど",
-    "あめ",
-    "ゆき",
-    "はれ",
-    "くもり",
-    // 변형
-    "天気どう",
-    "今日の天気",
-    "今の天気",
-    "天気は",
-    "雨降る",
-    "雪降る",
-    "寒い",
-    "暑い",
-    // 카타카나 (외래어)
-    "ウェザー",
-  ],
 };
 
 /**
@@ -336,24 +273,6 @@ export const GREETING_KEYWORDS: Record<Locale, string[]> = {
     "helllo",
     "hellooo",
   ],
-  ja: [
-    // 기본
-    "こんにちは",
-    "こんばんは",
-    "おはよう",
-    "おはようございます",
-    "はじめまして",
-    "よろしく",
-    "やあ",
-    "ども",
-    "どうも",
-    // 오타/변형
-    "こんちは",
-    "こんちわ",
-    "おはよー",
-    "よろしくー",
-    "こんばんわ",
-  ],
 };
 
 /**
@@ -388,16 +307,6 @@ export const THANKS_KEYWORDS: Record<Locale, string[]> = {
     "thanx",
     "thankss",
   ],
-  ja: [
-    "ありがとう",
-    "ありがとうございます",
-    "サンキュー",
-    "さんきゅー",
-    "ありがと",
-    "あざす",
-    "あざっす",
-    "どうも",
-  ],
 };
 
 /**
@@ -431,16 +340,6 @@ export const BYE_KEYWORDS: Record<Locale, string[]> = {
     "bye bye",
     "gotta go",
     "gtg",
-  ],
-  ja: [
-    "さようなら",
-    "じゃあね",
-    "じゃね",
-    "またね",
-    "バイバイ",
-    "ばいばい",
-    "じゃあ",
-    "また",
   ],
 };
 
@@ -479,17 +378,6 @@ export const IDENTITY_KEYWORDS: Record<Locale, string[]> = {
     "introduce yourself",
     "tell me about yourself",
   ],
-  ja: [
-    "あなたは誰",
-    "君は何",
-    "お前は誰",
-    "誰ですか",
-    "何ですか",
-    "名前は",
-    "自己紹介",
-    "なにもの",
-    "何者",
-  ],
 };
 
 /**
@@ -519,15 +407,6 @@ export const HELP_KEYWORDS: Record<Locale, string[]> = {
     "what do you do",
     "capabilities",
     "how does this work",
-  ],
-  ja: [
-    "助けて",
-    "ヘルプ",
-    "何ができる",
-    "使い方",
-    "機能は",
-    "どうやって使う",
-    "できること",
   ],
 };
 
@@ -559,15 +438,6 @@ export const MOOD_KEYWORDS: Record<Locale, string[]> = {
     "how do you do",
     "you good",
     "you ok",
-  ],
-  ja: [
-    "元気",
-    "元気?",
-    "調子どう",
-    "お元気ですか",
-    "どうですか",
-    "いかがですか",
-    "大丈夫",
   ],
 };
 
@@ -605,18 +475,6 @@ export const AGREE_KEYWORDS: Record<Locale, string[]> = {
     "good",
     "understood",
     "i see",
-  ],
-  ja: [
-    "わかった",
-    "おけ",
-    "オッケー",
-    "うん",
-    "はい",
-    "りょ",
-    "りょうかい",
-    "了解",
-    "いいよ",
-    "おk",
   ],
 };
 
@@ -669,20 +527,6 @@ export const APOLOGY_KEYWORDS: Record<Locale, string[]> = {
     "soory",
     "sory",
   ],
-  ja: [
-    // 기본
-    "ごめん",
-    "ごめんなさい",
-    "すみません",
-    "申し訳",
-    "申し訳ない",
-    // 변형
-    "ごめんね",
-    "すまん",
-    "すまない",
-    "わるい",
-    "悪い",
-  ],
 };
 
 /**
@@ -734,20 +578,6 @@ export const COMPLIMENT_KEYWORDS: Record<Locale, string[]> = {
     "goat",
     "slaps",
   ],
-  ja: [
-    // 기본
-    "すごい",
-    "素晴らしい",
-    "偉い",
-    "えらい",
-    "上手",
-    "じょうず",
-    // 변형
-    "さすが",
-    "やるね",
-    "いいね",
-    "最高",
-  ],
 };
 
 /**
@@ -798,20 +628,6 @@ export const COMFORT_KEYWORDS: Record<Locale, string[]> = {
     "cheer up",
     "hang in there",
     "feeling down",
-  ],
-  ja: [
-    // 기본
-    "疲れた",
-    "つかれた",
-    "辛い",
-    "つらい",
-    "悲しい",
-    "かなしい",
-    // 변형
-    "しんどい",
-    "だるい",
-    "落ち込む",
-    "元気ない",
   ],
 };
 
@@ -865,20 +681,6 @@ export const CONGRATS_KEYWORDS: Record<Locale, string[]> = {
     "woot",
     "w00t",
   ],
-  ja: [
-    // 기본
-    "おめでとう",
-    "おめでとうございます",
-    "祝",
-    // 변형
-    "おめ",
-    "おめです",
-    "おめでと",
-    "めでたい",
-    "やったね",
-    "すばらしい",
-    "よかったね",
-  ],
 };
 
 /**
@@ -929,20 +731,6 @@ export const DECLINE_KEYWORDS: Record<Locale, string[]> = {
     "naww",
     "naw",
     "nuh uh",
-  ],
-  ja: [
-    // 기본
-    "いいえ",
-    "いや",
-    "嫌",
-    "いやだ",
-    "だめ",
-    // 변형
-    "無理",
-    "むり",
-    "けっこう",
-    "大丈夫",
-    "いらない",
   ],
 };
 
@@ -995,20 +783,6 @@ export const REQUEST_KEYWORDS: Record<Locale, string[]> = {
     "would you mind",
     "i beg you",
   ],
-  ja: [
-    // 기본
-    "お願い",
-    "おねがい",
-    "頼む",
-    "たのむ",
-    "ください",
-    // 변형
-    "お願いします",
-    "頼みます",
-    "してくれ",
-    "してほしい",
-    "頼んだ",
-  ],
 };
 
 /**
@@ -1060,20 +834,6 @@ export const SURPRISE_KEYWORDS: Record<Locale, string[]> = {
     "dang",
     "geez",
   ],
-  ja: [
-    // 기본
-    "えー",
-    "うそ",
-    "嘘",
-    "マジ",
-    "まじ",
-    // 변형
-    "本当",
-    "ほんと",
-    "びっくり",
-    "驚いた",
-    "すげー",
-  ],
 };
 
 /**
@@ -1124,20 +884,6 @@ export const COMPLAINT_KEYWORDS: Record<Locale, string[]> = {
     "this sucks",
     "terrible",
     "worst",
-  ],
-  ja: [
-    // 기본
-    "イライラ",
-    "ムカつく",
-    "腹立つ",
-    "うざい",
-    "最悪",
-    // 변형
-    "怒り",
-    "いやだ",
-    "やだ",
-    "ひどい",
-    "困る",
   ],
 };
 

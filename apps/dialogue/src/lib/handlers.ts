@@ -84,7 +84,6 @@ interface NominatimResponse {
 const LUNAR_PATTERNS = {
   ko: [/음력/, /구정/, /한가위/, /추석/],
   en: [/lunar/i, /chinese\s*calendar/i],
-  ja: [/旧暦/, /陰暦/, /太陰暦/],
 };
 
 /**
@@ -121,16 +120,14 @@ function getTimeResponse(locale: Locale): string {
   const seconds = now.getSeconds();
 
   const timeStr = now.toLocaleTimeString(
-    locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US",
-    { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: locale !== "ja" }
+    locale === "ko" ? "ko-KR" : "en-US",
+    { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }
   );
 
   if (locale === "ko") {
     const period = hours < 12 ? "오전" : "오후";
     const h = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
     return `지금은 ${period} ${h}시 ${minutes}분 ${seconds}초입니다. (${timeStr})`;
-  } else if (locale === "ja") {
-    return `現在の時刻は${hours}時${minutes}分${seconds}秒です。`;
   } else {
     const period = hours < 12 ? "AM" : "PM";
     const h = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
@@ -149,14 +146,12 @@ function getDateResponse(locale: Locale): string {
   };
 
   const dateStr = now.toLocaleDateString(
-    locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US",
+    locale === "ko" ? "ko-KR" : "en-US",
     options
   );
 
   if (locale === "ko") {
     return `오늘은 ${dateStr}입니다.`;
-  } else if (locale === "ja") {
-    return `今日は${dateStr}です。`;
   } else {
     return `Today is ${dateStr}.`;
   }
@@ -174,14 +169,12 @@ function getLunarDateResponse(locale: Locale): string {
     day: "numeric",
   };
   const solarStr = now.toLocaleDateString(
-    locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US",
+    locale === "ko" ? "ko-KR" : "en-US",
     solarOptions
   );
 
   if (locale === "ko") {
     return `오늘 양력 ${solarStr}은 음력으로 ${lunarStr}입니다.`;
-  } else if (locale === "ja") {
-    return `今日の${solarStr}は、旧暦で${lunarStr}です。`;
   } else {
     return `Today (${solarStr}) is ${lunarStr} in the lunar calendar.`;
   }
@@ -254,12 +247,6 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
         `💧 습도: ${humidity}%\n` +
         `💨 바람: ${windSpeed}km/h\n` +
         `☁️ 상태: ${weatherDesc}`;
-    } else if (locale === "ja") {
-      return `${locationName ? locationName + "の" : ""}現在の天気：\n` +
-        `🌡️ 気温: ${temp}°C\n` +
-        `💧 湿度: ${humidity}%\n` +
-        `💨 風速: ${windSpeed}km/h\n` +
-        `☁️ 状態: ${weatherDesc}`;
     } else {
       return `Current weather${locationName ? " in " + locationName : ""}:\n` +
         `🌡️ Temperature: ${temp}°C\n` +
@@ -270,8 +257,6 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
   } catch (_error: unknown) {
     if (locale === "ko") {
       return "날씨 정보를 가져올 수 없습니다. 위치 접근 권한을 허용해주세요.";
-    } else if (locale === "ja") {
-      return "天気情報を取得できません。位置情報へのアクセスを許可してください。";
     } else {
       return "Unable to get weather information. Please allow location access.";
     }
@@ -302,12 +287,6 @@ function getGreetingResponse(locale: Locale): string {
       "Hey! What can I do for you?",
       "Hello! What would you like to know?",
     ],
-    ja: [
-      "こんにちは！何かお手伝いしましょうか？",
-      "はじめまして！何でも聞いてください。",
-      "こんにちは！どうされましたか？",
-      "やあ！何かお探しですか？",
-    ],
   };
   return randomPick(responses[locale]);
 }
@@ -324,11 +303,6 @@ function getThanksResponse(locale: Locale): string {
       "You're welcome! Let me know if you need anything else.",
       "No problem! Happy to help.",
       "Anytime! Feel free to ask more questions.",
-    ],
-    ja: [
-      "どういたしまして！他にも何かあれば聞いてください。",
-      "いえいえ！お役に立てて嬉しいです。",
-      "どうも！また何かあればどうぞ。",
     ],
   };
   return randomPick(responses[locale]);
@@ -347,11 +321,6 @@ function getByeResponse(locale: Locale): string {
       "Bye! Come back anytime.",
       "Take care! Have a great day.",
     ],
-    ja: [
-      "さようなら！またお会いしましょう。",
-      "じゃあね！また来てね。",
-      "またね！良い一日を！",
-    ],
   };
   return randomPick(responses[locale]);
 }
@@ -369,11 +338,6 @@ function getIdentityResponse(locale: Locale): string {
       "I'm Dialogue, a conversational assistant that works offline. Feel free to ask questions!",
       "Call me Dialogue! I'm here to help answer your questions, even without internet.",
     ],
-    ja: [
-      "私はDialogueです！オフラインでも動作するQ&Aアシスタントです。時間、日付、天気などを聞いてください！",
-      "Dialogueと言います！インターネットなしでも使える対話型アシスタントです。",
-      "Dialogueです！簡単な質問にお答えするオフラインアシスタントです。",
-    ],
   };
   return randomPick(responses[locale]);
 }
@@ -386,9 +350,6 @@ function getHelpResponse(locale: Locale): string {
     ],
     en: [
       "You can ask me things like:\n• What time is it?\n• What's today's date?\n• How's the weather?\n• What's today in lunar calendar?\n\nFeel free to ask!",
-    ],
-    ja: [
-      "こんなことが聞けます：\n• 今何時？\n• 今日は何日？\n• 天気はどう？\n• 今日の旧暦は？\n\nいつでも聞いてください！",
     ],
   };
   return randomPick(responses[locale]);
@@ -407,11 +368,6 @@ function getMoodResponse(locale: Locale): string {
       "All good here! Ready to answer your questions.",
       "I'm fine! What can I help you with?",
     ],
-    ja: [
-      "元気ですよ！何かお手伝いしましょうか？",
-      "いい感じです！質問があればどうぞ。",
-      "大丈夫です！何かお探しですか？",
-    ],
   };
   return randomPick(responses[locale]);
 }
@@ -428,11 +384,6 @@ function getAgreeResponse(locale: Locale): string {
       "Got it! Anything else you'd like to know?",
       "Alright! Let me know if you have more questions.",
       "Okay! Feel free to ask anything else.",
-    ],
-    ja: [
-      "はい！他に気になることはありますか？",
-      "了解です！また何かあれば聞いてください。",
-      "わかりました！他にも質問があればどうぞ。",
     ],
   };
   return randomPick(responses[locale]);
@@ -451,11 +402,6 @@ function getApologyResponse(locale: Locale): string {
       "It's okay! Don't worry about it.",
       "That's alright! How can I help you?",
     ],
-    ja: [
-      "大丈夫ですよ！謝ることないです。",
-      "いいえ、気にしないでください！",
-      "問題ないですよ！何かお手伝いしましょうか？",
-    ],
   };
   return randomPick(responses[locale]);
 }
@@ -472,11 +418,6 @@ function getComplimentResponse(locale: Locale): string {
       "Thank you! That means a lot.",
       "Thanks! I appreciate the kind words.",
       "Wow, thanks! Happy I could help.",
-    ],
-    ja: [
-      "ありがとうございます！嬉しいです。",
-      "ありがとう！もっと頑張ります。",
-      "わあ、ありがとうございます！お役に立てて光栄です。",
     ],
   };
   return randomPick(responses[locale]);
@@ -495,11 +436,6 @@ function getComfortResponse(locale: Locale): string {
       "It's okay, you got this! I'm here if you need to talk.",
       "Take it easy. I'm rooting for you!",
     ],
-    ja: [
-      "頑張って！きっとうまくいきますよ。",
-      "大丈夫、なんとかなりますよ。いつでも話してください。",
-      "無理しないでくださいね。応援してます！",
-    ],
   };
   return randomPick(responses[locale]);
 }
@@ -516,11 +452,6 @@ function getCongratsResponse(locale: Locale): string {
       "Thanks for the congrats! 🎉",
       "Wow, thank you! That's so kind.",
       "Thanks! Great news indeed!",
-    ],
-    ja: [
-      "お祝いありがとうございます！🎉",
-      "わあ、ありがとう！嬉しいです。",
-      "ありがとうございます！いいニュースですね！",
     ],
   };
   return randomPick(responses[locale]);
@@ -539,11 +470,6 @@ function getDeclineResponse(locale: Locale): string {
       "Okay! Feel free to reach out anytime.",
       "Understood! I'm here if you change your mind.",
     ],
-    ja: [
-      "わかりました！必要なときはいつでも言ってください。",
-      "はい、大丈夫です！また何かあれば声かけてください。",
-      "了解です！いつでもお声がけください。",
-    ],
   };
   return randomPick(responses[locale]);
 }
@@ -560,11 +486,6 @@ function getRequestResponse(locale: Locale): string {
       "Of course! What do you need help with?",
       "Sure thing! Tell me what you need.",
       "I'd be happy to help! What can I do for you?",
-    ],
-    ja: [
-      "もちろんです！何をお手伝いしましょうか？",
-      "はい、どうぞ！できる限りお手伝いします。",
-      "お手伝いします！何が必要ですか？",
     ],
   };
   return randomPick(responses[locale]);
@@ -583,11 +504,6 @@ function getSurpriseResponse(locale: Locale): string {
       "Yes, that's quite something!",
       "Wow, really? That's amazing!",
     ],
-    ja: [
-      "そうですよね！びっくりですね。",
-      "はい、驚きますよね！",
-      "わあ、本当ですか？すごいですね！",
-    ],
   };
   return randomPick(responses[locale]);
 }
@@ -604,11 +520,6 @@ function getComplaintResponse(locale: Locale): string {
       "I hear you. That sounds frustrating.",
       "That's understandable. Want to talk about it?",
       "I'm sorry to hear that. How can I help?",
-    ],
-    ja: [
-      "大変でしたね。大丈夫ですか？",
-      "そうですよね。少し休んでみては？",
-      "お辛いですね...何でも話してください。",
     ],
   };
   return randomPick(responses[locale]);
@@ -639,29 +550,6 @@ function getWeatherDescription(code: number, locale: Locale): string {
       95: "뇌우 ⛈️",
       96: "뇌우 (우박) ⛈️",
       99: "뇌우 (강한 우박) ⛈️",
-    },
-    ja: {
-      0: "晴れ ☀️",
-      1: "おおむね晴れ 🌤️",
-      2: "やや曇り ⛅",
-      3: "曇り ☁️",
-      45: "霧 🌫️",
-      48: "霧（霜） 🌫️",
-      51: "霧雨 🌧️",
-      53: "霧雨 🌧️",
-      55: "霧雨 🌧️",
-      61: "小雨 🌧️",
-      63: "雨 🌧️",
-      65: "大雨 🌧️",
-      71: "小雪 🌨️",
-      73: "雪 🌨️",
-      75: "大雪 🌨️",
-      80: "にわか雨 🌧️",
-      81: "にわか雨 🌧️",
-      82: "強いにわか雨 🌧️",
-      95: "雷雨 ⛈️",
-      96: "雷雨（雹） ⛈️",
-      99: "雷雨（強い雹） ⛈️",
     },
     en: {
       0: "Clear sky ☀️",
@@ -702,7 +590,7 @@ function getWeatherDescription(code: number, locale: Locale): string {
  * 4. Date (날짜) - 하이브리드 매칭
  *
  * @param {string} query - 사용자 입력 쿼리
- * @param {Locale} locale - 현재 로케일 ('ko' | 'en' | 'ja')
+ * @param {Locale} locale - 현재 로케일 ('ko' | 'en')
  * @returns {DynamicResponse} 매칭 결과 및 응답
  *
  * @example
@@ -909,12 +797,6 @@ export function getFallbackResponse(locale: Locale): string {
       "I don't know that yet. Do you have another question?",
       "Sorry, I didn't understand. Could you try again?",
       "I'm not sure about that one. Try asking about time, weather, or dates!",
-    ],
-    ja: [
-      "うーん...それはちょっとわからないです。別の聞き方で試してみてください。",
-      "それはまだ知らない内容です。他の質問はありますか？",
-      "すみません、理解できませんでした。もう一度お願いします。",
-      "それはちょっとわからないですね。時間、天気、日付などを聞いてみてください！",
     ],
   };
   return randomPick(responses[locale]);

@@ -2,7 +2,7 @@
 
 /**
  * Sitemap generator for dialogue.soundbluemusic.com
- * Generates sitemap index with pages sitemap (supports 3 languages: en, ko, ja)
+ * Generates sitemap index with pages sitemap (supports 2 languages: en, ko)
  */
 
 import { existsSync, writeFileSync } from 'node:fs';
@@ -12,8 +12,8 @@ const SITE_URL = 'https://dialogue.soundbluemusic.com';
 const PUBLIC_DIR = 'public';
 const OUT_DIR = '.output/public'; // SolidStart output directory
 
-type Locale = 'en' | 'ko' | 'ja';
-const LOCALES: Locale[] = ['en', 'ko', 'ja'];
+type Locale = 'en' | 'ko';
+const LOCALES: Locale[] = ['en', 'ko'];
 
 function getLastmodDate(): string {
   return new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
@@ -124,7 +124,6 @@ function generateXslStylesheet(): string {
             --link-hover: #1d4ed8;
             --en-badge: #22c55e;
             --ko-badge: #eab308;
-            --ja-badge: #ec4899;
             --header-bg: #f8fafc;
           }
 
@@ -192,7 +191,6 @@ function generateXslStylesheet(): string {
 
           .badge-en { background: var(--en-badge); color: white; }
           .badge-ko { background: var(--ko-badge); color: #1a1a1a; }
-          .badge-ja { background: var(--ja-badge); color: white; }
 
           .stats {
             margin-top: 2rem;
@@ -272,9 +270,6 @@ function generateXslStylesheet(): string {
           <tr>
             <td>
               <xsl:choose>
-                <xsl:when test="contains(sitemap:loc, '/ja')">
-                  <span class="badge badge-ja">JA</span>
-                </xsl:when>
                 <xsl:when test="contains(sitemap:loc, '/ko')">
                   <span class="badge badge-ko">KO</span>
                 </xsl:when>
