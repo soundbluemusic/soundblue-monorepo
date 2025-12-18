@@ -32,7 +32,10 @@ const TAB_INACTIVE_CLASS = "text-text-muted";
 
 export const MainLayout: Component = () => {
   const { t } = useI18n();
+  // SSR: default to desktop view to prevent CLS on hydration
+  // (most users are on desktop, mobile users get instant update on mount)
   const [isMobile, setIsMobile] = createSignal(false);
+  const [isHydrated, setIsHydrated] = createSignal(false);
   const [activeTab, setActiveTab] = createSignal<"chat" | "result">("chat");
 
   // Resizable chat panel
@@ -51,6 +54,8 @@ export const MainLayout: Component = () => {
 
   onMount(() => {
     checkScreenSize();
+    // Mark as hydrated after initial layout is set
+    requestAnimationFrame(() => setIsHydrated(true));
     window.addEventListener("resize", checkScreenSize);
   });
 
@@ -141,55 +146,52 @@ export const MainLayout: Component = () => {
           />
         </Show>
 
-        {/* Sidebar */}
+        {/* Sidebar - use CSS media query for initial layout to prevent CLS */}
         <div
-          class="z-50"
+          class="z-50 max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:pt-14 md:relative"
           classList={{
-            "fixed inset-y-0 left-0 pt-14 transition-transform duration-200": isMobile(),
-            "-translate-x-full": isMobile() && !uiStore.sidebarOpen,
-            relative: !isMobile(),
+            "max-md:transition-transform max-md:duration-200": isHydrated(),
+            "max-md:-translate-x-full": !uiStore.sidebarOpen,
           }}
         >
           <AppSidebar onNewChat={handleNewChat} onLoadConversation={handleLoadConversation} />
         </div>
 
-        {/* Main Area (Chat + Result Panel) */}
+        {/* Main Area (Chat + Result Panel) - CSS-based responsive layout to prevent CLS */}
         <div class="flex flex-1 overflow-hidden">
-          {/* Mobile: Tab-based view */}
-          <Show when={isMobile()}>
-            <div class="flex flex-1 flex-col min-h-50">
-              {/* Tab Switcher */}
-              <div class="flex shrink-0 border-b border-border bg-bg-secondary">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("chat")}
-                  class={`${TAB_BASE_CLASS} ${activeTab() === "chat" ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
-                >
-                  {t.title}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("result")}
-                  class={`${TAB_BASE_CLASS} ${activeTab() === "result" ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
-                >
-                  {t.aboutInfo || "Results"}
-                </button>
-              </div>
-
-              {/* Tab Content */}
-              <div class="flex-1 overflow-auto min-h-37.5">
-                <Show when={activeTab() === "chat"}>
-                  <ChatContainer resetTrigger={chatResetTrigger()} loadTrigger={chatLoadTrigger()} onNewChat={handleNewChat} />
-                </Show>
-                <Show when={activeTab() === "result"}>
-                  <ResultPanel />
-                </Show>
-              </div>
+          {/* Mobile: Tab-based view (hidden on md+) */}
+          <div class="flex flex-1 flex-col min-h-50 md:hidden">
+            {/* Tab Switcher */}
+            <div class="flex shrink-0 border-b border-border bg-bg-secondary">
+              <button
+                type="button"
+                onClick={() => setActiveTab("chat")}
+                class={`${TAB_BASE_CLASS} ${activeTab() === "chat" ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
+              >
+                {t.title}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("result")}
+                class={`${TAB_BASE_CLASS} ${activeTab() === "result" ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
+              >
+                {t.aboutInfo || "Results"}
+              </button>
             </div>
-          </Show>
 
-          {/* Desktop: 2 columns with resizable chat */}
-          <Show when={!isMobile()}>
+            {/* Tab Content */}
+            <div class="flex-1 overflow-auto min-h-37.5">
+              <Show when={activeTab() === "chat"}>
+                <ChatContainer resetTrigger={chatResetTrigger()} loadTrigger={chatLoadTrigger()} onNewChat={handleNewChat} />
+              </Show>
+              <Show when={activeTab() === "result"}>
+                <ResultPanel />
+              </Show>
+            </div>
+          </div>
+
+          {/* Desktop: 2 columns with resizable chat (hidden on mobile) */}
+          <div class="hidden md:flex md:flex-1">
             {/* Chat Area */}
             <div
               class="relative shrink-0 border-r border-border min-h-50"
@@ -213,7 +215,7 @@ export const MainLayout: Component = () => {
             <div class="flex-1">
               <ResultPanel />
             </div>
-          </Show>
+          </div>
         </div>
       </main>
 
