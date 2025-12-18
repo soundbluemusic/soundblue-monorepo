@@ -37,3 +37,4 @@ pnpm-debug.log*
 # Playwright
 playwright-report/
 test-results/
+stats.html
