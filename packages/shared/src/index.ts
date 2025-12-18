@@ -25,14 +25,25 @@ export {
   setRawStorageItem,
 } from './utils/storage';
 
-// i18n utilities
+// i18n Provider & utilities
 export {
-  type BaseLocale,
-  type I18nPathConfig,
+  I18nProvider,
+  useI18n,
+  type Locale,
+  type I18nConfig,
+  type I18nContextValue,
+  type I18nProviderProps,
   DEFAULT_I18N_CONFIG,
   getLocaleFromPath,
   getPathWithoutLocale,
   getLocalizedPath,
+} from './providers/I18nProvider';
+
+// Legacy i18n utilities (deprecated - use I18nProvider instead)
+export {
+  type BaseLocale,
+  type I18nPathConfig,
+  DEFAULT_I18N_CONFIG as LEGACY_I18N_CONFIG,
   createLocalizedPathBuilder,
   hasLocalePrefix,
   getOppositeLocale,

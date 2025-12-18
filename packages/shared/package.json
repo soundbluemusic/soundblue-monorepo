@@ -41,10 +41,14 @@
     "tailwind-merge": "^3.4.0"
   },
   "peerDependencies": {
+    "@solidjs/router": "^0.14.0",
     "solid-js": "^1.8.0",
     "zod": "^3.0.0"
   },
   "peerDependenciesMeta": {
+    "@solidjs/router": {
+      "optional": true
+    },
     "solid-js": {
       "optional": true
     },

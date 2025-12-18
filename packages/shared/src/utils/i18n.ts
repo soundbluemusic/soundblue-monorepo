@@ -11,9 +11,9 @@
 
 /**
  * Supported locale type.
- * Can be extended by apps as needed.
+ * @deprecated Use Locale from providers/I18nProvider instead
  */
-export type BaseLocale = 'en' | 'ko' | 'ja';
+export type BaseLocale = 'en' | 'ko';
 
 /**
  * Configuration for i18n path utilities.
