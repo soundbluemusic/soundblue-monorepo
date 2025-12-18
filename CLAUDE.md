@@ -3,6 +3,7 @@
 @./README.md
 @./.claude/rules/common.md
 @./.claude/rules/analysis.md
+@./.claude/rules/verification.md
 
 ## 모노레포 구조 (Monorepo Structure)
 
@@ -66,3 +67,20 @@ grep "@ts-expect-error"   # ts-expect-error 찾기
 **필수 사항:**
 - 제안 전 실제 코드에서 사용처 확인
 - 불확실하면 단정 짓지 말고 질문으로 전환
+
+## 검증 규칙 (Verification Rules)
+
+모든 응답에 `.claude/rules/verification.md`를 따르세요.
+(Follow `.claude/rules/verification.md` for all responses.)
+
+**핵심 원칙:**
+- 확인 전에 말하지 않는다
+- 추측은 추측이라고 표시한다
+- 모르면 모른다고 한다
+- 출처를 명시한다
+
+**확신도 표현:**
+- "확인 결과" - 직접 검증함
+- "~로 보입니다" - 강한 근거 있는 추론
+- "~일 수 있습니다" - 가능성 제시
+- "확인이 필요합니다" - 판단 불가
