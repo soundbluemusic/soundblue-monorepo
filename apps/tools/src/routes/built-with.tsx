@@ -4,6 +4,7 @@ import { type Component, For } from 'solid-js';
 import { Footer } from '@soundblue/shared';
 import { Header } from '~/components/layout/Header';
 import { useLanguage } from '~/i18n';
+import type { Messages } from '~/types/i18n.generated';
 
 const SITE_URL = 'https://tools.soundbluemusic.com';
 
@@ -12,13 +13,13 @@ const SITE_URL = 'https://tools.soundbluemusic.com';
 // ========================================
 
 interface TechItem {
-  nameKey?: string; // Translation key for name (optional)
+  nameKey?: keyof Messages['builtWith']; // Translation key for name (optional)
   name?: string; // Static name (optional)
   url: string;
 }
 
 interface TechSection {
-  titleKey: string; // Translation key for title
+  titleKey: keyof Messages['builtWith']; // Translation key for title
   items: TechItem[];
 }
 
@@ -90,14 +91,17 @@ const TECH_STACK: TechSection[] = [
 ];
 
 /** Get a translation value safely with fallback to key */
-function getTranslationValue(translations: Record<string, unknown>, key: string): string {
+function getTranslationValue(
+  translations: Messages['builtWith'],
+  key: keyof Messages['builtWith']
+): string {
   const value = translations[key];
-  return typeof value === 'string' ? value : key;
+  return value;
 }
 
 const TechLink: Component<{
   item: TechItem;
-  builtWith: Record<string, unknown>;
+  builtWith: Messages['builtWith'];
 }> = (props) => {
   const getItemName = (): string => {
     if (props.item.nameKey) {
@@ -122,9 +126,8 @@ const TechLink: Component<{
 export default function BuiltWithPage() {
   const { t, locale } = useLanguage();
 
-  const getSectionTitle = (titleKey: string): string => {
-    const builtWith = t().builtWith as Record<string, unknown>;
-    return getTranslationValue(builtWith, titleKey);
+  const getSectionTitle = (titleKey: keyof Messages['builtWith']): string => {
+    return getTranslationValue(t().builtWith, titleKey);
   };
 
   const isKorean = () => locale() === 'ko';
@@ -163,10 +166,7 @@ export default function BuiltWithPage() {
                       <For each={section.items}>
                         {(item) => (
                           <li class="text-muted-foreground">
-                            <TechLink
-                              item={item}
-                              builtWith={t().builtWith as Record<string, unknown>}
-                            />
+                            <TechLink item={item} builtWith={t().builtWith} />
                           </li>
                         )}
                       </For>
