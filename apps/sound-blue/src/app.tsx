@@ -1,9 +1,9 @@
 import { Link, Meta, MetaProvider } from '@solidjs/meta';
 import { Router, type RouteSectionProps, useIsRouting } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
+import { OfflineIndicator } from '@soundblue/shared';
 import { type JSX, Show, Suspense } from 'solid-js';
 import { AppErrorBoundary } from '~/components/ErrorBoundary';
-import { OfflineIndicator } from '~/components/pwa';
 import { I18nProvider } from '~/components/providers/I18nProvider';
 import { KeyboardShortcutsProvider } from '~/components/providers/KeyboardShortcutsProvider';
 import { ThemeProvider } from '~/components/providers/ThemeProvider';

@@ -37,7 +37,7 @@ export const ChatMessage: Component<ChatMessageProps> = (props) => {
           "bg-assistant-bubble text-text-primary rounded-bl-[4px]": !isUser()
         }}
       >
-        <p class="m-0 whitespace-pre-wrap break-words">{props.message.content}</p>
+        <p class="m-0 whitespace-pre-wrap wrap-break-word">{props.message.content}</p>
       </div>
     </div>
   );

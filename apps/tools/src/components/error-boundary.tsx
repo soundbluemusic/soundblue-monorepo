@@ -84,7 +84,7 @@ function ErrorFallback(props: ErrorFallbackProps) {
 
   // Don't use useLanguage() here - it might not be available if error happens during initialization
   return (
-    <div class="flex min-h-[200px] flex-col items-center justify-center gap-4 rounded-lg border border-red-500/50 dark:border-red-500/30 bg-red-500/10 dark:bg-red-950/30 p-6">
+    <div class="flex min-h-50 flex-col items-center justify-center gap-4 rounded-lg border border-red-500/50 dark:border-red-500/30 bg-red-500/10 dark:bg-red-950/30 p-6">
       <div class="text-center">
         <h2 class="text-lg font-semibold text-red-600 dark:text-red-400">오류가 발생했습니다</h2>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">

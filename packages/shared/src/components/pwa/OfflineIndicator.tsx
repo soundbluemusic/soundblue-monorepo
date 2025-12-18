@@ -2,15 +2,16 @@
 // Offline Indicator Component
 // ========================================
 // Shows online/offline status and PWA update notifications
+// Shared component for all apps in the monorepo
 
 import { RefreshCw, Wifi, WifiOff, X } from 'lucide-solid';
 import { type Component, createEffect, createSignal, Show } from 'solid-js';
-import { useOnlineStatus, useServiceWorker, skipWaiting } from '~/hooks';
-import { useLanguage } from '~/i18n';
-import { cn } from '~/lib/utils';
+import { useOnlineStatus, skipWaiting, useServiceWorker } from '../../hooks';
+import { useI18n } from '../../providers/I18nProvider';
+import { cn } from '../../utils/cn';
 
 export const OfflineIndicator: Component = () => {
-  const { locale } = useLanguage();
+  const { locale } = useI18n();
   const { isOnline, wasOffline } = useOnlineStatus();
   const { state: swState } = useServiceWorker();
 
@@ -72,8 +73,9 @@ export const OfflineIndicator: Component = () => {
             'bg-yellow-500 text-yellow-950',
             'px-4 py-2 flex items-center justify-center gap-2',
             'text-sm font-medium',
-            'animate-in slide-in-from-top duration-300'
+            'animate-in slide-in-from-top duration-300',
           )}
+          role="alert"
         >
           <WifiOff class="h-4 w-4" />
           <span>{t.offline[locale()]}</span>
@@ -89,8 +91,9 @@ export const OfflineIndicator: Component = () => {
             'px-4 py-2 rounded-lg shadow-lg',
             'flex items-center gap-2',
             'text-sm font-medium',
-            'animate-in slide-in-from-right duration-300'
+            'animate-in slide-in-from-right duration-300',
           )}
+          role="status"
         >
           <Wifi class="h-4 w-4" />
           <span>{t.online[locale()]}</span>
@@ -105,8 +108,9 @@ export const OfflineIndicator: Component = () => {
             'bg-primary text-primary-foreground',
             'px-4 py-3 rounded-xl shadow-lg',
             'flex items-center justify-between gap-3',
-            'animate-in slide-in-from-bottom duration-300'
+            'animate-in slide-in-from-bottom duration-300',
           )}
+          role="alert"
         >
           <div class="flex items-center gap-2">
             <RefreshCw class="h-4 w-4" />
@@ -119,7 +123,7 @@ export const OfflineIndicator: Component = () => {
               class={cn(
                 'px-3 py-1 rounded-md text-sm font-medium',
                 'bg-primary-foreground text-primary',
-                'hover:bg-primary-foreground/90 transition-colors'
+                'hover:bg-primary-foreground/90 transition-colors',
               )}
             >
               {t.updateNow[locale()]}

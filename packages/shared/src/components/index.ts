@@ -5,3 +5,4 @@
  */
 
 export { Footer, type FooterProps, type FooterLink } from './Footer';
+export { OfflineIndicator } from './pwa/OfflineIndicator';

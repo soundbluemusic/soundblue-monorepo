@@ -42,11 +42,15 @@
   },
   "peerDependencies": {
     "@solidjs/router": "^0.14.0",
+    "lucide-solid": "^0.400.0",
     "solid-js": "^1.8.0",
     "zod": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "@solidjs/router": {
+      "optional": true
+    },
+    "lucide-solid": {
       "optional": true
     },
     "solid-js": {
@@ -58,6 +62,7 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
+    "lucide-solid": "^0.469.0",
     "solid-js": "^1.9.10",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15",

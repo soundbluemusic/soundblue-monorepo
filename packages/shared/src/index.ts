@@ -73,7 +73,7 @@ export {
 } from './constants';
 
 // Components
-export { Footer, type FooterProps, type FooterLink } from './components';
+export { Footer, type FooterProps, type FooterLink, OfflineIndicator } from './components';
 
 // Types
 export type {

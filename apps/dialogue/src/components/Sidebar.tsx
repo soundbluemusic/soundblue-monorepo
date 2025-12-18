@@ -36,13 +36,13 @@ export const Sidebar: Component<SidebarProps> = (props) => {
     <>
       <Show when={props.isOpen()}>
         <div
-          class="fixed inset-0 bg-black/50 z-[199] animate-fade-in"
+          class="fixed inset-0 bg-black/50 z-199 animate-fade-in"
           onClick={props.onClose}
         />
       </Show>
 
       <aside
-        class="fixed top-0 left-0 w-[280px] h-full bg-bg-secondary border-r border-border z-[200] flex flex-col transition-transform duration-300 ease-out max-md:w-full max-md:max-w-[320px]"
+        class="fixed top-0 left-0 w-70 h-full bg-bg-secondary border-r border-border z-200 flex flex-col transition-transform duration-300 ease-out max-md:w-full max-md:max-w-80"
         classList={{ "translate-x-0": props.isOpen(), "-translate-x-full": !props.isOpen() }}
       >
         <div class="flex items-center justify-between px-5 py-4 border-b border-border">
