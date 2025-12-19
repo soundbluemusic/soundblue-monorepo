@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from '@solidjs/router';
+import { useLocation, useNavigate, useParams } from '@solidjs/router';
 import type { Component } from 'solid-js';
 import { createEffect, createSignal, For, onMount, Show } from 'solid-js';
 import { useI18n } from '~/i18n';
@@ -25,6 +25,7 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams<{ id?: string }>();
   const [messages, setMessages] = createSignal<Message[]>([]);
   const [isThinking, setIsThinking] = createSignal(false);
   let messagesEndRef: HTMLDivElement | undefined;
@@ -61,7 +62,25 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
   };
 
   onMount(() => {
+    // Hydrate chat store first
+    chatActions.hydrate();
     initializeChat();
+  });
+
+  // Handle URL params for conversation loading (from /c/:id or /ko/c/:id routes)
+  createEffect(() => {
+    if (!chatStore.isHydrated) return;
+
+    const conversationId = params.id;
+    if (!conversationId) return;
+
+    // Try to load the conversation from URL
+    const conversation = chatActions.loadConversation(conversationId);
+
+    // If conversation not found, redirect to home
+    if (!conversation) {
+      navigate(getHomePath(), { replace: true });
+    }
   });
 
   // Scroll to bottom when messages change

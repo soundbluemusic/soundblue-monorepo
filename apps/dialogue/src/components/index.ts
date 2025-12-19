@@ -12,5 +12,6 @@ export { AppSidebar } from './layout/AppSidebar';
 export { Header as LayoutHeader } from './layout/Header';
 // New layout exports
 export { MainLayout } from './layout/MainLayout';
+export { MainLayoutClient } from './layout/MainLayout.client';
 export { ResultPanel } from './layout/ResultPanel';
 export { Sidebar } from './Sidebar';
