@@ -25,7 +25,7 @@ export const NavigationLayout: ParentComponent = (props): JSX.Element => {
         id="main-content"
         class={cn(
           'main-content view-transition-content transition-[margin-left] duration-150 ease-default max-md:ml-0',
-          isSidebarOpen() ? 'ml-[var(--sidebar-width)]' : 'ml-0',
+          isSidebarOpen() ? 'ml-(--sidebar-width)' : 'ml-0',
         )}
         aria-label={t().accessibility.mainContent}
       >
