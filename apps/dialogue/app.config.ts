@@ -3,6 +3,8 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  // SSR disabled - 100% static site generation (SSG)
+  ssr: false,
   server: {
     preset: 'static',
     prerender: {

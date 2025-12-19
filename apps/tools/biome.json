@@ -3,7 +3,14 @@
   "$schema": "https://biomejs.dev/schemas/2.3.9/schema.json",
   "extends": ["../../biome.json"],
   "files": {
-    "includes": ["src/**/*.ts", "src/**/*.tsx", "*.config.ts", "package.json", "tsconfig.json", "!**/src/engine/wasm/pkg"]
+    "includes": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "*.config.ts",
+      "package.json",
+      "tsconfig.json",
+      "!**/src/engine/wasm/pkg"
+    ]
   },
   "linter": {
     "rules": {

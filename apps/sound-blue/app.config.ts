@@ -7,6 +7,8 @@ import { vitePluginPwa } from './pwa.config';
 const isAnalyze = process.env['ANALYZE'] === 'true';
 
 export default defineConfig({
+  // SSR disabled - 100% static site generation (SSG)
+  ssr: false,
   server: {
     preset: 'static',
     prerender: {

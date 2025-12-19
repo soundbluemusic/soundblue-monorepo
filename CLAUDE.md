@@ -7,6 +7,13 @@
 > **이 규칙들은 절대 위반하지 말 것. CMS, 외부 DB, 서버 로직 제안 금지.**
 
 1. **100% SSG Only** - 모든 앱은 정적 사이트 생성만 사용. SSR/서버 로직 절대 금지.
+   ```typescript
+   // app.config.ts 필수 설정
+   export default defineConfig({
+     ssr: false,                    // SSR 비활성화
+     server: { preset: 'static' }, // 정적 빌드
+   });
+   ```
 2. **오픈소스 Only** - 모든 라이브러리/도구는 오픈소스만 사용.
 3. **웹 표준 API Only** - 브라우저 표준 API만 사용. 벤더 종속 API 금지.
 4. **로컬 스토리지 Only** - DB는 localStorage, IndexedDB만 사용. 외부 DB/CMS 절대 금지.

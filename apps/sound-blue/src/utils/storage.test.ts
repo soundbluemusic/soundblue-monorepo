@@ -22,7 +22,7 @@ vi.mock('dexie', () => {
   };
 
   // Expose clear function for tests
-  (mockTable as Record<string, unknown>).clear = () => {
+  (mockTable as Record<string, unknown>)['clear'] = () => {
     store = {};
   };
 
