@@ -26,10 +26,10 @@ export const ToolItem: Component<ToolItemProps> = (props) => {
         'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm',
         'transition-all duration-200 ease-out',
         // Hover - visible color contrast (black tint in light, white tint in dark)
-        'hover:bg-black/[0.08] dark:hover:bg-white/[0.12]',
+        'hover:bg-black/8 dark:hover:bg-white/12',
         'hover:text-foreground',
         // Active press effect
-        'active:scale-[0.98] active:bg-black/[0.12] dark:active:bg-white/[0.18]',
+        'active:scale-[0.98] active:bg-black/12 dark:active:bg-white/18',
         // Focus visible for keyboard navigation
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
         // Active tool state - brand color for identity

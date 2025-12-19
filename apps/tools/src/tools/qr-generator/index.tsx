@@ -103,7 +103,7 @@ const QRGeneratorComponent: Component<ToolProps<QRSettings>> = (props) => {
           'w-full resize-none rounded border bg-background px-3 py-2 text-sm',
           'transition-all duration-200',
           // Visible color contrast on hover
-          'hover:bg-black/[0.06] dark:hover:bg-white/[0.08] hover:border-primary/40',
+          'hover:bg-black/6 dark:hover:bg-white/8 hover:border-primary/40',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:border-primary focus-visible:bg-background',
           isCompact() ? 'h-12' : 'h-16'
         )}
@@ -151,7 +151,7 @@ const QRGeneratorComponent: Component<ToolProps<QRSettings>> = (props) => {
       {/* Color Options */}
       <Show when={!isCompact()}>
         <div class="flex justify-center gap-4 text-sm">
-          <label class="flex items-center gap-1 cursor-pointer group px-2 py-1 rounded transition-all duration-200 hover:bg-black/[0.08] dark:hover:bg-white/[0.12] focus-within:ring-2 focus-within:ring-ring">
+          <label class="flex items-center gap-1 cursor-pointer group px-2 py-1 rounded transition-all duration-200 hover:bg-black/8 dark:hover:bg-white/12 focus-within:ring-2 focus-within:ring-ring">
             <input
               type="color"
               value={settings().foregroundColor}
@@ -163,7 +163,7 @@ const QRGeneratorComponent: Component<ToolProps<QRSettings>> = (props) => {
               {t().qr.foreground}
             </span>
           </label>
-          <label class="flex items-center gap-1 cursor-pointer group px-2 py-1 rounded transition-all duration-200 hover:bg-black/[0.08] dark:hover:bg-white/[0.12] focus-within:ring-2 focus-within:ring-ring">
+          <label class="flex items-center gap-1 cursor-pointer group px-2 py-1 rounded transition-all duration-200 hover:bg-black/8 dark:hover:bg-white/12 focus-within:ring-2 focus-within:ring-ring">
             <input
               type="color"
               value={settings().backgroundColor}

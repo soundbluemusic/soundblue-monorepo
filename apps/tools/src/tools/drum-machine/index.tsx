@@ -377,7 +377,7 @@ const DrumMachineComponent: Component<ToolProps<DrumMachineSettings>> = (props) 
                   Math.max(40, Math.min(300, parseInt(e.currentTarget.value, 10) || 120))
                 )
               }
-              class="w-14 rounded border bg-background px-1.5 py-1 text-center text-sm transition-colors hover:bg-black/[0.08] dark:hover:bg-white/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              class="w-14 rounded border bg-background px-1.5 py-1 text-center text-sm transition-colors hover:bg-black/8 dark:hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
         </div>

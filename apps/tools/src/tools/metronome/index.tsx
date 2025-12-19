@@ -270,12 +270,12 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
       {/* Stats Card */}
       <div class="rounded-2xl border border-border bg-card p-3 sm:p-4 shadow-sm">
         <div class="flex flex-wrap items-center justify-around gap-2 text-center">
-          <div class="min-w-[60px]">
+          <div class="min-w-15">
             <div class="text-xl sm:text-2xl font-semibold tabular-nums">{measureCount()}</div>
             <div class="text-xs text-muted-foreground">{t().metronome.measure}</div>
           </div>
           <div class="h-8 sm:h-10 w-px bg-border" />
-          <div class="min-w-[80px]">
+          <div class="min-w-20">
             <div class="text-lg sm:text-2xl font-mono tabular-nums">
               {formatTime(elapsedTime())}
             </div>
@@ -283,7 +283,7 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
           </div>
           <Show when={countdownTime() > 0}>
             <div class="h-8 sm:h-10 w-px bg-border" />
-            <div class="min-w-[80px]">
+            <div class="min-w-20">
               <div class="text-lg sm:text-2xl font-mono tabular-nums text-primary">
                 {formatTime(remainingTime())}
               </div>
@@ -305,7 +305,7 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
                 beatsPerMeasure: parseInt(e.currentTarget.value, 10),
               })
             }
-            class="h-8 sm:h-9 rounded-lg border border-border bg-background px-2 sm:px-3 text-sm transition-colors hover:bg-black/[0.08] dark:hover:bg-white/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 cursor-pointer disabled:opacity-50"
+            class="h-8 sm:h-9 rounded-lg border border-border bg-background px-2 sm:px-3 text-sm transition-colors hover:bg-black/8 dark:hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 cursor-pointer disabled:opacity-50"
             disabled={isPlaying()}
           >
             <For each={[2, 3, 4, 5, 6, 7, 8, 9, 12]}>{(n) => <option value={n}>{n}/4</option>}</For>
@@ -342,7 +342,7 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
               value={settings().timerMinutes}
               onInput={(e) => props.onSettingsChange({ timerMinutes: e.currentTarget.value })}
               placeholder="0"
-              class="h-8 sm:h-9 w-10 sm:w-12 rounded-lg border border-border bg-background px-1 sm:px-2 text-center text-sm transition-colors hover:bg-black/[0.08] dark:hover:bg-white/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50"
+              class="h-8 sm:h-9 w-10 sm:w-12 rounded-lg border border-border bg-background px-1 sm:px-2 text-center text-sm transition-colors hover:bg-black/8 dark:hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50"
               disabled={isPlaying()}
             />
             <span class="text-muted-foreground font-medium">:</span>
@@ -353,7 +353,7 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
               value={settings().timerSeconds}
               onInput={(e) => props.onSettingsChange({ timerSeconds: e.currentTarget.value })}
               placeholder="00"
-              class="h-8 sm:h-9 w-10 sm:w-12 rounded-lg border border-border bg-background px-1 sm:px-2 text-center text-sm transition-colors hover:bg-black/[0.08] dark:hover:bg-white/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50"
+              class="h-8 sm:h-9 w-10 sm:w-12 rounded-lg border border-border bg-background px-1 sm:px-2 text-center text-sm transition-colors hover:bg-black/8 dark:hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50"
               disabled={isPlaying()}
             />
           </div>
@@ -381,7 +381,7 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
         <button
           type="button"
           onClick={() => handleReset()}
-          class="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl border border-border text-muted-foreground transition-all duration-200 hover:bg-black/[0.08] dark:hover:bg-white/[0.12] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+          class="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl border border-border text-muted-foreground transition-all duration-200 hover:bg-black/8 dark:hover:bg-white/12 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
         >
           <RotateCcw class="h-4 w-4 sm:h-5 sm:w-5" />
         </button>

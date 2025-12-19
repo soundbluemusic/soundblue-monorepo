@@ -188,20 +188,20 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
     <div class="flex h-full flex-col p-3 sm:p-4 gap-3 overflow-auto">
       {/* Header with direction toggle */}
       <div class="flex items-center justify-center gap-3">
-        <span class="text-sm font-medium min-w-[60px] text-right">{sourceLabel()}</span>
+        <span class="text-sm font-medium min-w-15 text-right">{sourceLabel()}</span>
         <button
           type="button"
           onClick={toggleDirection}
-          class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border transition-all duration-200 hover:bg-black/[0.08] dark:hover:bg-white/[0.12] hover:scale-105 active:scale-95"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border transition-all duration-200 hover:bg-black/8 dark:hover:bg-white/12 hover:scale-105 active:scale-95"
           title="Switch direction"
         >
           <ArrowLeftRight class="h-4 w-4" />
         </button>
-        <span class="text-sm font-medium min-w-[60px]">{targetLabel()}</span>
+        <span class="text-sm font-medium min-w-15">{targetLabel()}</span>
       </div>
 
       {/* Input area */}
-      <div class="flex-1 min-h-[120px]">
+      <div class="flex-1 min-h-30">
         <textarea
           value={inputText()}
           onInput={(e) => setInputText(e.currentTarget.value)}
@@ -215,7 +215,7 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
       </div>
 
       {/* Output area */}
-      <div class="flex-1 min-h-[120px] relative">
+      <div class="flex-1 min-h-30 relative">
         <div class="h-full w-full rounded-xl border border-border bg-muted/30 p-3 text-sm overflow-auto">
           {outputText()}
         </div>
@@ -225,7 +225,7 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
           <button
             type="button"
             onClick={copyToClipboard}
-            class="absolute top-2 right-2 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/80 backdrop-blur-sm transition-all duration-200 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]"
+            class="absolute top-2 right-2 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/80 backdrop-blur-sm transition-all duration-200 hover:bg-black/8 dark:hover:bg-white/12"
             title={t().common.copy}
           >
             {isCopied() ? (
@@ -242,7 +242,7 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
         <button
           type="button"
           onClick={clearAll}
-          class="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs text-muted-foreground transition-colors hover:bg-black/[0.08] dark:hover:bg-white/[0.12] hover:text-foreground"
+          class="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs text-muted-foreground transition-colors hover:bg-black/8 dark:hover:bg-white/12 hover:text-foreground"
         >
           <Trash2 class="h-3.5 w-3.5" />
           <span>{settings().direction === 'ko-en' ? '지우기' : 'Clear'}</span>
@@ -253,7 +253,7 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
           type="button"
           onClick={shareTranslation}
           disabled={!inputText().trim() || textWarning() === 'danger'}
-          class="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-black/[0.08] dark:hover:bg-white/[0.12]"
+          class="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-black/8 dark:hover:bg-white/12"
           classList={{
             'text-muted-foreground hover:text-foreground': shareStatus() === 'idle',
             'text-green-600 dark:text-green-400': shareStatus() === 'copied',

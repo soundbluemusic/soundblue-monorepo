@@ -19,8 +19,8 @@ import { ToolCategory } from './ToolCategory';
 // ========================================
 
 // Extracted hover styles to avoid duplicate cn() calls
-const HOVER_STYLES = 'hover:bg-black/[0.08] dark:hover:bg-white/[0.12] hover:text-foreground';
-const ACTIVE_STYLES = 'active:scale-95 active:bg-black/[0.12] dark:active:bg-white/[0.18]';
+const HOVER_STYLES = 'hover:bg-black/8 dark:hover:bg-white/12 hover:text-foreground';
+const ACTIVE_STYLES = 'active:scale-95 active:bg-black/12 dark:active:bg-white/18';
 const FOCUS_STYLES =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1';
 const MENU_ITEM_CLASS = `flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200 ease-out ${HOVER_STYLES} ${FOCUS_STYLES}`;
@@ -153,9 +153,9 @@ export const ToolSidebar: Component = () => {
           class={cn(
             'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-all duration-200 ease-out',
             HOVER_STYLES,
-            'active:scale-[0.98] active:bg-black/[0.12] dark:active:bg-white/[0.18]',
+            'active:scale-[0.98] active:bg-black/12 dark:active:bg-white/18',
             FOCUS_STYLES,
-            moreMenuOpen() && 'bg-black/[0.05] dark:bg-white/[0.08]',
+            moreMenuOpen() && 'bg-black/5 dark:bg-white/8',
             isCollapsed() && 'justify-center px-2'
           )}
           title={isCollapsed() ? t().sidebar.more : undefined}
