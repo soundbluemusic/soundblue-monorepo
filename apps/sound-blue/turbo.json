@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -45,7 +46,5 @@
       "cache": false,
       "persistent": true
     }
-  },
-  "globalDependencies": ["pnpm-lock.yaml"],
-  "globalEnv": ["CI", "NODE_ENV"]
+  }
 }

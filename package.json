@@ -1,18 +1,19 @@
 {
   "name": "soundblue-monorepo",
   "private": true,
+  "packageManager": "pnpm@10.26.0",
   "scripts": {
     "dev:tools": "pnpm --filter tools dev",
     "dev:main": "pnpm --filter sound-blue dev",
     "dev:dialogue": "pnpm --filter dialogue dev",
-    "build": "pnpm --filter sound-blue build && pnpm --filter tools build && pnpm --filter dialogue build",
-    "test": "pnpm --filter sound-blue test:run && pnpm --filter tools test:run && pnpm --filter dialogue test:run",
-    "test:coverage": "pnpm --filter sound-blue test:coverage && pnpm --filter tools test:coverage && pnpm --filter dialogue test:coverage",
+    "build": "turbo run build",
+    "test": "turbo run test:run",
+    "test:coverage": "turbo run test:coverage",
     "test:e2e": "pnpm --filter sound-blue test:e2e && pnpm --filter tools test:e2e",
-    "typecheck": "pnpm --filter sound-blue typecheck && pnpm --filter tools typecheck && pnpm --filter dialogue typecheck && pnpm --filter @soundblue/shared exec tsc --noEmit",
+    "typecheck": "turbo run typecheck",
     "check": "pnpm exec biome check .",
     "check:fix": "pnpm exec biome check --write .",
-    "check:circular": "pnpm exec madge --circular --extensions ts,tsx --exclude '.vinxi|node_modules|dist' apps/ packages/",
+    "check:circular": "pnpm -r exec skott --showCircularDependencies --displayMode=raw --fileExtensions=.ts,.tsx --ignorePattern='node_modules|.vinxi|.output|dist|rust' --exitCodeOnCircularDependencies=1",
     "check:versions": "pnpm exec syncpack list-mismatches",
     "check:size": "pnpm exec size-limit",
     "check:links": "pnpm exec blc ./apps/sound-blue/.output/public --recursive --exclude-external",
@@ -31,10 +32,11 @@
     "husky": "^9.1.7",
     "lighthouse": "^13.0.1",
     "lint-staged": "^16.2.7",
-    "madge": "^8.0.0",
     "sharp": "^0.34.5",
     "size-limit": "^12.0.0",
-    "syncpack": "^13.0.4"
+    "skott": "^0.35.6",
+    "syncpack": "^13.0.4",
+    "turbo": "^2.6.3"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

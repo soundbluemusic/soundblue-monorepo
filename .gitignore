@@ -6,6 +6,7 @@ node_modules/
 .vinxi/
 dist/
 *.tsbuildinfo
+.turbo/
 
 # Generated service workers (PWA build output)
 **/public/sw.js
