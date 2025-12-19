@@ -1,0 +1,17 @@
+[
+  {
+    "name": "sound-blue",
+    "path": "apps/sound-blue/.output/public/_build/*.js",
+    "limit": "200 KB"
+  },
+  {
+    "name": "tools",
+    "path": "apps/tools/.output/public/_build/*.js",
+    "limit": "300 KB"
+  },
+  {
+    "name": "dialogue",
+    "path": "apps/dialogue/.output/public/_build/*.js",
+    "limit": "150 KB"
+  }
+]

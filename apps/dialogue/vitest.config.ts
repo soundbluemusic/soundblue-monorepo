@@ -29,6 +29,12 @@ export default defineConfig({
         "src/types/**",
         "src/**/*.d.ts",
       ],
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
     },
 
     // Global test settings

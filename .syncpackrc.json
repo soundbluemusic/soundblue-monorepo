@@ -1,0 +1,18 @@
+{
+  "versionGroups": [
+    {
+      "label": "Use workspace protocol for internal packages",
+      "dependencies": ["@soundblue/*"],
+      "dependencyTypes": ["dev", "prod"],
+      "pinVersion": "workspace:*"
+    }
+  ],
+  "semverGroups": [
+    {
+      "range": "^",
+      "dependencyTypes": ["dev", "prod"],
+      "dependencies": ["**"],
+      "packages": ["**"]
+    }
+  ]
+}
