@@ -1,12 +1,9 @@
 # SoundBlue Monorepo
 
-> **⚠️ 모든 응답 전 verification.md 규칙을 따를 것**
+> **⚠️ 모든 응답 전 검증 규칙을 따를 것**
 > 확인 없이 단정 금지 | 추측은 추측으로 표시 | 출처 명시
 
-@./.claude/rules/verification.md
 @./README.md
-@./.claude/rules/common.md
-@./.claude/rules/analysis.md
 
 ## 모노레포 구조 (Monorepo Structure)
 
@@ -42,8 +39,8 @@ pnpm test          # 테스트 실행
 
 ## 타입 검증 (Type Validation)
 
-타입 에러 검색 시 `.claude/rules/common.md`의 타입 검증 프로세스를 따르세요.
-(Follow the Type Validation Process in `.claude/rules/common.md` when searching for type errors.)
+타입 에러 검색 시 아래 프로세스를 따르세요.
+(Follow the Type Validation Process below when searching for type errors.)
 
 ```bash
 # 병렬 실행 가능 (Can run in parallel)
@@ -85,8 +82,8 @@ grep "@ts-expect-error"   # ts-expect-error 찾기
 
 ## 코드 분석 규칙 (Code Analysis Rules)
 
-코드 분석, 리뷰, 개선 제안 시 `.claude/rules/analysis.md`를 반드시 따르세요.
-(Follow `.claude/rules/analysis.md` when analyzing code or suggesting improvements.)
+코드 분석, 리뷰, 개선 제안 시 아래 규칙을 따르세요.
+(Follow the rules below when analyzing code or suggesting improvements.)
 
 **금지 사항:**
 - 근거 없는 심각도(HIGH/MEDIUM/LOW) 부여
@@ -99,8 +96,8 @@ grep "@ts-expect-error"   # ts-expect-error 찾기
 
 ## 검증 규칙 (Verification Rules)
 
-모든 응답에 `.claude/rules/verification.md`를 따르세요.
-(Follow `.claude/rules/verification.md` for all responses.)
+모든 응답에 아래 규칙을 따르세요.
+(Follow the rules below for all responses.)
 
 **핵심 원칙:**
 - 확인 전에 말하지 않는다
