@@ -19,11 +19,9 @@ export default defineConfig({
       // PWA Support - SSG optimized (100% offline)
       VitePWA({
         registerType: 'autoUpdate',
+        injectRegister: false, // Manual registration in entry-client.tsx
         includeAssets: ['favicon.png', 'icons/*.png', 'icons/*.svg'],
         manifest: false, // Use existing manifest.json in public/
-        // Ensure SW is registered from root scope
-        scope: '/',
-        base: '/',
         workbox: {
           // SSG: precache all static files
           globPatterns: ['**/*.{html,js,css,png,svg,ico,woff,woff2,json}'],
