@@ -92,6 +92,15 @@ const QRGeneratorComponent: Component<ToolProps<QRSettings>> = (props) => {
   const isCompact = () => props.size.width < 320;
   const displaySize = () => Math.min(props.size.width - 32, props.size.height - 120, 200);
 
+  // Update canvas display size reactively
+  createEffect(() => {
+    const size = displaySize();
+    if (canvasRef) {
+      canvasRef.style.width = `${size}px`;
+      canvasRef.style.height = `${size}px`;
+    }
+  });
+
   return (
     <div class={cn('flex h-full flex-col gap-3 p-4', isCompact() && 'gap-2 p-2')}>
       {/* Input */}
@@ -112,15 +121,7 @@ const QRGeneratorComponent: Component<ToolProps<QRSettings>> = (props) => {
       {/* QR Code */}
       <div class="flex flex-1 items-center justify-center">
         <Show when={!error()} fallback={<div class="text-sm text-destructive">{error()}</div>}>
-          <canvas
-            ref={canvasRef}
-            style={{
-              width: `${displaySize()}px`,
-              height: `${displaySize()}px`,
-              'image-rendering': 'pixelated',
-            }}
-            class="rounded border"
-          />
+          <canvas ref={canvasRef} class="rounded border [image-rendering:pixelated]" />
         </Show>
       </div>
 
