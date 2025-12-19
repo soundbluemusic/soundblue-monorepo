@@ -7,11 +7,15 @@
 import { RefreshCw, Wifi, WifiOff, X } from 'lucide-solid';
 import { type Component, createEffect, createSignal, Show } from 'solid-js';
 import { skipWaiting, useOnlineStatus, useServiceWorker } from '../../hooks';
-import { useI18n } from '../../providers/I18nProvider';
+import { getLocaleFromPath, type Locale } from '../../providers/I18nProvider';
 import { cn } from '../../utils/cn';
 
 export const OfflineIndicator: Component = () => {
-  const { locale } = useI18n();
+  // URL에서 직접 locale 감지 (Context 의존성 제거 - 빌드 시 Context 인스턴스 분리 문제 방지)
+  const locale = (): Locale => {
+    if (typeof window === 'undefined') return 'en';
+    return getLocaleFromPath(window.location.pathname);
+  };
   const { isOnline, wasOffline } = useOnlineStatus();
   const { state: swState } = useServiceWorker();
 
