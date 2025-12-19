@@ -19,15 +19,17 @@ export default defineConfig({
       // PWA Support - SSG optimized (100% offline)
       VitePWA({
         registerType: 'autoUpdate',
-        injectRegister: false, // Manual registration in entry-client.tsx
+        injectRegister: 'auto',
         includeAssets: ['favicon.png', 'icons/*.png', 'icons/*.svg'],
         manifest: false, // Use existing manifest.json in public/
         workbox: {
           // SSG: precache all static files
-          globPatterns: ['**/*.{html,js,css,png,svg,ico,woff,woff2,json}'],
-          // SSG doesn't need navigateFallback (all pages are precached)
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,json}'],
+          // Clean up old caches on update
           cleanupOutdatedCaches: true,
+          // Activate new SW immediately
           skipWaiting: true,
+          // Take control of all clients immediately
           clientsClaim: true,
         },
         devOptions: {

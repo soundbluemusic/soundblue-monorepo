@@ -20,7 +20,7 @@ export default defineConfig({
       // PWA Support - Enhanced offline capabilities
       VitePWA({
         registerType: 'autoUpdate',
-        injectRegister: false, // Manual registration in entry-client.tsx
+        injectRegister: 'auto',
         includeAssets: ['favicon.ico', 'icons/*.png', 'og-image.png'],
         manifest: {
           name: 'Tools',
