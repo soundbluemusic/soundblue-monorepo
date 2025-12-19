@@ -12,7 +12,7 @@ import {
   I18nProvider as SharedI18nProvider,
   useI18n as useSharedI18n,
 } from '@soundblue/shared';
-import { createMemo, type ParentComponent } from 'solid-js';
+import { createMemo, createSignal, onMount, type ParentComponent } from 'solid-js';
 import { getRequestEvent, isServer } from 'solid-js/web';
 import { type TranslationKeys, translations } from './translations';
 
@@ -43,8 +43,9 @@ export interface I18nContextType {
 
 /**
  * Get pathname from request event (SSR) or window (client)
+ * Returns consistent value for SSR/client to prevent hydration mismatch
  */
-function getPathname(): string {
+function getInitialPathname(): string {
   if (isServer) {
     try {
       const event = getRequestEvent();
@@ -73,6 +74,7 @@ function navigateTo(path: string): void {
  * I18n Provider for Dialogue app.
  *
  * Uses URL-based locale detection for SEO.
+ * Uses signal instead of memo to prevent hydration mismatch.
  *
  * @example
  * ```tsx
@@ -82,11 +84,23 @@ function navigateTo(path: string): void {
  * ```
  */
 export const I18nProvider: ParentComponent = (props) => {
-  // Create reactive pathname accessor
-  const pathname = createMemo(() => getPathname());
+  // Use signal with initial value to ensure hydration consistency
+  // SSR and initial client render both use the same initial value
+  const [pathname, setPathname] = createSignal(getInitialPathname());
+
+  // Update pathname on mount (client-side only) if different
+  onMount(() => {
+    const currentPath = window.location.pathname;
+    if (currentPath !== pathname()) {
+      setPathname(currentPath);
+    }
+  });
+
+  // Create stable accessor for SharedI18nProvider
+  const pathnameAccessor = createMemo(() => pathname());
 
   return (
-    <SharedI18nProvider messages={messages} pathname={pathname} navigate={navigateTo}>
+    <SharedI18nProvider messages={messages} pathname={pathnameAccessor} navigate={navigateTo}>
       {props.children}
     </SharedI18nProvider>
   );
