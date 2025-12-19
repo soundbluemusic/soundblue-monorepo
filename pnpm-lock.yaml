@@ -26,9 +26,15 @@ importers:
       dotenv-linter:
         specifier: ^0.2.0
         version: 0.2.0
+      husky:
+        specifier: ^9.1.7
+        version: 9.1.7
       lighthouse:
         specifier: ^13.0.1
         version: 13.0.1
+      lint-staged:
+        specifier: ^16.2.7
+        version: 16.2.7
       madge:
         specifier: ^8.0.0
         version: 8.0.0(typescript@5.9.3)

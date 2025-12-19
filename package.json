@@ -18,7 +18,8 @@
     "check:links": "pnpm exec blc ./apps/sound-blue/.output/public --recursive --exclude-external",
     "check:env": "pnpm exec dotenv-linter apps/*/.env* || true",
     "lighthouse": "pnpm exec lhci autorun",
-    "validate": "pnpm typecheck && pnpm check && pnpm test"
+    "validate": "pnpm typecheck && pnpm check && pnpm test",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
@@ -27,7 +28,9 @@
     "@size-limit/preset-app": "^12.0.0",
     "broken-link-checker": "^0.7.8",
     "dotenv-linter": "^0.2.0",
+    "husky": "^9.1.7",
     "lighthouse": "^13.0.1",
+    "lint-staged": "^16.2.7",
     "madge": "^8.0.0",
     "sharp": "^0.34.5",
     "size-limit": "^12.0.0",
