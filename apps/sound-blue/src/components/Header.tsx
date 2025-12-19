@@ -2,7 +2,7 @@ import { A } from '@solidjs/router';
 import type { JSX } from 'solid-js';
 import { useLanguage, useTheme } from '~/components/providers';
 import { ToolsIcon } from '~/constants/icons';
-import { SearchBox, ThemeIcon } from './ui';
+import { SearchBoxClient, ThemeIcon } from './ui';
 
 interface HeaderProps {
   onSidebarToggle?: () => void;
@@ -65,7 +65,7 @@ export function Header(props: HeaderProps): JSX.Element {
         </A>
 
         {/* Search */}
-        <SearchBox />
+        <SearchBoxClient />
 
         {/* Spacer */}
         <div class="flex-1" />

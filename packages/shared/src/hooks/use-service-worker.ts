@@ -71,7 +71,9 @@ export function onUpdateAvailable(listener: UpdateListener): () => void {
  * Notify listeners of available update
  */
 function notifyUpdateListeners(): void {
-  updateListeners.forEach((listener) => listener());
+  for (const listener of updateListeners) {
+    listener();
+  }
 }
 
 /** Return type for useServiceWorker hook */

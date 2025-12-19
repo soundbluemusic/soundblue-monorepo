@@ -72,7 +72,9 @@ function initOnlineStatus(): (() => void) | undefined {
  * Notify all listeners of status change
  */
 function notifyListeners(online: boolean): void {
-  listeners.forEach((listener) => listener(online));
+  for (const listener of listeners) {
+    listener(online);
+  }
 }
 
 /**

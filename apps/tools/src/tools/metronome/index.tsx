@@ -64,32 +64,36 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
 
   // Play click sound with precise timing
   const playClick = (time: number, beatNumber: number) => {
-    const ctx = getAudioContext();
+    try {
+      const ctx = getAudioContext();
 
-    const isFirst = beatNumber === 0;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+      const isFirst = beatNumber === 0;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
-    const volumeMultiplier = settings().volume / 100;
+      const volumeMultiplier = settings().volume / 100;
 
-    if (isFirst) {
-      osc.frequency.value = FREQUENCIES.ACCENT;
-      gain.gain.setValueAtTime(0.8 * volumeMultiplier, time);
-    } else {
-      osc.frequency.value = FREQUENCIES.REGULAR;
-      gain.gain.setValueAtTime(0.4 * volumeMultiplier, time);
+      if (isFirst) {
+        osc.frequency.value = FREQUENCIES.ACCENT;
+        gain.gain.setValueAtTime(0.8 * volumeMultiplier, time);
+      } else {
+        osc.frequency.value = FREQUENCIES.REGULAR;
+        gain.gain.setValueAtTime(0.4 * volumeMultiplier, time);
+      }
+
+      gain.gain.exponentialRampToValueAtTime(
+        Math.max(0.001, 0.01 * volumeMultiplier),
+        time + TIMING.CLICK_DURATION_SECONDS,
+      );
+
+      osc.start(time);
+      osc.stop(time + TIMING.CLICK_DURATION_SECONDS);
+    } catch (e) {
+      console.error('[Metronome] Audio playback failed:', e);
     }
-
-    gain.gain.exponentialRampToValueAtTime(
-      Math.max(0.001, 0.01 * volumeMultiplier),
-      time + TIMING.CLICK_DURATION_SECONDS,
-    );
-
-    osc.start(time);
-    osc.stop(time + TIMING.CLICK_DURATION_SECONDS);
   };
 
   const handleStop = () => {
@@ -109,21 +113,25 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
     if (isPlaying()) {
       handleStop();
     } else {
-      await resumeAudioContext();
-      const ctx = getAudioContext();
+      try {
+        await resumeAudioContext();
+        const ctx = getAudioContext();
 
-      // Set countdown if timer is set
-      const totalMinutes = parseInt(settings().timerMinutes, 10) || 0;
-      const totalSeconds = parseInt(settings().timerSeconds, 10) || 0;
-      const totalMs = (totalMinutes * 60 + totalSeconds) * 1000;
-      if (totalMs > 0) {
-        setCountdownTime(totalMs);
+        // Set countdown if timer is set
+        const totalMinutes = parseInt(settings().timerMinutes, 10) || 0;
+        const totalSeconds = parseInt(settings().timerSeconds, 10) || 0;
+        const totalMs = (totalMinutes * 60 + totalSeconds) * 1000;
+        if (totalMs > 0) {
+          setCountdownTime(totalMs);
+        }
+
+        startAudioTime = ctx.currentTime;
+        nextNoteTime = ctx.currentTime;
+        schedulerBeat = 0;
+        setIsPlaying(true);
+      } catch (e) {
+        console.error('[Metronome] Failed to start audio:', e);
       }
-
-      startAudioTime = ctx.currentTime;
-      nextNoteTime = ctx.currentTime;
-      schedulerBeat = 0;
-      setIsPlaying(true);
     }
   };
 
@@ -131,39 +139,44 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
   createEffect(() => {
     if (isPlaying()) {
       const animate = () => {
-        const ctx = getAudioContext();
-        if (startAudioTime === 0) {
+        try {
+          const ctx = getAudioContext();
+          if (startAudioTime === 0) {
+            animationId = requestAnimationFrame(animate);
+            return;
+          }
+
+          const currentTime = ctx.currentTime;
+          const secondsPerBeat = 60 / settings().bpm;
+          const elapsed = currentTime - startAudioTime;
+          const totalBeats = elapsed / secondsPerBeat;
+          const currentBeatIndex = Math.floor(totalBeats) % settings().beatsPerMeasure;
+          const currentMeasure = Math.floor(totalBeats / settings().beatsPerMeasure) + 1;
+
+          // Pendulum swing
+          const swingCycle = totalBeats % 2;
+          const angle =
+            swingCycle < 1
+              ? -PENDULUM.MAX_ANGLE + swingCycle * PENDULUM.SWING_RANGE
+              : PENDULUM.MAX_ANGLE - (swingCycle - 1) * PENDULUM.SWING_RANGE;
+
+          setCurrentBeat(currentBeatIndex);
+          setMeasureCount(currentMeasure);
+          setPendulumAngle(angle);
+
+          const elapsedMs = elapsed * 1000;
+          setElapsedTime(elapsedMs);
+
+          if (countdownTime() > 0 && elapsedMs >= countdownTime()) {
+            handleStop();
+            return;
+          }
+
           animationId = requestAnimationFrame(animate);
-          return;
-        }
-
-        const currentTime = ctx.currentTime;
-        const secondsPerBeat = 60 / settings().bpm;
-        const elapsed = currentTime - startAudioTime;
-        const totalBeats = elapsed / secondsPerBeat;
-        const currentBeatIndex = Math.floor(totalBeats) % settings().beatsPerMeasure;
-        const currentMeasure = Math.floor(totalBeats / settings().beatsPerMeasure) + 1;
-
-        // Pendulum swing
-        const swingCycle = totalBeats % 2;
-        const angle =
-          swingCycle < 1
-            ? -PENDULUM.MAX_ANGLE + swingCycle * PENDULUM.SWING_RANGE
-            : PENDULUM.MAX_ANGLE - (swingCycle - 1) * PENDULUM.SWING_RANGE;
-
-        setCurrentBeat(currentBeatIndex);
-        setMeasureCount(currentMeasure);
-        setPendulumAngle(angle);
-
-        const elapsedMs = elapsed * 1000;
-        setElapsedTime(elapsedMs);
-
-        if (countdownTime() > 0 && elapsedMs >= countdownTime()) {
+        } catch (e) {
+          console.error('[Metronome] Animation error:', e);
           handleStop();
-          return;
         }
-
-        animationId = requestAnimationFrame(animate);
       };
 
       animationId = requestAnimationFrame(animate);
@@ -180,13 +193,17 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
   createEffect(() => {
     if (isPlaying()) {
       const scheduleNotes = () => {
-        const ctx = getAudioContext();
-        const secondsPerBeat = 60.0 / settings().bpm;
+        try {
+          const ctx = getAudioContext();
+          const secondsPerBeat = 60.0 / settings().bpm;
 
-        while (nextNoteTime < ctx.currentTime + TIMING.LOOK_AHEAD_SECONDS) {
-          playClick(nextNoteTime, schedulerBeat);
-          nextNoteTime += secondsPerBeat;
-          schedulerBeat = (schedulerBeat + 1) % settings().beatsPerMeasure;
+          while (nextNoteTime < ctx.currentTime + TIMING.LOOK_AHEAD_SECONDS) {
+            playClick(nextNoteTime, schedulerBeat);
+            nextNoteTime += secondsPerBeat;
+            schedulerBeat = (schedulerBeat + 1) % settings().beatsPerMeasure;
+          }
+        } catch (e) {
+          console.error('[Metronome] Scheduler error:', e);
         }
       };
 

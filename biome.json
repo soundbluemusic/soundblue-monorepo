@@ -13,7 +13,8 @@
       "!**/.output",
       "!**/dist",
       "!**/*.d.ts",
-      "!**/pnpm-lock.yaml"
+      "!**/pnpm-lock.yaml",
+      "!**/*.css"
     ]
   },
   "formatter": {
@@ -34,6 +35,9 @@
       "style": {
         "noNonNullAssertion": "off",
         "useImportType": "error"
+      },
+      "complexity": {
+        "useLiteralKeys": "off"
       },
       "suspicious": {
         "noExplicitAny": "error"
@@ -56,6 +60,14 @@
       "indentWidth": 2
     }
   },
+  "css": {
+    "parser": {
+      "cssModules": true
+    },
+    "linter": {
+      "enabled": false
+    }
+  },
   "overrides": [
     {
       "includes": ["**/*.tsx"],
@@ -63,6 +75,16 @@
         "rules": {
           "correctness": {
             "useJsxKeyInIterable": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/translator/dictionary/*.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noThenProperty": "off"
           }
         }
       }
