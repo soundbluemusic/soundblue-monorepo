@@ -26,8 +26,7 @@ export const HomeLayout: Component = () => {
 
     return ALL_TOOLS.filter((tool) => {
       const nameMatch =
-        tool.name.ko.toLowerCase().includes(query) ||
-        tool.name.en.toLowerCase().includes(query);
+        tool.name.ko.toLowerCase().includes(query) || tool.name.en.toLowerCase().includes(query);
       const descMatch =
         tool.description.ko.toLowerCase().includes(query) ||
         tool.description.en.toLowerCase().includes(query);
@@ -95,7 +94,7 @@ export const HomeLayout: Component = () => {
               <div
                 class={cn(
                   'absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border bg-card p-1 shadow-lg',
-                  'animate-in fade-in-0 zoom-in-95 slide-in-from-top-2'
+                  'animate-in fade-in-0 zoom-in-95 slide-in-from-top-2',
                 )}
               >
                 <A
@@ -104,7 +103,7 @@ export const HomeLayout: Component = () => {
                   class={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
                     'text-muted-foreground transition-colors',
-                    'hover:bg-primary/10 hover:text-foreground'
+                    'hover:bg-primary/10 hover:text-foreground',
                   )}
                 >
                   <Code2 class="h-4 w-4" />
@@ -116,7 +115,7 @@ export const HomeLayout: Component = () => {
                   class={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
                     'text-muted-foreground transition-colors',
-                    'hover:bg-primary/10 hover:text-foreground'
+                    'hover:bg-primary/10 hover:text-foreground',
                   )}
                 >
                   <Info class="h-4 w-4" />
@@ -130,7 +129,7 @@ export const HomeLayout: Component = () => {
                   class={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
                     'text-muted-foreground transition-colors',
-                    'hover:bg-primary/10 hover:text-foreground'
+                    'hover:bg-primary/10 hover:text-foreground',
                   )}
                 >
                   <FileText class="h-4 w-4" />
@@ -144,11 +143,7 @@ export const HomeLayout: Component = () => {
 
       {/* Click outside to close menu */}
       <Show when={menuOpen()}>
-        <div
-          class="fixed inset-0 z-20"
-          onClick={() => setMenuOpen(false)}
-          aria-hidden="true"
-        />
+        <div class="fixed inset-0 z-20" onClick={() => setMenuOpen(false)} aria-hidden="true" />
       </Show>
 
       {/* Main Content */}
@@ -167,7 +162,7 @@ export const HomeLayout: Component = () => {
                   'w-full rounded-2xl border bg-card py-3 pl-12 pr-4',
                   'text-base placeholder:text-muted-foreground',
                   'transition-all duration-200',
-                  'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background'
+                  'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
                 )}
               />
             </div>
@@ -185,7 +180,7 @@ export const HomeLayout: Component = () => {
                     'bg-card border transition-all duration-200',
                     'hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg hover:-translate-y-1',
                     'active:scale-[0.98] active:translate-y-0',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                   )}
                 >
                   {/* Icon */}
@@ -193,7 +188,7 @@ export const HomeLayout: Component = () => {
                     class={cn(
                       'flex h-14 w-14 items-center justify-center rounded-2xl md:h-16 md:w-16',
                       'bg-primary/10 text-3xl md:text-4xl',
-                      'transition-transform duration-200 group-hover:scale-110'
+                      'transition-transform duration-200 group-hover:scale-110',
                     )}
                   >
                     {tool.icon}

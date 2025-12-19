@@ -7,8 +7,8 @@
 export {
   BREAKPOINTS,
   type BreakpointKey,
-  isBelowBreakpoint,
-  isAtOrAboveBreakpoint,
   getCurrentBreakpoint,
   getMediaQuery,
+  isAtOrAboveBreakpoint,
+  isBelowBreakpoint,
 } from './breakpoints';

@@ -20,29 +20,29 @@
  * @module handlers
  */
 
-import type { Locale } from "~/i18n";
-import { solarToLunar, formatLunarDate } from "./lunar";
-import { containsSimilarKeyword, normalizeForMatch } from "./fuzzy";
+import type { Locale } from '~/i18n';
+import { containsSimilarKeyword, normalizeForMatch } from './fuzzy';
+import { formatLunarDate, solarToLunar } from './lunar';
 import {
-  TIME_KEYWORDS,
-  DATE_KEYWORDS,
-  WEATHER_KEYWORDS,
-  GREETING_KEYWORDS,
-  THANKS_KEYWORDS,
-  BYE_KEYWORDS,
-  IDENTITY_KEYWORDS,
-  HELP_KEYWORDS,
-  MOOD_KEYWORDS,
   AGREE_KEYWORDS,
   APOLOGY_KEYWORDS,
-  COMPLIMENT_KEYWORDS,
+  BYE_KEYWORDS,
   COMFORT_KEYWORDS,
+  COMPLAINT_KEYWORDS,
+  COMPLIMENT_KEYWORDS,
   CONGRATS_KEYWORDS,
+  DATE_KEYWORDS,
   DECLINE_KEYWORDS,
+  GREETING_KEYWORDS,
+  HELP_KEYWORDS,
+  IDENTITY_KEYWORDS,
+  MOOD_KEYWORDS,
   REQUEST_KEYWORDS,
   SURPRISE_KEYWORDS,
-  COMPLAINT_KEYWORDS,
-} from "./typo-patterns";
+  THANKS_KEYWORDS,
+  TIME_KEYWORDS,
+  WEATHER_KEYWORDS,
+} from './typo-patterns';
 
 export interface DynamicResponse {
   matched: boolean;
@@ -119,19 +119,21 @@ function getTimeResponse(locale: Locale): string {
   const minutes = now.getMinutes();
   const seconds = now.getSeconds();
 
-  const timeStr = now.toLocaleTimeString(
-    locale === "ko" ? "ko-KR" : "en-US",
-    { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }
-  );
+  const timeStr = now.toLocaleTimeString(locale === 'ko' ? 'ko-KR' : 'en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
 
-  if (locale === "ko") {
-    const period = hours < 12 ? "오전" : "오후";
+  if (locale === 'ko') {
+    const period = hours < 12 ? '오전' : '오후';
     const h = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
     return `지금은 ${period} ${h}시 ${minutes}분 ${seconds}초입니다. (${timeStr})`;
   } else {
-    const period = hours < 12 ? "AM" : "PM";
+    const period = hours < 12 ? 'AM' : 'PM';
     const h = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
-    return `It's currently ${h}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")} ${period}.`;
+    return `It's currently ${h}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${period}.`;
   }
 }
 
@@ -139,18 +141,15 @@ function getTimeResponse(locale: Locale): string {
 function getDateResponse(locale: Locale): string {
   const now = new Date();
   const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "long",
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
   };
 
-  const dateStr = now.toLocaleDateString(
-    locale === "ko" ? "ko-KR" : "en-US",
-    options
-  );
+  const dateStr = now.toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US', options);
 
-  if (locale === "ko") {
+  if (locale === 'ko') {
     return `오늘은 ${dateStr}입니다.`;
   } else {
     return `Today is ${dateStr}.`;
@@ -164,16 +163,13 @@ function getLunarDateResponse(locale: Locale): string {
   const lunarStr = formatLunarDate(lunar, locale);
 
   const solarOptions: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   };
-  const solarStr = now.toLocaleDateString(
-    locale === "ko" ? "ko-KR" : "en-US",
-    solarOptions
-  );
+  const solarStr = now.toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US', solarOptions);
 
-  if (locale === "ko") {
+  if (locale === 'ko') {
     return `오늘 양력 ${solarStr}은 음력으로 ${lunarStr}입니다.`;
   } else {
     return `Today (${solarStr}) is ${lunarStr} in the lunar calendar.`;
@@ -186,7 +182,7 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
     // Get user's location
     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error("Geolocation not supported"));
+        reject(new Error('Geolocation not supported'));
         return;
       }
       navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -200,18 +196,21 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
 
     // Validate coordinates
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      throw new Error("Invalid coordinates");
+      throw new Error('Invalid coordinates');
     }
     if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-      throw new Error("Coordinates out of range");
+      throw new Error('Coordinates out of range');
     }
 
     // Fetch weather from Open-Meteo (free, no API key needed) - using URL constructor for safety
-    const weatherUrl = new URL("https://api.open-meteo.com/v1/forecast");
-    weatherUrl.searchParams.set("latitude", String(latitude));
-    weatherUrl.searchParams.set("longitude", String(longitude));
-    weatherUrl.searchParams.set("current", "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m");
-    weatherUrl.searchParams.set("timezone", "auto");
+    const weatherUrl = new URL('https://api.open-meteo.com/v1/forecast');
+    weatherUrl.searchParams.set('latitude', String(latitude));
+    weatherUrl.searchParams.set('longitude', String(longitude));
+    weatherUrl.searchParams.set(
+      'current',
+      'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m',
+    );
+    weatherUrl.searchParams.set('timezone', 'auto');
 
     const response = await fetch(weatherUrl.toString());
     if (!response.ok) throw new Error(`Weather API error: ${response.status}`);
@@ -227,38 +226,43 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
     const weatherDesc = getWeatherDescription(weatherCode, locale);
 
     // Get location name using reverse geocoding - using URL constructor for safety
-    const geoUrl = new URL("https://nominatim.openstreetmap.org/reverse");
-    geoUrl.searchParams.set("lat", String(latitude));
-    geoUrl.searchParams.set("lon", String(longitude));
-    geoUrl.searchParams.set("format", "json");
-    geoUrl.searchParams.set("accept-language", locale);
-    let locationName = "";
+    const geoUrl = new URL('https://nominatim.openstreetmap.org/reverse');
+    geoUrl.searchParams.set('lat', String(latitude));
+    geoUrl.searchParams.set('lon', String(longitude));
+    geoUrl.searchParams.set('format', 'json');
+    geoUrl.searchParams.set('accept-language', locale);
+    let locationName = '';
     try {
       const geoResponse = await fetch(geoUrl.toString());
       const geoData: NominatimResponse = await geoResponse.json();
-      locationName = geoData.address?.city || geoData.address?.town || geoData.address?.county || "";
+      locationName =
+        geoData.address?.city || geoData.address?.town || geoData.address?.county || '';
     } catch {
-      locationName = "";
+      locationName = '';
     }
 
-    if (locale === "ko") {
-      return `${locationName ? locationName + "의 " : ""}현재 날씨입니다:\n` +
+    if (locale === 'ko') {
+      return (
+        `${locationName ? locationName + '의 ' : ''}현재 날씨입니다:\n` +
         `🌡️ 기온: ${temp}°C\n` +
         `💧 습도: ${humidity}%\n` +
         `💨 바람: ${windSpeed}km/h\n` +
-        `☁️ 상태: ${weatherDesc}`;
+        `☁️ 상태: ${weatherDesc}`
+      );
     } else {
-      return `Current weather${locationName ? " in " + locationName : ""}:\n` +
+      return (
+        `Current weather${locationName ? ' in ' + locationName : ''}:\n` +
         `🌡️ Temperature: ${temp}°C\n` +
         `💧 Humidity: ${humidity}%\n` +
         `💨 Wind: ${windSpeed}km/h\n` +
-        `☁️ Condition: ${weatherDesc}`;
+        `☁️ Condition: ${weatherDesc}`
+      );
     }
   } catch (_error: unknown) {
-    if (locale === "ko") {
-      return "날씨 정보를 가져올 수 없습니다. 위치 접근 권한을 허용해주세요.";
+    if (locale === 'ko') {
+      return '날씨 정보를 가져올 수 없습니다. 위치 접근 권한을 허용해주세요.';
     } else {
-      return "Unable to get weather information. Please allow location access.";
+      return 'Unable to get weather information. Please allow location access.';
     }
   }
 }
@@ -281,16 +285,16 @@ function randomPick<T>(arr: readonly T[]): T {
 function getGreetingResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "안녕하세요! 무엇이 궁금하신가요?",
-      "반가워요! 도움이 필요하시면 말씀하세요.",
-      "안녕하세요! 무엇을 도와드릴까요?",
-      "반갑습니다! 궁금한 게 있으시면 물어보세요.",
+      '안녕하세요! 무엇이 궁금하신가요?',
+      '반가워요! 도움이 필요하시면 말씀하세요.',
+      '안녕하세요! 무엇을 도와드릴까요?',
+      '반갑습니다! 궁금한 게 있으시면 물어보세요.',
     ],
     en: [
-      "Hello! How can I help you?",
-      "Hi there! Feel free to ask anything.",
-      "Hey! What can I do for you?",
-      "Hello! What would you like to know?",
+      'Hello! How can I help you?',
+      'Hi there! Feel free to ask anything.',
+      'Hey! What can I do for you?',
+      'Hello! What would you like to know?',
     ],
   };
   return randomPick(responses[locale]);
@@ -300,14 +304,14 @@ function getGreetingResponse(locale: Locale): string {
 function getThanksResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "천만에요! 더 궁금한 거 있으시면 말씀하세요.",
-      "별말씀을요! 도움이 되었다니 기뻐요.",
-      "감사는요~ 언제든 물어보세요!",
+      '천만에요! 더 궁금한 거 있으시면 말씀하세요.',
+      '별말씀을요! 도움이 되었다니 기뻐요.',
+      '감사는요~ 언제든 물어보세요!',
     ],
     en: [
       "You're welcome! Let me know if you need anything else.",
-      "No problem! Happy to help.",
-      "Anytime! Feel free to ask more questions.",
+      'No problem! Happy to help.',
+      'Anytime! Feel free to ask more questions.',
     ],
   };
   return randomPick(responses[locale]);
@@ -317,15 +321,11 @@ function getThanksResponse(locale: Locale): string {
 function getByeResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "안녕히 가세요! 다음에 또 만나요.",
-      "잘 가요! 또 놀러 오세요~",
-      "다음에 또 봐요! 좋은 하루 되세요.",
+      '안녕히 가세요! 다음에 또 만나요.',
+      '잘 가요! 또 놀러 오세요~',
+      '다음에 또 봐요! 좋은 하루 되세요.',
     ],
-    en: [
-      "Goodbye! See you next time.",
-      "Bye! Come back anytime.",
-      "Take care! Have a great day.",
-    ],
+    en: ['Goodbye! See you next time.', 'Bye! Come back anytime.', 'Take care! Have a great day.'],
   };
   return randomPick(responses[locale]);
 }
@@ -334,9 +334,9 @@ function getByeResponse(locale: Locale): string {
 function getIdentityResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "저는 Dialogue예요! 오프라인에서도 작동하는 Q&A 도우미입니다. 시간, 날짜, 날씨 등을 물어보세요!",
-      "Dialogue라고 해요! 인터넷 없이도 사용할 수 있는 대화형 도우미예요.",
-      "저는 Dialogue! 간단한 질문에 답변해 드리는 오프라인 도우미입니다.",
+      '저는 Dialogue예요! 오프라인에서도 작동하는 Q&A 도우미입니다. 시간, 날짜, 날씨 등을 물어보세요!',
+      'Dialogue라고 해요! 인터넷 없이도 사용할 수 있는 대화형 도우미예요.',
+      '저는 Dialogue! 간단한 질문에 답변해 드리는 오프라인 도우미입니다.',
     ],
     en: [
       "I'm Dialogue! An offline Q&A assistant. You can ask me about time, date, weather, and more!",
@@ -351,7 +351,7 @@ function getIdentityResponse(locale: Locale): string {
 function getHelpResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "저한테 이런 걸 물어볼 수 있어요:\n• 지금 몇 시야?\n• 오늘 며칠이야?\n• 날씨 어때?\n• 오늘 음력으로 며칠이야?\n\n언제든 질문하세요!",
+      '저한테 이런 걸 물어볼 수 있어요:\n• 지금 몇 시야?\n• 오늘 며칠이야?\n• 날씨 어때?\n• 오늘 음력으로 며칠이야?\n\n언제든 질문하세요!',
     ],
     en: [
       "You can ask me things like:\n• What time is it?\n• What's today's date?\n• How's the weather?\n• What's today in lunar calendar?\n\nFeel free to ask!",
@@ -364,13 +364,13 @@ function getHelpResponse(locale: Locale): string {
 function getMoodResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "저는 잘 지내고 있어요! 도움이 필요하시면 말씀하세요.",
-      "좋아요! 오늘도 열심히 답변할 준비가 되어 있어요.",
-      "괜찮아요! 뭐가 궁금하세요?",
+      '저는 잘 지내고 있어요! 도움이 필요하시면 말씀하세요.',
+      '좋아요! 오늘도 열심히 답변할 준비가 되어 있어요.',
+      '괜찮아요! 뭐가 궁금하세요?',
     ],
     en: [
       "I'm doing great! Let me know if you need any help.",
-      "All good here! Ready to answer your questions.",
+      'All good here! Ready to answer your questions.',
       "I'm fine! What can I help you with?",
     ],
   };
@@ -381,14 +381,14 @@ function getMoodResponse(locale: Locale): string {
 function getAgreeResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "네! 더 궁금한 거 있으세요?",
-      "알겠어요! 또 물어보실 거 있으면 말씀하세요.",
-      "좋아요! 다른 질문 있으시면 언제든지요.",
+      '네! 더 궁금한 거 있으세요?',
+      '알겠어요! 또 물어보실 거 있으면 말씀하세요.',
+      '좋아요! 다른 질문 있으시면 언제든지요.',
     ],
     en: [
       "Got it! Anything else you'd like to know?",
-      "Alright! Let me know if you have more questions.",
-      "Okay! Feel free to ask anything else.",
+      'Alright! Let me know if you have more questions.',
+      'Okay! Feel free to ask anything else.',
     ],
   };
   return randomPick(responses[locale]);
@@ -398,12 +398,12 @@ function getAgreeResponse(locale: Locale): string {
 function getApologyResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "괜찮아요! 사과할 일 아니에요.",
-      "아니에요, 전혀요! 신경 쓰지 마세요.",
-      "괜찮습니다! 무엇을 도와드릴까요?",
+      '괜찮아요! 사과할 일 아니에요.',
+      '아니에요, 전혀요! 신경 쓰지 마세요.',
+      '괜찮습니다! 무엇을 도와드릴까요?',
     ],
     en: [
-      "No worries! Nothing to apologize for.",
+      'No worries! Nothing to apologize for.',
       "It's okay! Don't worry about it.",
       "That's alright! How can I help you?",
     ],
@@ -415,14 +415,14 @@ function getApologyResponse(locale: Locale): string {
 function getComplimentResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "감사합니다! 칭찬해주셔서 기뻐요.",
-      "고마워요! 더 열심히 할게요.",
-      "와, 감사해요! 도움이 되었다니 보람있네요.",
+      '감사합니다! 칭찬해주셔서 기뻐요.',
+      '고마워요! 더 열심히 할게요.',
+      '와, 감사해요! 도움이 되었다니 보람있네요.',
     ],
     en: [
-      "Thank you! That means a lot.",
-      "Thanks! I appreciate the kind words.",
-      "Wow, thanks! Happy I could help.",
+      'Thank you! That means a lot.',
+      'Thanks! I appreciate the kind words.',
+      'Wow, thanks! Happy I could help.',
     ],
   };
   return randomPick(responses[locale]);
@@ -432,12 +432,12 @@ function getComplimentResponse(locale: Locale): string {
 function getComfortResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "힘내세요! 잘 될 거예요.",
-      "괜찮아요, 다 잘 될 거예요. 언제든 이야기해요.",
-      "힘들 땐 쉬어가도 괜찮아요. 응원할게요!",
+      '힘내세요! 잘 될 거예요.',
+      '괜찮아요, 다 잘 될 거예요. 언제든 이야기해요.',
+      '힘들 땐 쉬어가도 괜찮아요. 응원할게요!',
     ],
     en: [
-      "Hang in there! Things will get better.",
+      'Hang in there! Things will get better.',
       "It's okay, you got this! I'm here if you need to talk.",
       "Take it easy. I'm rooting for you!",
     ],
@@ -449,14 +449,14 @@ function getComfortResponse(locale: Locale): string {
 function getCongratsResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "축하해주셔서 감사합니다! 🎉",
-      "와, 고마워요! 정말 기쁘네요.",
-      "감사합니다! 좋은 소식이에요!",
+      '축하해주셔서 감사합니다! 🎉',
+      '와, 고마워요! 정말 기쁘네요.',
+      '감사합니다! 좋은 소식이에요!',
     ],
     en: [
-      "Thanks for the congrats! 🎉",
+      'Thanks for the congrats! 🎉',
       "Wow, thank you! That's so kind.",
-      "Thanks! Great news indeed!",
+      'Thanks! Great news indeed!',
     ],
   };
   return randomPick(responses[locale]);
@@ -466,13 +466,13 @@ function getCongratsResponse(locale: Locale): string {
 function getDeclineResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "알겠어요! 필요하시면 언제든 말씀하세요.",
-      "네, 괜찮아요! 다른 게 필요하면 불러주세요.",
-      "알겠습니다! 다음에 도움이 필요하시면 말씀해주세요.",
+      '알겠어요! 필요하시면 언제든 말씀하세요.',
+      '네, 괜찮아요! 다른 게 필요하면 불러주세요.',
+      '알겠습니다! 다음에 도움이 필요하시면 말씀해주세요.',
     ],
     en: [
-      "Got it! Let me know if you need anything later.",
-      "Okay! Feel free to reach out anytime.",
+      'Got it! Let me know if you need anything later.',
+      'Okay! Feel free to reach out anytime.',
       "Understood! I'm here if you change your mind.",
     ],
   };
@@ -483,13 +483,13 @@ function getDeclineResponse(locale: Locale): string {
 function getRequestResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "물론이죠! 무엇을 도와드릴까요?",
-      "네, 말씀하세요! 최선을 다해 도와드릴게요.",
-      "도와드릴게요! 어떤 게 필요하세요?",
+      '물론이죠! 무엇을 도와드릴까요?',
+      '네, 말씀하세요! 최선을 다해 도와드릴게요.',
+      '도와드릴게요! 어떤 게 필요하세요?',
     ],
     en: [
-      "Of course! What do you need help with?",
-      "Sure thing! Tell me what you need.",
+      'Of course! What do you need help with?',
+      'Sure thing! Tell me what you need.',
       "I'd be happy to help! What can I do for you?",
     ],
   };
@@ -499,11 +499,7 @@ function getRequestResponse(locale: Locale): string {
 // Surprise response generator
 function getSurpriseResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
-    ko: [
-      "그러게요! 놀랍죠?",
-      "맞아요, 저도 놀랐어요!",
-      "와, 정말요? 대단하네요!",
-    ],
+    ko: ['그러게요! 놀랍죠?', '맞아요, 저도 놀랐어요!', '와, 정말요? 대단하네요!'],
     en: [
       "I know right! Surprising, isn't it?",
       "Yes, that's quite something!",
@@ -517,12 +513,12 @@ function getSurpriseResponse(locale: Locale): string {
 function getComplaintResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "아이고, 속상하셨겠어요. 괜찮으세요?",
-      "그럴 수 있어요. 잠시 쉬어가는 건 어때요?",
-      "힘드시죠... 뭐든 이야기해주세요.",
+      '아이고, 속상하셨겠어요. 괜찮으세요?',
+      '그럴 수 있어요. 잠시 쉬어가는 건 어때요?',
+      '힘드시죠... 뭐든 이야기해주세요.',
     ],
     en: [
-      "I hear you. That sounds frustrating.",
+      'I hear you. That sounds frustrating.',
       "That's understandable. Want to talk about it?",
       "I'm sorry to hear that. How can I help?",
     ],
@@ -534,50 +530,50 @@ function getComplaintResponse(locale: Locale): string {
 function getWeatherDescription(code: number, locale: Locale): string {
   const descriptions: Record<string, Record<number, string>> = {
     ko: {
-      0: "맑음 ☀️",
-      1: "대체로 맑음 🌤️",
-      2: "약간 흐림 ⛅",
-      3: "흐림 ☁️",
-      45: "안개 🌫️",
-      48: "안개 (서리) 🌫️",
-      51: "이슬비 🌧️",
-      53: "이슬비 🌧️",
-      55: "이슬비 🌧️",
-      61: "약한 비 🌧️",
-      63: "비 🌧️",
-      65: "강한 비 🌧️",
-      71: "약한 눈 🌨️",
-      73: "눈 🌨️",
-      75: "강한 눈 🌨️",
-      80: "소나기 🌧️",
-      81: "소나기 🌧️",
-      82: "강한 소나기 🌧️",
-      95: "뇌우 ⛈️",
-      96: "뇌우 (우박) ⛈️",
-      99: "뇌우 (강한 우박) ⛈️",
+      0: '맑음 ☀️',
+      1: '대체로 맑음 🌤️',
+      2: '약간 흐림 ⛅',
+      3: '흐림 ☁️',
+      45: '안개 🌫️',
+      48: '안개 (서리) 🌫️',
+      51: '이슬비 🌧️',
+      53: '이슬비 🌧️',
+      55: '이슬비 🌧️',
+      61: '약한 비 🌧️',
+      63: '비 🌧️',
+      65: '강한 비 🌧️',
+      71: '약한 눈 🌨️',
+      73: '눈 🌨️',
+      75: '강한 눈 🌨️',
+      80: '소나기 🌧️',
+      81: '소나기 🌧️',
+      82: '강한 소나기 🌧️',
+      95: '뇌우 ⛈️',
+      96: '뇌우 (우박) ⛈️',
+      99: '뇌우 (강한 우박) ⛈️',
     },
     en: {
-      0: "Clear sky ☀️",
-      1: "Mainly clear 🌤️",
-      2: "Partly cloudy ⛅",
-      3: "Overcast ☁️",
-      45: "Fog 🌫️",
-      48: "Depositing rime fog 🌫️",
-      51: "Light drizzle 🌧️",
-      53: "Moderate drizzle 🌧️",
-      55: "Dense drizzle 🌧️",
-      61: "Light rain 🌧️",
-      63: "Moderate rain 🌧️",
-      65: "Heavy rain 🌧️",
-      71: "Light snow 🌨️",
-      73: "Moderate snow 🌨️",
-      75: "Heavy snow 🌨️",
-      80: "Light showers 🌧️",
-      81: "Moderate showers 🌧️",
-      82: "Violent showers 🌧️",
-      95: "Thunderstorm ⛈️",
-      96: "Thunderstorm with hail ⛈️",
-      99: "Thunderstorm with heavy hail ⛈️",
+      0: 'Clear sky ☀️',
+      1: 'Mainly clear 🌤️',
+      2: 'Partly cloudy ⛅',
+      3: 'Overcast ☁️',
+      45: 'Fog 🌫️',
+      48: 'Depositing rime fog 🌫️',
+      51: 'Light drizzle 🌧️',
+      53: 'Moderate drizzle 🌧️',
+      55: 'Dense drizzle 🌧️',
+      61: 'Light rain 🌧️',
+      63: 'Moderate rain 🌧️',
+      65: 'Heavy rain 🌧️',
+      71: 'Light snow 🌨️',
+      73: 'Moderate snow 🌨️',
+      75: 'Heavy snow 🌨️',
+      80: 'Light showers 🌧️',
+      81: 'Moderate showers 🌧️',
+      82: 'Violent showers 🌧️',
+      95: 'Thunderstorm ⛈️',
+      96: 'Thunderstorm with hail ⛈️',
+      99: 'Thunderstorm with heavy hail ⛈️',
     },
   };
 
@@ -794,10 +790,10 @@ export function handleDynamicQuery(query: string, locale: Locale): DynamicRespon
 export function getFallbackResponse(locale: Locale): string {
   const responses: Record<Locale, string[]> = {
     ko: [
-      "음... 잘 모르겠어요. 다르게 물어봐 주시겠어요?",
-      "그건 제가 아직 모르는 내용이에요. 다른 질문 있으신가요?",
-      "죄송해요, 이해하지 못했어요. 다시 한번 말씀해 주세요.",
-      "흠, 그건 잘 모르겠네요. 시간, 날씨, 날짜 같은 걸 물어보시면 잘 답해드릴 수 있어요!",
+      '음... 잘 모르겠어요. 다르게 물어봐 주시겠어요?',
+      '그건 제가 아직 모르는 내용이에요. 다른 질문 있으신가요?',
+      '죄송해요, 이해하지 못했어요. 다시 한번 말씀해 주세요.',
+      '흠, 그건 잘 모르겠네요. 시간, 날씨, 날짜 같은 걸 물어보시면 잘 답해드릴 수 있어요!',
     ],
     en: [
       "Hmm... I'm not sure about that. Could you ask differently?",

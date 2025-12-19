@@ -2,20 +2,19 @@
  * @fileoverview Hooks barrel export
  */
 
-export { useViewTransitionNavigate } from './useViewTransitionNavigate';
-
 // Re-export PWA hooks from shared
 export {
+  checkForUpdates,
+  getOnlineStatus,
+  getServiceWorkerState,
+  type OnlineStatus,
+  onOnlineStatusChange,
+  onUpdateAvailable,
+  type ServiceWorkerState,
+  skipWaiting,
+  type UseOnlineStatusReturn,
+  type UseServiceWorkerReturn,
   useOnlineStatus,
   useServiceWorker,
-  skipWaiting,
-  checkForUpdates,
-  onUpdateAvailable,
-  getServiceWorkerState,
-  onOnlineStatusChange,
-  getOnlineStatus,
-  type OnlineStatus,
-  type UseOnlineStatusReturn,
-  type ServiceWorkerState,
-  type UseServiceWorkerReturn,
 } from '@soundblue/shared';
+export { useViewTransitionNavigate } from './useViewTransitionNavigate';

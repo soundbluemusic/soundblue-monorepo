@@ -8,7 +8,9 @@ test.describe('Mobile Optimality Tests', () => {
     await page.waitForLoadState('networkidle');
 
     // Get all interactive elements
-    const interactiveElements = await page.locator('a, button, [role="button"], input, select, textarea').all();
+    const interactiveElements = await page
+      .locator('a, button, [role="button"], input, select, textarea')
+      .all();
 
     for (const element of interactiveElements) {
       const isVisible = await element.isVisible();
@@ -30,7 +32,9 @@ test.describe('Mobile Optimality Tests', () => {
         const identifier = ariaLabel || text?.trim().slice(0, 30) || 'unknown';
 
         // For now, just log a warning - can be made stricter later
-        console.warn(`Touch target warning: "${identifier}" is ${width.toFixed(0)}x${height.toFixed(0)}px (recommended: ${minSize}x${minSize}px)`);
+        console.warn(
+          `Touch target warning: "${identifier}" is ${width.toFixed(0)}x${height.toFixed(0)}px (recommended: ${minSize}x${minSize}px)`,
+        );
       }
     }
   });
@@ -64,7 +68,9 @@ test.describe('Mobile Optimality Tests', () => {
       // Main body text should be at least 16px
       if (fontSize < 12) {
         const text = await element.textContent();
-        console.warn(`Small text warning: "${text?.trim().slice(0, 30)}" has font-size ${fontSize}px`);
+        console.warn(
+          `Small text warning: "${text?.trim().slice(0, 30)}" has font-size ${fontSize}px`,
+        );
       }
     }
   });

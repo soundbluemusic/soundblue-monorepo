@@ -1,10 +1,10 @@
-import { A, useLocation, useNavigate } from "@solidjs/router";
-import type { Component } from "solid-js";
-import { Show } from "solid-js";
-import { useI18n } from "~/i18n";
-import type { Locale } from "~/i18n";
-import { useTheme } from "~/theme";
-import { uiActions, uiStore } from "~/stores/ui-store";
+import { A, useLocation, useNavigate } from '@solidjs/router';
+import type { Component } from 'solid-js';
+import { Show } from 'solid-js';
+import type { Locale } from '~/i18n';
+import { useI18n } from '~/i18n';
+import { uiActions, uiStore } from '~/stores/ui-store';
+import { useTheme } from '~/theme';
 
 // ========================================
 // Header Component - 헤더
@@ -16,9 +16,9 @@ export const Header: Component = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isAboutPage = () => location.pathname.includes("/about");
+  const isAboutPage = () => location.pathname.includes('/about');
 
-  const getHomePath = () => (locale() === "en" ? "/" : `/${locale()}`);
+  const getHomePath = () => (locale() === 'en' ? '/' : `/${locale()}`);
 
   const toggleMobileSidebar = () => {
     uiActions.setSidebarOpen(!uiStore.sidebarOpen);
@@ -28,8 +28,8 @@ export const Header: Component = () => {
   const getPathWithoutLocale = () => {
     const pathname = location.pathname;
     // Remove /ko prefix if exists
-    if (pathname.startsWith("/ko")) {
-      return pathname.slice(3) || "/";
+    if (pathname.startsWith('/ko')) {
+      return pathname.slice(3) || '/';
     }
     return pathname;
   };
@@ -37,18 +37,18 @@ export const Header: Component = () => {
   // Build path with new locale
   const buildLocalizedPath = (newLocale: Locale) => {
     const basePath = getPathWithoutLocale();
-    if (newLocale === "en") {
+    if (newLocale === 'en') {
       return basePath;
     }
     // For ko, prepend the locale
-    if (basePath === "/") {
+    if (basePath === '/') {
       return `/${newLocale}`;
     }
     return `/${newLocale}${basePath}`;
   };
 
   const cycleLanguage = () => {
-    const langs: Locale[] = ["en", "ko"];
+    const langs: Locale[] = ['en', 'ko'];
     const currentLocale = locale();
     if (!currentLocale) return;
     const currentIndex = langs.indexOf(currentLocale);
@@ -95,9 +95,9 @@ export const Header: Component = () => {
           type="button"
           onClick={toggleTheme}
           class="w-8 h-8 flex items-center justify-center rounded-[--radius-sm] text-text-secondary transition-all duration-200 hover:bg-accent-light hover:text-accent"
-          aria-label={theme() === "dark" ? t.lightMode : t.darkMode}
+          aria-label={theme() === 'dark' ? t.lightMode : t.darkMode}
         >
-          <Show when={theme() === "dark"} fallback={<MoonIcon />}>
+          <Show when={theme() === 'dark'} fallback={<MoonIcon />}>
             <SunIcon />
           </Show>
         </button>
@@ -110,7 +110,7 @@ export const Header: Component = () => {
           aria-label="Change language"
         >
           <GlobeIcon />
-          <span>{(locale() ?? "en").toUpperCase()}</span>
+          <span>{(locale() ?? 'en').toUpperCase()}</span>
         </button>
 
         {/* Offline Badge */}

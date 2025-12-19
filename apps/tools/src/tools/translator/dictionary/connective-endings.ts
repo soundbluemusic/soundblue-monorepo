@@ -112,7 +112,7 @@ export const connectiveEndings: Record<string, ConnectiveEndingInfo> = {
  * 연결어미 목록 (길이순 정렬 - 긴 것부터 매칭)
  */
 export const connectiveEndingList = Object.keys(connectiveEndings).sort(
-  (a, b) => b.length - a.length
+  (a, b) => b.length - a.length,
 );
 
 /**
@@ -150,7 +150,7 @@ const CONNECTIVE_ENDING_EXCLUSIONS = new Set([
  * @returns 어간과 연결어미 정보, 없으면 null
  */
 export function extractConnectiveEnding(
-  word: string
+  word: string,
 ): { stem: string; ending: string; info: ConnectiveEndingInfo } | null {
   // 제외 단어 체크
   if (CONNECTIVE_ENDING_EXCLUSIONS.has(word)) {

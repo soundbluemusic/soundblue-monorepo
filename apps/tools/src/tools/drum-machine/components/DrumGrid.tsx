@@ -112,7 +112,7 @@ export function DrumGrid(props: DrumGridProps) {
     y: number,
     width: number,
     height: number,
-    radius: number
+    radius: number,
   ) => {
     context.beginPath();
     context.moveTo(x + radius, y);
@@ -182,7 +182,7 @@ export function DrumGrid(props: DrumGridProps) {
     y: number,
     isActive: boolean,
     isCurrentStep: boolean,
-    drumColor: string
+    drumColor: string,
   ) => {
     const cellSize = getCellSize();
 

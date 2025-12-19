@@ -1,18 +1,19 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.9/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
   },
   "files": {
-    "ignore": [
-      "**/node_modules",
-      "**/.vinxi",
-      "**/.output",
-      "**/dist",
-      "**/*.d.ts",
-      "**/pnpm-lock.yaml"
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/.vinxi",
+      "!**/.output",
+      "!**/dist",
+      "!**/*.d.ts",
+      "!**/pnpm-lock.yaml"
     ]
   },
   "formatter": {

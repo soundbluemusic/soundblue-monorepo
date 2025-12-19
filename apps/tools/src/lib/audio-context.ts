@@ -54,7 +54,7 @@ export function getAudioContextState(): AudioContextState | null {
  * Returns unsubscribe function
  */
 export function onAudioContextStateChange(
-  callback: (state: AudioContextState) => void
+  callback: (state: AudioContextState) => void,
 ): () => void {
   stateChangeCallbacks.add(callback);
   return () => stateChangeCallbacks.delete(callback);

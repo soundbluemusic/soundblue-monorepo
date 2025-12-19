@@ -161,10 +161,10 @@ async function main(): Promise<void> {
     console.log('\n📈 Total Savings:');
     console.log(`   Original: ${formatSize(totalOriginal)}`);
     console.log(
-      `   WebP:     ${formatSize(totalWebp)} (${(((totalOriginal - totalWebp) / totalOriginal) * 100).toFixed(1)}% saved)`
+      `   WebP:     ${formatSize(totalWebp)} (${(((totalOriginal - totalWebp) / totalOriginal) * 100).toFixed(1)}% saved)`,
     );
     console.log(
-      `   AVIF:     ${formatSize(totalAvif)} (${(((totalOriginal - totalAvif) / totalOriginal) * 100).toFixed(1)}% saved)`
+      `   AVIF:     ${formatSize(totalAvif)} (${(((totalOriginal - totalAvif) / totalOriginal) * 100).toFixed(1)}% saved)`,
     );
   } else {
     console.log('No images processed.');

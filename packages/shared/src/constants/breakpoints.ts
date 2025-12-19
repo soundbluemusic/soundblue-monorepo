@@ -117,10 +117,7 @@ export function getCurrentBreakpoint(): 'sm' | 'md' | 'lg' | 'xl' | '2xl' {
  * // '(max-width: 767px)'
  * ```
  */
-export function getMediaQuery(
-  breakpoint: BreakpointKey,
-  type: 'min' | 'max' = 'min',
-): string {
+export function getMediaQuery(breakpoint: BreakpointKey, type: 'min' | 'max' = 'min'): string {
   const value = BREAKPOINTS[breakpoint];
   if (type === 'max') {
     return `(max-width: ${value - 1}px)`;

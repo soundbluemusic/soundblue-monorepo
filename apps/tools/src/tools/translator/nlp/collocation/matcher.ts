@@ -3,7 +3,7 @@
 // 한국어 문장에서 연어 패턴 탐지
 // ========================================
 
-import { collocationIndex, type Collocation } from './collocation-dict';
+import { type Collocation, collocationIndex } from './collocation-dict';
 
 /**
  * 연어 매칭 결과
@@ -503,7 +503,7 @@ export function findVerbObjectCollocations(tokens: string[], maxGap = 3): VerbOb
       if (!verbStems.includes(verbStem)) {
         // 부분 매칭 시도 (어간의 앞부분만 일치하는 경우)
         const matchedStem = verbStems.find(
-          (vs) => verbStem.startsWith(vs) || vs.startsWith(verbStem)
+          (vs) => verbStem.startsWith(vs) || vs.startsWith(verbStem),
         );
         if (!matchedStem) continue;
 

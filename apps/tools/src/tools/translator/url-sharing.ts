@@ -137,9 +137,7 @@ export function canShareText(text: string): boolean {
 /**
  * 텍스트 길이 경고 레벨
  */
-export function getTextLengthWarning(
-  text: string
-): 'safe' | 'warning' | 'danger' {
+export function getTextLengthWarning(text: string): 'safe' | 'warning' | 'danger' {
   const len = text.length;
   if (len <= 300) return 'safe';
   if (len <= 500) return 'warning';

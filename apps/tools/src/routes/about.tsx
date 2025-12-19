@@ -1,8 +1,8 @@
 import { Link, Meta, Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
+import { Footer } from '@soundblue/shared';
 import { Activity, Drum, Languages, QrCode } from 'lucide-solid';
 import type { Component, JSX } from 'solid-js';
-import { Footer } from '@soundblue/shared';
 import { Header } from '~/components/layout/Header';
 import { useLanguage } from '~/i18n';
 

@@ -1,5 +1,5 @@
-import type { Component } from "solid-js";
-import { useI18n } from "~/i18n";
+import type { Component } from 'solid-js';
+import { useI18n } from '~/i18n';
 
 interface HeaderProps {
   onMenuClick: () => void;

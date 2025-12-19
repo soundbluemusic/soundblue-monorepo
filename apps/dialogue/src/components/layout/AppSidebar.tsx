@@ -1,21 +1,22 @@
-import { A, useNavigate, useLocation } from "@solidjs/router";
-import type { Component } from "solid-js";
-import { Show, For, createSignal, onMount } from "solid-js";
-import { useI18n } from "~/i18n";
-import type { Locale } from "~/i18n";
-import { useTheme } from "~/theme";
-import { uiActions, uiStore } from "~/stores/ui-store";
-import { chatStore, chatActions } from "~/stores/chat-store";
-import type { Conversation } from "~/stores/chat-store";
+import { A, useLocation, useNavigate } from '@solidjs/router';
+import type { Component } from 'solid-js';
+import { createSignal, For, onMount, Show } from 'solid-js';
+import type { Locale } from '~/i18n';
+import { useI18n } from '~/i18n';
+import type { Conversation } from '~/stores/chat-store';
+import { chatActions, chatStore } from '~/stores/chat-store';
+import { uiActions, uiStore } from '~/stores/ui-store';
+import { useTheme } from '~/theme';
 
 // ========================================
 // AppSidebar Component - 메인 사이드바
 // ========================================
 
 // Style constants
-const HOVER_STYLES = "hover:bg-accent-light hover:text-accent";
-const ACTIVE_STYLES = "active:scale-95";
-const FOCUS_STYLES = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1";
+const HOVER_STYLES = 'hover:bg-accent-light hover:text-accent';
+const ACTIVE_STYLES = 'active:scale-95';
+const FOCUS_STYLES =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1';
 const MENU_ITEM_CLASS = `flex w-full items-center gap-3 rounded-[--radius-sm] px-3 py-2 text-sm transition-all duration-200 ${HOVER_STYLES} ${FOCUS_STYLES}`;
 
 interface AppSidebarProps {
@@ -37,15 +38,15 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
   });
 
   const languages: { code: Locale; label: string; flag: string }[] = [
-    { code: "en", label: "English", flag: "EN" },
-    { code: "ko", label: "한국어", flag: "KO" },
+    { code: 'en', label: 'English', flag: 'EN' },
+    { code: 'ko', label: '한국어', flag: 'KO' },
   ];
 
   // Get current path without language prefix
   const getPathWithoutLocale = () => {
     const pathname = location.pathname;
-    if (pathname.startsWith("/ko")) {
-      return pathname.slice(3) || "/";
+    if (pathname.startsWith('/ko')) {
+      return pathname.slice(3) || '/';
     }
     return pathname;
   };
@@ -53,10 +54,10 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
   // Build path with new locale
   const buildLocalizedPath = (newLocale: Locale) => {
     const basePath = getPathWithoutLocale();
-    if (newLocale === "en") {
+    if (newLocale === 'en') {
       return basePath;
     }
-    if (basePath === "/") {
+    if (basePath === '/') {
       return `/${newLocale}`;
     }
     return `/${newLocale}${basePath}`;
@@ -68,7 +69,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
     navigate(newPath, { replace: true });
   };
 
-  const getAboutUrl = () => (locale() === "en" ? "/about" : `/${locale()}/about`);
+  const getAboutUrl = () => (locale() === 'en' ? '/about' : `/${locale()}/about`);
 
   const toggleCollapse = () => {
     uiActions.toggleSidebarCollapse();
@@ -76,7 +77,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
 
   const handleLoadConversation = (conv: Conversation) => {
     // Navigate to conversation URL (this will trigger loadConversation via route effect)
-    const basePath = locale() === "en" ? `/c/${conv.id}` : `/${locale()}/c/${conv.id}`;
+    const basePath = locale() === 'en' ? `/c/${conv.id}` : `/${locale()}/c/${conv.id}`;
     navigate(basePath);
     props.onLoadConversation?.();
   };
@@ -93,27 +94,27 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
-      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } else if (diffDays < 7) {
-      return date.toLocaleDateString([], { weekday: "short" });
+      return date.toLocaleDateString([], { weekday: 'short' });
     }
-    return date.toLocaleDateString([], { month: "short", day: "numeric" });
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
   return (
     <aside
       class="flex h-full flex-col border-r border-border bg-bg-secondary transition-all duration-200"
       classList={{
-        "w-14": isCollapsed(),
-        "w-52": !isCollapsed(),
+        'w-14': isCollapsed(),
+        'w-52': !isCollapsed(),
       }}
     >
       {/* Header */}
       <div
         class="flex items-center border-b border-border px-3 py-3"
         classList={{
-          "justify-center": isCollapsed(),
-          "justify-between": !isCollapsed(),
+          'justify-center': isCollapsed(),
+          'justify-between': !isCollapsed(),
         }}
       >
         <Show when={!isCollapsed()}>
@@ -123,7 +124,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
           type="button"
           onClick={toggleCollapse}
           class={`p-1.5 rounded-[--radius-sm] transition-all duration-200 text-text-secondary ${HOVER_STYLES} ${ACTIVE_STYLES} ${FOCUS_STYLES}`}
-          aria-label={isCollapsed() ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <Show when={isCollapsed()} fallback={<PanelLeftCloseIcon />}>
             <PanelLeftOpenIcon />
@@ -138,7 +139,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
           type="button"
           onClick={props.onNewChat}
           class="w-full flex items-center gap-3 px-3 py-2.5 bg-accent text-white rounded-[--radius-sm] text-sm font-medium transition-all duration-200 hover:bg-accent-hover active:scale-[0.98]"
-          classList={{ "justify-center": isCollapsed() }}
+          classList={{ 'justify-center': isCollapsed() }}
           title={isCollapsed() ? t.newChat : undefined}
         >
           <PlusIcon />
@@ -153,9 +154,10 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
           onClick={() => chatActions.toggleGhostMode()}
           class="w-full flex items-center gap-3 px-3 py-2 rounded-[--radius-sm] text-sm transition-all duration-200"
           classList={{
-            "justify-center": isCollapsed(),
-            "bg-purple-500/20 text-purple-400": chatStore.ghostMode,
-            "bg-bg-tertiary text-text-secondary hover:bg-accent-light hover:text-accent": !chatStore.ghostMode,
+            'justify-center': isCollapsed(),
+            'bg-purple-500/20 text-purple-400': chatStore.ghostMode,
+            'bg-bg-tertiary text-text-secondary hover:bg-accent-light hover:text-accent':
+              !chatStore.ghostMode,
           }}
           title={isCollapsed() ? t.ghostMode : undefined}
         >
@@ -179,9 +181,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
             <Show
               when={chatStore.conversations.length > 0}
               fallback={
-                <div class="px-3 py-4 text-xs text-text-muted text-center">
-                  {t.noHistory}
-                </div>
+                <div class="px-3 py-4 text-xs text-text-muted text-center">{t.noHistory}</div>
               }
             >
               <div class="flex flex-col gap-1">
@@ -191,28 +191,24 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
                       role="button"
                       tabIndex={0}
                       onClick={() => handleLoadConversation(conv)}
-                      onKeyDown={(e) => e.key === "Enter" && handleLoadConversation(conv)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleLoadConversation(conv)}
                       class={`${MENU_ITEM_CLASS} group cursor-pointer`}
                       classList={{
-                        "bg-accent-light text-accent": chatStore.activeConversationId === conv.id,
-                        "text-text-secondary": chatStore.activeConversationId !== conv.id,
+                        'bg-accent-light text-accent': chatStore.activeConversationId === conv.id,
+                        'text-text-secondary': chatStore.activeConversationId !== conv.id,
                       }}
                     >
                       <ChatIcon />
                       <div class="flex-1 text-left overflow-hidden">
-                        <div class="truncate text-sm">
-                          {conv.title || t.untitled}
-                        </div>
-                        <div class="text-xs text-text-muted">
-                          {formatDate(conv.updatedAt)}
-                        </div>
+                        <div class="truncate text-sm">{conv.title || t.untitled}</div>
+                        <div class="text-xs text-text-muted">{formatDate(conv.updatedAt)}</div>
                       </div>
                       <div
                         role="button"
                         tabIndex={0}
                         onClick={(e) => handleDeleteConversation(e, conv.id)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") {
+                          if (e.key === 'Enter') {
                             e.stopPropagation();
                             chatActions.deleteConversation(conv.id);
                           }
@@ -256,18 +252,14 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
         <Show when={moreExpanded() && !isCollapsed()}>
           <div class="px-2 pb-2 space-y-2">
             {/* Theme Toggle */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              class={`${MENU_ITEM_CLASS} bg-bg-tertiary`}
-            >
+            <button type="button" onClick={toggleTheme} class={`${MENU_ITEM_CLASS} bg-bg-tertiary`}>
               <span class="text-accent">
-                <Show when={theme() === "dark"} fallback={<SunIcon />}>
+                <Show when={theme() === 'dark'} fallback={<SunIcon />}>
                   <MoonIcon />
                 </Show>
               </span>
               <span class="flex-1 text-left text-text-primary">
-                {theme() === "dark" ? t.darkMode : t.lightMode}
+                {theme() === 'dark' ? t.darkMode : t.lightMode}
               </span>
             </button>
 
@@ -279,16 +271,16 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
                     type="button"
                     class={`${MENU_ITEM_CLASS}`}
                     classList={{
-                      "bg-accent-light text-accent": locale() === lang.code,
-                      "text-text-secondary": locale() !== lang.code,
+                      'bg-accent-light text-accent': locale() === lang.code,
+                      'text-text-secondary': locale() !== lang.code,
                     }}
                     onClick={() => handleLanguageChange(lang.code)}
                   >
                     <span
                       class="text-xs font-semibold w-7 h-5 flex items-center justify-center rounded"
                       classList={{
-                        "bg-accent text-white": locale() === lang.code,
-                        "bg-bg-tertiary text-text-secondary": locale() !== lang.code,
+                        'bg-accent text-white': locale() === lang.code,
+                        'bg-bg-tertiary text-text-secondary': locale() !== lang.code,
                       }}
                     >
                       {lang.flag}
@@ -311,9 +303,9 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
               type="button"
               onClick={toggleTheme}
               class="w-full flex justify-center p-2 rounded-[--radius-sm] text-text-secondary transition-all duration-200 hover:bg-accent-light hover:text-accent"
-              title={theme() === "dark" ? t.lightMode : t.darkMode}
+              title={theme() === 'dark' ? t.lightMode : t.darkMode}
             >
-              <Show when={theme() === "dark"} fallback={<SunIcon />}>
+              <Show when={theme() === 'dark'} fallback={<SunIcon />}>
                 <MoonIcon />
               </Show>
             </button>
@@ -325,7 +317,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
           <A
             href={getAboutUrl()}
             class={`${MENU_ITEM_CLASS} text-text-secondary`}
-            classList={{ "justify-center": isCollapsed() }}
+            classList={{ 'justify-center': isCollapsed() }}
             title={isCollapsed() ? t.about : undefined}
           >
             <InfoIcon />
@@ -337,7 +329,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
           {/* Offline Badge */}
           <div
             class="mt-2 flex items-center gap-2 px-3 py-2 bg-green-badge text-green-text rounded-[--radius-sm] text-xs font-medium"
-            classList={{ "justify-center px-2": isCollapsed() }}
+            classList={{ 'justify-center px-2': isCollapsed() }}
           >
             <OfflineIcon />
             <Show when={!isCollapsed()}>
@@ -352,7 +344,14 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
 
 // Icons
 const PanelLeftOpenIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    width="16"
+    height="16"
+  >
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <path d="M9 3v18" />
     <path d="m14 9 3 3-3 3" />
@@ -360,7 +359,14 @@ const PanelLeftOpenIcon = () => (
 );
 
 const PanelLeftCloseIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    width="16"
+    height="16"
+  >
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <path d="M9 3v18" />
     <path d="m16 15-3-3 3-3" />
@@ -416,7 +422,7 @@ const ChevronIcon: Component<{ expanded: boolean }> = (props) => (
     width="14"
     height="14"
     class="transition-transform duration-200"
-    classList={{ "rotate-180": props.expanded }}
+    classList={{ 'rotate-180': props.expanded }}
   >
     <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
   </svg>

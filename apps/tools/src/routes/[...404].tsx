@@ -1,8 +1,8 @@
 import { Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
 import type { JSX } from 'solid-js';
-import { useLanguage } from '~/i18n/context';
 import { buttonVariants } from '~/components/ui/button';
+import { useLanguage } from '~/i18n/context';
 
 export default function NotFound(): JSX.Element {
   const { t } = useLanguage();
@@ -14,12 +14,8 @@ export default function NotFound(): JSX.Element {
         <p class="text-[6rem] font-bold text-muted-foreground leading-none mb-4">
           {t().notFound.code}
         </p>
-        <h1 class="text-2xl font-semibold text-foreground mb-4">
-          {t().notFound.title}
-        </h1>
-        <p class="text-base text-muted-foreground mb-8 max-w-[400px]">
-          {t().notFound.message}
-        </p>
+        <h1 class="text-2xl font-semibold text-foreground mb-4">{t().notFound.title}</h1>
+        <p class="text-base text-muted-foreground mb-8 max-w-[400px]">{t().notFound.message}</p>
         <A href="/" class={buttonVariants({ variant: 'default', size: 'lg' })}>
           {t().notFound.backHome}
         </A>

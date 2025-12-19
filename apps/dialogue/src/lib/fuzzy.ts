@@ -57,11 +57,7 @@ export function levenshtein(a: string, b: string): number {
  * Check if two strings are similar within a threshold
  * 두 문자열이 임계값 내에서 유사한지 확인
  */
-export function isSimilar(
-  input: string,
-  target: string,
-  threshold?: number,
-): boolean {
+export function isSimilar(input: string, target: string, threshold?: number): boolean {
   const normalizedInput = input.toLowerCase().trim();
   const normalizedTarget = target.toLowerCase().trim();
 
@@ -70,14 +66,12 @@ export function isSimilar(
 
   // Contains check - but only if lengths are similar (within 50%)
   // 길이가 비슷할 때만 contains 체크 (짧은 단어가 긴 키워드에 포함되는 것 방지)
-  const lengthRatio = Math.min(normalizedInput.length, normalizedTarget.length) /
+  const lengthRatio =
+    Math.min(normalizedInput.length, normalizedTarget.length) /
     Math.max(normalizedInput.length, normalizedTarget.length);
 
   if (lengthRatio >= 0.5) {
-    if (
-      normalizedInput.includes(normalizedTarget) ||
-      normalizedTarget.includes(normalizedInput)
-    ) {
+    if (normalizedInput.includes(normalizedTarget) || normalizedTarget.includes(normalizedInput)) {
       return true;
     }
   }
@@ -106,10 +100,10 @@ export function containsSimilarKeyword(
   keywords: string[],
   threshold?: number,
 ): boolean {
-  const normalizedInput = input.toLowerCase().replace(/\s+/g, "");
+  const normalizedInput = input.toLowerCase().replace(/\s+/g, '');
 
   for (const keyword of keywords) {
-    const normalizedKeyword = keyword.toLowerCase().replace(/\s+/g, "");
+    const normalizedKeyword = keyword.toLowerCase().replace(/\s+/g, '');
 
     // Direct contains
     if (normalizedInput.includes(normalizedKeyword)) {
@@ -138,5 +132,5 @@ export function containsSimilarKeyword(
  * 비교를 위해 공백 제거 및 정규화
  */
 export function normalizeForMatch(text: string): string {
-  return text.toLowerCase().replace(/\s+/g, "").trim();
+  return text.toLowerCase().replace(/\s+/g, '').trim();
 }

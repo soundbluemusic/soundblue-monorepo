@@ -2023,7 +2023,7 @@ const manualEnToKoWords: Record<string, string> = {
 export const enToKoWords: Record<string, string> = {
   ...i18nEnToKo,
   ...Object.fromEntries(
-    Object.entries(manualKoToEnWords).map(([ko, en]) => [en.toLowerCase(), ko])
+    Object.entries(manualKoToEnWords).map(([ko, en]) => [en.toLowerCase(), ko]),
   ),
   // 수동 영→한 사전이 최우선
   ...manualEnToKoWords,

@@ -34,7 +34,7 @@ export const ToolItem: Component<ToolItemProps> = (props) => {
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
         // Active tool state - brand color for identity
         isActive() && 'bg-brand/15 text-brand font-medium shadow-sm',
-        props.collapsed && 'justify-center px-2'
+        props.collapsed && 'justify-center px-2',
       )}
       title={props.collapsed ? props.tool.name[locale()] : undefined}
     >

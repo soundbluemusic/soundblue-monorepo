@@ -2,9 +2,10 @@
  * Generate PWA icons from source image
  * Usage: node scripts/generate-icons.mjs
  */
-import sharp from 'sharp';
+
 import { mkdir } from 'fs/promises';
 import { dirname, join } from 'path';
+import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

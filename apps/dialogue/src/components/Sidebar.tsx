@@ -1,9 +1,9 @@
-import type { Component } from "solid-js";
-import { Show } from "solid-js";
-import { useNavigate, A } from "@solidjs/router";
-import { useI18n } from "~/i18n";
-import type { Locale } from "~/i18n";
-import { useTheme } from "~/theme";
+import { A, useNavigate } from '@solidjs/router';
+import type { Component } from 'solid-js';
+import { Show } from 'solid-js';
+import type { Locale } from '~/i18n';
+import { useI18n } from '~/i18n';
+import { useTheme } from '~/theme';
 
 interface SidebarProps {
   isOpen: () => boolean;
@@ -17,35 +17,32 @@ export const Sidebar: Component<SidebarProps> = (props) => {
   const navigate = useNavigate();
 
   const languages: { code: Locale; label: string; flag: string }[] = [
-    { code: "en", label: "English", flag: "EN" },
-    { code: "ko", label: "한국어", flag: "KO" },
+    { code: 'en', label: 'English', flag: 'EN' },
+    { code: 'ko', label: '한국어', flag: 'KO' },
   ];
 
   const handleLanguageChange = (lang: Locale) => {
     setLocale(lang);
-    if (lang === "en") {
-      navigate("/", { replace: true });
+    if (lang === 'en') {
+      navigate('/', { replace: true });
     } else {
       navigate(`/${lang}`, { replace: true });
     }
   };
 
   const getAboutUrl = () => {
-    return locale() === "en" ? "/about" : `/${locale()}/about`;
+    return locale() === 'en' ? '/about' : `/${locale()}/about`;
   };
 
   return (
     <>
       <Show when={props.isOpen()}>
-        <div
-          class="fixed inset-0 bg-black/50 z-199 animate-fade-in"
-          onClick={props.onClose}
-        />
+        <div class="fixed inset-0 bg-black/50 z-199 animate-fade-in" onClick={props.onClose} />
       </Show>
 
       <aside
         class="fixed top-0 left-0 w-70 h-full bg-bg-secondary border-r border-border z-200 flex flex-col transition-transform duration-300 ease-out max-md:w-full max-md:max-w-80"
-        classList={{ "translate-x-0": props.isOpen(), "-translate-x-full": !props.isOpen() }}
+        classList={{ 'translate-x-0': props.isOpen(), '-translate-x-full': !props.isOpen() }}
       >
         <div class="flex items-center justify-between px-5 py-4 border-b border-border">
           <h2 class="text-lg font-semibold text-text-primary">{t.settings}</h2>
@@ -62,7 +59,10 @@ export const Sidebar: Component<SidebarProps> = (props) => {
           {/* New Chat Button */}
           <button
             class="w-full flex items-center gap-3 px-4 py-3 bg-accent text-white rounded-[--radius-sm] text-sm font-medium transition-colors duration-200 hover:bg-accent-hover mb-6"
-            onClick={() => { props.onNewChat(); props.onClose(); }}
+            onClick={() => {
+              props.onNewChat();
+              props.onClose();
+            }}
           >
             <PlusIcon />
             <span>{t.newChat}</span>
@@ -70,30 +70,32 @@ export const Sidebar: Component<SidebarProps> = (props) => {
 
           {/* Theme Section */}
           <div class="mb-6">
-            <h3 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">{t.theme}</h3>
+            <h3 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">
+              {t.theme}
+            </h3>
             <button
               class="w-full flex items-center gap-3 px-4 py-3 bg-bg-tertiary rounded-[--radius-sm] transition-colors duration-200 hover:bg-accent-light"
               onClick={toggleTheme}
             >
               <span class="text-accent flex items-center">
-                <Show when={theme() === "dark"} fallback={<SunIcon />}>
+                <Show when={theme() === 'dark'} fallback={<SunIcon />}>
                   <MoonIcon />
                 </Show>
               </span>
               <span class="flex-1 text-left text-sm text-text-primary">
-                {theme() === "dark" ? t.darkMode : t.lightMode}
+                {theme() === 'dark' ? t.darkMode : t.lightMode}
               </span>
               <span class="flex items-center">
                 <span
                   class="w-11 h-6 rounded-full relative transition-colors duration-200"
                   classList={{
-                    "bg-accent": theme() === "light",
-                    "bg-border": theme() === "dark"
+                    'bg-accent': theme() === 'light',
+                    'bg-border': theme() === 'dark',
                   }}
                 >
                   <span
                     class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200"
-                    classList={{ "translate-x-5": theme() === "light" }}
+                    classList={{ 'translate-x-5': theme() === 'light' }}
                   />
                 </span>
               </span>
@@ -102,22 +104,25 @@ export const Sidebar: Component<SidebarProps> = (props) => {
 
           {/* Language Section */}
           <div class="mb-6">
-            <h3 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">{t.language}</h3>
+            <h3 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">
+              {t.language}
+            </h3>
             <div class="flex flex-col gap-1">
               {languages.map((lang) => (
                 <button
                   class="w-full flex items-center gap-3 px-4 py-2.5 rounded-[--radius-sm] transition-colors duration-200"
                   classList={{
-                    "bg-accent-light text-accent": locale() === lang.code,
-                    "bg-transparent text-text-secondary hover:bg-accent-light hover:text-text-primary": locale() !== lang.code
+                    'bg-accent-light text-accent': locale() === lang.code,
+                    'bg-transparent text-text-secondary hover:bg-accent-light hover:text-text-primary':
+                      locale() !== lang.code,
                   }}
                   onClick={() => handleLanguageChange(lang.code)}
                 >
                   <span
                     class="text-xs font-semibold w-7 h-5 flex items-center justify-center rounded"
                     classList={{
-                      "bg-accent text-white": locale() === lang.code,
-                      "bg-bg-tertiary": locale() !== lang.code
+                      'bg-accent text-white': locale() === lang.code,
+                      'bg-bg-tertiary': locale() !== lang.code,
                     }}
                   >
                     {lang.flag}

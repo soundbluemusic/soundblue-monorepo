@@ -64,7 +64,7 @@ test.describe('Responsive Design Tests', () => {
         await page.waitForLoadState('networkidle');
 
         const footer = page.locator('footer');
-        if (await footer.count() > 0) {
+        if ((await footer.count()) > 0) {
           const footerBox = await footer.boundingBox();
           const viewportHeight = viewport.height;
 

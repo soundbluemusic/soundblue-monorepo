@@ -450,7 +450,7 @@ class AudioEngine {
       // Clamp to valid range and schedule immediate change
       this.masterGain.gain.setValueAtTime(
         Math.max(0, Math.min(1, volume)),
-        this.audioContext!.currentTime
+        this.audioContext!.currentTime,
       );
     }
   }

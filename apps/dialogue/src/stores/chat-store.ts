@@ -1,7 +1,7 @@
-import { batch } from "solid-js";
-import { createStore } from "solid-js/store";
-import { isServer } from "solid-js/web";
-import { getDialogueDb, getSetting, setSetting, CONVERSATIONS_STORE } from "./db";
+import { batch } from 'solid-js';
+import { createStore } from 'solid-js/store';
+import { isServer } from 'solid-js/web';
+import { CONVERSATIONS_STORE, getDialogueDb, getSetting, setSetting } from './db';
 
 // ========================================
 // Chat Store - 대화 기록 관리 (IndexedDB 연동)
@@ -10,7 +10,7 @@ import { getDialogueDb, getSetting, setSetting, CONVERSATIONS_STORE } from "./db
 
 export interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   timestamp: number;
 }
@@ -34,7 +34,7 @@ interface ChatState {
 export function generateId(): string {
   const array = new Uint8Array(8);
   crypto.getRandomValues(array);
-  const randomPart = Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
+  const randomPart = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
   return Date.now().toString(36) + randomPart;
 }
 
@@ -56,22 +56,20 @@ async function getAllConversations(): Promise<Conversation[]> {
   try {
     const db = await getDialogueDb();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(CONVERSATIONS_STORE, "readonly");
+      const tx = db.transaction(CONVERSATIONS_STORE, 'readonly');
       const store = tx.objectStore(CONVERSATIONS_STORE);
-      const index = store.index("updatedAt");
+      const index = store.index('updatedAt');
       const request = index.getAll();
 
       request.onsuccess = () => {
         // Sort by updatedAt descending (newest first)
-        const conversations = request.result.sort(
-          (a, b) => b.updatedAt - a.updatedAt
-        );
+        const conversations = request.result.sort((a, b) => b.updatedAt - a.updatedAt);
         resolve(conversations);
       };
       request.onerror = () => reject(request.error);
     });
   } catch (error) {
-    console.error("Failed to get conversations:", error);
+    console.error('Failed to get conversations:', error);
     return [];
   }
 }
@@ -80,7 +78,7 @@ async function saveConversation(conversation: Conversation): Promise<void> {
   try {
     const db = await getDialogueDb();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(CONVERSATIONS_STORE, "readwrite");
+      const tx = db.transaction(CONVERSATIONS_STORE, 'readwrite');
       const store = tx.objectStore(CONVERSATIONS_STORE);
       const request = store.put(conversation);
 
@@ -88,7 +86,7 @@ async function saveConversation(conversation: Conversation): Promise<void> {
       request.onerror = () => reject(request.error);
     });
   } catch (error) {
-    console.error("Failed to save conversation:", error);
+    console.error('Failed to save conversation:', error);
     throw error;
   }
 }
@@ -97,7 +95,7 @@ async function deleteConversationFromDB(id: string): Promise<void> {
   try {
     const db = await getDialogueDb();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(CONVERSATIONS_STORE, "readwrite");
+      const tx = db.transaction(CONVERSATIONS_STORE, 'readwrite');
       const store = tx.objectStore(CONVERSATIONS_STORE);
       const request = store.delete(id);
 
@@ -105,7 +103,7 @@ async function deleteConversationFromDB(id: string): Promise<void> {
       request.onerror = () => reject(request.error);
     });
   } catch (error) {
-    console.error("Failed to delete conversation:", error);
+    console.error('Failed to delete conversation:', error);
     throw error;
   }
 }
@@ -120,17 +118,17 @@ export const chatActions = {
     try {
       const [conversations, ghostMode] = await Promise.all([
         getAllConversations(),
-        getSetting<boolean>("ghostMode"),
+        getSetting<boolean>('ghostMode'),
       ]);
 
       // batch() 사용하여 단일 렌더링으로 최적화
       batch(() => {
-        setChatStore("conversations", conversations || []);
-        setChatStore("ghostMode", ghostMode === true);
-        setChatStore("isHydrated", true);
+        setChatStore('conversations', conversations || []);
+        setChatStore('ghostMode', ghostMode === true);
+        setChatStore('isHydrated', true);
       });
     } catch {
-      setChatStore("isHydrated", true);
+      setChatStore('isHydrated', true);
     } finally {
       isHydrating = false;
     }
@@ -138,35 +136,33 @@ export const chatActions = {
 
   // Ghost Mode
   setGhostMode: (enabled: boolean) => {
-    setChatStore("ghostMode", enabled);
-    void setSetting("ghostMode", enabled);
+    setChatStore('ghostMode', enabled);
+    void setSetting('ghostMode', enabled);
   },
 
   toggleGhostMode: () => {
     const newValue = !chatStore.ghostMode;
-    setChatStore("ghostMode", newValue);
-    void setSetting("ghostMode", newValue);
+    setChatStore('ghostMode', newValue);
+    void setSetting('ghostMode', newValue);
   },
 
   // Create new conversation (with race condition prevention)
   createConversation: (welcomeMessage: Message): Conversation | null => {
     if (chatStore.ghostMode) {
-      setChatStore("activeConversationId", null);
+      setChatStore('activeConversationId', null);
       return null;
     }
 
     // Prevent duplicate creation - if already have active conversation, return it
     // 중복 생성 방지 - 이미 활성 대화가 있으면 해당 대화 반환
     if (chatStore.activeConversationId) {
-      const existing = chatStore.conversations.find(
-        (c) => c.id === chatStore.activeConversationId
-      );
+      const existing = chatStore.conversations.find((c) => c.id === chatStore.activeConversationId);
       if (existing) return existing;
     }
 
     const newConversation: Conversation = {
       id: generateId(),
-      title: "",
+      title: '',
       messages: [welcomeMessage],
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -174,12 +170,12 @@ export const chatActions = {
 
     // Set activeConversationId FIRST to prevent race conditions
     // activeConversationId를 먼저 설정하여 race condition 방지
-    setChatStore("activeConversationId", newConversation.id);
-    setChatStore("conversations", [newConversation, ...chatStore.conversations]);
+    setChatStore('activeConversationId', newConversation.id);
+    setChatStore('conversations', [newConversation, ...chatStore.conversations]);
 
     // Save with error handling
     saveConversation(newConversation).catch((err) => {
-      console.error("Failed to save conversation:", err);
+      console.error('Failed to save conversation:', err);
     });
 
     return newConversation;
@@ -202,8 +198,8 @@ export const chatActions = {
     let updatedTitle = conversation.title;
 
     // Update title from first user message
-    if (!updatedTitle && message.role === "user") {
-      updatedTitle = message.content.slice(0, 30) + (message.content.length > 30 ? "..." : "");
+    if (!updatedTitle && message.role === 'user') {
+      updatedTitle = message.content.slice(0, 30) + (message.content.length > 30 ? '...' : '');
     }
 
     const updatedConversation: Conversation = {
@@ -217,11 +213,11 @@ export const chatActions = {
     const newConversations = [...chatStore.conversations];
     newConversations[convIndex] = updatedConversation;
 
-    setChatStore("conversations", newConversations);
+    setChatStore('conversations', newConversations);
 
     // Save with error handling
     saveConversation(updatedConversation).catch((err) => {
-      console.error("Failed to save message:", err);
+      console.error('Failed to save message:', err);
     });
   },
 
@@ -229,7 +225,7 @@ export const chatActions = {
   loadConversation: (id: string): Conversation | undefined => {
     const conversation = chatStore.conversations.find((c) => c.id === id);
     if (conversation) {
-      setChatStore("activeConversationId", id);
+      setChatStore('activeConversationId', id);
     }
     return conversation;
   },
@@ -237,21 +233,21 @@ export const chatActions = {
   // Delete conversation
   deleteConversation: (id: string) => {
     const newConversations = chatStore.conversations.filter((c) => c.id !== id);
-    setChatStore("conversations", newConversations);
+    setChatStore('conversations', newConversations);
 
     if (chatStore.activeConversationId === id) {
-      setChatStore("activeConversationId", null);
+      setChatStore('activeConversationId', null);
     }
 
     // Delete with error handling
     deleteConversationFromDB(id).catch((err) => {
-      console.error("Failed to delete conversation:", err);
+      console.error('Failed to delete conversation:', err);
     });
   },
 
   // Clear active conversation (for new chat)
   clearActive: () => {
-    setChatStore("activeConversationId", null);
+    setChatStore('activeConversationId', null);
   },
 
   // Get active conversation

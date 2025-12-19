@@ -1,6 +1,6 @@
+import { BREAKPOINTS, Footer } from '@soundblue/shared';
 import { type Component, createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { BREAKPOINTS, Footer } from '@soundblue/shared';
 import { ToolSidebar } from '~/components/sidebar';
 import { ToolContainer } from '~/components/tools';
 import { cn } from '~/lib/utils';
@@ -71,7 +71,7 @@ export const MainLayout: Component = () => {
             isMobile() && 'fixed inset-y-0 left-0 pt-14 transition-transform duration-200',
             isMobile() && !toolStore.sidebarOpen && '-translate-x-full',
             // Desktop: static
-            !isMobile() && 'relative'
+            !isMobile() && 'relative',
           )}
         >
           <ToolSidebar />

@@ -49,7 +49,7 @@ export const copulaList = Object.keys(copulas).sort((a, b) => b.length - a.lengt
  * '학생입니다' → { noun: '학생', copula: '입니다' }
  */
 export function tryExtractCopula(
-  word: string
+  word: string,
 ): { noun: string; copula: string; info: CopulaInfo } | null {
   for (const c of copulaList) {
     if (word.endsWith(c) && word.length > c.length) {

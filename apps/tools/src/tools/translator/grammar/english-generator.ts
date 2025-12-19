@@ -139,7 +139,7 @@ function conjugateVerb(
   verb: string,
   tense: Tense,
   subject: string,
-  isNegative: boolean = false
+  isNegative: boolean = false,
 ): string {
   const verbLower = verb.toLowerCase();
   const isThirdPerson =
@@ -351,7 +351,7 @@ const DEFINITE_ARTICLE_NOUNS = new Set([
 function translateConstituent(
   constituent: Constituent,
   addArticle: boolean = false,
-  isSubject: boolean = false
+  isSubject: boolean = false,
 ): string {
   const parts: string[] = [];
 

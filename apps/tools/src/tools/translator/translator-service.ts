@@ -94,7 +94,7 @@ export function translate(input: string, direction: TranslationDirection): strin
 export function translateWithCorrection(
   input: string,
   direction: TranslationDirection,
-  options: TranslateOptions = {}
+  options: TranslateOptions = {},
 ): TranslateResult {
   const { autoCorrect = true, spacingOnly = false } = options;
 
@@ -436,7 +436,7 @@ function translateTokensWithNlp(
   tokens: string[],
   collocationRanges: Set<number>,
   collocationTranslations: Map<number, string>,
-  wsdResults: Map<number, WsdResult>
+  wsdResults: Map<number, WsdResult>,
 ): string {
   const resultParts: string[] = [];
 
@@ -490,7 +490,7 @@ function translateTokensWithNlp(
 function findVerbTokenInCollocation(
   tokens: string[],
   startIndex: number,
-  collocationRanges: Set<number>
+  collocationRanges: Set<number>,
 ): string | null {
   // 연어 범위에서 가장 마지막 토큰 찾기 (보통 동사)
   let lastIndex = startIndex;
@@ -596,7 +596,7 @@ function translateSingleToken(token: string): string {
     return translateWithConnectiveEnding(
       connectiveResult.stem,
       connectiveResult.ending,
-      connectiveResult.info
+      connectiveResult.info,
     );
   }
 
@@ -630,7 +630,7 @@ function translateSingleToken(token: string): string {
 function translateWithConnectiveEnding(
   stem: string,
   ending: string,
-  info: ConnectiveEndingInfo
+  info: ConnectiveEndingInfo,
 ): string {
   // 불규칙 활용 복원 시도
   const restoredStem = restoreStemFromConnective(stem, ending);
@@ -769,7 +769,7 @@ function postProcessEnglish(text: string): string {
  */
 function translateWithIdioms(
   text: string,
-  idiomResult: { result: string; matched: { ko: string; en: string }[] }
+  idiomResult: { result: string; matched: { ko: string; en: string }[] },
 ): string {
   // 관용어를 마커로 치환
   let markedText = text;
@@ -1083,7 +1083,7 @@ function translateTokens(
   _hasSubject: boolean,
   hasObject: boolean,
   isDescriptive: boolean,
-  detectedTense: 'present' | 'past' | 'future' = 'present'
+  detectedTense: 'present' | 'past' | 'future' = 'present',
 ): string {
   // 문장 구성요소 분리
   const subjects: string[] = [];
@@ -1284,7 +1284,7 @@ function translateEnWordsToKo(text: string): string {
   result = result.replace(wishPattern, (_, verb, obj, adv) => {
     const verbKo = enToKoWords[verb.toLowerCase()] || verb;
     const objKo = enToKoWords[obj.toLowerCase()] || obj;
-    const advKo = adv ? (enToKoWords[adv.toLowerCase()] || adv) : '';
+    const advKo = adv ? enToKoWords[adv.toLowerCase()] || adv : '';
     return `${objKo}를 ${advKo} ${verbKo}할 수 있으면 좋겠어`;
   });
 

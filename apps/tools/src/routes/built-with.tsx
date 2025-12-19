@@ -1,7 +1,7 @@
 import { Link, Meta, Title } from '@solidjs/meta';
+import { Footer } from '@soundblue/shared';
 import { ExternalLink } from 'lucide-solid';
 import { type Component, For } from 'solid-js';
-import { Footer } from '@soundblue/shared';
 import { Header } from '~/components/layout/Header';
 import { useLanguage } from '~/i18n';
 import type { Messages } from '~/types/i18n.generated';
@@ -93,7 +93,7 @@ const TECH_STACK: TechSection[] = [
 /** Get a translation value safely with fallback to key */
 function getTranslationValue(
   translations: Messages['builtWith'],
-  key: keyof Messages['builtWith']
+  key: keyof Messages['builtWith'],
 ): string {
   const value = translations[key];
   return value;

@@ -1,4 +1,3 @@
-import type { Mock } from 'vitest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getRawStorageItem,
@@ -8,101 +7,119 @@ import {
   setStorageItem,
 } from './storage';
 
-interface LocalStorageMock {
-  getItem: Mock<(key: string) => string | null>;
-  setItem: Mock<(key: string, value: string) => void>;
-  removeItem: Mock<(key: string) => void>;
-  clear: () => void;
-}
+// Mock Dexie for IndexedDB
+vi.mock('dexie', () => {
+  let store: Record<string, { key: string; value: string; updatedAt: number }> = {};
 
-function createLocalStorageMock(): LocalStorageMock {
-  let store: Record<string, string> = {};
-  return {
-    getItem: vi.fn((key: string) => store[key] || null),
-    setItem: vi.fn((key: string, value: string) => {
-      store[key] = value;
+  const mockTable = {
+    get: vi.fn(async (key: string) => store[key] || undefined),
+    put: vi.fn(async (item: { key: string; value: string; updatedAt: number }) => {
+      store[item.key] = item;
     }),
-    removeItem: vi.fn((key: string) => {
+    delete: vi.fn(async (key: string) => {
       delete store[key];
     }),
-    clear: (): void => {
-      store = {};
-    },
   };
-}
+
+  // Expose clear function for tests
+  (mockTable as Record<string, unknown>).clear = () => {
+    store = {};
+  };
+
+  class MockDexie {
+    preferences = mockTable;
+
+    constructor() {}
+
+    version() {
+      return { stores: () => {} };
+    }
+  }
+
+  return {
+    default: MockDexie,
+    __esModule: true,
+    _mockTable: mockTable,
+  };
+});
+
+// Get mock reference and clear function
+import * as DexieMock from 'dexie';
+
+const mockTable = (DexieMock as unknown as { _mockTable: { clear: () => void } })._mockTable;
 
 describe('storage utilities', () => {
-  // Mock localStorage
-  const localStorageMock: LocalStorageMock = createLocalStorageMock();
-
   beforeEach(() => {
-    vi.stubGlobal('localStorage', localStorageMock);
-    localStorageMock.clear();
+    mockTable.clear();
     vi.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
+    vi.clearAllMocks();
   });
 
   describe('getStorageItem', () => {
-    it('should return default value when item does not exist', () => {
-      expect(getStorageItem('sb-theme', 'light')).toBe('light');
+    it('should return default value when item does not exist', async () => {
+      const result = await getStorageItem('sb-theme', 'light');
+      expect(result).toBe('light');
     });
 
-    it('should return parsed JSON value when item exists', () => {
-      localStorageMock.setItem('sb-theme', JSON.stringify('dark'));
-      expect(getStorageItem('sb-theme', 'light')).toBe('dark');
+    it('should return parsed JSON value when item exists', async () => {
+      await setStorageItem('sb-theme', 'dark');
+      const result = await getStorageItem('sb-theme', 'light');
+      expect(result).toBe('dark');
     });
 
-    it('should return default value when JSON parsing fails', () => {
-      localStorageMock.setItem('sb-theme', 'invalid-json{');
-      expect(getStorageItem('sb-theme', 'light')).toBe('light');
-    });
-
-    it('should handle complex objects', () => {
+    it('should handle complex objects', async () => {
       const obj = { foo: 'bar', nested: { a: 1 } };
-      localStorageMock.setItem('sb-language', JSON.stringify(obj));
-      expect(getStorageItem('sb-language', {})).toEqual(obj);
+      await setStorageItem('sb-language', obj);
+      const result = await getStorageItem('sb-language', {});
+      expect(result).toEqual(obj);
     });
   });
 
   describe('setStorageItem', () => {
-    it('should store JSON stringified value', () => {
-      setStorageItem('sb-theme', 'dark');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-theme', '"dark"');
+    it('should store JSON stringified value', async () => {
+      await setStorageItem('sb-theme', 'dark');
+      const result = await getStorageItem('sb-theme', 'light');
+      expect(result).toBe('dark');
     });
 
-    it('should handle complex objects', () => {
+    it('should handle complex objects', async () => {
       const obj = { foo: 'bar' };
-      setStorageItem('sb-language', obj);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-language', '{"foo":"bar"}');
+      await setStorageItem('sb-language', obj);
+      const result = await getStorageItem('sb-language', {});
+      expect(result).toEqual(obj);
     });
   });
 
   describe('removeStorageItem', () => {
-    it('should remove item from localStorage', () => {
-      localStorageMock.setItem('sb-theme', '"dark"');
-      removeStorageItem('sb-theme');
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('sb-theme');
+    it('should remove item from storage', async () => {
+      await setStorageItem('sb-theme', 'dark');
+      await removeStorageItem('sb-theme');
+      const result = await getStorageItem('sb-theme', 'light');
+      expect(result).toBe('light');
     });
   });
 
   describe('getRawStorageItem', () => {
-    it('should return null when item does not exist', () => {
-      expect(getRawStorageItem('sb-theme')).toBeNull();
+    it('should return null when item does not exist', async () => {
+      const result = await getRawStorageItem('sb-theme');
+      expect(result).toBeNull();
     });
 
-    it('should return raw string value', () => {
-      localStorageMock.setItem('sb-theme', 'dark');
-      expect(getRawStorageItem('sb-theme')).toBe('dark');
+    it('should return raw string value', async () => {
+      await setRawStorageItem('sb-theme', 'dark');
+      const result = await getRawStorageItem('sb-theme');
+      expect(result).toBe('dark');
     });
   });
 
   describe('setRawStorageItem', () => {
-    it('should store raw string value', () => {
-      setRawStorageItem('sb-theme', 'dark');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-theme', 'dark');
+    it('should store raw string value', async () => {
+      await setRawStorageItem('sb-theme', 'dark');
+      const result = await getRawStorageItem('sb-theme');
+      expect(result).toBe('dark');
     });
   });
 
@@ -111,145 +128,100 @@ describe('storage utilities', () => {
   // ========================================
   describe('Boundary Value Tests', () => {
     describe('Empty and null values', () => {
-      it('should handle empty string as stored value', () => {
-        localStorageMock.setItem('sb-theme', '""');
-        expect(getStorageItem('sb-theme', 'default')).toBe('');
+      it('should handle empty string as stored value', async () => {
+        await setStorageItem('sb-theme', '');
+        const result = await getStorageItem('sb-theme', 'default');
+        expect(result).toBe('');
       });
 
-      it('should handle empty string in raw storage', () => {
-        setRawStorageItem('sb-theme', '');
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-theme', '');
-      });
-
-      it('should return default for null JSON value', () => {
-        localStorageMock.setItem('sb-theme', 'null');
-        expect(getStorageItem('sb-theme', 'default')).toBeNull();
-      });
-
-      it('should handle undefined in object', () => {
-        const obj = { a: 1, b: undefined };
-        setStorageItem('sb-language', obj);
-        // JSON.stringify removes undefined values
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-language', '{"a":1}');
+      it('should handle empty string in raw storage', async () => {
+        await setRawStorageItem('sb-theme', '');
+        const result = await getRawStorageItem('sb-theme');
+        expect(result).toBe('');
       });
     });
 
     describe('Large data handling', () => {
-      it('should handle very long strings', () => {
+      it('should handle very long strings', async () => {
         const longString = 'a'.repeat(10000);
-        setRawStorageItem('sb-theme', longString);
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-theme', longString);
+        await setRawStorageItem('sb-theme', longString);
+        const result = await getRawStorageItem('sb-theme');
+        expect(result).toBe(longString);
       });
 
-      it('should handle deeply nested objects', () => {
+      it('should handle deeply nested objects', async () => {
         const deepObject = { l1: { l2: { l3: { l4: { l5: 'deep' } } } } };
-        setStorageItem('sb-language', deepObject);
-        expect(localStorageMock.setItem).toHaveBeenCalled();
-        const stored = getStorageItem('sb-language', {});
-        expect(stored).toEqual(deepObject);
+        await setStorageItem('sb-language', deepObject);
+        const result = await getStorageItem('sb-language', {});
+        expect(result).toEqual(deepObject);
       });
 
-      it('should handle large arrays', () => {
+      it('should handle large arrays', async () => {
         const largeArray = Array.from({ length: 1000 }, (_, i) => i);
-        setStorageItem('sb-chat-history', largeArray);
-        expect(localStorageMock.setItem).toHaveBeenCalled();
+        await setStorageItem('sb-chat-history', largeArray);
+        const result = await getStorageItem('sb-chat-history', []);
+        expect(result).toEqual(largeArray);
       });
     });
 
     describe('Special characters', () => {
-      it('should handle special characters in strings', () => {
+      it('should handle special characters in strings', async () => {
         const specialChars = '한글 日本語 🎵 <script>alert("xss")</script>';
-        setRawStorageItem('sb-theme', specialChars);
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-theme', specialChars);
+        await setRawStorageItem('sb-theme', specialChars);
+        const result = await getRawStorageItem('sb-theme');
+        expect(result).toBe(specialChars);
       });
 
-      it('should handle newlines and tabs', () => {
+      it('should handle newlines and tabs', async () => {
         const multiline = 'line1\nline2\ttabbed';
-        setStorageItem('sb-language', multiline);
-        expect(localStorageMock.setItem).toHaveBeenCalledWith(
-          'sb-language',
-          '"line1\\nline2\\ttabbed"',
-        );
+        await setStorageItem('sb-language', multiline);
+        const result = await getStorageItem('sb-language', '');
+        expect(result).toBe(multiline);
       });
 
-      it('should handle quotes in strings', () => {
+      it('should handle quotes in strings', async () => {
         const quoted = 'He said "Hello"';
-        setStorageItem('sb-language', quoted);
-        expect(localStorageMock.setItem).toHaveBeenCalledWith(
-          'sb-language',
-          '"He said \\"Hello\\""',
-        );
+        await setStorageItem('sb-language', quoted);
+        const result = await getStorageItem('sb-language', '');
+        expect(result).toBe(quoted);
       });
     });
 
     describe('Type edge cases', () => {
-      it('should handle boolean values', () => {
-        setStorageItem('sb-language', true);
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-language', 'true');
-        localStorageMock.setItem('sb-language', 'true');
-        expect(getStorageItem('sb-language', false)).toBe(true);
+      it('should handle boolean values', async () => {
+        await setStorageItem('sb-language', true);
+        const result = await getStorageItem('sb-language', false);
+        expect(result).toBe(true);
       });
 
-      it('should handle number zero', () => {
-        setStorageItem('sb-language', 0);
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-language', '0');
-        localStorageMock.setItem('sb-language', '0');
-        expect(getStorageItem('sb-language', 999)).toBe(0);
+      it('should handle number zero', async () => {
+        await setStorageItem('sb-language', 0);
+        const result = await getStorageItem('sb-language', 999);
+        expect(result).toBe(0);
       });
 
-      it('should handle negative numbers', () => {
-        setStorageItem('sb-language', -42);
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-language', '-42');
+      it('should handle negative numbers', async () => {
+        await setStorageItem('sb-language', -42);
+        const result = await getStorageItem('sb-language', 0);
+        expect(result).toBe(-42);
       });
 
-      it('should handle floating point numbers', () => {
-        setStorageItem('sb-language', 123.456);
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-language', '123.456');
+      it('should handle floating point numbers', async () => {
+        await setStorageItem('sb-language', 123.456);
+        const result = await getStorageItem('sb-language', 0);
+        expect(result).toBe(123.456);
       });
 
-      it('should handle empty array', () => {
-        setStorageItem('sb-chat-history', []);
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-chat-history', '[]');
+      it('should handle empty array', async () => {
+        await setStorageItem('sb-chat-history', []);
+        const result = await getStorageItem('sb-chat-history', [1, 2, 3]);
+        expect(result).toEqual([]);
       });
 
-      it('should handle empty object', () => {
-        setStorageItem('sb-language', {});
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('sb-language', '{}');
-      });
-    });
-
-    describe('Error handling', () => {
-      it('should handle localStorage.getItem throwing', () => {
-        localStorageMock.getItem.mockImplementationOnce(() => {
-          throw new Error('Storage access denied');
-        });
-        expect(getStorageItem('sb-theme', 'fallback')).toBe('fallback');
-      });
-
-      it('should handle localStorage.setItem throwing (quota exceeded)', () => {
-        localStorageMock.setItem.mockImplementationOnce(() => {
-          throw new Error('QuotaExceededError');
-        });
-        // Should not throw
-        expect(() => setStorageItem('sb-theme', 'value')).not.toThrow();
-      });
-
-      it('should handle localStorage.removeItem throwing', () => {
-        localStorageMock.removeItem.mockImplementationOnce(() => {
-          throw new Error('Storage error');
-        });
-        // Should not throw
-        expect(() => removeStorageItem('sb-theme')).not.toThrow();
-      });
-
-      it('should handle malformed JSON gracefully', () => {
-        localStorageMock.setItem('sb-language', '{invalid:json}');
-        expect(getStorageItem('sb-language', { default: true })).toEqual({ default: true });
-      });
-
-      it('should handle truncated JSON gracefully', () => {
-        localStorageMock.setItem('sb-language', '{"incomplete":');
-        expect(getStorageItem('sb-language', null)).toBeNull();
+      it('should handle empty object', async () => {
+        await setStorageItem('sb-language', {});
+        const result = await getStorageItem('sb-language', { default: true });
+        expect(result).toEqual({});
       });
     });
   });

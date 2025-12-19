@@ -695,7 +695,7 @@ const ambiguousForms = new Set(['가', '와', '서', '해']);
  * 단어 전체가 축약형이거나, 단어 끝이 축약형인 경우 처리
  */
 export function tryExtractContracted(
-  word: string
+  word: string,
 ): { prefix: string; contracted: ContractedEndingInfo } | null {
   // 1. 완전 일치 확인
   if (contractedForms[word]) {

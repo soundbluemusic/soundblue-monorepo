@@ -73,7 +73,7 @@ const buttonVariants = cva(
       variant: 'default',
       size: 'default',
     },
-  }
+  },
 );
 
 export interface ButtonProps
@@ -97,7 +97,7 @@ const Button: Component<ButtonProps> = (props) => {
       disabled={local.disabled}
       onClick={local.onClick}
       class={cn(
-        buttonVariants({ variant: local.variant, size: local.size, className: local.class })
+        buttonVariants({ variant: local.variant, size: local.size, className: local.class }),
       )}
       {...others}
     >

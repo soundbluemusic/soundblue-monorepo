@@ -47,7 +47,7 @@
  */
 
 import type { z } from 'zod';
-import { getPreference, setPreference, removePreference } from '../storage';
+import { getPreference, removePreference, setPreference } from '../storage';
 
 /**
  * Retrieves and validates a value from IndexedDB using a Zod schema.

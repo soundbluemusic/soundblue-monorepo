@@ -1,19 +1,15 @@
-import type { Component } from "solid-js";
-import { createSignal, For, createEffect, onMount, Show } from "solid-js";
-import { useNavigate, useLocation } from "@solidjs/router";
-import { useI18n } from "~/i18n";
-import { translations } from "~/i18n/translations";
-import { searchKnowledge } from "~/lib/search";
-import { handleDynamicQuery } from "~/lib/handlers";
-import { detectLanguage } from "~/lib/language-detector";
-import { ChatMessage } from "../ChatMessage";
-import { ChatInput } from "../ChatInput";
-import {
-  chatStore,
-  chatActions,
-  generateId,
-} from "~/stores/chat-store";
-import type { Message } from "~/stores/chat-store";
+import { useLocation, useNavigate } from '@solidjs/router';
+import type { Component } from 'solid-js';
+import { createEffect, createSignal, For, onMount, Show } from 'solid-js';
+import { useI18n } from '~/i18n';
+import { translations } from '~/i18n/translations';
+import { handleDynamicQuery } from '~/lib/handlers';
+import { detectLanguage } from '~/lib/language-detector';
+import { searchKnowledge } from '~/lib/search';
+import type { Message } from '~/stores/chat-store';
+import { chatActions, chatStore, generateId } from '~/stores/chat-store';
+import { ChatInput } from '../ChatInput';
+import { ChatMessage } from '../ChatMessage';
 
 // ========================================
 // ChatContainer Component - 채팅 컨테이너
@@ -39,14 +35,14 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
 
   // Helper to get localized chat path
   const getChatPath = (id: string) => {
-    const isKorean = location.pathname.startsWith("/ko");
+    const isKorean = location.pathname.startsWith('/ko');
     return isKorean ? `/ko/c/${id}` : `/c/${id}`;
   };
 
   // Helper to get home path
   const getHomePath = () => {
-    const isKorean = location.pathname.startsWith("/ko");
-    return isKorean ? "/ko" : "/";
+    const isKorean = location.pathname.startsWith('/ko');
+    return isKorean ? '/ko' : '/';
   };
 
   // Initialize with welcome message
@@ -57,7 +53,7 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
 
     const welcomeMessage: Message = {
       id: generateId(),
-      role: "assistant",
+      role: 'assistant',
       content: t.welcome,
       timestamp: Date.now(),
     };
@@ -71,7 +67,7 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
   // Scroll to bottom when messages change
   createEffect(() => {
     if (messagesEndRef && messages().length > 0) {
-      messagesEndRef.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.scrollIntoView({ behavior: 'smooth' });
     }
   });
 
@@ -110,7 +106,7 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     // Navigate to home when starting new chat
     const currentPath = location.pathname;
     const homePath = getHomePath();
-    if (currentPath !== homePath && currentPath !== homePath + "/") {
+    if (currentPath !== homePath && currentPath !== homePath + '/') {
       navigate(homePath, { replace: true });
     }
     props.onNewChat?.();
@@ -128,7 +124,7 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
   const handleSend = async (content: string) => {
     const userMessage: Message = {
       id: generateId(),
-      role: "user",
+      role: 'user',
       content,
       timestamp: Date.now(),
     };
@@ -184,7 +180,7 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
 
     const assistantMessage: Message = {
       id: generateId(),
-      role: "assistant",
+      role: 'assistant',
       content: responseContent,
       timestamp: Date.now(),
     };
@@ -214,16 +210,23 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
 
       {/* Messages */}
       <div class="flex-1 overflow-y-auto py-4">
-        <For each={messages()}>
-          {(message) => <ChatMessage message={message} />}
-        </For>
+        <For each={messages()}>{(message) => <ChatMessage message={message} />}</For>
 
         {isThinking() && (
           <div class="flex items-center gap-3 px-6 py-4 animate-fade-in">
             <div class="flex gap-1">
-              <span class="w-2 h-2 bg-accent rounded-full animate-typing" style="animation-delay: 0s" />
-              <span class="w-2 h-2 bg-accent rounded-full animate-typing" style="animation-delay: 0.2s" />
-              <span class="w-2 h-2 bg-accent rounded-full animate-typing" style="animation-delay: 0.4s" />
+              <span
+                class="w-2 h-2 bg-accent rounded-full animate-typing"
+                style="animation-delay: 0s"
+              />
+              <span
+                class="w-2 h-2 bg-accent rounded-full animate-typing"
+                style="animation-delay: 0.2s"
+              />
+              <span
+                class="w-2 h-2 bg-accent rounded-full animate-typing"
+                style="animation-delay: 0.4s"
+              />
             </div>
             <span class="text-text-muted text-sm">{t.thinking}</span>
           </div>

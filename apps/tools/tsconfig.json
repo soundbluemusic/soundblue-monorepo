@@ -7,11 +7,6 @@
     },
     "types": ["vinxi/types/client"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "app.config.ts",
-    ".vinxi/types/**/*.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "app.config.ts", ".vinxi/types/**/*.ts"],
   "exclude": ["node_modules", "rust", ".output", ".vinxi"]
 }

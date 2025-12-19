@@ -68,7 +68,7 @@ export const BenchmarkRunner: Component<BenchmarkRunnerProps> = (props) => {
                     'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
                     props.direction === dir
                       ? 'bg-background text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
                   )}
                   onClick={() => props.onDirectionChange?.(dir)}
                   disabled={props.isRunning}

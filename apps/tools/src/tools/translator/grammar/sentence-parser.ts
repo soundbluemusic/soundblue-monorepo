@@ -150,7 +150,7 @@ function determineSentencePattern(
   _subject: Constituent | undefined,
   object: Constituent | undefined,
   predicate: Constituent | undefined,
-  adverbials: Constituent[]
+  adverbials: Constituent[],
 ): SentencePattern {
   const hasObject = !!object;
   const hasIndirectObject = adverbials.some((a) => {

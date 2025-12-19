@@ -102,7 +102,7 @@ class MetronomeProcessor extends AudioWorkletProcessor {
         beat: this.currentBeat,
         isAccent: isAccent,
         time: currentTime,
-      }
+      },
     });
   }
 
@@ -110,7 +110,7 @@ class MetronomeProcessor extends AudioWorkletProcessor {
     if (!this.clickPlaying) return 0;
 
     const totalSamples = Math.floor(this.clickDuration * sampleRate);
-    const progress = 1 - (this.clickSamplesRemaining / totalSamples);
+    const progress = 1 - this.clickSamplesRemaining / totalSamples;
 
     // Frequency: accent is higher pitched
     const freq = this.isAccent ? 1200 : 800;
@@ -392,7 +392,7 @@ class DrumSynthProcessor extends AudioWorkletProcessor {
     }
 
     // Remove finished voices
-    this.voices = this.voices.filter(v => v.time < v.duration);
+    this.voices = this.voices.filter((v) => v.time < v.duration);
 
     // Copy to other channels
     for (let ch = 1; ch < output.length; ch++) {
@@ -455,12 +455,13 @@ class NoiseGeneratorProcessor extends AudioWorkletProcessor {
 
     this.b0 = 0.99886 * this.b0 + white * 0.0555179;
     this.b1 = 0.99332 * this.b1 + white * 0.0750759;
-    this.b2 = 0.96900 * this.b2 + white * 0.1538520;
-    this.b3 = 0.86650 * this.b3 + white * 0.3104856;
-    this.b4 = 0.55000 * this.b4 + white * 0.5329522;
-    this.b5 = -0.7616 * this.b5 - white * 0.0168980;
+    this.b2 = 0.969 * this.b2 + white * 0.153852;
+    this.b3 = 0.8665 * this.b3 + white * 0.3104856;
+    this.b4 = 0.55 * this.b4 + white * 0.5329522;
+    this.b5 = -0.7616 * this.b5 - white * 0.016898;
 
-    const pink = this.b0 + this.b1 + this.b2 + this.b3 + this.b4 + this.b5 + this.b6 + white * 0.5362;
+    const pink =
+      this.b0 + this.b1 + this.b2 + this.b3 + this.b4 + this.b5 + this.b6 + white * 0.5362;
     this.b6 = white * 0.115926;
 
     return pink * 0.11;
@@ -468,7 +469,7 @@ class NoiseGeneratorProcessor extends AudioWorkletProcessor {
 
   generateBrownNoise() {
     const white = Math.random() * 2 - 1;
-    this.lastBrown = (this.lastBrown + (0.02 * white)) / 1.02;
+    this.lastBrown = (this.lastBrown + 0.02 * white) / 1.02;
     return this.lastBrown * 3.5;
   }
 

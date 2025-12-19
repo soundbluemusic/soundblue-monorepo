@@ -11,6 +11,9 @@ importers:
       '@axe-core/playwright':
         specifier: ^4.11.0
         version: 4.11.0(playwright-core@1.57.0)
+      '@biomejs/biome':
+        specifier: ^2.3.9
+        version: 2.3.9
       '@lhci/cli':
         specifier: ^0.15.1
         version: 0.15.1
@@ -67,7 +70,7 @@ importers:
         version: 0.5.9(@types/node@24.10.4)(db0@0.3.4)(ioredis@5.8.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.3.8
+        specifier: ^2.3.9
         version: 2.3.9
       '@resvg/resvg-js':
         specifier: ^2.6.2
@@ -140,7 +143,7 @@ importers:
         version: 4.2.1
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.3.8
+        specifier: ^2.3.9
         version: 2.3.9
       '@playwright/test':
         specifier: ^1.57.0
@@ -269,17 +272,17 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
       vinxi:
-        specifier: ^0.5.8
+        specifier: ^0.5.9
         version: 0.5.9(@types/node@24.10.4)(db0@0.3.4)(ioredis@5.8.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.3.8
+        specifier: ^2.3.9
         version: 2.3.9
       '@playwright/test':
         specifier: ^1.57.0
         version: 1.57.0
       '@tailwindcss/vite':
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18(vite@7.3.0(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
       '@testing-library/jest-dom':
         specifier: ^6.9.1
@@ -315,10 +318,10 @@ importers:
         specifier: ^6.0.5
         version: 6.0.5(rollup@4.53.5)
       sharp:
-        specifier: ^0.34.2
+        specifier: ^0.34.5
         version: 0.34.5
       tailwindcss:
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18
       typescript:
         specifier: ^5.9.3
@@ -339,8 +342,8 @@ importers:
   packages/shared:
     dependencies:
       '@solidjs/router':
-        specifier: ^0.14.0
-        version: 0.14.10(solid-js@1.9.10)
+        specifier: ^0.15.4
+        version: 0.15.4(solid-js@1.9.10)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -352,8 +355,8 @@ importers:
         specifier: ^6.9.1
         version: 6.9.1
       lucide-solid:
-        specifier: ^0.469.0
-        version: 0.469.0(solid-js@1.9.10)
+        specifier: ^0.556.0
+        version: 0.556.0(solid-js@1.9.10)
       solid-js:
         specifier: ^1.9.10
         version: 1.9.10
@@ -364,8 +367,8 @@ importers:
         specifier: ^4.0.15
         version: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.15)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
       zod:
-        specifier: ^3.25.67
-        version: 3.25.76
+        specifier: ^4.2.0
+        version: 4.2.1
 
 packages:
 
@@ -2849,11 +2852,6 @@ packages:
     resolution: {integrity: sha512-zdIWBGpR9zGx1p1bzIPqF5Gs+Ks/BH8R6fWhmUa/dcK1L2rUC8BAcZJzNRYBQv74kScf1TSOs0EY//Vd/I0V8g==}
     peerDependencies:
       solid-js: '>=1.8.4'
-
-  '@solidjs/router@0.14.10':
-    resolution: {integrity: sha512-5B8LVgvvXijfXyXWPVLUm7RQ05BhjIpAyRkYVDZtrR3OaSvftXobWc6qSEwk4ICLoGi/IE9CUp2LUdCBIs9AXg==}
-    peerDependencies:
-      solid-js: ^1.8.6
 
   '@solidjs/router@0.15.4':
     resolution: {integrity: sha512-WOpgg9a9T638cR+5FGbFi/IV4l2FpmBs1GpIMSPa0Ce9vyJN7Wts+X2PqMf9IYn0zUj2MlSJtm1gp7/HI/n5TQ==}
@@ -5590,11 +5588,6 @@ packages:
   lru-cache@7.18.3:
     resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
     engines: {node: '>=12'}
-
-  lucide-solid@0.469.0:
-    resolution: {integrity: sha512-kBZl5AFg02g/wcwaapTwOwjHw0VvyyFmZm3BE6McKjs0GjiauWtjYbrhf2bCtDpScEtcinhIG/LpRExBlIV3fA==}
-    peerDependencies:
-      solid-js: ^1.4.7
 
   lucide-solid@0.556.0:
     resolution: {integrity: sha512-XmGiiBaBWelgVvcpwdI8Hevn95HAgSl1qYsHErrbRzFOq02XzGlxIjzCKHzTV8efQf/E86uD/0bX06+tFXR/aA==}
@@ -10420,10 +10413,6 @@ snapshots:
     dependencies:
       solid-js: 1.9.10
 
-  '@solidjs/router@0.14.10(solid-js@1.9.10)':
-    dependencies:
-      solid-js: 1.9.10
-
   '@solidjs/router@0.15.4(solid-js@1.9.10)':
     dependencies:
       solid-js: 1.9.10
@@ -13599,10 +13588,6 @@ snapshots:
       yallist: 3.1.1
 
   lru-cache@7.18.3: {}
-
-  lucide-solid@0.469.0(solid-js@1.9.10):
-    dependencies:
-      solid-js: 1.9.10
 
   lucide-solid@0.556.0(solid-js@1.9.10):
     dependencies:

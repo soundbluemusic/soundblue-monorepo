@@ -231,7 +231,7 @@ export const COPULAS = [
 
 // 서술격 조사 정보
 export function analyzeCopula(
-  word: string
+  word: string,
 ): { noun: string; copula: string; tense: Tense; formality: Formality } | null {
   for (const cop of COPULAS) {
     if (word.endsWith(cop)) {

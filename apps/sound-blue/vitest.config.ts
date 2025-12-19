@@ -51,6 +51,12 @@ export default defineConfig({
         },
       },
     },
+    // Server configuration for handling external packages
+    server: {
+      deps: {
+        inline: [/lucide-solid/],
+      },
+    },
   },
   resolve: {
     alias: {

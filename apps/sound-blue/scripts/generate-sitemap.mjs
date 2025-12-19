@@ -54,7 +54,9 @@ const SITEMAP_INDEX_ENTRIES = [
 function generateUrlEntry(route) {
   const lastmod = new Date().toISOString().split('T')[0];
   const enPath = route.path.startsWith('/ko/') ? route.path.replace('/ko/', '/') : route.path;
-  const koPath = route.path.startsWith('/ko/') ? route.path : `/ko${route.path === '/' ? '/' : route.path}`;
+  const koPath = route.path.startsWith('/ko/')
+    ? route.path
+    : `/ko${route.path === '/' ? '/' : route.path}`;
 
   let alternates = '';
   if (!route.path.includes('/ko/')) {
@@ -99,7 +101,7 @@ async function generateSitemapIndex() {
     (entry) => `  <sitemap>
     <loc>${SITE_URL}/${entry.filename}</loc>
     <lastmod>${lastmod}</lastmod>
-  </sitemap>`
+  </sitemap>`,
   ).join('\n');
 
   const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>

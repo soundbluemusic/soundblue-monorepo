@@ -187,9 +187,7 @@ export function hasLocalePrefix(
   const segments = pathname.split('/').filter(Boolean);
   const firstSegment = segments[0]?.toLowerCase();
   return (
-    !!firstSegment &&
-    config.locales.includes(firstSegment) &&
-    firstSegment !== config.defaultLocale
+    !!firstSegment && config.locales.includes(firstSegment) && firstSegment !== config.defaultLocale
   );
 }
 

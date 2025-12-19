@@ -10,13 +10,7 @@
  * @module @soundblue/shared/providers/I18nProvider
  */
 
-import {
-  type Accessor,
-  type JSX,
-  createContext,
-  createMemo,
-  useContext,
-} from 'solid-js';
+import { type Accessor, createContext, createMemo, type JSX, useContext } from 'solid-js';
 
 /**
  * Supported locale codes.
@@ -240,7 +234,9 @@ function getBasePath(pathname: string, config: I18nConfig): string {
  * }
  * ```
  */
-export function I18nProvider<T>(props: I18nProviderProps<T> & { children: JSX.Element }): JSX.Element {
+export function I18nProvider<T>(
+  props: I18nProviderProps<T> & { children: JSX.Element },
+): JSX.Element {
   const config = () => props.config ?? DEFAULT_I18N_CONFIG;
 
   // Derive locale from URL path (reactive)

@@ -48,7 +48,9 @@ function generateHreflangLinks(path: string): string {
     return `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${url}" />`;
   });
   // Add x-default pointing to English version
-  links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${getUrl(path, 'en')}" />`);
+  links.push(
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${getUrl(path, 'en')}" />`,
+  );
   return links.join('\n');
 }
 
@@ -381,7 +383,9 @@ function main(): void {
 
   // Pages Sitemap
   writeToDirectories('sitemap-pages.xml', generatePagesSitemap());
-  console.log(`    └─ ${PAGES.length * LOCALES.length} URLs (${PAGES.length} pages × ${LOCALES.length} langs)`);
+  console.log(
+    `    └─ ${PAGES.length * LOCALES.length} URLs (${PAGES.length} pages × ${LOCALES.length} langs)`,
+  );
 
   // XSL Stylesheet
   writeToDirectories('sitemap.xsl', generateXslStylesheet());

@@ -7,13 +7,9 @@
  * @module I18nProvider
  */
 
-import {
-  I18nProvider as SharedI18nProvider,
-  useI18n,
-  type Locale,
-} from '@soundblue/shared';
-import { createMemo, type Accessor, type ParentComponent } from 'solid-js';
-import { isServer, getRequestEvent } from 'solid-js/web';
+import { type Locale, I18nProvider as SharedI18nProvider, useI18n } from '@soundblue/shared';
+import { type Accessor, createMemo, type ParentComponent } from 'solid-js';
+import { getRequestEvent, isServer } from 'solid-js/web';
 import enMessages from '../../../messages/en.json';
 import koMessages from '../../../messages/ko.json';
 
@@ -96,11 +92,7 @@ export const I18nProvider: ParentComponent = (props) => {
   const pathname = createMemo(() => getPathname());
 
   return (
-    <SharedI18nProvider
-      messages={messages}
-      pathname={pathname}
-      navigate={navigateTo}
-    >
+    <SharedI18nProvider messages={messages} pathname={pathname} navigate={navigateTo}>
       {props.children}
     </SharedI18nProvider>
   );

@@ -6,7 +6,7 @@
  * 3. Add XSL stylesheet reference to all sitemap XML files
  */
 
-import { readdir, readFile, writeFile, rename, access } from 'node:fs/promises';
+import { access, readdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const OUT_DIR = 'out';
@@ -67,9 +67,7 @@ async function addStylesheetToSitemaps() {
   console.log('\nAdding XSL stylesheet to sitemap files...\n');
 
   const files = await readdir(OUT_DIR);
-  const xmlFiles = files.filter(
-    (file) => file.endsWith('.xml') && file.includes('sitemap'),
-  );
+  const xmlFiles = files.filter((file) => file.endsWith('.xml') && file.includes('sitemap'));
 
   if (xmlFiles.length === 0) {
     console.log('  No sitemap XML files found');

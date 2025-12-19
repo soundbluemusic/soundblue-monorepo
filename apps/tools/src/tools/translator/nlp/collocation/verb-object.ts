@@ -178,7 +178,7 @@ export const verbStems = Object.keys(verbObjectCollocations);
  */
 export function findVerbObjectCollocation(
   object: string,
-  verbStem: string
+  verbStem: string,
 ): VerbObjectPattern | null {
   const patterns = verbObjectCollocations[verbStem];
   if (!patterns) return null;

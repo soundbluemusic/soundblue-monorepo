@@ -67,7 +67,7 @@ export function VUMeter(props: VUMeterProps) {
             <div
               class={cn(
                 'absolute bottom-0 left-0 top-0 rounded transition-all',
-                getColor(levelPercent())
+                getColor(levelPercent()),
               )}
               style={{ width: `${levelPercent()}%` }}
             />
@@ -93,7 +93,7 @@ export function VUMeter(props: VUMeterProps) {
           <div
             class={cn(
               'absolute bottom-0 left-0 right-0 rounded transition-all',
-              getColor(levelPercent())
+              getColor(levelPercent()),
             )}
             style={{ height: `${levelPercent()}%` }}
           />

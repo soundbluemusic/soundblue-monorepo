@@ -43,7 +43,7 @@ export interface ToolActions {
   closeTool: () => void;
   updateToolSettings: <T extends ToolType>(
     tool: T,
-    settings: Partial<ToolState['toolSettings'][T]>
+    settings: Partial<ToolState['toolSettings'][T]>,
   ) => void;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
@@ -63,7 +63,7 @@ export const toolActions: ToolActions = {
 
   updateToolSettings: <T extends ToolType>(
     tool: T,
-    settings: Partial<ToolState['toolSettings'][T]>
+    settings: Partial<ToolState['toolSettings'][T]>,
   ): void => {
     setToolStore('toolSettings', tool, (prev) => ({ ...prev, ...settings }));
   },

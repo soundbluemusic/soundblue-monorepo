@@ -4,11 +4,7 @@ import { useLanguage } from '~/i18n';
 import { registerTool } from '../registry';
 import type { ToolDefinition, ToolProps } from '../types';
 import { translate } from './translator-service';
-import {
-  createShareUrl,
-  getSharedDataFromCurrentUrl,
-  getTextLengthWarning,
-} from './url-sharing';
+import { createShareUrl, getSharedDataFromCurrentUrl, getTextLengthWarning } from './url-sharing';
 
 // ========================================
 // Translator Tool - 번역기 (한-영 전용)
@@ -145,9 +141,7 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
     if (!text) return;
 
     const baseUrl =
-      typeof window !== 'undefined'
-        ? `${window.location.origin}${window.location.pathname}`
-        : '';
+      typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : '';
 
     const result = createShareUrl(baseUrl, {
       text,

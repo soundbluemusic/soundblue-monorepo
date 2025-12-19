@@ -2,14 +2,7 @@
 // Syllable - 음절 분석
 // ========================================
 
-import {
-  compose,
-  decompose,
-  isHangul,
-  type Jamo,
-  JONG_LIST,
-  splitDoubleJong,
-} from './jamo';
+import { compose, decompose, isHangul, type Jamo, JONG_LIST, splitDoubleJong } from './jamo';
 
 export interface Syllable {
   char: string;

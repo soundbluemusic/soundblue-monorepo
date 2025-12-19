@@ -86,7 +86,7 @@ function calculateCriteriaAverages(allResults: TestResult[]): CriteriaScores {
       tone: acc.tone + r.criteriaScores.tone,
       domain: acc.domain + r.criteriaScores.domain,
     }),
-    { accuracy: 0, fluency: 0, context: 0, cultural: 0, consistency: 0, tone: 0, domain: 0 }
+    { accuracy: 0, fluency: 0, context: 0, cultural: 0, consistency: 0, tone: 0, domain: 0 },
   );
 
   const count = allResults.length;
@@ -106,7 +106,7 @@ function calculateCriteriaAverages(allResults: TestResult[]): CriteriaScores {
  */
 function filterTestsByDirection(
   tests: typeof TEST_CASES,
-  direction: DirectionFilter
+  direction: DirectionFilter,
 ): typeof TEST_CASES {
   if (direction === 'all') {
     return tests;
@@ -136,7 +136,7 @@ export function getTestCountByDirection(): {
  */
 export function runBenchmark(
   onProgress?: ProgressCallback,
-  direction: DirectionFilter = 'all'
+  direction: DirectionFilter = 'all',
 ): BenchmarkReport {
   const startTime = performance.now();
   const allResults: TestResult[] = [];
@@ -222,7 +222,7 @@ export function runBenchmark(
   // 개선 제안 생성
   const improvements = generateImprovements(
     criteriaAverages,
-    categoryResults.map((c) => ({ categoryId: c.categoryId, averageScore: c.averageScore }))
+    categoryResults.map((c) => ({ categoryId: c.categoryId, averageScore: c.averageScore })),
   );
 
   // 합격 여부 (평균 3.8 이상 + 통과율 85% 이상)
@@ -250,7 +250,7 @@ export function runBenchmark(
  */
 export function runCategoryBenchmark(
   categoryId: string,
-  onProgress?: ProgressCallback
+  onProgress?: ProgressCallback,
 ): CategoryResult | null {
   const tests = getTestsByCategory(categoryId as (typeof TEST_CASES)[number]['categoryId']);
 
@@ -296,7 +296,7 @@ export function runCategoryBenchmark(
  */
 export function runQuickBenchmark(
   onProgress?: ProgressCallback,
-  direction: DirectionFilter = 'all'
+  direction: DirectionFilter = 'all',
 ): BenchmarkReport {
   const startTime = performance.now();
   const allResults: TestResult[] = [];
@@ -375,7 +375,7 @@ export function runQuickBenchmark(
   const grade = calculateGrade(overallScore);
   const improvements = generateImprovements(
     criteriaAverages,
-    categoryResults.map((c) => ({ categoryId: c.categoryId, averageScore: c.averageScore }))
+    categoryResults.map((c) => ({ categoryId: c.categoryId, averageScore: c.averageScore })),
   );
 
   const passed = overallScore >= 3.8 && overallPassRate >= 85;

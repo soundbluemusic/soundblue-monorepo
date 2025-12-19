@@ -23,7 +23,7 @@ function recordScore(
   input: string,
   expected: string,
   actual: string,
-  score: number
+  score: number,
 ) {
   scores.push({ category, subcategory, input, expected, actual, score });
 }

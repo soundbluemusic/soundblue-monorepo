@@ -16,7 +16,7 @@ const TabsList: ParentComponent<TabsListProps> = (props) => {
         'inline-flex items-center justify-center',
         'rounded-xl bg-secondary/80 p-1',
         'backdrop-blur-sm',
-        local.class
+        local.class,
       )}
       {...others}
     >
@@ -55,7 +55,7 @@ const TabsTrigger: ParentComponent<TabsTriggerProps> = (props) => {
         // Selected state - Apple style
         'data-[selected]:bg-background data-[selected]:text-foreground',
         'data-[selected]:shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)]',
-        local.class
+        local.class,
       )}
       {...others}
     >
@@ -78,7 +78,7 @@ const TabsContent: ParentComponent<TabsContentProps> = (props) => {
         'mt-4',
         'animate-fade-in',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-        local.class
+        local.class,
       )}
       {...others}
     >

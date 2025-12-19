@@ -1,108 +1,102 @@
 // Hooks (PWA)
-export {
-  useOnlineStatus,
-  onOnlineStatusChange,
-  getOnlineStatus,
-  type OnlineStatus,
-  type UseOnlineStatusReturn,
-  useServiceWorker,
-  checkForUpdates,
-  skipWaiting,
-  onUpdateAvailable,
-  getServiceWorkerState,
-  type ServiceWorkerState,
-  type UseServiceWorkerReturn,
-} from './hooks';
 
-// Utils
-export { cn } from './utils/cn';
-export {
-  getValidatedStorageItem,
-  getStorageItem,
-  setStorageItem,
-  removeStorageItem,
-  getRawStorageItem,
-  setRawStorageItem,
-} from './utils/storage';
-
-// i18n Provider & utilities
-export {
-  I18nProvider,
-  useI18n,
-  type Locale,
-  type I18nConfig,
-  type I18nContextValue,
-  type I18nProviderProps,
-  DEFAULT_I18N_CONFIG,
-  getLocaleFromPath,
-  getPathWithoutLocale,
-  getLocalizedPath,
-} from './providers/I18nProvider';
-
-// Legacy i18n utilities (deprecated - use I18nProvider instead)
-export {
-  type BaseLocale,
-  type I18nPathConfig,
-  DEFAULT_I18N_CONFIG as LEGACY_I18N_CONFIG,
-  createLocalizedPathBuilder,
-  hasLocalePrefix,
-  getOppositeLocale,
-} from './utils/i18n';
-
-// Storage (IndexedDB)
-export {
-  SharedDatabase,
-  getSharedDb,
-  resetDbInstance,
-  type Preference,
-  getPreference,
-  setPreference,
-  removePreference,
-  getAllPreferences,
-  migrateFromLocalStorage,
-} from './storage';
-
+// Components
+export { Footer, type FooterLink, type FooterProps, OfflineIndicator } from './components';
 // Constants
 export {
   BREAKPOINTS,
   type BreakpointKey,
-  isBelowBreakpoint,
-  isAtOrAboveBreakpoint,
   getCurrentBreakpoint,
   getMediaQuery,
+  isAtOrAboveBreakpoint,
+  isBelowBreakpoint,
 } from './constants';
+export {
+  checkForUpdates,
+  getOnlineStatus,
+  getServiceWorkerState,
+  type OnlineStatus,
+  onOnlineStatusChange,
+  onUpdateAvailable,
+  type ServiceWorkerState,
+  skipWaiting,
+  type UseOnlineStatusReturn,
+  type UseServiceWorkerReturn,
+  useOnlineStatus,
+  useServiceWorker,
+} from './hooks';
 
-// Components
-export { Footer, type FooterProps, type FooterLink, OfflineIndicator } from './components';
-
+// i18n Provider & utilities
+export {
+  DEFAULT_I18N_CONFIG,
+  getLocaleFromPath,
+  getLocalizedPath,
+  getPathWithoutLocale,
+  type I18nConfig,
+  type I18nContextValue,
+  I18nProvider,
+  type I18nProviderProps,
+  type Locale,
+  useI18n,
+} from './providers/I18nProvider';
+// Storage (IndexedDB)
+export {
+  getAllPreferences,
+  getPreference,
+  getSharedDb,
+  migrateFromLocalStorage,
+  type Preference,
+  removePreference,
+  resetDbInstance,
+  SharedDatabase,
+  setPreference,
+} from './storage';
 // Types
 export type {
   Branded,
-  StorageKeyBrand,
-  UrlPathBrand,
-  Success,
   Failure,
-  Result,
-  MessageRole,
-  Message,
   LegacyMessageType,
+  Message,
+  MessageRole,
+  Result,
+  StorageKeyBrand,
+  Success,
+  UrlPathBrand,
 } from './types';
-
 export {
-  ok,
-  err,
-  unwrap,
-  unwrapOr,
-  isDefined,
-  isNonEmptyString,
-  isNonEmptyArray,
-  hasProperty,
   assert,
   assertDefined,
   assertNever,
   createMessage,
+  err,
+  hasProperty,
+  isDefined,
   isMessage,
   isMessageArray,
+  isNonEmptyArray,
+  isNonEmptyString,
   legacyTypeToRole,
+  ok,
   roleToLegacyType,
+  unwrap,
+  unwrapOr,
 } from './types';
+// Utils
+export { cn } from './utils/cn';
+// Legacy i18n utilities (deprecated - use I18nProvider instead)
+export {
+  type BaseLocale,
+  createLocalizedPathBuilder,
+  DEFAULT_I18N_CONFIG as LEGACY_I18N_CONFIG,
+  getOppositeLocale,
+  hasLocalePrefix,
+  type I18nPathConfig,
+} from './utils/i18n';
+export {
+  getRawStorageItem,
+  getStorageItem,
+  getValidatedStorageItem,
+  removeStorageItem,
+  setRawStorageItem,
+  setStorageItem,
+} from './utils/storage';

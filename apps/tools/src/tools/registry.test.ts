@@ -15,7 +15,7 @@ const MockComponent = () => null;
 // Helper to create test tool definitions
 function createTestTool<T extends ToolSettings>(
   id: string,
-  overrides: Partial<ToolDefinition<T>['meta']> = {}
+  overrides: Partial<ToolDefinition<T>['meta']> = {},
 ): ToolDefinition<T> {
   return {
     meta: {
@@ -63,7 +63,7 @@ describe('Tool Registry', () => {
       registerTool(tool2);
 
       expect(console.warn).toHaveBeenCalledWith(
-        'Tool "duplicate-tool" is already registered. Overwriting.'
+        'Tool "duplicate-tool" is already registered. Overwriting.',
       );
     });
 
@@ -162,21 +162,21 @@ describe('Tool Registry', () => {
           name: { ko: '메트로놈', en: 'Metronome' },
           description: { ko: 'BPM 박자기', en: 'Beat keeper with BPM' },
           tags: ['music', 'tempo', 'beat'],
-        })
+        }),
       );
       registerTool(
         createTestTool('search-tuner', {
           name: { ko: '튜너', en: 'Tuner' },
           description: { ko: '악기 튜닝', en: 'Instrument tuning' },
           tags: ['music', 'pitch'],
-        })
+        }),
       );
       registerTool(
         createTestTool('search-qr', {
           name: { ko: 'QR 생성기', en: 'QR Generator' },
           description: { ko: 'QR 코드 생성', en: 'Generate QR codes' },
           tags: ['utility', 'code'],
-        })
+        }),
       );
     });
 

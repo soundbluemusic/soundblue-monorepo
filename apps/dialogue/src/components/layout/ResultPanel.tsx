@@ -1,7 +1,7 @@
-import type { Component } from "solid-js";
-import { Show } from "solid-js";
-import { useI18n } from "~/i18n";
-import { uiActions, uiStore } from "~/stores/ui-store";
+import type { Component } from 'solid-js';
+import { Show } from 'solid-js';
+import { useI18n } from '~/i18n';
+import { uiActions, uiStore } from '~/stores/ui-store';
 
 // ========================================
 // ResultPanel Component - 오른쪽 결과 패널
@@ -23,7 +23,7 @@ export const ResultPanel: Component = () => {
           <div class="flex-1 flex flex-col items-center justify-center text-text-muted p-8">
             <DocumentIcon />
             <p class="mt-4 text-sm text-center">
-              {t.aboutFeatures || "Results, reports, and tools will appear here"}
+              {t.aboutFeatures || 'Results, reports, and tools will appear here'}
             </p>
           </div>
         }
@@ -34,9 +34,9 @@ export const ResultPanel: Component = () => {
             <div class="flex items-center justify-between border-b border-border px-4 py-3">
               <div class="flex items-center gap-2">
                 <span class="text-lg">
-                  {resultContent().type === "report" && <ReportIcon />}
-                  {resultContent().type === "info" && <InfoIcon />}
-                  {resultContent().type === "help" && <HelpIcon />}
+                  {resultContent().type === 'report' && <ReportIcon />}
+                  {resultContent().type === 'info' && <InfoIcon />}
+                  {resultContent().type === 'help' && <HelpIcon />}
                 </span>
                 <h2 class="font-semibold text-sm text-text-primary">{resultContent().title}</h2>
               </div>

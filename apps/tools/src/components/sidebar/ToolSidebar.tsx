@@ -67,14 +67,14 @@ export const ToolSidebar: Component = () => {
     <aside
       class={cn(
         'flex h-full flex-col border-r bg-card transition-all duration-200',
-        isCollapsed() ? 'w-14' : 'w-52'
+        isCollapsed() ? 'w-14' : 'w-52',
       )}
     >
       {/* Header */}
       <div
         class={cn(
           'flex items-center border-b px-3 py-3',
-          isCollapsed() ? 'justify-center' : 'justify-between'
+          isCollapsed() ? 'justify-center' : 'justify-between',
         )}
       >
         <Show when={!isCollapsed()}>
@@ -87,7 +87,7 @@ export const ToolSidebar: Component = () => {
             'p-1.5 rounded-lg transition-all duration-200 ease-out',
             HOVER_STYLES,
             ACTIVE_STYLES,
-            FOCUS_STYLES
+            FOCUS_STYLES,
           )}
           aria-label={isCollapsed() ? t().sidebar.expand : t().sidebar.collapse}
         >
@@ -116,7 +116,7 @@ export const ToolSidebar: Component = () => {
           <div
             class={cn(
               'absolute bottom-full left-2 right-2 mb-1 z-50 rounded-lg border bg-popover p-1 shadow-lg',
-              isCollapsed() && 'left-0 right-auto w-48'
+              isCollapsed() && 'left-0 right-auto w-48',
             )}
           >
             <a
@@ -156,7 +156,7 @@ export const ToolSidebar: Component = () => {
             'active:scale-[0.98] active:bg-black/12 dark:active:bg-white/18',
             FOCUS_STYLES,
             moreMenuOpen() && 'bg-black/5 dark:bg-white/8',
-            isCollapsed() && 'justify-center px-2'
+            isCollapsed() && 'justify-center px-2',
           )}
           title={isCollapsed() ? t().sidebar.more : undefined}
         >

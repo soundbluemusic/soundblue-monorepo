@@ -4,10 +4,10 @@
  */
 
 import {
+  type ResolvedTheme,
   ThemeProvider as SharedThemeProvider,
   useTheme as sharedUseTheme,
   type Theme,
-  type ResolvedTheme,
   type ThemeContextValue,
 } from '@soundblue/shared/providers';
 import type { ParentComponent } from 'solid-js';

@@ -51,7 +51,7 @@ const Switch: Component<SwitchProps> = (props) => {
           // Focus state
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           // Disabled state
-          'disabled:cursor-not-allowed disabled:opacity-50'
+          'disabled:cursor-not-allowed disabled:opacity-50',
         )}
       >
         <KobalteSwitch.Thumb
@@ -64,7 +64,7 @@ const Switch: Component<SwitchProps> = (props) => {
             // Transition
             'transition-transform duration-300 ease-out',
             // Position states
-            'data-[checked]:translate-x-[20px] data-[unchecked]:translate-x-0'
+            'data-[checked]:translate-x-[20px] data-[unchecked]:translate-x-0',
           )}
         />
       </KobalteSwitch.Control>

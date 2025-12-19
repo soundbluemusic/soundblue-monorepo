@@ -79,7 +79,7 @@ const QRGeneratorComponent: Component<ToolProps<QRSettings>> = (props) => {
 
     try {
       const blob = await new Promise<Blob>((resolve) =>
-        canvas.toBlob((b) => resolve(b!), 'image/png')
+        canvas.toBlob((b) => resolve(b!), 'image/png'),
       );
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       setCopied(true);
@@ -114,7 +114,7 @@ const QRGeneratorComponent: Component<ToolProps<QRSettings>> = (props) => {
           // Visible color contrast on hover
           'hover:bg-black/6 dark:hover:bg-white/8 hover:border-primary/40',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:border-primary focus-visible:bg-background',
-          isCompact() ? 'h-12' : 'h-16'
+          isCompact() ? 'h-12' : 'h-16',
         )}
       />
 

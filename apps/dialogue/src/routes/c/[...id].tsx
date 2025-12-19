@@ -1,8 +1,8 @@
-import { Title, Meta } from "@solidjs/meta";
-import { useParams, useNavigate } from "@solidjs/router";
-import { createEffect, onMount } from "solid-js";
-import { MainLayout } from "~/components";
-import { chatStore, chatActions } from "~/stores/chat-store";
+import { Meta, Title } from '@solidjs/meta';
+import { useNavigate, useParams } from '@solidjs/router';
+import { createEffect, onMount } from 'solid-js';
+import { MainLayout } from '~/components';
+import { chatActions, chatStore } from '~/stores/chat-store';
 
 /**
  * Chat route with conversation ID
@@ -26,7 +26,7 @@ export default function ChatRoute() {
 
     const conversationId = params.id;
     if (!conversationId) {
-      navigate("/", { replace: true });
+      navigate('/', { replace: true });
       return;
     }
 
@@ -35,17 +35,14 @@ export default function ChatRoute() {
 
     // If conversation not found, redirect to home
     if (!conversation) {
-      navigate("/", { replace: true });
+      navigate('/', { replace: true });
     }
   });
 
   return (
     <>
       <Title>Dialogue - Conversational Learning Tool</Title>
-      <Meta
-        name="description"
-        content="A conversational learning tool that works 100% offline"
-      />
+      <Meta name="description" content="A conversational learning tool that works 100% offline" />
       <MainLayout />
     </>
   );

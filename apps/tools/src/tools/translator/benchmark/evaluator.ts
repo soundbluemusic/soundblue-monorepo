@@ -113,7 +113,7 @@ function keywordMatchScore(actual: string, keywords: string[]): number {
 function bestMatchSimilarity(
   actual: string,
   expected: string,
-  alternatives: string[] = []
+  alternatives: string[] = [],
 ): { similarity: number; bestMatch: string } {
   const allExpected = [expected, ...alternatives];
   let bestSimilarity = 0;
@@ -154,7 +154,7 @@ function evaluateAccuracy(
   actual: string,
   expected: string,
   alternatives: string[],
-  keywords: string[]
+  keywords: string[],
 ): number {
   const { similarity } = bestMatchSimilarity(actual, expected, alternatives);
   const keywordScore = keywordMatchScore(actual, keywords);
@@ -209,7 +209,7 @@ function evaluateContext(actual: string, testCase: TestCase): number {
   const { similarity } = bestMatchSimilarity(
     actual,
     testCase.expectedOutput,
-    testCase.alternativeOutputs
+    testCase.alternativeOutputs,
   );
 
   // 동음이의어/다의어 카테고리는 문맥이 중요
@@ -230,7 +230,7 @@ function evaluateCultural(actual: string, testCase: TestCase): number {
     const { similarity } = bestMatchSimilarity(
       actual,
       testCase.expectedOutput,
-      testCase.alternativeOutputs
+      testCase.alternativeOutputs,
     );
     return similarityToScore(similarity);
   }
@@ -263,7 +263,7 @@ function evaluateTone(actual: string, testCase: TestCase): number {
   const { similarity } = bestMatchSimilarity(
     actual,
     testCase.expectedOutput,
-    testCase.alternativeOutputs
+    testCase.alternativeOutputs,
   );
   return similarityToScore(similarity);
 }
@@ -290,7 +290,7 @@ function evaluateDomain(actual: string, testCase: TestCase): number {
 function generateFeedback(
   actual: string,
   testCase: TestCase,
-  criteriaScores: CriteriaScores
+  criteriaScores: CriteriaScores,
 ): string[] {
   const feedback: string[] = [];
 
@@ -308,7 +308,7 @@ function generateFeedback(
 
   if (testCase.keywords && testCase.keywords.length > 0) {
     const missingKeywords = testCase.keywords.filter(
-      (kw) => !normalize(actual).includes(normalize(kw))
+      (kw) => !normalize(actual).includes(normalize(kw)),
     );
     if (missingKeywords.length > 0) {
       feedback.push(`누락된 핵심어: ${missingKeywords.join(', ')}`);
@@ -324,7 +324,7 @@ function generateFeedback(
 export function evaluateTestCase(
   testCase: TestCase,
   actualOutput: string,
-  executionTime: number
+  executionTime: number,
 ): TestResult {
   // 각 기준별 점수 계산
   const criteriaScores: CriteriaScores = {
@@ -332,7 +332,7 @@ export function evaluateTestCase(
       actualOutput,
       testCase.expectedOutput,
       testCase.alternativeOutputs || [],
-      testCase.keywords || []
+      testCase.keywords || [],
     ),
     fluency: evaluateFluency(actualOutput, testCase.direction),
     context: evaluateContext(actualOutput, testCase),
@@ -385,7 +385,7 @@ export function calculateGrade(score: number): 'S' | 'A' | 'B' | 'C' | 'D' {
  */
 export function generateImprovements(
   averageScores: CriteriaScores,
-  categoryResults: { categoryId: string; averageScore: number }[]
+  categoryResults: { categoryId: string; averageScore: number }[],
 ): string[] {
   const improvements: string[] = [];
 
@@ -413,7 +413,7 @@ export function generateImprovements(
 
   for (const cat of weakCategories.slice(0, 3)) {
     improvements.push(
-      `카테고리 '${cat.categoryId}' 집중 개선 필요 (평균 ${cat.averageScore.toFixed(2)}점)`
+      `카테고리 '${cat.categoryId}' 집중 개선 필요 (평균 ${cat.averageScore.toFixed(2)}점)`,
     );
   }
 

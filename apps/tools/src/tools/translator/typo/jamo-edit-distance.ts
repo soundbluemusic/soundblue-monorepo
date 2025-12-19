@@ -202,7 +202,7 @@ export function isAdjacentKey(jamo1: string, jamo2: string): boolean {
  */
 export function isDoubleConsonantMistake(jamo1: string, jamo2: string): boolean {
   return DOUBLE_CONSONANT_PAIRS.some(
-    ([a, b]) => (jamo1 === a && jamo2 === b) || (jamo1 === b && jamo2 === a)
+    ([a, b]) => (jamo1 === a && jamo2 === b) || (jamo1 === b && jamo2 === a),
   );
 }
 

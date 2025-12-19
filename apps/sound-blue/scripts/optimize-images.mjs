@@ -3,10 +3,10 @@
  * Generates optimized PNG, WebP, and AVIF versions for all images
  */
 
-import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, '../public');
@@ -77,22 +77,13 @@ const iconsToCompress = [
 async function generateFormat(sharpInstance, outputPath, format, quality) {
   switch (format) {
     case 'png':
-      await sharpInstance
-        .clone()
-        .png({ compressionLevel: 9 })
-        .toFile(`${outputPath}.png`);
+      await sharpInstance.clone().png({ compressionLevel: 9 }).toFile(`${outputPath}.png`);
       break;
     case 'webp':
-      await sharpInstance
-        .clone()
-        .webp({ quality, effort: 6 })
-        .toFile(`${outputPath}.webp`);
+      await sharpInstance.clone().webp({ quality, effort: 6 }).toFile(`${outputPath}.webp`);
       break;
     case 'avif':
-      await sharpInstance
-        .clone()
-        .avif({ quality, effort: 6 })
-        .toFile(`${outputPath}.avif`);
+      await sharpInstance.clone().avif({ quality, effort: 6 }).toFile(`${outputPath}.avif`);
       break;
   }
 }

@@ -374,7 +374,7 @@ const DrumMachineComponent: Component<ToolProps<DrumMachineSettings>> = (props) 
               value={settings().bpm}
               onInput={(e) =>
                 handleBpmChange(
-                  Math.max(40, Math.min(300, parseInt(e.currentTarget.value, 10) || 120))
+                  Math.max(40, Math.min(300, parseInt(e.currentTarget.value, 10) || 120)),
                 )
               }
               class="w-14 rounded border bg-background px-1.5 py-1 text-center text-sm transition-colors hover:bg-black/8 dark:hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -414,7 +414,7 @@ const DrumMachineComponent: Component<ToolProps<DrumMachineSettings>> = (props) 
         onClick={() => setShowSynth(!showSynth())}
         class={cn(
           'flex w-full items-center justify-center gap-2 py-2 border-t',
-          'text-sm text-muted-foreground hover:text-foreground transition-colors'
+          'text-sm text-muted-foreground hover:text-foreground transition-colors',
         )}
       >
         <Volume2 class="h-4 w-4" />

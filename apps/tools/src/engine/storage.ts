@@ -101,7 +101,7 @@ function getDb(): ToolsDatabase {
 export async function saveProjectBackup(
   id: string,
   name: string,
-  data: ProjectData
+  data: ProjectData,
 ): Promise<void> {
   await getDb().projects.put({
     id,
@@ -171,7 +171,7 @@ export function isFileSystemSupported(): boolean {
 // Save project to local file
 export async function saveToFile(
   data: ProjectData,
-  options: FileSystemOptions = {}
+  options: FileSystemOptions = {},
 ): Promise<FileSystemFileHandle | null> {
   if (!isFileSystemSupported()) {
     // Fallback: download as file
@@ -202,7 +202,7 @@ export async function saveToFile(
 
 // Load project from local file
 export async function loadFromFile<T = ProjectData>(
-  options: FileSystemOptions = {}
+  options: FileSystemOptions = {},
 ): Promise<{ data: T; handle: FileSystemFileHandle | null } | null> {
   if (!isFileSystemSupported()) {
     // Fallback: use file input
@@ -368,7 +368,7 @@ export function useAutoSave(
   projectId: Accessor<string>,
   getData: () => ProjectData,
   enabled: Accessor<boolean> = () => true,
-  intervalMs = 60000
+  intervalMs = 60000,
 ): {
   saveNow: () => Promise<void>;
 } {

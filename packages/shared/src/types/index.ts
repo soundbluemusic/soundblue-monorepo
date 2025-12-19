@@ -270,12 +270,12 @@ export function assertNever(_value: never, message?: string): never {
 // ============================================================================
 
 export {
-  type MessageRole,
-  type Message,
   createMessage,
   isMessage,
   isMessageArray,
   type LegacyMessageType,
   legacyTypeToRole,
+  type Message,
+  type MessageRole,
   roleToLegacyType,
 } from './message';

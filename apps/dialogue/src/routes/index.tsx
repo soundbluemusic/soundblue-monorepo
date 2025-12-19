@@ -1,14 +1,11 @@
-import { Title, Meta } from "@solidjs/meta";
-import { MainLayout } from "~/components";
+import { Meta, Title } from '@solidjs/meta';
+import { MainLayout } from '~/components';
 
 export default function Home() {
   return (
     <>
       <Title>Dialogue - Conversational Learning Tool</Title>
-      <Meta
-        name="description"
-        content="A conversational learning tool that works 100% offline"
-      />
+      <Meta name="description" content="A conversational learning tool that works 100% offline" />
       <MainLayout />
     </>
   );

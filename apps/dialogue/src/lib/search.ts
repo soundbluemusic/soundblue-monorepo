@@ -12,10 +12,10 @@
  * @module search
  */
 
-import { knowledge } from "~/data/knowledge";
-import type { KnowledgeItem } from "~/data/knowledge";
-import type { Locale } from "~/i18n";
-import { isSimilar, normalizeForMatch } from "./fuzzy";
+import type { KnowledgeItem } from '~/data/knowledge';
+import { knowledge } from '~/data/knowledge';
+import type { Locale } from '~/i18n';
+import { isSimilar, normalizeForMatch } from './fuzzy';
 
 interface SearchResult {
   item: KnowledgeItem;
@@ -116,11 +116,7 @@ function calculateScore(query: string, item: KnowledgeItem): number {
   return score;
 }
 
-export function searchKnowledge(
-  query: string,
-  locale: Locale,
-  limit: number = 3
-): KnowledgeItem[] {
+export function searchKnowledge(query: string, locale: Locale, limit: number = 3): KnowledgeItem[] {
   if (!query.trim()) {
     return [];
   }
@@ -129,7 +125,7 @@ export function searchKnowledge(
 
   for (const item of knowledge) {
     // Filter by locale
-    if (item.locale !== "all" && item.locale !== locale) {
+    if (item.locale !== 'all' && item.locale !== locale) {
       continue;
     }
 
@@ -148,8 +144,7 @@ export function searchKnowledge(
 
 export function getWelcomeResponse(locale: Locale): string {
   const intro = knowledge.find(
-    (item) =>
-      item.id.startsWith("dialogue-intro") && item.locale === locale
+    (item) => item.id.startsWith('dialogue-intro') && item.locale === locale,
   );
-  return intro?.answer || "";
+  return intro?.answer || '';
 }

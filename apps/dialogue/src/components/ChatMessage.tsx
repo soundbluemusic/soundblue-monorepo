@@ -1,9 +1,9 @@
-import type { Component } from "solid-js";
-import { Show } from "solid-js";
+import type { Component } from 'solid-js';
+import { Show } from 'solid-js';
 
 export interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   timestamp: number;
 }
@@ -13,18 +13,18 @@ interface ChatMessageProps {
 }
 
 export const ChatMessage: Component<ChatMessageProps> = (props) => {
-  const isUser = () => props.message.role === "user";
+  const isUser = () => props.message.role === 'user';
 
   return (
     <div
       class="flex gap-3 px-6 py-4 animate-fade-in max-md:px-4 max-md:py-3"
-      classList={{ "flex-row-reverse": isUser() }}
+      classList={{ 'flex-row-reverse': isUser() }}
     >
       <div
         class="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
         classList={{
-          "bg-accent text-white": isUser(),
-          "bg-assistant-bubble text-accent": !isUser()
+          'bg-accent text-white': isUser(),
+          'bg-assistant-bubble text-accent': !isUser(),
         }}
       >
         <Show when={isUser()} fallback={<AssistantIcon />}>
@@ -34,8 +34,8 @@ export const ChatMessage: Component<ChatMessageProps> = (props) => {
       <div
         class="max-w-[70%] px-4 py-3 rounded-[--radius-md] leading-normal max-md:max-w-[85%]"
         classList={{
-          "bg-user-bubble text-white rounded-br-[4px]": isUser(),
-          "bg-assistant-bubble text-text-primary rounded-bl-[4px]": !isUser()
+          'bg-user-bubble text-white rounded-br-[4px]': isUser(),
+          'bg-assistant-bubble text-text-primary rounded-bl-[4px]': !isUser(),
         }}
       >
         <p class="m-0 whitespace-pre-wrap wrap-break-word">{props.message.content}</p>

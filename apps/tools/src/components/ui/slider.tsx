@@ -53,7 +53,7 @@ const Slider: Component<SliderProps> = (props) => {
         class={cn(
           'relative h-1.5 w-full grow overflow-hidden rounded-full',
           'bg-secondary',
-          'transition-colors duration-200'
+          'transition-colors duration-200',
         )}
       >
         <KobalteSlider.Fill
@@ -71,7 +71,7 @@ const Slider: Component<SliderProps> = (props) => {
           'active:scale-105',
           'disabled:pointer-events-none disabled:opacity-50',
           // Larger touch target (44px minimum)
-          'before:absolute before:inset-[-8px] before:content-[""]'
+          'before:absolute before:inset-[-8px] before:content-[""]',
         )}
       >
         <KobalteSlider.Input />

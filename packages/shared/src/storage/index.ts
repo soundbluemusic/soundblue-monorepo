@@ -6,12 +6,12 @@
  * @module @soundblue/shared/storage
  */
 
-export { SharedDatabase, getSharedDb, resetDbInstance, type Preference } from './database';
+export { getSharedDb, type Preference, resetDbInstance, SharedDatabase } from './database';
 
 export {
-  getPreference,
-  setPreference,
-  removePreference,
   getAllPreferences,
+  getPreference,
   migrateFromLocalStorage,
+  removePreference,
+  setPreference,
 } from './preferences';

@@ -6,7 +6,7 @@
 
 import { RefreshCw, Wifi, WifiOff, X } from 'lucide-solid';
 import { type Component, createEffect, createSignal, Show } from 'solid-js';
-import { useOnlineStatus, skipWaiting, useServiceWorker } from '../../hooks';
+import { skipWaiting, useOnlineStatus, useServiceWorker } from '../../hooks';
 import { useI18n } from '../../providers/I18nProvider';
 import { cn } from '../../utils/cn';
 

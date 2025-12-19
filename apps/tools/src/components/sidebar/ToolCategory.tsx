@@ -31,7 +31,7 @@ export const ToolCategory: Component<ToolCategoryProps> = (props) => {
             'flex w-full items-center justify-between px-3 py-2 rounded-md',
             'text-xs font-semibold uppercase tracking-wider text-muted-foreground',
             'hover:text-foreground transition-colors',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           )}
         >
           <span>{props.category.name[locale()]}</span>

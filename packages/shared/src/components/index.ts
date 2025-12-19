@@ -4,5 +4,5 @@
  * @module @soundblue/shared/components
  */
 
-export { Footer, type FooterProps, type FooterLink } from './Footer';
+export { Footer, type FooterLink, type FooterProps } from './Footer';
 export { OfflineIndicator } from './pwa/OfflineIndicator';

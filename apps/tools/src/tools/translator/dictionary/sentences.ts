@@ -83,6 +83,6 @@ export const koToEnSentences: Record<string, string> = {
 export const enToKoSentences: Record<string, string> = {
   ...i18nEnToKoSentences,
   ...Object.fromEntries(
-    Object.entries(manualKoToEnSentences).map(([ko, en]) => [en.toLowerCase(), ko])
+    Object.entries(manualKoToEnSentences).map(([ko, en]) => [en.toLowerCase(), ko]),
   ),
 };

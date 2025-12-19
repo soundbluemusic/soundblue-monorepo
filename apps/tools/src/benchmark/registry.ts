@@ -22,7 +22,7 @@ export function registerBenchmark<TReport>(benchmark: BenchmarkDefinition<TRepor
  * ID로 벤치마크 조회
  */
 export function getBenchmark<TReport = unknown>(
-  id: string
+  id: string,
 ): BenchmarkDefinition<TReport> | undefined {
   return benchmarks.get(id) as BenchmarkDefinition<TReport> | undefined;
 }
@@ -38,7 +38,7 @@ export function getAllBenchmarks(): BenchmarkDefinition<unknown>[] {
  * 카테고리별 벤치마크 조회
  */
 export function getBenchmarksByCategory(
-  category: BenchmarkDefinition['category']
+  category: BenchmarkDefinition['category'],
 ): BenchmarkDefinition<unknown>[] {
   return getAllBenchmarks().filter((b) => b.category === category);
 }

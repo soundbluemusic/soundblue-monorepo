@@ -1,9 +1,5 @@
+import { getLocaleFromPath, getLocalizedPath, getPathWithoutLocale } from '@soundblue/shared/utils';
 import { describe, expect, it } from 'vitest';
-import {
-  getLocaleFromPath,
-  getLocalizedPath,
-  getPathWithoutLocale,
-} from '@soundblue/shared/utils';
 
 // Test-specific constants (avoid loading context.tsx which depends on @solidjs/router)
 const locales = ['en', 'ko'] as const;

@@ -31,7 +31,7 @@ const TooltipContent: ParentComponent<TooltipContentProps> = (props) => {
           'data-[placement=left]:slide-in-from-right-1',
           'data-[placement=right]:slide-in-from-left-1',
           'data-[placement=top]:slide-in-from-bottom-1',
-          local.class
+          local.class,
         )}
         {...others}
       >

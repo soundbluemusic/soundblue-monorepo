@@ -143,7 +143,7 @@ export const irregularVerbs: Record<string, VerbForms> = {
 export function conjugateEnglishVerb(
   verb: string,
   tense: 'present' | 'past' | 'future' | 'progressive',
-  subject?: string
+  subject?: string,
 ): string {
   const lowerVerb = verb.toLowerCase();
   const irregular = irregularVerbs[lowerVerb];

@@ -1,5 +1,5 @@
-import { Title, Meta } from "@solidjs/meta";
-import { About } from "~/components/About";
+import { Meta, Title } from '@solidjs/meta';
+import { About } from '~/components/About';
 
 export default function AboutPageKo() {
   return (

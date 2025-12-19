@@ -55,7 +55,7 @@ describe('url-sharing', () => {
       // LZString is very efficient with repeated chars, so use varied text
       // Generate diverse Korean syllables to prevent compression
       const longText = Array.from({ length: 3000 }, (_, i) =>
-        String.fromCharCode(0xAC00 + (i * 7) % 11172)
+        String.fromCharCode(0xac00 + ((i * 7) % 11172)),
       ).join('');
       const data: SharedTranslation = {
         text: longText,
@@ -96,7 +96,7 @@ describe('url-sharing', () => {
       const baseUrl = 'https://tools.soundbluemusic.com/translator';
       // Use varied text to prevent efficient compression
       const longText = Array.from({ length: 3000 }, (_, i) =>
-        String.fromCharCode(0xAC00 + (i * 7) % 11172)
+        String.fromCharCode(0xac00 + ((i * 7) % 11172)),
       ).join('');
       const data: SharedTranslation = {
         text: longText,

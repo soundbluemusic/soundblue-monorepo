@@ -4,24 +4,23 @@
  * Re-exports i18n utilities from shared package and app-specific context.
  */
 
-// App-specific context and hooks
-export {
-  LanguageProvider,
-  useLanguage,
-  useTranslations,
-  useIntlTranslations,
-  type Locale,
-  type Messages,
-  type LanguageContextValue,
-} from './context';
-
 // Shared utilities (from utils to avoid router dependency in tests)
 export {
-  getLocaleFromPath,
-  getPathWithoutLocale,
-  getLocalizedPath,
   DEFAULT_I18N_CONFIG,
+  getLocaleFromPath,
+  getLocalizedPath,
+  getPathWithoutLocale,
 } from '@soundblue/shared/utils';
+// App-specific context and hooks
+export {
+  type LanguageContextValue,
+  LanguageProvider,
+  type Locale,
+  type Messages,
+  useIntlTranslations,
+  useLanguage,
+  useTranslations,
+} from './context';
 
 // Constants
 export const locales = ['en', 'ko'] as const;

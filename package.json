@@ -12,7 +12,7 @@
     "typecheck": "pnpm --filter sound-blue typecheck && pnpm --filter tools typecheck && pnpm --filter dialogue typecheck && pnpm --filter @soundblue/shared exec tsc --noEmit",
     "check": "pnpm exec biome check .",
     "check:fix": "pnpm exec biome check --write .",
-    "check:circular": "pnpm exec madge --circular --extensions ts,tsx apps/ packages/",
+    "check:circular": "pnpm exec madge --circular --extensions ts,tsx --exclude '.vinxi|node_modules|dist' apps/ packages/",
     "check:versions": "pnpm exec syncpack list-mismatches",
     "check:size": "pnpm exec size-limit",
     "check:links": "pnpm exec blc ./apps/sound-blue/.output/public --recursive --exclude-external",
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
+    "@biomejs/biome": "^2.3.9",
     "@lhci/cli": "^0.15.1",
     "@size-limit/preset-app": "^12.0.0",
     "broken-link-checker": "^0.7.8",

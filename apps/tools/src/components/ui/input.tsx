@@ -25,7 +25,7 @@ const Input: Component<InputProps> = (props) => {
         'hover:bg-secondary/80 hover:ring-border',
         // Disabled state
         'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-secondary/60',
-        local.class
+        local.class,
       )}
       {...others}
     />

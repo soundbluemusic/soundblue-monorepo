@@ -1,16 +1,16 @@
 // Legacy exports (for backwards compatibility)
-export { Chat } from "./Chat";
-export { ChatMessage } from "./ChatMessage";
-export { ChatInput } from "./ChatInput";
-export { Header } from "./Header";
-export { Sidebar } from "./Sidebar";
-export { About } from "./About";
-export type { Message } from "./ChatMessage";
 
+export { Footer } from '@soundblue/shared';
+export { About } from './About';
+export { Chat } from './Chat';
+export { ChatInput } from './ChatInput';
+export type { Message } from './ChatMessage';
+export { ChatMessage } from './ChatMessage';
+export { ChatContainer } from './chat/ChatContainer';
+export { Header } from './Header';
+export { AppSidebar } from './layout/AppSidebar';
+export { Header as LayoutHeader } from './layout/Header';
 // New layout exports
-export { MainLayout } from "./layout/MainLayout";
-export { Header as LayoutHeader } from "./layout/Header";
-export { Footer } from "@soundblue/shared";
-export { AppSidebar } from "./layout/AppSidebar";
-export { ResultPanel } from "./layout/ResultPanel";
-export { ChatContainer } from "./chat/ChatContainer";
+export { MainLayout } from './layout/MainLayout';
+export { ResultPanel } from './layout/ResultPanel';
+export { Sidebar } from './Sidebar';

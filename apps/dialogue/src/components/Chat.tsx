@@ -1,15 +1,15 @@
-import type { Component } from "solid-js";
-import { createSignal, For, onMount, createEffect } from "solid-js";
-import { useI18n } from "~/i18n";
-import { translations } from "~/i18n/translations";
-import { searchKnowledge } from "~/lib/search";
-import { handleDynamicQuery, getFallbackResponse } from "~/lib/handlers";
-import { detectLanguage } from "~/lib/language-detector";
-import { ChatMessage } from "./ChatMessage";
-import type { Message } from "./ChatMessage";
-import { ChatInput } from "./ChatInput";
-import { Header } from "./Header";
-import { Sidebar } from "./Sidebar";
+import type { Component } from 'solid-js';
+import { createEffect, createSignal, For, onMount } from 'solid-js';
+import { useI18n } from '~/i18n';
+import { translations } from '~/i18n/translations';
+import { getFallbackResponse, handleDynamicQuery } from '~/lib/handlers';
+import { detectLanguage } from '~/lib/language-detector';
+import { searchKnowledge } from '~/lib/search';
+import { ChatInput } from './ChatInput';
+import type { Message } from './ChatMessage';
+import { ChatMessage } from './ChatMessage';
+import { Header } from './Header';
+import { Sidebar } from './Sidebar';
 
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -25,7 +25,7 @@ export const Chat: Component = () => {
   onMount(() => {
     const welcomeMessage: Message = {
       id: generateId(),
-      role: "assistant",
+      role: 'assistant',
       content: t.welcome,
       timestamp: Date.now(),
     };
@@ -34,7 +34,7 @@ export const Chat: Component = () => {
 
   createEffect(() => {
     if (messagesEndRef) {
-      messagesEndRef.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.scrollIntoView({ behavior: 'smooth' });
     }
   });
 
@@ -42,7 +42,7 @@ export const Chat: Component = () => {
     setMessages([
       {
         id: generateId(),
-        role: "assistant",
+        role: 'assistant',
         content: t.welcome,
         timestamp: Date.now(),
       },
@@ -52,7 +52,7 @@ export const Chat: Component = () => {
   const handleSend = async (content: string) => {
     const userMessage: Message = {
       id: generateId(),
-      role: "user",
+      role: 'user',
       content,
       timestamp: Date.now(),
     };
@@ -88,7 +88,7 @@ export const Chat: Component = () => {
 
     const assistantMessage: Message = {
       id: generateId(),
-      role: "assistant",
+      role: 'assistant',
       content: responseContent,
       timestamp: Date.now(),
     };
@@ -108,16 +108,23 @@ export const Chat: Component = () => {
       <Header onMenuClick={() => setSidebarOpen(true)} />
 
       <main class="flex-1 overflow-y-auto py-6 max-md:py-4">
-        <For each={messages()}>
-          {(message) => <ChatMessage message={message} />}
-        </For>
+        <For each={messages()}>{(message) => <ChatMessage message={message} />}</For>
 
         {isThinking() && (
           <div class="flex items-center gap-3 px-6 py-4 animate-fade-in">
             <div class="flex gap-1">
-              <span class="w-2 h-2 bg-accent rounded-full animate-typing" style="animation-delay: 0s" />
-              <span class="w-2 h-2 bg-accent rounded-full animate-typing" style="animation-delay: 0.2s" />
-              <span class="w-2 h-2 bg-accent rounded-full animate-typing" style="animation-delay: 0.4s" />
+              <span
+                class="w-2 h-2 bg-accent rounded-full animate-typing"
+                style="animation-delay: 0s"
+              />
+              <span
+                class="w-2 h-2 bg-accent rounded-full animate-typing"
+                style="animation-delay: 0.2s"
+              />
+              <span
+                class="w-2 h-2 bg-accent rounded-full animate-typing"
+                style="animation-delay: 0.4s"
+              />
             </div>
             <span class="text-text-muted text-sm">{t.thinking}</span>
           </div>

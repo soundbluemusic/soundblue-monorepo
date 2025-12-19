@@ -22,7 +22,9 @@ interface FilePickerOptions {
 interface Window {
   showSaveFilePicker?: (options?: FilePickerOptions) => Promise<FileSystemFileHandle>;
   showOpenFilePicker?: (options?: FilePickerOptions) => Promise<FileSystemFileHandle[]>;
-  showDirectoryPicker?: (options?: { mode?: 'read' | 'readwrite' }) => Promise<FileSystemDirectoryHandle>;
+  showDirectoryPicker?: (options?: {
+    mode?: 'read' | 'readwrite';
+  }) => Promise<FileSystemDirectoryHandle>;
 }
 
 // Extend FileSystemFileHandle

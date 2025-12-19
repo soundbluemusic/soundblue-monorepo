@@ -1,22 +1,21 @@
 export { cn } from './cn';
-export {
-  getValidatedStorageItem,
-  getStorageItem,
-  setStorageItem,
-  removeStorageItem,
-  getRawStorageItem,
-  setRawStorageItem,
-} from './storage';
-
 // i18n utilities
 export {
   type BaseLocale,
-  type I18nPathConfig,
+  createLocalizedPathBuilder,
   DEFAULT_I18N_CONFIG,
   getLocaleFromPath,
-  getPathWithoutLocale,
   getLocalizedPath,
-  createLocalizedPathBuilder,
-  hasLocalePrefix,
   getOppositeLocale,
+  getPathWithoutLocale,
+  hasLocalePrefix,
+  type I18nPathConfig,
 } from './i18n';
+export {
+  getRawStorageItem,
+  getStorageItem,
+  getValidatedStorageItem,
+  removeStorageItem,
+  setRawStorageItem,
+  setStorageItem,
+} from './storage';

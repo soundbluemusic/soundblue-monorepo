@@ -21,7 +21,7 @@ import {
   useContext,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { getPreference, setPreference, migrateFromLocalStorage } from '../storage';
+import { getPreference, migrateFromLocalStorage, setPreference } from '../storage';
 
 /**
  * Available theme options.
@@ -153,14 +153,13 @@ export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
     // Get stored preference from IndexedDB
     let stored: Theme | null = null;
     try {
-      stored = await getPreference(storageKey()) as Theme | null;
+      stored = (await getPreference(storageKey())) as Theme | null;
     } catch {
       // IndexedDB not available
     }
 
-    const initial = stored && ['light', 'dark', 'system'].includes(stored)
-      ? stored
-      : defaultTheme();
+    const initial =
+      stored && ['light', 'dark', 'system'].includes(stored) ? stored : defaultTheme();
 
     setThemeState(initial);
     applyTheme(initial);
@@ -195,11 +194,7 @@ export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
     toggleTheme,
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {props.children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{props.children}</ThemeContext.Provider>;
 };
 
 /**

@@ -29,16 +29,16 @@ import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/tran
 
 // Lazy load tool components for code splitting
 const LazyMetronome = lazy(() =>
-  import('~/tools/metronome').then((m) => ({ default: m.metronomeTool.component }))
+  import('~/tools/metronome').then((m) => ({ default: m.metronomeTool.component })),
 );
 const LazyDrumMachine = lazy(() =>
-  import('~/tools/drum-machine').then((m) => ({ default: m.drumMachineTool.component }))
+  import('~/tools/drum-machine').then((m) => ({ default: m.drumMachineTool.component })),
 );
 const LazyQRGenerator = lazy(() =>
-  import('~/tools/qr-generator').then((m) => ({ default: m.qrGeneratorTool.component }))
+  import('~/tools/qr-generator').then((m) => ({ default: m.qrGeneratorTool.component })),
 );
 const LazyTranslator = lazy(() =>
-  import('~/tools/translator').then((m) => ({ default: m.translatorTool.component }))
+  import('~/tools/translator').then((m) => ({ default: m.translatorTool.component })),
 );
 
 // Loading fallback component
@@ -118,7 +118,7 @@ export const ToolContainer: Component = () => {
     // Type-safe URL param parsing per tool type
     const parseUrlValue = (
       param: string,
-      rawValue: string | string[] | undefined
+      rawValue: string | string[] | undefined,
     ): { key: string; value: number | string } | null => {
       const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
       if (value === undefined || value === null || value === '') return null;
@@ -177,7 +177,8 @@ export const ToolContainer: Component = () => {
         const parsed = parseUrlValue(param, searchParams[param]);
         if (parsed) {
           hasUrlSettings = true;
-          if (parsed.key === 'direction') settings.direction = parsed.value as TranslatorSettings['direction'];
+          if (parsed.key === 'direction')
+            settings.direction = parsed.value as TranslatorSettings['direction'];
         }
       }
       if (hasUrlSettings) toolActions.updateToolSettings('translator', settings);
@@ -324,7 +325,7 @@ export const ToolContainer: Component = () => {
                   'transition-all duration-200 ease-out',
                   'hover:bg-primary/10 hover:text-primary',
                   'active:bg-primary/20',
-                  urlCopied() && 'text-green-500'
+                  urlCopied() && 'text-green-500',
                 )}
                 aria-label={t().tools.shareUrl}
               >
@@ -342,7 +343,7 @@ export const ToolContainer: Component = () => {
                 'p-1.5 rounded-lg',
                 'transition-all duration-200 ease-out',
                 'hover:bg-destructive/25 hover:text-destructive',
-                'active:bg-destructive/35'
+                'active:bg-destructive/35',
               )}
               aria-label={t().tools.closeTool}
             >

@@ -40,7 +40,7 @@ export interface WsdResult {
 export function extractContext(
   tokens: string[],
   targetIndex: number,
-  windowSize = 3
+  windowSize = 3,
 ): ContextWindow {
   return {
     before: tokens.slice(Math.max(0, targetIndex - windowSize), targetIndex),
@@ -158,7 +158,7 @@ function calculateTriggerScore(
   triggers: string[],
   beforeWords: string[],
   afterWords: string[],
-  fullText: string
+  fullText: string,
 ): number {
   let score = 0;
 
@@ -250,7 +250,7 @@ export function scoreSense(sense: Sense, context: ContextWindow, domainBonus = 0
 export function disambiguate(
   word: string,
   context: ContextWindow,
-  topDomain?: string | null
+  topDomain?: string | null,
 ): WsdResult | null {
   const polysemy = polysemyMap.get(word);
   if (!polysemy) return null;
@@ -295,7 +295,7 @@ export function disambiguate(
  */
 export function disambiguateAll(
   tokens: string[],
-  topDomain?: string | null
+  topDomain?: string | null,
 ): Map<number, WsdResult> {
   const results = new Map<number, WsdResult>();
 

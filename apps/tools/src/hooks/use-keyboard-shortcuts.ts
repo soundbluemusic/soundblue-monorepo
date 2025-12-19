@@ -268,7 +268,7 @@ export function cleanupKeyboardShortcuts(): void {
  */
 export function registerShortcut(
   definition: ShortcutDefinition,
-  handler: ShortcutHandler
+  handler: ShortcutHandler,
 ): () => void {
   const combo = parseKeyCombo(definition.key);
 
@@ -288,10 +288,10 @@ export function registerShortcut(
  * Register multiple shortcuts at once
  */
 export function registerShortcuts(
-  shortcuts: Array<{ definition: ShortcutDefinition; handler: ShortcutHandler }>
+  shortcuts: Array<{ definition: ShortcutDefinition; handler: ShortcutHandler }>,
 ): () => void {
   const unregisterFns = shortcuts.map(({ definition, handler }) =>
-    registerShortcut(definition, handler)
+    registerShortcut(definition, handler),
   );
 
   return () => {

@@ -80,7 +80,7 @@ declare class AudioWorkletProcessor {
   process(
     inputs: Float32Array[][],
     outputs: Float32Array[][],
-    parameters: Record<string, Float32Array>
+    parameters: Record<string, Float32Array>,
   ): boolean;
 }
 
@@ -435,7 +435,7 @@ class DAWAudioProcessor extends AudioWorkletProcessor {
   process(
     inputs: Float32Array[][],
     outputs: Float32Array[][],
-    _parameters: Record<string, Float32Array>
+    _parameters: Record<string, Float32Array>,
   ): boolean {
     const input = inputs[0];
     const output = outputs[0];
@@ -495,7 +495,7 @@ class DAWAudioProcessor extends AudioWorkletProcessor {
         leftLevel = this.wasmEngine.calculate_rms(this.wasmOutputPtr, BUFFER_SIZE);
         rightLevel = this.wasmEngine.calculate_rms(
           this.wasmOutputPtr + BUFFER_SIZE * 4,
-          BUFFER_SIZE
+          BUFFER_SIZE,
         );
 
         // If WASM RMS returns 0, use JS fallback (WASM might not have the function)

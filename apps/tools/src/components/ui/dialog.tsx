@@ -22,7 +22,7 @@ const DialogOverlay: Component<DialogOverlayProps> = (props) => {
         'fixed inset-0 z-50',
         'bg-black/40 backdrop-blur-sm',
         'data-[expanded]:animate-fade-in data-[closed]:animate-fade-out',
-        local.class
+        local.class,
       )}
       {...others}
     />
@@ -51,7 +51,7 @@ const DialogContent: ParentComponent<DialogContentProps> = (props) => {
           'p-6',
           // Animation
           'data-[expanded]:animate-scale-in data-[closed]:animate-scale-out',
-          local.class
+          local.class,
         )}
         {...others}
       >
@@ -64,7 +64,7 @@ const DialogContent: ParentComponent<DialogContentProps> = (props) => {
             'transition-all duration-200 ease-out',
             'hover:bg-secondary hover:text-foreground hover:scale-105',
             'active:scale-95',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           )}
         >
           <X class="h-4 w-4" />

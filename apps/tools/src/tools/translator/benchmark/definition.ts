@@ -36,7 +36,7 @@ export const translatorBenchmark: BenchmarkDefinition<BenchmarkReport> = {
           percentage: p.percentage,
           message: p.currentTestId,
         }),
-      direction ?? 'all'
+      direction ?? 'all',
     );
   },
   runQuick: (onProgress, direction?: DirectionFilter) => {
@@ -48,7 +48,7 @@ export const translatorBenchmark: BenchmarkDefinition<BenchmarkReport> = {
           percentage: p.percentage,
           message: p.currentTestId,
         }),
-      direction ?? 'all'
+      direction ?? 'all',
     );
   },
   ResultComponent: TranslatorBenchmarkResult,

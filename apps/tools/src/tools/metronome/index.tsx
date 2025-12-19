@@ -85,7 +85,7 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
 
     gain.gain.exponentialRampToValueAtTime(
       Math.max(0.001, 0.01 * volumeMultiplier),
-      time + TIMING.CLICK_DURATION_SECONDS
+      time + TIMING.CLICK_DURATION_SECONDS,
     );
 
     osc.start(time);

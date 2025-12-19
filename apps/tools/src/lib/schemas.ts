@@ -42,8 +42,8 @@ export const DrumMachineSettingsSchema = v.object({
       v.object({
         name: v.string(),
         steps: v.array(v.boolean()),
-      })
-    )
+      }),
+    ),
   ),
 });
 
@@ -92,10 +92,10 @@ export type ProjectDataOutput = v.InferOutput<typeof ProjectDataSchema>;
  */
 export const ToolUrlParamsSchema = v.object({
   bpm: v.optional(
-    v.pipe(v.string(), v.transform(Number), v.number(), v.minValue(20), v.maxValue(300))
+    v.pipe(v.string(), v.transform(Number), v.number(), v.minValue(20), v.maxValue(300)),
   ),
   volume: v.optional(
-    v.pipe(v.string(), v.transform(Number), v.number(), v.minValue(0), v.maxValue(100))
+    v.pipe(v.string(), v.transform(Number), v.number(), v.minValue(0), v.maxValue(100)),
   ),
 });
 
@@ -136,7 +136,7 @@ export function parseSchema<T extends v.GenericSchema>(schema: T, data: unknown)
  */
 export function safeParseSchema<T extends v.GenericSchema>(
   schema: T,
-  data: unknown
+  data: unknown,
 ): v.InferOutput<T> | undefined {
   const result = v.safeParse(schema, data);
   return result.success ? result.output : undefined;
@@ -148,7 +148,7 @@ export function safeParseSchema<T extends v.GenericSchema>(
 export async function loadFromStorage<T extends v.GenericSchema>(
   key: string,
   schema: T,
-  fallback: v.InferOutput<T>
+  fallback: v.InferOutput<T>,
 ): Promise<v.InferOutput<T>> {
   if (typeof window === 'undefined') return fallback;
 
@@ -170,7 +170,7 @@ export async function loadFromStorage<T extends v.GenericSchema>(
 export async function saveToStorage<T extends v.GenericSchema>(
   key: string,
   schema: T,
-  data: v.InferInput<T>
+  data: v.InferInput<T>,
 ): Promise<boolean> {
   if (typeof window === 'undefined') return false;
 

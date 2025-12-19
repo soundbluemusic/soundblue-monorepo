@@ -5,12 +5,8 @@
  * Requirements Coverage: 다국어 지원 요구사항 검증
  */
 
+import { getLocaleFromPath, getLocalizedPath, getPathWithoutLocale } from '@soundblue/shared/utils';
 import { describe, expect, it } from 'vitest';
-import {
-  getLocaleFromPath,
-  getLocalizedPath,
-  getPathWithoutLocale,
-} from '@soundblue/shared/utils';
 
 // Test-specific constants (avoid loading context.tsx which depends on @solidjs/router)
 const locales = ['en', 'ko'] as const;
@@ -49,7 +45,7 @@ describe('i18n Integration Tests', () => {
 
     it('should handle nested paths correctly', () => {
       expect(getPathWithoutLocale('/ko/tools/metronome/settings')).toBe(
-        '/tools/metronome/settings'
+        '/tools/metronome/settings',
       );
       expect(getPathWithoutLocale('/en/tools/drum-machine')).toBe('/tools/drum-machine');
     });

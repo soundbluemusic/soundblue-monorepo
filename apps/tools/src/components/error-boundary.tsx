@@ -189,7 +189,7 @@ export function setupGlobalErrorHandlers(): void {
     source?: string,
     lineno?: number,
     colno?: number,
-    error?: Error
+    error?: Error,
   ): boolean => {
     reportError(error || new Error(String(message)), `Global: ${source}:${lineno}:${colno}`);
     return false; // 기본 에러 처리 계속

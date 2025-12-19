@@ -1,12 +1,13 @@
 #!/usr/bin/env node
+
 /**
  * Generate high-quality PWA icons from source image
  * Usage: node scripts/generate-icons.mjs
  */
 
-import sharp from 'sharp';
 import { mkdir, readdir } from 'fs/promises';
-import { join, dirname } from 'path';
+import { dirname, join } from 'path';
+import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -29,12 +30,12 @@ async function generateIcons(sourcePath, outputDir, prefix = 'icon') {
     await sharp(sourcePath)
       .resize(size, size, {
         fit: 'contain',
-        background: { r: 0, g: 0, b: 0, alpha: 0 }
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
       })
       .png({
         quality: 100,
-        compressionLevel: 6,  // balanced compression
-        palette: false,       // disable palette (8-bit) mode for better quality
+        compressionLevel: 6, // balanced compression
+        palette: false, // disable palette (8-bit) mode for better quality
       })
       .toFile(outputPath);
 
@@ -45,13 +46,13 @@ async function generateIcons(sourcePath, outputDir, prefix = 'icon') {
   for (const size of [192, 512]) {
     const outputPath = join(outputDir, `${prefix}-maskable-${size}.png`);
     const padding = Math.floor(size * 0.1); // 10% padding
-    const innerSize = size - (padding * 2);
+    const innerSize = size - padding * 2;
 
     // Create a canvas with the icon centered
     const resized = await sharp(sourcePath)
       .resize(innerSize, innerSize, {
         fit: 'contain',
-        background: { r: 0, g: 0, b: 0, alpha: 0 }
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
       })
       .toBuffer();
 
@@ -60,14 +61,16 @@ async function generateIcons(sourcePath, outputDir, prefix = 'icon') {
         width: size,
         height: size,
         channels: 4,
-        background: { r: 250, g: 249, b: 247, alpha: 1 } // #faf9f7 - Sound Blue bg color
-      }
+        background: { r: 250, g: 249, b: 247, alpha: 1 }, // #faf9f7 - Sound Blue bg color
+      },
     })
-      .composite([{
-        input: resized,
-        top: padding,
-        left: padding
-      }])
+      .composite([
+        {
+          input: resized,
+          top: padding,
+          left: padding,
+        },
+      ])
       .png({
         quality: 100,
         compressionLevel: 6,
@@ -83,7 +86,7 @@ async function generateIcons(sourcePath, outputDir, prefix = 'icon') {
   await sharp(sourcePath)
     .resize(180, 180, {
       fit: 'contain',
-      background: { r: 250, g: 249, b: 247, alpha: 1 }
+      background: { r: 250, g: 249, b: 247, alpha: 1 },
     })
     .png({
       quality: 100,
@@ -99,7 +102,7 @@ async function generateIcons(sourcePath, outputDir, prefix = 'icon') {
     await sharp(sourcePath)
       .resize(size, size, {
         fit: 'contain',
-        background: { r: 0, g: 0, b: 0, alpha: 0 }
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
       })
       .png({
         quality: 100,

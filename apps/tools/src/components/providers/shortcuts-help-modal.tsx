@@ -111,7 +111,7 @@ export const ShortcutsHelpModal: Component = () => {
               'relative w-full max-w-lg mx-4',
               'bg-background border border-border rounded-xl shadow-2xl',
               'max-h-[80vh] overflow-hidden flex flex-col',
-              'animate-in fade-in zoom-in-95 duration-200'
+              'animate-in fade-in zoom-in-95 duration-200',
             )}
           >
             {/* Header */}
@@ -128,7 +128,7 @@ export const ShortcutsHelpModal: Component = () => {
                 class={cn(
                   'p-2 rounded-lg',
                   'text-muted-foreground hover:text-foreground',
-                  'hover:bg-muted transition-colors'
+                  'hover:bg-muted transition-colors',
                 )}
                 aria-label="Close"
               >
@@ -160,7 +160,7 @@ export const ShortcutsHelpModal: Component = () => {
                                   'inline-flex items-center gap-1 px-2.5 py-1.5',
                                   'text-xs font-mono font-medium',
                                   'bg-muted border border-border rounded-md',
-                                  'text-muted-foreground'
+                                  'text-muted-foreground',
                                 )}
                               >
                                 {formatKey(shortcut.key)}

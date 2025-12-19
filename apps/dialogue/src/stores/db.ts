@@ -6,10 +6,10 @@
  * concurrent connections and improve performance.
  */
 
-const DB_NAME = "dialogue-db";
+const DB_NAME = 'dialogue-db';
 const DB_VERSION = 1;
-const CONVERSATIONS_STORE = "conversations";
-const SETTINGS_STORE = "settings";
+const CONVERSATIONS_STORE = 'conversations';
+const SETTINGS_STORE = 'settings';
 
 let dbInstance: IDBDatabase | null = null;
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -53,13 +53,13 @@ export async function getDialogueDb(): Promise<IDBDatabase> {
 
       // Conversations store
       if (!db.objectStoreNames.contains(CONVERSATIONS_STORE)) {
-        const store = db.createObjectStore(CONVERSATIONS_STORE, { keyPath: "id" });
-        store.createIndex("updatedAt", "updatedAt", { unique: false });
+        const store = db.createObjectStore(CONVERSATIONS_STORE, { keyPath: 'id' });
+        store.createIndex('updatedAt', 'updatedAt', { unique: false });
       }
 
       // Settings store
       if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
-        db.createObjectStore(SETTINGS_STORE, { keyPath: "key" });
+        db.createObjectStore(SETTINGS_STORE, { keyPath: 'key' });
       }
     };
   });
@@ -75,12 +75,12 @@ export async function getDialogueDb(): Promise<IDBDatabase> {
  * @returns The setting value, or null if not found
  */
 export async function getSetting<T>(key: string): Promise<T | null> {
-  if (typeof window === "undefined") return null;
+  if (typeof window === 'undefined') return null;
 
   try {
     const db = await getDialogueDb();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(SETTINGS_STORE, "readonly");
+      const tx = db.transaction(SETTINGS_STORE, 'readonly');
       const store = tx.objectStore(SETTINGS_STORE);
       const request = store.get(key);
 
@@ -101,12 +101,12 @@ export async function getSetting<T>(key: string): Promise<T | null> {
  * @param value - The value to store
  */
 export async function setSetting<T>(key: string, value: T): Promise<void> {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
 
   try {
     const db = await getDialogueDb();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(SETTINGS_STORE, "readwrite");
+      const tx = db.transaction(SETTINGS_STORE, 'readwrite');
       const store = tx.objectStore(SETTINGS_STORE);
       const request = store.put({ key, value });
 
@@ -124,7 +124,7 @@ export async function setSetting<T>(key: string, value: T): Promise<void> {
  * @param key - The key to migrate
  */
 export async function migrateSettingFromLocalStorage(key: string): Promise<void> {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
 
   try {
     const value = localStorage.getItem(key);

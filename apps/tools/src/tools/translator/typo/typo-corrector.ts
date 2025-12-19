@@ -141,7 +141,7 @@ export function findSimilarWords(
   word: string,
   dictionary: string[],
   maxResults: number = 5,
-  threshold: number = 0.5
+  threshold: number = 0.5,
 ): CandidateWord[] {
   const candidates: CandidateWord[] = [];
 
@@ -188,7 +188,7 @@ export function isTypo(word: string, dictionary: string[]): boolean {
  */
 export function extractTypoCandidates(
   text: string,
-  dictionary: string[]
+  dictionary: string[],
 ): { word: string; position: number; suggestions: CandidateWord[] }[] {
   const candidates: {
     word: string;

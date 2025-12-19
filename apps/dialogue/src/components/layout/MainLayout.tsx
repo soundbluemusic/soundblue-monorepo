@@ -1,13 +1,13 @@
-import type { Component } from "solid-js";
-import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
-import { isServer } from "solid-js/web";
-import { BREAKPOINTS, Footer } from "@soundblue/shared";
-import { useI18n } from "~/i18n";
-import { uiActions, uiStore } from "~/stores/ui-store";
-import { ChatContainer } from "../chat/ChatContainer";
-import { AppSidebar } from "./AppSidebar";
-import { Header } from "./Header";
-import { ResultPanel } from "./ResultPanel";
+import { BREAKPOINTS, Footer } from '@soundblue/shared';
+import type { Component } from 'solid-js';
+import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
+import { isServer } from 'solid-js/web';
+import { useI18n } from '~/i18n';
+import { uiActions, uiStore } from '~/stores/ui-store';
+import { ChatContainer } from '../chat/ChatContainer';
+import { AppSidebar } from './AppSidebar';
+import { Header } from './Header';
+import { ResultPanel } from './ResultPanel';
 
 // ========================================
 // MainLayout Component - 메인 3열 레이아웃
@@ -27,9 +27,9 @@ const SIDEBAR_WIDTH = {
 } as const;
 
 // Tab button styles
-const TAB_BASE_CLASS = "flex-1 py-3 text-sm font-medium transition-colors text-center";
-const TAB_ACTIVE_CLASS = "border-b-2 border-accent text-accent";
-const TAB_INACTIVE_CLASS = "text-text-muted";
+const TAB_BASE_CLASS = 'flex-1 py-3 text-sm font-medium transition-colors text-center';
+const TAB_ACTIVE_CLASS = 'border-b-2 border-accent text-accent';
+const TAB_INACTIVE_CLASS = 'text-text-muted';
 
 export const MainLayout: Component = () => {
   const { t } = useI18n();
@@ -37,7 +37,7 @@ export const MainLayout: Component = () => {
   // (most users are on desktop, mobile users get instant update on mount)
   const [isMobile, setIsMobile] = createSignal(false);
   const [isHydrated, setIsHydrated] = createSignal(false);
-  const [activeTab, setActiveTab] = createSignal<"chat" | "result">("chat");
+  const [activeTab, setActiveTab] = createSignal<'chat' | 'result'>('chat');
 
   // Resizable chat panel
   const [chatWidth, setChatWidth] = createSignal<number>(CHAT_WIDTH.default);
@@ -57,7 +57,7 @@ export const MainLayout: Component = () => {
     checkScreenSize();
     // Mark as hydrated after initial layout is set
     requestAnimationFrame(() => setIsHydrated(true));
-    window.addEventListener("resize", checkScreenSize);
+    window.addEventListener('resize', checkScreenSize);
   });
 
   // Close sidebar when switching to mobile
@@ -69,7 +69,7 @@ export const MainLayout: Component = () => {
 
   onCleanup(() => {
     if (!isServer) {
-      window.removeEventListener("resize", checkScreenSize);
+      window.removeEventListener('resize', checkScreenSize);
     }
   });
 
@@ -77,8 +77,8 @@ export const MainLayout: Component = () => {
   const handleResizeStart = (e: MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
   };
 
   const handleResizeMove = (e: MouseEvent) => {
@@ -95,27 +95,27 @@ export const MainLayout: Component = () => {
 
   const handleResizeEnd = () => {
     setIsResizing(false);
-    document.body.style.cursor = "";
-    document.body.style.userSelect = "";
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
   };
 
   // Global mouse events for resize
   createEffect(() => {
     if (isServer || !isResizing()) return;
 
-    window.addEventListener("mousemove", handleResizeMove);
-    window.addEventListener("mouseup", handleResizeEnd);
+    window.addEventListener('mousemove', handleResizeMove);
+    window.addEventListener('mouseup', handleResizeEnd);
 
     onCleanup(() => {
-      window.removeEventListener("mousemove", handleResizeMove);
-      window.removeEventListener("mouseup", handleResizeEnd);
+      window.removeEventListener('mousemove', handleResizeMove);
+      window.removeEventListener('mouseup', handleResizeEnd);
     });
   });
 
   // Switch to result tab when content is shown
   createEffect(() => {
     if (isMobile() && uiStore.resultPanelOpen) {
-      setActiveTab("result");
+      setActiveTab('result');
     }
   });
 
@@ -151,8 +151,8 @@ export const MainLayout: Component = () => {
         <div
           class="z-50 max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:pt-14 md:relative"
           classList={{
-            "max-md:transition-transform max-md:duration-200": isHydrated(),
-            "max-md:-translate-x-full": !uiStore.sidebarOpen,
+            'max-md:transition-transform max-md:duration-200': isHydrated(),
+            'max-md:-translate-x-full': !uiStore.sidebarOpen,
           }}
         >
           <AppSidebar onNewChat={handleNewChat} onLoadConversation={handleLoadConversation} />
@@ -166,26 +166,30 @@ export const MainLayout: Component = () => {
             <div class="flex shrink-0 border-b border-border bg-bg-secondary">
               <button
                 type="button"
-                onClick={() => setActiveTab("chat")}
-                class={`${TAB_BASE_CLASS} ${activeTab() === "chat" ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
+                onClick={() => setActiveTab('chat')}
+                class={`${TAB_BASE_CLASS} ${activeTab() === 'chat' ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
               >
                 {t.title}
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab("result")}
-                class={`${TAB_BASE_CLASS} ${activeTab() === "result" ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
+                onClick={() => setActiveTab('result')}
+                class={`${TAB_BASE_CLASS} ${activeTab() === 'result' ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
               >
-                {t.aboutInfo || "Results"}
+                {t.aboutInfo || 'Results'}
               </button>
             </div>
 
             {/* Tab Content */}
             <div class="flex-1 overflow-auto min-h-37.5">
-              <Show when={activeTab() === "chat"}>
-                <ChatContainer resetTrigger={chatResetTrigger()} loadTrigger={chatLoadTrigger()} onNewChat={handleNewChat} />
+              <Show when={activeTab() === 'chat'}>
+                <ChatContainer
+                  resetTrigger={chatResetTrigger()}
+                  loadTrigger={chatLoadTrigger()}
+                  onNewChat={handleNewChat}
+                />
               </Show>
-              <Show when={activeTab() === "result"}>
+              <Show when={activeTab() === 'result'}>
                 <ResultPanel />
               </Show>
             </div>
@@ -198,7 +202,11 @@ export const MainLayout: Component = () => {
               class="relative shrink-0 border-r border-border min-h-50"
               style={{ width: `${chatWidth()}px` }}
             >
-              <ChatContainer resetTrigger={chatResetTrigger()} loadTrigger={chatLoadTrigger()} onNewChat={handleNewChat} />
+              <ChatContainer
+                resetTrigger={chatResetTrigger()}
+                loadTrigger={chatLoadTrigger()}
+                onNewChat={handleNewChat}
+              />
 
               {/* Resize Handle */}
               <div
@@ -207,7 +215,7 @@ export const MainLayout: Component = () => {
               >
                 <div
                   class="h-full w-1 transition-colors duration-150 group-hover:bg-accent/30 group-active:bg-accent/50"
-                  classList={{ "bg-accent/50": isResizing() }}
+                  classList={{ 'bg-accent/50': isResizing() }}
                 />
               </div>
             </div>

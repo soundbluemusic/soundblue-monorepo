@@ -6,21 +6,23 @@
  * setupFiles: ['@soundblue/shared/test/setup']
  */
 import '@testing-library/jest-dom/vitest';
-import { vi, type Mock } from 'vitest';
+import { type Mock, vi } from 'vitest';
 
 // ============================================
 // Mock: window.matchMedia
 // ============================================
-export const mockMatchMedia: Mock<(query: string) => MediaQueryList> = vi.fn().mockImplementation((query: string) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
+export const mockMatchMedia: Mock<(query: string) => MediaQueryList> = vi
+  .fn()
+  .mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -82,10 +84,7 @@ Object.defineProperty(window, 'cancelAnimationFrame', {
 Object.defineProperty(window, 'requestIdleCallback', {
   writable: true,
   value: vi.fn().mockImplementation((callback: IdleRequestCallback) => {
-    return setTimeout(
-      () => callback({ didTimeout: false, timeRemaining: () => 50 }),
-      0
-    );
+    return setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 50 }), 0);
   }),
 });
 
@@ -201,9 +200,8 @@ export class MockAudioContext {
   }
 }
 
-(
-  globalThis as unknown as { AudioContext: typeof MockAudioContext }
-).AudioContext = MockAudioContext;
+(globalThis as unknown as { AudioContext: typeof MockAudioContext }).AudioContext =
+  MockAudioContext;
 
 // ============================================
 // Helper: Reset all mocks between tests

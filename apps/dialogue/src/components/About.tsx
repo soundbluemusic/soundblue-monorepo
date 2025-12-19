@@ -1,12 +1,12 @@
-import type { Component } from "solid-js";
-import { A } from "@solidjs/router";
-import { useI18n } from "~/i18n";
+import { A } from '@solidjs/router';
+import type { Component } from 'solid-js';
+import { useI18n } from '~/i18n';
 
 export const About: Component = () => {
   const { t, locale } = useI18n();
 
   const getHomeUrl = () => {
-    return locale() === "en" ? "/" : `/${locale()}`;
+    return locale() === 'en' ? '/' : `/${locale()}`;
   };
 
   return (
@@ -34,7 +34,9 @@ export const About: Component = () => {
 
         {/* Features Section */}
         <section class="mb-10">
-          <h2 class="text-lg font-semibold text-text-primary mb-5 pb-2 border-b border-border">{t.aboutFeatures}</h2>
+          <h2 class="text-lg font-semibold text-text-primary mb-5 pb-2 border-b border-border">
+            {t.aboutFeatures}
+          </h2>
           <div class="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
             <div class="p-5 bg-bg-secondary border border-border rounded-[--radius-md]">
               <div class="inline-flex items-center justify-center w-11 h-11 bg-accent-light text-accent rounded-[--radius-sm] mb-3">
@@ -54,7 +56,9 @@ export const About: Component = () => {
               <div class="inline-flex items-center justify-center w-11 h-11 bg-accent-light text-accent rounded-[--radius-sm] mb-3">
                 <LanguageIcon />
               </div>
-              <h3 class="text-[15px] font-semibold text-text-primary mb-1.5">{t.featureMultilang}</h3>
+              <h3 class="text-[15px] font-semibold text-text-primary mb-1.5">
+                {t.featureMultilang}
+              </h3>
               <p class="text-[13px] text-text-secondary leading-normal">{t.featureMultilangDesc}</p>
             </div>
             <div class="p-5 bg-bg-secondary border border-border rounded-[--radius-md]">
@@ -69,7 +73,9 @@ export const About: Component = () => {
 
         {/* Tech Stack Section */}
         <section class="mb-10">
-          <h2 class="text-lg font-semibold text-text-primary mb-5 pb-2 border-b border-border">{t.aboutTech}</h2>
+          <h2 class="text-lg font-semibold text-text-primary mb-5 pb-2 border-b border-border">
+            {t.aboutTech}
+          </h2>
           <div class="flex flex-col gap-3">
             <div class="flex justify-between items-center px-4.5 py-3.5 bg-bg-secondary border border-border rounded-[--radius-sm]">
               <span class="text-sm text-text-secondary">Framework</span>
@@ -92,7 +98,9 @@ export const About: Component = () => {
 
         {/* Info Section */}
         <section class="mb-10">
-          <h2 class="text-lg font-semibold text-text-primary mb-5 pb-2 border-b border-border">{t.aboutInfo}</h2>
+          <h2 class="text-lg font-semibold text-text-primary mb-5 pb-2 border-b border-border">
+            {t.aboutInfo}
+          </h2>
           <div class="flex flex-col gap-2">
             <a
               href="https://github.com/soundbluemusic/Dialogue"

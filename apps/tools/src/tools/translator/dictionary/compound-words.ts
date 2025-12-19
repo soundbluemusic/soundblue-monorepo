@@ -320,7 +320,7 @@ export const prefixPatterns: Record<string, { meaning: string; type: string }> =
  * @returns { translation: string } 또는 { parts: string[] } 또는 null
  */
 export function tryDecomposeCompound(
-  word: string
+  word: string,
 ): { translation: string } | { parts: string[] } | null {
   // 1. 정의된 복합어 확인
   const entry = compoundWords[word];

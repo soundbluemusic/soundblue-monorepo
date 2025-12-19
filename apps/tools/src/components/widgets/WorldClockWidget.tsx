@@ -32,7 +32,7 @@ const getHourFormatter = (timezone: string): Intl.DateTimeFormat => {
         timeZone: timezone,
         hour: '2-digit',
         hour12: false,
-      })
+      }),
     );
   }
   return hourFormatters.get(timezone)!;
@@ -48,7 +48,7 @@ const getDateFormatter = (timezone: string, locale: string): Intl.DateTimeFormat
         weekday: 'short',
         month: 'short',
         day: 'numeric',
-      })
+      }),
     );
   }
   return dateFormatters.get(key)!;

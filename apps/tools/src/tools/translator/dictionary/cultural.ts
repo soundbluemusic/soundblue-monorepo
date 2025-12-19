@@ -109,7 +109,7 @@ export const culturalExpressions: Record<string, string> = {
  * 문화 표현 목록 (긴 것부터 정렬)
  */
 export const culturalExpressionList = Object.keys(culturalExpressions).sort(
-  (a, b) => b.length - a.length
+  (a, b) => b.length - a.length,
 );
 
 /**

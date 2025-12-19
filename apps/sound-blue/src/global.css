@@ -4,7 +4,7 @@
  */
 
 /* Tailwind CSS */
-@import './styles/tailwind.css';
+@import "./styles/tailwind.css";
 
 /* ========================================
    Layout Components
@@ -27,9 +27,7 @@
 @media (max-width: 767px) {
   .main-content {
     margin-left: 0 !important;
-    padding-bottom: calc(
-      var(--bottom-nav-height, 56px) + 56px + env(safe-area-inset-bottom, 0px)
-    );
+    padding-bottom: calc(var(--bottom-nav-height, 56px) + 56px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -81,12 +79,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-accent-primary) 50%,
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, var(--color-accent-primary) 50%, transparent);
   background-size: 200% 100%;
   animation: routingSlide 1s ease-in-out infinite;
   z-index: 9999;
@@ -199,18 +192,78 @@
 }
 
 /* Different sizes and positions for each particle */
-.particle-1 { width: 4px; height: 4px; left: 10%; animation-delay: 0s; }
-.particle-2 { width: 6px; height: 6px; left: 20%; animation-delay: 2s; }
-.particle-3 { width: 3px; height: 3px; left: 30%; animation-delay: 4s; }
-.particle-4 { width: 5px; height: 5px; left: 40%; animation-delay: 1s; }
-.particle-5 { width: 4px; height: 4px; left: 50%; animation-delay: 3s; }
-.particle-6 { width: 6px; height: 6px; left: 60%; animation-delay: 5s; }
-.particle-7 { width: 3px; height: 3px; left: 70%; animation-delay: 2.5s; }
-.particle-8 { width: 5px; height: 5px; left: 80%; animation-delay: 4.5s; }
-.particle-9 { width: 4px; height: 4px; left: 90%; animation-delay: 1.5s; }
-.particle-10 { width: 3px; height: 3px; left: 15%; animation-delay: 6s; }
-.particle-11 { width: 5px; height: 5px; left: 45%; animation-delay: 7s; }
-.particle-12 { width: 4px; height: 4px; left: 75%; animation-delay: 8s; }
+.particle-1 {
+  width: 4px;
+  height: 4px;
+  left: 10%;
+  animation-delay: 0s;
+}
+.particle-2 {
+  width: 6px;
+  height: 6px;
+  left: 20%;
+  animation-delay: 2s;
+}
+.particle-3 {
+  width: 3px;
+  height: 3px;
+  left: 30%;
+  animation-delay: 4s;
+}
+.particle-4 {
+  width: 5px;
+  height: 5px;
+  left: 40%;
+  animation-delay: 1s;
+}
+.particle-5 {
+  width: 4px;
+  height: 4px;
+  left: 50%;
+  animation-delay: 3s;
+}
+.particle-6 {
+  width: 6px;
+  height: 6px;
+  left: 60%;
+  animation-delay: 5s;
+}
+.particle-7 {
+  width: 3px;
+  height: 3px;
+  left: 70%;
+  animation-delay: 2.5s;
+}
+.particle-8 {
+  width: 5px;
+  height: 5px;
+  left: 80%;
+  animation-delay: 4.5s;
+}
+.particle-9 {
+  width: 4px;
+  height: 4px;
+  left: 90%;
+  animation-delay: 1.5s;
+}
+.particle-10 {
+  width: 3px;
+  height: 3px;
+  left: 15%;
+  animation-delay: 6s;
+}
+.particle-11 {
+  width: 5px;
+  height: 5px;
+  left: 45%;
+  animation-delay: 7s;
+}
+.particle-12 {
+  width: 4px;
+  height: 4px;
+  left: 75%;
+  animation-delay: 8s;
+}
 
 @keyframes floatParticle {
   0% {
@@ -230,7 +283,7 @@
 }
 
 /* Dark mode particle color - Brand Cyan */
-[data-theme='dark'] .particle {
+[data-theme="dark"] .particle {
   background: var(--color-accent-primary);
 }
 
@@ -356,7 +409,9 @@
   border: none;
   border-radius: var(--radius-lg);
   background: var(--color-bg-elevated);
-  box-shadow: var(--shadow-lg), 0 0 0 1px var(--color-border-primary);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 0 1px var(--color-border-primary);
   overflow: hidden;
 }
 

@@ -5,6 +5,7 @@
 
 import { Link, Meta, Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
+import { Footer } from '@soundblue/shared';
 import { Activity, Clock } from 'lucide-solid';
 import { type Component, createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { Dynamic, isServer } from 'solid-js/web';
@@ -16,7 +17,6 @@ import {
   type DirectionFilter,
   getAllBenchmarks,
 } from '~/benchmark';
-import { Footer } from '@soundblue/shared';
 import { Header } from '~/components/layout/Header';
 import { ToolSidebar } from '~/components/sidebar';
 import { useLanguage } from '~/i18n';
@@ -217,7 +217,7 @@ export default function BenchmarkPage() {
               isMobile() && 'fixed inset-y-0 left-0 pt-14 transition-transform duration-200',
               isMobile() && !toolStore.sidebarOpen && '-translate-x-full',
               // Desktop: static
-              !isMobile() && 'relative'
+              !isMobile() && 'relative',
             )}
           >
             <ToolSidebar />
