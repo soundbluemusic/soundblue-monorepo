@@ -1,9 +1,9 @@
 #!/bin/sh
-# Pre-commit hook: typecheck and lint validation
-# 커밋 전 검증: 타입 체크, 린트
+# Pre-commit hook: typecheck, lint, and build validation
+# 커밋 전 검증: 타입 체크, 린트, 빌드
 #
-# 빌드는 시간이 오래 걸리므로 기본 제외
-# 빌드 포함하려면: PRECOMMIT_BUILD=1 git commit -m "message"
+# 빌드 건너뛰려면: SKIP_BUILD=1 git commit -m "message"
+# 전체 건너뛰려면: git commit --no-verify -m "message"
 
 echo "🔍 Running pre-commit checks..."
 
@@ -15,8 +15,8 @@ pnpm typecheck || exit 1
 echo "🧹 Linting..."
 pnpm check || exit 1
 
-# 3. Build (optional, enabled with PRECOMMIT_BUILD=1)
-if [ "$PRECOMMIT_BUILD" = "1" ]; then
+# 3. Build all apps (skip with SKIP_BUILD=1)
+if [ "$SKIP_BUILD" != "1" ]; then
   echo "🏗️ Building..."
   pnpm build || exit 1
 fi
