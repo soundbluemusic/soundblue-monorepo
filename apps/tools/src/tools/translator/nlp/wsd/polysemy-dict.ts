@@ -1,6 +1,6 @@
 // ========================================
 // WSD - 다의어 사전 (Polysemy Dictionary)
-// 50개 핵심 다의어 + 문맥 트리거
+// 100개+ 핵심 다의어 + 문맥 트리거
 // ========================================
 
 /**
@@ -30,7 +30,7 @@ export interface Polysemy {
 }
 
 /**
- * 다의어 사전 (50개 핵심 단어)
+ * 다의어 사전 (100개+ 핵심 단어)
  */
 export const polysemyDict: Polysemy[] = [
   // ========================================
@@ -139,13 +139,16 @@ export const polysemyDict: Polysemy[] = [
           '내렸',
           '쌓이',
           '쌓여',
+          '쌓였',
           '녹',
           '겨울',
           '눈사람',
           '하얗',
+          '하얀',
           '펑펑',
           '눈송이',
           '제설',
+          '흰',
         ],
         weight: 0.45,
       },
@@ -288,8 +291,8 @@ export const polysemyDict: Polysemy[] = [
         id: 'end',
         en: 'end',
         domain: 'time',
-        triggers: ['끝', '마지막', '월말', '연말', '학기', '년', '달'],
-        weight: 0.1,
+        triggers: ['끝', '마지막', '월말', '연말', '학기', '년', '달', '급여', '마감'],
+        weight: 0.15,
       },
     ],
   },
@@ -1422,6 +1425,1486 @@ export const polysemyDict: Polysemy[] = [
         domain: 'structure',
         triggers: ['건너', '강', '위', '놓', '다리 위', '다리를 건너'],
         weight: 0.5,
+      },
+    ],
+  },
+
+  // ========================================
+  // 추가 다의어 (50개 → 100개+)
+  // ========================================
+  {
+    word: '감',
+    senses: [
+      {
+        id: 'persimmon',
+        en: 'persimmon',
+        domain: 'food',
+        triggers: ['먹', '익', '달', '과일', '가을', '떫', '홍시', '곶감'],
+        weight: 0.4,
+      },
+      {
+        id: 'sense',
+        en: 'sense',
+        domain: 'abstract',
+        triggers: ['있', '없', '좋', '감각', '느낌', '음악', '리듬'],
+        weight: 0.3,
+      },
+      {
+        id: 'close_eyes',
+        en: 'close',
+        domain: 'action',
+        triggers: ['눈', '감았', '감아', '감고'],
+        weight: 0.3,
+      },
+    ],
+  },
+  {
+    word: '가지',
+    senses: [
+      {
+        id: 'eggplant',
+        en: 'eggplant',
+        domain: 'food',
+        triggers: ['먹', '요리', '볶', '채소', '보라색'],
+        weight: 0.3,
+      },
+      {
+        id: 'branch',
+        en: 'branch',
+        domain: 'plant',
+        triggers: ['나무', '꺾', '뻗', '잎', '자르'],
+        weight: 0.3,
+      },
+      {
+        id: 'kind',
+        en: 'kind',
+        domain: 'abstract',
+        triggers: ['여러', '몇', '한', '두', '세', '종류'],
+        weight: 0.4,
+      },
+    ],
+  },
+  {
+    word: '이',
+    senses: [
+      {
+        id: 'tooth',
+        en: 'tooth',
+        domain: 'body',
+        triggers: ['아프', '빠지', '닦', '충치', '치과', '씹'],
+        weight: 0.4,
+      },
+      {
+        id: 'louse',
+        en: 'louse',
+        domain: 'insect',
+        triggers: ['잡', '머리', '옮', '생기'],
+        weight: 0.2,
+      },
+      {
+        id: 'this',
+        en: 'this',
+        domain: 'pronoun',
+        triggers: ['것', '사람', '분', '곳'],
+        weight: 0.4,
+      },
+    ],
+  },
+  {
+    word: '파',
+    senses: [
+      {
+        id: 'green_onion',
+        en: 'green onion',
+        domain: 'food',
+        triggers: ['넣', '썰', '파전', '양념', '국'],
+        weight: 0.5,
+      },
+      {
+        id: 'wave',
+        en: 'wave',
+        domain: 'physics',
+        triggers: ['전자', '음', '빛', '주파수', '진동'],
+        weight: 0.3,
+      },
+      {
+        id: 'faction',
+        en: 'faction',
+        domain: 'social',
+        triggers: ['정치', '당', '파벌', '세력'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '속',
+    senses: [
+      {
+        id: 'inside',
+        en: 'inside',
+        domain: 'place',
+        triggers: ['안', '들어가', '넣', '있'],
+        weight: 0.4,
+      },
+      {
+        id: 'stomach',
+        en: 'stomach',
+        domain: 'body',
+        triggers: ['아프', '불편', '쓰리', '더부룩', '소화'],
+        weight: 0.3,
+      },
+      {
+        id: 'speed',
+        en: 'speed',
+        domain: 'movement',
+        triggers: ['빠른', '느린', '속도', '속력'],
+        weight: 0.2,
+      },
+      {
+        id: 'mind',
+        en: 'mind',
+        domain: 'emotion',
+        triggers: ['마음', '생각', '시원', '후련'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '약',
+    senses: [
+      {
+        id: 'medicine',
+        en: 'medicine',
+        domain: 'health',
+        triggers: ['먹', '처방', '병원', '약국', '복용', '효과'],
+        weight: 0.6,
+      },
+      {
+        id: 'about',
+        en: 'about',
+        domain: 'quantity',
+        triggers: ['분', '시간', '명', '개', '정도'],
+        weight: 0.3,
+      },
+      {
+        id: 'weak',
+        en: 'weak',
+        domain: 'state',
+        triggers: ['강', '점', '하', '체력'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '판',
+    senses: [
+      {
+        id: 'board',
+        en: 'board',
+        domain: 'object',
+        triggers: ['나무', '칠', '바둑', '체스'],
+        weight: 0.3,
+      },
+      {
+        id: 'round',
+        en: 'round',
+        domain: 'game',
+        triggers: ['한', '두', '세', '게임', '경기', '이기', '지'],
+        weight: 0.4,
+      },
+      {
+        id: 'scene',
+        en: 'scene',
+        domain: 'situation',
+        triggers: ['벌어지', '난리', '아수라장', '상황'],
+        weight: 0.3,
+      },
+    ],
+  },
+  {
+    word: '잔',
+    senses: [
+      {
+        id: 'cup',
+        en: 'cup',
+        domain: 'object',
+        triggers: ['마시', '커피', '차', '술', '물', '한'],
+        weight: 0.7,
+      },
+      {
+        id: 'remaining',
+        en: 'remaining',
+        domain: 'state',
+        triggers: ['남', '돈', '시간', '잔액'],
+        weight: 0.2,
+      },
+      {
+        id: 'small',
+        en: 'small',
+        domain: 'size',
+        triggers: ['잔물결', '잔돈', '자잘'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '장',
+    senses: [
+      {
+        id: 'sheet',
+        en: 'sheet',
+        domain: 'object',
+        triggers: ['종이', '한', '두', '몇', '카드'],
+        weight: 0.3,
+      },
+      {
+        id: 'chapter',
+        en: 'chapter',
+        domain: 'document',
+        triggers: ['책', '소설', '제', '마지막'],
+        weight: 0.2,
+      },
+      {
+        id: 'market',
+        en: 'market',
+        domain: 'place',
+        triggers: ['시장', '가', '보', '재래'],
+        weight: 0.2,
+      },
+      {
+        id: 'intestine',
+        en: 'intestine',
+        domain: 'body',
+        triggers: ['대장', '소장', '위', '소화'],
+        weight: 0.2,
+      },
+      {
+        id: 'sauce',
+        en: 'sauce',
+        domain: 'food',
+        triggers: ['간장', '된장', '고추장', '양념'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '차례',
+    senses: [
+      {
+        id: 'turn',
+        en: 'turn',
+        domain: 'order',
+        triggers: ['내', '네', '기다리', '다음', '돌아오'],
+        weight: 0.5,
+      },
+      {
+        id: 'ritual',
+        en: 'ancestral rite',
+        domain: 'culture',
+        triggers: ['설날', '추석', '명절', '지내', '제사'],
+        weight: 0.3,
+      },
+      {
+        id: 'times',
+        en: 'times',
+        domain: 'quantity',
+        triggers: ['한', '두', '세', '여러', '번'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '권',
+    senses: [
+      {
+        id: 'volume',
+        en: 'volume',
+        domain: 'document',
+        triggers: ['책', '한', '두', '전집', '시리즈'],
+        weight: 0.4,
+      },
+      {
+        id: 'right',
+        en: 'right',
+        domain: 'legal',
+        triggers: ['투표', '인', '소유', '저작', '권리'],
+        weight: 0.4,
+      },
+      {
+        id: 'ticket',
+        en: 'ticket',
+        domain: 'object',
+        triggers: ['입장', '승차', '한', '샀'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '기',
+    senses: [
+      {
+        id: 'energy',
+        en: 'energy',
+        domain: 'abstract',
+        triggers: ['받', '빠지', '살리', '기운', '활력'],
+        weight: 0.3,
+      },
+      {
+        id: 'period',
+        en: 'period',
+        domain: 'time',
+        triggers: ['1', '2', '3', '분기', '학기'],
+        weight: 0.3,
+      },
+      {
+        id: 'machine',
+        en: 'machine',
+        domain: 'object',
+        triggers: ['세탁', '청소', '기계', '작동'],
+        weight: 0.2,
+      },
+      {
+        id: 'flag',
+        en: 'flag',
+        domain: 'object',
+        triggers: ['국', '태극', '휘날리', '걸'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '자',
+    senses: [
+      {
+        id: 'ruler',
+        en: 'ruler',
+        domain: 'object',
+        triggers: ['측정', '재', '길이', '30cm', '직'],
+        weight: 0.3,
+      },
+      {
+        id: 'person',
+        en: 'person',
+        domain: 'suffix',
+        triggers: ['노동', '소비', '생산', '투자'],
+        weight: 0.3,
+      },
+      {
+        id: 'character',
+        en: 'character',
+        domain: 'language',
+        triggers: ['글', '한', '문', '쓰'],
+        weight: 0.2,
+      },
+      {
+        id: 'lets',
+        en: "let's",
+        domain: 'action',
+        triggers: ['가', '하', '먹', '보'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '수',
+    senses: [
+      {
+        id: 'number',
+        en: 'number',
+        domain: 'math',
+        triggers: ['많', '적', '숫자', '개', '계산'],
+        weight: 0.4,
+      },
+      {
+        id: 'method',
+        en: 'method',
+        domain: 'abstract',
+        triggers: ['없', '있', '좋은', '나쁜', '방법'],
+        weight: 0.3,
+      },
+      {
+        id: 'embroidery',
+        en: 'embroidery',
+        domain: 'craft',
+        triggers: ['놓', '자수', '바늘', '실'],
+        weight: 0.1,
+      },
+      {
+        id: 'male',
+        en: 'male',
+        domain: 'gender',
+        triggers: ['암', '동물', '수컷'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '면',
+    senses: [
+      {
+        id: 'noodle',
+        en: 'noodle',
+        domain: 'food',
+        triggers: ['먹', '삶', '라면', '국수', '비빔'],
+        weight: 0.3,
+      },
+      {
+        id: 'surface',
+        en: 'surface',
+        domain: 'object',
+        triggers: ['표', '바닥', '옆', '윗', '아랫'],
+        weight: 0.3,
+      },
+      {
+        id: 'cotton',
+        en: 'cotton',
+        domain: 'material',
+        triggers: ['100%', '순', '원단', '옷'],
+        weight: 0.2,
+      },
+      {
+        id: 'if',
+        en: 'if',
+        domain: 'grammar',
+        triggers: ['하', '가', '오', '본다'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '점',
+    senses: [
+      {
+        id: 'point',
+        en: 'point',
+        domain: 'math',
+        triggers: ['득', '몇', '백', '만', '점수'],
+        weight: 0.3,
+      },
+      {
+        id: 'dot',
+        en: 'dot',
+        domain: 'shape',
+        triggers: ['찍', '작은', '빨간', '검은'],
+        weight: 0.2,
+      },
+      {
+        id: 'store',
+        en: 'store',
+        domain: 'business',
+        triggers: ['가게', '매장', '본', '지'],
+        weight: 0.2,
+      },
+      {
+        id: 'mole',
+        en: 'mole',
+        domain: 'body',
+        triggers: ['얼굴', '피부', '빼', '생기'],
+        weight: 0.2,
+      },
+      {
+        id: 'fortune',
+        en: 'fortune telling',
+        domain: 'culture',
+        triggers: ['보', '운세', '사주', '점쟁이'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '끼',
+    senses: [
+      {
+        id: 'meal',
+        en: 'meal',
+        domain: 'food',
+        triggers: ['한', '두', '세', '밥', '식사', '굶'],
+        weight: 0.5,
+      },
+      {
+        id: 'talent',
+        en: 'talent',
+        domain: 'ability',
+        triggers: ['있', '없', '보이', '연기', '재능'],
+        weight: 0.3,
+      },
+      {
+        id: 'insert',
+        en: 'insert',
+        domain: 'action',
+        triggers: ['끼우', '넣', '사이', '손가락'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '뜻',
+    senses: [
+      {
+        id: 'meaning',
+        en: 'meaning',
+        domain: 'language',
+        triggers: ['단어', '무슨', '알', '모르', '사전'],
+        weight: 0.5,
+      },
+      {
+        id: 'will',
+        en: 'will',
+        domain: 'emotion',
+        triggers: ['대로', '펼치', '이루', '품', '뜻대로'],
+        weight: 0.3,
+      },
+      {
+        id: 'intention',
+        en: 'intention',
+        domain: 'abstract',
+        triggers: ['좋', '나쁜', '없', '있'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '살',
+    senses: [
+      {
+        id: 'flesh',
+        en: 'flesh',
+        domain: 'body',
+        triggers: ['빠지', '찌', '살이', '근육', '뼈'],
+        weight: 0.4,
+      },
+      {
+        id: 'live',
+        en: 'live',
+        domain: 'life',
+        triggers: ['어디', '집', '서울', '한국', '살고'],
+        weight: 0.3,
+      },
+      {
+        id: 'age',
+        en: 'years old',
+        domain: 'age',
+        triggers: ['몇', '스무', '서른', '마흔', '나이'],
+        weight: 0.3,
+      },
+    ],
+  },
+  {
+    word: '값',
+    senses: [
+      {
+        id: 'price',
+        en: 'price',
+        domain: 'money',
+        triggers: ['비싸', '싸', '얼마', '가격', '물건'],
+        weight: 0.5,
+      },
+      {
+        id: 'value',
+        en: 'value',
+        domain: 'math',
+        triggers: ['변수', '계산', '입력', '출력', '수치'],
+        weight: 0.3,
+      },
+      {
+        id: 'worth',
+        en: 'worth',
+        domain: 'abstract',
+        triggers: ['하', '없', '있', '가치'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '힘',
+    senses: [
+      {
+        id: 'strength',
+        en: 'strength',
+        domain: 'body',
+        triggers: ['세', '약', '없', '있', '빠지', '주'],
+        weight: 0.5,
+      },
+      {
+        id: 'power',
+        en: 'power',
+        domain: 'abstract',
+        triggers: ['정치', '권력', '영향', '가지'],
+        weight: 0.3,
+      },
+      {
+        id: 'effort',
+        en: 'effort',
+        domain: 'action',
+        triggers: ['들', '쓰', '모아', '힘들'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '굴',
+    senses: [
+      {
+        id: 'oyster',
+        en: 'oyster',
+        domain: 'food',
+        triggers: ['먹', '회', '굴전', '바다', '싱싱'],
+        weight: 0.4,
+      },
+      {
+        id: 'cave',
+        en: 'cave',
+        domain: 'place',
+        triggers: ['동', '들어가', '어두운', '탐험'],
+        weight: 0.3,
+      },
+      {
+        id: 'roll',
+        en: 'roll',
+        domain: 'action',
+        triggers: ['굴러', '구르', '바퀴', '공'],
+        weight: 0.3,
+      },
+    ],
+  },
+  {
+    word: '벌',
+    senses: [
+      {
+        id: 'bee',
+        en: 'bee',
+        domain: 'insect',
+        triggers: ['꿀', '쏘', '꽃', '날', '벌집', '침'],
+        weight: 0.4,
+      },
+      {
+        id: 'punishment',
+        en: 'punishment',
+        domain: 'legal',
+        triggers: ['받', '주', '벌금', '처', '형'],
+        weight: 0.3,
+      },
+      {
+        id: 'earn',
+        en: 'earn',
+        domain: 'money',
+        triggers: ['돈', '벌었', '벌어', '수입'],
+        weight: 0.2,
+      },
+      {
+        id: 'set',
+        en: 'set',
+        domain: 'quantity',
+        triggers: ['한', '두', '옷', '양복'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '곱',
+    senses: [
+      {
+        id: 'multiply',
+        en: 'multiply',
+        domain: 'math',
+        triggers: ['곱하', '셈', '계산', '배'],
+        weight: 0.4,
+      },
+      {
+        id: 'beautiful',
+        en: 'beautiful',
+        domain: 'appearance',
+        triggers: ['곱다', '예쁘', '피부', '얼굴', '손'],
+        weight: 0.4,
+      },
+      {
+        id: 'intestine',
+        en: 'tripe',
+        domain: 'food',
+        triggers: ['먹', '곱창', '구', '요리'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '재',
+    senses: [
+      {
+        id: 'ash',
+        en: 'ash',
+        domain: 'material',
+        triggers: ['불', '타', '담배', '화산', '남'],
+        weight: 0.4,
+      },
+      {
+        id: 'talent',
+        en: 'talent',
+        domain: 'ability',
+        triggers: ['재능', '천', '있', '보이'],
+        weight: 0.3,
+      },
+      {
+        id: 'material',
+        en: 'material',
+        domain: 'object',
+        triggers: ['목', '석', '재료', '건축'],
+        weight: 0.2,
+      },
+      {
+        id: 'again',
+        en: 'again',
+        domain: 'action',
+        triggers: ['재시작', '재활용', '재사용'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '비',
+    senses: [
+      {
+        id: 'rain',
+        en: 'rain',
+        domain: 'weather',
+        triggers: ['오', '내리', '우산', '젖', '맞', '소나기'],
+        weight: 0.5,
+      },
+      {
+        id: 'ratio',
+        en: 'ratio',
+        domain: 'math',
+        triggers: ['비율', '대', '비교', '황금', '황금비', '계산', '비례'],
+        weight: 0.25,
+      },
+      {
+        id: 'monument',
+        en: 'monument',
+        domain: 'object',
+        triggers: ['세우', '비석', '묘', '기념'],
+        weight: 0.2,
+      },
+      {
+        id: 'non',
+        en: 'non-',
+        domain: 'prefix',
+        triggers: ['비공개', '비정상', '비영리'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '짝',
+    senses: [
+      {
+        id: 'pair',
+        en: 'pair',
+        domain: 'object',
+        triggers: ['맞', '한', '양말', '신발', '짝꿍'],
+        weight: 0.5,
+      },
+      {
+        id: 'partner',
+        en: 'partner',
+        domain: 'social',
+        triggers: ['찾', '없', '있', '만나', '춤'],
+        weight: 0.3,
+      },
+      {
+        id: 'odd',
+        en: 'odd',
+        domain: 'math',
+        triggers: ['홀', '짝수', '번호'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '줄',
+    senses: [
+      {
+        id: 'line',
+        en: 'line',
+        domain: 'object',
+        triggers: ['서', '길', '기다리', '한', '두'],
+        weight: 0.4,
+      },
+      {
+        id: 'rope',
+        en: 'rope',
+        domain: 'object',
+        triggers: ['묶', '당기', '줄넘기', '밧줄'],
+        weight: 0.3,
+      },
+      {
+        id: 'know_how',
+        en: 'know how to',
+        domain: 'ability',
+        triggers: ['알', '모르', '할', '줄 알'],
+        weight: 0.2,
+      },
+      {
+        id: 'string',
+        en: 'string',
+        domain: 'music',
+        triggers: ['기타', '바이올린', '현', '튕기'],
+        weight: 0.1,
+      },
+    ],
+  },
+
+  // ========================================
+  // 추가 다의어 (100개+ 달성)
+  // ========================================
+  {
+    word: '대',
+    senses: [
+      {
+        id: 'counter',
+        en: 'unit',
+        domain: 'quantity',
+        triggers: ['한', '두', '차', '컴퓨터', '기계'],
+        weight: 0.3,
+      },
+      {
+        id: 'bamboo',
+        en: 'bamboo',
+        domain: 'plant',
+        triggers: ['대나무', '숲', '자르'],
+        weight: 0.2,
+      },
+      {
+        id: 'versus',
+        en: 'versus',
+        domain: 'comparison',
+        triggers: ['한국', '일본', '경기', '대결'],
+        weight: 0.3,
+      },
+      {
+        id: 'big',
+        en: 'big',
+        domain: 'size',
+        triggers: ['소', '중', '사이즈', '크기'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '고',
+    senses: [
+      {
+        id: 'high',
+        en: 'high',
+        domain: 'level',
+        triggers: ['저', '중', '등급', '수준', '급'],
+        weight: 0.3,
+      },
+      {
+        id: 'and',
+        en: 'and',
+        domain: 'grammar',
+        triggers: ['먹', '마시', '가', '오'],
+        weight: 0.4,
+      },
+      {
+        id: 'drum',
+        en: 'drum',
+        domain: 'instrument',
+        triggers: ['북', '치', '소리', '장구'],
+        weight: 0.2,
+      },
+      {
+        id: 'late',
+        en: 'late',
+        domain: 'time',
+        triggers: ['고인', '돌아가신', '할아버지'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '칼',
+    senses: [
+      {
+        id: 'knife',
+        en: 'knife',
+        domain: 'object',
+        triggers: ['자르', '썰', '날카로운', '부엌', '요리'],
+        weight: 0.7,
+      },
+      {
+        id: 'sword',
+        en: 'sword',
+        domain: 'weapon',
+        triggers: ['휘두르', '싸움', '무사', '검'],
+        weight: 0.2,
+      },
+      {
+        id: 'strict',
+        en: 'strict',
+        domain: 'abstract',
+        triggers: ['칼같이', '정확', '시간'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '꽃',
+    senses: [
+      {
+        id: 'flower',
+        en: 'flower',
+        domain: 'plant',
+        triggers: ['피', '꺾', '예쁜', '향기', '장미', '튤립'],
+        weight: 0.8,
+      },
+      {
+        id: 'prime',
+        en: 'prime',
+        domain: 'abstract',
+        triggers: ['인생', '청춘', '전성기', '나이'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '나무',
+    senses: [
+      {
+        id: 'tree',
+        en: 'tree',
+        domain: 'plant',
+        triggers: ['심', '자라', '잎', '가지', '숲', '나뭇잎'],
+        weight: 0.6,
+      },
+      {
+        id: 'wood',
+        en: 'wood',
+        domain: 'material',
+        triggers: ['만들', '가구', '재료', '단단한'],
+        weight: 0.4,
+      },
+    ],
+  },
+  {
+    word: '빛',
+    senses: [
+      {
+        id: 'light',
+        en: 'light',
+        domain: 'physics',
+        triggers: ['밝', '어둠', '햇', '태양', '전등'],
+        weight: 0.6,
+      },
+      {
+        id: 'color',
+        en: 'color',
+        domain: 'appearance',
+        triggers: ['빨간', '파란', '색', '띠'],
+        weight: 0.2,
+      },
+      {
+        id: 'glory',
+        en: 'glory',
+        domain: 'abstract',
+        triggers: ['영광', '빛나', '빛을 보'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '글',
+    senses: [
+      {
+        id: 'writing',
+        en: 'writing',
+        domain: 'language',
+        triggers: ['쓰', '읽', '작성', '짧은', '긴'],
+        weight: 0.5,
+      },
+      {
+        id: 'article',
+        en: 'article',
+        domain: 'document',
+        triggers: ['올리', '게시', '블로그', '뉴스'],
+        weight: 0.3,
+      },
+      {
+        id: 'letter',
+        en: 'letter',
+        domain: 'language',
+        triggers: ['한', '글자', '알파벳'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '돈',
+    senses: [
+      {
+        id: 'money',
+        en: 'money',
+        domain: 'finance',
+        triggers: ['벌', '쓰', '많', '없', '부자', '가난'],
+        weight: 0.9,
+      },
+      {
+        id: 'weight_unit',
+        en: 'don',
+        domain: 'unit',
+        triggers: ['금', '은', '무게'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '거',
+    senses: [
+      {
+        id: 'thing',
+        en: 'thing',
+        domain: 'pronoun',
+        triggers: ['이', '그', '저', '뭐', '내'],
+        weight: 0.6,
+      },
+      {
+        id: 'living',
+        en: 'living',
+        domain: 'life',
+        triggers: ['거주', '사', '있'],
+        weight: 0.2,
+      },
+      {
+        id: 'bet',
+        en: 'bet',
+        domain: 'action',
+        triggers: ['걸', '내기', '도박'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '바닥',
+    senses: [
+      {
+        id: 'floor',
+        en: 'floor',
+        domain: 'place',
+        triggers: ['앉', '눕', '떨어지', '청소', '방'],
+        weight: 0.5,
+      },
+      {
+        id: 'bottom',
+        en: 'bottom',
+        domain: 'position',
+        triggers: ['바다', '컵', '가방', '아래'],
+        weight: 0.3,
+      },
+      {
+        id: 'depleted',
+        en: 'depleted',
+        domain: 'state',
+        triggers: ['나', '드러나', '체력', '돈'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '구름',
+    senses: [
+      {
+        id: 'cloud',
+        en: 'cloud',
+        domain: 'weather',
+        triggers: ['하늘', '비', '흰', '떠', '끼'],
+        weight: 0.8,
+      },
+      {
+        id: 'crowd',
+        en: 'crowd',
+        domain: 'social',
+        triggers: ['사람', '인파', '몰려들'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '새',
+    senses: [
+      {
+        id: 'bird',
+        en: 'bird',
+        domain: 'animal',
+        triggers: ['날', '깃털', '울', '둥지', '참새', '비둘기'],
+        weight: 0.5,
+      },
+      {
+        id: 'new',
+        en: 'new',
+        domain: 'state',
+        triggers: ['옷', '차', '집', '물건', '사'],
+        weight: 0.4,
+      },
+      {
+        id: 'gap',
+        en: 'gap',
+        domain: 'space',
+        triggers: ['틈', '사이', '문', '새어나오'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '맛',
+    senses: [
+      {
+        id: 'taste',
+        en: 'taste',
+        domain: 'food',
+        triggers: ['좋', '없', '달', '짠', '쓴', '매운'],
+        weight: 0.7,
+      },
+      {
+        id: 'fun',
+        en: 'fun',
+        domain: 'emotion',
+        triggers: ['재미', '느끼', '들이', '맛을 들이'],
+        weight: 0.2,
+      },
+      {
+        id: 'beaten',
+        en: 'beaten',
+        domain: 'action',
+        triggers: ['맛을 보', '혼나', '당하'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '모양',
+    senses: [
+      {
+        id: 'shape',
+        en: 'shape',
+        domain: 'appearance',
+        triggers: ['동그란', '네모', '세모', '이상한', '예쁜'],
+        weight: 0.5,
+      },
+      {
+        id: 'seems',
+        en: 'seems',
+        domain: 'inference',
+        triggers: ['인', '이다', '보이', '그런'],
+        weight: 0.3,
+      },
+      {
+        id: 'form',
+        en: 'form',
+        domain: 'state',
+        triggers: ['좋', '나쁜', '이상한', '볼'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '봄',
+    senses: [
+      {
+        id: 'spring',
+        en: 'spring',
+        domain: 'season',
+        triggers: ['여름', '가을', '겨울', '꽃', '따뜻'],
+        weight: 0.7,
+      },
+      {
+        id: 'seeing',
+        en: 'seeing',
+        domain: 'perception',
+        triggers: ['보', '시청', '구경'],
+        weight: 0.3,
+      },
+    ],
+  },
+  {
+    word: '여름',
+    senses: [
+      {
+        id: 'summer',
+        en: 'summer',
+        domain: 'season',
+        triggers: ['봄', '가을', '겨울', '더운', '바다', '휴가'],
+        weight: 0.9,
+      },
+      {
+        id: 'heat',
+        en: 'heat',
+        domain: 'temperature',
+        triggers: ['폭염', '더위', '무더운'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '가을',
+    senses: [
+      {
+        id: 'autumn',
+        en: 'autumn',
+        domain: 'season',
+        triggers: ['봄', '여름', '겨울', '단풍', '추석', '시원'],
+        weight: 0.9,
+      },
+      {
+        id: 'harvest',
+        en: 'harvest',
+        domain: 'agriculture',
+        triggers: ['수확', '풍년', '곡식'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '겨울',
+    senses: [
+      {
+        id: 'winter',
+        en: 'winter',
+        domain: 'season',
+        triggers: ['봄', '여름', '가을', '추운', '눈', '크리스마스'],
+        weight: 0.9,
+      },
+      {
+        id: 'cold_period',
+        en: 'cold period',
+        domain: 'abstract',
+        triggers: ['힘든', '시련', '시기'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '가방',
+    senses: [
+      {
+        id: 'bag',
+        en: 'bag',
+        domain: 'object',
+        triggers: ['들', '메', '넣', '지퍼', '학교'],
+        weight: 0.9,
+      },
+      {
+        id: 'briefcase',
+        en: 'briefcase',
+        domain: 'object',
+        triggers: ['서류', '회사', '출근'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '창',
+    senses: [
+      {
+        id: 'window',
+        en: 'window',
+        domain: 'object',
+        triggers: ['열', '닫', '유리', '밖', '바라보'],
+        weight: 0.5,
+      },
+      {
+        id: 'spear',
+        en: 'spear',
+        domain: 'weapon',
+        triggers: ['던지', '찌르', '무기', '방패'],
+        weight: 0.2,
+      },
+      {
+        id: 'computer_window',
+        en: 'window',
+        domain: 'computing',
+        triggers: ['팝업', '닫기', '클릭', '프로그램'],
+        weight: 0.3,
+      },
+    ],
+  },
+  {
+    word: '사진',
+    senses: [
+      {
+        id: 'photo',
+        en: 'photo',
+        domain: 'media',
+        triggers: ['찍', '찍히', '앨범', '카메라', '스마트폰'],
+        weight: 0.9,
+      },
+      {
+        id: 'picture',
+        en: 'picture',
+        domain: 'document',
+        triggers: ['증명', '여권', '신분증'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '마당',
+    senses: [
+      {
+        id: 'yard',
+        en: 'yard',
+        domain: 'place',
+        triggers: ['집', '넓', '뛰놀', '잔디'],
+        weight: 0.6,
+      },
+      {
+        id: 'situation',
+        en: 'situation',
+        domain: 'abstract',
+        triggers: ['어차피', '이미', '이런', '그런'],
+        weight: 0.4,
+      },
+    ],
+  },
+  {
+    word: '부',
+    senses: [
+      {
+        id: 'wealth',
+        en: 'wealth',
+        domain: 'finance',
+        triggers: ['귀', '부자', '가난', '재산'],
+        weight: 0.3,
+      },
+      {
+        id: 'department',
+        en: 'department',
+        domain: 'organization',
+        triggers: ['국방', '외교', '재무', '장관'],
+        weight: 0.3,
+      },
+      {
+        id: 'copy',
+        en: 'copy',
+        domain: 'document',
+        triggers: ['한', '두', '인쇄', '출력'],
+        weight: 0.2,
+      },
+      {
+        id: 'vice',
+        en: 'vice',
+        domain: 'position',
+        triggers: ['장', '회장', '사장', '대표'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '통',
+    senses: [
+      {
+        id: 'barrel',
+        en: 'barrel',
+        domain: 'object',
+        triggers: ['물', '쓰레기', '담', '크'],
+        weight: 0.4,
+      },
+      {
+        id: 'through',
+        en: 'through',
+        domain: 'communication',
+        triggers: ['전화', '편지', '이메일', '연락'],
+        weight: 0.3,
+      },
+      {
+        id: 'completely',
+        en: 'completely',
+        domain: 'degree',
+        triggers: ['통째로', '다', '전부'],
+        weight: 0.2,
+      },
+      {
+        id: 'pain',
+        en: 'pain',
+        domain: 'body',
+        triggers: ['두', '복', '아프'],
+        weight: 0.1,
+      },
+    ],
+  },
+  {
+    word: '판단',
+    senses: [
+      {
+        id: 'judgment',
+        en: 'judgment',
+        domain: 'thought',
+        triggers: ['하', '내리', '옳', '그른', '잘못된'],
+        weight: 0.7,
+      },
+      {
+        id: 'decision',
+        en: 'decision',
+        domain: 'action',
+        triggers: ['결정', '선택', '최종'],
+        weight: 0.3,
+      },
+    ],
+  },
+  {
+    word: '상',
+    senses: [
+      {
+        id: 'prize',
+        en: 'prize',
+        domain: 'award',
+        triggers: ['받', '주', '대', '노벨', '수상'],
+        weight: 0.3,
+      },
+      {
+        id: 'table',
+        en: 'table',
+        domain: 'object',
+        triggers: ['밥', '차리', '식', '상다리'],
+        weight: 0.3,
+      },
+      {
+        id: 'image',
+        en: 'image',
+        domain: 'abstract',
+        triggers: ['영', '인', '좋', '나쁜'],
+        weight: 0.2,
+      },
+      {
+        id: 'above',
+        en: 'above',
+        domain: 'position',
+        triggers: ['하', '이', '그', '이상'],
+        weight: 0.2,
+      },
+    ],
+  },
+  {
+    word: '하',
+    senses: [
+      {
+        id: 'do',
+        en: 'do',
+        domain: 'action',
+        triggers: ['일', '공부', '운동', '게임'],
+        weight: 0.6,
+      },
+      {
+        id: 'below',
+        en: 'below',
+        domain: 'position',
+        triggers: ['상', '중', '급', '이하'],
+        weight: 0.2,
+      },
+      {
+        id: 'summer',
+        en: 'summer',
+        domain: 'season',
+        triggers: ['동', '하계', '올림픽'],
+        weight: 0.2,
       },
     ],
   },

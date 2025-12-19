@@ -35,12 +35,12 @@ export interface WsdResult {
  * 문맥 윈도우 추출
  * @param tokens 토큰 배열
  * @param targetIndex 대상 단어 인덱스
- * @param windowSize 윈도우 크기 (기본: 3)
+ * @param windowSize 윈도우 크기 (기본: 7, 확장됨)
  */
 export function extractContext(
   tokens: string[],
   targetIndex: number,
-  windowSize = 3,
+  windowSize = 7,
 ): ContextWindow {
   return {
     before: tokens.slice(Math.max(0, targetIndex - windowSize), targetIndex),
@@ -147,10 +147,45 @@ function matchesTrigger(word: string, stem: string, trigger: string): boolean {
   return false;
 }
 
+// ========================================
+// 신호 가중치 (튜닝 가능)
+// ========================================
+export const SIGNAL_WEIGHTS = {
+  // 위치 기반 가중치
+  immediateAfter: 4.0, // 바로 뒤 단어 (목적어-동사)
+  immediateBefore: 3.0, // 바로 앞 단어 (형용사-명사)
+  nearContext: 2.0, // 가까운 문맥 (±2 토큰)
+  farContext: 1.0, // 먼 문맥 (±3~7 토큰)
+  fullSentence: 0.3, // 문장 어딘가에 포함
+
+  // 도메인/주제 가중치
+  domainMatch: 1.5, // 주제와 sense.domain 일치
+
+  // 문법 역할 가중치
+  subjectBodyPart: 2.5, // 주어 + 신체 도메인 (배가 아프다)
+  objectWithVerb: 2.0, // 목적어 + 동사 연어 (배를 타다)
+
+  // 패턴 가중치
+  painPattern: 3.0, // "X가 아프다" 패턴
+  ridePattern: 3.0, // "X를 타다" 패턴
+  eatPattern: 2.5, // "X를 먹다" 패턴
+};
+
 /**
- * 트리거 매칭 점수 계산
+ * 거리 기반 가중치 계산
+ * 가까울수록 높은 점수
+ */
+function getDistanceWeight(distance: number): number {
+  if (distance <= 1) return SIGNAL_WEIGHTS.immediateAfter;
+  if (distance <= 2) return SIGNAL_WEIGHTS.nearContext;
+  if (distance <= 4) return SIGNAL_WEIGHTS.farContext;
+  return SIGNAL_WEIGHTS.fullSentence;
+}
+
+/**
+ * 트리거 매칭 점수 계산 (확장된 버전)
  * @param triggers 트리거 단어 목록
- * @param beforeWords 대상 단어 앞의 문맥 (가까운 것이 앞)
+ * @param beforeWords 대상 단어 앞의 문맥 (가까운 것이 뒤)
  * @param afterWords 대상 단어 뒤의 문맥 (가까운 것이 앞)
  * @param fullText 전체 문장
  */
@@ -163,58 +198,47 @@ function calculateTriggerScore(
   let score = 0;
 
   // 각 위치에서 한 번만 점수 부여 (중복 방지)
-  let firstAfterMatched = false;
-  let lastBeforeMatched = false;
-  const otherMatchedPositions = new Set<number>();
+  const matchedPositions = new Set<string>();
   let fullTextMatched = false;
 
   // 원본 단어와 어간 미리 추출
-  const firstAfter = afterWords[0] || '';
-  const lastBefore = beforeWords[beforeWords.length - 1] || '';
-  const firstAfterStem = firstAfter ? extractStem(firstAfter) : '';
-  const lastBeforeStem = lastBefore ? extractStem(lastBefore) : '';
-  const otherContext = [...beforeWords.slice(0, -1), ...afterWords.slice(1)];
-  const otherStems = otherContext.map((w) => extractStem(w));
+  const beforeStems = beforeWords.map((w) => extractStem(w));
+  const afterStems = afterWords.map((w) => extractStem(w));
 
   for (const trigger of triggers) {
-    // 바로 뒤 단어 체크 (목적어-동사 관계에서 가장 중요, 가중치: 4.0)
-    // 한 번만 점수 부여
-    // 원본 단어와 어간 모두에서 트리거 매칭
-    if (!firstAfterMatched && firstAfter) {
-      if (matchesTrigger(firstAfter, firstAfterStem, trigger)) {
-        score += 4.0;
-        firstAfterMatched = true;
-        continue;
+    // 뒤 문맥 검사 (거리 기반 가중치)
+    for (let i = 0; i < afterWords.length; i++) {
+      const posKey = `after_${i}`;
+      if (matchedPositions.has(posKey)) continue;
+
+      const word = afterWords[i] || '';
+      const stem = afterStems[i] || '';
+      if (matchesTrigger(word, stem, trigger)) {
+        const distance = i + 1; // 1-indexed 거리
+        score += getDistanceWeight(distance);
+        matchedPositions.add(posKey);
+        break; // 이 트리거는 처리됨
       }
     }
 
-    // 바로 앞 단어 체크 (형용사-명사 관계, 가중치: 3.0)
-    if (!lastBeforeMatched && lastBefore) {
-      if (matchesTrigger(lastBefore, lastBeforeStem, trigger)) {
-        score += 3.0;
-        lastBeforeMatched = true;
-        continue;
+    // 앞 문맥 검사 (거리 기반 가중치, 역순)
+    for (let i = beforeWords.length - 1; i >= 0; i--) {
+      const posKey = `before_${i}`;
+      if (matchedPositions.has(posKey)) continue;
+
+      const word = beforeWords[i] || '';
+      const stem = beforeStems[i] || '';
+      if (matchesTrigger(word, stem, trigger)) {
+        const distance = beforeWords.length - i; // 1-indexed 거리
+        score += getDistanceWeight(distance);
+        matchedPositions.add(posKey);
+        break; // 이 트리거는 처리됨
       }
     }
 
-    // 나머지 문맥 단어에서 매칭 (가중치: 1.5, 각 위치당 한 번)
-    let foundInOther = false;
-    for (let i = 0; i < otherContext.length; i++) {
-      if (otherMatchedPositions.has(i)) continue;
-      const otherWord = otherContext[i] || '';
-      const otherStem = otherStems[i] || '';
-      if (matchesTrigger(otherWord, otherStem, trigger)) {
-        score += 1.5;
-        otherMatchedPositions.add(i);
-        foundInOther = true;
-        break;
-      }
-    }
-    if (foundInOther) continue;
-
-    // 전체 문장에서 매칭 (가중치: 0.3, 한 번만)
+    // 전체 문장에서 매칭 (한 번만)
     if (!fullTextMatched && fullText.includes(trigger)) {
-      score += 0.3;
+      score += SIGNAL_WEIGHTS.fullSentence;
       fullTextMatched = true;
     }
   }
@@ -222,13 +246,126 @@ function calculateTriggerScore(
   return score;
 }
 
+// ========================================
+// 문법 패턴 정의
+// ========================================
+interface GrammarPattern {
+  /** 패턴 이름 */
+  name: string;
+  /** 대상 단어의 조사 */
+  particle: string;
+  /** 뒤따르는 동사/형용사 어간 */
+  followingStems: string[];
+  /** 해당 도메인에 보너스 */
+  targetDomain: string;
+  /** 가중치 */
+  weight: number;
+}
+
+const GRAMMAR_PATTERNS: GrammarPattern[] = [
+  // "X가 아프다" → 신체 부위
+  {
+    name: 'pain',
+    particle: '가',
+    followingStems: ['아프', '아파', '쑤시', '저리', '뻐근'],
+    targetDomain: 'body',
+    weight: SIGNAL_WEIGHTS.painPattern,
+  },
+  // "X를 타다" → 교통수단
+  {
+    name: 'ride',
+    particle: '를',
+    followingStems: ['타', '탔', '타고'],
+    targetDomain: 'transport',
+    weight: SIGNAL_WEIGHTS.ridePattern,
+  },
+  // "X를 먹다" → 음식
+  {
+    name: 'eat',
+    particle: '를',
+    followingStems: ['먹', '먹었', '먹고', '깎', '씹'],
+    targetDomain: 'food',
+    weight: SIGNAL_WEIGHTS.eatPattern,
+  },
+  // "X가 오다/내리다" → 날씨 (눈, 비)
+  {
+    name: 'weather_fall',
+    particle: '가',
+    followingStems: ['오', '와', '내리', '내려', '쏟아지'],
+    targetDomain: 'weather',
+    weight: 3.0,
+  },
+  // "X를 마시다" → 음료
+  {
+    name: 'drink',
+    particle: '를',
+    followingStems: ['마시', '마셔', '마셨'],
+    targetDomain: 'food',
+    weight: 2.5,
+  },
+  // "X가 뜨다/감다" → 눈(eye)
+  {
+    name: 'eye_action',
+    particle: '가',
+    followingStems: ['뜨', '떠', '감', '감았', '깜빡'],
+    targetDomain: 'body',
+    weight: 3.0,
+  },
+  // "X를 건너다" → 다리(bridge)
+  {
+    name: 'cross',
+    particle: '를',
+    followingStems: ['건너', '건넜'],
+    targetDomain: 'structure',
+    weight: 3.0,
+  },
+];
+
 /**
- * 의미별 점수 계산
+ * 문법 패턴 점수 계산
+ * @param word 원본 단어 (조사 포함)
+ * @param sense 의미 정보
+ * @param afterWords 뒤따르는 단어들
+ */
+function calculatePatternScore(word: string, sense: Sense, afterWords: string[]): number {
+  let score = 0;
+
+  for (const pattern of GRAMMAR_PATTERNS) {
+    // 조사 확인
+    if (!word.endsWith(pattern.particle)) continue;
+
+    // 도메인 일치 확인
+    if (sense.domain !== pattern.targetDomain) continue;
+
+    // 뒤따르는 동사/형용사 확인
+    for (const afterWord of afterWords) {
+      const afterStem = extractStem(afterWord);
+      for (const stem of pattern.followingStems) {
+        if (afterStem.includes(stem) || afterWord.includes(stem)) {
+          score += pattern.weight;
+          break;
+        }
+      }
+      if (score > 0) break; // 첫 매칭만
+    }
+  }
+
+  return score;
+}
+
+/**
+ * 의미별 점수 계산 (확장된 버전)
  * @param sense 의미 정보
  * @param context 문맥 윈도우
  * @param domainBonus 도메인 일치 시 추가 점수
+ * @param originalWord 원본 단어 (조사 포함, 패턴 분석용)
  */
-export function scoreSense(sense: Sense, context: ContextWindow, domainBonus = 0): number {
+export function scoreSense(
+  sense: Sense,
+  context: ContextWindow,
+  domainBonus = 0,
+  originalWord?: string,
+): number {
   // 기본 빈도 점수
   let score = sense.weight;
 
@@ -238,19 +375,26 @@ export function scoreSense(sense: Sense, context: ContextWindow, domainBonus = 0
   // 도메인 보너스
   score += domainBonus;
 
+  // 문법 패턴 보너스 (원본 단어가 있을 때만)
+  if (originalWord) {
+    score += calculatePatternScore(originalWord, sense, context.after);
+  }
+
   return score;
 }
 
 /**
  * 최적 의미 선택 (WSD 메인 함수)
- * @param word 대상 단어
+ * @param word 대상 단어 (어간)
  * @param context 문맥 윈도우
  * @param topDomain 문장의 주요 도메인 (옵션)
+ * @param originalWord 원본 단어 (조사 포함, 패턴 분석용)
  */
 export function disambiguate(
   word: string,
   context: ContextWindow,
   topDomain?: string | null,
+  originalWord?: string,
 ): WsdResult | null {
   const polysemy = polysemyMap.get(word);
   if (!polysemy) return null;
@@ -259,8 +403,8 @@ export function disambiguate(
 
   for (const sense of polysemy.senses) {
     // 도메인 일치 보너스
-    const domainBonus = topDomain && sense.domain === topDomain ? 1.5 : 0;
-    const score = scoreSense(sense, context, domainBonus);
+    const domainBonus = topDomain && sense.domain === topDomain ? SIGNAL_WEIGHTS.domainMatch : 0;
+    const score = scoreSense(sense, context, domainBonus, originalWord);
     scores.push({ sense, score });
   }
 
@@ -307,7 +451,8 @@ export function disambiguateAll(
 
     if (polysemyMap.has(stem)) {
       const context = extractContext(tokens, i);
-      const result = disambiguate(stem, context, topDomain);
+      // 원본 토큰을 패턴 분석용으로 전달
+      const result = disambiguate(stem, context, topDomain, token);
       if (result) {
         results.set(i, result);
       }
