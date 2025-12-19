@@ -10,16 +10,16 @@ export function HomeContent(): JSX.Element {
     <div class="relative flex flex-col items-center justify-center min-h-[calc(100vh-200px)] p-8 text-center overflow-hidden">
       <CSSParticles />
 
-      <div class="relative z-[1] mb-8">
+      <div class="relative z-1 mb-8">
         <h1 class="text-3xl md:text-[3rem] font-semibold text-content m-0 mb-4">{BRAND.name}</h1>
         <p class="text-lg md:text-xl text-content-muted m-0 mb-4 italic">{t().home.tagline}</p>
-        <p class="text-base md:text-lg text-content-muted m-0 mb-2 max-w-[480px] leading-relaxed">
+        <p class="text-base md:text-lg text-content-muted m-0 mb-2 max-w-120 leading-relaxed">
           {t().home.description}
         </p>
         <p class="text-sm text-content-muted m-0">{t().home.genres}</p>
       </div>
 
-      <div class="relative z-[1] flex flex-wrap gap-3 justify-center mt-6">
+      <div class="relative z-1 flex flex-wrap gap-3 justify-center mt-6">
         <a
           href="https://www.youtube.com/@SoundBlueMusic"
           target="_blank"
