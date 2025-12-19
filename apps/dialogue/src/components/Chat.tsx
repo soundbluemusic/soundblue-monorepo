@@ -1,10 +1,12 @@
-import { Component, createSignal, For, onMount, createEffect } from "solid-js";
+import type { Component } from "solid-js";
+import { createSignal, For, onMount, createEffect } from "solid-js";
 import { useI18n } from "~/i18n";
 import { translations } from "~/i18n/translations";
 import { searchKnowledge } from "~/lib/search";
 import { handleDynamicQuery, getFallbackResponse } from "~/lib/handlers";
 import { detectLanguage } from "~/lib/language-detector";
-import { ChatMessage, Message } from "./ChatMessage";
+import { ChatMessage } from "./ChatMessage";
+import type { Message } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
@@ -77,7 +79,7 @@ export const Chat: Component = () => {
     } else {
       const results = searchKnowledge(content, detectedLocale);
 
-      if (results.length > 0) {
+      if (results.length > 0 && results[0]) {
         responseContent = results[0].answer;
       } else {
         responseContent = getFallbackResponse(detectedLocale);

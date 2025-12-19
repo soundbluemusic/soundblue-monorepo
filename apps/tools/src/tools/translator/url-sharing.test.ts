@@ -72,8 +72,6 @@ describe('url-sharing', () => {
     });
 
     it('should return null for valid JSON but invalid structure', () => {
-      // Compress a different structure
-      const invalidJson = JSON.stringify({ foo: 'bar' });
       // LZString would compress this differently, so we test with manually corrupted data
       expect(decompressFromUrl('N4IgDgTg')).toBeNull(); // Random base64-like string
     });

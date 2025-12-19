@@ -1,6 +1,8 @@
 import { A, useLocation, useNavigate } from "@solidjs/router";
-import { Component, Show } from "solid-js";
-import { useI18n, Locale } from "~/i18n";
+import type { Component } from "solid-js";
+import { Show } from "solid-js";
+import { useI18n } from "~/i18n";
+import type { Locale } from "~/i18n";
 import { useTheme } from "~/theme";
 import { uiActions, uiStore } from "~/stores/ui-store";
 
@@ -47,8 +49,11 @@ export const Header: Component = () => {
 
   const cycleLanguage = () => {
     const langs: Locale[] = ["en", "ko"];
-    const currentIndex = langs.indexOf(locale());
+    const currentLocale = locale();
+    if (!currentLocale) return;
+    const currentIndex = langs.indexOf(currentLocale);
     const nextLang = langs[(currentIndex + 1) % langs.length];
+    if (!nextLang) return;
     setLocale(nextLang);
     // Navigate to the localized path
     const newPath = buildLocalizedPath(nextLang);
@@ -105,7 +110,7 @@ export const Header: Component = () => {
           aria-label="Change language"
         >
           <GlobeIcon />
-          <span>{locale().toUpperCase()}</span>
+          <span>{(locale() ?? "en").toUpperCase()}</span>
         </button>
 
         {/* Offline Badge */}

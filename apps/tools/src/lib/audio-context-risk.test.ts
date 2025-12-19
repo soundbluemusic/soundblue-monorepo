@@ -5,7 +5,7 @@
  * Risk Coverage: 오디오 실패, 권한 거부, 브라우저 호환성
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   createGain,
   createOscillator,

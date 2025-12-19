@@ -196,6 +196,8 @@ export const chatActions = {
     if (convIndex === -1) return;
 
     const conversation = chatStore.conversations[convIndex];
+    if (!conversation) return;
+
     const updatedMessages = [...conversation.messages, message];
     let updatedTitle = conversation.title;
 
@@ -205,7 +207,8 @@ export const chatActions = {
     }
 
     const updatedConversation: Conversation = {
-      ...conversation,
+      id: conversation.id,
+      createdAt: conversation.createdAt,
       messages: updatedMessages,
       title: updatedTitle,
       updatedAt: Date.now(),

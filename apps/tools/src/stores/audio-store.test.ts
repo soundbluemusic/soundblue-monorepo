@@ -321,7 +321,6 @@ describe('Audio Store', () => {
       const { initialize } = useAudioStore.getState();
 
       await initialize();
-      const _firstLatency = useAudioStore.getState().latency;
 
       // Modify latency to detect if initialize runs again
       useAudioStore.setState({ latency: 999 });

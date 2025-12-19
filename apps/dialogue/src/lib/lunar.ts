@@ -123,8 +123,11 @@ function getLunarYearDays(year: number): number {
 
   // Check bits 4-15 (0x8000 >> 1 down to 0x10, stopping at 0x8)
   // Each set bit means that month has 30 days instead of 29
-  for (let i = 0x8000; i > 0x8; i >>= 1) {
-    sum += (LUNAR_DATA[year - 1900] & i) ? 1 : 0;
+  const yearData = LUNAR_DATA[year - 1900];
+  if (yearData !== undefined) {
+    for (let i = 0x8000; i > 0x8; i >>= 1) {
+      sum += (yearData & i) ? 1 : 0;
+    }
   }
 
   // Add leap month days if this is a leap year
@@ -156,7 +159,8 @@ function getLunarYearDays(year: number): number {
  */
 function getLeapMonth(year: number): number {
   // Extract bits 0-3 (lowest nibble) which encode the leap month
-  return LUNAR_DATA[year - 1900] & 0xf;
+  const yearData = LUNAR_DATA[year - 1900];
+  return yearData !== undefined ? yearData & 0xf : 0;
 }
 
 /**
@@ -186,7 +190,8 @@ function getLeapDays(year: number): number {
   // Only return days if this year has a leap month
   if (getLeapMonth(year)) {
     // Bit 16 determines if leap month is "big" (30 days) or "small" (29 days)
-    return (LUNAR_DATA[year - 1900] & 0x10000) ? 30 : 29;
+    const yearData = LUNAR_DATA[year - 1900];
+    return yearData !== undefined && (yearData & 0x10000) ? 30 : 29;
   }
   return 0;
 }
@@ -219,7 +224,8 @@ function getLeapDays(year: number): number {
 function getMonthDays(year: number, month: number): number {
   // Shift right by month to check the corresponding bit
   // Month 1 → bit 15, Month 2 → bit 14, ..., Month 12 → bit 4
-  return (LUNAR_DATA[year - 1900] & (0x10000 >> month)) ? 30 : 29;
+  const yearData = LUNAR_DATA[year - 1900];
+  return yearData !== undefined && (yearData & (0x10000 >> month)) ? 30 : 29;
 }
 
 /**
@@ -371,31 +377,6 @@ export function solarToLunar(solarDate: Date): LunarDate {
     isLeapMonth,
   };
 }
-
-/**
- * Traditional Korean month names in the lunar calendar.
- *
- * These are the classical names still used in Korea:
- * - 정월 (正月): First month / New Year's month
- * - 이월, 삼월, ...: Second through ninth months
- * - 동짓달: Winter solstice month (11th month)
- * - 섣달: Last month of the year (12th month)
- *
- * @internal
- */
-const LUNAR_MONTHS_KO = ['정월', '이월', '삼월', '사월', '오월', '유월', '칠월', '팔월', '구월', '시월', '동짓달', '섣달'];
-
-/**
- * English ordinal month names for the lunar calendar.
- * @internal
- */
-const LUNAR_MONTHS_EN = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th'];
-
-/**
- * Traditional Japanese/Chinese month names using kanji numerals.
- * @internal
- */
-const LUNAR_MONTHS_JA = ['正月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
 
 /**
  * Formats a lunar date as a localized string.

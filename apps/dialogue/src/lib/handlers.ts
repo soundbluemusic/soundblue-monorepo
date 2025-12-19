@@ -268,8 +268,13 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
 // ========================================
 
 /** Random picker utility */
-function randomPick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+function randomPick<T>(arr: readonly T[]): T {
+  const index = Math.floor(Math.random() * arr.length);
+  const item = arr[index];
+  if (item === undefined) {
+    throw new Error('randomPick called on empty array');
+  }
+  return item;
 }
 
 // Greeting response generator
@@ -576,7 +581,9 @@ function getWeatherDescription(code: number, locale: Locale): string {
     },
   };
 
-  return descriptions[locale]?.[code] || descriptions.en[code] || `Unknown (${code})`;
+  const localeDescriptions = descriptions[locale];
+  const enDescriptions = descriptions['en'];
+  return localeDescriptions?.[code] ?? enDescriptions?.[code] ?? `Unknown (${code})`;
 }
 
 /**

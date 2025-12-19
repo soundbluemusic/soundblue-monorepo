@@ -3,11 +3,8 @@
 // ========================================
 
 import {
-  CHO_LIST,
   compose,
   decompose,
-  getBatchim,
-  hasBatchim,
   isHangul,
   type Jamo,
   JONG_LIST,

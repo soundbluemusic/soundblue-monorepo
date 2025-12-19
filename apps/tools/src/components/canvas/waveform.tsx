@@ -101,7 +101,8 @@ export function Waveform(props: WaveformProps) {
 
   // Update waveform when audioData changes
   createEffect(() => {
-    const _audioData = props.audioData;
+    // Track props.audioData reactively
+    props.audioData;
     if (ctx) {
       drawWaveform();
     }
@@ -199,8 +200,9 @@ export function LevelMeter(props: LevelMeterProps) {
 
   // Update meter when level/peak changes
   createEffect(() => {
-    const _level = props.level;
-    const _peak = props.peak;
+    // Track props.level and props.peak reactively
+    props.level;
+    props.peak;
     if (ctx) {
       drawMeter();
     }

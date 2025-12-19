@@ -1,4 +1,5 @@
-import { Component, Show } from "solid-js";
+import type { Component } from "solid-js";
+import { Show } from "solid-js";
 import { useI18n } from "~/i18n";
 import { uiActions, uiStore } from "~/stores/ui-store";
 

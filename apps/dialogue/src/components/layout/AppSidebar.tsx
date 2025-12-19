@@ -1,9 +1,12 @@
 import { A, useNavigate, useLocation } from "@solidjs/router";
-import { Component, Show, For, createSignal, onMount } from "solid-js";
-import { useI18n, Locale } from "~/i18n";
+import type { Component } from "solid-js";
+import { Show, For, createSignal, onMount } from "solid-js";
+import { useI18n } from "~/i18n";
+import type { Locale } from "~/i18n";
 import { useTheme } from "~/theme";
 import { uiActions, uiStore } from "~/stores/ui-store";
-import { chatStore, chatActions, Conversation } from "~/stores/chat-store";
+import { chatStore, chatActions } from "~/stores/chat-store";
+import type { Conversation } from "~/stores/chat-store";
 
 // ========================================
 // AppSidebar Component - 메인 사이드바

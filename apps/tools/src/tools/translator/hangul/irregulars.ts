@@ -2,7 +2,7 @@
 // Irregulars - 불규칙 활용 사전
 // ========================================
 
-import { compose, decompose, getBatchim, isVowel, type Jamo } from './jamo';
+import { compose, decompose } from './jamo';
 
 export type IrregularType = 'ㄷ' | 'ㅂ' | 'ㅎ' | 'ㅅ' | '르' | '러' | '우' | '으';
 
@@ -324,7 +324,7 @@ function applyEu(stem: string, ending: string): string {
  * 어간에서 원형 복원 (활용형 → 기본형)
  * '들' (듣+어) → '듣'
  */
-export function restoreIrregular(conjugated: string, type: IrregularType): string | null {
+export function restoreIrregular(_conjugated: string, _type: IrregularType): string | null {
   // TODO: 역변환 로직 구현
   // 복잡한 로직이 필요하므로 기본적인 케이스만 처리
   return null;

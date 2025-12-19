@@ -12,7 +12,8 @@
  * @module search
  */
 
-import { knowledge, KnowledgeItem } from "~/data/knowledge";
+import { knowledge } from "~/data/knowledge";
+import type { KnowledgeItem } from "~/data/knowledge";
 import type { Locale } from "~/i18n";
 import { isSimilar, normalizeForMatch } from "./fuzzy";
 

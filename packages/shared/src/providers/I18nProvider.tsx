@@ -12,6 +12,7 @@
 
 import {
   type Accessor,
+  type JSX,
   createContext,
   createMemo,
   useContext,
@@ -239,7 +240,7 @@ function getBasePath(pathname: string, config: I18nConfig): string {
  * }
  * ```
  */
-export function I18nProvider<T>(props: I18nProviderProps<T> & { children: any }): any {
+export function I18nProvider<T>(props: I18nProviderProps<T> & { children: JSX.Element }): JSX.Element {
   const config = () => props.config ?? DEFAULT_I18N_CONFIG;
 
   // Derive locale from URL path (reactive)

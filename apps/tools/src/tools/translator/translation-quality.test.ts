@@ -4,7 +4,7 @@
  * Korean ↔ English
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, it } from 'vitest';
 import { translate } from './translator-service';
 
 // 점수 기록용 변수들

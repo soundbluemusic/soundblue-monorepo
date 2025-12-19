@@ -1,6 +1,8 @@
-import { Component, Show } from "solid-js";
+import type { Component } from "solid-js";
+import { Show } from "solid-js";
 import { useNavigate, A } from "@solidjs/router";
-import { useI18n, Locale } from "~/i18n";
+import { useI18n } from "~/i18n";
+import type { Locale } from "~/i18n";
 import { useTheme } from "~/theme";
 
 interface SidebarProps {

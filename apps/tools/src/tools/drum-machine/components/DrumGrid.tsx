@@ -354,9 +354,9 @@ export function DrumGrid(props: DrumGridProps) {
   // Update when pattern or currentStep changes
   createEffect(() => {
     // Access reactive props to track them
-    const _pattern = props.pattern;
-    const _currentStep = props.currentStep;
-    const _isPlaying = props.isPlaying;
+    props.pattern;
+    props.currentStep;
+    props.isPlaying;
 
     if (isReady()) {
       render();

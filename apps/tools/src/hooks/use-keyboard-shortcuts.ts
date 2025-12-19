@@ -232,7 +232,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   }
 
   // Find matching shortcut
-  for (const [id, registration] of shortcutRegistry) {
+  for (const registration of shortcutRegistry.values()) {
     if (registration.definition.enabled === false) continue;
 
     if (matchesKeyCombo(event, registration.combo)) {

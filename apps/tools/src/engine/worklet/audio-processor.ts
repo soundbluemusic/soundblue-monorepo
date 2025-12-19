@@ -184,9 +184,6 @@ const STEREO_BUFFER_BYTES = BUFFER_SIZE * 2 * 4;
  * operates in passthrough mode.
  */
 class DAWAudioProcessor extends AudioWorkletProcessor {
-  /** Reference to shared memory buffer from main thread */
-  private sharedBuffer: SharedArrayBuffer | null = null;
-
   /** Int32 view for Atomics operations on shared memory */
   private sharedState: Int32Array | null = null;
 
@@ -406,7 +403,6 @@ class DAWAudioProcessor extends AudioWorkletProcessor {
    * @param buffer - SharedArrayBuffer from main thread
    */
   private setupSharedBuffer(buffer: SharedArrayBuffer) {
-    this.sharedBuffer = buffer;
     // Create Int32Array view for Atomics compatibility
     // Layout: [isPlaying, bpm, currentTime, leftLevel, rightLevel, leftPeak, rightPeak]
     this.sharedState = new Int32Array(buffer);

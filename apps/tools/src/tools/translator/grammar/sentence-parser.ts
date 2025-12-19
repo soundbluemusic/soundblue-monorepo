@@ -137,7 +137,7 @@ function groupConstituents(tokens: TokenAnalysis[]): Constituent[] {
 // ========================================
 // 주어 생략 감지
 // ========================================
-function detectSubjectOmission(constituents: Constituent[], tokens: TokenAnalysis[]): boolean {
+function detectSubjectOmission(constituents: Constituent[], _tokens: TokenAnalysis[]): boolean {
   // 주어(topic/subject 역할) 성분이 없으면 생략된 것
   const hasSubject = constituents.some((c) => c.role === 'subject' || c.role === 'topic');
   return !hasSubject;
@@ -147,12 +147,11 @@ function detectSubjectOmission(constituents: Constituent[], tokens: TokenAnalysi
 // 문장 패턴 결정
 // ========================================
 function determineSentencePattern(
-  subject: Constituent | undefined,
+  _subject: Constituent | undefined,
   object: Constituent | undefined,
   predicate: Constituent | undefined,
   adverbials: Constituent[]
 ): SentencePattern {
-  const hasSubject = !!subject;
   const hasObject = !!object;
   const hasIndirectObject = adverbials.some((a) => {
     // 에게, 한테, 께 등 간접목적어 역할 감지

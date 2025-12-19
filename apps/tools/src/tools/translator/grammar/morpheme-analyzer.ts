@@ -3,7 +3,7 @@
 // 어간/어미/조사 분리 + 불규칙 활용 처리
 // ========================================
 
-import { hasLastBatchim, isHangul } from '../hangul';
+import { isHangul } from '../hangul';
 
 // 품사 타입
 export type PartOfSpeech =

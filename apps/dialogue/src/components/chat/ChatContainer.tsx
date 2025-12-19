@@ -1,4 +1,5 @@
-import { Component, createSignal, For, createEffect, onMount, Show } from "solid-js";
+import type { Component } from "solid-js";
+import { createSignal, For, createEffect, onMount, Show } from "solid-js";
 import { useNavigate, useLocation } from "@solidjs/router";
 import { useI18n } from "~/i18n";
 import { translations } from "~/i18n/translations";
@@ -11,8 +12,8 @@ import {
   chatStore,
   chatActions,
   generateId,
-  Message,
 } from "~/stores/chat-store";
+import type { Message } from "~/stores/chat-store";
 
 // ========================================
 // ChatContainer Component - 채팅 컨테이너
@@ -30,7 +31,6 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
   const location = useLocation();
   const [messages, setMessages] = createSignal<Message[]>([]);
   const [isThinking, setIsThinking] = createSignal(false);
-  const [conversationStarted, setConversationStarted] = createSignal(false);
   let messagesEndRef: HTMLDivElement | undefined;
 
   // Track previous trigger values to detect actual changes
@@ -62,7 +62,6 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
       timestamp: Date.now(),
     };
     setMessages([welcomeMessage]);
-    setConversationStarted(false);
   };
 
   onMount(() => {
@@ -94,7 +93,6 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
       const conversation = chatStore.conversations.find((c) => c.id === activeId);
       if (conversation && conversation.messages.length > 0) {
         setMessages([...conversation.messages]);
-        setConversationStarted(true);
       }
     }
   });
@@ -148,7 +146,6 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
         }
       }
     }
-    setConversationStarted(true);
 
     setMessages((prev) => [...prev, userMessage]);
 
@@ -178,7 +175,7 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     } else {
       const results = searchKnowledge(content, detectedLocale);
 
-      if (results.length > 0) {
+      if (results.length > 0 && results[0]) {
         responseContent = results[0].answer;
       } else {
         responseContent = localizedT.noResults;

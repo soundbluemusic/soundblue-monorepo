@@ -3,7 +3,7 @@
 // 한국어 문장에서 연어 패턴 탐지
 // ========================================
 
-import { type Collocation, collocationIndex, collocations } from './collocation-dict';
+import { collocationIndex, type Collocation } from './collocation-dict';
 
 /**
  * 연어 매칭 결과

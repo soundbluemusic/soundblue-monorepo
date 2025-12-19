@@ -298,7 +298,6 @@ export function correctSpacing(text: string): {
 } {
   let result = text;
   let corrections = 0;
-  const original = text;
 
   // 0. 명사-동사 경계 분리 (띄어쓰기 없는 문장 처리)
   const afterNounVerb = correctNounVerbSpacing(result);

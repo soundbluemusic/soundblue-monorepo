@@ -5,7 +5,7 @@
  * Test Effectiveness: 실제 사용자 워크플로우 테스트
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { defaultMetronomeSettings } from './settings';
 
 describe('Metronome User Scenarios', () => {

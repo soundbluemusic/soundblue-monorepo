@@ -3,7 +3,7 @@
 // 문맥 윈도우 기반 의미 선택
 // ========================================
 
-import { type Polysemy, polysemyMap, type Sense } from './polysemy-dict';
+import { polysemyMap, type Sense } from './polysemy-dict';
 
 /**
  * 문맥 윈도우

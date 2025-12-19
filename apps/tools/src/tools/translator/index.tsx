@@ -92,7 +92,8 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
 
   // Re-translate when direction changes
   createEffect(() => {
-    const _direction = settings().direction;
+    // Track settings().direction reactively
+    settings().direction;
     if (inputText().trim()) {
       doTranslate();
     }

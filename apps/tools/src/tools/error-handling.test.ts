@@ -5,7 +5,7 @@
  * Test Quality: 실패 시나리오, 예외 상황 테스트
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   createEmptyPattern,
   DRUM_DEFAULTS,

@@ -22,23 +22,35 @@ export function levenshtein(a: string, b: string): number {
   for (let i = 0; i <= aLen; i++) {
     matrix[i] = [i];
   }
-  for (let j = 0; j <= bLen; j++) {
-    matrix[0][j] = j;
+  const firstRow = matrix[0];
+  if (firstRow) {
+    for (let j = 0; j <= bLen; j++) {
+      firstRow[j] = j;
+    }
   }
 
   // Fill matrix
   for (let i = 1; i <= aLen; i++) {
     for (let j = 1; j <= bLen; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      matrix[i][j] = Math.min(
-        matrix[i - 1][j] + 1, // deletion
-        matrix[i][j - 1] + 1, // insertion
-        matrix[i - 1][j - 1] + cost, // substitution
-      );
+      const prevRow = matrix[i - 1];
+      const currentRow = matrix[i];
+      const prevCell = currentRow?.[j - 1];
+      const diagCell = prevRow?.[j - 1];
+      const topCell = prevRow?.[j];
+
+      if (currentRow && prevCell !== undefined && diagCell !== undefined && topCell !== undefined) {
+        currentRow[j] = Math.min(
+          topCell + 1, // deletion
+          prevCell + 1, // insertion
+          diagCell + cost, // substitution
+        );
+      }
     }
   }
 
-  return matrix[aLen][bLen];
+  const lastRow = matrix[aLen];
+  return lastRow?.[bLen] ?? 0;
 }
 
 /**

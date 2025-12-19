@@ -2,7 +2,7 @@
 // Phonetics - 음운 규칙
 // ========================================
 
-import { compose, decompose, getBatchim, splitDoubleJong } from './jamo';
+import { compose, decompose, splitDoubleJong } from './jamo';
 
 /**
  * 경음화 (된소리되기)

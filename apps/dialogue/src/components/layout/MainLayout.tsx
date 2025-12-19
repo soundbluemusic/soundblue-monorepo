@@ -1,4 +1,5 @@
-import { Component, createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
+import type { Component } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { isServer } from "solid-js/web";
 import { BREAKPOINTS, Footer } from "@soundblue/shared";
 import { useI18n } from "~/i18n";

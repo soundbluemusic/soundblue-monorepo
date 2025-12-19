@@ -1,7 +1,7 @@
 // 문법 모듈 테스트
 import { describe, expect, it } from 'vitest';
 import { generateEnglish } from './english-generator';
-import { analyzeMorpheme, analyzeTokens } from './morpheme-analyzer';
+import { analyzeMorpheme } from './morpheme-analyzer';
 import { parseSentence } from './sentence-parser';
 
 describe('형태소 분석기', () => {

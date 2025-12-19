@@ -46,7 +46,7 @@ const MetronomeComponent: Component<ToolProps<MetronomeSettings>> = (props) => {
   const [isPlaying, setIsPlaying] = createSignal(false);
   const [currentBeat, setCurrentBeat] = createSignal(0);
   const [measureCount, setMeasureCount] = createSignal(0);
-  const [pendulumAngle, setPendulumAngle] = createSignal(0);
+  const [_pendulumAngle, setPendulumAngle] = createSignal(0);
   const [elapsedTime, setElapsedTime] = createSignal(0);
   const [countdownTime, setCountdownTime] = createSignal(0);
 

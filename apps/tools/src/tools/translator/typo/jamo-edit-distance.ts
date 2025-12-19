@@ -3,7 +3,7 @@
 // 키보드 거리 가중치 적용
 // ========================================
 
-import { decompose, isHangul } from '../hangul';
+import { isHangul } from '../hangul';
 
 // 초성 목록
 const CHOSEONG = [

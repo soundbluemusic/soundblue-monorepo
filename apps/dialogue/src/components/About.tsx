@@ -1,4 +1,4 @@
-import { Component } from "solid-js";
+import type { Component } from "solid-js";
 import { A } from "@solidjs/router";
 import { useI18n } from "~/i18n";
 
@@ -21,7 +21,7 @@ export const About: Component = () => {
         </A>
       </header>
 
-      <main class="flex-1 px-6 py-8 max-w-[800px] mx-auto w-full max-sm:px-4 max-sm:py-6">
+      <main class="flex-1 px-6 py-8 max-w-200 mx-auto w-full max-sm:px-4 max-sm:py-6">
         {/* Hero */}
         <div class="text-center py-10 max-sm:py-6">
           <div class="inline-flex items-center justify-center w-20 h-20 bg-accent text-white rounded-[20px] mb-4">
@@ -71,19 +71,19 @@ export const About: Component = () => {
         <section class="mb-10">
           <h2 class="text-lg font-semibold text-text-primary mb-5 pb-2 border-b border-border">{t.aboutTech}</h2>
           <div class="flex flex-col gap-3">
-            <div class="flex justify-between items-center px-[18px] py-[14px] bg-bg-secondary border border-border rounded-[--radius-sm]">
+            <div class="flex justify-between items-center px-4.5 py-3.5 bg-bg-secondary border border-border rounded-[--radius-sm]">
               <span class="text-sm text-text-secondary">Framework</span>
               <span class="text-sm font-semibold text-text-primary">SolidStart</span>
             </div>
-            <div class="flex justify-between items-center px-[18px] py-[14px] bg-bg-secondary border border-border rounded-[--radius-sm]">
+            <div class="flex justify-between items-center px-4.5 py-3.5 bg-bg-secondary border border-border rounded-[--radius-sm]">
               <span class="text-sm text-text-secondary">Language</span>
               <span class="text-sm font-semibold text-text-primary">TypeScript</span>
             </div>
-            <div class="flex justify-between items-center px-[18px] py-[14px] bg-bg-secondary border border-border rounded-[--radius-sm]">
+            <div class="flex justify-between items-center px-4.5 py-3.5 bg-bg-secondary border border-border rounded-[--radius-sm]">
               <span class="text-sm text-text-secondary">Rendering</span>
               <span class="text-sm font-semibold text-text-primary">100% SSG</span>
             </div>
-            <div class="flex justify-between items-center px-[18px] py-[14px] bg-bg-secondary border border-border rounded-[--radius-sm]">
+            <div class="flex justify-between items-center px-4.5 py-3.5 bg-bg-secondary border border-border rounded-[--radius-sm]">
               <span class="text-sm text-text-secondary">PWA</span>
               <span class="text-sm font-semibold text-text-primary">Service Worker</span>
             </div>
@@ -98,13 +98,13 @@ export const About: Component = () => {
               href="https://github.com/soundbluemusic/Dialogue"
               target="_blank"
               rel="noopener noreferrer"
-              class="flex items-center gap-3 px-[18px] py-[14px] bg-bg-secondary border border-border rounded-[--radius-sm] text-text-primary no-underline transition-colors duration-200 hover:bg-accent-light [&_svg:first-child]:text-text-secondary [&_svg:last-child]:text-text-muted"
+              class="flex items-center gap-3 px-4.5 py-3.5 bg-bg-secondary border border-border rounded-[--radius-sm] text-text-primary no-underline transition-colors duration-200 hover:bg-accent-light [&_svg:first-child]:text-text-secondary [&_svg:last-child]:text-text-muted"
             >
               <GithubIcon />
               <span class="flex-1 text-sm">GitHub Repository</span>
               <ExternalIcon />
             </a>
-            <div class="flex items-center gap-3 px-[18px] py-[14px] bg-bg-secondary border border-border rounded-[--radius-sm] text-text-primary [&_svg:first-child]:text-text-secondary">
+            <div class="flex items-center gap-3 px-4.5 py-3.5 bg-bg-secondary border border-border rounded-[--radius-sm] text-text-primary [&_svg:first-child]:text-text-secondary">
               <LicenseIcon />
               <span class="flex-1 text-sm">MIT License</span>
             </div>

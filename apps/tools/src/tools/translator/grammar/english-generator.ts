@@ -712,7 +712,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
 // ========================================
 // 간단한 번역 인터페이스
 // ========================================
-export function translateKoreanToEnglish(text: string): string {
+export function translateKoreanToEnglish(_text: string): string {
   // parseSentence는 외부에서 import 해야 함 (순환 참조 방지)
   // 이 함수는 translator-service에서 사용
   throw new Error('Use translateSentenceAdvanced from translator-service instead');

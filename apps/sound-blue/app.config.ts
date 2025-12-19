@@ -4,7 +4,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 import { vitePluginPwa } from './pwa.config';
 
-const isAnalyze = process.env.ANALYZE === 'true';
+const isAnalyze = process.env['ANALYZE'] === 'true';
 
 export default defineConfig({
   server: {

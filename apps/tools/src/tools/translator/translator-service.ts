@@ -1080,7 +1080,7 @@ const TIME_WORDS = new Set([
  */
 function translateTokens(
   tokens: Token[],
-  hasSubject: boolean,
+  _hasSubject: boolean,
   hasObject: boolean,
   isDescriptive: boolean,
   detectedTense: 'present' | 'past' | 'future' = 'present'
