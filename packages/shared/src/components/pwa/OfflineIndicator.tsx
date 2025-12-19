@@ -84,7 +84,7 @@ export const OfflineIndicator: Component = () => {
 
       {/* Back Online Toast */}
       <Show when={showOnlineNotification()}>
-        <div
+        <output
           class={cn(
             'fixed top-4 right-4 z-50',
             'bg-green-500 text-white',
@@ -93,11 +93,10 @@ export const OfflineIndicator: Component = () => {
             'text-sm font-medium',
             'animate-in slide-in-from-right duration-300',
           )}
-          role="status"
         >
           <Wifi class="h-4 w-4" />
           <span>{t.online[locale()]}</span>
-        </div>
+        </output>
       </Show>
 
       {/* Update Available Banner */}

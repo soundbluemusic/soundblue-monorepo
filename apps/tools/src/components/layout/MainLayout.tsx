@@ -57,9 +57,11 @@ export const MainLayout: Component = () => {
       <main class="flex flex-1 overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         <Show when={showMobileOverlay()}>
-          <div
-            class="fixed inset-0 z-40 bg-black/50 md:hidden"
+          <button
+            type="button"
+            class="fixed inset-0 z-40 bg-black/50 md:hidden border-none cursor-default"
             onClick={() => toolActions.setSidebarOpen(false)}
+            aria-label="Close sidebar"
           />
         </Show>
 

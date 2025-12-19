@@ -29,8 +29,6 @@ vi.mock('dexie', () => {
   class MockDexie {
     preferences = mockTable;
 
-    constructor() {}
-
     version() {
       return { stores: () => {} };
     }

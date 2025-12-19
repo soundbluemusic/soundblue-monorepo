@@ -243,7 +243,7 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
 
     if (locale === 'ko') {
       return (
-        `${locationName ? locationName + '의 ' : ''}현재 날씨입니다:\n` +
+        `${locationName ? `${locationName}의 ` : ''}현재 날씨입니다:\n` +
         `🌡️ 기온: ${temp}°C\n` +
         `💧 습도: ${humidity}%\n` +
         `💨 바람: ${windSpeed}km/h\n` +
@@ -251,7 +251,7 @@ async function getWeatherResponse(locale: Locale): Promise<string> {
       );
     } else {
       return (
-        `Current weather${locationName ? ' in ' + locationName : ''}:\n` +
+        `Current weather${locationName ? ` in ${locationName}` : ''}:\n` +
         `🌡️ Temperature: ${temp}°C\n` +
         `💧 Humidity: ${humidity}%\n` +
         `💨 Wind: ${windSpeed}km/h\n` +

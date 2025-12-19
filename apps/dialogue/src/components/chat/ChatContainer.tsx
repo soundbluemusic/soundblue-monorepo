@@ -106,7 +106,7 @@ export const ChatContainer: Component<ChatContainerProps> = (props) => {
     // Navigate to home when starting new chat
     const currentPath = location.pathname;
     const homePath = getHomePath();
-    if (currentPath !== homePath && currentPath !== homePath + '/') {
+    if (currentPath !== homePath && currentPath !== `${homePath}/`) {
       navigate(homePath, { replace: true });
     }
     props.onNewChat?.();

@@ -125,7 +125,7 @@ export function getPathWithoutLocale(
   if (locale === config.defaultLocale) {
     const segments = pathname.split('/').filter(Boolean);
     if (segments[0] === config.defaultLocale) {
-      const rest = '/' + segments.slice(1).join('/');
+      const rest = `/${segments.slice(1).join('/')}`;
       return rest || '/';
     }
     return pathname;

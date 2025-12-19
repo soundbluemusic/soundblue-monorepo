@@ -28,7 +28,8 @@ describe('Metronome User Scenarios', () => {
 
     it('should calculate correct practice time for 5 minute session', () => {
       const settings = { ...defaultMetronomeSettings, timerMinutes: '5', timerSeconds: '0' };
-      const totalSeconds = parseInt(settings.timerMinutes) * 60 + parseInt(settings.timerSeconds);
+      const totalSeconds =
+        parseInt(settings.timerMinutes, 10) * 60 + parseInt(settings.timerSeconds, 10);
       expect(totalSeconds).toBe(300);
 
       // 5분 동안 120 BPM으로 몇 박자?

@@ -148,11 +148,9 @@ async function compressIcon(iconPath) {
   const originalSize = fs.statSync(inputPath).size;
 
   try {
-    await sharp(inputPath)
-      .png({ compressionLevel: 9 })
-      .toFile(inputPath + '.tmp');
+    await sharp(inputPath).png({ compressionLevel: 9 }).toFile(`${inputPath}.tmp`);
 
-    fs.renameSync(inputPath + '.tmp', inputPath);
+    fs.renameSync(`${inputPath}.tmp`, inputPath);
 
     const newSize = fs.statSync(inputPath).size;
     const savings = Math.round((1 - newSize / originalSize) * 100);
@@ -174,13 +172,13 @@ async function main() {
     await optimizeImage(config);
   }
 
-  console.log('\n' + '═'.repeat(50));
+  console.log(`\n${'═'.repeat(50)}`);
   console.log('\n🗜️  Compressing PWA icons (PNG only):');
   for (const iconPath of iconsToCompress) {
     await compressIcon(iconPath);
   }
 
-  console.log('\n' + '═'.repeat(50));
+  console.log(`\n${'═'.repeat(50)}`);
   console.log('\n✨ Optimization complete!');
   console.log('   Generated formats: PNG, WebP, AVIF');
   console.log('   Use <OptimizedImage> component for automatic format selection\n');

@@ -5,7 +5,7 @@
  * Usage: pnpm dlx tsx scripts/optimize-images.ts
  */
 
-import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { basename, dirname, extname, join } from 'node:path';
 import sharp from 'sharp';
 
@@ -62,7 +62,7 @@ async function processImage(filePath: string): Promise<void> {
 
   try {
     const image = sharp(filePath);
-    const metadata = await image.metadata();
+    const _metadata = await image.metadata();
 
     // Generate WebP
     const webpBuffer = await image.webp(CONFIG.formats.webp).toBuffer();

@@ -48,7 +48,7 @@ test.describe('Responsive Design Tests', () => {
             if (style.overflow === 'visible') {
               const rect = el.getBoundingClientRect();
               if (rect.width > window.innerWidth) {
-                overflowing.push(el.tagName + '.' + el.className);
+                overflowing.push(`${el.tagName}.${el.className}`);
               }
             }
           });

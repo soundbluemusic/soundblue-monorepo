@@ -195,13 +195,13 @@ function getThirdPersonPresent(verb: string): string {
 
   // -s, -ss, -sh, -ch, -x, -o → -es
   if (/(?:s|ss|sh|ch|x|o)$/.test(verb)) {
-    return verb + 'es';
+    return `${verb}es`;
   }
   // 자음 + y → -ies
   if (/[^aeiou]y$/.test(verb)) {
-    return verb.slice(0, -1) + 'ies';
+    return `${verb.slice(0, -1)}ies`;
   }
-  return verb + 's';
+  return `${verb}s`;
 }
 
 function getPastTense(verb: string): string {
@@ -212,17 +212,17 @@ function getPastTense(verb: string): string {
 
   // 규칙 동사
   if (verb.endsWith('e')) {
-    return verb + 'd';
+    return `${verb}d`;
   }
   // 자음 + y → -ied
   if (/[^aeiou]y$/.test(verb)) {
-    return verb.slice(0, -1) + 'ied';
+    return `${verb.slice(0, -1)}ied`;
   }
   // 단모음 + 단자음 → 자음 중복 + ed
   if (/^[^aeiou]*[aeiou][^aeiouwxy]$/.test(verb)) {
-    return verb + (verb[verb.length - 1] ?? '') + 'ed';
+    return `${verb + (verb[verb.length - 1] ?? '')}ed`;
   }
-  return verb + 'ed';
+  return `${verb}ed`;
 }
 
 function getProgressiveForm(verb: string): string {
@@ -234,17 +234,17 @@ function getProgressiveForm(verb: string): string {
 
   // -e로 끝나면 e 제거 + ing
   if (verb.endsWith('e') && !verb.endsWith('ee')) {
-    return verb.slice(0, -1) + 'ing';
+    return `${verb.slice(0, -1)}ing`;
   }
   // -ie로 끝나면 → ying
   if (verb.endsWith('ie')) {
-    return verb.slice(0, -2) + 'ying';
+    return `${verb.slice(0, -2)}ying`;
   }
   // 단모음 + 단자음 → 자음 중복 + ing
   if (/^[^aeiou]*[aeiou][^aeiouwxy]$/.test(verb)) {
-    return verb + (verb[verb.length - 1] ?? '') + 'ing';
+    return `${verb + (verb[verb.length - 1] ?? '')}ing`;
   }
-  return verb + 'ing';
+  return `${verb}ing`;
 }
 
 // ========================================
@@ -310,7 +310,7 @@ function translateToken(token: TokenAnalysis): string {
   // 조사에 따른 전치사 추가
   if (token.particle) {
     const particleInfo = PARTICLES[token.particle];
-    if (particleInfo && particleInfo.en) {
+    if (particleInfo?.en) {
       // 전치사가 있는 경우
       return `${particleInfo.en} ${english}`;
     }
@@ -381,7 +381,7 @@ function translateConstituent(
         words.splice(words.length - 1, 0, 'the');
         result = words.join(' ');
       } else {
-        result = 'the ' + result;
+        result = `the ${result}`;
       }
     }
   }
@@ -570,7 +570,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
   const sentenceInitialPhrases: string[] = [];
   for (const mod of parsed.modifiers) {
     const modEn = translateConstituent(mod);
-    if (modEn && modEn.trim()) {
+    if (modEn?.trim()) {
       sentenceInitialPhrases.push(modEn);
     }
   }

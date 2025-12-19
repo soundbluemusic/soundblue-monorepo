@@ -100,13 +100,13 @@ async function addStylesheetToSitemaps() {
 async function main() {
   console.log('='.repeat(50));
   console.log('Sitemap Post-Processing');
-  console.log('='.repeat(50) + '\n');
+  console.log(`${'='.repeat(50)}\n`);
 
   try {
     await renameSitemaps();
     await updateSitemapIndex();
     await addStylesheetToSitemaps();
-    console.log('\n' + '='.repeat(50));
+    console.log(`\n${'='.repeat(50)}`);
     console.log('Sitemap processing complete!');
     console.log('='.repeat(50));
   } catch (error) {

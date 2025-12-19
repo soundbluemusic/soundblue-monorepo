@@ -678,22 +678,22 @@ function toGerund(verb: string): string {
 
   // -e로 끝나면 e 제거 후 -ing
   if (verb.endsWith('e') && !verb.endsWith('ee') && !verb.endsWith('ye')) {
-    return verb.slice(0, -1) + 'ing';
+    return `${verb.slice(0, -1)}ing`;
   }
 
   // -ie로 끝나면 -ying
   if (verb.endsWith('ie')) {
-    return verb.slice(0, -2) + 'ying';
+    return `${verb.slice(0, -2)}ying`;
   }
 
   // CVC (자음+모음+자음)으로 끝나는 단음절 단어는 자음 중복
   const cvcPattern = /^[^aeiou]*[aeiou][^aeiouwxy]$/i;
   if (cvcPattern.test(verb)) {
-    return verb + (verb[verb.length - 1] ?? '') + 'ing';
+    return `${verb + (verb[verb.length - 1] ?? '')}ing`;
   }
 
   // 기본: -ing 추가
-  return verb + 'ing';
+  return `${verb}ing`;
 }
 
 /**
@@ -1140,7 +1140,7 @@ function translateTokens(
       }
       case 'particle': {
         // 조사의 영어 표현 (at, to 등)은 이전 단어와 함께
-        if (token.translated && token.translated.trim()) {
+        if (token.translated?.trim()) {
           // 장소/방향 조사 처리
           if (token.role === 'location' || token.role === 'direction') {
             // locations의 마지막 항목에 조사 추가

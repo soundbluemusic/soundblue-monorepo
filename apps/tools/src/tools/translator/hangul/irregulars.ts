@@ -168,10 +168,10 @@ function applyBieup(stem: string, ending: string): string {
     // 아/어에 따라 와/워 결합
     if (endingJamo.jung === 'ㅏ') {
       // 돕 + 아요 → 도 + 와요
-      return stem.slice(0, -1) + newChar + '와' + ending.slice(1);
+      return `${stem.slice(0, -1) + newChar}와${ending.slice(1)}`;
     }
     // 춥 + 어요 → 추 + 워요
-    return stem.slice(0, -1) + newChar + '워' + ending.slice(1);
+    return `${stem.slice(0, -1) + newChar}워${ending.slice(1)}`;
   }
 
   return stem + ending;
@@ -271,7 +271,7 @@ function applyReu(stem: string, ending: string): string {
  */
 function applyReo(stem: string, ending: string): string {
   if (ending.startsWith('어')) {
-    return stem + '러' + ending.slice(1);
+    return `${stem}러${ending.slice(1)}`;
   }
   return stem + ending;
 }
@@ -285,7 +285,7 @@ function applyU(stem: string, ending: string): string {
     const firstEndingForU = ending[0] ?? '';
     const endingJamo = decompose(firstEndingForU);
     if (endingJamo && endingJamo.jung === 'ㅓ') {
-      return '퍼' + ending.slice(1);
+      return `퍼${ending.slice(1)}`;
     }
   }
   return stem + ending;

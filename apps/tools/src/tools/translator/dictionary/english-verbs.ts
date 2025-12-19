@@ -164,8 +164,6 @@ export function conjugateEnglishVerb(
         return irregular.ing;
       }
       return makeProgressiveForm(verb);
-
-    case 'present':
     default:
       // 3인칭 단수 처리
       if (subject && isThirdPersonSingular(subject)) {

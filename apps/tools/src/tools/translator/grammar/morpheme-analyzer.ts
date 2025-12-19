@@ -350,21 +350,21 @@ const CONTRACTED_PATTERNS: Array<{
   // 만나다 → 만났어요 (ㅏ+았 → 았)
   {
     pattern: /^(.+)났어요$/,
-    stemRestore: (m) => (m[1] ?? '') + '나',
+    stemRestore: (m) => `${m[1] ?? ''}나`,
     ending: '았어요',
     tense: 'past',
     formality: 'polite',
   },
   {
     pattern: /^(.+)났습니다$/,
-    stemRestore: (m) => (m[1] ?? '') + '나',
+    stemRestore: (m) => `${m[1] ?? ''}나`,
     ending: '았습니다',
     tense: 'past',
     formality: 'formal',
   },
   {
     pattern: /^(.+)났어$/,
-    stemRestore: (m) => (m[1] ?? '') + '나',
+    stemRestore: (m) => `${m[1] ?? ''}나`,
     ending: '았어',
     tense: 'past',
     formality: 'casual',
@@ -372,21 +372,21 @@ const CONTRACTED_PATTERNS: Array<{
   // 가다 → 갔어요 (ㅏ+았 → 았)
   {
     pattern: /^(.*)갔어요$/,
-    stemRestore: (m) => (m[1] ?? '') + '가',
+    stemRestore: (m) => `${m[1] ?? ''}가`,
     ending: '았어요',
     tense: 'past',
     formality: 'polite',
   },
   {
     pattern: /^(.*)갔습니다$/,
-    stemRestore: (m) => (m[1] ?? '') + '가',
+    stemRestore: (m) => `${m[1] ?? ''}가`,
     ending: '았습니다',
     tense: 'past',
     formality: 'formal',
   },
   {
     pattern: /^(.*)갔어$/,
-    stemRestore: (m) => (m[1] ?? '') + '가',
+    stemRestore: (m) => `${m[1] ?? ''}가`,
     ending: '았어',
     tense: 'past',
     formality: 'casual',
@@ -394,21 +394,21 @@ const CONTRACTED_PATTERNS: Array<{
   // 하다 → 했어요
   {
     pattern: /^(.*)했어요$/,
-    stemRestore: (m) => (m[1] ?? '') + '하',
+    stemRestore: (m) => `${m[1] ?? ''}하`,
     ending: '했어요',
     tense: 'past',
     formality: 'polite',
   },
   {
     pattern: /^(.*)했습니다$/,
-    stemRestore: (m) => (m[1] ?? '') + '하',
+    stemRestore: (m) => `${m[1] ?? ''}하`,
     ending: '했습니다',
     tense: 'past',
     formality: 'formal',
   },
   {
     pattern: /^(.*)했어$/,
-    stemRestore: (m) => (m[1] ?? '') + '하',
+    stemRestore: (m) => `${m[1] ?? ''}하`,
     ending: '했어',
     tense: 'past',
     formality: 'casual',
@@ -416,21 +416,21 @@ const CONTRACTED_PATTERNS: Array<{
   // 오다 → 왔어요
   {
     pattern: /^(.*)왔어요$/,
-    stemRestore: (m) => (m[1] ?? '') + '오',
+    stemRestore: (m) => `${m[1] ?? ''}오`,
     ending: '았어요',
     tense: 'past',
     formality: 'polite',
   },
   {
     pattern: /^(.*)왔습니다$/,
-    stemRestore: (m) => (m[1] ?? '') + '오',
+    stemRestore: (m) => `${m[1] ?? ''}오`,
     ending: '았습니다',
     tense: 'past',
     formality: 'formal',
   },
   {
     pattern: /^(.*)왔어$/,
-    stemRestore: (m) => (m[1] ?? '') + '오',
+    stemRestore: (m) => `${m[1] ?? ''}오`,
     ending: '았어',
     tense: 'past',
     formality: 'casual',
@@ -438,21 +438,21 @@ const CONTRACTED_PATTERNS: Array<{
   // 보다 → 봤어요
   {
     pattern: /^(.*)봤어요$/,
-    stemRestore: (m) => (m[1] ?? '') + '보',
+    stemRestore: (m) => `${m[1] ?? ''}보`,
     ending: '았어요',
     tense: 'past',
     formality: 'polite',
   },
   {
     pattern: /^(.*)봤습니다$/,
-    stemRestore: (m) => (m[1] ?? '') + '보',
+    stemRestore: (m) => `${m[1] ?? ''}보`,
     ending: '았습니다',
     tense: 'past',
     formality: 'formal',
   },
   {
     pattern: /^(.*)봤어$/,
-    stemRestore: (m) => (m[1] ?? '') + '보',
+    stemRestore: (m) => `${m[1] ?? ''}보`,
     ending: '았어',
     tense: 'past',
     formality: 'casual',
@@ -460,14 +460,14 @@ const CONTRACTED_PATTERNS: Array<{
   // 마시다 → 마셨어요 (ㅣ+었 → 셨)
   {
     pattern: /^(.+)셨어요$/,
-    stemRestore: (m) => (m[1] ?? '') + '시',
+    stemRestore: (m) => `${m[1] ?? ''}시`,
     ending: '었어요',
     tense: 'past',
     formality: 'polite',
   },
   {
     pattern: /^(.+)셨습니다$/,
-    stemRestore: (m) => (m[1] ?? '') + '시',
+    stemRestore: (m) => `${m[1] ?? ''}시`,
     ending: '었습니다',
     tense: 'past',
     formality: 'formal',
@@ -477,7 +477,7 @@ const CONTRACTED_PATTERNS: Array<{
   // 하다 → 해요
   {
     pattern: /^(.+)해요$/,
-    stemRestore: (m) => (m[1] ?? '') + '하',
+    stemRestore: (m) => `${m[1] ?? ''}하`,
     ending: '해요',
     tense: 'present',
     formality: 'polite',
@@ -485,7 +485,7 @@ const CONTRACTED_PATTERNS: Array<{
   // 오다 → 와요
   {
     pattern: /^(.*)와요$/,
-    stemRestore: (m) => (m[1] ?? '') + '오',
+    stemRestore: (m) => `${m[1] ?? ''}오`,
     ending: '아요',
     tense: 'present',
     formality: 'polite',
@@ -501,7 +501,7 @@ const CONTRACTED_PATTERNS: Array<{
   // 보다 → 봐요
   {
     pattern: /^(.*)봐요$/,
-    stemRestore: (m) => (m[1] ?? '') + '보',
+    stemRestore: (m) => `${m[1] ?? ''}보`,
     ending: '아요',
     tense: 'present',
     formality: 'polite',

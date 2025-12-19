@@ -187,12 +187,10 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
               <div class="flex flex-col gap-1">
                 <For each={chatStore.conversations}>
                   {(conv) => (
-                    <div
-                      role="button"
-                      tabIndex={0}
+                    <button
+                      type="button"
                       onClick={() => handleLoadConversation(conv)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleLoadConversation(conv)}
-                      class={`${MENU_ITEM_CLASS} group cursor-pointer`}
+                      class={`${MENU_ITEM_CLASS} group cursor-pointer w-full`}
                       classList={{
                         'bg-accent-light text-accent': chatStore.activeConversationId === conv.id,
                         'text-text-secondary': chatStore.activeConversationId !== conv.id,
@@ -203,22 +201,15 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
                         <div class="truncate text-sm">{conv.title || t.untitled}</div>
                         <div class="text-xs text-text-muted">{formatDate(conv.updatedAt)}</div>
                       </div>
-                      <div
-                        role="button"
-                        tabIndex={0}
+                      <button
+                        type="button"
                         onClick={(e) => handleDeleteConversation(e, conv.id)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.stopPropagation();
-                            chatActions.deleteConversation(conv.id);
-                          }
-                        }}
                         class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 hover:text-red-400 transition-all cursor-pointer"
                         title={t.deleteChat}
                       >
                         <TrashIcon />
-                      </div>
-                    </div>
+                      </button>
+                    </button>
                   )}
                 </For>
               </div>

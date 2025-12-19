@@ -12,6 +12,7 @@ export const Header: Component<HeaderProps> = (props) => {
     <header class="flex items-center justify-between px-6 py-3 bg-bg-secondary border-b border-border max-md:px-4">
       <div class="flex items-center gap-3">
         <button
+          type="button"
           class="w-10 h-10 rounded-[--radius-sm] flex items-center justify-center text-text-secondary transition-all duration-200 hover:bg-accent-light hover:text-accent"
           onClick={props.onMenuClick}
           aria-label={t.settings}

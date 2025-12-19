@@ -89,7 +89,7 @@ export function getPathWithoutLocale(
     // Still need to check if default locale is explicitly in path
     const segments = pathname.split('/').filter(Boolean);
     if (segments[0] === config.defaultLocale) {
-      const rest = '/' + segments.slice(1).join('/');
+      const rest = `/${segments.slice(1).join('/')}`;
       return rest || '/';
     }
     return pathname;

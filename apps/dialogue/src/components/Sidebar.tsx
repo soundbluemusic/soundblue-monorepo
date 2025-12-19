@@ -37,7 +37,12 @@ export const Sidebar: Component<SidebarProps> = (props) => {
   return (
     <>
       <Show when={props.isOpen()}>
-        <div class="fixed inset-0 bg-black/50 z-199 animate-fade-in" onClick={props.onClose} />
+        <button
+          type="button"
+          class="fixed inset-0 bg-black/50 z-199 animate-fade-in border-none cursor-default"
+          onClick={props.onClose}
+          aria-label="Close sidebar overlay"
+        />
       </Show>
 
       <aside
@@ -47,6 +52,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
         <div class="flex items-center justify-between px-5 py-4 border-b border-border">
           <h2 class="text-lg font-semibold text-text-primary">{t.settings}</h2>
           <button
+            type="button"
             class="w-8 h-8 flex items-center justify-center rounded-[--radius-sm] text-text-secondary transition-all duration-200 hover:bg-accent-light hover:text-accent"
             onClick={props.onClose}
             aria-label="Close sidebar"
@@ -58,6 +64,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
         <div class="flex-1 overflow-y-auto p-4">
           {/* New Chat Button */}
           <button
+            type="button"
             class="w-full flex items-center gap-3 px-4 py-3 bg-accent text-white rounded-[--radius-sm] text-sm font-medium transition-colors duration-200 hover:bg-accent-hover mb-6"
             onClick={() => {
               props.onNewChat();
@@ -74,6 +81,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
               {t.theme}
             </h3>
             <button
+              type="button"
               class="w-full flex items-center gap-3 px-4 py-3 bg-bg-tertiary rounded-[--radius-sm] transition-colors duration-200 hover:bg-accent-light"
               onClick={toggleTheme}
             >
@@ -110,6 +118,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
             <div class="flex flex-col gap-1">
               {languages.map((lang) => (
                 <button
+                  type="button"
                   class="w-full flex items-center gap-3 px-4 py-2.5 rounded-[--radius-sm] transition-colors duration-200"
                   classList={{
                     'bg-accent-light text-accent': locale() === lang.code,

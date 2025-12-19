@@ -13,7 +13,7 @@
 // Constants
 // ============================================
 
-const SAMPLE_RATE = 44100; // Will be updated from AudioContext
+const _SAMPLE_RATE = 44100; // Will be updated from AudioContext
 const TWO_PI = 2 * Math.PI;
 
 // ============================================
@@ -130,7 +130,7 @@ class MetronomeProcessor extends AudioWorkletProcessor {
     return sample * envelope * this.volume;
   }
 
-  process(inputs, outputs, parameters) {
+  process(_inputs, outputs, _parameters) {
     const output = outputs[0];
     const channel = output[0];
 
@@ -304,7 +304,7 @@ class DrumSynthProcessor extends AudioWorkletProcessor {
     return sample * voice.velocity;
   }
 
-  processKick(voice, dt) {
+  processKick(voice, _dt) {
     // Pitch envelope
     const pitchT = Math.min(voice.time / voice.pitchDecay, 1);
     const freq = voice.pitchStart + (voice.pitchEnd - voice.pitchStart) * pitchT;
@@ -319,7 +319,7 @@ class DrumSynthProcessor extends AudioWorkletProcessor {
     return sample * ampEnv;
   }
 
-  processSnare(voice, dt) {
+  processSnare(voice, _dt) {
     // Tone oscillator
     const toneSample = Math.sin(voice.tonePhase);
     voice.tonePhase += (TWO_PI * voice.toneFreq) / sampleRate;
@@ -333,7 +333,7 @@ class DrumSynthProcessor extends AudioWorkletProcessor {
     return (toneSample * toneEnv * voice.toneMix + noise * noiseEnv * (1 - voice.toneMix)) * 0.5;
   }
 
-  processHihat(voice, dt) {
+  processHihat(voice, _dt) {
     // Multiple detuned square waves
     const baseFreq = 4000 + (voice.pitch / 100) * 4000;
     const ratios = [1, 1.342, 1.2312, 1.6532, 1.9523, 2.1523];
@@ -354,7 +354,7 @@ class DrumSynthProcessor extends AudioWorkletProcessor {
     return sample * env;
   }
 
-  processClap(voice, dt) {
+  processClap(voice, _dt) {
     // Filtered noise bursts
     const noise = Math.random() * 2 - 1;
 
@@ -374,7 +374,7 @@ class DrumSynthProcessor extends AudioWorkletProcessor {
     return sample * 0.3;
   }
 
-  process(inputs, outputs, parameters) {
+  process(_inputs, outputs, _parameters) {
     const output = outputs[0];
     const channel = output[0];
 
@@ -473,7 +473,7 @@ class NoiseGeneratorProcessor extends AudioWorkletProcessor {
     return this.lastBrown * 3.5;
   }
 
-  process(inputs, outputs, parameters) {
+  process(_inputs, outputs, _parameters) {
     const output = outputs[0];
     const channel = output[0];
 

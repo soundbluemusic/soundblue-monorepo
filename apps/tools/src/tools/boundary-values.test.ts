@@ -90,21 +90,23 @@ describe('Boundary Value Tests', () => {
     it('should accept minimum timer (0:01)', () => {
       const settings = { ...defaultMetronomeSettings, timerMinutes: '0', timerSeconds: '1' };
       const totalSeconds =
-        parseInt(settings.timerMinutes || '0') * 60 + parseInt(settings.timerSeconds || '0');
+        parseInt(settings.timerMinutes || '0', 10) * 60 +
+        parseInt(settings.timerSeconds || '0', 10);
       expect(totalSeconds).toBe(1);
     });
 
     it('should accept maximum minutes (99)', () => {
       const settings = { ...defaultMetronomeSettings, timerMinutes: '99', timerSeconds: '59' };
-      const totalSeconds = parseInt(settings.timerMinutes) * 60 + parseInt(settings.timerSeconds);
+      const totalSeconds =
+        parseInt(settings.timerMinutes, 10) * 60 + parseInt(settings.timerSeconds, 10);
       expect(totalSeconds).toBe(5999);
     });
 
     it('should handle seconds boundary (0-59)', () => {
       const settings0 = { ...defaultMetronomeSettings, timerSeconds: '0' };
       const settings59 = { ...defaultMetronomeSettings, timerSeconds: '59' };
-      expect(parseInt(settings0.timerSeconds)).toBe(0);
-      expect(parseInt(settings59.timerSeconds)).toBe(59);
+      expect(parseInt(settings0.timerSeconds, 10)).toBe(0);
+      expect(parseInt(settings59.timerSeconds, 10)).toBe(59);
     });
   });
 

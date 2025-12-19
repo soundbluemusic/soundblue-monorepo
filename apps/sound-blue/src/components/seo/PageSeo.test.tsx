@@ -13,8 +13,18 @@ vi.mock('@solidjs/router', () => ({
 }));
 
 // Mock @solidjs/meta
-const mockMetaProps: Array<Record<string, string>> = [];
-const mockLinkProps: Array<Record<string, string>> = [];
+interface MockMetaProps {
+  name?: string;
+  property?: string;
+  content?: string;
+}
+interface MockLinkProps {
+  rel?: string;
+  href?: string;
+  hreflang?: string;
+}
+const mockMetaProps: MockMetaProps[] = [];
+const mockLinkProps: MockLinkProps[] = [];
 let mockTitleContent = '';
 
 vi.mock('@solidjs/meta', () => ({
@@ -119,9 +129,9 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const descMeta = mockMetaProps.find((p) => p['name'] === 'description');
+      const descMeta = mockMetaProps.find((p) => p.name === 'description');
       expect(descMeta).toBeDefined();
-      expect(descMeta?.['content']).toBe('Welcome to Sound Blue');
+      expect(descMeta?.content).toBe('Welcome to Sound Blue');
     });
 
     it('renders author meta tag', () => {
@@ -131,9 +141,9 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const authorMeta = mockMetaProps.find((p) => p['name'] === 'author');
+      const authorMeta = mockMetaProps.find((p) => p.name === 'author');
       expect(authorMeta).toBeDefined();
-      expect(authorMeta?.['content']).toBe('SoundBlueMusic');
+      expect(authorMeta?.content).toBe('SoundBlueMusic');
     });
   });
 
@@ -147,9 +157,9 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const canonical = mockLinkProps.find((p) => p['rel'] === 'canonical');
+      const canonical = mockLinkProps.find((p) => p.rel === 'canonical');
       expect(canonical).toBeDefined();
-      expect(canonical?.['href']).toBe('https://soundbluemusic.com/about');
+      expect(canonical?.href).toBe('https://soundbluemusic.com/about');
     });
 
     it('renders canonical URL for Korean page', () => {
@@ -161,9 +171,9 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const canonical = mockLinkProps.find((p) => p['rel'] === 'canonical');
+      const canonical = mockLinkProps.find((p) => p.rel === 'canonical');
       expect(canonical).toBeDefined();
-      expect(canonical?.['href']).toBe('https://soundbluemusic.com/ko/about');
+      expect(canonical?.href).toBe('https://soundbluemusic.com/ko/about');
     });
 
     it('renders hreflang alternate for English', () => {
@@ -175,9 +185,9 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const enAlternate = mockLinkProps.find((p) => p['hreflang'] === 'en');
+      const enAlternate = mockLinkProps.find((p) => p.hreflang === 'en');
       expect(enAlternate).toBeDefined();
-      expect(enAlternate?.['href']).toBe('https://soundbluemusic.com/about');
+      expect(enAlternate?.href).toBe('https://soundbluemusic.com/about');
     });
 
     it('renders hreflang alternate for Korean', () => {
@@ -189,9 +199,9 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const koAlternate = mockLinkProps.find((p) => p['hreflang'] === 'ko');
+      const koAlternate = mockLinkProps.find((p) => p.hreflang === 'ko');
       expect(koAlternate).toBeDefined();
-      expect(koAlternate?.['href']).toBe('https://soundbluemusic.com/ko/about');
+      expect(koAlternate?.href).toBe('https://soundbluemusic.com/ko/about');
     });
 
     it('renders x-default hreflang', () => {
@@ -203,9 +213,9 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const xDefault = mockLinkProps.find((p) => p['hreflang'] === 'x-default');
+      const xDefault = mockLinkProps.find((p) => p.hreflang === 'x-default');
       expect(xDefault).toBeDefined();
-      expect(xDefault?.['href']).toBe('https://soundbluemusic.com/about');
+      expect(xDefault?.href).toBe('https://soundbluemusic.com/about');
     });
 
     it('handles root path correctly for canonical', () => {
@@ -217,8 +227,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const canonical = mockLinkProps.find((p) => p['rel'] === 'canonical');
-      expect(canonical?.['href']).toBe('https://soundbluemusic.com');
+      const canonical = mockLinkProps.find((p) => p.rel === 'canonical');
+      expect(canonical?.href).toBe('https://soundbluemusic.com');
     });
   });
 
@@ -230,9 +240,9 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const ogTitle = mockMetaProps.find((p) => p['property'] === 'og:title');
+      const ogTitle = mockMetaProps.find((p) => p.property === 'og:title');
       expect(ogTitle).toBeDefined();
-      expect(ogTitle?.['content']).toBe('Sound Blue | Home');
+      expect(ogTitle?.content).toBe('Sound Blue | Home');
     });
 
     it('renders og:description', () => {
@@ -242,9 +252,9 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const ogDesc = mockMetaProps.find((p) => p['property'] === 'og:description');
+      const ogDesc = mockMetaProps.find((p) => p.property === 'og:description');
       expect(ogDesc).toBeDefined();
-      expect(ogDesc?.['content']).toBe('Welcome to Sound Blue');
+      expect(ogDesc?.content).toBe('Welcome to Sound Blue');
     });
 
     it('renders og:type as website', () => {
@@ -254,8 +264,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const ogType = mockMetaProps.find((p) => p['property'] === 'og:type');
-      expect(ogType?.['content']).toBe('website');
+      const ogType = mockMetaProps.find((p) => p.property === 'og:type');
+      expect(ogType?.content).toBe('website');
     });
 
     it('renders og:url', () => {
@@ -267,8 +277,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const ogUrl = mockMetaProps.find((p) => p['property'] === 'og:url');
-      expect(ogUrl?.['content']).toBe('https://soundbluemusic.com/about');
+      const ogUrl = mockMetaProps.find((p) => p.property === 'og:url');
+      expect(ogUrl?.content).toBe('https://soundbluemusic.com/about');
     });
 
     it('renders og:image', () => {
@@ -278,8 +288,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const ogImage = mockMetaProps.find((p) => p['property'] === 'og:image');
-      expect(ogImage?.['content']).toBe('https://soundbluemusic.com/og-image.png');
+      const ogImage = mockMetaProps.find((p) => p.property === 'og:image');
+      expect(ogImage?.content).toBe('https://soundbluemusic.com/og-image.png');
     });
 
     it('renders og:site_name', () => {
@@ -289,8 +299,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const ogSiteName = mockMetaProps.find((p) => p['property'] === 'og:site_name');
-      expect(ogSiteName?.['content']).toBe('Sound Blue');
+      const ogSiteName = mockMetaProps.find((p) => p.property === 'og:site_name');
+      expect(ogSiteName?.content).toBe('Sound Blue');
     });
 
     it('renders og:locale for English', () => {
@@ -302,8 +312,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const ogLocale = mockMetaProps.find((p) => p['property'] === 'og:locale');
-      expect(ogLocale?.['content']).toBe('en_US');
+      const ogLocale = mockMetaProps.find((p) => p.property === 'og:locale');
+      expect(ogLocale?.content).toBe('en_US');
     });
 
     it('renders og:locale for Korean', () => {
@@ -315,8 +325,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const ogLocale = mockMetaProps.find((p) => p['property'] === 'og:locale');
-      expect(ogLocale?.['content']).toBe('ko_KR');
+      const ogLocale = mockMetaProps.find((p) => p.property === 'og:locale');
+      expect(ogLocale?.content).toBe('ko_KR');
     });
 
     it('renders og:locale:alternate', () => {
@@ -328,8 +338,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const ogLocaleAlt = mockMetaProps.find((p) => p['property'] === 'og:locale:alternate');
-      expect(ogLocaleAlt?.['content']).toBe('ko_KR');
+      const ogLocaleAlt = mockMetaProps.find((p) => p.property === 'og:locale:alternate');
+      expect(ogLocaleAlt?.content).toBe('ko_KR');
     });
   });
 
@@ -341,8 +351,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const twitterCard = mockMetaProps.find((p) => p['name'] === 'twitter:card');
-      expect(twitterCard?.['content']).toBe('summary_large_image');
+      const twitterCard = mockMetaProps.find((p) => p.name === 'twitter:card');
+      expect(twitterCard?.content).toBe('summary_large_image');
     });
 
     it('renders twitter:title', () => {
@@ -352,8 +362,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const twitterTitle = mockMetaProps.find((p) => p['name'] === 'twitter:title');
-      expect(twitterTitle?.['content']).toBe('Sound Blue | Home');
+      const twitterTitle = mockMetaProps.find((p) => p.name === 'twitter:title');
+      expect(twitterTitle?.content).toBe('Sound Blue | Home');
     });
 
     it('renders twitter:description', () => {
@@ -363,8 +373,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const twitterDesc = mockMetaProps.find((p) => p['name'] === 'twitter:description');
-      expect(twitterDesc?.['content']).toBe('Welcome to Sound Blue');
+      const twitterDesc = mockMetaProps.find((p) => p.name === 'twitter:description');
+      expect(twitterDesc?.content).toBe('Welcome to Sound Blue');
     });
 
     it('renders twitter:image', () => {
@@ -374,8 +384,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const twitterImage = mockMetaProps.find((p) => p['name'] === 'twitter:image');
-      expect(twitterImage?.['content']).toBe('https://soundbluemusic.com/og-image.png');
+      const twitterImage = mockMetaProps.find((p) => p.name === 'twitter:image');
+      expect(twitterImage?.content).toBe('https://soundbluemusic.com/og-image.png');
     });
   });
 
@@ -401,8 +411,8 @@ describe('PageSeo', () => {
         </I18nProvider>
       ));
 
-      const descMeta = mockMetaProps.find((p) => p['name'] === 'description');
-      expect(descMeta?.['content']).toBe('Sound Blue에 오신 것을 환영합니다');
+      const descMeta = mockMetaProps.find((p) => p.name === 'description');
+      expect(descMeta?.content).toBe('Sound Blue에 오신 것을 환영합니다');
     });
   });
 
