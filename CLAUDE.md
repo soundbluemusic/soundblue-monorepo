@@ -57,6 +57,32 @@ grep "@ts-ignore"         # ts-ignore 찾기
 grep "@ts-expect-error"   # ts-expect-error 찾기
 ```
 
+## 코드 품질 규칙 (Code Quality Rules)
+
+코드 수정 시 반드시 따라야 하는 품질 원칙입니다.
+(Quality principles that must be followed when modifying code.)
+
+**절대 금지 (Absolute Prohibitions):**
+- 에러를 숨기려고 코드 삭제/주석 처리 금지 (Never delete/comment out code to hide errors)
+- 테스트 통과를 위한 하드코딩/목데이터 금지 (Never hardcode values or mock data to pass tests)
+- 테스트, 검증, 보안 체크 비활성화 금지 (Never disable tests, validation, or security checks)
+- `// ... existing code ...` 사용 금지 - 항상 완전한 코드 제공 (Never use `// ... existing code ...` - always provide complete code)
+
+**필수 프로세스 (Required Process):**
+수정 전 반드시:
+1. 근본 원인 파악 (WHY, not just WHAT)
+2. 단순 해결책(삭제/하드코딩/비활성화)이 왜 잘못인지 설명
+3. 기존 기능이 유지되는지 검증
+
+**품질 기준 (Quality Standards):**
+- 표면적 패치보다 구조적 해결책 우선
+- 엣지 케이스 명시적 처리
+- 프로젝트 컨벤션 준수
+- WHY를 설명하는 주석 추가
+
+**불확실할 때 (When Uncertain):**
+다음 상황에서는 먼저 질문: 코드 제거, 핵심 로직 변경, 브레이킹 체인지
+
 ## 코드 분석 규칙 (Code Analysis Rules)
 
 코드 분석, 리뷰, 개선 제안 시 `.claude/rules/analysis.md`를 반드시 따르세요.
