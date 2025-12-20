@@ -111,11 +111,11 @@ export function useTempoSubscriber(): UseTempoSubscriberReturn {
   const [currentMeasure, setCurrentMeasure] = createSignal(0);
 
   onMount(() => {
-    const unsubTempo = onTempoChange((event) => {
+    const unsubTempo = onTempoChange((event: TempoChangeEvent) => {
       setBpm(event.bpm);
     });
 
-    const unsubBeat = onBeatTick((event) => {
+    const unsubBeat = onBeatTick((event: BeatTickEvent) => {
       setCurrentBeat(event.beat);
       setCurrentMeasure(event.measure);
     });
