@@ -1,16 +1,23 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "include": ["**/*.ts", "**/*.tsx", ".react-router/types/**/*"],
   "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
     "noEmit": true,
-    "incremental": true,
-    "tsBuildInfoFile": ".tsbuildinfo",
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
-    "baseUrl": ".",
+    "noUncheckedIndexedAccess": true,
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./app/*"]
     },
-    "types": ["vinxi/types/client"]
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "app.config.ts"]
+    "rootDirs": [".", "./.react-router/types"]
+  }
 }

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "wasm:build": {
+      "inputs": ["rust/src/**/*.rs", "rust/Cargo.toml", "rust/Cargo.lock"],
+      "outputs": ["src/engine/wasm/pkg/**"],
+      "cache": true
+    },
+    "build": {
+      "dependsOn": ["^build", "wasm:build"],
+      "inputs": [
+        "src/**",
+        "public/**",
+        "app.config.ts",
+        "tailwind.config.ts",
+        "tsconfig.json",
+        "package.json"
+      ],
+      "outputs": [".output/**", ".vinxi/**"],
+      "cache": true
+    },
+    "typecheck": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": true
+    },
+    "lint": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": true
+    },
+    "check": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": true
+    },
+    "test:run": {
+      "dependsOn": [],
+      "outputs": ["coverage/**"],
+      "cache": true
+    },
+    "dev": {
+      "persistent": true,
+      "cache": false
+    }
+  }
+}

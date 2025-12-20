@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "types": ["vinxi/types/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "app.config.ts", ".vinxi/types/**/*.ts"],
+  "exclude": ["node_modules", "rust", ".output", ".vinxi"]
+}

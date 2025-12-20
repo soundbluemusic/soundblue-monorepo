@@ -15,7 +15,7 @@
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const OUT_DIR = '.output/public';
+const OUT_DIR = 'build/client';
 const SITE_URL = 'https://soundbluemusic.com';
 const STYLESHEET_INSTRUCTION = '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>';
 

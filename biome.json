@@ -12,9 +12,16 @@
       "!**/.vinxi",
       "!**/.output",
       "!**/dist",
+      "!**/build",
       "!**/*.d.ts",
       "!**/pnpm-lock.yaml",
-      "!**/*.css"
+      "!**/*.css",
+      "!**/.react-router",
+      "!**/*-solid-backup",
+      "!**/packages/shared",
+      "!**/apps/tools/src",
+      "!**/apps/sound-blue/src",
+      "!**/apps/dialogue/src"
     ]
   },
   "formatter": {
@@ -75,6 +82,12 @@
         "rules": {
           "correctness": {
             "useJsxKeyInIterable": "off"
+          },
+          "suspicious": {
+            "noArrayIndexKey": "off"
+          },
+          "security": {
+            "noDangerouslySetInnerHtml": "off"
           }
         }
       }

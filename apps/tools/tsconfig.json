@@ -1,15 +1,23 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "strict": true,
+    "skipLibCheck": true,
     "noEmit": true,
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./app/*"],
+      "@/*": ["./app/*"]
     },
-    "types": ["vinxi/types/client"]
+    "types": ["node", "vite/client"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "app.config.ts", ".vinxi/types/**/*.ts"],
-  "exclude": ["node_modules", "rust", ".output", ".vinxi"]
+  "include": ["app/**/*.ts", "app/**/*.tsx", "vite.config.ts", "react-router.config.ts"],
+  "exclude": ["node_modules", "rust", "build", "src"]
 }

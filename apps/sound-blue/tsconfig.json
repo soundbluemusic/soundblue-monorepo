@@ -1,23 +1,25 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "include": ["**/*", ".react-router/types/**/*"],
   "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": ["node", "vite/client"],
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "declaration": true,
+    "declarationMap": true,
     "noEmit": true,
-    "incremental": true,
-    "tsBuildInfoFile": ".tsbuildinfo",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "rootDirs": [".", ".react-router/types"],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
-    },
-    "types": ["vinxi/types/client", "node"]
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "*.config.ts", "messages/**/*.json"],
-  "exclude": [
-    "node_modules",
-    ".output",
-    ".vinxi",
-    "dist",
-    "src-legacy",
-    "audio-engine",
-    "public/wasm"
-  ]
+      "~/*": ["./app/*"]
+    }
+  }
 }

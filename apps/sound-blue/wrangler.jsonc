@@ -5,7 +5,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sound-blue",
   "compatibility_date": "2025-12-01",
-  "pages_build_output_dir": ".output/public",
+  "pages_build_output_dir": "build/client",
 
   // 개발 서버 설정
   "dev": {

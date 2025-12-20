@@ -1,0 +1,27 @@
+import { index, type RouteConfig, route } from '@react-router/dev/routes';
+
+export default [
+  index('routes/home.tsx'),
+  route('about', 'routes/about.tsx'),
+  route('privacy', 'routes/privacy.tsx'),
+  route('terms', 'routes/terms.tsx'),
+  route('license', 'routes/license.tsx'),
+  route('sitemap', 'routes/sitemap.tsx'),
+  route('sound-recording', 'routes/sound-recording.tsx'),
+  route('news', 'routes/news.tsx'),
+  route('blog', 'routes/blog.tsx'),
+  route('chat', 'routes/chat.tsx'),
+  route('built-with', 'routes/built-with.tsx'),
+  route('offline', 'routes/offline.tsx'),
+  route('ko', 'routes/ko/home.tsx'),
+  route('ko/about', 'routes/ko/about.tsx'),
+  route('ko/privacy', 'routes/ko/privacy.tsx'),
+  route('ko/terms', 'routes/ko/terms.tsx'),
+  route('ko/license', 'routes/ko/license.tsx'),
+  route('ko/sitemap', 'routes/ko/sitemap.tsx'),
+  route('ko/sound-recording', 'routes/ko/sound-recording.tsx'),
+  route('ko/news', 'routes/ko/news.tsx'),
+  route('ko/blog', 'routes/ko/blog.tsx'),
+  route('ko/chat', 'routes/ko/chat.tsx'),
+  route('ko/built-with', 'routes/ko/built-with.tsx'),
+] satisfies RouteConfig;

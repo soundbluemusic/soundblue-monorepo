@@ -1,0 +1,15 @@
+{
+  "root": false,
+  "$schema": "https://biomejs.dev/schemas/2.3.9/schema.json",
+  "extends": ["../../biome.json"],
+  "files": {
+    "includes": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "e2e/**/*.ts",
+      "*.config.ts",
+      "package.json",
+      "tsconfig.json"
+    ]
+  }
+}

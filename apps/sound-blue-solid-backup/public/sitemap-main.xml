@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://soundbluemusic.com</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com" />
+  </url>
+  <url>
+    <loc>https://soundbluemusic.com/ko</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com" />
+  </url>
+  <url>
+    <loc>https://soundbluemusic.com/about</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com/about" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com/about" />
+  </url>
+  <url>
+    <loc>https://soundbluemusic.com/ko/about</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com/about" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com/about" />
+  </url>
+  <url>
+    <loc>https://soundbluemusic.com/built-with</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com/built-with" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko/built-with" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com/built-with" />
+  </url>
+  <url>
+    <loc>https://soundbluemusic.com/ko/built-with</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com/built-with" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko/built-with" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com/built-with" />
+  </url>
+  <url>
+    <loc>https://soundbluemusic.com/chat</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com/chat" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko/chat" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com/chat" />
+  </url>
+  <url>
+    <loc>https://soundbluemusic.com/ko/chat</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com/chat" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko/chat" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com/chat" />
+  </url>
+  <url>
+    <loc>https://soundbluemusic.com/sitemap</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com/sitemap" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko/sitemap" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com/sitemap" />
+  </url>
+  <url>
+    <loc>https://soundbluemusic.com/ko/sitemap</loc>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.com/sitemap" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.com/ko/sitemap" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soundbluemusic.com/sitemap" />
+  </url>
+</urlset>

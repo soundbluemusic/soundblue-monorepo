@@ -1,0 +1,36 @@
+import { reactRouter } from '@react-router/dev/vite';
+import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
+
+export default defineConfig({
+  plugins: [
+    tailwindcss(),
+    reactRouter(),
+    // PWA Support - SSG optimized (100% offline)
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      includeAssets: ['favicon.png', 'icons/*.png', 'icons/*.svg'],
+      manifest: false, // Use existing manifest.json in public/
+      workbox: {
+        // SSG: precache all static files
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,json}'],
+        // Clean up old caches on update
+        cleanupOutdatedCaches: true,
+        // Activate new SW immediately
+        skipWaiting: true,
+        // Take control of all clients immediately
+        clientsClaim: true,
+      },
+      devOptions: {
+        enabled: false,
+      },
+    }),
+  ],
+  resolve: {
+    alias: {
+      '~': '/app',
+    },
+  },
+});
