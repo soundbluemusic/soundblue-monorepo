@@ -1,1 +1,0 @@
-import{w as o,p as t}from"./chunk-JMJ3UQ3L-CtBvknmL.js";import"./context-Y1-V1R-B.js";import"./ui-store-k8JEsPY-.js";import{M as e}from"./MainLayout-qL3bxHiT.js";const a=()=>[{title:"Dialogue - 대화형 학습 도구"},{name:"description",content:"100% 오프라인으로 작동하는 대화형 학습 도구"}],p=o(function(){return t.jsx(e,{})});export{p as default,a as meta};

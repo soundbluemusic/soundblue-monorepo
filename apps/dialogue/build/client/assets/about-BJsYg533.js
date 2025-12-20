@@ -1,1 +1,0 @@
-import{w as o,p as t}from"./chunk-JMJ3UQ3L-CtBvknmL.js";import{A as n}from"./About-KD8DaNbw.js";import"./context-Y1-V1R-B.js";import"./ui-store-k8JEsPY-.js";const u=()=>[{title:"About - Dialogue"},{name:"description",content:"About Dialogue - A conversational learning tool"}],m=o(function(){return t.jsx(n,{})});export{m as default,u as meta};

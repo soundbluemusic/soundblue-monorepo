@@ -1,1 +1,0 @@
-import{w as o,p as t}from"./chunk-JMJ3UQ3L-CtBvknmL.js";import"./context-Y1-V1R-B.js";import"./ui-store-k8JEsPY-.js";import{M as n}from"./MainLayout-qL3bxHiT.js";const m=()=>[{title:"Dialogue - Conversational Learning Tool"},{name:"description",content:"A conversational learning tool that works 100% offline"}],p=o(function(){return t.jsx(n,{})});export{p as default,m as meta};
