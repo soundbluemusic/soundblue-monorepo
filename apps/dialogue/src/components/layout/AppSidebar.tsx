@@ -187,9 +187,11 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
               <div class="flex flex-col gap-1">
                 <For each={chatStore.conversations}>
                   {(conv) => (
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => handleLoadConversation(conv)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleLoadConversation(conv)}
                       class={`${MENU_ITEM_CLASS} group cursor-pointer w-full`}
                       classList={{
                         'bg-accent-light text-accent': chatStore.activeConversationId === conv.id,
@@ -209,7 +211,7 @@ export const AppSidebar: Component<AppSidebarProps> = (props) => {
                       >
                         <TrashIcon />
                       </button>
-                    </button>
+                    </div>
                   )}
                 </For>
               </div>
