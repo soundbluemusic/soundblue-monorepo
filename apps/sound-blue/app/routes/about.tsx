@@ -19,7 +19,7 @@ export default function About() {
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-6">
             {t.about.title}
           </h1>
-          <p className="text-lg text-[var(--color-text-secondary)] mb-8">{t.about.intro}</p>
+          <p className="text-lg text-content-muted mb-8">{t.about.intro}</p>
 
           <section className="prose mb-8">
             <h2>{t.about.sections.artist.title}</h2>

@@ -15,7 +15,7 @@ export default function BuiltWithKo() {
           <h1 className="text-3xl font-bold mb-8">{t.builtWith.title}</h1>
           <section className="mb-8">
             <h2 className="text-xl font-semibold mb-4">{t.builtWith.sections.frameworks}</h2>
-            <ul className="space-y-2 text-[var(--color-text-secondary)]">
+            <ul className="space-y-2 text-content-muted">
               <li>React 19</li>
               <li>React Router v7</li>
               <li>TypeScript</li>
@@ -24,7 +24,7 @@ export default function BuiltWithKo() {
           </section>
           <section className="mb-8">
             <h2 className="text-xl font-semibold mb-4">{t.builtWith.sections.deployment}</h2>
-            <ul className="space-y-2 text-[var(--color-text-secondary)]">
+            <ul className="space-y-2 text-content-muted">
               <li>Cloudflare Pages</li>
               <li>100% SSG (정적 사이트 생성)</li>
             </ul>

@@ -13,8 +13,8 @@ export default function ChatKo() {
       <main className="main-content">
         <div className="max-w-3xl mx-auto p-6">
           <h1 className="text-3xl font-bold mb-4">{t.chat.title}</h1>
-          <p className="text-[var(--color-text-secondary)] mb-8">{t.chat.subtitle}</p>
-          <div className="p-4 rounded-lg bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)]">
+          <p className="text-content-muted mb-8">{t.chat.subtitle}</p>
+          <div className="p-4 rounded-lg bg-[var(--color-bg-secondary)] text-content-muted">
             {t.chat.welcome}
           </div>
         </div>

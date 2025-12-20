@@ -21,9 +21,7 @@ export default function HomeKo() {
             <h1 className="text-5xl md:text-6xl font-bold text-[var(--color-text-primary)] mb-4">
               {t.home.title}
             </h1>
-            <p className="text-xl md:text-2xl text-[var(--color-text-secondary)] mb-6">
-              {t.home.tagline}
-            </p>
+            <p className="text-xl md:text-2xl text-content-muted mb-6">{t.home.tagline}</p>
             <p className="text-base text-[var(--color-text-tertiary)] mb-8">{t.home.genres}</p>
 
             <div className="flex flex-wrap justify-center gap-4">

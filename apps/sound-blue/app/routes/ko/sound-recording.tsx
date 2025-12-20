@@ -13,7 +13,7 @@ export default function SoundRecordingKo() {
       <main className="main-content">
         <div className="max-w-3xl mx-auto p-6">
           <h1 className="text-3xl font-bold mb-4">{t.soundRecording.title}</h1>
-          <p className="text-[var(--color-text-secondary)]">{t.soundRecording.intro}</p>
+          <p className="text-content-muted">{t.soundRecording.intro}</p>
         </div>
       </main>
     </div>

@@ -11,7 +11,7 @@ export default function Offline() {
         <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-4">
           {t.offline.title}
         </h1>
-        <p className="text-[var(--color-text-secondary)]">{t.offline.message}</p>
+        <p className="text-content-muted">{t.offline.message}</p>
       </div>
     </div>
   );
