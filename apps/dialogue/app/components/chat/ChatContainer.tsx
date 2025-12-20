@@ -166,7 +166,7 @@ export function ChatContainer() {
         ))}
         {isThinking && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 text-sm font-medium text-gray-600 dark:text-gray-300">
+            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0 text-sm font-medium text-gray-600 dark:text-gray-300">
               D
             </div>
             <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-bl-md">

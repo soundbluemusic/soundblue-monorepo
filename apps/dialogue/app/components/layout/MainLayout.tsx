@@ -149,7 +149,7 @@ export function MainLayout() {
         {/* Main Area (Chat + Result Panel) */}
         <div className="flex flex-1 overflow-hidden">
           {/* Mobile: Tab-based view */}
-          <div className="flex flex-1 flex-col min-h-[200px] md:hidden">
+          <div className="flex flex-1 flex-col min-h-50 md:hidden">
             {/* Tab Switcher */}
             <div className="flex shrink-0 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
               <button
@@ -169,7 +169,7 @@ export function MainLayout() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-auto min-h-[150px]">
+            <div className="flex-1 overflow-auto min-h-37.5">
               {activeTab === 'chat' && <ChatContainer />}
               {activeTab === 'result' && <ResultPanel />}
             </div>
@@ -179,7 +179,7 @@ export function MainLayout() {
           <div className="hidden md:flex md:flex-1">
             {/* Chat Area */}
             <div
-              className="relative shrink-0 border-r border-gray-200 dark:border-gray-700 min-h-[200px]"
+              className="relative shrink-0 border-r border-gray-200 dark:border-gray-700 min-h-50"
               style={{ width: `${chatWidth}px` }}
             >
               <ChatContainer />
