@@ -1,23 +1,13 @@
-# Robots.txt for https://soundbluemusic.com
+# robots.txt for https://soundbluemusic.com
+# Sound Blue - Music Artist Website
 
-# Default rules for all crawlers
-User-agent: *
-Allow: /
-Crawl-delay: 1
-
-# Disallow build artifacts
-Disallow: /_build/
-Disallow: /_server/
-
-# ========================================
-# AI Chatbot Crawlers - Explicitly Allowed
-# ========================================
-
-# OpenAI (ChatGPT)
+# =============================================================================
+# AI Crawlers - Explicitly Allowed
+# =============================================================================
+# OpenAI
 User-agent: GPTBot
 Allow: /
 
-# OpenAI (ChatGPT plugins)
 User-agent: ChatGPT-User
 Allow: /
 
@@ -25,41 +15,51 @@ Allow: /
 User-agent: Claude-Web
 Allow: /
 
-User-agent: ClaudeBot
+User-agent: anthropic-ai
 Allow: /
 
-# Google (Gemini / Bard)
+# Google AI
 User-agent: Google-Extended
 Allow: /
 
-# Perplexity AI
+# Perplexity
 User-agent: PerplexityBot
 Allow: /
 
-# Microsoft Copilot / Bing AI
+# Amazon
+User-agent: Amazonbot
+Allow: /
+
+# Microsoft/Bing AI
 User-agent: Bingbot
 Allow: /
 
-# Meta AI
-User-agent: Meta-ExternalAgent
+# Apple
+User-agent: Applebot
 Allow: /
 
+# Meta
 User-agent: FacebookBot
 Allow: /
 
-# Cohere AI
-User-agent: cohere-ai
+# =============================================================================
+# All Other Crawlers
+# =============================================================================
+User-agent: *
 Allow: /
 
-# Common Crawl (used by many AI training datasets)
-User-agent: CCBot
-Allow: /
+# Block dev paths
+Disallow: /_build/
+Disallow: /_server/
 
-# ========================================
-# Sitemaps & LLM Info
-# ========================================
+# Crawl-delay for polite crawling
+Crawl-delay: 1
 
+# =============================================================================
+# Sitemaps & AI Context
+# =============================================================================
 Sitemap: https://soundbluemusic.com/sitemap.xml
 
-# AI Assistant Guide
-# See: https://soundbluemusic.com/llms.txt
+# LLM context file for AI assistants
+# See: https://llmstxt.org/
+# File: https://soundbluemusic.com/llms.txt
