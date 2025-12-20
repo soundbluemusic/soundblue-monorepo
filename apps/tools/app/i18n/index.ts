@@ -13,6 +13,8 @@ interface I18nContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   toggleLocale: () => void;
+  toggleLanguage: () => void;
+  localizedPath: (path: string) => string;
   t: Translations;
 }
 

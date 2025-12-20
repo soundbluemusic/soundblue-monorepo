@@ -12,6 +12,8 @@ export type Translations = typeof en;
 interface I18nContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
+  toggleLanguage: () => void;
+  localizedPath: (path: string) => string;
   t: Translations;
 }
 

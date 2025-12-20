@@ -30,9 +30,15 @@ export function I18nProvider({ children }: I18nProviderProps) {
     setLocale(locale === 'en' ? 'ko' : 'en');
   }, [locale, setLocale]);
 
+  // Alias for backward compatibility
+  const toggleLanguage = toggleLocale;
+
+  // Helper to get localized path
+  const localizedPath = useCallback((path: string) => getLocalizedPath(path, locale), [locale]);
+
   const value = useMemo(
-    () => ({ locale, setLocale, toggleLocale, t }),
-    [locale, setLocale, toggleLocale, t],
+    () => ({ locale, setLocale, toggleLocale, toggleLanguage, localizedPath, t }),
+    [locale, setLocale, toggleLocale, toggleLanguage, localizedPath, t],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

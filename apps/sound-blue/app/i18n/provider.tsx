@@ -26,7 +26,16 @@ export function I18nProvider({ children }: I18nProviderProps) {
     [location.pathname, navigate],
   );
 
-  const value = useMemo(() => ({ locale, setLocale, t }), [locale, setLocale, t]);
+  const toggleLanguage = useCallback(() => {
+    setLocale(locale === 'en' ? 'ko' : 'en');
+  }, [locale, setLocale]);
+
+  const localizedPath = useCallback((path: string) => getLocalizedPath(path, locale), [locale]);
+
+  const value = useMemo(
+    () => ({ locale, setLocale, toggleLanguage, localizedPath, t }),
+    [locale, setLocale, toggleLanguage, localizedPath, t],
+  );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
