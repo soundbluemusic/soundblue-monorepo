@@ -63,7 +63,8 @@ async function getAllConversations(): Promise<Conversation[]> {
 
       request.onsuccess = () => {
         // Sort by updatedAt descending (newest first)
-        const conversations = request.result.sort((a, b) => b.updatedAt - a.updatedAt);
+        const results = request.result as Conversation[];
+        const conversations = results.sort((a, b) => b.updatedAt - a.updatedAt);
         resolve(conversations);
       };
       request.onerror = () => reject(request.error);

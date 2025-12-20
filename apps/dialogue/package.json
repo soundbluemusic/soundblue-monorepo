@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
-    "build": "pnpm sitemap && vinxi build",
-    "build:only": "vinxi build",
+    "build": "pnpm sitemap && vinxi build && mkdir -p build/client && cp -r .output/public/* build/client/",
+    "build:only": "vinxi build && mkdir -p build/client && cp -r .output/public/* build/client/",
     "sitemap": "npx tsx scripts/generate-sitemaps.ts",
     "start": "vinxi start",
     "preview": "pnpm sitemap && vinxi build && vinxi start",

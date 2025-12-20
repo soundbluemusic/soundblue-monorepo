@@ -11,6 +11,12 @@ const DB_VERSION = 1;
 const CONVERSATIONS_STORE = 'conversations';
 const SETTINGS_STORE = 'settings';
 
+/** Stored setting record shape in IndexedDB */
+interface SettingRecord<T = unknown> {
+  key: string;
+  value: T;
+}
+
 let dbInstance: IDBDatabase | null = null;
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -85,7 +91,8 @@ export async function getSetting<T>(key: string): Promise<T | null> {
       const request = store.get(key);
 
       request.onsuccess = () => {
-        resolve(request.result?.value ?? null);
+        const record = request.result as SettingRecord<T> | undefined;
+        resolve(record?.value ?? null);
       };
       request.onerror = () => reject(request.error);
     });
