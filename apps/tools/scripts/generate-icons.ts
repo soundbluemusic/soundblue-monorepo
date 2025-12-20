@@ -7,7 +7,7 @@ import sharp from 'sharp';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..');
-const sourceIcon = join(rootDir, 'public/branding asset/icon.png');
+const sourceIcon = join(rootDir, 'public/icon-source.svg');
 const outputDir = join(rootDir, 'public/icons');
 
 interface IconSize {

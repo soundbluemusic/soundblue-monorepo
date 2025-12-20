@@ -1,0 +1,53 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Vibrant gradient from teal to orange -->
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Background gradient -->
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="90" fill="url(#bgGradient)"/>
+
+  <!-- Waveform design -->
+  <g fill="url(#iconGradient)">
+    <!-- Left tall bar -->
+    <rect x="80" y="120" width="48" height="272" rx="24"/>
+
+    <!-- Second bar -->
+    <rect x="148" y="180" width="48" height="152" rx="24"/>
+
+    <!-- Center tallest bar -->
+    <rect x="216" y="80" width="48" height="352" rx="24"/>
+
+    <!-- Fourth bar -->
+    <rect x="284" y="160" width="48" height="192" rx="24"/>
+
+    <!-- Right short bar -->
+    <rect x="352" y="200" width="48" height="112" rx="24"/>
+  </g>
+
+  <!-- Sound wave accent (top) -->
+  <path d="M 60 100 Q 140 80, 220 100 T 380 100 T 540 100"
+        stroke="url(#iconGradient)"
+        stroke-width="4"
+        fill="none"
+        opacity="0.3"
+        stroke-linecap="round"/>
+
+  <!-- Sound wave accent (bottom) -->
+  <path d="M 60 412 Q 140 432, 220 412 T 380 412 T 540 412"
+        stroke="url(#iconGradient)"
+        stroke-width="4"
+        fill="none"
+        opacity="0.3"
+        stroke-linecap="round"/>
+</svg>
