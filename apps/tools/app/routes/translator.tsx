@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
-import { Translator as TranslatorComponent } from '~/tools/translator';
+import { MainLayout } from '~/components/layout/MainLayout';
+import { useToolStore } from '~/stores/tool-store';
 
 export const meta: MetaFunction = () => [
-  { title: 'Translator | Tools' },
+  { title: 'Translator - Tools' },
   {
     name: 'description',
     content: 'Korean ↔ English dictionary-based translator - Free browser-based utility.',
@@ -10,9 +12,11 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function TranslatorPage() {
-  return (
-    <div className="min-h-screen">
-      <TranslatorComponent />
-    </div>
-  );
+  const { openTool } = useToolStore();
+
+  useEffect(() => {
+    openTool('translator');
+  }, [openTool]);
+
+  return <MainLayout />;
 }

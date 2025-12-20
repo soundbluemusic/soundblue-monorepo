@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
-import { Metronome as MetronomeComponent } from '~/tools/metronome';
+import { MainLayout } from '~/components/layout/MainLayout';
+import { useToolStore } from '~/stores/tool-store';
 
 export const meta: MetaFunction = () => [
-  { title: 'Metronome | Tools' },
+  { title: 'Metronome - Tools' },
   {
     name: 'description',
     content: 'Precision metronome for tempo practice - Free browser-based utility.',
@@ -10,9 +12,11 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function MetronomePage() {
-  return (
-    <div className="min-h-screen">
-      <MetronomeComponent />
-    </div>
-  );
+  const { openTool } = useToolStore();
+
+  useEffect(() => {
+    openTool('metronome');
+  }, [openTool]);
+
+  return <MainLayout />;
 }

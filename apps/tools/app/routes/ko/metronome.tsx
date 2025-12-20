@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
-import { Metronome as MetronomeComponent } from '~/tools/metronome';
+import { MainLayout } from '~/components/layout/MainLayout';
+import { useToolStore } from '~/stores/tool-store';
 
 export const meta: MetaFunction = () => [
-  { title: '메트로놈 | Tools' },
+  { title: '메트로놈 - Tools' },
   {
     name: 'description',
     content: '정확한 템포 연습을 위한 메트로놈 - 무료 브라우저 기반 유틸리티.',
@@ -10,9 +12,11 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function MetronomeKo() {
-  return (
-    <div className="min-h-screen">
-      <MetronomeComponent />
-    </div>
-  );
+  const { openTool } = useToolStore();
+
+  useEffect(() => {
+    openTool('metronome');
+  }, [openTool]);
+
+  return <MainLayout />;
 }
