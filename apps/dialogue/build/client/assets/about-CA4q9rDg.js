@@ -1,0 +1,1 @@
+import{w as t,p as o}from"./chunk-JMJ3UQ3L-CtBvknmL.js";import{A as e}from"./About-KD8DaNbw.js";import"./context-Y1-V1R-B.js";import"./ui-store-k8JEsPY-.js";const m=()=>[{title:"소개 - Dialogue"},{name:"description",content:"Dialogue 소개 - 대화형 학습 도구"}],p=t(function(){return o.jsx(e,{})});export{p as default,m as meta};

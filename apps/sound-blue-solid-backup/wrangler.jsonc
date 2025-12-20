@@ -1,0 +1,42 @@
+{
+  // Cloudflare Pages Configuration (Static Export)
+  // https://developers.cloudflare.com/pages
+
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sound-blue",
+  "compatibility_date": "2025-12-01",
+  "pages_build_output_dir": ".output/public",
+
+  // 개발 서버 설정
+  "dev": {
+    "port": 8788,
+    "local_protocol": "http"
+  },
+
+  // 빌드 환경 변수
+  "build": {
+    "environment": {
+      "NODE_VERSION": "24",
+      "PNPM_VERSION": "10.25.0"
+    }
+  },
+
+  // 프로덕션 환경 변수
+  "vars": {
+    "ENVIRONMENT": "production"
+  },
+
+  // 배포 환경별 설정
+  "env": {
+    "production": {
+      "vars": {
+        "ENVIRONMENT": "production"
+      }
+    },
+    "preview": {
+      "vars": {
+        "ENVIRONMENT": "preview"
+      }
+    }
+  }
+}

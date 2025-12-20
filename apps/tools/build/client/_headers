@@ -1,0 +1,111 @@
+# Cloudflare Pages - Security-Hardened Headers Configuration
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+# =============================================================================
+# GLOBAL SECURITY HEADERS (모든 페이지에 적용)
+# =============================================================================
+/*
+  # XSS Protection
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  # Referrer Policy - 프라이버시 보호
+  Referrer-Policy: strict-origin-when-cross-origin
+  # Permissions Policy - 마이크 허용 (Tuner), 나머지 제한
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=()
+  # Content Security Policy - XSS 공격 방지 (SolidStart 인라인 스크립트 허용)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:; upgrade-insecure-requests
+  # SharedArrayBuffer support (required for AudioWorklet + WASM)
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
+
+# =============================================================================
+# HTML 파일 - 항상 재검증 (SPA 업데이트 보장)
+# =============================================================================
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# =============================================================================
+# Next.js Static Export - 페이지별 캐싱
+# =============================================================================
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# =============================================================================
+# 이미지 파일 - 장기 캐싱
+# =============================================================================
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+/*.gif
+  Cache-Control: public, max-age=31536000, immutable
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+/*.avif
+  Cache-Control: public, max-age=31536000, immutable
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+
+# =============================================================================
+# 폰트 파일 - 장기 캐싱 (CORS 제한)
+# =============================================================================
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+
+# =============================================================================
+# PWA 관련 파일
+# =============================================================================
+/manifest.json
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  Content-Type: application/manifest+json
+
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Type: application/javascript; charset=utf-8
+
+/workbox-*.js
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/javascript; charset=utf-8
+
+# =============================================================================
+# 아이콘 디렉토리 - 장기 캐싱
+# =============================================================================
+/icons/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# =============================================================================
+# SEO 및 메타 파일 - 중간 캐싱
+# =============================================================================
+/robots.txt
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/sitemap.xml
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+/sitemap-*.xml
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/og-image.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+/browserconfig.xml
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+# =============================================================================
+# WASM/Audio 파일 - 장기 캐싱
+# =============================================================================
+/*.wasm
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/wasm
+
+/audio-worklet/*
+  Cache-Control: public, max-age=31536000, immutable

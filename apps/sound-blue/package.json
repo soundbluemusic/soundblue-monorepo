@@ -16,20 +16,18 @@
     "url": "https://github.com/soundbluemusic/soundblue-monorepo/issues"
   },
   "keywords": [
-    "solidjs",
-    "solidstart",
+    "react",
+    "react-router",
     "typescript",
     "music",
     "artist",
     "soundbluemusic"
   ],
   "scripts": {
-    "dev": "vinxi dev",
-    "build": "vinxi build && node scripts/generate-sitemap.mjs",
-    "build:analyze": "ANALYZE=true vinxi build",
-    "start": "vinxi start",
-    "pages:dev": "pnpm dlx wrangler pages dev .output/public",
-    "pages:deploy": "pnpm build && pnpm dlx wrangler pages deploy .output/public",
+    "dev": "react-router dev",
+    "build": "react-router build && node scripts/generate-sitemap.mjs",
+    "build:analyze": "ANALYZE=true react-router build",
+    "start": "react-router-serve ./build/server/index.js",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
@@ -44,76 +42,52 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "test:mutation": "stryker run",
     "validate": "pnpm typecheck && pnpm check && pnpm test:run",
     "optimize:images": "node scripts/optimize-images.mjs",
-    "prepare": "husky",
-    "clean": "rm -rf .output .vinxi .turbo .tsbuildinfo node_modules/.cache"
+    "clean": "rm -rf build .turbo .tsbuildinfo node_modules/.cache"
   },
   "dependencies": {
-    "@solid-primitives/i18n": "^2.2.1",
-    "@solidjs/meta": "^0.29.4",
-    "@solidjs/router": "^0.15.4",
-    "@solidjs/start": "^1.2.0",
-    "@soundblue/shared": "workspace:*",
+    "@react-router/node": "^7.6.1",
+    "@react-router/serve": "^7.6.1",
+    "@soundblue/shared-react": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dexie": "^4.2.1",
-    "solid-js": "^1.9.10",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router": "^7.6.1",
     "tailwind-merge": "^3.4.0",
-    "vinxi": "^0.5.9",
-    "vite-plugin-pwa": "^1.2.0",
-    "workbox-window": "^7.4.0",
-    "zod": "^4.2.0"
+    "zod": "^4.2.0",
+    "zustand": "^5.0.6",
+    "isbot": "^5"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.9",
     "@playwright/test": "^1.57.0",
-    "@solidjs/testing-library": "^0.8.10",
-    "@stryker-mutator/core": "^9.4.0",
-    "@stryker-mutator/typescript-checker": "^9.4.0",
-    "@stryker-mutator/vitest-runner": "^9.4.0",
+    "@react-router/dev": "^7.6.1",
     "@tailwindcss/vite": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.10.2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^4.0.15",
-    "husky": "^9.1.7",
     "jsdom": "^27.3.0",
-    "lint-staged": "^16.2.7",
     "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
+    "vite": "^6.3.5",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-solid": "^2.11.10",
-    "vitest": "^4.0.15",
-    "wrangler": "^4.54.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.0.15"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "packageManager": "pnpm@10.25.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp",
-      "@parcel/watcher"
-    ],
-    "ignoredBuiltDependencies": [
-      "@swc/core",
-      "workerd"
-    ]
-  },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx,json}": [
-      "biome check --write --no-errors-on-unmatched"
-    ],
-    "*.{ts,tsx}": [
-      "bash -c 'tsc --noEmit'"
-    ]
-  },
   "browserslist": {
     "production": [
       "last 2 chrome versions",

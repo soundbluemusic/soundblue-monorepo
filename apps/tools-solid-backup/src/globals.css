@@ -1,0 +1,620 @@
+@import 'tailwindcss';
+
+/* ========================================
+   Tailwind v4 Dark Mode Configuration
+   Enable class-based dark mode (.dark class)
+   ======================================== */
+@variant dark (&:where(.dark, .dark *));
+
+/* ========================================
+   Design Tokens - Eye-Friendly Aesthetic Palette
+   Scientifically-informed, minimizes eye strain
+   ======================================== */
+
+:root {
+  /* System Font Stack */
+  --font-system: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+    'Helvetica Neue', 'Segoe UI', Roboto, system-ui, sans-serif;
+
+  /* ========================================
+     Light Mode - "Warm Ivory"
+     Matching soundbluemusic.com light theme
+     ======================================== */
+  --background: 40 25% 95%; /* #F5F3EE - Warm cream */
+  --foreground: 30 15% 18%; /* #312D28 - Dark warm brown */
+  --card: 38 20% 91%; /* #EDEAE4 - Slightly darker cream */
+  --card-foreground: 30 15% 18%;
+  --popover: 40 30% 98%;
+  --popover-foreground: 30 15% 18%;
+  --primary: 262 45% 52%; /* #7B68A8 - Brand purple */
+  --primary-foreground: 40 25% 95%;
+  --secondary: 38 18% 88%; /* #E4E0D8 - Warm gray */
+  --secondary-foreground: 30 15% 18%;
+  --muted: 36 15% 86%; /* #DDDAD4 */
+  --muted-foreground: 28 10% 38%; /* Improved contrast - WCAG AA compliant */
+  --accent: 262 45% 52%; /* #7B68A8 - Brand purple */
+  --accent-foreground: 40 25% 95%;
+  --destructive: 0 50% 50%; /* #BF4040 - Soft red */
+  --destructive-foreground: 40 25% 95%;
+  --border: 35 15% 80%; /* #D1CDC5 - Warm border */
+  --input: 35 15% 80%;
+  --ring: 262 45% 52%; /* Brand purple */
+  --radius: 0.75rem;
+
+  /* Surface backgrounds */
+  --surface-primary: 40 25% 95%;
+  --surface-secondary: 38 20% 91%;
+  --surface-tertiary: 36 15% 86%;
+  --surface-elevated: 40 30% 98%;
+
+  /* Brand Color - Purple (창의성을 상징) */
+  --brand: 262 52% 58%; /* #8B7AAE - Soft purple for light mode */
+  --brand-foreground: 40 25% 95%;
+
+  /* Semantic Colors */
+  --color-link: 192 30% 42%; /* #4A7C8B - Desaturated teal */
+  --color-success: 144 22% 45%; /* #5A8A6E - Soft sage */
+  --color-warning: 42 51% 48%; /* #B8923E - Muted gold */
+  --color-error: 0 43% 50%; /* #B54A4A */
+
+  /* DAW Colors */
+  --daw-track-bg: 40 23% 94%;
+  --daw-track-border: 38 17% 83%;
+  --daw-playhead: 262 45% 52%; /* Brand purple */
+  --daw-waveform: 262 45% 52%; /* Brand purple */
+  --daw-grid: 38 17% 88%;
+  --daw-meter-green: 144 22% 45%;
+  --daw-meter-yellow: 42 51% 48%;
+  --daw-meter-red: 0 43% 50%;
+
+  /* Glassmorphism */
+  --glass-bg: 40 23% 94% / 0.8;
+  --glass-border: 38 17% 83% / 0.6;
+  --glass-blur: 20px;
+
+  /* Shadows - Warm soft shadows */
+  --shadow-xs: 0 1px 2px hsl(32 10% 16% / 0.04);
+  --shadow-sm: 0 2px 8px hsl(32 10% 16% / 0.05), 0 1px 2px hsl(32 10% 16% / 0.06);
+  --shadow-md: 0 4px 16px hsl(32 10% 16% / 0.08), 0 2px 4px hsl(32 10% 16% / 0.05);
+  --shadow-lg: 0 8px 32px hsl(32 10% 16% / 0.1), 0 4px 8px hsl(32 10% 16% / 0.05);
+  --shadow-xl: 0 16px 48px hsl(32 10% 16% / 0.12), 0 8px 16px hsl(32 10% 16% / 0.05);
+  --shadow-float: 0 22px 70px 4px hsl(32 10% 16% / 0.1);
+
+  /* Social Brand Colors */
+  --social-youtube: #ff0000;
+  --social-twitter: #1da1f2;
+  --social-instagram: #e4405f;
+  --social-github: #333333;
+  --social-discord: #5865f2;
+}
+
+/* ========================================
+   Dark Mode - "Slate Night"
+   Matching soundbluemusic.com dark theme
+   Cool slate with warm accent colors
+   ======================================== */
+.dark,
+[data-theme='dark'] {
+  --background: 220 15% 13%; /* #1E2227 - Cool dark slate */
+  --foreground: 38 20% 88%; /* #E6E2DB - Warm cream text */
+  --card: 215 12% 17%; /* #272C32 - Slightly lighter slate */
+  --card-foreground: 38 20% 88%;
+  --popover: 215 12% 17%;
+  --popover-foreground: 38 20% 88%;
+  --primary: 262 40% 72%; /* #B4A7D6 - Brand purple for dark mode */
+  --primary-foreground: 220 15% 13%;
+  --secondary: 215 10% 22%; /* #333942 - Medium slate */
+  --secondary-foreground: 38 20% 88%;
+  --muted: 218 10% 20%; /* #2E3339 */
+  --muted-foreground: 32 12% 63%; /* Improved contrast - WCAG AA compliant */
+  --accent: 262 40% 72%; /* #B4A7D6 - Brand purple */
+  --accent-foreground: 220 15% 13%;
+  --destructive: 0 65% 65%; /* #E07070 - Soft coral red */
+  --destructive-foreground: 220 15% 13%;
+  --border: 215 10% 28%; /* #3F4650 - Visible border */
+  --input: 215 10% 28%;
+  --ring: 262 40% 72%; /* Brand purple */
+
+  /* Brand Color - Purple (Dark mode) */
+  --brand: 262 40% 72%; /* #B4A7D6 - Lighter, softer purple */
+  --brand-foreground: 220 15% 13%;
+
+  /* Semantic Colors - Dark */
+  --color-link: 195 50% 60%; /* #6AB8CC - Soft cyan */
+  --color-success: 145 40% 55%; /* #5DBF85 - Fresh green */
+  --color-warning: 38 70% 60%; /* #D9A54A - Warm amber */
+  --color-error: 0 65% 65%; /* #E07070 */
+
+  /* Dark surfaces */
+  --surface-primary: 220 15% 13%;
+  --surface-secondary: 215 12% 17%;
+  --surface-tertiary: 218 10% 20%;
+  --surface-elevated: 215 10% 22%;
+
+  /* DAW Colors - Dark */
+  --daw-track-bg: 215 12% 15%;
+  --daw-track-border: 215 10% 28%;
+  --daw-playhead: 262 40% 72%; /* Brand purple */
+  --daw-waveform: 262 40% 72%; /* Brand purple */
+  --daw-grid: 218 10% 20%;
+  --daw-meter-green: 145 40% 55%;
+  --daw-meter-yellow: 38 70% 60%;
+  --daw-meter-red: 0 65% 65%;
+
+  /* Glassmorphism - Dark */
+  --glass-bg: 215 12% 20% / 0.85;
+  --glass-border: 38 20% 88% / 0.1;
+
+  /* Shadows - Dark mode */
+  --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.3);
+  --shadow-sm: 0 2px 8px hsl(0 0% 0% / 0.4), 0 1px 2px hsl(0 0% 0% / 0.3);
+  --shadow-md: 0 4px 16px hsl(0 0% 0% / 0.5), 0 2px 4px hsl(0 0% 0% / 0.3);
+  --shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.55), 0 4px 8px hsl(0 0% 0% / 0.3);
+  --shadow-xl: 0 16px 48px hsl(0 0% 0% / 0.65), 0 8px 16px hsl(0 0% 0% / 0.3);
+  --shadow-float: 0 22px 70px 4px hsl(0 0% 0% / 0.55);
+}
+
+/* System preference auto-detect - only when no explicit theme is set */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --background: 220 15% 13%;
+    --foreground: 38 20% 88%;
+    --card: 215 12% 17%;
+    --card-foreground: 38 20% 88%;
+    --popover: 215 12% 17%;
+    --popover-foreground: 38 20% 88%;
+    --primary: 262 40% 72%;
+    --primary-foreground: 220 15% 13%;
+    --secondary: 215 10% 22%;
+    --secondary-foreground: 38 20% 88%;
+    --muted: 218 10% 20%;
+    --muted-foreground: 32 12% 63%;
+    --accent: 262 40% 72%;
+    --accent-foreground: 220 15% 13%;
+    --destructive: 0 65% 65%;
+    --destructive-foreground: 220 15% 13%;
+    --border: 215 10% 28%;
+    --input: 215 10% 28%;
+    --ring: 262 40% 72%;
+    --brand: 262 40% 72%;
+    --brand-foreground: 220 15% 13%;
+    --color-link: 195 50% 60%;
+    --color-success: 145 40% 55%;
+    --color-warning: 38 70% 60%;
+    --color-error: 0 65% 65%;
+    --surface-primary: 220 15% 13%;
+    --surface-secondary: 215 12% 17%;
+    --surface-tertiary: 218 10% 20%;
+    --surface-elevated: 215 10% 22%;
+    --daw-track-bg: 215 12% 15%;
+    --daw-track-border: 215 10% 28%;
+    --daw-playhead: 262 40% 72%;
+    --daw-waveform: 262 40% 72%;
+    --daw-grid: 218 10% 20%;
+    --daw-meter-green: 145 40% 55%;
+    --daw-meter-yellow: 38 70% 60%;
+    --daw-meter-red: 0 65% 65%;
+    --glass-bg: 215 12% 20% / 0.85;
+    --glass-border: 38 20% 88% / 0.1;
+    --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.3);
+    --shadow-sm: 0 2px 8px hsl(0 0% 0% / 0.4), 0 1px 2px hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 16px hsl(0 0% 0% / 0.5), 0 2px 4px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.55), 0 4px 8px hsl(0 0% 0% / 0.3);
+    --shadow-xl: 0 16px 48px hsl(0 0% 0% / 0.65), 0 8px 16px hsl(0 0% 0% / 0.3);
+    --shadow-float: 0 22px 70px 4px hsl(0 0% 0% / 0.55);
+  }
+}
+
+/* ========================================
+   Tailwind v4 Theme Extension
+   ======================================== */
+
+@theme {
+  /* ========================================
+     Custom Colors - Registered for Tailwind v4
+     These enable bg-*, text-*, border-* utilities
+     ======================================== */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-brand: hsl(var(--brand));
+  --color-brand-foreground: hsl(var(--brand-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Custom animations - Apple-style smooth */
+  --animate-fade-in: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-fade-out: fadeOut 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-slide-up: slideUp 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-slide-down: slideDown 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-slide-in-left: slideInLeft 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-slide-in-right: slideInRight 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-scale-in: scaleIn 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-scale-out: scaleOut 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-header-in: headerSlideDown 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-bottom-nav-in: bottomNavSlideUp 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-dropdown-in: dropdownIn 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-skeleton: skeletonLoading 2s ease-in-out infinite;
+  --animate-spin-slow: spin 3s linear infinite;
+  --animate-pulse-soft: pulseSoft 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-bounce-soft: bounceSoft 0.6s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-shimmer: shimmer 2s linear infinite;
+}
+
+/* ========================================
+   Keyframe Animations - Apple-style
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes headerSlideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bottomNavSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes dropdownIn {
+  from {
+    transform: translateY(-8px) scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes skeletonLoading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes bounceSoft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1;
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-system);
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+}
+
+/* Apple-style text rendering */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.2;
+}
+
+/* ========================================
+   Scrollbar Styling - Apple-style minimal
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 100px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@supports (scrollbar-color: auto) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+}
+
+/* ========================================
+   Focus Styles (Accessibility) - Apple ring
+   ======================================== */
+
+:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 4px hsl(var(--background)),
+    0 0 0 6px hsl(var(--ring));
+  border-radius: var(--radius);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ========================================
+   Selection - Brand accent
+   ======================================== */
+
+::selection {
+  background: hsl(var(--brand) / 0.25);
+  color: inherit;
+}
+
+/* ========================================
+   Touch Target Optimization
+   ======================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  button:not(.inline-btn),
+  a:not(.inline-link),
+  [role='button'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ========================================
+   Reduced Motion (Accessibility)
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+    scroll-behavior: auto;
+  }
+}
+
+/* ========================================
+   Utility Classes - Apple-style
+   ======================================== */
+
+/* Glass morphism card */
+.glass {
+  background: hsl(var(--glass-bg));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid hsl(var(--glass-border));
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--brand)),
+    hsl(262 60% 70%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Smooth hover transition for interactive elements */
+.interactive {
+  transition:
+    transform 0.2s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.2s cubic-bezier(0.32, 0.72, 0, 1),
+    background-color 0.2s ease;
+}
+
+.interactive:hover {
+  transform: translateY(-1px);
+}
+
+.interactive:active {
+  transform: scale(0.98);
+}
+
+/* Apple-style card with hover */
+.card-hover {
+  transition:
+    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Subtle background pattern */
+.bg-dots {
+  background-image: radial-gradient(
+    hsl(var(--border)) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* Radial gradient background */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Safe area padding for notched devices */
+.safe-area-inset {
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}

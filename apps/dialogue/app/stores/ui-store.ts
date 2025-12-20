@@ -1,0 +1,55 @@
+import { create } from 'zustand';
+
+// ========================================
+// UI Store - 사이드바, 패널 상태 관리
+// ========================================
+
+export interface ResultContent {
+  type: 'report' | 'info' | 'help';
+  title: string;
+  content: string;
+}
+
+interface UIState {
+  sidebarOpen: boolean;
+  sidebarCollapsed: boolean;
+  resultPanelOpen: boolean;
+  resultContent: ResultContent | null;
+}
+
+interface UIActions {
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  toggleSidebarCollapse: () => void;
+  setResultPanelOpen: (open: boolean) => void;
+  toggleResultPanel: () => void;
+  setResultContent: (content: ResultContent | null) => void;
+  closeResultPanel: () => void;
+}
+
+export const useUIStore = create<UIState & UIActions>()((set) => ({
+  // Initial state
+  sidebarOpen: false,
+  sidebarCollapsed: false,
+  resultPanelOpen: false,
+  resultContent: null,
+
+  // Actions
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+  toggleSidebarCollapse: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+  setResultPanelOpen: (open) => set({ resultPanelOpen: open }),
+  toggleResultPanel: () => set((state) => ({ resultPanelOpen: !state.resultPanelOpen })),
+  setResultContent: (content) =>
+    set({
+      resultContent: content,
+      resultPanelOpen: content !== null,
+    }),
+  closeResultPanel: () =>
+    set({
+      resultPanelOpen: false,
+      resultContent: null,
+    }),
+}));

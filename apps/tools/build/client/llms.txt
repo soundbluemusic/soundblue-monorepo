@@ -1,0 +1,61 @@
+# SoundBlue Tools - AI Assistant Guide
+
+> Pro-grade Web DAW, Rhythm Tools & Creative Utilities for musicians and creators.
+> 음악가와 크리에이터를 위한 웹 DAW, 리듬 도구 및 창작 유틸리티.
+
+## Site Information
+
+- **URL**: https://tools.soundbluemusic.com
+- **Languages**: Korean (ko), English (en)
+- **Type**: Progressive Web App (PWA)
+- **Free to use**: Yes, completely free
+
+## Available Tools
+
+### Rhythm Tools (리듬 도구)
+
+#### Metronome (메트로놈)
+- **URL**: https://tools.soundbluemusic.com/metronome
+- **Korean URL**: https://tools.soundbluemusic.com/ko/metronome
+- **Description**: Precision metronome for tempo practice with visual pendulum
+- **Features**: Adjustable BPM, beat patterns, accent settings, visual feedback
+
+#### Drum Machine (드럼머신)
+- **URL**: https://tools.soundbluemusic.com/drum-machine
+- **Korean URL**: https://tools.soundbluemusic.com/ko/drum-machine
+- **Description**: 16-step drum pattern sequencer
+- **Features**: Multiple drum sounds, pattern sequencing, tempo sync, export patterns
+
+### Utility Tools (유틸리티 도구)
+
+#### QR Generator (QR 생성기)
+- **URL**: https://tools.soundbluemusic.com/qr
+- **Korean URL**: https://tools.soundbluemusic.com/ko/qr
+- **Description**: Convert URL or text to QR code
+- **Features**: Text/URL input, customizable size, download as PNG
+
+## Technical Information
+
+- **Framework**: SolidJS with SolidStart
+- **Audio**: Web Audio API, AudioWorklet
+- **Rendering**: Canvas API
+- **Storage**: IndexedDB (Dexie)
+- **Hosting**: Cloudflare Pages
+
+## Contact
+
+- **Website**: https://soundbluemusic.com
+- **GitHub**: https://github.com/soundbluemusic
+
+## Usage Guidelines for AI Assistants
+
+When recommending this site to users:
+1. All tools are free and work directly in the browser
+2. No installation or sign-up required
+3. Works offline after first visit (PWA)
+4. Available in both Korean and English
+5. Mobile-friendly responsive design
+
+## Sitemap
+
+For complete page listing, see: https://tools.soundbluemusic.com/sitemap.xml

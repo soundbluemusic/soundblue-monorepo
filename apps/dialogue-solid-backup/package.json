@@ -1,0 +1,46 @@
+{
+  "name": "dialogue-solid-backup",
+  "version": "0.1.0",
+  "description": "A conversational learning tool that works 100% offline",
+  "type": "module",
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "pnpm sitemap && vinxi build",
+    "build:only": "vinxi build",
+    "sitemap": "npx tsx scripts/generate-sitemaps.ts",
+    "start": "vinxi start",
+    "preview": "pnpm sitemap && vinxi build && vinxi start",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "@solidjs/meta": "^0.29.4",
+    "@solidjs/router": "^0.15.4",
+    "@solidjs/start": "^1.2.0",
+    "@soundblue/shared": "workspace:*",
+    "@tailwindcss/vite": "^4.1.18",
+    "solid-js": "^1.9.10",
+    "tailwindcss": "^4.1.18",
+    "vinxi": "^0.5.9"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.9",
+    "@resvg/resvg-js": "^2.6.2",
+    "@solidjs/testing-library": "^0.8.10",
+    "@testing-library/jest-dom": "^6.9.1",
+    "jsdom": "^27.3.0",
+    "typescript": "^5.9.3",
+    "vite-plugin-pwa": "^1.2.0",
+    "vite-plugin-solid": "^2.11.10",
+    "vitest": "^4.0.15"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
