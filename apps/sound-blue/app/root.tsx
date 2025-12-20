@@ -81,7 +81,7 @@ export function ErrorBoundary() {
   return (
     <main className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-bg-primary)]">
       <div className="text-center">
-        <h1 className="text-6xl font-bold text-[var(--color-text-tertiary)] mb-4">{message}</h1>
+        <h1 className="text-6xl font-bold text-(--color-text-tertiary) mb-4">{message}</h1>
         <p className="text-xl text-content-muted mb-8">{details}</p>
         <a
           href="/"

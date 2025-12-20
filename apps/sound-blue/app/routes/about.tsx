@@ -16,9 +16,7 @@ export default function About() {
     <div className="app-layout">
       <main className="main-content">
         <div className="max-w-3xl mx-auto p-6">
-          <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-6">
-            {t.about.title}
-          </h1>
+          <h1 className="text-3xl font-bold text-content mb-6">{t.about.title}</h1>
           <p className="text-lg text-content-muted mb-8">{t.about.intro}</p>
 
           <section className="prose mb-8">
