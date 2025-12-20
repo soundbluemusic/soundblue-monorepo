@@ -1,18 +1,20 @@
 'use client';
 
-import { type ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToolSidebar } from '~/components/sidebar';
+import { ToolContainer } from '~/components/tools';
 import { cn } from '~/lib/utils';
 import { useToolStore } from '~/stores/tool-store';
+import { Footer } from './Footer';
 import { Header } from './Header';
 
 const BREAKPOINT_MOBILE = 768;
 
-interface MainLayoutProps {
-  children: ReactNode;
-}
+// ========================================
+// MainLayout Component - 메인 2열 레이아웃 (사이드바 + 도구)
+// ========================================
 
-export function MainLayout({ children }: MainLayoutProps) {
+export function MainLayout() {
   const [isMobile, setIsMobile] = useState(false);
   const { sidebarOpen, setSidebarOpen, currentTool } = useToolStore();
 
@@ -44,8 +46,10 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="flex h-screen flex-col bg-background">
+      {/* Header */}
       <Header />
 
+      {/* Main Content */}
       <main className="flex flex-1 overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         {showMobileOverlay && (
@@ -69,9 +73,14 @@ export function MainLayout({ children }: MainLayoutProps) {
           <ToolSidebar />
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-auto">{children}</div>
+        {/* Tool Area */}
+        <div className="flex-1 overflow-auto">
+          <ToolContainer />
+        </div>
       </main>
+
+      {/* Footer */}
+      <Footer appName="Tools" tagline="UI/UX based on web standards" />
     </div>
   );
 }
