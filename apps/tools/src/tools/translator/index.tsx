@@ -1,6 +1,6 @@
 import { ArrowLeftRight, Check, Copy, Share2, Trash2, X } from 'lucide-solid';
 import { type Component, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
-import { useLanguage } from '~/i18n';
+import { useTranslations } from '~/i18n';
 import { registerTool } from '../registry';
 import type { ToolDefinition, ToolProps } from '../types';
 import { translate } from './translator-service';
@@ -175,8 +175,11 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
     }
   });
 
-  const sourceLabel = () => (settings().direction === 'ko-en' ? '한국어' : 'English');
-  const targetLabel = () => (settings().direction === 'ko-en' ? 'English' : '한국어');
+  const t = useTranslations();
+  const sourceLabel = () =>
+    settings().direction === 'ko-en' ? t().translator.languages.ko : t().translator.languages.en;
+  const targetLabel = () =>
+    settings().direction === 'ko-en' ? t().translator.languages.en : t().translator.languages.ko;
 
   return (
     <div class="flex h-full flex-col p-3 sm:p-4 gap-3 overflow-auto">
@@ -187,7 +190,7 @@ const TranslatorComponent: Component<ToolProps<TranslatorSettings>> = (props) =>
           type="button"
           onClick={toggleDirection}
           class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border transition-all duration-200 hover:bg-black/8 dark:hover:bg-white/12 hover:scale-105 active:scale-95"
-          title="Switch direction"
+          title={t().translator.switchDirection}
         >
           <ArrowLeftRight class="h-4 w-4" />
         </button>

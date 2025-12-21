@@ -42,8 +42,8 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
   const [moreExpanded, setMoreExpanded] = useState(false);
 
   const languages: { code: Locale; label: string; flag: string }[] = [
-    { code: 'en', label: 'English', flag: 'EN' },
-    { code: 'ko', label: '한국어', flag: 'KO' },
+    { code: 'en', label: t.english, flag: 'EN' },
+    { code: 'ko', label: t.korean, flag: 'KO' },
   ];
 
   const getPathWithoutLocale = useCallback(() => {
@@ -128,7 +128,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
           type="button"
           onClick={toggleSidebarCollapse}
           className={`p-1.5 rounded-lg transition-all duration-200 text-gray-500 dark:text-gray-400 ${HOVER_STYLES}`}
-          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={sidebarCollapsed ? t.expandSidebar : t.collapseSidebar}
         >
           {sidebarCollapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
         </button>

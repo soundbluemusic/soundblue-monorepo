@@ -7,7 +7,7 @@ import { Keyboard, X } from 'lucide-solid';
 import { type Component, createSignal, For, onCleanup, onMount, Show } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { DEFAULT_SHORTCUTS, type ShortcutDefinition } from '~/hooks/use-keyboard-shortcuts';
-import { useLanguage } from '~/i18n';
+import { useTranslations } from '~/i18n';
 import { cn } from '~/lib/utils';
 
 // Local signal to track help modal state (synced with the hook)
@@ -64,17 +64,25 @@ function formatKey(key: string): string {
     .replace('Enter', '↵ Enter');
 }
 
-// Category labels
-const CATEGORY_LABELS: Record<string, { ko: string; en: string }> = {
-  transport: { ko: '트랜스포트', en: 'Transport' },
-  navigation: { ko: '네비게이션', en: 'Navigation' },
-  tool: { ko: '도구', en: 'Tools' },
-  general: { ko: '일반', en: 'General' },
-};
-
 export const ShortcutsHelpModal: Component = () => {
-  const { locale } = useLanguage();
+  const t = useTranslations();
   const groups = groupShortcuts();
+
+  // Category label mapping
+  const getCategoryLabel = (category: string): string => {
+    switch (category) {
+      case 'transport':
+        return t().shortcuts.categories.transport;
+      case 'navigation':
+        return t().shortcuts.categories.navigation;
+      case 'tool':
+        return t().shortcuts.categories.tool;
+      case 'general':
+        return t().shortcuts.categories.general;
+      default:
+        return category;
+    }
+  };
 
   // Close on Escape
   onMount(() => {
@@ -107,7 +115,7 @@ export const ShortcutsHelpModal: Component = () => {
           onClick={handleBackdropClick}
           role="dialog"
           aria-modal="true"
-          aria-label="Keyboard shortcuts"
+          aria-label={t().shortcuts.title}
         >
           <div
             class={cn(
@@ -121,9 +129,7 @@ export const ShortcutsHelpModal: Component = () => {
             <div class="flex items-center justify-between px-6 py-4 border-b border-border">
               <div class="flex items-center gap-3">
                 <Keyboard class="h-5 w-5 text-primary" />
-                <h2 class="text-lg font-semibold">
-                  {locale() === 'ko' ? '키보드 단축키' : 'Keyboard Shortcuts'}
-                </h2>
+                <h2 class="text-lg font-semibold">{t().shortcuts.title}</h2>
               </div>
               <button
                 type="button"
@@ -133,7 +139,7 @@ export const ShortcutsHelpModal: Component = () => {
                   'text-muted-foreground hover:text-foreground',
                   'hover:bg-muted transition-colors',
                 )}
-                aria-label="Close"
+                aria-label={t().common.close}
               >
                 <X class="h-4 w-4" />
               </button>
@@ -146,7 +152,7 @@ export const ShortcutsHelpModal: Component = () => {
                   <Show when={shortcuts.length > 0}>
                     <div>
                       <h3 class="text-sm font-medium text-muted-foreground mb-3">
-                        {CATEGORY_LABELS[category]?.[locale()] ?? category}
+                        {getCategoryLabel(category)}
                       </h3>
                       <div class="space-y-2">
                         <For each={shortcuts}>
@@ -180,11 +186,7 @@ export const ShortcutsHelpModal: Component = () => {
 
             {/* Footer */}
             <div class="px-6 py-4 border-t border-border bg-muted/30">
-              <p class="text-xs text-muted-foreground text-center">
-                {locale() === 'ko'
-                  ? '? 키를 눌러 언제든지 이 도움말을 볼 수 있습니다'
-                  : 'Press ? anytime to show this help'}
-              </p>
+              <p class="text-xs text-muted-foreground text-center">{t().shortcuts.helpText}</p>
             </div>
           </div>
         </div>

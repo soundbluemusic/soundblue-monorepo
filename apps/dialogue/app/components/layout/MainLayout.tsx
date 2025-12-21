@@ -133,7 +133,7 @@ export function MainLayout() {
             type="button"
             className="fixed inset-0 z-40 bg-black/50 md:hidden border-none cursor-default"
             onClick={() => setSidebarOpen(false)}
-            aria-label="Close sidebar"
+            aria-label={t.closeSidebar}
           />
         )}
 
@@ -164,7 +164,7 @@ export function MainLayout() {
                 onClick={() => setActiveTab('result')}
                 className={`${TAB_BASE_CLASS} ${activeTab === 'result' ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
               >
-                {t.aboutInfo || 'Results'}
+                {t.results}
               </button>
             </div>
 
@@ -189,7 +189,7 @@ export function MainLayout() {
                 onMouseDown={handleResizeStart}
                 role="slider"
                 aria-orientation="vertical"
-                aria-label="Resize chat panel"
+                aria-label={t.resizeChatPanel}
                 aria-valuenow={chatWidth}
                 aria-valuemin={CHAT_WIDTH.min}
                 aria-valuemax={CHAT_WIDTH.max}
@@ -214,9 +214,9 @@ export function MainLayout() {
 
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-700 px-4 py-2 text-center text-xs text-gray-500 dark:text-gray-400">
-        <span>Dialogue</span>
+        <span>{t.title}</span>
         <span className="mx-2">·</span>
-        <span>UI/UX based on web standards</span>
+        <span>{t.footerDescription}</span>
       </footer>
     </div>
   );
