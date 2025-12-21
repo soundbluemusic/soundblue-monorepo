@@ -24,6 +24,10 @@
     "./providers": {
       "types": "./src/providers/index.ts",
       "import": "./src/providers/index.ts"
+    },
+    "./storage": {
+      "types": "./src/storage/index.ts",
+      "import": "./src/storage/index.ts"
     }
   },
   "main": "./src/index.ts",

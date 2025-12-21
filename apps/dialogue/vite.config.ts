@@ -33,6 +33,31 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    sourcemap: false,
+    cssMinify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: (id: string) => {
+          if (!id.includes('node_modules')) return undefined;
+          // React core stays in main bundle
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router'))
+            return undefined;
+          // Lucide icons - separate chunk
+          if (id.includes('lucide-react')) {
+            return 'icons-vendor';
+          }
+          // State management
+          if (id.includes('zustand')) {
+            return 'state-vendor';
+          }
+          return undefined;
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '~': '/app',
