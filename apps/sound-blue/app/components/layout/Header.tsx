@@ -1,5 +1,3 @@
-'use client';
-
 import { useTheme } from '@soundblue/shared-react';
 import { Link } from 'react-router';
 import { SearchBox, ThemeIcon } from '~/components/ui';

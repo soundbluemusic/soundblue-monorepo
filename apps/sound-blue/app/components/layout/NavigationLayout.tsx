@@ -1,5 +1,3 @@
-'use client';
-
 import { type ReactNode, useState } from 'react';
 import { BottomNav, Sidebar } from '~/components/navigation';
 import { useI18n } from '~/i18n';

@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { BottomSheet } from '~/components/ui';

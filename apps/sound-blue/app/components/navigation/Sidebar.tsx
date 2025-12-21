@@ -1,5 +1,3 @@
-'use client';
-
 import { Link, useLocation } from 'react-router';
 import { EXTERNAL_NAV_ITEMS, isNavActive, NAV_ITEMS } from '~/constants';
 import { useI18n } from '~/i18n';
