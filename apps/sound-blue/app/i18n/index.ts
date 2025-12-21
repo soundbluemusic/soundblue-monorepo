@@ -28,3 +28,4 @@ export function useI18n(): I18nContextValue {
 }
 
 export { getLocaleFromPath, getLocalizedPath };
+export { I18nProvider } from './provider';

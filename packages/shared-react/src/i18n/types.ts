@@ -69,7 +69,7 @@ export type LocaleDirection = 'ltr' | 'rtl';
  * Get text direction for a locale.
  * Currently all supported locales are LTR.
  */
-export function getLocaleDirection(locale: Locale): LocaleDirection {
+export function getLocaleDirection(_locale: Locale): LocaleDirection {
   // All current locales are left-to-right
   return 'ltr';
 }

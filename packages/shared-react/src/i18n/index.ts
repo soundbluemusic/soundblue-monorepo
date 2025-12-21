@@ -17,31 +17,29 @@
  * @module @soundblue/shared/i18n
  */
 
-// Types
-export type {
-  Locale,
-  I18nConfig,
-  I18nMessages,
-  TranslationDictionary,
-  LocaleDirection,
-} from './types';
-
-export {
-  DEFAULT_LOCALE,
-  SUPPORTED_LOCALES,
-  LOCALE_NAMES,
-  getLocaleDirection,
-  getOppositeLocale,
-  isValidLocale,
-  getLocaleWithFallback,
-} from './types';
-
 // Constants
 export {
-  LOCALE_STORAGE_KEY,
-  LOCALE_COOKIE_NAME,
-  LOCALE_QUERY_PARAM,
   COMMON_TRANSLATION_KEYS,
+  LOCALE_COOKIE_NAME,
   LOCALE_DATE_FORMATS,
   LOCALE_NUMBER_FORMATS,
+  LOCALE_QUERY_PARAM,
+  LOCALE_STORAGE_KEY,
 } from './constants';
+// Types
+export type {
+  I18nConfig,
+  I18nMessages,
+  Locale,
+  LocaleDirection,
+  TranslationDictionary,
+} from './types';
+export {
+  DEFAULT_LOCALE,
+  getLocaleDirection,
+  getLocaleWithFallback,
+  getOppositeLocale,
+  isValidLocale,
+  LOCALE_NAMES,
+  SUPPORTED_LOCALES,
+} from './types';
