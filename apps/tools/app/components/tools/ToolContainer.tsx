@@ -1,12 +1,13 @@
 'use client';
 
+import { useParaglideI18n } from '@soundblue/shared-react';
 import { Link2, Loader2, X } from 'lucide-react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 // Widget for default view
 import { WorldClockWidget } from '~/components/widgets';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import { getToolInfo } from '~/lib/toolCategories';
 import { cn } from '~/lib/utils';
 import { useAudioStore } from '~/stores/audio-store';
@@ -60,7 +61,7 @@ const PRESERVED_PARAMS = ['s'] as const;
 
 export function ToolContainer() {
   const navigate = useNavigate();
-  const { locale, t, localizedPath } = useI18n();
+  const { locale, localizedPath } = useParaglideI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const { currentTool, toolSettings, updateToolSettings, closeTool } = useToolStore();
   const isPlaying = useAudioStore((state) => state.transport.isPlaying);
@@ -74,13 +75,13 @@ export function ToolContainer() {
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
-      e.returnValue = t.tools.leaveWarning;
-      return t.tools.leaveWarning;
+      e.returnValue = m['tools.leaveWarning']?.();
+      return m['tools.leaveWarning']?.();
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isPlaying, t.tools.leaveWarning]);
+  }, [isPlaying, m['tools.leaveWarning']?.()]);
 
   // URL에서 설정 읽기 (도구 전환 시)
   useEffect(() => {
@@ -347,13 +348,13 @@ export function ToolContainer() {
                         'active:bg-primary/20',
                         urlCopied && 'text-green-500',
                       )}
-                      aria-label={t.tools.shareUrl}
+                      aria-label={m['tools.shareUrl']?.()}
                     >
                       <Link2 className="h-4 w-4" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {urlCopied ? t.tools.urlCopied : t.tools.shareUrl}
+                    {urlCopied ? m['tools.urlCopied']?.() : m['tools.shareUrl']?.()}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -367,7 +368,7 @@ export function ToolContainer() {
                   'hover:bg-destructive/25 hover:text-destructive',
                   'active:bg-destructive/35',
                 )}
-                aria-label={t.tools.closeTool}
+                aria-label={m['tools.closeTool']?.()}
               >
                 <X className="h-4 w-4" />
               </button>

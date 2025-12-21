@@ -1,6 +1,6 @@
 'use client';
 
-import { useI18n } from '~/i18n';
+import { useParaglideI18n } from '@soundblue/shared-react';
 import type { ToolInfo } from '~/lib/toolCategories';
 import { cn } from '~/lib/utils';
 import { type ToolType, useToolStore } from '~/stores/tool-store';
@@ -16,7 +16,7 @@ interface ToolItemProps {
 }
 
 export function ToolItem({ tool, onClick, collapsed }: ToolItemProps) {
-  const { locale } = useI18n();
+  const { locale } = useParaglideI18n();
   const currentTool = useToolStore((state) => state.currentTool);
   const isActive = currentTool === tool.id;
 

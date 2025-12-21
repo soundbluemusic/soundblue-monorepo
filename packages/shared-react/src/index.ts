@@ -47,6 +47,7 @@ export {
   LOCALE_QUERY_PARAM,
   LOCALE_STORAGE_KEY,
   SUPPORTED_LOCALES,
+  useParaglideI18n,
 } from './i18n';
 export {
   DEFAULT_I18N_CONFIG,

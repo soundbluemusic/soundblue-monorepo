@@ -1,7 +1,6 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
-import { useI18n } from '~/i18n';
-
+import m from '~/lib/messages';
 export const meta: MetaFunction = () => [
   { title: 'Terms of Service | Sound Blue' },
   {
@@ -11,19 +10,19 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function Terms() {
-  const { t } = useI18n();
+  
   return (
     <NavigationLayout>
       <div className="max-w-3xl mx-auto p-6 prose">
-        <h1>{t.terms.title}</h1>
-        <h2>{t.terms.sections.use.title}</h2>
-        <p>{t.terms.sections.use.content}</p>
-        <h2>{t.terms.sections.copyright.title}</h2>
-        <p>{t.terms.sections.copyright.content}</p>
-        <h2>{t.terms.sections.disclaimer.title}</h2>
-        <p>{t.terms.sections.disclaimer.content}</p>
-        <h2>{t.terms.sections.changes.title}</h2>
-        <p>{t.terms.sections.changes.content}</p>
+        <h1>{m['terms.title']()}</h1>
+        <h2>{m['terms.sections.use.title']()}</h2>
+        <p>{m['terms.sections.use.content']()}</p>
+        <h2>{m['terms.sections.copyright.title']()}</h2>
+        <p>{m['terms.sections.copyright.content']()}</p>
+        <h2>{m['terms.sections.disclaimer.title']()}</h2>
+        <p>{m['terms.sections.disclaimer.content']()}</p>
+        <h2>{m['terms.sections.changes.title']()}</h2>
+        <p>{m['terms.sections.changes.content']()}</p>
       </div>
     </NavigationLayout>
   );

@@ -1,7 +1,7 @@
 'use client';
 
+import { useParaglideI18n } from '@soundblue/shared-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useI18n } from '~/i18n';
 
 // ========================================
 // World Clock Widget - AOD Style
@@ -68,7 +68,7 @@ const weekdayNames = {
 } as const;
 
 export function WorldClockWidget() {
-  const { locale } = useI18n();
+  const { locale } = useParaglideI18n();
 
   // 1초마다 업데이트되는 시간
   const [now, setNow] = useState(() => new Date());

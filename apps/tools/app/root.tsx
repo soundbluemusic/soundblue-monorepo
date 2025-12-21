@@ -1,4 +1,5 @@
-import { ThemeProvider } from '@soundblue/shared-react';
+import { getLocaleFromPath, ThemeProvider } from '@soundblue/shared-react';
+import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import {
   isRouteErrorResponse,
@@ -7,9 +8,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
   useRouteError,
 } from 'react-router';
-import { I18nProvider } from './i18n/provider';
+import m from '~/lib/messages';
+import { setLocale } from '~/paraglide/runtime';
 import './app.css';
 
 export const links: LinksFunction = () => [
@@ -57,27 +60,44 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+function AppContent() {
+  const location = useLocation();
+
+  // Sync Paraglide locale with URL
+  useEffect(() => {
+    const locale = getLocaleFromPath(location.pathname);
+    setLocale(locale);
+  }, [location.pathname]);
+
   return (
     <ThemeProvider storageKey="tools-theme" defaultTheme="system">
-      <I18nProvider>
-        <Outlet />
-      </I18nProvider>
+      <Outlet />
     </ThemeProvider>
   );
 }
 
+export default function App() {
+  return <AppContent />;
+}
+
 export function ErrorBoundary() {
   const error = useRouteError();
+  const location = useLocation();
+
+  // Sync Paraglide locale with URL
+  const locale = getLocaleFromPath(location.pathname);
+  setLocale(locale);
 
   let message = 'Oops!';
   let details = 'An unexpected error occurred.';
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? '404' : 'Error';
+    message = error.status === 404 ? (m['notFound_code']?.() ?? '404') : 'Error';
     details =
-      error.status === 404 ? 'The requested page could not be found.' : error.statusText || details;
+      error.status === 404
+        ? (m['notFound_message']?.() ?? "The page you're looking for doesn't exist.")
+        : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;
@@ -92,6 +112,12 @@ export function ErrorBoundary() {
           <code>{stack}</code>
         </pre>
       )}
+      <a
+        href="/"
+        className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+      >
+        {m['notFound_backHome']?.()}
+      </a>
     </main>
   );
 }

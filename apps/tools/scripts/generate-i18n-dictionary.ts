@@ -13,7 +13,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const MESSAGES_DIR = 'messages';
+const MESSAGES_DIR = 'project.inlang/messages';
 const OUTPUT_DIR = 'src/tools/translator/dictionary';
 
 // ========================================

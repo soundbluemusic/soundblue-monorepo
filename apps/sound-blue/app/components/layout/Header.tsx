@@ -1,8 +1,8 @@
-import { useTheme } from '@soundblue/shared-react';
+import { useParaglideI18n, useTheme } from '@soundblue/shared-react';
 import { Link } from 'react-router';
 import { SearchBox, ThemeIcon } from '~/components/ui';
 import { ToolsIcon } from '~/constants/icons';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 
 interface HeaderProps {
   onSidebarToggle?: () => void;
@@ -10,10 +10,10 @@ interface HeaderProps {
 }
 
 export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
-  const { t, toggleLanguage, localizedPath } = useI18n();
+  const { toggleLanguage, localizedPath } = useParaglideI18n();
   const { resolvedTheme, toggleTheme } = useTheme();
 
-  const themeTitle = resolvedTheme === 'light' ? t.header.themeDark : t.header.themeLight;
+  const themeTitle = resolvedTheme === 'light' ? m['header.themeDark']() : m['header.themeLight']();
 
   return (
     <header className="view-transition-header fixed top-0 left-0 right-0 z-100 h-14 bg-surface-alt border-b border-line supports-[padding:env(safe-area-inset-top)]:pt-[env(safe-area-inset-top)] supports-[padding:env(safe-area-inset-top)]:h-[calc(56px+env(safe-area-inset-top))] max-sm:h-13 max-sm:supports-[padding:env(safe-area-inset-top)]:h-[calc(52px+env(safe-area-inset-top))]">
@@ -24,8 +24,8 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
             type="button"
             onClick={onSidebarToggle}
             className="hidden md:inline-flex absolute left-4 top-1/2 -translate-y-1/2 items-center justify-center w-10 h-10 p-0 bg-transparent rounded-lg text-content-muted hover:bg-state-hover hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-95 transition-all duration-150 max-sm:w-9 max-sm:h-9"
-            title={isSidebarOpen ? t.header.sidebarClose : t.header.sidebarOpen}
-            aria-label={isSidebarOpen ? t.header.sidebarClose : t.header.sidebarOpen}
+            title={isSidebarOpen ? m['header.sidebarClose']() : m['header.sidebarOpen']()}
+            aria-label={isSidebarOpen ? m['header.sidebarClose']() : m['header.sidebarOpen']()}
             aria-expanded={isSidebarOpen}
           >
             <svg
@@ -74,10 +74,10 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
           target="_blank"
           rel="noopener noreferrer"
           className="hidden sm:inline-flex items-center justify-center gap-1.5 h-9 px-3 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          title={t.externalLinks.tools}
+          title={m['externalLinks.tools']()}
         >
           <ToolsIcon className="w-4 h-4" />
-          <span>{t.externalLinks.tools}</span>
+          <span>{m['externalLinks.tools']()}</span>
         </a>
 
         {/* Controls */}
@@ -98,8 +98,8 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
             type="button"
             onClick={toggleLanguage}
             className="inline-flex items-center justify-center gap-1 w-auto h-10 px-3 bg-transparent rounded-lg text-content-muted hover:bg-state-hover hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-95 transition-all duration-150 max-sm:h-9 max-sm:px-2"
-            title={t.header.langSwitch}
-            aria-label={t.header.langSwitch}
+            title={m['header.langSwitch']()}
+            aria-label={m['header.langSwitch']()}
           >
             <svg
               className="w-4 h-4 shrink-0"
@@ -111,7 +111,7 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
               <circle cx="12" cy="12" r="10" />
               <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
             </svg>
-            <span className="text-xs font-semibold tracking-wide">{t.header.langCode}</span>
+            <span className="text-xs font-semibold tracking-wide">{m['header.langCode']()}</span>
           </button>
         </div>
       </div>

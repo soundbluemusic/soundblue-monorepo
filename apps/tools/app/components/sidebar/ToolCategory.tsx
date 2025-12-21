@@ -1,8 +1,8 @@
 'use client';
 
+import { useParaglideI18n } from '@soundblue/shared-react';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { useI18n } from '~/i18n';
 import type { ToolCategory as ToolCategoryType } from '~/lib/toolCategories';
 import { cn } from '~/lib/utils';
 import type { ToolType } from '~/stores/tool-store';
@@ -19,7 +19,7 @@ interface ToolCategoryProps {
 }
 
 export function ToolCategory({ category, onToolClick, collapsed }: ToolCategoryProps) {
-  const { locale } = useI18n();
+  const { locale } = useParaglideI18n();
   const [isOpen, setIsOpen] = useState(true);
 
   return (

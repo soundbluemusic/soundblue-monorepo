@@ -26,6 +26,12 @@ export {
   LOCALE_QUERY_PARAM,
   LOCALE_STORAGE_KEY,
 } from './constants';
+// Paraglide utilities
+export {
+  getLocaleFromPath,
+  getLocalizedPath,
+  getOppositeLocale as getOppositeLocaleParaglide,
+} from './paraglide';
 // Types
 export type {
   I18nConfig,
@@ -43,3 +49,4 @@ export {
   LOCALE_NAMES,
   SUPPORTED_LOCALES,
 } from './types';
+export { useParaglideI18n } from './useParaglideI18n';

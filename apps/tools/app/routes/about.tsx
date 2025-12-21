@@ -1,6 +1,5 @@
 import type { MetaFunction } from 'react-router';
-import { useI18n } from '~/i18n';
-
+import m from '~/lib/messages';
 export const meta: MetaFunction = () => [
   { title: 'About | Tools' },
   {
@@ -10,27 +9,25 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function About() {
-  const { t } = useI18n();
-
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">{t.about.title}</h1>
-        <p className="text-muted-foreground mb-8">{t.about.intro}</p>
+        <h1 className="text-3xl font-bold mb-6">{m['about.title']?.()}</h1>
+        <p className="text-muted-foreground mb-8">{m['about.intro']?.()}</p>
 
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{t.about.mission}</h2>
-          <p className="text-muted-foreground">{t.about.missionText}</p>
+          <h2 className="text-xl font-semibold mb-4">{m['about.mission']?.()}</h2>
+          <p className="text-muted-foreground">{m['about.missionText']?.()}</p>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{t.about.toolsSection}</h2>
-          <p className="text-muted-foreground mb-4">{t.about.toolsIntro}</p>
+          <h2 className="text-xl font-semibold mb-4">{m['about.toolsSection']?.()}</h2>
+          <p className="text-muted-foreground mb-4">{m['about.toolsIntro']?.()}</p>
           <ul className="space-y-2 text-muted-foreground">
-            <li>• {t.tools.metronome}</li>
-            <li>• {t.tools.drumMachine}</li>
-            <li>• {t.tools.qrGenerator}</li>
-            <li>• {t.tools.translator}</li>
+            <li>• {m['tools.metronome']?.()}</li>
+            <li>• {m['tools.drumMachine']?.()}</li>
+            <li>• {m['tools.qrGenerator']?.()}</li>
+            <li>• {m['tools.translator']?.()}</li>
           </ul>
         </section>
       </div>
