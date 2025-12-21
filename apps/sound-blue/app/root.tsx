@@ -17,6 +17,20 @@ import { setLocale } from '~/paraglide/runtime';
 
 import './app.css';
 
+/**
+ * Safely set locale for both SSR and client
+ */
+function safeSetLocale(locale: 'en' | 'ko') {
+  try {
+    if (typeof setLocale === 'function') {
+      setLocale(locale);
+    }
+  } catch (error) {
+    // Ignore errors during SSR/prerendering
+    console.debug('setLocale error (expected during SSR):', error);
+  }
+}
+
 export const links: LinksFunction = () => [
   { rel: 'icon', href: '/favicon.ico' },
   { rel: 'apple-touch-icon', href: '/icons/icon-192.png' },
@@ -66,7 +80,7 @@ function AppContent() {
   // Sync Paraglide locale with URL
   useEffect(() => {
     const locale = getLocaleFromPath(location.pathname);
-    setLocale(locale);
+    safeSetLocale(locale);
   }, [location.pathname]);
 
   return (
@@ -86,7 +100,7 @@ export function ErrorBoundary() {
 
   // Sync Paraglide locale with URL
   const locale = getLocaleFromPath(location.pathname);
-  setLocale(locale);
+  safeSetLocale(locale);
 
   let message = m['common.errorTitle']();
   let details = m['common.errorUnexpected']();

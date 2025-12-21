@@ -1,4 +1,4 @@
-import { useNavigate } from '@solidjs/router';
+import { A, useNavigate } from '@solidjs/router';
 import {
   Activity,
   FileText,
@@ -119,22 +119,22 @@ export const ToolSidebar: Component = () => {
               isCollapsed() && 'left-0 right-auto w-48',
             )}
           >
-            <a
+            <A
               href={getLocalizedPath('/about', locale())}
               class={MENU_ITEM_CLASS}
               onClick={() => setMoreMenuOpen(false)}
             >
               <Info class="h-4 w-4" />
               <span>{t().navigation.about}</span>
-            </a>
-            <a
+            </A>
+            <A
               href={getLocalizedPath('/benchmark', locale())}
               class={MENU_ITEM_CLASS}
               onClick={() => setMoreMenuOpen(false)}
             >
               <Activity class="h-4 w-4" />
               <span>{t().sidebar.benchmark}</span>
-            </a>
+            </A>
             <a
               href="/sitemap.xml"
               target="_blank"

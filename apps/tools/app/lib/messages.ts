@@ -10,7 +10,9 @@ import enMessagesRaw from '../../project.inlang/messages/en.json';
 import koMessagesRaw from '../../project.inlang/messages/ko.json';
 
 // Handle both ESM and CommonJS JSON imports
+// biome-ignore lint/suspicious/noExplicitAny: Required for ESM/CommonJS compatibility
 const enMessages = (enMessagesRaw as any).default || enMessagesRaw;
+// biome-ignore lint/suspicious/noExplicitAny: Required for ESM/CommonJS compatibility
 const koMessages = (koMessagesRaw as any).default || koMessagesRaw;
 
 type MessageKey = keyof typeof enMessages;

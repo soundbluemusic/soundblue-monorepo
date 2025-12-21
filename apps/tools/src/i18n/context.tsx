@@ -14,6 +14,7 @@ import {
 } from '@soundblue/shared/providers';
 import { createMemo, type ParentComponent } from 'solid-js';
 import { getRequestEvent, isServer } from 'solid-js/web';
+import { useNavigate } from '@solidjs/router';
 import enMessages from '../../messages/en.json';
 import koMessages from '../../messages/ko.json';
 
@@ -77,15 +78,6 @@ function getPathname(): string {
 }
 
 /**
- * Navigate to path (client-side only)
- */
-function navigateTo(path: string): void {
-  if (!isServer && typeof window !== 'undefined') {
-    window.location.href = path;
-  }
-}
-
-/**
  * I18n Provider for Tools app.
  *
  * @example
@@ -99,8 +91,11 @@ export const LanguageProvider: ParentComponent = (props) => {
   // Create reactive pathname accessor
   const pathname = createMemo(() => getPathname());
 
+  // Use SolidJS Router navigation for SPA routing
+  const navigate = useNavigate();
+
   return (
-    <SharedI18nProvider messages={messages} pathname={pathname} navigate={navigateTo}>
+    <SharedI18nProvider messages={messages} pathname={pathname} navigate={navigate}>
       {props.children}
     </SharedI18nProvider>
   );
