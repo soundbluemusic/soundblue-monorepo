@@ -1,4 +1,5 @@
 import type { MetaFunction } from 'react-router';
+import { NavigationLayout } from '~/components/layout';
 import { useI18n } from '~/i18n';
 
 export const meta: MetaFunction = () => [
@@ -9,28 +10,26 @@ export const meta: MetaFunction = () => [
 export default function BuiltWithKo() {
   const { t } = useI18n();
   return (
-    <div className="app-layout">
-      <main className="main-content">
-        <div className="max-w-3xl mx-auto p-6">
-          <h1 className="text-3xl font-bold mb-8">{t.builtWith.title}</h1>
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">{t.builtWith.sections.frameworks}</h2>
-            <ul className="space-y-2 text-content-muted">
-              <li>React 19</li>
-              <li>React Router v7</li>
-              <li>TypeScript</li>
-              <li>Tailwind CSS v4</li>
-            </ul>
-          </section>
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">{t.builtWith.sections.deployment}</h2>
-            <ul className="space-y-2 text-content-muted">
-              <li>Cloudflare Pages</li>
-              <li>100% SSG (정적 사이트 생성)</li>
-            </ul>
-          </section>
-        </div>
-      </main>
-    </div>
+    <NavigationLayout>
+      <div className="max-w-3xl mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-8">{t.builtWith.title}</h1>
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">{t.builtWith.sections.frameworks}</h2>
+          <ul className="space-y-2 text-content-muted">
+            <li>React 19</li>
+            <li>React Router v7</li>
+            <li>TypeScript</li>
+            <li>Tailwind CSS v4</li>
+          </ul>
+        </section>
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">{t.builtWith.sections.deployment}</h2>
+          <ul className="space-y-2 text-content-muted">
+            <li>Cloudflare Pages</li>
+            <li>100% SSG (정적 사이트 생성)</li>
+          </ul>
+        </section>
+      </div>
+    </NavigationLayout>
   );
 }

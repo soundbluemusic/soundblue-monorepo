@@ -1,4 +1,5 @@
 import type { MetaFunction } from 'react-router';
+import { NavigationLayout } from '~/components/layout';
 import { useI18n } from '~/i18n';
 
 export const meta: MetaFunction = () => [
@@ -14,38 +15,36 @@ export default function HomeKo() {
   const { t } = useI18n();
 
   return (
-    <div className="app-layout">
-      <main className="main-content">
-        <div className="min-h-screen flex flex-col items-center justify-center p-8">
-          <div className="animate-slide-up text-center max-w-2xl">
-            <h1 className="text-5xl md:text-6xl font-bold text-content mb-4">{t.home.title}</h1>
-            <p className="text-xl md:text-2xl text-content-muted mb-6">{t.home.tagline}</p>
-            <p className="text-base text-(--color-text-tertiary) mb-8">{t.home.genres}</p>
+    <NavigationLayout>
+      <div className="min-h-screen flex flex-col items-center justify-center p-8">
+        <div className="animate-slide-up text-center max-w-2xl">
+          <h1 className="text-5xl md:text-6xl font-bold text-content mb-4">{t.home.title}</h1>
+          <p className="text-xl md:text-2xl text-content-muted mb-6">{t.home.tagline}</p>
+          <p className="text-base text-(--color-text-tertiary) mb-8">{t.home.genres}</p>
 
-            <div className="flex flex-wrap justify-center gap-4">
-              <a
-                href="https://www.youtube.com/@SoundBlueMusic"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-link social-youtube"
-              >
-                <YoutubeIcon />
-                <span>{t.home.cta}</span>
-              </a>
-              <a
-                href="https://soundblue.music"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-link social-discography"
-              >
-                <MusicIcon />
-                <span>{t.home.discography}</span>
-              </a>
-            </div>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a
+              href="https://www.youtube.com/@SoundBlueMusic"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-link social-youtube"
+            >
+              <YoutubeIcon />
+              <span>{t.home.cta}</span>
+            </a>
+            <a
+              href="https://soundblue.music"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-link social-discography"
+            >
+              <MusicIcon />
+              <span>{t.home.discography}</span>
+            </a>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </NavigationLayout>
   );
 }
 
