@@ -53,7 +53,7 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
     };
 
     generateQR();
-  }, [settings, m['qr.generationFailed']?.()]);
+  }, [settings]);
 
   const downloadQR = useCallback(() => {
     const canvas = canvasRef.current;

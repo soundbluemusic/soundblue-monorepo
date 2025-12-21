@@ -2,7 +2,7 @@
 
 import { useParaglideI18n, useTheme } from '@soundblue/shared-react';
 import { Code2, FileText, Globe, Info, Menu, Moon, Search, Sun, X } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '~/components/ui/button';
 import m from '~/lib/messages';
@@ -22,8 +22,8 @@ export function HomeLayout() {
   const [searchQuery, setSearchQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Filter tools based on search query
-  const filteredTools = () => {
+  // Filter tools based on search query (memoized)
+  const filteredTools = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return ALL_TOOLS;
 
@@ -35,7 +35,7 @@ export function HomeLayout() {
         tool.description.en.toLowerCase().includes(query);
       return nameMatch || descMatch;
     });
-  };
+  }, [searchQuery]);
 
   const handleToolClick = (tool: ToolInfo) => {
     openTool(tool.id);
@@ -172,7 +172,7 @@ export function HomeLayout() {
 
           {/* Tools Grid */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-6">
-            {filteredTools().map((tool) => (
+            {filteredTools.map((tool) => (
               <button
                 key={tool.id}
                 type="button"
@@ -210,7 +210,7 @@ export function HomeLayout() {
           </div>
 
           {/* Empty State */}
-          {filteredTools().length === 0 && (
+          {filteredTools.length === 0 && (
             <div className="py-12 text-center">
               <p className="text-muted-foreground">
                 {locale === 'ko' ? '검색 결과가 없습니다' : 'No tools found'}
