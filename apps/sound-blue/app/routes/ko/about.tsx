@@ -7,7 +7,6 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function AboutKo() {
-  
   return (
     <NavigationLayout>
       <div className="max-w-3xl mx-auto p-6">

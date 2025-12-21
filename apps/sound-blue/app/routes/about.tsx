@@ -10,8 +10,6 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function About() {
-  
-
   return (
     <NavigationLayout>
       <div className="max-w-3xl mx-auto p-6">

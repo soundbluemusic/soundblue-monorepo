@@ -11,8 +11,6 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function Home() {
-  
-
   return (
     <NavigationLayout>
       <div className="min-h-screen flex flex-col items-center justify-center p-8">

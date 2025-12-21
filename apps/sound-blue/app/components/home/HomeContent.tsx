@@ -2,8 +2,6 @@ import { CSSParticles } from '~/components/background';
 import { BRAND, YouTubeIcon } from '~/constants';
 import m from '~/lib/messages';
 export function HomeContent() {
-  
-
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-200px)] p-8 text-center overflow-hidden">
       <CSSParticles />
@@ -12,7 +10,9 @@ export function HomeContent() {
         <h1 className="text-3xl md:text-[3rem] font-semibold text-content m-0 mb-4">
           {BRAND.name}
         </h1>
-        <p className="text-lg md:text-xl text-content-muted m-0 mb-4 italic">{m['home.tagline']()}</p>
+        <p className="text-lg md:text-xl text-content-muted m-0 mb-4 italic">
+          {m['home.tagline']()}
+        </p>
         <p className="text-base md:text-lg text-content-muted m-0 mb-2 max-w-120 leading-relaxed">
           {m['home.description']()}
         </p>
