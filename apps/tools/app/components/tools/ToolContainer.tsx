@@ -75,13 +75,14 @@ export function ToolContainer() {
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
-      e.returnValue = m['tools.leaveWarning']?.();
-      return m['tools.leaveWarning']?.();
+      const warningMessage = m['tools.leaveWarning']?.() ?? '';
+      e.returnValue = warningMessage;
+      return warningMessage;
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isPlaying, m['tools.leaveWarning']?.()]);
+  }, [isPlaying]);
 
   // URL에서 설정 읽기 (도구 전환 시)
   useEffect(() => {

@@ -98,13 +98,16 @@ export function WorldClockWidget() {
     return getDateFormatter(timezone, locale).format(now);
   };
 
-  // 현재 로컬 날짜 (메인 캘린더용)
-  const currentDate = {
-    year: now.getFullYear(),
-    month: now.getMonth(),
-    day: now.getDate(),
-    weekday: now.getDay(),
-  };
+  // 현재 로컬 날짜 (메인 캘린더용) - 날짜 변경시에만 재계산
+  const currentDate = useMemo(
+    () => ({
+      year: now.getFullYear(),
+      month: now.getMonth(),
+      day: now.getDate(),
+      weekday: now.getDay(),
+    }),
+    [now.getFullYear(), now.getMonth(), now.getDate(), now.getDay()],
+  );
 
   // 미니 캘린더 데이터 생성 - 날짜 변경시에만 재계산
   const calendarDays = useMemo(() => {

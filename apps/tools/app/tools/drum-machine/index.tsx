@@ -78,16 +78,6 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
     [settings, handleSettingsChange],
   );
 
-  const previewDrum = useCallback(
-    async (drumId: DrumId) => {
-      await resumeAudioContext();
-      const ctx = getAudioContext();
-      playDrumSound(drumId, ctx.currentTime);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-
   const getPattern = useCallback(() => {
     return settings?.pattern ?? createEmptyPattern(settings?.steps ?? 16);
   }, [settings]);
@@ -224,6 +214,15 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
       }
     },
     [getSynthParams, settings.volume],
+  );
+
+  const previewDrum = useCallback(
+    async (drumId: DrumId) => {
+      await resumeAudioContext();
+      const ctx = getAudioContext();
+      playDrumSound(drumId, ctx.currentTime);
+    },
+    [playDrumSound],
   );
 
   const scheduler = useCallback(() => {

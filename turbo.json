@@ -5,7 +5,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".output/**", ".vinxi/**", "dist/**"],
+      "outputs": [".output/**", ".vinxi/**", "dist/**", "build/**"],
       "cache": true
     },
     "typecheck": {
