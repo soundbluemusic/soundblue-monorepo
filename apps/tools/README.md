@@ -2,8 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
-[![SolidJS](https://img.shields.io/badge/SolidJS-1.9-4F88C6.svg)](https://www.solidjs.com/)
-[![Vinxi](https://img.shields.io/badge/Vinxi-0.5-green.svg)](https://vinxi.vercel.app/)
+[![React](https://img.shields.io/badge/React-19.1-blue.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6.3-green.svg)](https://vitejs.dev/)
 
 **A free web tools platform for all creators**
 (**모든 창작자를 위한 무료 웹 도구 플랫폼**)
@@ -28,8 +28,8 @@ No sign-up required. No ads. Completely free.
   (정적 사이트 생성 - 빌드 시 모든 페이지 사전 렌더링)
 - **Deployed as static files** to Cloudflare Pages
   (Cloudflare Pages에 정적 파일로 배포)
-- **Client-side routing** with SolidJS Router (SPA navigation after initial load)
-  (SolidJS Router로 클라이언트 사이드 라우팅, 초기 로드 후 SPA 네비게이션)
+- **Client-side routing** with React Router (SPA navigation after initial load)
+  (React Router로 클라이언트 사이드 라우팅, 초기 로드 후 SPA 네비게이션)
 - **No API endpoints, no database**
   (API 엔드포인트 없음, 데이터베이스 없음)
 - **SEO optimized** - HTML includes meta tags and content at build time
@@ -122,15 +122,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 
 | Category | Technology |
 |----------|------------|
-| **Framework** | SolidStart 1.2, SolidJS 1.9, Vinxi 0.5 |
-| **Routing** | @solidjs/router 0.15 (file-based) |
+| **Framework** | React 19.1, React Router 7.6, Vite 6.3 |
+| **Routing** | React Router 7 (file-based) |
 | **Styling** | Tailwind CSS 4, Class Variance Authority |
-| **UI Components** | Kobalte (accessible primitives), custom components |
-| **State Management** | solid-js/store (createStore, createSignal) |
+| **UI Components** | Radix UI (accessible primitives), custom components |
+| **State Management** | Zustand, React hooks (useState, useReducer) |
 | **Rendering** | Canvas 2D (WebGPU planned) |
 | **Audio** | Web Audio API, AudioWorklet, Rust/WASM |
 | **MIDI** | WebMIDI API |
-| **i18n** | @solid-primitives/i18n |
+| **i18n** | @inlang/paraglide-js |
 | **Storage** | Dexie (IndexedDB), FileSystem Access API |
 | **Linter/Formatter** | Biome 2.3 |
 | **Testing** | Vitest 4, Playwright |
@@ -139,15 +139,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 
 | 카테고리 | 기술 |
 |----------|------|
-| **프레임워크** | SolidStart 1.2, SolidJS 1.9, Vinxi 0.5 |
-| **라우팅** | @solidjs/router 0.15 (파일 기반) |
+| **프레임워크** | React 19.1, React Router 7.6, Vite 6.3 |
+| **라우팅** | React Router 7 (파일 기반) |
 | **스타일링** | Tailwind CSS 4, Class Variance Authority |
-| **UI 컴포넌트** | Kobalte (접근성 프리미티브), 커스텀 컴포넌트 |
-| **상태관리** | solid-js/store (createStore, createSignal) |
+| **UI 컴포넌트** | Radix UI (접근성 프리미티브), 커스텀 컴포넌트 |
+| **상태관리** | Zustand, React hooks (useState, useReducer) |
 | **렌더링** | Canvas 2D (WebGPU 예정) |
 | **오디오** | Web Audio API, AudioWorklet, Rust/WASM |
 | **MIDI** | WebMIDI API |
-| **다국어** | @solid-primitives/i18n |
+| **다국어** | @inlang/paraglide-js |
 | **저장소** | Dexie (IndexedDB), FileSystem Access API |
 | **린터/포매터** | Biome 2.3 |
 | **테스트** | Vitest 4, Playwright |
@@ -160,13 +160,13 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 (## 프로젝트 구조)
 
 ```
-src/
-├── app.tsx             # Root app component (Router, MetaProvider)
-├── entry-client.tsx    # Client entry point
-├── entry-server.tsx    # Server entry point
+app/
+├── root.tsx            # Root app component (Router, MetaProvider)
+├── entry.client.tsx    # Client entry point
+├── entry.server.tsx    # Server entry point
 ├── globals.css         # Global styles (Tailwind base, design tokens)
 │
-├── routes/             # File-based routing (@solidjs/router)
+├── routes/             # File-based routing (React Router)
 │   ├── index.tsx       # Home (/) - Chat interface
 │   ├── [tool].tsx      # Dynamic tool page (/[tool])
 │   ├── built-with.tsx  # /built-with - Tech stack page
@@ -238,8 +238,8 @@ messages/               # Translation files (번역 파일)
 ### Tool Definition (도구 정의)
 
 ```typescript
-// src/tools/[name]/index.tsx
-import type { Component } from 'solid-js';
+// app/tools/[name]/index.tsx
+import type { FC } from 'react';
 import { registerTool } from '../registry';
 import type { ToolDefinition, ToolProps } from '../types';
 
@@ -248,10 +248,10 @@ export interface MyToolSettings {
   [key: string]: unknown;  // Required for ToolSettings compatibility
 }
 
-const MyToolComponent: Component<ToolProps<MyToolSettings>> = (props) => {
-  const settings = () => props.settings;
+const MyToolComponent: FC<ToolProps<MyToolSettings>> = (props) => {
+  const { settings } = props;
   return (
-    <div class="p-4">
+    <div className="p-4">
       {/* Component implementation */}
     </div>
   );
@@ -277,38 +277,39 @@ registerTool(myTool);  // Auto-register at module load
 
 ### Adding a New Tool (새 도구 추가)
 
-1. Create `src/tools/[name]/index.tsx` with ToolDefinition
-2. Import in `src/tools/index.ts` to trigger auto-registration
+1. Create `app/tools/[name]/index.tsx` with ToolDefinition
+2. Import in `app/tools/index.ts` to trigger auto-registration
 3. Add export: `export { myTool } from './[name]';`
 
-### SolidJS Store (상태 저장소)
+### Zustand Store (상태 저장소)
 
 ```typescript
-import { createStore } from 'solid-js/store';
+import { create } from 'zustand';
 
-interface MyState { value: number; }
-const [myStore, setMyStore] = createStore<MyState>({ value: 0 });
+interface MyState {
+  value: number;
+  setValue: (v: number) => void;
+}
 
-export const myActions = {
-  setValue: (v: number) => setMyStore('value', v),
-};
-
-export { myStore, setMyStore };
-export const useValue = () => myStore.value;
+export const useMyStore = create<MyState>((set) => ({
+  value: 0,
+  setValue: (v) => set({ value: v }),
+}));
 ```
 
 ### Event Bus - Inter-tool Communication (도구 간 통신)
 
 ```typescript
 import { emitTempoChange, onTempoChange } from '@/lib/event-bus';
+import { useEffect } from 'react';
 
 // Subscribe
-onMount(() => {
+useEffect(() => {
   const unsubscribe = onTempoChange((event) => {
     if (event.source !== instanceId) setLocalBpm(event.bpm);
   });
-  onCleanup(unsubscribe);
-});
+  return unsubscribe;
+}, []);
 
 // Emit
 emitTempoChange(newBpm, instanceId);
@@ -332,12 +333,13 @@ await resumeAudioContext();              // Resume on user interaction (required
 ### i18n - Internationalization (국제화)
 
 ```typescript
-import { useLanguage, useTranslations } from '@/i18n';
+import * as m from '@/paraglide/messages';
+import { useLanguage } from '@/i18n';
+import type { FC } from 'react';
 
-const MyComponent: Component = () => {
-  const t = useTranslations();
+const MyComponent: FC = () => {
   const { locale, toggleLocale } = useLanguage();
-  return <p>{t.common.title}</p>;
+  return <p>{m.common_title()}</p>;
 };
 ```
 
@@ -355,7 +357,8 @@ import { Button } from '@/components/ui/button';
 
 | File | Purpose |
 |------|---------|
-| `app.config.ts` | Vinxi/SolidStart config (SSG, Vite plugins, PWA) |
+| `react-router.config.ts` | React Router config (SSG, prerendering) |
+| `vite.config.ts` | Vite config (plugins, PWA) |
 | `biome.json` | Linter/formatter rules |
 | `tsconfig.json` | TypeScript config with path aliases |
 | `vitest.config.ts` | Unit test configuration |
