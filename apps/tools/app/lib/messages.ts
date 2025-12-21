@@ -5,6 +5,7 @@
  * Messages are tree-shakeable and compiled at build time.
  */
 
+// @ts-expect-error - Paraglide runtime types not available
 import { getLocale } from '~/paraglide/runtime';
 import enMessagesRaw from '../../project.inlang/messages/en.json';
 import koMessagesRaw from '../../project.inlang/messages/ko.json';
