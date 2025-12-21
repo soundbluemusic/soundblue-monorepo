@@ -83,7 +83,11 @@
     "welcome": "Hello! Which tool would you like to open?"
   },
   "language": {
-    "switchTo": "Switch to 한국어"
+    "switchTo": "Switch to 한국어",
+    "en": "EN",
+    "ko": "KO",
+    "english": "English",
+    "korean": "한국어"
   },
   "notFound": {
     "code": "404",
@@ -134,6 +138,39 @@
     "improvements": "Improvements",
     "viewDetails": "View Details",
     "hideDetails": "Hide Details",
+    "directionLabel": "Translation Direction",
+    "startPrompt": "Click the button above to start the test.",
+    "gradeLabel": "Grade",
+    "criteriaScoresTitle": "Criteria Scores",
+    "improvementsTitle": "Improvements",
+    "categoryResultsTitle": "Category Results",
+    "directions": {
+      "all": "All",
+      "koEn": "Ko→En",
+      "enKo": "En→Ko"
+    },
+    "buttonLabels": {
+      "full": "Full Test",
+      "quick": "Quick Test",
+      "running": "Testing..."
+    },
+    "labels": {
+      "input": "Input",
+      "output": "Output"
+    },
+    "stats": {
+      "passRate": "Pass Rate",
+      "testCount": "Tests",
+      "executionTime": "Time"
+    },
+    "passLabels": {
+      "passed": "PASSED (Avg 3.8+ & Pass Rate 85%+)",
+      "failed": "FAILED (Below criteria)"
+    },
+    "toggleDetails": {
+      "show": "View Details",
+      "hide": "Hide Details"
+    },
     "criteria": {
       "accuracy": "Accuracy",
       "fluency": "Fluency",
@@ -151,5 +188,29 @@
       "responseTime": "Response Time",
       "accuracy": "Accuracy"
     }
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "helpText": "Press ? anytime to show this help",
+    "categories": {
+      "transport": "Transport",
+      "navigation": "Navigation",
+      "tool": "Tools",
+      "general": "General"
+    }
+  },
+  "home": {
+    "searchPlaceholder": "Search tools...",
+    "noToolsFound": "No tools found"
+  },
+  "translator": {
+    "switchDirection": "Switch direction",
+    "languages": {
+      "ko": "한국어",
+      "en": "English"
+    }
+  },
+  "footer": {
+    "tagline": "UI/UX based on web standards"
   }
 }

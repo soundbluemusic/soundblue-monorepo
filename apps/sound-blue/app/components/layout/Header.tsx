@@ -74,10 +74,10 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
           target="_blank"
           rel="noopener noreferrer"
           className="hidden sm:inline-flex items-center justify-center gap-1.5 h-9 px-3 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          title="Tools"
+          title={t.externalLinks.tools}
         >
           <ToolsIcon className="w-4 h-4" />
-          <span>Tools</span>
+          <span>{t.externalLinks.tools}</span>
         </a>
 
         {/* Controls */}

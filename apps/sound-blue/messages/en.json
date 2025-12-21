@@ -118,6 +118,9 @@
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",
+    "errorTitle": "Oops!",
+    "errorUnexpected": "An unexpected error occurred.",
+    "errorGeneric": "Error",
     "tryAgain": "Try Again",
     "lastUpdated": "Last updated: January 2025"
   },
