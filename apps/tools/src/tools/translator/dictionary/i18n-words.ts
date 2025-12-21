@@ -79,6 +79,13 @@ export const i18nKoToEn: Record<string, string> = {
   "카테고리별 결과": "Category Results",
   "상세 결과 보기": "View Details",
   "상세 결과 숨기기": "Hide Details",
+  "번역 방향": "Translation Direction",
+  "전체": "All",
+  "한→영": "Ko→En",
+  "영→한": "En→Ko",
+  "입력": "Input",
+  "결과": "Output",
+  "실패 (기준 미달)": "FAILED (Below criteria)",
   "정확성": "Accuracy",
   "유창성": "Fluency",
   "문맥 이해": "Context",
@@ -91,7 +98,14 @@ export const i18nKoToEn: Record<string, string> = {
   "메모리 사용량": "Memory Usage",
   "렌더링 시간": "Render Time",
   "응답 시간": "Response Time",
-  "정확도": "Accuracy"
+  "정확도": "Accuracy",
+  "키보드 단축키": "Keyboard Shortcuts",
+  "트랜스포트": "Transport",
+  "네비게이션": "Navigation",
+  "도구": "Tools",
+  "일반": "General",
+  "검색 결과가 없습니다": "No tools found",
+  "방향 전환": "Switch direction"
 };
 
 /**
@@ -169,6 +183,13 @@ export const i18nEnToKo: Record<string, string> = {
   "improvements": "개선 제안",
   "view details": "상세 결과 보기",
   "hide details": "상세 결과 숨기기",
+  "translation direction": "번역 방향",
+  "all": "전체",
+  "ko→en": "한→영",
+  "en→ko": "영→한",
+  "input": "입력",
+  "output": "결과",
+  "failed (below criteria)": "실패 (기준 미달)",
   "accuracy": "정확도",
   "fluency": "유창성",
   "context": "문맥 이해",
@@ -180,5 +201,12 @@ export const i18nEnToKo: Record<string, string> = {
   "cpu usage": "CPU 사용량",
   "memory usage": "메모리 사용량",
   "render time": "렌더링 시간",
-  "response time": "응답 시간"
+  "response time": "응답 시간",
+  "keyboard shortcuts": "키보드 단축키",
+  "transport": "트랜스포트",
+  "navigation": "네비게이션",
+  "tools": "도구",
+  "general": "일반",
+  "no tools found": "검색 결과가 없습니다",
+  "switch direction": "방향 전환"
 };
