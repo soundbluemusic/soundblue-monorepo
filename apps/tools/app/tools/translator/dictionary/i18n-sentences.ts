@@ -51,6 +51,11 @@ export const i18nKoToEnSentences: Record<string, string> = {
     'Translator quality test and performance evaluation results',
   '테스트지 v3.0 기준 번역 품질 평가': 'Translation quality evaluation based on Test Suite v3.0',
   '테스트 중': 'Testing',
+  '위의 버튼을 클릭하여 테스트를 시작하세요': 'Click the button above to start the test',
+  '통과 (평균 3.8+ & 통과율 85%+)': 'PASSED (Avg 3.8+ & Pass Rate 85%+)',
+  '? 키를 눌러 언제든지 이 도움말을 볼 수 있습니다': 'Press ? anytime to show this help',
+  '도구 검색': 'Search tools',
+  '웹 표준 기반 UI/UX': 'UI/UX based on web standards',
 };
 
 /**

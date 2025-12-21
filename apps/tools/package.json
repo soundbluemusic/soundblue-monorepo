@@ -50,6 +50,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dexie": "^4.2.1",
+    "isbot": "^5",
     "lucide-react": "^0.468.0",
     "lz-string": "^1.5.0",
     "qrcode": "^1.5.4",
@@ -58,8 +59,7 @@
     "react-router": "^7.6.1",
     "tailwind-merge": "^3.4.0",
     "zod": "^3.24.1",
-    "zustand": "^5.0.6",
-    "isbot": "^5"
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.9",
@@ -74,6 +74,7 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^5.1.2",
     "@vitest/coverage-v8": "^4.0.15",
     "isbot": "^5.1.27",
     "jsdom": "^27.3.0",
