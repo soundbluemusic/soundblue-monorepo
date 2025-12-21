@@ -46,7 +46,7 @@ export function Header() {
           onClick={() => setLocale(locale === 'en' ? 'ko' : 'en')}
           className="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
-          {locale === 'en' ? '한국어' : 'English'}
+          {locale === 'en' ? t.korean : t.english}
         </button>
 
         {/* About link */}

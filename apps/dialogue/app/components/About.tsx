@@ -27,9 +27,9 @@ export function About() {
             <LogoIcon />
           </div>
           <h1 className="text-[32px] font-bold text-gray-900 dark:text-gray-100 mb-1 max-sm:text-[28px]">
-            Dialogue
+            {t.title}
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">v1.0.0</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{t.version}</p>
           <p className="text-base text-gray-600 dark:text-gray-300">{t.subtitle}</p>
         </div>
 
@@ -93,27 +93,27 @@ export function About() {
           </h2>
           <div className="flex flex-col gap-3">
             <div className="flex justify-between items-center px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Framework</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t.techFramework}</span>
               <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                React Router v7
+                {t.techFrameworkValue}
               </span>
             </div>
             <div className="flex justify-between items-center px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Language</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t.techLanguage}</span>
               <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                TypeScript
+                {t.techLanguageValue}
               </span>
             </div>
             <div className="flex justify-between items-center px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Rendering</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t.techRendering}</span>
               <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                100% SSG
+                {t.techRenderingValue}
               </span>
             </div>
             <div className="flex justify-between items-center px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">PWA</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t.techPwa}</span>
               <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                Service Worker
+                {t.techPwaValue}
               </span>
             </div>
           </div>
@@ -132,12 +132,12 @@ export function About() {
               className="flex items-center gap-3 px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 no-underline transition-colors duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/30"
             >
               <GithubIcon />
-              <span className="flex-1 text-sm">GitHub Repository</span>
+              <span className="flex-1 text-sm">{t.githubRepository}</span>
               <ExternalIcon />
             </a>
             <div className="flex items-center gap-3 px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100">
               <LicenseIcon />
-              <span className="flex-1 text-sm">MIT License</span>
+              <span className="flex-1 text-sm">{t.mitLicense}</span>
             </div>
           </div>
         </section>

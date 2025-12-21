@@ -118,6 +118,9 @@
   "common": {
     "loading": "로딩 중...",
     "error": "오류가 발생했습니다",
+    "errorTitle": "앗!",
+    "errorUnexpected": "예기치 않은 오류가 발생했습니다.",
+    "errorGeneric": "오류",
     "tryAgain": "다시 시도",
     "lastUpdated": "최종 수정일: 2025년 1월"
   },

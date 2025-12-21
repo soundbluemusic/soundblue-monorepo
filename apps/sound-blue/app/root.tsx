@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@soundblue/shared-react';
+import { getLocaleFromPath, ThemeProvider } from '@soundblue/shared-react';
 import type { LinksFunction } from 'react-router';
 import {
   isRouteErrorResponse,
@@ -7,9 +7,10 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
   useRouteError,
 } from 'react-router';
-import { I18nProvider } from '~/i18n/provider';
+import { I18nProvider, translations } from '~/i18n';
 
 import './app.css';
 
@@ -72,13 +73,18 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  let message = 'Oops!';
-  let details = 'An unexpected error occurred.';
+  const location = useLocation();
+
+  // Get locale from URL path
+  const locale = getLocaleFromPath(location.pathname) as 'en' | 'ko';
+  const t = translations[locale];
+
+  let message = t.common.errorTitle;
+  let details = t.common.errorUnexpected;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? '404' : 'Error';
-    details =
-      error.status === 404 ? 'The requested page could not be found.' : error.statusText || details;
+    message = error.status === 404 ? t.notFound.code : t.common.errorGeneric;
+    details = error.status === 404 ? t.notFound.message : error.statusText || details;
   }
 
   return (
@@ -90,7 +96,7 @@ export function ErrorBoundary() {
           href="/"
           className="inline-block px-6 py-3 bg-[var(--color-accent-primary)] text-white rounded-lg hover:bg-[var(--color-accent-hover)] transition-colors"
         >
-          Return to Home
+          {t.notFound.backHome}
         </a>
       </div>
     </main>

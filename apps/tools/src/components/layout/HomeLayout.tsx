@@ -71,7 +71,7 @@ export const HomeLayout: Component = () => {
             class="gap-1.5 px-3 text-muted-foreground hover:text-foreground"
           >
             <Globe class="h-4 w-4" />
-            <span class="text-xs font-semibold">{language() === 'ko' ? 'KO' : 'EN'}</span>
+            <span class="text-xs font-semibold">{t().language[language()]}</span>
           </Button>
 
           {/* Menu Button */}
@@ -155,7 +155,7 @@ export const HomeLayout: Component = () => {
               <Search class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
-                placeholder={locale() === 'ko' ? '도구 검색...' : 'Search tools...'}
+                placeholder={t().home.searchPlaceholder}
                 value={searchQuery()}
                 onInput={(e) => setSearchQuery(e.currentTarget.value)}
                 class={cn(
@@ -211,9 +211,7 @@ export const HomeLayout: Component = () => {
           {/* Empty State */}
           <Show when={filteredTools().length === 0}>
             <div class="py-12 text-center">
-              <p class="text-muted-foreground">
-                {locale() === 'ko' ? '검색 결과가 없습니다' : 'No tools found'}
-              </p>
+              <p class="text-muted-foreground">{t().home.noToolsFound}</p>
             </div>
           </Show>
         </div>
