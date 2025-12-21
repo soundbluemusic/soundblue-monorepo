@@ -1,5 +1,4 @@
 {
-  "$schema": "https://inlang.com/schema/inlang-message-format",
   "brand": "Tools",
   "common_error": "An error occurred",
   "common_retry": "Retry",
