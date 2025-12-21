@@ -1,4 +1,5 @@
-import { ThemeProvider } from '@soundblue/shared-react';
+import { getLocaleFromPath, ThemeProvider } from '@soundblue/shared-react';
+import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import {
   isRouteErrorResponse,
@@ -7,11 +8,28 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
   useRouteError,
 } from 'react-router';
-import { I18nProvider } from '~/i18n';
+import m from '~/lib/messages';
+// @ts-expect-error - Paraglide runtime types not available
+import { setLocale } from '~/paraglide/runtime';
 
 import './app.css';
+
+/**
+ * Safely set locale for both SSR and client
+ */
+function safeSetLocale(locale: 'en' | 'ko') {
+  try {
+    if (typeof setLocale === 'function') {
+      setLocale(locale);
+    }
+  } catch (error) {
+    // Ignore errors during SSR/prerendering
+    console.debug('setLocale error (expected during SSR):', error);
+  }
+}
 
 export const links: LinksFunction = () => [
   { rel: 'icon', href: '/favicon.png', type: 'image/png' },
@@ -64,11 +82,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function AppContent() {
+  const location = useLocation();
+
+  // Sync Paraglide locale with URL
+  useEffect(() => {
+    const locale = getLocaleFromPath(location.pathname);
+    safeSetLocale(locale);
+  }, [location.pathname]);
+
   return (
     <ThemeProvider storageKey="dialogue-theme" defaultTheme="system">
-      <I18nProvider>
-        <Outlet />
-      </I18nProvider>
+      <Outlet />
     </ThemeProvider>
   );
 }
@@ -79,14 +103,19 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
+  const location = useLocation();
+
+  // Sync Paraglide locale with URL
+  const locale = getLocaleFromPath(location.pathname);
+  safeSetLocale(locale);
+
   let message = 'Oops!';
   let details = 'An unexpected error occurred.';
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? '404' : 'Error';
-    details =
-      error.status === 404 ? 'The requested page could not be found.' : error.statusText || details;
+    message = error.status === 404 ? m['app.notFoundCode']() : 'Error';
+    details = error.status === 404 ? m['app.notFoundMessage']() : error.statusText || details;
   } else if (
     typeof process !== 'undefined' &&
     process.env.NODE_ENV === 'development' &&
@@ -105,7 +134,7 @@ export function ErrorBoundary() {
           href="/"
           className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Return to Home
+          {m['app.notFoundBackHome']()}
         </a>
         {stack && (
           <pre className="mt-8 w-full max-w-2xl p-4 overflow-x-auto text-left bg-gray-100 dark:bg-gray-800 rounded-lg text-sm">

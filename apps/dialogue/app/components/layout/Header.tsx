@@ -1,14 +1,24 @@
-import { useTheme } from '@soundblue/shared-react';
-import { useI18n } from '~/i18n';
+import { getLocaleFromPath, getLocalizedPath, useTheme } from '@soundblue/shared-react';
+import { useLocation, useNavigate } from 'react-router';
+import m from '~/lib/messages';
 
 export function Header() {
-  const { t, locale, setLocale } = useI18n();
   const { resolvedTheme, toggleTheme } = useTheme();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const locale = getLocaleFromPath(location.pathname) as 'en' | 'ko';
+
+  const toggleLocale = () => {
+    const newLocale = locale === 'en' ? 'ko' : 'en';
+    const currentPath = location.pathname.replace(/^\/(ko|en)/, '') || '/';
+    const newPath = getLocalizedPath(currentPath, newLocale);
+    navigate(newPath);
+  };
 
   return (
     <header className="h-14 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
       <div className="flex items-center gap-2">
-        <span className="text-xl font-bold">{t.title}</span>
+        <span className="text-xl font-bold">{m['app.title']()}</span>
       </div>
 
       <div className="flex items-center gap-2">
@@ -17,7 +27,7 @@ export function Header() {
           type="button"
           onClick={toggleTheme}
           className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          title={resolvedTheme === 'dark' ? t.lightMode : t.darkMode}
+          title={resolvedTheme === 'dark' ? m['app.lightMode']() : m['app.darkMode']()}
         >
           {resolvedTheme === 'dark' ? (
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -43,10 +53,10 @@ export function Header() {
         {/* Language toggle */}
         <button
           type="button"
-          onClick={() => setLocale(locale === 'en' ? 'ko' : 'en')}
+          onClick={toggleLocale}
           className="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
-          {locale === 'en' ? t.korean : t.english}
+          {locale === 'en' ? m['app.korean']() : m['app.english']()}
         </button>
 
         {/* About link */}
@@ -54,7 +64,7 @@ export function Header() {
           href={locale === 'ko' ? '/ko/about' : '/about'}
           className="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
-          {t.about}
+          {m['app.about']()}
         </a>
       </div>
     </header>

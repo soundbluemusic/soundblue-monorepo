@@ -1,8 +1,7 @@
-import { useTheme } from '@soundblue/shared-react';
+import { getLocaleFromPath, getLocalizedPath, useTheme } from '@soundblue/shared-react';
 import { useCallback, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import type { Locale } from '~/i18n';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import type { Conversation } from '~/stores';
 import { useChatStore, useUIStore } from '~/stores';
 
@@ -24,7 +23,7 @@ interface SidebarProps {
 export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t, locale, setLocale } = useI18n();
+  const locale = getLocaleFromPath(location.pathname) as 'en' | 'ko';
   const { resolvedTheme, toggleTheme } = useTheme();
 
   const {
@@ -41,43 +40,21 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
 
   const [moreExpanded, setMoreExpanded] = useState(false);
 
-  const languages: { code: Locale; label: string; flag: string }[] = [
-    { code: 'en', label: t.english, flag: 'EN' },
-    { code: 'ko', label: t.korean, flag: 'KO' },
+  const languages: { code: 'en' | 'ko'; label: string; flag: string }[] = [
+    { code: 'en', label: m['app.english'](), flag: 'EN' },
+    { code: 'ko', label: m['app.korean'](), flag: 'KO' },
   ];
 
-  const getPathWithoutLocale = useCallback(() => {
-    const pathname = location.pathname;
-    if (pathname.startsWith('/ko')) {
-      return pathname.slice(3) || '/';
-    }
-    return pathname;
-  }, [location.pathname]);
-
-  const buildLocalizedPath = useCallback(
-    (newLocale: Locale) => {
-      const basePath = getPathWithoutLocale();
-      if (newLocale === 'en') {
-        return basePath;
-      }
-      if (basePath === '/') {
-        return `/${newLocale}`;
-      }
-      return `/${newLocale}${basePath}`;
-    },
-    [getPathWithoutLocale],
-  );
-
   const handleLanguageChange = useCallback(
-    (lang: Locale) => {
-      setLocale(lang);
-      const newPath = buildLocalizedPath(lang);
-      navigate(newPath, { replace: true });
+    (newLocale: 'en' | 'ko') => {
+      const currentPath = location.pathname.replace(/^\/(ko|en)/, '') || '/';
+      const newPath = getLocalizedPath(currentPath, newLocale);
+      navigate(newPath);
     },
-    [setLocale, buildLocalizedPath, navigate],
+    [location.pathname, navigate],
   );
 
-  const getAboutUrl = () => (locale === 'en' ? '/about' : `/${locale}/about`);
+  const getAboutUrl = () => getLocalizedPath('/about', locale);
 
   const handleLoadConversation = useCallback(
     (conv: Conversation) => {
@@ -122,13 +99,15 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
         }`}
       >
         {!sidebarCollapsed && (
-          <h2 className="font-semibold text-sm text-gray-900 dark:text-gray-100">{t.history}</h2>
+          <h2 className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+            {m['app.history']()}
+          </h2>
         )}
         <button
           type="button"
           onClick={toggleSidebarCollapse}
           className={`p-1.5 rounded-lg transition-all duration-200 text-gray-500 dark:text-gray-400 ${HOVER_STYLES}`}
-          aria-label={sidebarCollapsed ? t.expandSidebar : t.collapseSidebar}
+          aria-label={sidebarCollapsed ? m['app.expandSidebar']() : m['app.collapseSidebar']()}
         >
           {sidebarCollapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
         </button>
@@ -143,10 +122,10 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
           className={`w-full flex items-center gap-3 px-3 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-700 active:scale-[0.98] ${
             sidebarCollapsed ? 'justify-center' : ''
           }`}
-          title={sidebarCollapsed ? t.newChat : undefined}
+          title={sidebarCollapsed ? m['app.newChat']() : undefined}
         >
           <PlusIcon />
-          {!sidebarCollapsed && <span>{t.newChat}</span>}
+          {!sidebarCollapsed && <span>{m['app.newChat']()}</span>}
         </button>
 
         {/* Ghost Mode Toggle */}
@@ -160,14 +139,14 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
               ? 'bg-purple-500/20 text-purple-400'
               : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
-          title={sidebarCollapsed ? t.ghostMode : undefined}
+          title={sidebarCollapsed ? m['app.ghostMode']() : undefined}
         >
           <GhostIcon />
           {!sidebarCollapsed && (
             <>
               <div className="flex-1 text-left">
-                <div className="font-medium">{t.ghostMode}</div>
-                {ghostMode && <div className="text-xs opacity-70">{t.ghostModeDesc}</div>}
+                <div className="font-medium">{m['app.ghostMode']()}</div>
+                {ghostMode && <div className="text-xs opacity-70">{m['app.ghostModeDesc']()}</div>}
               </div>
               {ghostMode && <CheckIcon />}
             </>
@@ -192,7 +171,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
                   >
                     <ChatIcon />
                     <div className="flex-1 text-left overflow-hidden">
-                      <div className="truncate text-sm">{conv.title || t.untitled}</div>
+                      <div className="truncate text-sm">{conv.title || m['app.untitled']()}</div>
                       <div className="text-xs text-gray-400 dark:text-gray-500">
                         {formatDate(conv.updatedAt)}
                       </div>
@@ -201,7 +180,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
                       type="button"
                       onClick={(e) => handleDeleteConversation(e, conv.id)}
                       className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 hover:text-red-400 transition-all cursor-pointer"
-                      title={t.deleteChat}
+                      title={m['app.deleteChat']()}
                     >
                       <TrashIcon />
                     </button>
@@ -210,7 +189,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
               </div>
             ) : (
               <div className="px-3 py-4 text-xs text-gray-400 dark:text-gray-500 text-center">
-                {t.noHistory}
+                {m['app.noHistory']()}
               </div>
             )}
           </div>
@@ -233,7 +212,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             onClick={() => setMoreExpanded(!moreExpanded)}
             className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-500 transition-colors"
           >
-            <span>─── {t.more} ───</span>
+            <span>─── {m['app.more']()} ───</span>
             <ChevronIcon expanded={moreExpanded} />
           </button>
         )}
@@ -251,7 +230,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
                 {resolvedTheme === 'dark' ? <MoonIcon /> : <SunIcon />}
               </span>
               <span className="flex-1 text-left text-gray-900 dark:text-gray-100">
-                {resolvedTheme === 'dark' ? t.darkMode : t.lightMode}
+                {resolvedTheme === 'dark' ? m['app.darkMode']() : m['app.lightMode']()}
               </span>
             </button>
 
@@ -292,7 +271,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
               type="button"
               onClick={toggleTheme}
               className="w-full flex justify-center p-2 rounded-lg text-gray-500 dark:text-gray-400 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              title={resolvedTheme === 'dark' ? t.lightMode : t.darkMode}
+              title={resolvedTheme === 'dark' ? m['app.lightMode']() : m['app.darkMode']()}
             >
               {resolvedTheme === 'dark' ? <MoonIcon /> : <SunIcon />}
             </button>
@@ -306,10 +285,10 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             className={`${MENU_ITEM_CLASS} text-gray-600 dark:text-gray-400 ${
               sidebarCollapsed ? 'justify-center' : ''
             }`}
-            title={sidebarCollapsed ? t.about : undefined}
+            title={sidebarCollapsed ? m['app.about']() : undefined}
           >
             <InfoIcon />
-            {!sidebarCollapsed && <span>{t.about}</span>}
+            {!sidebarCollapsed && <span>{m['app.about']()}</span>}
           </Link>
 
           {/* Offline Badge */}
@@ -319,7 +298,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             }`}
           >
             <OfflineIcon />
-            {!sidebarCollapsed && <span>{t.offline}</span>}
+            {!sidebarCollapsed && <span>{m['app.offline']()}</span>}
           </div>
         </div>
       </div>

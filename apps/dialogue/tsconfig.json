@@ -14,7 +14,6 @@
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
-    "noUncheckedIndexedAccess": true,
     "paths": {
       "~/*": ["./app/*"]
     },
