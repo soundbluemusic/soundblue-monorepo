@@ -14,9 +14,9 @@
   },
   "scripts": {
     "dev": "react-router dev",
-    "build": "react-router build && pnpm dlx tsx scripts/generate-sitemaps.ts",
+    "build": "react-router build && tsx scripts/generate-sitemaps.ts",
     "prebuild": "pnpm run generate:i18n-dict",
-    "generate:i18n-dict": "pnpm dlx tsx scripts/generate-i18n-dictionary.ts",
+    "generate:i18n-dict": "tsx scripts/generate-i18n-dictionary.ts",
     "start": "npx serve build/client -s -L",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
@@ -34,7 +34,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "wasm:build": "cd rust && wasm-pack build --target web --out-dir ../app/engine/wasm/pkg",
-    "images:optimize": "pnpm dlx tsx scripts/optimize-images.ts",
+    "images:optimize": "tsx scripts/optimize-images.ts",
     "clean": "rm -rf build .turbo node_modules/.cache",
     "analyze": "ANALYZE=true pnpm build"
   },
@@ -80,6 +80,7 @@
     "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.1.18",
+    "tsx": "^4.20.0",
     "typescript": "^5.9.3",
     "vite": "^6.3.5",
     "vite-plugin-pwa": "^1.2.0",
