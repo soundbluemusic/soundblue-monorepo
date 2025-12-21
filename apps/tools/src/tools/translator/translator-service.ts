@@ -477,7 +477,11 @@ function translateTokensWithNlp(
     }
 
     // 일반 형태소 분해 번역
-    resultParts.push(translateSingleToken(currentToken));
+    const translated = translateSingleToken(currentToken);
+    // 빈 문자열은 추가하지 않음 (i 버그 수정)
+    if (translated && translated.trim()) {
+      resultParts.push(translated);
+    }
   }
 
   // 결과 후처리 (a/an 처리, 중복 공백 제거)
@@ -541,6 +545,16 @@ function translateSingleTokenWithWsd(token: string, wsd: WsdResult): string {
  * 단일 토큰 번역 (형태소 분해)
  */
 function translateSingleToken(token: string): string {
+  // 빈 토큰이나 단독 조사는 빈 문자열 반환 (i 버그 수정)
+  if (!token || token.length === 0) {
+    return '';
+  }
+
+  // 단독 주격/목적격 조사는 번역하지 않음 (i 버그 수정)
+  if (token === '이' || token === '가' || token === '을' || token === '를' || token === '은' || token === '는') {
+    return '';
+  }
+
   // 0. 의성어/의태어 체크
   const onoTranslation = koOnomatopoeia[token];
   if (onoTranslation) {
