@@ -1,3 +1,4 @@
+import { paraglide } from '@inlang/paraglide-js-adapter-vite';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -8,6 +9,10 @@ const isAnalyze = process.env['ANALYZE'] === 'true';
 
 export default defineConfig({
   plugins: [
+    paraglide({
+      project: './project.inlang',
+      outdir: './app/paraglide',
+    }),
     tailwindcss(),
     reactRouter(),
     VitePWA({
