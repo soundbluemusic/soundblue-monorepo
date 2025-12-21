@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import { generateId, type Message, useChatStore } from '~/stores';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 
 export function ChatContainer() {
-  const { t } = useI18n();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isThinking, setIsThinking] = useState(false);
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
@@ -33,7 +32,7 @@ export function ChatContainer() {
       const welcomeMessage: Message = {
         id: generateId(),
         role: 'assistant',
-        content: t.welcome,
+        content: m['app.welcome'](),
         timestamp: Date.now(),
       };
       createConversation(welcomeMessage);
@@ -45,19 +44,12 @@ export function ChatContainer() {
         {
           id: generateId(),
           role: 'assistant',
-          content: t.welcome,
+          content: m['app.welcome'](),
           timestamp: Date.now(),
         },
       ]);
     }
-  }, [
-    isHydrated,
-    activeConversationId,
-    ghostMode,
-    t.welcome,
-    createConversation,
-    localMessages.length,
-  ]);
+  }, [isHydrated, activeConversationId, ghostMode, createConversation, localMessages.length]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -88,7 +80,7 @@ export function ChatContainer() {
       const assistantMessage: Message = {
         id: generateId(),
         role: 'assistant',
-        content: t.noResults,
+        content: m['app.noResults'](),
         timestamp: Date.now(),
       };
 
@@ -100,7 +92,7 @@ export function ChatContainer() {
 
       setIsThinking(false);
     },
-    [ghostMode, addMessage, t.noResults],
+    [ghostMode, addMessage],
   );
 
   // Handle new chat
@@ -110,7 +102,7 @@ export function ChatContainer() {
         {
           id: generateId(),
           role: 'assistant',
-          content: t.welcome,
+          content: m['app.welcome'](),
           timestamp: Date.now(),
         },
       ]);
@@ -119,18 +111,18 @@ export function ChatContainer() {
       const welcomeMessage: Message = {
         id: generateId(),
         role: 'assistant',
-        content: t.welcome,
+        content: m['app.welcome'](),
         timestamp: Date.now(),
       };
       createConversation(welcomeMessage);
     }
-  }, [ghostMode, clearActive, createConversation, t.welcome]);
+  }, [ghostMode, clearActive, createConversation]);
 
   // Show loading state while hydrating
   if (!isHydrated) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">{t.thinking}</div>
+        <div className="animate-pulse text-gray-400">{m['app.thinking']()}</div>
       </div>
     );
   }
@@ -140,13 +132,13 @@ export function ChatContainer() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div>
-          <h1 className="text-xl font-semibold">{t.title}</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{t.subtitle}</p>
+          <h1 className="text-xl font-semibold">{m['app.title']()}</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{m['app.subtitle']()}</p>
         </div>
         <div className="flex items-center gap-2">
           {ghostMode && (
             <span className="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded">
-              {t.ghostMode}
+              {m['app.ghostMode']()}
             </span>
           )}
           <button
@@ -154,7 +146,7 @@ export function ChatContainer() {
             onClick={handleNewChat}
             className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            {t.newChat}
+            {m['app.newChat']()}
           </button>
         </div>
       </div>
@@ -170,7 +162,7 @@ export function ChatContainer() {
               D
             </div>
             <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-bl-md">
-              <span className="animate-pulse">{t.thinking}</span>
+              <span className="animate-pulse">{m['app.thinking']()}</span>
             </div>
           </div>
         )}

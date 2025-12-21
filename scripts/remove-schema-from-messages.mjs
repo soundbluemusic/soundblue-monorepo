@@ -5,9 +5,9 @@ function removeSchema(filePath) {
   console.log(`Processing: ${filePath}`);
   const content = readFileSync(filePath, 'utf-8');
   const json = JSON.parse(content);
-  
+
   delete json.$schema;
-  
+
   writeFileSync(filePath, JSON.stringify(json, null, 2), 'utf-8');
   console.log(`✅ Removed $schema from: ${filePath}`);
 }

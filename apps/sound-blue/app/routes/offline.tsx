@@ -4,7 +4,6 @@ import m from '~/lib/messages';
 export const meta: MetaFunction = () => [{ title: 'Offline | Sound Blue' }];
 
 export default function Offline() {
-  
   return (
     <NavigationLayout>
       <div className="min-h-screen flex items-center justify-center p-4">

@@ -45,11 +45,11 @@ function flattenI18nFile(inputPath, outputPath) {
 const soundBlueBase = 'apps/sound-blue';
 flattenI18nFile(
   join(soundBlueBase, 'messages/en.json'),
-  join(soundBlueBase, 'project.inlang/messages/en.json')
+  join(soundBlueBase, 'project.inlang/messages/en.json'),
 );
 flattenI18nFile(
   join(soundBlueBase, 'messages/ko.json'),
-  join(soundBlueBase, 'project.inlang/messages/ko.json')
+  join(soundBlueBase, 'project.inlang/messages/ko.json'),
 );
 
 console.log('');
@@ -58,11 +58,11 @@ console.log('');
 const toolsBase = 'apps/tools';
 flattenI18nFile(
   join(toolsBase, 'messages/en.json'),
-  join(toolsBase, 'project.inlang/messages/en.json')
+  join(toolsBase, 'project.inlang/messages/en.json'),
 );
 flattenI18nFile(
   join(toolsBase, 'messages/ko.json'),
-  join(toolsBase, 'project.inlang/messages/ko.json')
+  join(toolsBase, 'project.inlang/messages/ko.json'),
 );
 
 console.log('\n🎉 All files flattened successfully!');

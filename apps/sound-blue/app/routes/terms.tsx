@@ -10,7 +10,6 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function Terms() {
-  
   return (
     <NavigationLayout>
       <div className="max-w-3xl mx-auto p-6 prose">

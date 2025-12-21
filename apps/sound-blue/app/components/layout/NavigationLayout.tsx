@@ -1,9 +1,9 @@
 import { type ReactNode, useState } from 'react';
 import { BottomNav, Sidebar } from '~/components/navigation';
+import m from '~/lib/messages';
 import { cn } from '~/lib/utils';
 import { Footer } from './Footer';
 import { Header } from './Header';
-import m from '~/lib/messages';
 
 interface NavigationLayoutProps {
   children: ReactNode;
@@ -11,7 +11,6 @@ interface NavigationLayoutProps {
 
 export function NavigationLayout({ children }: NavigationLayoutProps) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
-  
 
   return (
     <div className="app-layout">

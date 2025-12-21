@@ -1,7 +1,7 @@
+import { useParaglideI18n } from '@soundblue/shared-react';
 import type { MetaFunction } from 'react-router';
 import { Link } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
-import { useParaglideI18n } from '@soundblue/shared-react';
 import m from '~/lib/messages';
 export const meta: MetaFunction = () => [
   { title: 'Sitemap | Sound Blue' },

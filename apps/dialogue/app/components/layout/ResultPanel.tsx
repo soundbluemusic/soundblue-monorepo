@@ -1,4 +1,4 @@
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import { useUIStore } from '~/stores';
 
 // ========================================
@@ -6,7 +6,6 @@ import { useUIStore } from '~/stores';
 // ========================================
 
 export function ResultPanel() {
-  const { t } = useI18n();
   const { resultContent, closeResultPanel } = useUIStore();
 
   return (
@@ -29,7 +28,7 @@ export function ResultPanel() {
               type="button"
               onClick={closeResultPanel}
               className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 transition-all duration-200 hover:bg-red-500/10 hover:text-red-500 active:scale-95"
-              aria-label={t.closePanel}
+              aria-label={m['app.closePanel']()}
             >
               <CloseIcon />
             </button>
@@ -45,7 +44,7 @@ export function ResultPanel() {
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 p-8">
           <DocumentIcon />
-          <p className="mt-4 text-sm text-center">{t.resultsPanelEmptyState}</p>
+          <p className="mt-4 text-sm text-center">{m['app.resultsPanelEmptyState']()}</p>
         </div>
       )}
     </div>

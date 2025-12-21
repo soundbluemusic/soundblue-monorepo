@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import { useUIStore } from '~/stores';
 import { ChatContainer } from '../chat/ChatContainer';
 import { Header } from './Header';
@@ -26,7 +26,6 @@ const TAB_ACTIVE_CLASS =
 const TAB_INACTIVE_CLASS = 'text-gray-500 dark:text-gray-400';
 
 export function MainLayout() {
-  const { t } = useI18n();
   const [isMobile, setIsMobile] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'result'>('chat');
@@ -133,7 +132,7 @@ export function MainLayout() {
             type="button"
             className="fixed inset-0 z-40 bg-black/50 md:hidden border-none cursor-default"
             onClick={() => setSidebarOpen(false)}
-            aria-label={t.closeSidebar}
+            aria-label={m['app.closeSidebar']()}
           />
         )}
 
@@ -157,14 +156,14 @@ export function MainLayout() {
                 onClick={() => setActiveTab('chat')}
                 className={`${TAB_BASE_CLASS} ${activeTab === 'chat' ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
               >
-                {t.title}
+                {m['app.title']()}
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('result')}
                 className={`${TAB_BASE_CLASS} ${activeTab === 'result' ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
               >
-                {t.results}
+                {m['app.results']()}
               </button>
             </div>
 
@@ -189,7 +188,7 @@ export function MainLayout() {
                 onMouseDown={handleResizeStart}
                 role="slider"
                 aria-orientation="vertical"
-                aria-label={t.resizeChatPanel}
+                aria-label={m['app.resizeChatPanel']()}
                 aria-valuenow={chatWidth}
                 aria-valuemin={CHAT_WIDTH.min}
                 aria-valuemax={CHAT_WIDTH.max}
@@ -214,9 +213,9 @@ export function MainLayout() {
 
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-700 px-4 py-2 text-center text-xs text-gray-500 dark:text-gray-400">
-        <span>{t.title}</span>
+        <span>{m['app.title']()}</span>
         <span className="mx-2">·</span>
-        <span>{t.footerDescription}</span>
+        <span>{m['app.footerDescription']()}</span>
       </footer>
     </div>
   );

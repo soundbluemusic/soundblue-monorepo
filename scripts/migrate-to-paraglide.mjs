@@ -75,9 +75,12 @@ const FILES_TO_MIGRATE = {
  */
 function convertTranslationAccess(content) {
   // Match patterns like t.word.word or t.word.word.word etc.
-  return content.replace(/\bt\.([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+)/g, (match, path) => {
-    return `m['${path}']()`;
-  });
+  return content.replace(
+    /\bt\.([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+)/g,
+    (_match, path) => {
+      return `m['${path}']()`;
+    },
+  );
 }
 
 /**
@@ -101,7 +104,9 @@ function migrateFile(filePath, app) {
 
       // Check if we need useParaglideI18n
       const needsHook =
-        content.includes('toggleLanguage') || content.includes('localizedPath') || content.includes('locale');
+        content.includes('toggleLanguage') ||
+        content.includes('localizedPath') ||
+        content.includes('locale');
 
       // Find the right place to insert imports (after other imports)
       const lines = content.split('\n');
@@ -115,7 +120,9 @@ function migrateFile(filePath, app) {
 
       if (lastImportIndex >= 0) {
         // Check if @soundblue/shared-react import exists
-        const sharedReactImportIndex = lines.findIndex((line) => line.includes("from '@soundblue/shared-react'"));
+        const sharedReactImportIndex = lines.findIndex((line) =>
+          line.includes("from '@soundblue/shared-react'"),
+        );
 
         if (needsHook) {
           if (sharedReactImportIndex >= 0) {
@@ -124,7 +131,7 @@ function migrateFile(filePath, app) {
             if (!line.includes('useParaglideI18n')) {
               lines[sharedReactImportIndex] = line.replace(
                 /import\s+\{([^}]*)\}/,
-                (match, imports) => {
+                (_match, imports) => {
                   const importList = imports
                     .split(',')
                     .map((s) => s.trim())
@@ -133,12 +140,16 @@ function migrateFile(filePath, app) {
                     importList.push('useParaglideI18n');
                   }
                   return `import { ${importList.join(', ')} }`;
-                }
+                },
               );
             }
           } else {
             // Add new import for useParaglideI18n
-            lines.splice(lastImportIndex + 1, 0, "import { useParaglideI18n } from '@soundblue/shared-react';");
+            lines.splice(
+              lastImportIndex + 1,
+              0,
+              "import { useParaglideI18n } from '@soundblue/shared-react';",
+            );
             lastImportIndex++;
           }
         }
@@ -148,7 +159,10 @@ function migrateFile(filePath, app) {
         content = lines.join('\n');
       } else {
         // No imports found, add at the top
-        content = importBlock + (needsHook ? "import { useParaglideI18n } from '@soundblue/shared-react';\n" : '') + content;
+        content =
+          importBlock +
+          (needsHook ? "import { useParaglideI18n } from '@soundblue/shared-react';\n" : '') +
+          content;
       }
 
       modified = true;
@@ -158,7 +172,7 @@ function migrateFile(filePath, app) {
     if (content.includes('useI18n()')) {
       content = content.replace(
         /const\s+\{\s*([^}]+)\s*\}\s*=\s*useI18n\(\);?/g,
-        (match, destructured) => {
+        (_match, destructured) => {
           const vars = destructured
             .split(',')
             .map((v) => v.trim())
@@ -168,7 +182,7 @@ function migrateFile(filePath, app) {
             return `const { ${vars.join(', ')} } = useParaglideI18n();`;
           }
           return ''; // Remove if only 't' was used
-        }
+        },
       );
       modified = true;
     }

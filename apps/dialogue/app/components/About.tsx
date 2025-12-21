@@ -1,8 +1,10 @@
-import { Link } from 'react-router';
-import { useI18n } from '~/i18n';
+import { getLocaleFromPath } from '@soundblue/shared-react';
+import { Link, useLocation } from 'react-router';
+import m from '~/lib/messages';
 
 export function About() {
-  const { t, locale } = useI18n();
+  const location = useLocation();
+  const locale = getLocaleFromPath(location.pathname) as 'en' | 'ko';
 
   const getHomeUrl = () => {
     return locale === 'en' ? '/' : `/${locale}`;
@@ -16,7 +18,7 @@ export function About() {
           className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 no-underline rounded-lg transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400"
         >
           <BackIcon />
-          <span>{t.backToChat}</span>
+          <span>{m['app.backToChat']()}</span>
         </Link>
       </header>
 
@@ -27,16 +29,16 @@ export function About() {
             <LogoIcon />
           </div>
           <h1 className="text-[32px] font-bold text-gray-900 dark:text-gray-100 mb-1 max-sm:text-[28px]">
-            {t.title}
+            {m['app.title']()}
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{t.version}</p>
-          <p className="text-base text-gray-600 dark:text-gray-300">{t.subtitle}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{m['app.version']()}</p>
+          <p className="text-base text-gray-600 dark:text-gray-300">{m['app.subtitle']()}</p>
         </div>
 
         {/* Features Section */}
         <section className="mb-10">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-5 pb-2 border-b border-gray-200 dark:border-gray-700">
-            {t.aboutFeatures}
+            {m['app.aboutFeatures']()}
           </h2>
           <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
             <div className="p-5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -44,10 +46,10 @@ export function About() {
                 <OfflineIcon />
               </div>
               <h3 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mb-1.5">
-                {t.featureOffline}
+                {m['app.featureOffline']()}
               </h3>
               <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-normal">
-                {t.featureOfflineDesc}
+                {m['app.featureOfflineDesc']()}
               </p>
             </div>
             <div className="p-5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -55,10 +57,10 @@ export function About() {
                 <SpeedIcon />
               </div>
               <h3 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mb-1.5">
-                {t.featureInstant}
+                {m['app.featureInstant']()}
               </h3>
               <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-normal">
-                {t.featureInstantDesc}
+                {m['app.featureInstantDesc']()}
               </p>
             </div>
             <div className="p-5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -66,10 +68,10 @@ export function About() {
                 <LanguageIcon />
               </div>
               <h3 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mb-1.5">
-                {t.featureMultilang}
+                {m['app.featureMultilang']()}
               </h3>
               <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-normal">
-                {t.featureMultilangDesc}
+                {m['app.featureMultilangDesc']()}
               </p>
             </div>
             <div className="p-5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -77,10 +79,10 @@ export function About() {
                 <ThemeIcon />
               </div>
               <h3 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mb-1.5">
-                {t.featureTheme}
+                {m['app.featureTheme']()}
               </h3>
               <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-normal">
-                {t.featureThemeDesc}
+                {m['app.featureThemeDesc']()}
               </p>
             </div>
           </div>
@@ -89,31 +91,37 @@ export function About() {
         {/* Tech Stack Section */}
         <section className="mb-10">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-5 pb-2 border-b border-gray-200 dark:border-gray-700">
-            {t.aboutTech}
+            {m['app.aboutTech']()}
           </h2>
           <div className="flex flex-col gap-3">
             <div className="flex justify-between items-center px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t.techFramework}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {m['app.techFramework']()}
+              </span>
               <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                {t.techFrameworkValue}
+                {m['app.techFrameworkValue']()}
               </span>
             </div>
             <div className="flex justify-between items-center px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t.techLanguage}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {m['app.techLanguage']()}
+              </span>
               <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                {t.techLanguageValue}
+                {m['app.techLanguageValue']()}
               </span>
             </div>
             <div className="flex justify-between items-center px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t.techRendering}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {m['app.techRendering']()}
+              </span>
               <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                {t.techRenderingValue}
+                {m['app.techRenderingValue']()}
               </span>
             </div>
             <div className="flex justify-between items-center px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t.techPwa}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{m['app.techPwa']()}</span>
               <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                {t.techPwaValue}
+                {m['app.techPwaValue']()}
               </span>
             </div>
           </div>
@@ -122,7 +130,7 @@ export function About() {
         {/* Info Section */}
         <section className="mb-10">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-5 pb-2 border-b border-gray-200 dark:border-gray-700">
-            {t.aboutInfo}
+            {m['app.aboutInfo']()}
           </h2>
           <div className="flex flex-col gap-2">
             <a
@@ -132,19 +140,19 @@ export function About() {
               className="flex items-center gap-3 px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 no-underline transition-colors duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/30"
             >
               <GithubIcon />
-              <span className="flex-1 text-sm">{t.githubRepository}</span>
+              <span className="flex-1 text-sm">{m['app.githubRepository']()}</span>
               <ExternalIcon />
             </a>
             <div className="flex items-center gap-3 px-4.5 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100">
               <LicenseIcon />
-              <span className="flex-1 text-sm">{t.mitLicense}</span>
+              <span className="flex-1 text-sm">{m['app.mitLicense']()}</span>
             </div>
           </div>
         </section>
       </main>
 
       <footer className="px-6 py-6 text-center text-gray-500 dark:text-gray-400 text-[13px] border-t border-gray-200 dark:border-gray-700">
-        <p>{t.aboutMadeWith}</p>
+        <p>{m['app.aboutMadeWith']()}</p>
       </footer>
     </div>
   );
