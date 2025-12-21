@@ -14,6 +14,9 @@ import { I18nProvider } from '~/i18n';
 import './app.css';
 
 export const links: LinksFunction = () => [
+  { rel: 'icon', href: '/favicon.png', type: 'image/png' },
+  { rel: 'apple-touch-icon', href: '/icons/icon-192x192.png' },
+  { rel: 'manifest', href: '/manifest.json' },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
     rel: 'preconnect',
