@@ -8,11 +8,15 @@
 
 1. **100% SSG Only** - 모든 앱은 정적 사이트 생성만 사용. SSR/서버 로직 절대 금지.
    ```typescript
-   // app.config.ts 필수 설정
-   export default defineConfig({
-     ssr: false,                    // SSR 비활성화
-     server: { preset: 'static' }, // 정적 빌드
-   });
+   // react-router.config.ts 필수 설정
+   import type { Config } from '@react-router/dev/config';
+
+   export default {
+     ssr: false,  // SSR 비활성화
+     async prerender() {
+       return [/* routes */];  // 사전 렌더링할 라우트 목록
+     },
+   } satisfies Config;
    ```
 2. **오픈소스 Only** - 모든 라이브러리/도구는 오픈소스만 사용.
 3. **웹 표준 API Only** - 브라우저 표준 API만 사용. 벤더 종속 API 금지.
@@ -58,7 +62,7 @@ Ask before: removing code, changing core logic, breaking changes.
 | 1 | Test Coverage (테스트 커버리지) | Vitest + coverage-v8 (≥80%) | CI |
 | 2 | Visual Coverage (시각적 커버리지) | Playwright + pixelmatch | CI |
 | 3 | Code Health (코드 건강) | size-limit, TypeScript strict | CI |
-| 4 | Monorepo Integrity (모노레포 무결성) | madge (circular deps / 순환 의존성), syncpack (version sync / 버전 통일) | CI |
+| 4 | Monorepo Integrity (모노레포 무결성) | skott (circular deps / 순환 의존성), syncpack (version sync / 버전 통일) | CI |
 
 ### II. Performance & Reach (성능 & 도달)
 | # | Metric (지표) | Tools (도구) | When (검증 시점) |

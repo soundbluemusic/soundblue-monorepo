@@ -10,7 +10,7 @@
 |  | 🎵 Sound Blue | 🎛️ Tools | 💬 Dialogue |
 |--|---------------|----------|-------------|
 | **What** | Artist Website (아티스트 웹사이트) | Music Tools (음악 도구) | Learning Tool (학습 도구) |
-| **URL** | soundbluemusic.com | tools.soundbluemusic.com | - |
+| **URL** | soundbluemusic.com | tools.soundbluemusic.com | dialogue.soundbluemusic.com |
 
 <br>
 
@@ -53,7 +53,7 @@
 
 | Tech | Description (설명) |
 |------|-------------------|
-| **SolidJS** | Fast reactive framework (빠른 반응형 프레임워크) |
+| **React** | Fast reactive framework (빠른 반응형 프레임워크) |
 | **TypeScript** | Type-safe JavaScript (타입 안전한 자바스크립트) |
 | **Tailwind CSS** | Utility-first styling (유틸리티 기반 스타일링) |
 
@@ -86,7 +86,8 @@ soundblue-monorepo/
 │   └── dialogue/      → Learning tool (학습 도구)
 │
 └── 📦 packages/
-    └── shared/        → Shared code (공용 코드)
+    ├── shared/        → Shared code for SolidJS (SolidJS 공용 코드)
+    └── shared-react/  → Shared code for React (React 공용 코드)
 ```
 
 ---

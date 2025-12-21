@@ -6,7 +6,7 @@
 > _"hi, im sound blue, i make music."_
 
 [![Version](https://img.shields.io/badge/version-3.0.18--베타-blue)](https://github.com/soundbluemusic/sound-blue)
-[![SolidStart](https://img.shields.io/badge/SolidStart-1.2-blue)](https://start.solidjs.com/)
+[![React](https://img.shields.io/badge/React-19.1-blue)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-orange)](https://pages.cloudflare.com/)
 
@@ -19,7 +19,7 @@
 
 - All pages are pre-rendered at build time (빌드 시 모든 페이지 사전 렌더링)
 - Deployed as static files to Cloudflare Pages (Cloudflare Pages에 정적 파일로 배포)
-- Client-side routing with SolidJS Router (SolidJS Router로 클라이언트 사이드 라우팅)
+- Client-side routing with React Router (React Router로 클라이언트 사이드 라우팅)
 - No API endpoints, no database (API 엔드포인트 없음, 데이터베이스 없음)
 
 ---
@@ -32,7 +32,7 @@
 # (요구사항: Node.js >=20.0.0, pnpm 10.25.0)
 
 pnpm install          # Install dependencies (의존성 설치)
-pnpm dev              # Dev server with Vinxi (개발 서버, localhost:3000)
+pnpm dev              # Dev server with Vite (개발 서버, localhost:3000)
 pnpm build            # Production build (프로덕션 빌드)
 pnpm pages:deploy     # Deploy to Cloudflare Pages (Cloudflare Pages 배포)
 ```
@@ -45,11 +45,11 @@ pnpm pages:deploy     # Deploy to Cloudflare Pages (Cloudflare Pages 배포)
 | Category | Technology |
 | (분류) | (기술) |
 |------|------|
-| Framework (프레임워크) | SolidStart 1.2 + SolidJS 1.9 + TypeScript 5.9 |
-| Bundler (번들러) | Vinxi 0.5 |
+| Framework (프레임워크) | React 19.1 + React Router 7.6 + TypeScript 5.9 |
+| Bundler (번들러) | Vite 6.3 |
 | Styling (스타일링) | Tailwind CSS 4.x |
 | Visual Effects (시각 효과) | Pure CSS Particles (lightweight, no JS) |
-| i18n (다국어) | @solid-primitives/i18n (Korean/English) |
+| i18n (다국어) | @inlang/paraglide-js (Korean/English) |
 | PWA | vite-plugin-pwa + Workbox |
 | Code Quality (코드 품질) | Biome 2.x (Lint/Format) + Husky |
 | Testing (테스트) | Vitest 4.x + Playwright 1.57+ |
@@ -97,12 +97,12 @@ User: "라이선스 정보"
 
 ```
 sound-blue/
-├── src/                    # SolidStart source (소스 코드)
-│   ├── app.tsx             # Root app component (루트 앱 컴포넌트)
-│   ├── entry-client.tsx    # Client entry (클라이언트 진입점)
-│   ├── entry-server.tsx    # Server entry (서버 진입점)
+├── app/                    # React Router source (소스 코드)
+│   ├── root.tsx            # Root app component (루트 앱 컴포넌트)
+│   ├── entry.client.tsx    # Client entry (클라이언트 진입점)
+│   ├── entry.server.tsx    # Server entry (서버 진입점)
 │   ├── global.css          # Global styles (전역 스타일)
-│   ├── components/         # SolidJS components (SolidJS 컴포넌트)
+│   ├── components/         # React components (React 컴포넌트)
 │   │   ├── ui/             # UI components (SearchBox, ThemeIcon)
 │   │   ├── navigation/     # Sidebar, BottomNav
 │   │   ├── providers/      # Theme & i18n Providers
@@ -199,7 +199,7 @@ Optimized for AI chatbots (ChatGPT, Claude, Perplexity, Gemini) web search:
 | Command | Description |
 | (명령어) | (설명) |
 |--------|------|
-| `pnpm dev` | Vinxi dev server (Vinxi 개발 서버) |
+| `pnpm dev` | Vite dev server (Vite 개발 서버) |
 | `pnpm build` | Production build with auto sitemap generation (프로덕션 빌드, 사이트맵 자동 생성) |
 | `pnpm check:fix` | Biome lint + format auto-fix (Biome 린트 + 포맷 자동 수정) |
 | `pnpm typecheck` | TypeScript check (TypeScript 검사) |
@@ -220,16 +220,16 @@ Optimized for AI chatbots (ChatGPT, Claude, Perplexity, Gemini) web search:
 (**1. 다국어 페이지**: 영어 페이지 작성 → 한국어 페이지에서 재내보내기)
 
 ```tsx
-// src/routes/ko/privacy.tsx
+// app/routes/ko/privacy.tsx
 export { default } from '../privacy';
 ```
 
-**2. i18n**: Use `useLanguage()` hook for translations
-(**2. 다국어**: `useLanguage()` 훅으로 번역 사용)
+**2. i18n**: Use Paraglide for translations
+(**2. 다국어**: Paraglide로 번역 사용)
 
 ```tsx
-import { useLanguage } from '~/components/providers';
-const { t, isKorean, localizedPath } = useLanguage();
+import * as m from '~/paraglide/messages';
+const title = m.home_title();
 ```
 
 **3. Layout**: Wrap all pages with `NavigationLayout`
@@ -280,12 +280,12 @@ const { theme, toggleTheme, setTheme } = useTheme();
 
 ### Client-Only Components (클라이언트 전용 컴포넌트)
 
-SSG에서 브라우저 API 사용 컴포넌트는 `clientOnly` 필요:
+SSG에서 브라우저 API 사용 컴포넌트는 lazy import 사용:
 
 ```tsx
 // ComponentName.client.tsx
-import { clientOnly } from '@solidjs/start';
-export const ComponentNameClient = clientOnly(() => import('./ComponentName'));
+import { lazy } from 'react';
+export const ComponentNameClient = lazy(() => import('./ComponentName'));
 ```
 
 ### CSS Variables (CSS 변수)
