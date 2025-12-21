@@ -1,4 +1,4 @@
-import { paraglide } from '@inlang/paraglide-js-adapter-vite';
+import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -9,7 +9,7 @@ const isAnalyze = process.env['ANALYZE'] === 'true';
 
 export default defineConfig({
   plugins: [
-    paraglide({
+    paraglideVitePlugin({
       project: './project.inlang',
       outdir: './app/paraglide',
     }),
