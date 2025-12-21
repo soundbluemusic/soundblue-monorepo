@@ -36,9 +36,14 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevDirectionRef = useRef(settings.direction);
+  const isInitializedRef = useRef(false);
 
   // Load shared translation from URL on mount
   useEffect(() => {
+    if (isInitializedRef.current) return;
+    isInitializedRef.current = true;
+
     const sharedData = getSharedDataFromCurrentUrl();
     if (sharedData) {
       setInputText(sharedData.text);
@@ -52,8 +57,7 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
         window.history.replaceState({}, '', url.toString());
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [settings.direction, handleSettingsChange]);
 
   // Translate function
   const doTranslate = useCallback(() => {
@@ -88,10 +92,13 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
     };
   }, [inputText, doTranslate]);
 
-  // Re-translate when direction changes
+  // Re-translate when direction changes (not on inputText change - that's handled by debounce)
   useEffect(() => {
-    if (inputText.trim()) {
-      doTranslate();
+    if (prevDirectionRef.current !== settings.direction) {
+      prevDirectionRef.current = settings.direction;
+      if (inputText.trim()) {
+        doTranslate();
+      }
     }
   }, [settings.direction, doTranslate, inputText]);
 

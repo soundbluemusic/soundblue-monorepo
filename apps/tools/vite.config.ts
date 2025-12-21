@@ -122,8 +122,10 @@ export default defineConfig({
       output: {
         manualChunks: (id: string) => {
           if (!id.includes('node_modules')) return undefined;
+          // React core stays in main bundle for optimal loading
           if (id.includes('react') || id.includes('react-dom') || id.includes('react-router'))
             return undefined;
+          // UI components - loaded on first interaction
           if (
             id.includes('@radix-ui') ||
             id.includes('class-variance-authority') ||
@@ -131,6 +133,22 @@ export default defineConfig({
             id.includes('tailwind-merge')
           ) {
             return 'ui-vendor';
+          }
+          // IndexedDB - lazy load, only needed for persistence
+          if (id.includes('dexie')) {
+            return 'dexie-vendor';
+          }
+          // State management - separate chunk
+          if (id.includes('zustand')) {
+            return 'state-vendor';
+          }
+          // QR code library - only for QR tool
+          if (id.includes('qrcode')) {
+            return 'qrcode-vendor';
+          }
+          // Lucide icons - commonly used, separate chunk
+          if (id.includes('lucide-react')) {
+            return 'icons-vendor';
           }
           return undefined;
         },

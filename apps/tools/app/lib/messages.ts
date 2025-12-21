@@ -36,18 +36,16 @@ export function getMessage(key: MessageKey): string {
   }
 }
 
-// Create message functions - simple object without Proxy
+// Create message functions on-demand
 const createMessageFn = (key: MessageKey) => () => getMessage(key);
 
-// Export message object
-const m: Record<string, () => string> = {};
-
-// Generate all message functions
-Object.keys(enMessages).forEach((key: string) => {
-  const msgKey = key as MessageKey;
-  const dottedKey = key.replace(/_/g, '.');
-  m[dottedKey] = createMessageFn(msgKey);
-  m[key] = createMessageFn(msgKey);
+// Export message object with Proxy for on-demand function creation
+const m = new Proxy({} as Record<string, () => string>, {
+  get(_target, prop: string) {
+    // Convert dotted notation back to underscore for lookup
+    const underscoreKey = prop.replace(/\./g, '_');
+    return createMessageFn(underscoreKey as MessageKey);
+  },
 });
 
 export default m;

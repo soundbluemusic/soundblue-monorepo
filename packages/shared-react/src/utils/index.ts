@@ -10,11 +10,4 @@ export {
   hasLocalePrefix,
   type I18nPathConfig,
 } from './i18n';
-export {
-  getRawStorageItem,
-  getStorageItem,
-  getValidatedStorageItem,
-  removeStorageItem,
-  setRawStorageItem,
-  setStorageItem,
-} from './storage';
+// Storage utils require Dexie - import from '@soundblue/shared-react/storage' instead

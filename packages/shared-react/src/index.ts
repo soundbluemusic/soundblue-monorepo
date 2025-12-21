@@ -67,18 +67,7 @@ export {
   useI18n,
   useTheme,
 } from './providers';
-// Storage
-export {
-  getAllPreferences,
-  getPreference,
-  getSharedDb,
-  migrateFromLocalStorage,
-  type Preference,
-  removePreference,
-  resetDbInstance,
-  SharedDatabase,
-  setPreference,
-} from './storage';
+// Storage - import from '@soundblue/shared-react/storage' to avoid bundling Dexie
 // Types
 export {
   createMessage,
@@ -95,18 +84,12 @@ export {
   type Success,
   success,
 } from './types';
-// Utils
+// Utils (storage utils excluded - use '@soundblue/shared-react/storage' for Dexie-based storage)
 export {
   type BaseLocale,
   cn,
   createLocalizedPathBuilder,
   getOppositeLocale,
-  getRawStorageItem,
-  getStorageItem,
-  getValidatedStorageItem,
   hasLocalePrefix,
   type I18nPathConfig,
-  removeStorageItem,
-  setRawStorageItem,
-  setStorageItem,
 } from './utils';

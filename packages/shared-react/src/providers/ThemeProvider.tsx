@@ -4,7 +4,7 @@
  * Provides application-wide theme management with support for:
  * - Light, dark, and system themes
  * - System color scheme preference detection with live updates
- * - Persistent theme storage via IndexedDB
+ * - Persistent theme storage via localStorage (lightweight, no IndexedDB)
  * - SSG compatibility (safe for static site generation)
  *
  * @module @soundblue/shared-react/providers/ThemeProvider
@@ -19,7 +19,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { getPreference, migrateFromLocalStorage, setPreference } from '../storage';
 
 /**
  * Available theme options.
@@ -53,7 +52,7 @@ export interface ThemeContextValue {
  */
 export interface ThemeProviderProps {
   children: ReactNode;
-  /** IndexedDB key for persisting theme (default: 'theme') */
+  /** localStorage key for persisting theme (default: 'theme') */
   storageKey?: string;
   /** Default theme when no preference is stored (default: 'system') */
   defaultTheme?: Theme;
@@ -122,14 +121,18 @@ export function ThemeProvider({
   }, []);
 
   /**
-   * Sets theme and persists to IndexedDB.
+   * Sets theme and persists to localStorage.
    */
   const setTheme = useCallback(
     (newTheme: Theme): void => {
       if (typeof window === 'undefined') return;
       setThemeState(newTheme);
-      // Persist to IndexedDB (async, fire and forget)
-      setPreference(storageKey, newTheme);
+      // Persist to localStorage (sync)
+      try {
+        localStorage.setItem(storageKey, newTheme);
+      } catch {
+        // localStorage unavailable
+      }
       applyTheme(newTheme);
     },
     [storageKey, applyTheme],
@@ -150,35 +153,19 @@ export function ThemeProvider({
 
   // Initialize theme on mount
   useEffect(() => {
-    let isMounted = true;
-
-    async function initTheme() {
-      // Migrate from localStorage if exists (one-time migration)
-      await migrateFromLocalStorage([storageKey]);
-
-      // Get stored preference from IndexedDB
-      let stored: Theme | null = null;
-      try {
-        stored = (await getPreference(storageKey)) as Theme | null;
-      } catch {
-        // IndexedDB not available
-      }
-
-      if (!isMounted) return;
-
-      const initial =
-        stored && ['light', 'dark', 'system'].includes(stored) ? stored : defaultTheme;
-
-      setThemeState(initial);
-      applyTheme(initial);
-      setMounted(true);
+    // Get stored preference from localStorage (sync)
+    let stored: Theme | null = null;
+    try {
+      stored = localStorage.getItem(storageKey) as Theme | null;
+    } catch {
+      // localStorage not available
     }
 
-    initTheme();
+    const initial = stored && ['light', 'dark', 'system'].includes(stored) ? stored : defaultTheme;
 
-    return () => {
-      isMounted = false;
-    };
+    setThemeState(initial);
+    applyTheme(initial);
+    setMounted(true);
   }, [storageKey, defaultTheme, applyTheme]);
 
   // Listen for system theme changes

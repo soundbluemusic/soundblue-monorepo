@@ -1,5 +1,11 @@
 @import 'tailwindcss';
 
+/* ========================================
+   Tailwind v4 Dark Mode Configuration
+   Enable class-based dark mode (.dark class)
+   ======================================== */
+@variant dark (&:where(.dark, .dark *));
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
