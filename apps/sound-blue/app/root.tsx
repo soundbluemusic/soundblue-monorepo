@@ -1,4 +1,5 @@
 import { getLocaleFromPath, ThemeProvider } from '@soundblue/shared-react';
+import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import {
   isRouteErrorResponse,
@@ -10,7 +11,9 @@ import {
   useLocation,
   useRouteError,
 } from 'react-router';
-import { I18nProvider, translations } from '~/i18n';
+import m from '~/lib/messages';
+// @ts-expect-error - Paraglide runtime types not available
+import { setLocale } from '~/paraglide/runtime';
 
 import './app.css';
 
@@ -58,11 +61,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function AppContent() {
+  const location = useLocation();
+
+  // Sync Paraglide locale with URL
+  useEffect(() => {
+    const locale = getLocaleFromPath(location.pathname);
+    setLocale(locale);
+  }, [location.pathname]);
+
   return (
     <ThemeProvider storageKey="sound-blue-theme" defaultTheme="system">
-      <I18nProvider>
-        <Outlet />
-      </I18nProvider>
+      <Outlet />
     </ThemeProvider>
   );
 }
@@ -75,16 +84,16 @@ export function ErrorBoundary() {
   const error = useRouteError();
   const location = useLocation();
 
-  // Get locale from URL path
-  const locale = getLocaleFromPath(location.pathname) as 'en' | 'ko';
-  const t = translations[locale];
+  // Sync Paraglide locale with URL
+  const locale = getLocaleFromPath(location.pathname);
+  setLocale(locale);
 
-  let message = t.common.errorTitle;
-  let details = t.common.errorUnexpected;
+  let message = m['common.errorTitle']();
+  let details = m['common.errorUnexpected']();
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? t.notFound.code : t.common.errorGeneric;
-    details = error.status === 404 ? t.notFound.message : error.statusText || details;
+    message = error.status === 404 ? m['notFound.code']() : m['common.errorGeneric']();
+    details = error.status === 404 ? m['notFound.message']() : error.statusText || details;
   }
 
   return (
@@ -96,7 +105,7 @@ export function ErrorBoundary() {
           href="/"
           className="inline-block px-6 py-3 bg-[var(--color-accent-primary)] text-white rounded-lg hover:bg-[var(--color-accent-hover)] transition-colors"
         >
-          {t.notFound.backHome}
+          {m['notFound.backHome']()}
         </a>
       </div>
     </main>

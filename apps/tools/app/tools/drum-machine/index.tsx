@@ -1,8 +1,8 @@
 import { ChevronDown, Pause, Play, RotateCcw, Timer, Volume2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Slider } from '~/components/ui/slider';
-import { useI18n } from '~/i18n';
 import { getAudioContext, resumeAudioContext } from '~/lib/audio-context';
+import m from '~/lib/messages';
 import { cn } from '~/lib/utils';
 import { DrumGrid } from './DrumGrid';
 import {
@@ -22,8 +22,6 @@ interface DrumMachineProps {
 }
 
 export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMachineProps) {
-  const { t } = useI18n();
-
   const [internalSettings, setInternalSettings] = useState(defaultDrumMachineSettings);
   const settings = useMemo(
     () => ({ ...defaultDrumMachineSettings, ...propSettings, ...internalSettings }),
@@ -336,7 +334,7 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
             <button
               type="button"
               onClick={() => handleSettingsChange({ metronomeEnabled: !settings.metronomeEnabled })}
-              title={t.drumMachine.metronome}
+              title={m['drumMachine.metronome']?.()}
               className={cn(
                 'inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 settings.metronomeEnabled

@@ -1,6 +1,7 @@
+import { useParaglideI18n } from '@soundblue/shared-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 
 type PageKey = 'home' | 'sitemap' | 'privacy' | 'terms' | 'license' | 'soundRecording';
 
@@ -20,7 +21,7 @@ const SITE_PAGES: SearchPage[] = [
 
 export function SearchBox() {
   const navigate = useNavigate();
-  const { t, localizedPath } = useI18n();
+  const { localizedPath } = useParaglideI18n();
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -35,16 +36,15 @@ export function SearchBox() {
     const q = query.toLowerCase().trim();
     if (!q) return [];
     return SITE_PAGES.filter((page) => {
-      const pageData = t.search.pages[page.key];
-      const title = pageData.title;
-      const desc = pageData.desc;
+      const title = m[`search_pages_${page.key}_title`]?.() ?? '';
+      const desc = m[`search_pages_${page.key}_desc`]?.() ?? '';
       return (
         title.toLowerCase().includes(q) ||
         desc.toLowerCase().includes(q) ||
         page.path.toLowerCase().includes(q)
       );
     });
-  }, [query, t]);
+  }, [query]);
 
   const handleGlobalKeyDown = useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -132,7 +132,7 @@ export function SearchBox() {
           type="search"
           role="combobox"
           className="w-full h-9 pl-8.5 pr-8 text-sm font-inherit text-content bg-surface-dim border border-line rounded-lg outline-none transition-[border-color,background-color] duration-150 placeholder:text-content-subtle focus:border-line-focus focus:bg-surface-alt [&::-webkit-search-cancel-button]:hidden max-sm:h-8 max-sm:text-[0.8125rem] max-[480px]:placeholder:text-xs"
-          placeholder={t.search.placeholder}
+          placeholder={m['search.placeholder']()}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -145,7 +145,7 @@ export function SearchBox() {
           }}
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
-          aria-label={t.search.label}
+          aria-label={m['search.label']()}
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           aria-autocomplete="list"
@@ -160,7 +160,7 @@ export function SearchBox() {
             type="button"
             className="absolute right-1.5 flex items-center justify-center w-6 h-6 p-0 bg-transparent border-none rounded text-content-subtle cursor-pointer transition-all duration-150 hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-90"
             onClick={handleClear}
-            aria-label={t.search.clear}
+            aria-label={m['search.clear']()}
           >
             <svg
               className="w-3.5 h-3.5"
@@ -191,9 +191,11 @@ export function SearchBox() {
               onClick={() => setIsOpen(false)}
             >
               <span className="text-sm font-medium text-content">
-                {t.search.pages[result.key].title}
+                {m[`search_pages_${result.key}_title`]?.()}
               </span>
-              <span className="text-xs text-content-subtle">{t.search.pages[result.key].desc}</span>
+              <span className="text-xs text-content-subtle">
+                {m[`search_pages_${result.key}_desc`]?.()}
+              </span>
             </Link>
           ))}
         </div>
@@ -201,7 +203,7 @@ export function SearchBox() {
 
       {isOpen && query.trim() && results.length === 0 && (
         <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-700 bg-surface-alt border border-line rounded-lg shadow-lg p-4 text-center text-sm text-content-subtle">
-          {t.search.noResults}
+          {m['search.noResults']()}
         </div>
       )}
     </div>

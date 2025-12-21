@@ -1,8 +1,8 @@
 import { Pause, Play, RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Slider } from '~/components/ui/slider';
-import { useI18n } from '~/i18n';
 import { getAudioContext, resumeAudioContext } from '~/lib/audio-context';
+import m from '~/lib/messages';
 import {
   BPM_RANGE,
   defaultMetronomeSettings,
@@ -21,8 +21,6 @@ interface MetronomeProps {
 }
 
 export function Metronome({ settings: propSettings, onSettingsChange }: MetronomeProps) {
-  const { t } = useI18n();
-
   // Merge provided settings with defaults
   const [internalSettings, setInternalSettings] = useState(defaultMetronomeSettings);
   const settings = useMemo(
@@ -289,14 +287,14 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
         <div className="flex flex-wrap items-center justify-around gap-2 text-center">
           <div className="min-w-15">
             <div className="text-xl font-semibold tabular-nums sm:text-2xl">{measureCount}</div>
-            <div className="text-xs text-muted-foreground">{t.metronome.measure}</div>
+            <div className="text-xs text-muted-foreground">{m['metronome.measure']?.()}</div>
           </div>
           <div className="h-8 w-px bg-border sm:h-10" />
           <div className="min-w-20">
             <div className="font-mono text-lg tabular-nums sm:text-2xl">
               {formatTime(elapsedTime)}
             </div>
-            <div className="text-xs text-muted-foreground">{t.metronome.elapsedTime}</div>
+            <div className="text-xs text-muted-foreground">{m['metronome.elapsedTime']?.()}</div>
           </div>
           {countdownTime > 0 && (
             <>
@@ -305,7 +303,9 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
                 <div className="font-mono text-lg tabular-nums text-primary sm:text-2xl">
                   {formatTime(remainingTime)}
                 </div>
-                <div className="text-xs text-muted-foreground">{t.metronome.remainingTime}</div>
+                <div className="text-xs text-muted-foreground">
+                  {m['metronome.remainingTime']?.()}
+                </div>
               </div>
             </>
           )}
@@ -316,7 +316,7 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
       <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-sm">
         {/* Time Signature */}
         <div className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3">
-          <span className="text-xs font-medium sm:text-sm">{t.metronome.timeSignature}</span>
+          <span className="text-xs font-medium sm:text-sm">{m['metronome.timeSignature']?.()}</span>
           <select
             value={settings.beatsPerMeasure}
             onChange={(e) =>
@@ -337,7 +337,7 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
 
         {/* Volume */}
         <div className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3">
-          <span className="text-xs font-medium sm:text-sm">{t.metronome.volume}</span>
+          <span className="text-xs font-medium sm:text-sm">{m['metronome.volume']?.()}</span>
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-20 sm:w-28">
               <Slider
@@ -356,7 +356,7 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
 
         {/* Timer */}
         <div className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3">
-          <span className="text-xs font-medium sm:text-sm">{t.metronome.timer}</span>
+          <span className="text-xs font-medium sm:text-sm">{m['metronome.timer']?.()}</span>
           <div className="flex items-center gap-1">
             <input
               type="number"

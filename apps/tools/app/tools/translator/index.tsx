@@ -1,6 +1,6 @@
 import { ArrowLeftRight, Check, Copy, Share2, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import { cn } from '~/lib/utils';
 import {
   defaultTranslatorSettings,
@@ -16,8 +16,6 @@ interface TranslatorProps {
 }
 
 export function Translator({ settings: propSettings, onSettingsChange }: TranslatorProps) {
-  const { t } = useI18n();
-
   const [internalSettings, setInternalSettings] = useState(defaultTranslatorSettings);
   const settings = useMemo(
     () => ({ ...defaultTranslatorSettings, ...propSettings, ...internalSettings }),
@@ -213,7 +211,7 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
             type="button"
             onClick={copyToClipboard}
             className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/80 backdrop-blur-sm transition-all duration-200 hover:bg-black/8 dark:hover:bg-white/12"
-            title={t.common.copy}
+            title={m['common.copy']?.()}
           >
             {isCopied ? (
               <Check className="h-3.5 w-3.5 text-green-500" />
@@ -252,13 +250,13 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
               ? settings.direction === 'ko-en'
                 ? '텍스트가 너무 깁니다'
                 : 'Text too long'
-              : t.tools.shareUrl
+              : m['tools.shareUrl']?.()
           }
         >
           {shareStatus === 'copied' ? (
             <>
               <Check className="h-3.5 w-3.5" />
-              <span>{t.tools.urlCopied}</span>
+              <span>{m['tools.urlCopied']?.()}</span>
             </>
           ) : shareStatus === 'error' ? (
             <>

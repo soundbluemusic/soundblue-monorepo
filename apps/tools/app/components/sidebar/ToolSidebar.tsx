@@ -1,5 +1,6 @@
 'use client';
 
+import { useParaglideI18n } from '@soundblue/shared-react';
 import {
   Activity,
   FileText,
@@ -10,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import { getToolInfo, TOOL_CATEGORIES } from '~/lib/toolCategories';
 import { cn } from '~/lib/utils';
 import { type ToolType, useToolStore } from '~/stores/tool-store';
@@ -29,7 +30,7 @@ const MENU_ITEM_CLASS = `flex w-full items-center gap-3 rounded-md px-3 py-2 tex
 
 export function ToolSidebar() {
   const navigate = useNavigate();
-  const { t, localizedPath } = useI18n();
+  const { localizedPath } = useParaglideI18n();
   const { sidebarCollapsed, toggleSidebarCollapse, openTool } = useToolStore();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
@@ -79,7 +80,7 @@ export function ToolSidebar() {
           sidebarCollapsed ? 'justify-center' : 'justify-between',
         )}
       >
-        {!sidebarCollapsed && <h2 className="font-semibold text-sm">{t.sidebar.tools}</h2>}
+        {!sidebarCollapsed && <h2 className="font-semibold text-sm">{m['sidebar.tools']?.()}</h2>}
         <button
           type="button"
           onClick={toggleCollapse}
@@ -89,7 +90,7 @@ export function ToolSidebar() {
             ACTIVE_STYLES,
             FOCUS_STYLES,
           )}
-          aria-label={sidebarCollapsed ? t.sidebar.expand : t.sidebar.collapse}
+          aria-label={sidebarCollapsed ? m['sidebar.expand']?.() : m['sidebar.collapse']?.()}
         >
           {sidebarCollapsed ? (
             <PanelLeftOpen className="h-4 w-4" />
@@ -126,7 +127,7 @@ export function ToolSidebar() {
               onClick={() => setMoreMenuOpen(false)}
             >
               <Info className="h-4 w-4" />
-              <span>{t.navigation.about}</span>
+              <span>{m['navigation.about']?.()}</span>
             </Link>
             <Link
               to={localizedPath('/benchmark')}
@@ -134,7 +135,7 @@ export function ToolSidebar() {
               onClick={() => setMoreMenuOpen(false)}
             >
               <Activity className="h-4 w-4" />
-              <span>{t.sidebar.benchmark}</span>
+              <span>{m['sidebar.benchmark']?.()}</span>
             </Link>
             <a
               href="/sitemap.xml"
@@ -144,7 +145,7 @@ export function ToolSidebar() {
               onClick={() => setMoreMenuOpen(false)}
             >
               <FileText className="h-4 w-4" />
-              <span>{t.sidebar.sitemap}</span>
+              <span>{m['sidebar.sitemap']?.()}</span>
             </a>
           </div>
         )}
@@ -159,10 +160,10 @@ export function ToolSidebar() {
             moreMenuOpen && 'bg-black/5 dark:bg-white/8',
             sidebarCollapsed && 'justify-center px-2',
           )}
-          title={sidebarCollapsed ? t.sidebar.more : undefined}
+          title={sidebarCollapsed ? m['sidebar.more']?.() : undefined}
         >
           <MoreHorizontal className="h-5 w-5" />
-          {!sidebarCollapsed && <span>{t.sidebar.more}</span>}
+          {!sidebarCollapsed && <span>{m['sidebar.more']?.()}</span>}
         </button>
       </div>
     </aside>

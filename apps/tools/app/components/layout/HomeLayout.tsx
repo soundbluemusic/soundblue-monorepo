@@ -1,11 +1,11 @@
 'use client';
 
-import { useTheme } from '@soundblue/shared-react';
+import { useParaglideI18n, useTheme } from '@soundblue/shared-react';
 import { Code2, FileText, Globe, Info, Menu, Moon, Search, Sun, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '~/components/ui/button';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import { ALL_TOOLS, type ToolInfo } from '~/lib/toolCategories';
 import { cn } from '~/lib/utils';
 import { useToolStore } from '~/stores/tool-store';
@@ -16,7 +16,7 @@ import { useToolStore } from '~/stores/tool-store';
 
 export function HomeLayout() {
   const { resolvedTheme, setTheme } = useTheme();
-  const { locale, toggleLanguage, t, localizedPath } = useI18n();
+  const { locale, toggleLanguage, localizedPath } = useParaglideI18n();
   const navigate = useNavigate();
   const { openTool } = useToolStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,7 +47,7 @@ export function HomeLayout() {
       {/* Header */}
       <header className="relative z-30 flex h-14 items-center justify-between border-b px-4">
         <Link to={localizedPath('/')} className="text-lg font-semibold tracking-tight text-brand">
-          {t.brand}
+          {m['brand']?.()}
         </Link>
 
         <div className="flex items-center gap-1">
@@ -56,7 +56,7 @@ export function HomeLayout() {
             variant="ghost"
             size="icon"
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            aria-label={resolvedTheme === 'dark' ? t.theme.light : t.theme.dark}
+            aria-label={resolvedTheme === 'dark' ? m['theme_light']?.() : m['theme_dark']?.()}
             className="text-muted-foreground hover:text-foreground"
           >
             <Sun className="h-[18px] w-[18px] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -80,7 +80,7 @@ export function HomeLayout() {
               variant="ghost"
               size="icon"
               onClick={() => setMenuOpen(!menuOpen)}
-              aria-label={t.common.menu}
+              aria-label={m['common_menu']?.()}
               aria-expanded={menuOpen}
               className="text-muted-foreground hover:text-foreground"
             >
@@ -109,7 +109,7 @@ export function HomeLayout() {
                   )}
                 >
                   <Code2 className="h-4 w-4" />
-                  <span>{t.navigation.builtWith}</span>
+                  <span>{m['navigation_builtWith']?.()}</span>
                 </Link>
                 <Link
                   to={localizedPath('/about')}
@@ -121,7 +121,7 @@ export function HomeLayout() {
                   )}
                 >
                   <Info className="h-4 w-4" />
-                  <span>{t.navigation.about}</span>
+                  <span>{m['navigation_about']?.()}</span>
                 </Link>
                 <a
                   href="/sitemap.xml"
@@ -135,7 +135,7 @@ export function HomeLayout() {
                   )}
                 >
                   <FileText className="h-4 w-4" />
-                  <span>{t.sidebar.sitemap}</span>
+                  <span>{m['sidebar_sitemap']?.()}</span>
                 </a>
               </div>
             )}

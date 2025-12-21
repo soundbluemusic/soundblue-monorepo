@@ -1,8 +1,9 @@
+import { useParaglideI18n } from '@soundblue/shared-react';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { BottomSheet } from '~/components/ui';
 import { isNavActive, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from '~/constants';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 
 /**
  * MoreIcon - Three dots icon for "More" menu
@@ -24,7 +25,7 @@ function MoreIcon() {
 }
 
 export function BottomNav() {
-  const { t, localizedPath } = useI18n();
+  const { localizedPath } = useParaglideI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
@@ -61,7 +62,7 @@ export function BottomNav() {
                 <span className="flex items-center justify-center w-6 h-6 [&>svg]:w-full [&>svg]:h-full">
                   {item.icon()}
                 </span>
-                <span className="text-[11px] font-medium">{t.nav[item.labelKey]}</span>
+                <span className="text-[11px] font-medium">{m[`nav_${item.labelKey}`]?.()}</span>
               </Link>
             </li>
           ))}
@@ -76,21 +77,21 @@ export function BottomNav() {
                   ? 'text-accent'
                   : 'text-content-muted hover:text-content'
               }`}
-              aria-label={t.nav.more}
+              aria-label={m['nav.more']()}
               aria-expanded={isMoreOpen}
               aria-haspopup="dialog"
             >
               <span className="flex items-center justify-center w-6 h-6 [&>svg]:w-full [&>svg]:h-full">
                 <MoreIcon />
               </span>
-              <span className="text-[11px] font-medium">{t.nav.more}</span>
+              <span className="text-[11px] font-medium">{m['nav.more']()}</span>
             </button>
           </li>
         </ul>
       </nav>
 
       {/* More menu bottom sheet */}
-      <BottomSheet isOpen={isMoreOpen} onClose={() => setIsMoreOpen(false)} title={t.nav.more}>
+      <BottomSheet isOpen={isMoreOpen} onClose={() => setIsMoreOpen(false)} title={m['nav.more']()}>
         <ul className="m-0 p-0 list-none">
           {SECONDARY_NAV_ITEMS.map((item) => (
             <li key={item.path}>
@@ -106,7 +107,7 @@ export function BottomNav() {
                 <span className="flex items-center justify-center w-6 h-6 [&>svg]:w-full [&>svg]:h-full">
                   {item.icon()}
                 </span>
-                <span className="text-base font-medium">{t.nav[item.labelKey]}</span>
+                <span className="text-base font-medium">{m[`nav_${item.labelKey}`]?.()}</span>
               </button>
             </li>
           ))}

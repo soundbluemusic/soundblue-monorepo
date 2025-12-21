@@ -1,13 +1,14 @@
+import { useParaglideI18n } from '@soundblue/shared-react';
 import { Link, useLocation } from 'react-router';
 import { EXTERNAL_NAV_ITEMS, isNavActive, NAV_ITEMS } from '~/constants';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 
 interface SidebarProps {
   isOpen: boolean;
 }
 
 export function Sidebar({ isOpen }: SidebarProps) {
-  const { t, localizedPath } = useI18n();
+  const { localizedPath } = useParaglideI18n();
   const location = useLocation();
 
   return (
@@ -31,7 +32,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   {item.icon()}
                 </span>
                 <span className="whitespace-nowrap overflow-hidden text-ellipsis">
-                  {t.nav[item.labelKey]}
+                  {m[`nav_${item.labelKey}`]?.()}
                 </span>
               </Link>
             </li>
@@ -55,7 +56,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   {item.icon()}
                 </span>
                 <span className="whitespace-nowrap overflow-hidden text-ellipsis">
-                  {t.externalLinks[item.labelKey]}
+                  {m[`externalLinks_${item.labelKey}`]?.()}
                 </span>
               </a>
             </li>

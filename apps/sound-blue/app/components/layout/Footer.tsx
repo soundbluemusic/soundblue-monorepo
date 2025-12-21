@@ -1,6 +1,7 @@
+import { useParaglideI18n } from '@soundblue/shared-react';
 import { Link } from 'react-router';
 import { BRAND } from '~/constants';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 
 interface FooterLink {
   path: string;
@@ -15,7 +16,7 @@ const FOOTER_LINKS: FooterLink[] = [
 ];
 
 export function Footer() {
-  const { t, localizedPath } = useI18n();
+  const { localizedPath } = useParaglideI18n();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -30,17 +31,17 @@ export function Footer() {
             to={localizedPath(link.path)}
             className="inline-flex items-center justify-center text-content-muted no-underline text-sm py-2 px-3 rounded-lg cursor-pointer transition-all duration-150 hover:text-content hover:bg-state-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-95"
           >
-            {t.footer[link.labelKey]}
+            {m[`footer_${link.labelKey}`]?.()}
           </Link>
         ))}
       </nav>
       <p className="text-content-muted text-[13px] text-center mb-2">
-        {t.footer.tagline}{' '}
+        {m['footer.tagline']()}{' '}
         <Link
           to={localizedPath('/built-with')}
           className="text-accent underline decoration-accent/50 underline-offset-2 transition-colors duration-150 hover:text-accent-hover hover:decoration-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded"
         >
-          {t.footer.builtWith}
+          {m['footer.builtWith']()}
         </Link>
       </p>
       <p className="text-content-subtle text-xs text-center">

@@ -1,10 +1,10 @@
 'use client';
 
-import { useTheme } from '@soundblue/shared-react';
+import { useParaglideI18n, useTheme } from '@soundblue/shared-react';
 import { Code2, Globe, Home, Menu, Moon, Sun } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { Button } from '~/components/ui/button';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import { useToolStore } from '~/stores/tool-store';
 
 function getPathWithoutLocale(pathname: string): string {
@@ -19,7 +19,7 @@ function getPathWithoutLocale(pathname: string): string {
 
 export function Header() {
   const { resolvedTheme, setTheme } = useTheme();
-  const { locale, toggleLanguage, t, localizedPath } = useI18n();
+  const { locale, toggleLanguage, localizedPath } = useParaglideI18n();
   const location = useLocation();
   const { sidebarOpen, setSidebarOpen } = useToolStore();
 
@@ -45,7 +45,7 @@ export function Header() {
             size="icon"
             onClick={toggleMobileSidebar}
             className="md:hidden text-muted-foreground hover:text-foreground"
-            aria-label={t.common.menu}
+            aria-label={m['common_menu']?.()}
           >
             <Menu className="h-5 w-5" />
           </Button>
@@ -56,12 +56,15 @@ export function Header() {
           to={homePath}
           className="text-lg font-semibold tracking-tight text-brand transition-all duration-200 hover:opacity-80 active:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
         >
-          {t.brand}
+          {m['brand']?.()}
           {isBuiltWithPage && (
             <span className="text-muted-foreground font-normal"> - Built With</span>
           )}
           {isAboutPage && (
-            <span className="text-muted-foreground font-normal"> - {t.navigation.about}</span>
+            <span className="text-muted-foreground font-normal">
+              {' '}
+              - {m['navigation_about']?.()}
+            </span>
           )}
         </Link>
       </div>
@@ -75,7 +78,7 @@ export function Header() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-black/8 dark:hover:bg-white/12"
           >
             <Home className="h-4 w-4" />
-            <span>{t.navigation.home}</span>
+            <span>{m['navigation_home']?.()}</span>
           </Link>
         ) : (
           <Link
@@ -92,7 +95,7 @@ export function Header() {
           variant="ghost"
           size="icon"
           onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-          aria-label={resolvedTheme === 'dark' ? t.theme.light : t.theme.dark}
+          aria-label={resolvedTheme === 'dark' ? m['theme_light']?.() : m['theme_dark']?.()}
           className="relative text-muted-foreground hover:text-foreground"
         >
           <Sun className="h-4.5 w-4.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

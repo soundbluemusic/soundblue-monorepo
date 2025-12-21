@@ -1,7 +1,7 @@
 import { Check, Copy, Download } from 'lucide-react';
 import QRCode from 'qrcode';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useI18n } from '~/i18n';
+import m from '~/lib/messages';
 import { cn } from '~/lib/utils';
 import { defaultQRSettings, type QRSettings } from './settings';
 
@@ -11,7 +11,6 @@ interface QRGeneratorProps {
 }
 
 export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGeneratorProps) {
-  const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [internalSettings, setInternalSettings] = useState(defaultQRSettings);
@@ -49,12 +48,12 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
           errorCorrectionLevel: settings.errorCorrection,
         });
       } catch {
-        setError(t.qr.generationFailed);
+        setError(m['qr_generationFailed']?.() ?? 'Failed to generate QR code');
       }
     };
 
     generateQR();
-  }, [settings, t.qr.generationFailed]);
+  }, [settings, m['qr.generationFailed']?.()]);
 
   const downloadQR = useCallback(() => {
     const canvas = canvasRef.current;
@@ -88,7 +87,7 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
       <textarea
         value={settings.text}
         onChange={(e) => handleSettingsChange({ text: e.currentTarget.value })}
-        placeholder={t.qr.inputPlaceholder}
+        placeholder={m['qr.inputPlaceholder']?.()}
         className={cn(
           'h-16 w-full resize-none rounded border bg-background px-3 py-2 text-sm',
           'transition-all duration-200',
@@ -124,7 +123,7 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
           )}
         >
           <Download className="mr-1 h-4 w-4" />
-          {t.common.save}
+          {m['common.save']?.()}
         </button>
         <button
           type="button"
@@ -142,7 +141,7 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
           ) : (
             <Copy className="mr-1 h-4 w-4" />
           )}
-          {t.common.copy}
+          {m['common.copy']?.()}
         </button>
       </div>
 
@@ -154,10 +153,10 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
             value={settings.foregroundColor}
             onChange={(e) => handleSettingsChange({ foregroundColor: e.currentTarget.value })}
             className="h-6 w-6 cursor-pointer rounded border transition-all duration-200 hover:border-primary/50 focus:outline-none"
-            aria-label={t.qr.foreground}
+            aria-label={m['qr.foreground']?.()}
           />
           <span className="transition-colors duration-200 group-hover:text-foreground">
-            {t.qr.foreground}
+            {m['qr.foreground']?.()}
           </span>
         </label>
         <label className="group flex cursor-pointer items-center gap-1 rounded px-2 py-1 transition-all duration-200 hover:bg-black/8 focus-within:ring-2 focus-within:ring-ring dark:hover:bg-white/12">
@@ -166,10 +165,10 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
             value={settings.backgroundColor}
             onChange={(e) => handleSettingsChange({ backgroundColor: e.currentTarget.value })}
             className="h-6 w-6 cursor-pointer rounded border transition-all duration-200 hover:border-primary/50 focus:outline-none"
-            aria-label={t.qr.background}
+            aria-label={m['qr.background']?.()}
           />
           <span className="transition-colors duration-200 group-hover:text-foreground">
-            {t.qr.background}
+            {m['qr.background']?.()}
           </span>
         </label>
       </div>

@@ -1,29 +1,27 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
-import { useI18n } from '~/i18n';
-
+import m, { getRawMessage } from '~/lib/messages';
 export const meta: MetaFunction = () => [
   { title: 'Sound Recording | Sound Blue' },
   { name: 'description', content: 'Field recording library by Sound Blue.' },
 ];
 
 export default function SoundRecording() {
-  const { t } = useI18n();
   return (
     <NavigationLayout>
       <div className="max-w-3xl mx-auto p-6 prose">
-        <h1>{t.soundRecording.title}</h1>
-        <p className="text-lg">{t.soundRecording.intro}</p>
-        <h2>{t.soundRecording.about.title}</h2>
-        <p>{t.soundRecording.about.content}</p>
-        <h2>{t.soundRecording.types.title}</h2>
+        <h1>{m['soundRecording_title']?.()}</h1>
+        <p className="text-lg">{m['soundRecording_intro']?.()}</p>
+        <h2>{m['soundRecording_about_title']?.()}</h2>
+        <p>{m['soundRecording_about_content']?.()}</p>
+        <h2>{m['soundRecording_types_title']?.()}</h2>
         <ul>
-          {t.soundRecording.types.items.map((item, i) => (
+          {(getRawMessage('soundRecording_types_items') as string[])?.map((item, i) => (
             <li key={i}>{item}</li>
           ))}
         </ul>
-        <h2>{t.soundRecording.downloads.title}</h2>
-        <p>{t.soundRecording.downloads.content}</p>
+        <h2>{m['soundRecording_downloads_title']?.()}</h2>
+        <p>{m['soundRecording_downloads_content']?.()}</p>
       </div>
     </NavigationLayout>
   );
