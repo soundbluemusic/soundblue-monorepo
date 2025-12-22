@@ -1,7 +1,9 @@
 {
-  "include": ["**/*.ts", "**/*.tsx", ".react-router/types/**/*"],
+  "include": ["app/**/*.ts", "app/**/*.tsx", ".react-router/types/**/*"],
+  "exclude": ["e2e", "node_modules", "playwright.config.ts", "vitest.config.ts"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": ["vite/client"],
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",

@@ -5,16 +5,23 @@
  * Messages are tree-shakeable and compiled at build time.
  */
 
-// @ts-expect-error - Paraglide runtime types not available
 import { getLocale } from '~/paraglide/runtime';
 import enMessagesRaw from '../../project.inlang/messages/en.json';
 import koMessagesRaw from '../../project.inlang/messages/ko.json';
 
-// Handle both ESM and CommonJS JSON imports
-// biome-ignore lint/suspicious/noExplicitAny: Required for ESM/CommonJS compatibility
-const enMessages = (enMessagesRaw as any).default || enMessagesRaw;
-// biome-ignore lint/suspicious/noExplicitAny: Required for ESM/CommonJS compatibility
-const koMessages = (koMessagesRaw as any).default || koMessagesRaw;
+/** Type for JSON modules that may have a default wrapper (ESM/CJS compatibility) */
+type JsonModuleWithDefault<T> = T & { default?: T };
+
+/**
+ * Unwrap JSON module handling both ESM and CommonJS formats
+ * ESM bundles JSON directly, CJS may wrap in { default: ... }
+ */
+function unwrapJsonModule<T extends Record<string, string>>(module: JsonModuleWithDefault<T>): T {
+  return module.default ?? module;
+}
+
+const enMessages = unwrapJsonModule(enMessagesRaw);
+const koMessages = unwrapJsonModule(koMessagesRaw);
 
 type MessageKey = keyof typeof enMessages;
 type MessageValue = (typeof enMessages)[MessageKey];
