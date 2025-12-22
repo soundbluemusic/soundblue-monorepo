@@ -475,8 +475,7 @@ export const useAudioStore = create<AudioEngineState & AudioActions>()((set, get
  * }
  * ```
  */
-export const useTransport = (): TransportState =>
-  useAudioStore((state) => state.transport);
+export const useTransport = (): TransportState => useAudioStore((state) => state.transport);
 
 /**
  * Selector hook for master output level meters.
@@ -499,8 +498,7 @@ export const useTransport = (): TransportState =>
  * }
  * ```
  */
-export const useMasterMeter = (): MeterState =>
-  useAudioStore((state) => state.masterMeter);
+export const useMasterMeter = (): MeterState => useAudioStore((state) => state.masterMeter);
 
 /**
  * Selector hook for playback status.
@@ -523,8 +521,7 @@ export const useMasterMeter = (): MeterState =>
  * }
  * ```
  */
-export const useIsPlaying = (): boolean =>
-  useAudioStore((state) => state.transport.isPlaying);
+export const useIsPlaying = (): boolean => useAudioStore((state) => state.transport.isPlaying);
 
 /**
  * Selector hook for current BPM (tempo).
@@ -551,8 +548,7 @@ export const useIsPlaying = (): boolean =>
  * }
  * ```
  */
-export const useBpm = (): number =>
-  useAudioStore((state) => state.transport.bpm);
+export const useBpm = (): number => useAudioStore((state) => state.transport.bpm);
 
 /**
  * Selector hook for audio engine initialization status.
@@ -581,5 +577,4 @@ export const useBpm = (): number =>
  * }
  * ```
  */
-export const useIsInitialized = (): boolean =>
-  useAudioStore((state) => state.isInitialized);
+export const useIsInitialized = (): boolean => useAudioStore((state) => state.isInitialized);
