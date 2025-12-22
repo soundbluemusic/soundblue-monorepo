@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { expect, test } from '@playwright/test';
 
 test.describe('Accessibility', () => {
   test('should not have automatically detectable accessibility issues on home page', async ({
@@ -12,9 +12,7 @@ test.describe('Accessibility', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('should not have accessibility issues on about page', async ({
-    page,
-  }) => {
+  test('should not have accessibility issues on about page', async ({ page }) => {
     await page.goto('/about');
 
     const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
@@ -22,9 +20,7 @@ test.describe('Accessibility', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('should not have accessibility issues on Korean home page', async ({
-    page,
-  }) => {
+  test('should not have accessibility issues on Korean home page', async ({ page }) => {
     await page.goto('/ko');
 
     const accessibilityScanResults = await new AxeBuilder({ page }).analyze();

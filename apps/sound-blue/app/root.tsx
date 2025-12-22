@@ -12,7 +12,6 @@ import {
   useRouteError,
 } from 'react-router';
 import m from '~/lib/messages';
-// @ts-expect-error - Paraglide runtime types not available
 import { setLocale } from '~/paraglide/runtime';
 
 import './app.css';

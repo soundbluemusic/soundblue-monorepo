@@ -2,11 +2,7 @@
   "ci": {
     "collect": {
       "staticDistDir": "./build/client",
-      "url": [
-        "http://localhost/",
-        "http://localhost/about/",
-        "http://localhost/ko/"
-      ],
+      "url": ["http://localhost/", "http://localhost/about/", "http://localhost/ko/"],
       "numberOfRuns": 3
     },
     "assert": {

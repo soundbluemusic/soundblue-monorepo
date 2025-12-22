@@ -12,7 +12,6 @@ import {
   useRouteError,
 } from 'react-router';
 import m from '~/lib/messages';
-// @ts-expect-error - Paraglide runtime types not available
 import { setLocale } from '~/paraglide/runtime';
 
 import './app.css';
@@ -116,11 +115,7 @@ export function ErrorBoundary() {
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? m['app.notFoundCode']() : 'Error';
     details = error.status === 404 ? m['app.notFoundMessage']() : error.statusText || details;
-  } else if (
-    typeof process !== 'undefined' &&
-    process.env.NODE_ENV === 'development' &&
-    error instanceof Error
-  ) {
+  } else if (import.meta.env.DEV && error instanceof Error) {
     details = error.message;
     stack = error.stack;
   }

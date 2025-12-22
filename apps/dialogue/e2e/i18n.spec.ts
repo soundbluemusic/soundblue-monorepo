@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Internationalization (i18n)', () => {
   test('should load English version by default', async ({ page }) => {
