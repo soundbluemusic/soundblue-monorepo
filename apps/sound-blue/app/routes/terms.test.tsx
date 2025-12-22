@@ -92,14 +92,14 @@ describe('Terms Route', () => {
 
   describe('Meta', () => {
     it('meta 함수가 올바른 title 반환', () => {
-      const metaResult = meta({} as any);
-      const titleMeta = metaResult.find((m: any) => m.title);
+      const metaResult = meta({} as any) as any[];
+      const titleMeta = metaResult?.find((m: any) => m.title) as any;
       expect(titleMeta?.title).toBe('Terms of Service | Sound Blue');
     });
 
     it('meta 함수가 올바른 description 반환', () => {
-      const metaResult = meta({} as any);
-      const descMeta = metaResult.find((m: any) => m.name === 'description');
+      const metaResult = meta({} as any) as any[];
+      const descMeta = metaResult?.find((m: any) => m.name === 'description') as any;
       expect(descMeta?.content).toContain('Terms and conditions');
     });
   });
@@ -126,7 +126,9 @@ describe('Terms Route', () => {
 
     it('모든 섹션 컨텐츠 렌더링', () => {
       renderWithRouter(<Terms />);
-      expect(screen.getByText('You may use this service for personal purposes')).toBeInTheDocument();
+      expect(
+        screen.getByText('You may use this service for personal purposes'),
+      ).toBeInTheDocument();
       expect(screen.getByText('All content is copyrighted')).toBeInTheDocument();
       expect(screen.getByText('Service provided as is')).toBeInTheDocument();
       expect(screen.getByText('We may update these terms')).toBeInTheDocument();

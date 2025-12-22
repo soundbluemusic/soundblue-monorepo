@@ -29,10 +29,7 @@ describe('i18n Translation Keys Integrity', () => {
 
       const missingInKorean = enKeys.filter((key) => !koKeys.includes(key));
 
-      expect(
-        missingInKorean,
-        `Missing in Korean: ${missingInKorean.join(', ')}`,
-      ).toEqual([]);
+      expect(missingInKorean, `Missing in Korean: ${missingInKorean.join(', ')}`).toEqual([]);
     });
 
     it('한국어에 있는 모든 키가 영어에도 존재', () => {
@@ -41,10 +38,7 @@ describe('i18n Translation Keys Integrity', () => {
 
       const missingInEnglish = koKeys.filter((key) => !enKeys.includes(key));
 
-      expect(
-        missingInEnglish,
-        `Missing in English: ${missingInEnglish.join(', ')}`,
-      ).toEqual([]);
+      expect(missingInEnglish, `Missing in English: ${missingInEnglish.join(', ')}`).toEqual([]);
     });
 
     it('모든 키가 양쪽 언어에 존재 (정렬 후 비교)', () => {
@@ -269,10 +263,9 @@ describe('i18n Translation Keys Integrity', () => {
         }
       });
 
-      expect(
-        emptyArrayElements,
-        `Empty array elements: ${emptyArrayElements.join(', ')}`,
-      ).toEqual([]);
+      expect(emptyArrayElements, `Empty array elements: ${emptyArrayElements.join(', ')}`).toEqual(
+        [],
+      );
     });
   });
 });

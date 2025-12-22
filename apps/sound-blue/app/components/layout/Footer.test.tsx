@@ -126,7 +126,6 @@ describe('Footer', () => {
       const links = nav.querySelectorAll('a');
       expect(links.length).toBe(4); // privacy, terms, license, sitemap
     });
-
   });
 
   describe('Edge Cases', () => {

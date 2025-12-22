@@ -85,8 +85,8 @@ describe('Offline Route', () => {
 
   describe('Meta', () => {
     it('meta 함수가 올바른 title 반환', () => {
-      const metaResult = meta({} as any);
-      const titleMeta = metaResult.find((m: any) => m.title);
+      const metaResult = meta({} as any) as any[];
+      const titleMeta = metaResult?.find((m: any) => m.title) as any;
       expect(titleMeta?.title).toBe('Offline | Sound Blue');
     });
   });
