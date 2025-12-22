@@ -101,6 +101,19 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/e2e/**/*.spec.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          },
+          "a11y": {
+            "useButtonType": "off"
+          }
+        }
+      }
     }
   ],
   "assist": {

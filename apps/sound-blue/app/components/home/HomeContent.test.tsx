@@ -98,7 +98,7 @@ describe('HomeContent Component', () => {
     });
 
     it('Discography 아이콘(SVG)이 렌더링됨', () => {
-      const { container } = render(<HomeContent />);
+      const { container: _container } = render(<HomeContent />);
       const discographyLink = screen.getByText('View Discography').closest('a');
       const svg = discographyLink?.querySelector('svg');
       expect(svg).toBeInTheDocument();

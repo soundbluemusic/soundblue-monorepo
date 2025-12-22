@@ -9,21 +9,21 @@ vi.mock('~/paraglide/runtime', () => ({
 // Mock JSON messages
 vi.mock('../../project.inlang/messages/en.json', () => ({
   default: {
-    'header.title': 'Sound Blue',
-    'header.langSwitch': 'Switch Language',
-    'footer.copyright': '© 2024 Sound Blue',
-    'search.placeholder': 'Search...',
-    'menu.items': ['Home', 'About', 'Contact'],
+    seo_siteName: 'Sound Blue',
+    nav_home: 'Home',
+    nav_about: 'About',
+    seo_defaultTitle: 'Sound Blue | SoundBlueMusic',
+    soundRecording_types_items: ['Nature', 'Urban', 'Ambience'],
   },
 }));
 
 vi.mock('../../project.inlang/messages/ko.json', () => ({
   default: {
-    'header.title': '사운드 블루',
-    'header.langSwitch': '언어 전환',
-    'footer.copyright': '© 2024 사운드 블루',
-    'search.placeholder': '검색...',
-    'menu.items': ['홈', '소개', '연락'],
+    seo_siteName: '사운드 블루',
+    nav_home: '홈',
+    nav_about: '소개',
+    seo_defaultTitle: '사운드 블루 | SoundBlueMusic',
+    soundRecording_types_items: ['자연', '도시', '분위기'],
   },
 }));
 
@@ -40,7 +40,7 @@ describe('getMessage', () => {
       mockGetLocale.mockReturnValue('en');
       const { getMessage } = await import('./messages');
 
-      const result = getMessage('header.title');
+      const result = getMessage('seo_siteName');
       expect(result).toBe('Sound Blue');
     });
 
@@ -48,7 +48,7 @@ describe('getMessage', () => {
       mockGetLocale.mockReturnValue('ko');
       const { getMessage } = await import('./messages');
 
-      const result = getMessage('header.title');
+      const result = getMessage('seo_siteName');
       expect(result).toBe('사운드 블루');
     });
 
@@ -56,8 +56,8 @@ describe('getMessage', () => {
       mockGetLocale.mockReturnValue('en');
       const { getMessage } = await import('./messages');
 
-      const result = getMessage('search.placeholder');
-      expect(result).toBe('Search...');
+      const result = getMessage('nav_home');
+      expect(result).toBe('Home');
       expect(typeof result).toBe('string');
     });
   });
@@ -77,15 +77,15 @@ describe('getMessage', () => {
       });
       const { getMessage } = await import('./messages');
 
-      const result = getMessage('header.title');
+      const result = getMessage('seo_siteName');
       expect(result).toBe('Sound Blue');
     });
 
     it('언어에 키가 없으면 영어로 fallback', async () => {
-      mockGetLocale.mockReturnValue('fr'); // Unsupported locale
+      mockGetLocale.mockReturnValue('fr' as any); // Unsupported locale
       const { getMessage } = await import('./messages');
 
-      const result = getMessage('header.title');
+      const result = getMessage('seo_siteName');
       expect(result).toBe('Sound Blue'); // Falls back to English
     });
   });
@@ -103,8 +103,8 @@ describe('getMessage', () => {
       mockGetLocale.mockReturnValue('en');
       const { getMessage } = await import('./messages');
 
-      const result = getMessage('search.placeholder');
-      expect(result).toBe('Search...');
+      const result = getMessage('seo_defaultTitle');
+      expect(result).toBe('Sound Blue | SoundBlueMusic');
     });
   });
 });
@@ -120,7 +120,7 @@ describe('getRawMessage', () => {
       mockGetLocale.mockReturnValue('en');
       const { getRawMessage } = await import('./messages');
 
-      const result = getRawMessage('header.title');
+      const result = getRawMessage('seo_siteName');
       expect(result).toBe('Sound Blue');
     });
 
@@ -128,16 +128,16 @@ describe('getRawMessage', () => {
       mockGetLocale.mockReturnValue('en');
       const { getRawMessage } = await import('./messages');
 
-      const result = getRawMessage('menu.items');
-      expect(result).toEqual(['Home', 'About', 'Contact']);
+      const result = getRawMessage('soundRecording_types_items');
+      expect(result).toEqual(['Nature', 'Urban', 'Ambience']);
     });
 
     it('한국어 배열 메시지 반환', async () => {
       mockGetLocale.mockReturnValue('ko');
       const { getRawMessage } = await import('./messages');
 
-      const result = getRawMessage('menu.items');
-      expect(result).toEqual(['홈', '소개', '연락']);
+      const result = getRawMessage('soundRecording_types_items');
+      expect(result).toEqual(['자연', '도시', '분위기']);
     });
   });
 
@@ -148,7 +148,7 @@ describe('getRawMessage', () => {
       });
       const { getRawMessage } = await import('./messages');
 
-      const result = getRawMessage('header.title');
+      const result = getRawMessage('seo_siteName');
       expect(result).toBe('Sound Blue');
     });
 
@@ -175,7 +175,7 @@ describe.skip('message Proxy', () => {
     it('Proxy로 메시지 함수 생성', async () => {
       mockGetLocale.mockReturnValue('en');
       const m = (await import('./messages')).default;
-      const titleFn = m['header.title'];
+      const titleFn = m.seo_siteName;
 
       expect(typeof titleFn).toBe('function');
       expect(titleFn()).toBe('Sound Blue');
@@ -184,7 +184,7 @@ describe.skip('message Proxy', () => {
     it('언더스코어 표기법 지원', async () => {
       mockGetLocale.mockReturnValue('en');
       const m = (await import('./messages')).default;
-      const titleFn = m.header_title;
+      const titleFn = m.seo_siteName;
 
       expect(typeof titleFn).toBe('function');
       expect(titleFn()).toBe('Sound Blue');
@@ -194,9 +194,9 @@ describe.skip('message Proxy', () => {
       mockGetLocale.mockReturnValue('ko');
       const m = (await import('./messages')).default;
 
-      expect(m['header.title']()).toBe('사운드 블루');
-      expect(m['header.langSwitch']()).toBe('언어 전환');
-      expect(m['footer.copyright']()).toBe('© 2024 사운드 블루');
+      expect(m.seo_siteName()).toBe('사운드 블루');
+      expect(m.nav_home()).toBe('홈');
+      expect(m.nav_about()).toBe('소개');
     });
   });
 });
@@ -211,7 +211,7 @@ describe('unwrapJsonModule', () => {
     mockGetLocale.mockReturnValue('en');
     const { getMessage } = await import('./messages');
 
-    const result = getMessage('header.title');
+    const result = getMessage('seo_siteName');
     expect(result).toBe('Sound Blue');
   });
 
@@ -219,7 +219,7 @@ describe('unwrapJsonModule', () => {
     mockGetLocale.mockReturnValue('en');
     const { getMessage } = await import('./messages');
 
-    const result = getMessage('footer.copyright');
-    expect(result).toBe('© 2024 Sound Blue');
+    const result = getMessage('seo_defaultTitle');
+    expect(result).toBe('Sound Blue | SoundBlueMusic');
   });
 });

@@ -52,10 +52,9 @@ test.describe('Advanced SEO - Open Graph', () => {
         expect(width, `${lang}/: OG image width should be at least 1200px`).toBeGreaterThanOrEqual(
           1200,
         );
-        expect(
-          height,
-          `${lang}/: OG image height should be at least 630px`,
-        ).toBeGreaterThanOrEqual(630);
+        expect(height, `${lang}/: OG image height should be at least 630px`).toBeGreaterThanOrEqual(
+          630,
+        );
 
         // 가로세로 비율 검증 (약 1.91:1)
         const ratio = width / height;
@@ -136,7 +135,7 @@ test.describe('Advanced SEO - Schema.org JSON-LD', () => {
     for (const script of jsonLdScripts) {
       const content = await script.textContent();
 
-      let parsed;
+      let parsed: any;
       try {
         parsed = JSON.parse(content || '{}');
       } catch (e) {
@@ -233,17 +232,29 @@ test.describe('Advanced SEO - Twitter Card', () => {
     await page.goto('/');
 
     const twitterTitle = await page.getAttribute('meta[name="twitter:title"]', 'content');
-    const twitterDescription = await page.getAttribute('meta[name="twitter:description"]', 'content');
+    const twitterDescription = await page.getAttribute(
+      'meta[name="twitter:description"]',
+      'content',
+    );
     const twitterImage = await page.getAttribute('meta[name="twitter:image"]', 'content');
 
-    expect(twitterTitle || twitterDescription || twitterImage, 'Twitter Card must have at least one meta tag').toBeTruthy();
+    expect(
+      twitterTitle || twitterDescription || twitterImage,
+      'Twitter Card must have at least one meta tag',
+    ).toBeTruthy();
   });
 
   test('Twitter 이미지 크기 (선택사항)', async ({ page }) => {
     await page.goto('/');
 
-    const twitterImageWidth = await page.getAttribute('meta[name="twitter:image:width"]', 'content');
-    const twitterImageHeight = await page.getAttribute('meta[name="twitter:image:height"]', 'content');
+    const twitterImageWidth = await page.getAttribute(
+      'meta[name="twitter:image:width"]',
+      'content',
+    );
+    const twitterImageHeight = await page.getAttribute(
+      'meta[name="twitter:image:height"]',
+      'content',
+    );
 
     if (twitterImageWidth && twitterImageHeight) {
       const width = Number(twitterImageWidth);
@@ -315,9 +326,7 @@ test.describe('Advanced SEO - hreflang', () => {
 
     expect(hreflangTags.length, 'No hreflang tags found').toBeGreaterThanOrEqual(2);
 
-    const hreflangs = await Promise.all(
-      hreflangTags.map((tag) => tag.getAttribute('hreflang')),
-    );
+    const hreflangs = await Promise.all(hreflangTags.map((tag) => tag.getAttribute('hreflang')));
 
     expect(hreflangs).toContain('en');
     expect(hreflangs).toContain('ko');
@@ -411,9 +420,10 @@ test.describe('Edge Cases', () => {
     const metaTags = ['description', 'og:title', 'og:description', 'twitter:card'];
 
     for (const tag of metaTags) {
-      const selector = tag.startsWith('og:') || tag.startsWith('twitter:')
-        ? `meta[property="${tag}"], meta[name="${tag}"]`
-        : `meta[name="${tag}"]`;
+      const selector =
+        tag.startsWith('og:') || tag.startsWith('twitter:')
+          ? `meta[property="${tag}"], meta[name="${tag}"]`
+          : `meta[name="${tag}"]`;
 
       const elements = await page.$$(selector);
       expect(elements.length, `Duplicate ${tag} meta tag`).toBeLessThanOrEqual(1);

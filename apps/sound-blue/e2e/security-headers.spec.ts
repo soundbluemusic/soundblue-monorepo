@@ -27,7 +27,7 @@ test.describe('Security Headers', () => {
       const maxAge = hsts?.match(/max-age=(\d+)/)?.[1];
       if (maxAge) {
         expect(
-          Number.parseInt(maxAge),
+          Number.parseInt(maxAge, 10),
           'HSTS max-age should be at least 6 months',
         ).toBeGreaterThanOrEqual(15768000);
       }
@@ -166,20 +166,16 @@ test.describe('Security Headers', () => {
         const integrity = await script.getAttribute('integrity');
         const crossorigin = await script.getAttribute('crossorigin');
 
-        expect(
-          integrity,
-          `External script ${src} should have integrity attribute`,
-        ).toBeDefined();
+        expect(integrity, `External script ${src} should have integrity attribute`).toBeDefined();
 
         expect(
           integrity,
           `External script ${src} integrity must start with sha256/384/512`,
         ).toMatch(/^sha(256|384|512)-/);
 
-        expect(
-          crossorigin,
-          `External script ${src} must have crossorigin="anonymous"`,
-        ).toBe('anonymous');
+        expect(crossorigin, `External script ${src} must have crossorigin="anonymous"`).toBe(
+          'anonymous',
+        );
       }
     });
 
@@ -231,9 +227,10 @@ test.describe('Security Headers', () => {
 
       if (cacheControl) {
         // HTML은 no-cache 또는 짧은 max-age
-        const hasNoCache = cacheControl.includes('no-cache') || cacheControl.includes('must-revalidate');
+        const hasNoCache =
+          cacheControl.includes('no-cache') || cacheControl.includes('must-revalidate');
         const hasShortMaxAge = cacheControl.match(/max-age=(\d+)/)?.[1];
-        const maxAge = hasShortMaxAge ? Number.parseInt(hasShortMaxAge) : 0;
+        const maxAge = hasShortMaxAge ? Number.parseInt(hasShortMaxAge, 10) : 0;
 
         expect(
           hasNoCache || maxAge <= 3600,
@@ -243,13 +240,15 @@ test.describe('Security Headers', () => {
     });
 
     test('정적 asset은 긴 캐시', async ({ page }) => {
-      const response = await page.goto('/');
+      const _response = await page.goto('/');
 
       // JavaScript 파일 요청 캐치
-      const jsResponse = await page.waitForResponse(
-        (response) => response.url().includes('/_build/') && response.url().endsWith('.js'),
-        { timeout: 5000 },
-      ).catch(() => null);
+      const jsResponse = await page
+        .waitForResponse(
+          (response) => response.url().includes('/_build/') && response.url().endsWith('.js'),
+          { timeout: 5000 },
+        )
+        .catch(() => null);
 
       if (jsResponse) {
         const headers = jsResponse.headers();
@@ -261,7 +260,7 @@ test.describe('Security Headers', () => {
         const maxAge = cacheControl.match(/max-age=(\d+)/)?.[1];
         if (maxAge) {
           // 최소 1년 (31536000초)
-          expect(Number.parseInt(maxAge)).toBeGreaterThanOrEqual(31536000);
+          expect(Number.parseInt(maxAge, 10)).toBeGreaterThanOrEqual(31536000);
         }
       }
     });
@@ -288,7 +287,7 @@ test.describe('Security Headers', () => {
       for (const form of forms) {
         const action = await form.getAttribute('action');
 
-        if (action && action.startsWith('http')) {
+        if (action?.startsWith('http')) {
           expect(action, 'Form action must use HTTPS').toMatch(/^https:/);
         }
       }

@@ -22,8 +22,14 @@ import {
 
 // react-router.config.ts에서 라우트 목록 가져오기
 const getExpectedRoutes = async (): Promise<string[]> => {
-  const config = await import('../../../react-router.config');
-  return config.default.prerender!();
+  const config = await import('../../react-router.config');
+  if (typeof config.default.prerender !== 'function') {
+    throw new Error('prerender is not a function');
+  }
+  // @ts-expect-error - prerender signature varies, calling without args for static routes
+  const result = await config.default.prerender({});
+  // Handle both array and object return types
+  return Array.isArray(result) ? result : (result as any).paths;
 };
 
 describe('Static Files Generation', () => {

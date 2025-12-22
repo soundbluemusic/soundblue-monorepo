@@ -34,10 +34,7 @@ test.describe('SEO Meta Length Optimization', () => {
 
           const description = await page.getAttribute('meta[name="description"]', 'content');
 
-          expect(
-            description,
-            `${lang}${route}: No description meta tag found`,
-          ).not.toBeNull();
+          expect(description, `${lang}${route}: No description meta tag found`).not.toBeNull();
 
           const length = description?.length ?? 0;
 
@@ -115,10 +112,9 @@ test.describe('SEO Meta Length Optimization', () => {
 
         // OG title은 일반 title보다 약간 길어도 됨 (최대 70자)
         expect(length, `${lang}/: OG title too short (${length} chars)`).toBeGreaterThan(0);
-        expect(
-          length,
-          `${lang}/: OG title too long (${length} chars, max 70)`,
-        ).toBeLessThanOrEqual(70);
+        expect(length, `${lang}/: OG title too long (${length} chars, max 70)`).toBeLessThanOrEqual(
+          70,
+        );
       });
 
       test(`${lang}/ - OG description 적절한 길이`, async ({ page }) => {

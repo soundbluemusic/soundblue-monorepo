@@ -92,14 +92,14 @@ describe('Privacy Route', () => {
 
   describe('Meta', () => {
     it('meta 함수가 올바른 title 반환', () => {
-      const metaResult = meta({} as any);
-      const titleMeta = metaResult.find((m: any) => m.title);
+      const metaResult = meta({} as any) as any[];
+      const titleMeta = metaResult?.find((m: any) => m.title) as any;
       expect(titleMeta?.title).toBe('Privacy Policy | Sound Blue');
     });
 
     it('meta 함수가 올바른 description 반환', () => {
-      const metaResult = meta({} as any);
-      const descMeta = metaResult.find((m: any) => m.name === 'description');
+      const metaResult = meta({} as any) as any[];
+      const descMeta = metaResult?.find((m: any) => m.name === 'description') as any;
       expect(descMeta?.content).toBe("Sound Blue's privacy policy.");
     });
   });

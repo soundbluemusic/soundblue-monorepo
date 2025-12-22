@@ -16,7 +16,7 @@
     "check:circular": "pnpm -r exec skott --showCircularDependencies --displayMode=raw --fileExtensions=.ts,.tsx --ignorePattern='node_modules|.vinxi|.output|dist|rust' --exitCodeOnCircularDependencies=1",
     "check:versions": "pnpm exec syncpack list-mismatches",
     "check:size": "pnpm exec size-limit",
-    "check:links": "pnpm exec blc ./apps/sound-blue/.output/public --recursive --exclude-external",
+    "check:links": "node scripts/check-links.mjs",
     "check:env": "pnpm exec dotenv-linter apps/*/.env* || true",
     "lighthouse": "pnpm exec lhci autorun",
     "validate": "pnpm typecheck && pnpm check && pnpm test",
