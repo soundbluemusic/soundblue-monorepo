@@ -112,7 +112,7 @@ importers:
         specifier: ^6.9.1
         version: 6.9.1
       '@testing-library/react':
-        specifier: ^16.3.0
+        specifier: ^16.3.1
         version: 16.3.1(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@types/react':
         specifier: ^19.1.8
@@ -157,7 +157,7 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1
       isbot:
-        specifier: ^5
+        specifier: ^5.1.27
         version: 5.1.32
       react:
         specifier: ^19.1.0
@@ -278,7 +278,7 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1
       isbot:
-        specifier: ^5
+        specifier: ^5.1.27
         version: 5.1.32
       lucide-react:
         specifier: ^0.468.0
@@ -302,8 +302,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
       zod:
-        specifier: ^3.24.1
-        version: 3.25.76
+        specifier: ^4.2.0
+        version: 4.2.1
       zustand:
         specifier: ^5.0.6
         version: 5.0.9(@types/react@19.2.7)(react@19.2.3)
@@ -355,7 +355,7 @@ importers:
         version: 27.3.0(postcss@8.5.6)
       rollup-plugin-visualizer:
         specifier: ^6.0.5
-        version: 6.0.5(rollup@2.79.2)
+        version: 6.0.5(rollup@4.53.5)
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -391,7 +391,7 @@ importers:
         specifier: ^6.9.1
         version: 6.9.1
       '@testing-library/react':
-        specifier: ^16.3.0
+        specifier: ^16.3.1
         version: 16.3.1(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@types/react':
         specifier: ^19.1.8
@@ -13504,15 +13504,6 @@ snapshots:
       split: 0.3.3
       stream-combiner: 0.2.2
       through: 2.3.8
-
-  rollup-plugin-visualizer@6.0.5(rollup@2.79.2):
-    dependencies:
-      open: 8.4.2
-      picomatch: 4.0.3
-      source-map: 0.7.6
-      yargs: 17.7.2
-    optionalDependencies:
-      rollup: 2.79.2
 
   rollup-plugin-visualizer@6.0.5(rollup@4.53.5):
     dependencies:
