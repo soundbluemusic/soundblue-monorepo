@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { BottomSheet } from './BottomSheet';
 
@@ -120,16 +121,20 @@ describe('BottomSheet', () => {
       );
 
       await waitFor(() => {
-        const backdrop = container.querySelector('.bg-bg-overlay');
-        expect(backdrop).toHaveAttribute('aria-hidden', 'true');
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
+
+      // Backdrop should have aria-hidden attribute
+      const backdrop = container.querySelector('[aria-hidden="true"].bg-bg-overlay');
+      expect(backdrop).toBeInTheDocument();
     });
   });
 
   describe('이벤트 핸들러', () => {
     it('backdrop 클릭 시 onClose 호출', async () => {
+      const user = userEvent.setup();
       const onClose = vi.fn();
-      const { container, user } = render(
+      const { container } = render(
         <BottomSheet isOpen={true} onClose={onClose}>
           <div>Content</div>
         </BottomSheet>,
@@ -147,8 +152,9 @@ describe('BottomSheet', () => {
     });
 
     it('Escape 키 눌러서 닫기', async () => {
+      const user = userEvent.setup();
       const onClose = vi.fn();
-      const { user } = render(
+      render(
         <BottomSheet isOpen={true} onClose={onClose}>
           <div>Content</div>
         </BottomSheet>,
@@ -163,8 +169,9 @@ describe('BottomSheet', () => {
     });
 
     it('isOpen이 false일 때 Escape 키 무시', async () => {
+      const user = userEvent.setup();
       const onClose = vi.fn();
-      const { user } = render(
+      render(
         <BottomSheet isOpen={false} onClose={onClose}>
           <div>Content</div>
         </BottomSheet>,
@@ -230,15 +237,15 @@ describe('BottomSheet', () => {
   describe('CSS 클래스', () => {
     it('isOpen이 true일 때 translate-y-0', async () => {
       const onClose = vi.fn();
-      const { container } = render(
+      render(
         <BottomSheet isOpen={true} onClose={onClose}>
           <div>Content</div>
         </BottomSheet>,
       );
 
       await waitFor(() => {
-        const sheet = container.querySelector('[role="dialog"]');
-        expect(sheet?.className).toContain('translate-y-0');
+        const sheet = screen.getByRole('dialog');
+        expect(sheet.className).toContain('translate-y-0');
       });
     });
 
@@ -278,9 +285,12 @@ describe('BottomSheet', () => {
       );
 
       await waitFor(() => {
-        const backdrop = container.querySelector('.bg-bg-overlay');
-        expect(backdrop?.className).toContain('opacity-100');
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
+
+      const backdrop = container.querySelector('.bg-bg-overlay');
+      expect(backdrop).toBeInTheDocument();
+      expect(backdrop?.className).toContain('opacity-100');
     });
   });
 

@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
-import { getMessage, getRawMessage } from './messages';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getLocale } from '~/paraglide/runtime';
 
 // Mock paraglide runtime
 vi.mock('~/paraglide/runtime', () => ({
@@ -27,27 +27,34 @@ vi.mock('../../project.inlang/messages/ko.json', () => ({
   },
 }));
 
+const mockGetLocale = vi.mocked(getLocale);
+
 describe('getMessage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetLocale.mockReturnValue('en');
+  });
+
   describe('기본 동작', () => {
-    it('영어 메시지 반환', () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
+    it('영어 메시지 반환', async () => {
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
 
       const result = getMessage('header.title');
       expect(result).toBe('Sound Blue');
     });
 
     it('한국어 메시지 반환', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('ko');
+      mockGetLocale.mockReturnValue('ko');
+      const { getMessage } = await import('./messages');
 
       const result = getMessage('header.title');
       expect(result).toBe('사운드 블루');
     });
 
     it('문자열 메시지 반환', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
 
       const result = getMessage('search.placeholder');
       expect(result).toBe('Search...');
@@ -57,26 +64,26 @@ describe('getMessage', () => {
 
   describe('Fallback', () => {
     it('존재하지 않는 키는 키 자체 반환', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
 
       const result = getMessage('nonexistent.key' as any);
       expect(result).toBe('nonexistent.key');
     });
 
     it('getLocale 실패 시 영어로 fallback', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockImplementation(() => {
+      mockGetLocale.mockImplementation(() => {
         throw new Error('Locale error');
       });
+      const { getMessage } = await import('./messages');
 
       const result = getMessage('header.title');
       expect(result).toBe('Sound Blue');
     });
 
     it('언어에 키가 없으면 영어로 fallback', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('fr'); // Unsupported locale
+      mockGetLocale.mockReturnValue('fr'); // Unsupported locale
+      const { getMessage } = await import('./messages');
 
       const result = getMessage('header.title');
       expect(result).toBe('Sound Blue'); // Falls back to English
@@ -85,16 +92,16 @@ describe('getMessage', () => {
 
   describe('Edge Cases', () => {
     it('빈 문자열 키', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
 
       const result = getMessage('' as any);
       expect(result).toBe('');
     });
 
     it('특수 문자 포함 키', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
 
       const result = getMessage('search.placeholder');
       expect(result).toBe('Search...');
@@ -103,26 +110,31 @@ describe('getMessage', () => {
 });
 
 describe('getRawMessage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetLocale.mockReturnValue('en');
+  });
+
   describe('기본 동작', () => {
     it('문자열 메시지 반환', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
+      mockGetLocale.mockReturnValue('en');
+      const { getRawMessage } = await import('./messages');
 
       const result = getRawMessage('header.title');
       expect(result).toBe('Sound Blue');
     });
 
     it('배열 메시지 반환', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
+      mockGetLocale.mockReturnValue('en');
+      const { getRawMessage } = await import('./messages');
 
       const result = getRawMessage('menu.items');
       expect(result).toEqual(['Home', 'About', 'Contact']);
     });
 
     it('한국어 배열 메시지 반환', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('ko');
+      mockGetLocale.mockReturnValue('ko');
+      const { getRawMessage } = await import('./messages');
 
       const result = getRawMessage('menu.items');
       expect(result).toEqual(['홈', '소개', '연락']);
@@ -131,18 +143,18 @@ describe('getRawMessage', () => {
 
   describe('Fallback', () => {
     it('getLocale 실패 시 영어로 fallback', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockImplementation(() => {
+      mockGetLocale.mockImplementation(() => {
         throw new Error('Locale error');
       });
+      const { getRawMessage } = await import('./messages');
 
       const result = getRawMessage('header.title');
       expect(result).toBe('Sound Blue');
     });
 
     it('존재하지 않는 키는 undefined 반환', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
+      mockGetLocale.mockReturnValue('en');
+      const { getRawMessage } = await import('./messages');
 
       const result = getRawMessage('nonexistent.key' as any);
       expect(result).toBeUndefined();
@@ -151,11 +163,14 @@ describe('getRawMessage', () => {
 });
 
 describe('message Proxy', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetLocale.mockReturnValue('en');
+  });
+
   describe('동적 함수 생성', () => {
     it('Proxy로 메시지 함수 생성', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
-
+      mockGetLocale.mockReturnValue('en');
       const m = (await import('./messages')).default;
       const titleFn = m['header.title'];
 
@@ -164,9 +179,7 @@ describe('message Proxy', () => {
     });
 
     it('언더스코어 표기법 지원', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('en');
-
+      mockGetLocale.mockReturnValue('en');
       const m = (await import('./messages')).default;
       const titleFn = m.header_title;
 
@@ -175,9 +188,7 @@ describe('message Proxy', () => {
     });
 
     it('여러 메시지 함수 호출', async () => {
-      const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-      getLocale.mockReturnValue('ko');
-
+      mockGetLocale.mockReturnValue('ko');
       const m = (await import('./messages')).default;
 
       expect(m['header.title']()).toBe('사운드 블루');
@@ -188,19 +199,22 @@ describe('message Proxy', () => {
 });
 
 describe('unwrapJsonModule', () => {
-  it('ESM 형식 JSON 처리', () => {
-    // Internal function, tested through getMessage
-    const { getLocale } = vi.mocked(require('~/paraglide/runtime'));
-    getLocale.mockReturnValue('en');
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetLocale.mockReturnValue('en');
+  });
+
+  it('ESM 형식 JSON 처리', async () => {
+    mockGetLocale.mockReturnValue('en');
+    const { getMessage } = await import('./messages');
 
     const result = getMessage('header.title');
     expect(result).toBe('Sound Blue');
   });
 
   it('CommonJS 형식 JSON 처리 (default wrapper)', async () => {
-    // getMessage should handle both formats
-    const { getLocale } = vi.mocked(await import('~/paraglide/runtime'));
-    getLocale.mockReturnValue('en');
+    mockGetLocale.mockReturnValue('en');
+    const { getMessage } = await import('./messages');
 
     const result = getMessage('footer.copyright');
     expect(result).toBe('© 2024 Sound Blue');
