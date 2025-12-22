@@ -114,7 +114,7 @@ describe('BottomSheet', () => {
 
     it('backdrop에 aria-hidden', async () => {
       const onClose = vi.fn();
-      const { container } = render(
+      render(
         <BottomSheet isOpen={true} onClose={onClose}>
           <div>Content</div>
         </BottomSheet>,
@@ -124,8 +124,9 @@ describe('BottomSheet', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
 
-      // Backdrop should have aria-hidden attribute
-      const backdrop = container.querySelector('[aria-hidden="true"].bg-bg-overlay');
+      // Backdrop is rendered in a portal to document.body, not in container
+      // Use attribute selector for aria-hidden backdrop
+      const backdrop = document.body.querySelector('[aria-hidden="true"].bg-bg-overlay');
       expect(backdrop).toBeInTheDocument();
     });
   });
@@ -134,7 +135,7 @@ describe('BottomSheet', () => {
     it('backdrop 클릭 시 onClose 호출', async () => {
       const user = userEvent.setup();
       const onClose = vi.fn();
-      const { container } = render(
+      render(
         <BottomSheet isOpen={true} onClose={onClose}>
           <div>Content</div>
         </BottomSheet>,
@@ -144,7 +145,8 @@ describe('BottomSheet', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
 
-      const backdrop = container.querySelector('.bg-bg-overlay');
+      // Backdrop is rendered in a portal to document.body
+      const backdrop = document.body.querySelector('.bg-bg-overlay');
       if (backdrop) {
         await user.click(backdrop);
         expect(onClose).toHaveBeenCalledOnce();
@@ -278,7 +280,7 @@ describe('BottomSheet', () => {
 
     it('backdrop opacity-100 (isOpen=true)', async () => {
       const onClose = vi.fn();
-      const { container } = render(
+      render(
         <BottomSheet isOpen={true} onClose={onClose}>
           <div>Content</div>
         </BottomSheet>,
@@ -288,7 +290,8 @@ describe('BottomSheet', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
 
-      const backdrop = container.querySelector('.bg-bg-overlay');
+      // Backdrop is rendered in a portal to document.body
+      const backdrop = document.body.querySelector('.bg-bg-overlay');
       expect(backdrop).toBeInTheDocument();
       expect(backdrop?.className).toContain('opacity-100');
     });

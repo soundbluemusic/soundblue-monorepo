@@ -46,11 +46,11 @@ describe('CSSParticles', () => {
 
     it('컨테이너가 모든 파티클 포함', () => {
       const { container } = render(<CSSParticles />);
-      const particlesContainer = container.querySelector('.css-particles');
+      const particlesContainer = container.querySelector('.css-particles') as HTMLElement;
       const particles = container.querySelectorAll('.particle');
 
       particles.forEach((particle) => {
-        expect(particlesContainer).toContainElement(particle);
+        expect(particlesContainer).toContainElement(particle as HTMLElement);
       });
     });
   });

@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { BrowserRouter } from 'react-router';
 import { SearchBox } from './SearchBox';
@@ -67,7 +68,8 @@ describe('SearchBox', () => {
       });
 
       const { container } = renderWithRouter(<SearchBox />);
-      const hint = container.querySelector('.pointer-events-none');
+      // Select the span hint, not the SVG icon
+      const hint = container.querySelector('span.pointer-events-none');
       expect(hint?.textContent).toBe('⌘K');
     });
 
@@ -85,24 +87,28 @@ describe('SearchBox', () => {
         </BrowserRouter>,
       );
 
-      const hint = container.querySelector('.pointer-events-none');
+      // Select the span hint, not the SVG icon
+      const hint = container.querySelector('span.pointer-events-none');
       expect(hint?.textContent).toBe('Ctrl+K');
     });
 
     it('입력 중에는 단축키 힌트 숨김', async () => {
-      const { container, user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      const { container } = renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, 'test');
 
-      const hint = container.querySelector('.pointer-events-none');
+      // The span hint should not be in document when typing
+      const hint = container.querySelector('span.pointer-events-none');
       expect(hint).not.toBeInTheDocument();
     });
   });
 
   describe('검색 기능', () => {
     it('텍스트 입력 시 검색 결과 표시', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, 'home');
@@ -113,7 +119,8 @@ describe('SearchBox', () => {
     });
 
     it('일치하는 결과 없을 때 메시지 표시', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, 'nonexistent');
@@ -124,7 +131,8 @@ describe('SearchBox', () => {
     });
 
     it('빈 검색어는 결과 표시 안 함', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, '   '); // 공백만
@@ -134,7 +142,8 @@ describe('SearchBox', () => {
     });
 
     it('대소문자 구분 없이 검색', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, 'HOME');
@@ -147,7 +156,8 @@ describe('SearchBox', () => {
 
   describe('Clear 버튼', () => {
     it('텍스트 입력 시 Clear 버튼 표시', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, 'test');
@@ -157,7 +167,8 @@ describe('SearchBox', () => {
     });
 
     it('Clear 버튼 클릭 시 입력 초기화', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox') as HTMLInputElement;
 
       await user.type(searchInput, 'test');
@@ -178,7 +189,8 @@ describe('SearchBox', () => {
 
   describe('키보드 네비게이션', () => {
     it('ArrowDown으로 다음 결과 선택', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, 'p'); // privacy, sitemap 등 여러 결과
@@ -192,7 +204,8 @@ describe('SearchBox', () => {
     });
 
     it('Escape으로 검색 결과 닫기', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, 'home');
@@ -224,7 +237,8 @@ describe('SearchBox', () => {
     });
 
     it('aria-expanded 설정', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       expect(searchInput).toHaveAttribute('aria-expanded', 'false');
@@ -237,7 +251,8 @@ describe('SearchBox', () => {
     });
 
     it('listbox role 설정 (결과 목록)', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, 'home');
@@ -249,7 +264,8 @@ describe('SearchBox', () => {
     });
 
     it('option role 설정 (각 결과)', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, 'home');
@@ -263,7 +279,8 @@ describe('SearchBox', () => {
 
   describe('Edge Cases', () => {
     it('특수 문자 검색', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, '/@#$%');
@@ -274,7 +291,8 @@ describe('SearchBox', () => {
     });
 
     it('매우 긴 검색어', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox') as HTMLInputElement;
 
       const longQuery = 'a'.repeat(1000);
@@ -284,7 +302,8 @@ describe('SearchBox', () => {
     });
 
     it('숫자만 입력', async () => {
-      const { user } = renderWithRouter(<SearchBox />);
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
       await user.type(searchInput, '12345');
