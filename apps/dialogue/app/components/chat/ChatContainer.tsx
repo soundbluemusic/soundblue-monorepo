@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import m from '~/lib/messages';
+import { getResponse, initializeQA } from '~/lib/response-handler';
 import { generateId, type Message, useChatStore } from '~/stores';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
@@ -8,6 +9,7 @@ export function ChatContainer() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isThinking, setIsThinking] = useState(false);
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
+  const [qaInitialized, setQaInitialized] = useState(false);
 
   const {
     isHydrated,
@@ -18,6 +20,20 @@ export function ChatContainer() {
     addMessage,
     clearActive,
   } = useChatStore();
+
+  // Initialize Q&A database
+  useEffect(() => {
+    if (!qaInitialized) {
+      initializeQA()
+        .then(() => {
+          setQaInitialized(true);
+        })
+        .catch((error) => {
+          console.warn('Q&A initialization failed:', error);
+          setQaInitialized(true); // Continue anyway
+        });
+    }
+  }, [qaInitialized]);
 
   // Get messages from active conversation or local state (ghost mode)
   const activeConversation = getActiveConversation();
@@ -74,13 +90,16 @@ export function ChatContainer() {
 
       setIsThinking(true);
 
-      // Simulate response (replace with actual knowledge search)
-      await new Promise((resolve) => setTimeout(resolve, 500 + Math.random() * 500));
+      // Simulate thinking time for better UX
+      await new Promise((resolve) => setTimeout(resolve, 300 + Math.random() * 400));
+
+      // Get response from handler (time/date or Q&A)
+      const responseContent = getResponse(content);
 
       const assistantMessage: Message = {
         id: generateId(),
         role: 'assistant',
-        content: m['app.noResults'](),
+        content: responseContent || m['app.noResults'](),
         timestamp: Date.now(),
       };
 
