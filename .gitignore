@@ -27,6 +27,13 @@ packages/shared/
 **/public/sw.js
 **/public/workbox-*.js
 
+# Auto-generated sitemaps
+**/public/sitemap*.xml
+**/public/sitemap*.xsl
+
+# Auto-generated i18n dictionaries
+apps/tools/app/tools/translator/dictionary/i18n-*.ts
+
 # IDE
 .idea/
 .vscode/
