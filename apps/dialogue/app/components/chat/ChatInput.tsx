@@ -1,4 +1,4 @@
-import { type KeyboardEvent, useCallback, useState } from 'react';
+import { type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import m from '~/lib/messages';
 
 interface ChatInputProps {
@@ -8,6 +8,14 @@ interface ChatInputProps {
 
 export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
   const [input, setInput] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-focus input when enabled (after response)
+  useEffect(() => {
+    if (!disabled && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [disabled]);
 
   const handleSend = useCallback(() => {
     const trimmed = input.trim();
@@ -15,6 +23,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
 
     onSend(trimmed);
     setInput('');
+    // Focus will be maintained by the useEffect above
   }, [input, disabled, onSend]);
 
   const handleKeyDown = useCallback(
@@ -30,6 +39,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
   return (
     <div className="flex gap-2 items-end">
       <textarea
+        ref={textareaRef}
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}

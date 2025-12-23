@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import m from '~/lib/messages';
+import { addToContext, analyzeInput, type ConversationTurn } from '~/lib/nlu';
+import { getResponse, initializeQA } from '~/lib/response-handler';
+import { getLocale } from '~/paraglide/runtime';
 import { generateId, type Message, useChatStore } from '~/stores';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
@@ -8,6 +11,7 @@ export function ChatContainer() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isThinking, setIsThinking] = useState(false);
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
+  const [qaInitialized, setQaInitialized] = useState(false);
 
   const {
     isHydrated,
@@ -18,6 +22,20 @@ export function ChatContainer() {
     addMessage,
     clearActive,
   } = useChatStore();
+
+  // Initialize Q&A database
+  useEffect(() => {
+    if (!qaInitialized) {
+      initializeQA()
+        .then(() => {
+          setQaInitialized(true);
+        })
+        .catch((error) => {
+          console.warn('Q&A initialization failed:', error);
+          setQaInitialized(true); // Continue anyway
+        });
+    }
+  }, [qaInitialized]);
 
   // Get messages from active conversation or local state (ghost mode)
   const activeConversation = getActiveConversation();
@@ -56,7 +74,7 @@ export function ChatContainer() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Handle sending a message
+  // Handle sending a message with advanced NLU
   const handleSend = useCallback(
     async (content: string) => {
       const userMessage: Message = {
@@ -74,15 +92,39 @@ export function ChatContainer() {
 
       setIsThinking(true);
 
-      // Simulate response (replace with actual knowledge search)
-      await new Promise((resolve) => setTimeout(resolve, 500 + Math.random() * 500));
+      // LLM-like response time: 0.1s ~ 0.5s (100ms ~ 500ms)
+      await new Promise((resolve) => setTimeout(resolve, 100 + Math.random() * 400));
+
+      // Perform advanced NLU analysis
+      const locale = typeof getLocale === 'function' ? getLocale() : 'en';
+      const nluResult = analyzeInput(content, locale);
+
+      // Get response with NLU context
+      const responseContent = getResponse(content, {
+        intent: nluResult.intent,
+        sentiment: nluResult.sentiment,
+        implicitMeaning: nluResult.implicitMeaning,
+      });
+
+      const assistantResponse = responseContent || m['app.noResults']();
 
       const assistantMessage: Message = {
         id: generateId(),
         role: 'assistant',
-        content: m['app.noResults'](),
+        content: assistantResponse,
         timestamp: Date.now(),
       };
+
+      // Add to context for conversation tracking
+      const turn: ConversationTurn = {
+        userInput: content,
+        assistantResponse,
+        intent: nluResult.intent,
+        sentiment: nluResult.sentiment,
+        entities: nluResult.entities,
+        timestamp: Date.now(),
+      };
+      addToContext(turn);
 
       if (ghostMode) {
         setLocalMessages((prev) => [...prev, assistantMessage]);

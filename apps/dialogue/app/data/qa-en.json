@@ -1,0 +1,112 @@
+{
+  "items": [
+    {
+      "keywords": ["hello", "hi", "hey", "greetings"],
+      "patterns": ["^(hi|hello|hey)$", "^good (morning|afternoon|evening)$"],
+      "answer": "Hello! How can I help you today?",
+      "category": "greetings"
+    },
+    {
+      "keywords": ["how are you", "how do you do"],
+      "patterns": ["how are you", "how do you do", "how are you doing"],
+      "answer": "I'm doing well, thank you for asking! How can I assist you?",
+      "category": "greetings"
+    },
+    {
+      "keywords": ["thank", "thanks"],
+      "patterns": ["thank you", "thanks", "appreciate"],
+      "answer": "You're welcome! Feel free to ask me anything else.",
+      "category": "greetings"
+    },
+    {
+      "keywords": ["bye", "goodbye", "see you"],
+      "patterns": ["bye", "goodbye", "see you", "farewell"],
+      "answer": "Goodbye! Have a great day!",
+      "category": "greetings"
+    },
+    {
+      "keywords": ["name", "who are you"],
+      "patterns": ["what.*your name", "who are you", "who r u"],
+      "answer": "I'm Dialogue, a conversational learning tool. I can answer questions based on my knowledge base and help you with time and date information.",
+      "category": "about"
+    },
+    {
+      "keywords": ["help", "what can you do"],
+      "patterns": ["help", "what can you do", "how.*work"],
+      "answer": "I can help you with:\n• Current time and date\n• General knowledge questions\n• Information about various topics\n\nJust ask me anything!",
+      "category": "about"
+    },
+    {
+      "keywords": ["weather"],
+      "patterns": ["weather", "temperature", "forecast"],
+      "answer": "I don't have access to real-time weather data, but you can check your local weather forecast online or through weather apps.",
+      "category": "general"
+    },
+    {
+      "keywords": ["music", "song", "artist"],
+      "patterns": ["music", "song", "artist", "album"],
+      "answer": "I'd love to help with music! What would you like to know about music, songs, or artists?",
+      "category": "music"
+    },
+    {
+      "keywords": ["soundblue", "sound blue"],
+      "patterns": ["soundblue", "sound blue"],
+      "answer": "SoundBlue is a creative platform for musicians, offering music tools, learning resources, and an artist website. You can explore more at soundbluemusic.com.",
+      "category": "soundblue"
+    },
+    {
+      "keywords": ["programming", "code", "coding"],
+      "patterns": ["programming", "code", "coding", "developer"],
+      "answer": "I can help with basic programming concepts! What programming topic are you interested in?",
+      "category": "tech"
+    },
+    {
+      "keywords": ["javascript", "js"],
+      "patterns": ["javascript", "\\bjs\\b"],
+      "answer": "JavaScript is a versatile programming language used for web development. It runs in browsers and can also run on servers with Node.js.",
+      "category": "tech"
+    },
+    {
+      "keywords": ["react"],
+      "patterns": ["react", "reactjs"],
+      "answer": "React is a popular JavaScript library for building user interfaces. It uses a component-based architecture and virtual DOM for efficient rendering.",
+      "category": "tech"
+    },
+    {
+      "keywords": ["typescript"],
+      "patterns": ["typescript", "\\bts\\b"],
+      "answer": "TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. It adds static typing and other features to help catch errors early.",
+      "category": "tech"
+    },
+    {
+      "keywords": ["pwa", "progressive web app"],
+      "patterns": ["pwa", "progressive web app"],
+      "answer": "PWA (Progressive Web App) is a type of web application that can work offline, be installed on devices, and provide an app-like experience using web technologies.",
+      "category": "tech"
+    },
+    {
+      "keywords": ["offline"],
+      "patterns": ["offline", "internet", "connection"],
+      "answer": "This app works 100% offline! Once loaded, you can use it without an internet connection. All data is stored locally in your browser.",
+      "category": "app"
+    },
+    {
+      "keywords": ["language", "english", "korean"],
+      "patterns": ["language", "english", "korean", "translate"],
+      "answer": "This app supports English and Korean. You can switch languages using the language selector in the settings.",
+      "category": "app"
+    },
+    {
+      "keywords": ["calculator", "calculate", "math"],
+      "patterns": ["calculator", "calculate", "math", "\\d+\\s*[+\\-*/]\\s*\\d+"],
+      "answer": "I can help with basic math! Just ask me a calculation question, like 'what is 5 + 3?'",
+      "category": "utility"
+    },
+    {
+      "keywords": ["plus", "add", "sum"],
+      "patterns": ["what.*\\d+.*plus.*\\d+", "what.*\\d+.*add.*\\d+"],
+      "answer": "For calculations, please specify the numbers clearly, like '5 + 3'. I'll be happy to help!",
+      "category": "utility"
+    }
+  ]
+}
