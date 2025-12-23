@@ -9,7 +9,6 @@ import {
   HANGUL_END,
   JONG_COUNT,
   JONG_LIST,
-  JUNG_COUNT,
   JUNG_LIST,
   SYLLABLE_PER_CHO,
 } from './constants';
@@ -21,7 +20,7 @@ export interface Jamo {
 }
 
 // 유니코드 상수 (호환성)
-const HANGUL_START = HANGUL_BASE;
+const _HANGUL_START = HANGUL_BASE;
 
 // Export constants for backward compatibility
 export { CHO_LIST, DOUBLE_JONG, JONG_LIST, JUNG_LIST };
