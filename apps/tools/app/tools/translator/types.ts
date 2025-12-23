@@ -11,8 +11,9 @@ export interface ParticleInfo {
 
 export interface EndingInfo {
   tense: 'past' | 'present' | 'future';
-  formality: 'formal' | 'polite' | 'casual';
+  formality: 'formal' | 'polite' | 'casual' | 'plain';
   question?: boolean;
+  mood?: 'declarative' | 'interrogative' | 'imperative' | 'propositive';
 }
 
 export interface Token {

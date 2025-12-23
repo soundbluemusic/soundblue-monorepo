@@ -23,17 +23,33 @@ export const particles: Record<string, ParticleInfo> = {
 
 // 어미 (시제/높임 결정)
 export const endings: Record<string, EndingInfo> = {
-  // 현재
+  // 현재 - 평서문 (해라체/하다체)
+  는다: { tense: 'present', formality: 'plain' }, // 동사: 간다, 먹는다
+  ㄴ다: { tense: 'present', formality: 'plain' }, // 동사: 본다, 한다
+  다: { tense: 'present', formality: 'plain' }, // 형용사: 좋다, 크다
+
+  // 현재 - 해요체
   아요: { tense: 'present', formality: 'polite' },
   어요: { tense: 'present', formality: 'polite' },
   해요: { tense: 'present', formality: 'polite' },
+  여요: { tense: 'present', formality: 'polite' },
+
+  // 현재 - 합쇼체
   습니다: { tense: 'present', formality: 'formal' },
   ㅂ니다: { tense: 'present', formality: 'formal' },
 
-  // 과거
+  // 과거 - 평서문
+  았다: { tense: 'past', formality: 'plain' },
+  었다: { tense: 'past', formality: 'plain' },
+  했다: { tense: 'past', formality: 'plain' },
+  였다: { tense: 'past', formality: 'plain' },
+
+  // 과거 - 해요체
   았어요: { tense: 'past', formality: 'polite' },
   었어요: { tense: 'past', formality: 'polite' },
   했어요: { tense: 'past', formality: 'polite' },
+
+  // 과거 - 합쇼체
   았습니다: { tense: 'past', formality: 'formal' },
   었습니다: { tense: 'past', formality: 'formal' },
 
@@ -41,12 +57,22 @@ export const endings: Record<string, EndingInfo> = {
   '을 거예요': { tense: 'future', formality: 'polite' },
   'ㄹ 거예요': { tense: 'future', formality: 'polite' },
   겠습니다: { tense: 'future', formality: 'formal' },
+  겠다: { tense: 'future', formality: 'plain' },
 
   // 반말
   아: { tense: 'present', formality: 'casual' },
   어: { tense: 'present', formality: 'casual' },
+  해: { tense: 'present', formality: 'casual' },
   았어: { tense: 'past', formality: 'casual' },
   었어: { tense: 'past', formality: 'casual' },
+  했어: { tense: 'past', formality: 'casual' },
+
+  // 의문형
+  니: { tense: 'present', formality: 'casual', mood: 'interrogative' },
+  냐: { tense: 'present', formality: 'plain', mood: 'interrogative' },
+  나요: { tense: 'present', formality: 'polite', mood: 'interrogative' },
+  습니까: { tense: 'present', formality: 'formal', mood: 'interrogative' },
+  ㅂ니까: { tense: 'present', formality: 'formal', mood: 'interrogative' },
 };
 
 // 조사 목록 (길이순 정렬 - 긴 것 먼저 매칭)
