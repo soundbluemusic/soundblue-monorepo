@@ -123,6 +123,7 @@ describe('getTranslationStats - 통계', () => {
 		expect(stats.totalEndings).toBe(100);
 		expect(stats.totalPrefixes).toBe(50);
 		expect(stats.totalSuffixes).toBe(100);
+		expect(stats.totalExceptions).toBe(17500);
 		expect(stats.estimatedCoverage).toBe(350000);
 	});
 });
