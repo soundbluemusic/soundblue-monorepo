@@ -1309,6 +1309,7 @@ const manualKoToEnWords: Record<string, string> = {
   배고프: 'hungry',
   목마르: 'thirsty',
   기쁘: 'happy',
+  반갑: 'glad to see',
   슬프: 'sad',
   화나: 'angry',
   무섭: 'scary',

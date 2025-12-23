@@ -16,6 +16,11 @@ const manualKoToEnSentences: Record<string, string> = {
   '좋은 하루 되세요': 'Have a nice day',
   오랜만이에요: 'Long time no see',
   '처음 뵙겠습니다': 'Nice to meet you',
+  반갑습니다: 'Nice to meet you',
+  반가워요: 'Nice to meet you',
+  반갑다: 'Glad to see you',
+  '만나서 반갑습니다': 'Nice to meet you',
+  '만나서 반가워요': 'Nice to meet you',
   '잘 부탁드립니다': 'Please take care of me',
   수고하세요: 'Keep up the good work',
 
