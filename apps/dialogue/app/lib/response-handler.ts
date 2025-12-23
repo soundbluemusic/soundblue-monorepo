@@ -251,14 +251,23 @@ function searchQA(question: string, locale: string): string | null {
 // ========================================
 
 /**
- * Get response for user question
+ * Get response for user question with advanced NLU
  *
  * Priority:
  * 1. Time/Date queries (always accurate)
- * 2. Q&A database match
- * 3. null (no answer found)
+ * 2. Intent-based responses (greetings, gratitude, etc.)
+ * 3. Q&A database match (enhanced with NLU)
+ * 4. Context-aware fallback
+ * 5. null (no answer found)
  */
-export function getResponse(question: string): string | null {
+export function getResponse(
+  question: string,
+  nluResult?: {
+    intent: { intent: string; confidence: number };
+    sentiment: { polarity: number; emotion: string };
+    implicitMeaning?: { isSarcastic?: boolean; isPolite?: boolean };
+  },
+): string | null {
   const locale = typeof getLocale === 'function' ? getLocale() : 'en';
 
   // 1. Check time/date queries first
@@ -267,12 +276,130 @@ export function getResponse(question: string): string | null {
     return timeResponse;
   }
 
-  // 2. Search Q&A database
+  // 2. Intent-based responses (if NLU provided)
+  if (nluResult) {
+    const intentResponse = getIntentBasedResponse(nluResult, locale);
+    if (intentResponse) {
+      return intentResponse;
+    }
+  }
+
+  // 3. Search Q&A database
   const qaResponse = searchQA(question, locale);
   if (qaResponse) {
     return qaResponse;
   }
 
-  // 3. No answer found
+  // 4. Context-aware fallback
+  if (nluResult && nluResult.intent.confidence > 0.7) {
+    return getContextualFallback(nluResult, locale);
+  }
+
+  // 5. No answer found
   return null;
+}
+
+/**
+ * Generate intent-based responses
+ */
+function getIntentBasedResponse(
+  nluResult: {
+    intent: { intent: string; confidence: number };
+    sentiment: { polarity: number; emotion: string };
+    implicitMeaning?: { isSarcastic?: boolean; isPolite?: boolean };
+  },
+  locale: string,
+): string | null {
+  const { intent, sentiment, implicitMeaning } = nluResult;
+
+  // Handle sarcasm
+  if (implicitMeaning?.isSarcastic) {
+    return locale === 'ko'
+      ? '그렇게 생각하시는군요. 더 도와드릴 수 있는 게 있을까요?'
+      : 'I see. Is there anything else I can help you with?';
+  }
+
+  // Intent-specific responses
+  switch (intent.intent) {
+    case 'greeting':
+      if (sentiment.polarity > 0.5) {
+        return locale === 'ko'
+          ? '안녕하세요! 좋은 하루 보내고 계신가요? 무엇을 도와드릴까요?'
+          : 'Hello! Having a great day? How can I help you?';
+      }
+      return locale === 'ko' ? '안녕하세요! 무엇을 도와드릴까요?' : 'Hello! How can I assist you?';
+
+    case 'farewell':
+      return locale === 'ko' ? '좋은 하루 되세요! 또 만나요.' : 'Have a great day! See you later.';
+
+    case 'gratitude':
+      if (implicitMeaning?.isPolite) {
+        return locale === 'ko'
+          ? '천만에요! 도움이 되어 정말 기쁩니다. 다른 질문이 있으시면 언제든지 물어보세요.'
+          : "You're very welcome! I'm really glad I could help. Feel free to ask anything else.";
+      }
+      return locale === 'ko'
+        ? '천만에요! 다른 질문이 있으시면 언제든지 물어보세요.'
+        : "You're welcome! Feel free to ask anything else.";
+
+    case 'apology':
+      return locale === 'ko'
+        ? '괜찮습니다! 걱정하지 마세요. 무엇을 도와드릴까요?'
+        : "No problem at all! Don't worry about it. How can I help?";
+
+    case 'affirmation':
+      return locale === 'ko' ? '알겠습니다! 계속 진행하시겠어요?' : 'Got it! Shall we continue?';
+
+    case 'negation':
+      return locale === 'ko'
+        ? '알겠습니다. 다른 방법으로 도와드릴까요?'
+        : 'I understand. Can I help in a different way?';
+
+    case 'complaint':
+      if (sentiment.polarity < -0.6) {
+        return locale === 'ko'
+          ? '불편을 드려 정말 죄송합니다. 문제를 해결하도록 최선을 다하겠습니다. 구체적으로 어떤 문제가 있으신가요?'
+          : "I'm very sorry for the inconvenience. I'll do my best to help resolve this. What specifically is the issue?";
+      }
+      return locale === 'ko'
+        ? '문제가 있으신가요? 자세히 설명해 주시면 도와드리겠습니다.'
+        : 'Is there an issue? Please tell me more so I can help.';
+
+    case 'praise':
+      return locale === 'ko'
+        ? '감사합니다! 도움이 되어 기쁩니다. 다른 질문이 있으시면 말씀해 주세요.'
+        : "Thank you! I'm glad I could help. Let me know if you have other questions.";
+
+    default:
+      return null;
+  }
+}
+
+/**
+ * Generate contextual fallback responses
+ */
+function getContextualFallback(
+  nluResult: {
+    intent: { intent: string };
+    sentiment: { emotion: string };
+  },
+  locale: string,
+): string {
+  const { intent, sentiment } = nluResult;
+
+  if (intent.intent === 'question') {
+    return locale === 'ko'
+      ? '흥미로운 질문이네요! 현재 제 지식 베이스에는 정확한 답변이 없지만, 다르게 질문해 주시면 도움을 드릴 수 있을 것 같습니다.'
+      : "That's an interesting question! I don't have that in my knowledge base yet, but if you rephrase it, I might be able to help.";
+  }
+
+  if (sentiment.emotion === 'frustration') {
+    return locale === 'ko'
+      ? '답답하신 것 같네요. 다른 방식으로 도와드릴 수 있을까요?'
+      : 'I sense some frustration. Can I help in a different way?';
+  }
+
+  return locale === 'ko'
+    ? '관련된 답변을 찾지 못했습니다만, 계속 대화해 주세요!'
+    : "I couldn't find a relevant answer, but please keep talking!";
 }
