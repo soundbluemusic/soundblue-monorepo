@@ -54,20 +54,74 @@ const KOREAN_PARTICLES = [
   '로',
 ];
 
-// 한국어 연결 어미 (복합문 처리)
-const KOREAN_CONNECTIVES: Record<string, { en: string; type: string }> = {
-  고: { en: 'and', type: 'and' },
-  며: { en: 'and', type: 'and' },
-  으며: { en: 'and', type: 'and' },
-  서: { en: 'and then', type: 'sequence' },
+// 한국어 연결 어미 (복합문 처리) - 길이순 정렬 (긴 것부터 매칭)
+const KOREAN_CONNECTIVES: Record<string, { en: string; type: string; tense?: string }> = {
+  // 5글자 이상 - 과거 + 연결어미
+  았으니까: { en: 'because', type: 'reason', tense: 'past' },
+  었으니까: { en: 'because', type: 'reason', tense: 'past' },
+  였으니까: { en: 'because', type: 'reason', tense: 'past' },
+  했으니까: { en: 'because', type: 'reason', tense: 'past' },
+  // 4글자 - 과거 + 연결어미
+  았으며: { en: 'and', type: 'and', tense: 'past' },
+  었으며: { en: 'and', type: 'and', tense: 'past' },
+  였으며: { en: 'and', type: 'and', tense: 'past' },
+  했으며: { en: 'and', type: 'and', tense: 'past' },
+  았어서: { en: 'and then', type: 'sequence', tense: 'past' },
+  었어서: { en: 'and then', type: 'sequence', tense: 'past' },
+  였어서: { en: 'and then', type: 'sequence', tense: 'past' },
+  았지만: { en: 'but', type: 'but', tense: 'past' },
+  었지만: { en: 'but', type: 'but', tense: 'past' },
+  였지만: { en: 'but', type: 'but', tense: 'past' },
+  았는데: { en: 'but', type: 'but', tense: 'past' },
+  었는데: { en: 'but', type: 'but', tense: 'past' },
+  였는데: { en: 'but', type: 'but', tense: 'past' },
+  았으면: { en: 'if', type: 'condition', tense: 'past' },
+  었으면: { en: 'if', type: 'condition', tense: 'past' },
+  였으면: { en: 'if', type: 'condition', tense: 'past' },
+  // 3글자
+  으니까: { en: 'because', type: 'reason' },
+  아서는: { en: 'and then', type: 'sequence' },
+  어서는: { en: 'and then', type: 'sequence' },
+  으면서: { en: 'while', type: 'while' },
+  // 2글자
   아서: { en: 'and then', type: 'sequence' },
   어서: { en: 'and then', type: 'sequence' },
+  으며: { en: 'and', type: 'and' },
+  으면: { en: 'if', type: 'condition' },
+  면서: { en: 'while', type: 'while' },
   지만: { en: 'but', type: 'but' },
   는데: { en: 'but', type: 'but' },
-  면: { en: 'if', type: 'condition' },
-  으면: { en: 'if', type: 'condition' },
+  ㄴ데: { en: 'but', type: 'but' },
   니까: { en: 'because', type: 'reason' },
-  으니까: { en: 'because', type: 'reason' },
+  // 1글자
+  고: { en: 'and', type: 'and' },
+  며: { en: 'and', type: 'and' },
+  서: { en: 'and then', type: 'sequence' },
+  면: { en: 'if', type: 'condition' },
+};
+
+// 한국어 관형형 어미 (수식어 처리) - 길이순 정렬
+const KOREAN_MODIFIERS: Record<string, { type: string; tense: string }> = {
+  // 과거 관형형
+  았던: { type: 'modifier', tense: 'past' },
+  었던: { type: 'modifier', tense: 'past' },
+  였던: { type: 'modifier', tense: 'past' },
+  했던: { type: 'modifier', tense: 'past' },
+  // 현재/과거 관형형
+  는: { type: 'modifier', tense: 'present' },
+  은: { type: 'modifier', tense: 'past' },
+  ㄴ: { type: 'modifier', tense: 'past' },
+  // 미래/추정 관형형
+  을: { type: 'modifier', tense: 'future' },
+  ㄹ: { type: 'modifier', tense: 'future' },
+};
+
+// 한국어 부사형 어미
+const KOREAN_ADVERBIAL_ENDINGS: Record<string, { en: string; type: string }> = {
+  게: { en: '-ly', type: 'manner' }, // 형용사 → 부사
+  히: { en: '-ly', type: 'manner' }, // 형용사 → 부사 (조용히)
+  이: { en: '-ly', type: 'manner' }, // 형용사 → 부사 (깨끗이)
+  로: { en: 'as', type: 'manner' }, // ~로 (새로)
 };
 
 // 한국어 종결 어미 (시제/형태 추출, 길이순 정렬)
@@ -257,12 +311,18 @@ function analyzeAndTranslateToken(token: string): {
   role: 'subject' | 'object' | 'verb' | 'adverb' | 'modifier' | 'time' | 'location' | 'unknown';
   particle?: string;
   connective?: string;
+  connectiveType?: string;
   isAdjective?: boolean;
+  isModifier?: boolean;
   koreanStem?: string;
+  tense?: string;
 } {
   let word = token;
   let particle: string | undefined;
   let connective: string | undefined;
+  let connectiveType: string | undefined;
+  let isModifier = false;
+  let tense = 'present';
   let role:
     | 'subject'
     | 'object'
@@ -292,6 +352,8 @@ function analyzeAndTranslateToken(token: string): {
       role = 'location';
     } else if (['에게', '한테', '로', '으로'].includes(particle)) {
       role = 'location';
+    } else if (['와', '과', '하고', '랑', '이랑'].includes(particle)) {
+      role = 'object'; // with 관계
     }
   }
 
@@ -305,49 +367,202 @@ function analyzeAndTranslateToken(token: string): {
       role: 'verb',
       particle,
       connective: undefined,
+      tense: 'past',
     };
   }
 
-  // 3. 연결어미/종결어미 분리
-  let tense = 'present';
-  for (const [ending, info] of Object.entries(KOREAN_ENDINGS)) {
-    if (word.endsWith(ending)) {
-      word = word.slice(0, -ending.length);
-      tense = info.tense;
-      role = 'verb';
-      if (info.form === 'connective') {
-        connective = 'and';
-      }
-      break;
-    }
-  }
-
-  // 4. 연결어미 체크 (복합문)
-  for (const [conn, info] of Object.entries(KOREAN_CONNECTIVES)) {
+  // 3. 연결어미 체크 (복합문) - 긴 것부터 매칭
+  const sortedConnectives = Object.entries(KOREAN_CONNECTIVES).sort(
+    (a, b) => b[0].length - a[0].length,
+  );
+  for (const [conn, info] of sortedConnectives) {
     if (word.endsWith(conn)) {
       word = word.slice(0, -conn.length);
       connective = info.en;
+      connectiveType = info.type;
+      if (info.tense) {
+        tense = info.tense;
+      }
       role = 'verb';
       break;
     }
   }
 
-  // 5. 형용사인지 확인
+  // 4. 관형형 어미 체크 (수식어) - 긴 것부터 매칭
+  if (role === 'unknown') {
+    const sortedModifiers = Object.entries(KOREAN_MODIFIERS).sort(
+      (a, b) => b[0].length - a[0].length,
+    );
+    for (const [mod, info] of sortedModifiers) {
+      if (word.endsWith(mod)) {
+        word = word.slice(0, -mod.length);
+        isModifier = true;
+        role = 'modifier';
+        tense = info.tense;
+        break;
+      }
+    }
+  }
+
+  // 5. 부사형 어미 체크
+  if (role === 'unknown') {
+    for (const [adv, info] of Object.entries(KOREAN_ADVERBIAL_ENDINGS)) {
+      if (word.endsWith(adv) && word.length > adv.length) {
+        word = word.slice(0, -adv.length);
+        role = 'adverb';
+        break;
+      }
+    }
+  }
+
+  // 6. 종결어미 분리
+  if (role !== 'modifier' && role !== 'adverb' && !connective) {
+    const sortedEndings = Object.entries(KOREAN_ENDINGS).sort((a, b) => b[0].length - a[0].length);
+    for (const [ending, info] of sortedEndings) {
+      if (word.endsWith(ending)) {
+        word = word.slice(0, -ending.length);
+        tense = info.tense;
+        role = 'verb';
+        if (info.form === 'connective') {
+          connective = 'and';
+          connectiveType = 'and';
+        }
+        break;
+      }
+    }
+  }
+
+  // 7. 형용사인지 확인
   const isAdj = KOREAN_ADJECTIVE_STEMS.has(word);
 
-  // 6. 단어 번역
-  const translated = translateWord(word, tense, role);
+  // 8. 단어 번역
+  let translated = translateWord(word, tense, role);
 
-  // 주의: 전치사는 rearrangeToSVO에서 동사 타입에 따라 결정됨
+  // 9. 수식어인 경우 영어 형태 조정
+  if (isModifier) {
+    // 형용사 수식어: 좋은 → good, 새로운 → new
+    // 동사 수식어: 생긴 → opened, 만든 → made
+    if (tense === 'past' && !isAdj) {
+      // 과거분사 형태로 변환 (동사 수식어)
+      translated = conjugatePastParticiple(translated);
+    }
+  }
+
+  // 10. 부사인 경우 -ly 추가
+  if (role === 'adverb' && isAdj) {
+    translated = convertToAdverb(translated);
+  }
+
   return {
     original: token,
     translated,
     role,
     particle,
     connective,
+    connectiveType,
     isAdjective: isAdj,
+    isModifier,
     koreanStem: word,
+    tense,
   };
+}
+
+/**
+ * 과거분사 변환
+ */
+function conjugatePastParticiple(verb: string): string {
+  // 불규칙 동사
+  const irregulars: Record<string, string> = {
+    open: 'opened',
+    make: 'made',
+    take: 'taken',
+    give: 'given',
+    write: 'written',
+    eat: 'eaten',
+    see: 'seen',
+    go: 'gone',
+    come: 'come',
+    do: 'done',
+    be: 'been',
+    have: 'had',
+    get: 'gotten',
+    buy: 'bought',
+    bring: 'brought',
+    build: 'built',
+    catch: 'caught',
+    find: 'found',
+    hear: 'heard',
+    hold: 'held',
+    keep: 'kept',
+    know: 'known',
+    leave: 'left',
+    lose: 'lost',
+    meet: 'met',
+    pay: 'paid',
+    put: 'put',
+    read: 'read',
+    run: 'run',
+    say: 'said',
+    sell: 'sold',
+    send: 'sent',
+    sit: 'sat',
+    sleep: 'slept',
+    speak: 'spoken',
+    spend: 'spent',
+    stand: 'stood',
+    teach: 'taught',
+    tell: 'told',
+    think: 'thought',
+    understand: 'understood',
+    win: 'won',
+  };
+
+  if (irregulars[verb]) {
+    return irregulars[verb];
+  }
+
+  // 규칙 동사 - 과거형과 동일
+  return conjugatePast(verb);
+}
+
+/**
+ * 형용사 → 부사 변환
+ */
+function convertToAdverb(adjective: string): string {
+  // 특수 케이스
+  const irregulars: Record<string, string> = {
+    good: 'well',
+    fast: 'fast',
+    hard: 'hard',
+    late: 'late',
+    early: 'early',
+    high: 'high',
+    low: 'low',
+    near: 'near',
+    far: 'far',
+    happy: 'happily',
+    easy: 'easily',
+    angry: 'angrily',
+    lucky: 'luckily',
+    busy: 'busily',
+  };
+
+  if (irregulars[adjective]) {
+    return irregulars[adjective];
+  }
+
+  // 규칙: -ly 추가
+  if (adjective.endsWith('y')) {
+    return `${adjective.slice(0, -1)}ily`;
+  }
+  if (adjective.endsWith('le')) {
+    return `${adjective.slice(0, -2)}ly`;
+  }
+  if (adjective.endsWith('ic')) {
+    return `${adjective}ally`;
+  }
+
+  return `${adjective}ly`;
 }
 
 /**
@@ -406,7 +621,7 @@ function _getPrepositionForParticle(particle: string): string {
 }
 
 /**
- * SOV → SVO 어순 변환
+ * SOV → SVO 어순 변환 (관형절, 부사절 처리 포함)
  */
 function rearrangeToSVO(
   tokens: Array<{
@@ -415,55 +630,116 @@ function rearrangeToSVO(
     role: string;
     particle?: string;
     connective?: string;
+    connectiveType?: string;
     isAdjective?: boolean;
+    isModifier?: boolean;
     koreanStem?: string;
+    tense?: string;
   }>,
 ): string {
   const subjects: string[] = [];
   const verbs: string[] = [];
   const objects: string[] = [];
   const adverbs: string[] = [];
+  const modifiers: string[] = []; // 수식어 (다음 명사 앞에 배치)
   const locations: Array<{ text: string; particle?: string }> = [];
+  const companions: Array<{ text: string; particle?: string }> = []; // with 관계
   const others: string[] = [];
   let connective = '';
+  let connectiveType = '';
   let hasAdjective = false;
+  let verbTense = 'present';
 
-  for (const token of tokens) {
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    const nextToken = tokens[i + 1];
+
     // 연결어미 저장
     if (token.connective) {
       connective = token.connective;
+      connectiveType = token.connectiveType || '';
+    }
+
+    // 시제 저장
+    if (token.tense) {
+      verbTense = token.tense;
     }
 
     // 형용사 체크
-    if (token.isAdjective) {
+    if (token.isAdjective && token.role === 'verb') {
       hasAdjective = true;
     }
 
     switch (token.role) {
       case 'subject':
-        subjects.push(token.translated);
+        // 수식어가 있으면 주어 앞에 붙임
+        if (modifiers.length > 0) {
+          subjects.push(`${modifiers.join(' ')} ${token.translated}`);
+          modifiers.length = 0;
+        } else {
+          subjects.push(token.translated);
+        }
         break;
       case 'object':
-        objects.push(token.translated);
+        // 수식어가 있으면 목적어 앞에 붙임
+        if (modifiers.length > 0) {
+          // with 관계 처리
+          if (['와', '과', '하고', '랑', '이랑'].includes(token.particle || '')) {
+            companions.push({
+              text: `${modifiers.join(' ')} ${token.translated}`,
+              particle: token.particle,
+            });
+          } else {
+            objects.push(`${modifiers.join(' ')} ${token.translated}`);
+          }
+          modifiers.length = 0;
+        } else {
+          if (['와', '과', '하고', '랑', '이랑'].includes(token.particle || '')) {
+            companions.push({ text: token.translated, particle: token.particle });
+          } else {
+            objects.push(token.translated);
+          }
+        }
         break;
       case 'verb':
         verbs.push(token.translated);
         break;
       case 'adverb':
-      case 'modifier':
         adverbs.push(token.translated);
         break;
+      case 'modifier':
+        // 수식어는 다음 명사 앞에 배치될 것임
+        modifiers.push(token.translated);
+        break;
       case 'location':
-        locations.push({ text: token.translated, particle: token.particle });
+        // 수식어가 있으면 장소 앞에 붙임
+        if (modifiers.length > 0) {
+          locations.push({
+            text: `${modifiers.join(' ')} ${token.translated}`,
+            particle: token.particle,
+          });
+          modifiers.length = 0;
+        } else {
+          locations.push({ text: token.translated, particle: token.particle });
+        }
         break;
       default:
         // 시간 표현은 앞에
         if (isTimeExpression(token.translated)) {
           adverbs.unshift(token.translated);
+        } else if (modifiers.length > 0) {
+          // 수식어가 있으면 기타 앞에 붙임
+          others.push(`${modifiers.join(' ')} ${token.translated}`);
+          modifiers.length = 0;
         } else {
           others.push(token.translated);
         }
     }
+  }
+
+  // 남은 수식어가 있으면 others에 추가
+  if (modifiers.length > 0) {
+    others.push(...modifiers);
   }
 
   // 동사 타입에 따른 전치사 결정
@@ -472,7 +748,7 @@ function rearrangeToSVO(
   // SVO 순서로 조합
   const parts: string[] = [];
 
-  // 시간/부사 표현
+  // 시간/부사 표현 (문두)
   if (adverbs.length > 0) {
     parts.push(...adverbs);
   }
@@ -482,9 +758,13 @@ function rearrangeToSVO(
     parts.push(...subjects);
   }
 
-  // 형용사 술어인 경우 "is" 추가
+  // 형용사 술어인 경우 "is/was" 추가
   if (hasAdjective && verbs.length > 0) {
-    parts.push('is');
+    if (verbTense === 'past') {
+      parts.push('was');
+    } else {
+      parts.push('is');
+    }
   }
 
   // 동사
@@ -497,6 +777,13 @@ function rearrangeToSVO(
     parts.push(...objects);
   }
 
+  // 동반자 (with 관계)
+  if (companions.length > 0) {
+    for (const comp of companions) {
+      parts.push(`with ${comp.text}`);
+    }
+  }
+
   // 장소 (전치사 포함)
   if (locations.length > 0) {
     for (const loc of locations) {
@@ -507,6 +794,8 @@ function rearrangeToSVO(
         prep = 'at'; // 에서 = at (장소에서 행동)
       } else if (loc.particle === '로' || loc.particle === '으로') {
         prep = 'to'; // 로/으로 = to (방향)
+      } else if (loc.particle === '에게' || loc.particle === '한테') {
+        prep = 'to'; // 에게/한테 = to (대상)
       }
       parts.push(`${prep} ${loc.text}`);
     }
@@ -519,9 +808,20 @@ function rearrangeToSVO(
 
   let result = parts.join(' ');
 
-  // 연결어미 추가
+  // 연결어미 추가 (타입에 따라 다르게 처리)
   if (connective) {
-    result = `${result} ${connective}`;
+    if (connectiveType === 'reason') {
+      // because는 문두로 이동하거나 문장 뒤에
+      result = `${result}, ${connective}`;
+    } else if (connectiveType === 'condition') {
+      // if는 절 앞에
+      result = `${result}, ${connective}`;
+    } else if (connectiveType === 'while') {
+      // while
+      result = `${result}, ${connective}`;
+    } else {
+      result = `${result} ${connective}`;
+    }
   }
 
   // 첫 글자 대문자
