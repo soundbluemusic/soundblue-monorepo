@@ -29,7 +29,7 @@ export const Y_TO_I_RULE: SpellingRule = {
     }
     // 자음 + y → i
     if (/[^aeiou]y$/.test(word)) {
-      return word.slice(0, -1) + 'i' + suffix;
+      return `${word.slice(0, -1)}i${suffix}`;
     }
     return word + suffix;
   },
@@ -103,10 +103,10 @@ export const F_TO_V_RULE: SpellingRule = {
       return word + suffix;
     }
     if (/fe$/.test(word)) {
-      return word.slice(0, -2) + 'ves';
+      return `${word.slice(0, -2)}ves`;
     }
     if (/f$/.test(word)) {
-      return word.slice(0, -1) + 'ves';
+      return `${word.slice(0, -1)}ves`;
     }
     return word + suffix;
   },
@@ -133,7 +133,7 @@ export const ADD_ES_RULE: SpellingRule = {
       return word + suffix;
     }
     if (/(s|x|z|ch|sh)$/.test(word)) {
-      return word + 'es';
+      return `${word}es`;
     }
     return word + suffix;
   },
@@ -161,11 +161,11 @@ export const O_TO_OES_RULE: SpellingRule = {
     // 예외 단어들 (외래어, 음악 용어 등)
     const exceptions = ['photo', 'piano', 'solo', 'studio', 'video', 'radio', 'zoo'];
     if (exceptions.includes(word)) {
-      return word + 's';
+      return `${word}s`;
     }
     // 자음 + o
     if (/[^aeiou]o$/.test(word)) {
-      return word + 'es';
+      return `${word}es`;
     }
     return word + suffix;
   },
@@ -201,11 +201,16 @@ export const IC_TO_ICAL_RULE: SpellingRule = {
   name: 'ic_to_ical',
   description: 'ic로 끝나는 형용사 → ically',
   pattern: /ic$/,
-  examples: ['basic → basically', 'magic → magically', 'specific → specifically', 'tragic → tragically'],
+  examples: [
+    'basic → basically',
+    'magic → magically',
+    'specific → specifically',
+    'tragic → tragically',
+  ],
   apply: (word: string, suffix: string) => {
     // -ly를 붙일 때
     if (suffix === 'ly' && /ic$/.test(word)) {
-      return word + 'ally';
+      return `${word}ally`;
     }
     return word + suffix;
   },
@@ -218,7 +223,12 @@ export const SILENT_E_BEFORE_MENT_RULE: SpellingRule = {
   name: 'silent_e_before_ment',
   description: '-ment 앞에서 e 유지',
   pattern: /[^aeiou]e$/,
-  examples: ['move → movement', 'manage → management', 'engage → engagement', 'arrange → arrangement'],
+  examples: [
+    'move → movement',
+    'manage → management',
+    'engage → engagement',
+    'arrange → arrangement',
+  ],
   apply: (word: string, suffix: string) => {
     // -ment, -ness, -ful, -less는 e 유지
     const keepESuffixes = /^(ment|ness|ful|less)$/;
@@ -239,7 +249,7 @@ export const LE_TO_LY_RULE: SpellingRule = {
   examples: ['possible → possibly', 'terrible → terribly', 'gentle → gently', 'simple → simply'],
   apply: (word: string, suffix: string) => {
     if (suffix === 'ly' && /le$/.test(word)) {
-      return word.slice(0, -1) + 'y';
+      return `${word.slice(0, -1)}y`;
     }
     return word + suffix;
   },

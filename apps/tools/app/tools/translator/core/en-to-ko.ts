@@ -1,10 +1,12 @@
 // ========================================
 // English to Korean Engine - 영→한 자소 기반 번역
+// 문장 수준 번역 지원 (토큰화, 접속사 처리, 어순 변환)
 // ========================================
 
 import { translatePrefix } from '../dictionary/prefixes';
 import { translateStemEnToKo } from '../dictionary/stems';
 import { translateSuffix } from '../dictionary/suffixes';
+import { enToKoWords } from '../dictionary/words';
 import { decomposeEnglish, type EnglishMorpheme } from '../jaso/english-morpheme';
 
 export interface EnToKoResult {
@@ -16,16 +18,677 @@ export interface EnToKoResult {
   translated: string; // 최종 번역
 }
 
+// 영어 접속사 → 한국어 연결어미
+const ENGLISH_CONJUNCTIONS: Record<string, string> = {
+  and: '그리고',
+  but: '하지만',
+  or: '또는',
+  because: '왜냐하면',
+  so: '그래서',
+  // biome-ignore lint/suspicious/noThenProperty: dictionary key for translation
+  then: '그리고',
+  if: '만약',
+  when: '때',
+  while: '동안',
+  although: '비록',
+  however: '하지만',
+};
+
+// 영어 전치사 → 한국어 조사
+const ENGLISH_PREPOSITIONS: Record<string, string> = {
+  at: '에서',
+  in: '에',
+  on: '위에',
+  to: '에',
+  for: '위해',
+  with: '와 함께',
+  from: '에서부터',
+  by: '에 의해',
+  about: '에 대해',
+  of: '의',
+  during: '동안',
+  after: '후에',
+  before: '전에',
+  into: '안으로',
+  through: '통해',
+  between: '사이에',
+  among: '가운데',
+  under: '아래에',
+  over: '위에',
+  near: '근처에',
+  nearby: '근처',
+};
+
+// 영어 관사/한정사 (번역 시 생략)
+const ENGLISH_ARTICLES = new Set(['the', 'a', 'an']);
+
+// 영어 be 동사 (번역 시 특수 처리)
+const ENGLISH_BE_VERBS = new Set(['am', 'is', 'are', 'was', 'were', 'be', 'been', 'being']);
+
+// 영어 불규칙 동사 과거형
+const ENGLISH_IRREGULAR_VERBS: Record<string, { base: string; tense: 'past' }> = {
+  went: { base: 'go', tense: 'past' },
+  ate: { base: 'eat', tense: 'past' },
+  saw: { base: 'see', tense: 'past' },
+  came: { base: 'come', tense: 'past' },
+  took: { base: 'take', tense: 'past' },
+  made: { base: 'make', tense: 'past' },
+  got: { base: 'get', tense: 'past' },
+  gave: { base: 'give', tense: 'past' },
+  knew: { base: 'know', tense: 'past' },
+  thought: { base: 'think', tense: 'past' },
+  found: { base: 'find', tense: 'past' },
+  said: { base: 'say', tense: 'past' },
+  told: { base: 'tell', tense: 'past' },
+  felt: { base: 'feel', tense: 'past' },
+  left: { base: 'leave', tense: 'past' },
+  met: { base: 'meet', tense: 'past' },
+  sat: { base: 'sit', tense: 'past' },
+  stood: { base: 'stand', tense: 'past' },
+  heard: { base: 'hear', tense: 'past' },
+  ran: { base: 'run', tense: 'past' },
+  wrote: { base: 'write', tense: 'past' },
+  read: { base: 'read', tense: 'past' },
+  spoke: { base: 'speak', tense: 'past' },
+  broke: { base: 'break', tense: 'past' },
+  bought: { base: 'buy', tense: 'past' },
+  brought: { base: 'bring', tense: 'past' },
+  taught: { base: 'teach', tense: 'past' },
+  caught: { base: 'catch', tense: 'past' },
+  slept: { base: 'sleep', tense: 'past' },
+  won: { base: 'win', tense: 'past' },
+  lost: { base: 'lose', tense: 'past' },
+  sent: { base: 'send', tense: 'past' },
+  spent: { base: 'spend', tense: 'past' },
+  built: { base: 'build', tense: 'past' },
+  held: { base: 'hold', tense: 'past' },
+  sold: { base: 'sell', tense: 'past' },
+  returned: { base: 'return', tense: 'past' },
+  visited: { base: 'visit', tense: 'past' },
+  looked: { base: 'look', tense: 'past' },
+  opened: { base: 'open', tense: 'past' },
+};
+
+// 영어 형용사 목록 (수식어 판별용)
+const ENGLISH_ADJECTIVES = new Set([
+  'new',
+  'newly',
+  'old',
+  'young',
+  'good',
+  'bad',
+  'beautiful',
+  'ugly',
+  'big',
+  'small',
+  'large',
+  'little',
+  'long',
+  'short',
+  'tall',
+  'high',
+  'low',
+  'hot',
+  'cold',
+  'warm',
+  'cool',
+  'fast',
+  'slow',
+  'quick',
+  'hard',
+  'soft',
+  'happy',
+  'sad',
+  'angry',
+  'delicious',
+  'tasty',
+  'interesting',
+  'boring',
+  'important',
+  'urgent',
+  'famous',
+  'popular',
+  'expensive',
+  'cheap',
+  'nice',
+  'great',
+  'wonderful',
+  'amazing',
+  'terrible',
+  'horrible',
+  'opened',
+  'closed',
+  'nearby',
+  'italian',
+  'chinese',
+  'korean',
+  'japanese',
+]);
+
+// 영어 부사 목록
+const ENGLISH_ADVERBS = new Set([
+  'very',
+  'really',
+  'quite',
+  'too',
+  'so',
+  'already',
+  'still',
+  'just',
+  'always',
+  'never',
+  'often',
+  'sometimes',
+  'usually',
+  'rarely',
+  'happily',
+  'sadly',
+  'quickly',
+  'slowly',
+  'carefully',
+  'easily',
+  'early',
+  'late',
+  'soon',
+  'yesterday',
+  'today',
+  'tomorrow',
+]);
+
 /**
  * 영어 → 한국어 번역 (자소 기반)
+ * 문장 수준 번역 지원
  *
  * @example
  * translateEnToKo('unhappiness') → '불행복함'
- * translateEnToKo('rewriting') → '재작성하는'
+ * translateEnToKo('I ate breakfast') → '나는 아침을 먹었다'
  */
 export function translateEnToKo(text: string): string {
+  // 0. 사전에서 직접 조회 (최우선)
+  const lowerText = text.toLowerCase();
+  const directTranslation = enToKoWords[lowerText];
+  if (directTranslation) {
+    return directTranslation;
+  }
+
+  // 문장인지 단어인지 판별
+  const hasSpaces = text.includes(' ');
+  const hasCommas = text.includes(',');
+
+  if (hasSpaces || hasCommas) {
+    // 문장 수준 번역
+    return translateSentenceEnToKo(text);
+  }
+
+  // 단어 수준 번역
   const result = translateEnToKoDetailed(text);
   return result?.translated || text;
+}
+
+/**
+ * 문장 수준 영→한 번역
+ */
+function translateSentenceEnToKo(text: string): string {
+  // 1. 쉼표로 절 분리
+  const clauses = text.split(/,\s*/);
+  const translatedClauses: string[] = [];
+
+  for (const clause of clauses) {
+    if (!clause.trim()) continue;
+    const translatedClause = translateClauseEnToKo(clause.trim());
+    translatedClauses.push(translatedClause);
+  }
+
+  // 절들을 적절한 접속사로 연결
+  return translatedClauses.join(', ');
+}
+
+/**
+ * 절 수준 영→한 번역 (SVO → SOV 변환)
+ */
+function translateClauseEnToKo(clause: string): string {
+  // 토큰화 (공백 기준)
+  const tokens = clause.split(/\s+/);
+
+  // 각 토큰 분석 및 번역
+  const analyzed: Array<{
+    original: string;
+    translated: string;
+    role:
+      | 'subject'
+      | 'verb'
+      | 'object'
+      | 'preposition'
+      | 'conjunction'
+      | 'adverb'
+      | 'adjective'
+      | 'article'
+      | 'auxiliary'
+      | 'unknown';
+    tense?: 'past' | 'present' | 'future';
+  }> = [];
+
+  let prevRole: string | undefined;
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (!token) continue;
+
+    const result = analyzeAndTranslateEnToken(token, prevRole, i === 0);
+    analyzed.push(result);
+    prevRole = result.role;
+  }
+
+  // SOV 어순으로 재배열
+  return rearrangeToSOV(analyzed);
+}
+
+/**
+ * 영어 토큰 분석 및 번역
+ */
+function analyzeAndTranslateEnToken(
+  token: string,
+  prevRole: string | undefined,
+  isFirst: boolean,
+): {
+  original: string;
+  translated: string;
+  role:
+    | 'subject'
+    | 'verb'
+    | 'object'
+    | 'preposition'
+    | 'conjunction'
+    | 'adverb'
+    | 'adjective'
+    | 'article'
+    | 'auxiliary'
+    | 'unknown';
+  tense?: 'past' | 'present' | 'future';
+  isModifier?: boolean;
+} {
+  const lowerToken = token.toLowerCase();
+
+  // 1. 관사 체크 (번역에서 생략)
+  if (ENGLISH_ARTICLES.has(lowerToken)) {
+    return { original: token, translated: '', role: 'article' };
+  }
+
+  // 2. 접속사 체크
+  const conjunction = ENGLISH_CONJUNCTIONS[lowerToken];
+  if (conjunction) {
+    return { original: token, translated: conjunction, role: 'conjunction' };
+  }
+
+  // 3. 전치사 체크
+  const preposition = ENGLISH_PREPOSITIONS[lowerToken];
+  if (preposition) {
+    return { original: token, translated: preposition, role: 'preposition' };
+  }
+
+  // 4. be 동사 체크
+  if (ENGLISH_BE_VERBS.has(lowerToken)) {
+    const tense = ['was', 'were'].includes(lowerToken) ? ('past' as const) : ('present' as const);
+    return { original: token, translated: '', role: 'auxiliary', tense };
+  }
+
+  // 5. 불규칙 동사 과거형 체크
+  const irregularVerb = ENGLISH_IRREGULAR_VERBS[lowerToken];
+  if (irregularVerb) {
+    // 사전에서 기본형 번역
+    const baseTranslation = enToKoWords[irregularVerb.base];
+    if (baseTranslation) {
+      return {
+        original: token,
+        translated: baseTranslation,
+        role: prevRole === 'auxiliary' ? 'adjective' : 'verb',
+        tense: 'past',
+      };
+    }
+  }
+
+  // 6. 부사 체크
+  if (ENGLISH_ADVERBS.has(lowerToken)) {
+    const directTranslation = enToKoWords[lowerToken];
+    return {
+      original: token,
+      translated: directTranslation || token,
+      role: 'adverb',
+    };
+  }
+
+  // 7. 형용사 체크 (관형어로 사용될 수 있음)
+  if (ENGLISH_ADJECTIVES.has(lowerToken)) {
+    const directTranslation = enToKoWords[lowerToken];
+    // 이전이 관사나 부사면 관형어 (modifier)
+    const isModifier = prevRole === 'article' || prevRole === 'adverb' || prevRole === 'adjective';
+    return {
+      original: token,
+      translated: directTranslation || token,
+      role: 'adjective',
+      isModifier,
+    };
+  }
+
+  // 8. 사전에서 직접 검색
+  const directTranslation = enToKoWords[lowerToken];
+  if (directTranslation !== undefined) {
+    // 역할 추론
+    let role: 'subject' | 'verb' | 'object' | 'adverb' | 'adjective' | 'unknown' = 'unknown';
+    let tense: 'past' | 'present' | 'future' | undefined;
+
+    // 첫 번째 단어이고 대명사면 주어
+    if (isFirst && ['i', 'you', 'he', 'she', 'it', 'we', 'they'].includes(lowerToken)) {
+      role = 'subject';
+    }
+    // 이전이 주어/부사면 동사
+    else if (prevRole === 'subject' || prevRole === 'adverb' || prevRole === 'auxiliary') {
+      role = 'verb';
+    }
+    // 이전이 동사면 목적어
+    else if (prevRole === 'verb') {
+      role = 'object';
+    }
+    // 이전이 전치사면 목적어
+    else if (prevRole === 'preposition') {
+      role = 'object';
+    }
+    // 이전이 관사/형용사면 목적어 (a beautiful painting → 아름다운 그림을)
+    else if (prevRole === 'article' || prevRole === 'adjective') {
+      role = 'object';
+    }
+
+    // -ed 어미로 과거 시제 추론
+    if (lowerToken.endsWith('ed') && role === 'verb') {
+      tense = 'past';
+    }
+
+    return { original: token, translated: directTranslation, role, tense };
+  }
+
+  // 9. 형태소 분해 번역
+  const morphemeResult = translateEnToKoDetailed(token);
+  if (morphemeResult && morphemeResult.translated !== token) {
+    let role: 'subject' | 'verb' | 'object' | 'adverb' | 'adjective' | 'unknown' = 'unknown';
+    let tense: 'past' | 'present' | 'future' | undefined;
+
+    if (prevRole === 'subject' || prevRole === 'adverb' || prevRole === 'auxiliary') {
+      role = 'verb';
+    } else if (prevRole === 'verb' || prevRole === 'preposition') {
+      role = 'object';
+    } else if (prevRole === 'article' || prevRole === 'adjective') {
+      role = 'object';
+    }
+
+    // -ed 어미로 과거 시제 추론
+    if (lowerToken.endsWith('ed') && role === 'verb') {
+      tense = 'past';
+    }
+
+    return { original: token, translated: morphemeResult.translated, role, tense };
+  }
+
+  // 10. 원본 반환 (로마자 유지)
+  return { original: token, translated: token, role: 'unknown' };
+}
+
+/**
+ * SVO → SOV 어순 변환 (관형절, 부사절 처리 포함)
+ */
+function rearrangeToSOV(
+  tokens: Array<{
+    original: string;
+    translated: string;
+    role: string;
+    tense?: string;
+    isModifier?: boolean;
+  }>,
+): string {
+  const subjects: string[] = [];
+  const verbs: string[] = [];
+  const objects: string[] = [];
+  const adverbs: string[] = [];
+  const conjunctions: string[] = [];
+  const locations: Array<{ text: string; preposition?: string }> = [];
+  const companions: string[] = []; // with 관계
+  const modifiers: string[] = []; // 관형어 (다음 명사 앞에 배치)
+  const others: string[] = [];
+  let pastTense = false;
+  let verbTense = 'present';
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    const nextToken = tokens[i + 1];
+
+    // 빈 번역은 건너뜀 (관사, be동사 등)
+    if (!token.translated) {
+      // be 동사의 시제는 기억
+      if (token.role === 'auxiliary' && token.tense === 'past') {
+        pastTense = true;
+      }
+      continue;
+    }
+
+    // 동사의 시제 저장
+    if (token.tense === 'past') {
+      verbTense = 'past';
+      pastTense = true;
+    }
+
+    switch (token.role) {
+      case 'subject':
+        // 수식어가 있으면 주어 앞에 붙임
+        if (modifiers.length > 0) {
+          subjects.push(`${modifiers.join(' ')} ${token.translated}는`);
+          modifiers.length = 0;
+        } else {
+          subjects.push(`${token.translated}는`);
+        }
+        break;
+      case 'verb':
+        verbs.push(token.translated);
+        break;
+      case 'object':
+        // 수식어가 있으면 목적어 앞에 붙임 (관형절)
+        if (modifiers.length > 0) {
+          // 형용사 → 관형형 변환 (예: 아름다운, 새로운)
+          const modifiedText = modifiers.map((m) => convertToKoreanModifier(m)).join(' ');
+          objects.push(`${modifiedText} ${token.translated}`);
+          modifiers.length = 0;
+        } else {
+          objects.push(token.translated);
+        }
+        break;
+      case 'preposition':
+        // 전치사는 다음 목적어와 함께 처리
+        if (token.translated === '와 함께') {
+          // with → 다음 명사와 함께 companion에 추가
+          // 다음 토큰이 목적어면 함께 처리
+        } else if (objects.length > 0) {
+          const lastObj = objects.pop();
+          // 전치사 뒤에 조사 배치 (한국어는 조사가 뒤에)
+          if (token.translated.includes('에')) {
+            locations.push({ text: lastObj || '', preposition: token.translated });
+          } else {
+            objects.push(`${lastObj}${token.translated}`);
+          }
+        } else {
+          // 전치사 정보 저장 (다음 명사에 적용될 것)
+          others.push(token.translated);
+        }
+        break;
+      case 'conjunction':
+        conjunctions.push(token.translated);
+        break;
+      case 'adverb':
+        adverbs.push(token.translated);
+        break;
+      case 'adjective':
+        // 형용사는 관형어로 처리 (다음 명사 앞에 배치)
+        if (token.isModifier || (nextToken && ['object', 'unknown'].includes(nextToken.role))) {
+          modifiers.push(token.translated);
+        } else {
+          // 서술어로 사용
+          verbs.push(token.translated);
+        }
+        break;
+      default:
+        // 전치사 뒤에 온 명사 → 장소
+        if (i > 0 && tokens[i - 1]?.role === 'preposition') {
+          const prevPrep = tokens[i - 1].translated;
+          if (prevPrep.includes('에') || prevPrep.includes('로')) {
+            // 수식어가 있으면 장소 앞에 붙임
+            if (modifiers.length > 0) {
+              const modifiedText = modifiers.map((m) => convertToKoreanModifier(m)).join(' ');
+              locations.push({
+                text: `${modifiedText} ${token.translated}`,
+                preposition: prevPrep,
+              });
+              modifiers.length = 0;
+            } else {
+              locations.push({ text: token.translated, preposition: prevPrep });
+            }
+          } else if (prevPrep === '와 함께') {
+            companions.push(token.translated);
+          } else {
+            if (modifiers.length > 0) {
+              others.push(`${modifiers.join(' ')} ${token.translated}`);
+              modifiers.length = 0;
+            } else {
+              others.push(token.translated);
+            }
+          }
+        } else if (modifiers.length > 0) {
+          others.push(`${modifiers.join(' ')} ${token.translated}`);
+          modifiers.length = 0;
+        } else {
+          others.push(token.translated);
+        }
+    }
+  }
+
+  // 남은 수식어가 있으면 others에 추가
+  if (modifiers.length > 0) {
+    others.push(...modifiers);
+  }
+
+  // SOV 순서로 조합
+  const parts: string[] = [];
+
+  // 접속사 (문두)
+  if (conjunctions.length > 0) {
+    parts.push(...conjunctions);
+  }
+
+  // 주어
+  if (subjects.length > 0) {
+    parts.push(...subjects);
+  }
+
+  // 부사
+  if (adverbs.length > 0) {
+    parts.push(...adverbs);
+  }
+
+  // 장소 (조사 포함)
+  if (locations.length > 0) {
+    for (const loc of locations) {
+      // 전치사에서 조사 추출
+      const particle = loc.preposition || '에서';
+      // 이미 조사가 포함되어 있지 않으면 추가
+      if (
+        !loc.text.endsWith('에') &&
+        !loc.text.endsWith('에서') &&
+        !loc.text.endsWith('로') &&
+        !loc.text.endsWith('으로')
+      ) {
+        parts.push(`${loc.text}${particle}`);
+      } else {
+        parts.push(loc.text);
+      }
+    }
+  }
+
+  // 동반자 (with 관계)
+  if (companions.length > 0) {
+    for (const comp of companions) {
+      parts.push(`${comp}와 함께`);
+    }
+  }
+
+  // 기타
+  if (others.length > 0) {
+    parts.push(...others.filter((o) => o && !o.includes('에') && o !== '와 함께'));
+  }
+
+  // 목적어
+  if (objects.length > 0) {
+    // 목적어에 조사 추가
+    const objsWithParticle = objects.map((obj, idx) => {
+      // 이미 조사가 있으면 건너뜀
+      if (
+        obj.includes('에') ||
+        obj.includes('와') ||
+        obj.endsWith('를') ||
+        obj.endsWith('을') ||
+        obj.endsWith('로')
+      ) {
+        return obj;
+      }
+      // 마지막 목적어에만 '를' 추가
+      if (idx === objects.length - 1) {
+        return `${obj}를`;
+      }
+      return obj;
+    });
+    parts.push(...objsWithParticle);
+  }
+
+  // 동사 (문장 끝)
+  if (verbs.length > 0) {
+    // 과거 시제 적용
+    const verbsWithTense = verbs.map((v) => {
+      if (pastTense && !v.endsWith('다') && !v.endsWith('었다') && !v.endsWith('았다')) {
+        return `${v}었다`;
+      }
+      return v;
+    });
+    parts.push(...verbsWithTense);
+  }
+
+  // 공백으로 연결
+  return parts.filter((p) => p && p.trim()).join(' ');
+}
+
+/**
+ * 형용사를 한국어 관형형으로 변환
+ * 예: 아름다운, 새로운, 좋은
+ */
+function convertToKoreanModifier(adjective: string): string {
+  // 이미 관형형이면 그대로 반환
+  if (adjective.endsWith('운') || adjective.endsWith('은') || adjective.endsWith('ㄴ')) {
+    return adjective;
+  }
+
+  // 형용사 + ㄴ/은 관형형 변환
+  // 받침 유무 확인
+  const lastChar = adjective[adjective.length - 1];
+  if (lastChar) {
+    const code = lastChar.charCodeAt(0);
+    // 한글 범위 확인
+    if (code >= 0xac00 && code <= 0xd7a3) {
+      const jongseong = (code - 0xac00) % 28;
+      if (jongseong === 0) {
+        // 받침 없음: ~ㄴ 추가 (예: 새로 → 새로운)
+        return `${adjective}운`;
+      }
+      // 받침 있음: ~은 추가 (예: 좋 → 좋은)
+      return `${adjective}은`;
+    }
+  }
+
+  // 기본값: ~은
+  return `${adjective}`;
 }
 
 /**

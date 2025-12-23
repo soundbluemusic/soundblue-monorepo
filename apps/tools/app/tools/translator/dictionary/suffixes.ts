@@ -112,7 +112,14 @@ export const VERB_PAST_SUFFIXES: SuffixInfo[] = [
     ko: '었/았',
     restoreRule: 'y-to-i',
   }, // studied
-  { suffix: 'd', pattern: /([^e])d$/, type: 'verb', category: 'verb-tense', ko: '었/았', restoreRule: 'e' }, // loved
+  {
+    suffix: 'd',
+    pattern: /([^e])d$/,
+    type: 'verb',
+    category: 'verb-tense',
+    ko: '었/았',
+    restoreRule: 'e',
+  }, // loved
   { suffix: 'ed', pattern: /ed$/, type: 'verb', category: 'verb-tense', ko: '었/았' }, // walked
 ];
 
@@ -182,12 +189,26 @@ export const VERB_PROGRESSIVE_SUFFIXES: SuffixInfo[] = [
     ko: '는',
     restoreRule: 'consonant-y',
   }, // studying
-  { suffix: 'ing', pattern: /ing$/, type: 'verb', category: 'verb-tense', ko: '는', restoreRule: 'e' }, // loving/making
+  {
+    suffix: 'ing',
+    pattern: /ing$/,
+    type: 'verb',
+    category: 'verb-tense',
+    ko: '는',
+    restoreRule: 'e',
+  }, // loving/making
 ];
 
 // 3인칭 단수 -s (5개)
 export const VERB_THIRD_PERSON_SUFFIXES: SuffixInfo[] = [
-  { suffix: 'ies', pattern: /ies$/, type: 'verb', category: 'verb-tense', ko: '다', restoreRule: 'y-to-i' }, // studies
+  {
+    suffix: 'ies',
+    pattern: /ies$/,
+    type: 'verb',
+    category: 'verb-tense',
+    ko: '다',
+    restoreRule: 'y-to-i',
+  }, // studies
   { suffix: 'es', pattern: /(s|x|z|ch|sh)es$/, type: 'verb', category: 'verb-tense', ko: '다' }, // watches
   { suffix: 's', pattern: /s$/, type: 'verb', category: 'verb-tense', ko: '다' }, // walks
   { suffix: 'ves', pattern: /ves$/, type: 'verb', category: 'verb-tense', ko: '다' }, // halves (f→v)
@@ -258,8 +279,20 @@ export const NOUN_PLACE_SUFFIXES: SuffixInfo[] = [
 // 6. 형용사 특성 접미사 (Adjective Quality) - 15개
 // ========================================
 export const ADJ_QUALITY_SUFFIXES: SuffixInfo[] = [
-  { suffix: 'able', pattern: /able$/, type: 'adjective', category: 'adj-quality', ko: '할 수 있는' }, // readable
-  { suffix: 'ible', pattern: /ible$/, type: 'adjective', category: 'adj-quality', ko: '할 수 있는' }, // possible
+  {
+    suffix: 'able',
+    pattern: /able$/,
+    type: 'adjective',
+    category: 'adj-quality',
+    ko: '할 수 있는',
+  }, // readable
+  {
+    suffix: 'ible',
+    pattern: /ible$/,
+    type: 'adjective',
+    category: 'adj-quality',
+    ko: '할 수 있는',
+  }, // possible
   { suffix: 'ful', pattern: /ful$/, type: 'adjective', category: 'adj-quality', ko: '가득한' }, // beautiful
   { suffix: 'less', pattern: /less$/, type: 'adjective', category: 'adj-quality', ko: '없는' }, // helpless
   { suffix: 'ous', pattern: /ous$/, type: 'adjective', category: 'adj-quality', ko: '한' }, // famous
@@ -304,7 +337,14 @@ export const ADJ_COMPARISON_SUFFIXES: SuffixInfo[] = [
     ko: '더',
     restoreRule: 'y-to-i',
   }, // happier
-  { suffix: 'r', pattern: /r$/, type: 'comparative', category: 'adj-comparison', ko: '더', restoreRule: 'e' }, // larger
+  {
+    suffix: 'r',
+    pattern: /r$/,
+    type: 'comparative',
+    category: 'adj-comparison',
+    ko: '더',
+    restoreRule: 'e',
+  }, // larger
   { suffix: 'est', pattern: /est$/, type: 'superlative', category: 'adj-comparison', ko: '가장' }, // biggest
   {
     suffix: 'iest',
@@ -323,7 +363,14 @@ export const ADVERB_SUFFIXES: SuffixInfo[] = [
   { suffix: 'ly', pattern: /ly$/, type: 'adverb', category: 'adverb', ko: '하게' }, // quickly
   { suffix: 'ally', pattern: /ally$/, type: 'adverb', category: 'adverb', ko: '하게' }, // basically
   { suffix: 'ically', pattern: /ically$/, type: 'adverb', category: 'adverb', ko: '하게' }, // logically
-  { suffix: 'ily', pattern: /ily$/, type: 'adverb', category: 'adverb', ko: '하게', restoreRule: 'y-to-i' }, // happily
+  {
+    suffix: 'ily',
+    pattern: /ily$/,
+    type: 'adverb',
+    category: 'adverb',
+    ko: '하게',
+    restoreRule: 'y-to-i',
+  }, // happily
   { suffix: 'ably', pattern: /ably$/, type: 'adverb', category: 'adverb', ko: '하게' }, // comfortably
   { suffix: 'ibly', pattern: /ibly$/, type: 'adverb', category: 'adverb', ko: '하게' }, // possibly
   { suffix: 'ously', pattern: /ously$/, type: 'adverb', category: 'adverb', ko: '하게' }, // famously
@@ -353,7 +400,11 @@ export const SUFFIXES: SuffixInfo[] = [
 // 카테고리별 접근 맵
 // ========================================
 export const SUFFIXES_BY_CATEGORY: Record<SuffixCategory, SuffixInfo[]> = {
-  'verb-tense': [...VERB_PAST_SUFFIXES, ...VERB_PROGRESSIVE_SUFFIXES, ...VERB_THIRD_PERSON_SUFFIXES],
+  'verb-tense': [
+    ...VERB_PAST_SUFFIXES,
+    ...VERB_PROGRESSIVE_SUFFIXES,
+    ...VERB_THIRD_PERSON_SUFFIXES,
+  ],
   'verb-form': VERB_FORM_SUFFIXES,
   'noun-abstract': NOUN_ABSTRACT_SUFFIXES,
   'noun-agent': NOUN_AGENT_SUFFIXES,
@@ -471,7 +522,10 @@ export function getSuffixCount(): number {
  */
 export function getSuffixCountByCategory(): Record<SuffixCategory, number> {
   return {
-    'verb-tense': VERB_PAST_SUFFIXES.length + VERB_PROGRESSIVE_SUFFIXES.length + VERB_THIRD_PERSON_SUFFIXES.length,
+    'verb-tense':
+      VERB_PAST_SUFFIXES.length +
+      VERB_PROGRESSIVE_SUFFIXES.length +
+      VERB_THIRD_PERSON_SUFFIXES.length,
     'verb-form': VERB_FORM_SUFFIXES.length,
     'noun-abstract': NOUN_ABSTRACT_SUFFIXES.length,
     'noun-agent': NOUN_AGENT_SUFFIXES.length,

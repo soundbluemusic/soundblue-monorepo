@@ -160,18 +160,7 @@ export const COMPLEX_CONSONANTS = [
  * 단순 모음 (10개)
  * 합성되지 않은 기본 모음
  */
-export const SIMPLE_VOWELS = [
-  'ㅏ',
-  'ㅐ',
-  'ㅓ',
-  'ㅔ',
-  'ㅗ',
-  'ㅜ',
-  'ㅡ',
-  'ㅣ',
-  'ㅛ',
-  'ㅠ',
-] as const;
+export const SIMPLE_VOWELS = ['ㅏ', 'ㅐ', 'ㅓ', 'ㅔ', 'ㅗ', 'ㅜ', 'ㅡ', 'ㅣ', 'ㅛ', 'ㅠ'] as const;
 
 /**
  * 복합 모음 (11개)

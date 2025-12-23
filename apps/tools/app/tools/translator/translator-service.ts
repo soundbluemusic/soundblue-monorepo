@@ -5,8 +5,6 @@
 // NLP 모듈 (WSD, 연어, 주제 탐지) 통합
 // ========================================
 
-// Import jaso-based translation engine
-import { translate as jasoTranslate } from './core/jaso-engine';
 import { translateEnToKo as coreTranslateEnToKo } from './core/en-to-ko';
 import { translateKoToEn as coreTranslateKoToEn } from './core/ko-to-en';
 
@@ -210,7 +208,7 @@ function getPastParticiple(verb: string): string {
 /**
  * 한→영 번역 (고급 문법 분석 기반)
  */
-function translateKoToEn(text: string, isQuestion: boolean = false): string {
+function _translateKoToEn(text: string, isQuestion: boolean = false): string {
   // 0. 문화 특수 표현 먼저 체크 (완전 일치)
   for (const expr of culturalExpressionList) {
     if (text === expr || text.replace(/\s+/g, '') === expr.replace(/\s+/g, '')) {
@@ -813,7 +811,7 @@ function translateWithIdioms(
 /**
  * 영→한 번역
  */
-function translateEnToKo(text: string): string {
+function _translateEnToKo(text: string): string {
   const lowerText = text.toLowerCase();
 
   // 1. 문장 완전 일치
