@@ -247,6 +247,78 @@ function searchQA(question: string, locale: string): string | null {
 }
 
 // ========================================
+// Language Switch Detection
+// ========================================
+
+const LANGUAGE_SWITCH_PATTERNS = {
+  ko: [
+    /한국어/i,
+    /한글/i,
+    /코리안/i,
+    /korean/i,
+    /한국어\s*페이지/i,
+    /한국어로/i,
+    /한국말/i,
+    /ㅎㄱ/i,
+  ],
+  en: [/영어/i, /english/i, /잉글리시/i, /영어\s*페이지/i, /영어로/i, /eng/i],
+};
+
+export interface LanguageSwitchResult {
+  shouldSwitch: boolean;
+  targetLocale?: 'ko' | 'en';
+  message?: string;
+}
+
+/**
+ * Detect language switch request
+ */
+export function detectLanguageSwitch(
+  question: string,
+  currentLocale: string,
+): LanguageSwitchResult {
+  const lowerQuestion = question.toLowerCase().trim();
+
+  // Check Korean switch patterns
+  for (const pattern of LANGUAGE_SWITCH_PATTERNS.ko) {
+    if (pattern.test(lowerQuestion)) {
+      if (currentLocale !== 'ko') {
+        return {
+          shouldSwitch: true,
+          targetLocale: 'ko',
+          message: '한국어 페이지로 이동합니다...',
+        };
+      }
+      // Already on Korean page
+      return {
+        shouldSwitch: false,
+        message: '이미 한국어 페이지입니다.',
+      };
+    }
+  }
+
+  // Check English switch patterns
+  for (const pattern of LANGUAGE_SWITCH_PATTERNS.en) {
+    if (pattern.test(lowerQuestion)) {
+      if (currentLocale !== 'en') {
+        return {
+          shouldSwitch: true,
+          targetLocale: 'en',
+          message: 'Switching to English page...',
+        };
+      }
+      // Already on English page
+      return {
+        shouldSwitch: false,
+        message: 'Already on English page.',
+      };
+    }
+  }
+
+  return { shouldSwitch: false };
+}
+
+// ========================================
 // Main Response Handler
 // ========================================
 
@@ -254,11 +326,12 @@ function searchQA(question: string, locale: string): string | null {
  * Get response for user question with advanced NLU
  *
  * Priority:
- * 1. Time/Date queries (always accurate)
- * 2. Intent-based responses (greetings, gratitude, etc.)
- * 3. Q&A database match (enhanced with NLU)
- * 4. Context-aware fallback
- * 5. null (no answer found)
+ * 1. Language switch detection (redirect to correct locale)
+ * 2. Time/Date queries (always accurate)
+ * 3. Intent-based responses (greetings, gratitude, etc.)
+ * 4. Q&A database match (enhanced with NLU)
+ * 5. Context-aware fallback
+ * 6. null (no answer found)
  */
 export function getResponse(
   question: string,
