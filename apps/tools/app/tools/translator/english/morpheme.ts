@@ -477,7 +477,7 @@ function restoreE(stem: string): string {
     if (stem.length >= 3) {
       const thirdLast = stem[stem.length - 3];
       if (thirdLast && isConsonant(thirdLast)) {
-        return stem + 'e';
+        return `${stem}e`;
       }
     }
   }
@@ -493,7 +493,7 @@ function restoreY(stem: string): string {
   if (stem.endsWith('i') && stem.length > 2) {
     const beforeI = stem[stem.length - 2];
     if (beforeI && isConsonant(beforeI)) {
-      return stem.slice(0, -1) + 'y';
+      return `${stem.slice(0, -1)}y`;
     }
   }
   return stem;
@@ -529,7 +529,7 @@ function restoreStem(stem: string, rule?: string): string {
     case 'consonant-y':
       // For -ify → -ification cases
       if (stem.endsWith('i')) {
-        return stem.slice(0, -1) + 'y';
+        return `${stem.slice(0, -1)}y`;
       }
       return stem;
     default:
@@ -638,7 +638,7 @@ export function composeEnglish(parts: { prefix?: string; stem: string; suffix?: 
       } else if (suffixInfo.restoreRule === 'y-to-i') {
         // Change y to i: study → studied
         if (result.endsWith('y')) {
-          result = result.slice(0, -1) + 'i';
+          result = `${result.slice(0, -1)}i`;
         }
       }
     }

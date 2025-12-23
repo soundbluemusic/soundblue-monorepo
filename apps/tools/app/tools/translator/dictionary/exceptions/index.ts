@@ -3,23 +3,18 @@
 // 예외 사전 통합 (Phase 4)
 // ========================================
 
-// 불규칙 활용 (500개)
-export * from './irregulars';
-
-// 동음이의어 (2,000개)
-export * from './polysemy';
-
 // 관용구/숙어 (5,000개)
 export * from './idioms';
-
-// 고유명사 (5,000개)
-export * from './proper-nouns';
-
+// 불규칙 활용 (500개)
+export * from './irregulars';
 // 외래어 (2,000개)
 export * from './loanwords';
-
 // 기타 예외 (3,000개)
 export * from './miscellaneous';
+// 동음이의어 (2,000개)
+export * from './polysemy';
+// 고유명사 (5,000개)
+export * from './proper-nouns';
 
 /**
  * Phase 4 통계
