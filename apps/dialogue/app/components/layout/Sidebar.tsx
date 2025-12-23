@@ -2,8 +2,8 @@ import { getLocaleFromPath, getLocalizedPath, useTheme } from '@soundblue/shared
 import { useCallback, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import m from '~/lib/messages';
-import type { Conversation } from '~/stores';
 import { useChatStore, useUIStore } from '~/stores';
+import { ConversationList } from './ConversationList';
 
 // ========================================
 // Sidebar Component - 메인 사이드바
@@ -26,15 +26,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
   const locale = getLocaleFromPath(location.pathname) as 'en' | 'ko';
   const { resolvedTheme, toggleTheme } = useTheme();
 
-  const {
-    conversations,
-    activeConversationId,
-    ghostMode,
-    isHydrated,
-    toggleGhostMode,
-    loadConversation,
-    deleteConversation,
-  } = useChatStore();
+  const { ghostMode, toggleGhostMode } = useChatStore();
 
   const { sidebarCollapsed, toggleSidebarCollapse } = useUIStore();
 
@@ -55,36 +47,6 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
   );
 
   const getAboutUrl = () => getLocalizedPath('/about', locale);
-
-  const handleLoadConversation = useCallback(
-    (conv: Conversation) => {
-      loadConversation(conv.id);
-      onLoadConversation?.();
-    },
-    [loadConversation, onLoadConversation],
-  );
-
-  const handleDeleteConversation = useCallback(
-    (e: React.MouseEvent, id: string) => {
-      e.preventDefault();
-      e.stopPropagation();
-      deleteConversation(id);
-    },
-    [deleteConversation],
-  );
-
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diffDays < 7) {
-      return date.toLocaleDateString([], { weekday: 'short' });
-    }
-    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-  };
 
   return (
     <aside
@@ -154,44 +116,9 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
         </button>
 
         {/* Conversation History */}
-        {!sidebarCollapsed && isHydrated && (
+        {!sidebarCollapsed && (
           <div className="mt-4">
-            {conversations.length > 0 ? (
-              <div className="flex flex-col gap-1">
-                {conversations.map((conv) => (
-                  <button
-                    key={conv.id}
-                    type="button"
-                    onClick={() => handleLoadConversation(conv)}
-                    className={`${MENU_ITEM_CLASS} group cursor-pointer w-full ${
-                      activeConversationId === conv.id
-                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                        : 'text-gray-600 dark:text-gray-400'
-                    }`}
-                  >
-                    <ChatIcon />
-                    <div className="flex-1 text-left overflow-hidden">
-                      <div className="truncate text-sm">{conv.title || m['app.untitled']()}</div>
-                      <div className="text-xs text-gray-400 dark:text-gray-500">
-                        {formatDate(conv.updatedAt)}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={(e) => handleDeleteConversation(e, conv.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 hover:text-red-400 transition-all cursor-pointer"
-                      title={m['app.deleteChat']()}
-                    >
-                      <TrashIcon />
-                    </button>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div className="px-3 py-4 text-xs text-gray-400 dark:text-gray-500 text-center">
-                {m['app.noHistory']()}
-              </div>
-            )}
+            <ConversationList onLoadConversation={onLoadConversation} />
           </div>
         )}
 
@@ -353,22 +280,6 @@ function GhostIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
       <path d="M12 2C7.03 2 3 6.03 3 11v9.5c0 .83 1.01 1.25 1.6.66l1.4-1.4 1.4 1.4c.39.39 1.02.39 1.41 0l1.4-1.4 1.4 1.4c.39.39 1.02.39 1.41 0l1.4-1.4 1.4 1.4c.59.59 1.6.17 1.6-.66V11c0-4.97-4.03-9-9-9zm-3 9c-.83 0-1.5-.67-1.5-1.5S8.17 8 9 8s1.5.67 1.5 1.5S9.83 11 9 11zm6 0c-.83 0-1.5-.67-1.5-1.5S14.17 8 15 8s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-    </svg>
-  );
-}
-
-function ChatIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
     </svg>
   );
 }

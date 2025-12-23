@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import m from '~/lib/messages';
 import { useUIStore } from '~/stores';
 import { ChatContainer } from '../chat/ChatContainer';
+import { ConversationList } from './ConversationList';
 import { Header } from './Header';
 import { ResultPanel } from './ResultPanel';
 import { Sidebar } from './Sidebar';
@@ -28,7 +29,7 @@ const TAB_INACTIVE_CLASS = 'text-gray-500 dark:text-gray-400';
 export function MainLayout() {
   const [isMobile, setIsMobile] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'result'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'history' | 'result'>('chat');
 
   // Resizable chat panel
   const [chatWidth, setChatWidth] = useState<number>(CHAT_WIDTH.default);
@@ -114,10 +115,13 @@ export function MainLayout() {
     setChatResetTrigger((prev) => prev + 1);
   }, []);
 
-  // Handle load conversation - trigger load via signal
+  // Handle load conversation - trigger load via signal and switch to chat tab on mobile
   const handleLoadConversation = useCallback(() => {
     setChatLoadTrigger((prev) => prev + 1);
-  }, []);
+    if (isMobile) {
+      setActiveTab('chat');
+    }
+  }, [isMobile]);
 
   return (
     <div className="flex h-screen flex-col bg-white dark:bg-gray-900">
@@ -160,6 +164,13 @@ export function MainLayout() {
               </button>
               <button
                 type="button"
+                onClick={() => setActiveTab('history')}
+                className={`${TAB_BASE_CLASS} ${activeTab === 'history' ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
+              >
+                {m['app.history']()}
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab('result')}
                 className={`${TAB_BASE_CLASS} ${activeTab === 'result' ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}`}
               >
@@ -170,6 +181,11 @@ export function MainLayout() {
             {/* Tab Content */}
             <div className="flex-1 overflow-auto min-h-37.5">
               {activeTab === 'chat' && <ChatContainer />}
+              {activeTab === 'history' && (
+                <div className="p-4">
+                  <ConversationList onLoadConversation={handleLoadConversation} />
+                </div>
+              )}
               {activeTab === 'result' && <ResultPanel />}
             </div>
           </div>
