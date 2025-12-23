@@ -595,6 +595,7 @@ const ADJECTIVE_STEMS: Record<string, string> = {
   즐겁: 'joyful',
   슬프: 'sad',
   기쁘: 'glad',
+  반갑: 'glad to see',
   우울하: 'depressed',
   화나: 'angry',
   평온하: 'calm',
