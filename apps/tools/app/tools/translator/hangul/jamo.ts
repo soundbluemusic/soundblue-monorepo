@@ -2,110 +2,29 @@
 // Jamo - 한글 자모 분해/조합
 // ========================================
 
+import {
+  CHO_LIST,
+  DOUBLE_JONG,
+  HANGUL_BASE,
+  HANGUL_END,
+  JONG_COUNT,
+  JONG_LIST,
+  JUNG_COUNT,
+  JUNG_LIST,
+  SYLLABLE_PER_CHO,
+} from './constants';
+
 export interface Jamo {
   cho: string; // 초성
   jung: string; // 중성
   jong: string; // 종성 (없으면 빈 문자열)
 }
 
-// 유니코드 상수
-const HANGUL_START = 0xac00; // '가'
-const HANGUL_END = 0xd7a3; // '힣'
+// 유니코드 상수 (호환성)
+const HANGUL_START = HANGUL_BASE;
 
-// 초성 19자
-export const CHO_LIST = [
-  'ㄱ',
-  'ㄲ',
-  'ㄴ',
-  'ㄷ',
-  'ㄸ',
-  'ㄹ',
-  'ㅁ',
-  'ㅂ',
-  'ㅃ',
-  'ㅅ',
-  'ㅆ',
-  'ㅇ',
-  'ㅈ',
-  'ㅉ',
-  'ㅊ',
-  'ㅋ',
-  'ㅌ',
-  'ㅍ',
-  'ㅎ',
-] as const;
-
-// 중성 21자
-export const JUNG_LIST = [
-  'ㅏ',
-  'ㅐ',
-  'ㅑ',
-  'ㅒ',
-  'ㅓ',
-  'ㅔ',
-  'ㅕ',
-  'ㅖ',
-  'ㅗ',
-  'ㅘ',
-  'ㅙ',
-  'ㅚ',
-  'ㅛ',
-  'ㅜ',
-  'ㅝ',
-  'ㅞ',
-  'ㅟ',
-  'ㅠ',
-  'ㅡ',
-  'ㅢ',
-  'ㅣ',
-] as const;
-
-// 종성 28자 (첫 번째는 받침 없음)
-export const JONG_LIST = [
-  '',
-  'ㄱ',
-  'ㄲ',
-  'ㄳ',
-  'ㄴ',
-  'ㄵ',
-  'ㄶ',
-  'ㄷ',
-  'ㄹ',
-  'ㄺ',
-  'ㄻ',
-  'ㄼ',
-  'ㄽ',
-  'ㄾ',
-  'ㄿ',
-  'ㅀ',
-  'ㅁ',
-  'ㅂ',
-  'ㅄ',
-  'ㅅ',
-  'ㅆ',
-  'ㅇ',
-  'ㅈ',
-  'ㅊ',
-  'ㅋ',
-  'ㅌ',
-  'ㅍ',
-  'ㅎ',
-] as const;
-
-// 겹받침 분리 맵
-export const DOUBLE_JONG: Record<string, [string, string]> = {
-  ㄳ: ['ㄱ', 'ㅅ'],
-  ㄵ: ['ㄴ', 'ㅈ'],
-  ㄶ: ['ㄴ', 'ㅎ'],
-  ㄺ: ['ㄹ', 'ㄱ'],
-  ㄻ: ['ㄹ', 'ㅁ'],
-  ㄼ: ['ㄹ', 'ㅂ'],
-  ㄽ: ['ㄹ', 'ㅅ'],
-  ㄾ: ['ㄹ', 'ㅌ'],
-  ㄿ: ['ㄹ', 'ㅍ'],
-  ㅀ: ['ㄹ', 'ㅎ'],
-  ㅄ: ['ㅂ', 'ㅅ'],
-};
+// Export constants for backward compatibility
+export { CHO_LIST, DOUBLE_JONG, JONG_LIST, JUNG_LIST };
 
 /**
  * 한글 문자인지 확인
@@ -113,7 +32,7 @@ export const DOUBLE_JONG: Record<string, [string, string]> = {
 export function isHangul(char: string): boolean {
   if (char.length !== 1) return false;
   const code = char.charCodeAt(0);
-  return code >= HANGUL_START && code <= HANGUL_END;
+  return code >= HANGUL_BASE && code <= HANGUL_END;
 }
 
 /**
@@ -150,10 +69,10 @@ export function isConsonant(char: string): boolean {
 export function decompose(char: string): Jamo | null {
   if (!isHangul(char)) return null;
 
-  const code = char.charCodeAt(0) - HANGUL_START;
-  const choIndex = Math.floor(code / 588);
-  const jungIndex = Math.floor((code % 588) / 28);
-  const jongIndex = code % 28;
+  const code = char.charCodeAt(0) - HANGUL_BASE;
+  const choIndex = Math.floor(code / SYLLABLE_PER_CHO);
+  const jungIndex = Math.floor((code % SYLLABLE_PER_CHO) / JONG_COUNT);
+  const jongIndex = code % JONG_COUNT;
 
   const cho = CHO_LIST[choIndex];
   const jung = JUNG_LIST[jungIndex];
@@ -179,7 +98,7 @@ export function compose(jamo: Jamo): string | null {
     return null;
   }
 
-  const code = HANGUL_START + choIndex * 588 + jungIndex * 28 + jongIndex;
+  const code = HANGUL_BASE + choIndex * SYLLABLE_PER_CHO + jungIndex * JONG_COUNT + jongIndex;
   return String.fromCharCode(code);
 }
 

@@ -1,10 +1,14 @@
 // ========================================
 // Translator Service - 번역 서비스
-// 고급 문법 분석 기반 번역 엔진
-// 문장 구조 분석 → 어순 변환 → 시제/관사 처리
+// 자소 기반 엔진 (core/jaso-engine.ts) 통합
 // 오타 교정 파이프라인 통합
 // NLP 모듈 (WSD, 연어, 주제 탐지) 통합
 // ========================================
+
+// Import jaso-based translation engine
+import { translate as jasoTranslate } from './core/jaso-engine';
+import { translateEnToKo as coreTranslateEnToKo } from './core/en-to-ko';
+import { translateKoToEn as coreTranslateKoToEn } from './core/ko-to-en';
 
 import {
   type ConnectiveEndingInfo,
@@ -126,8 +130,9 @@ export function translateWithCorrection(
     };
   }
 
+  // Use jaso-based translation engine from core/
   let translated =
-    direction === 'ko-en' ? translateKoToEn(normalized, isQuestion) : translateEnToKo(normalized);
+    direction === 'ko-en' ? coreTranslateKoToEn(normalized) : coreTranslateEnToKo(normalized);
 
   // 질문이었으면 물음표 추가
   if (isQuestion && !translated.endsWith('?')) {
