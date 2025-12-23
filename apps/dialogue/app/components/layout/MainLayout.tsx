@@ -179,11 +179,15 @@ export function MainLayout() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-auto min-h-37.5">
+            <div className="flex-1 overflow-hidden min-h-37.5">
               {activeTab === 'chat' && <ChatContainer />}
               {activeTab === 'history' && (
-                <div className="p-4">
-                  <ConversationList onLoadConversation={handleLoadConversation} />
+                <div className="h-full p-4 overflow-hidden">
+                  <ConversationList
+                    onLoadConversation={handleLoadConversation}
+                    onNewChat={handleNewChat}
+                    isMobile={true}
+                  />
                 </div>
               )}
               {activeTab === 'result' && <ResultPanel />}
