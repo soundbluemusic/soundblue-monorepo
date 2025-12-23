@@ -204,6 +204,13 @@ const ENGLISH_ADVERBS = new Set([
  * translateEnToKo('I ate breakfast') → '나는 아침을 먹었다'
  */
 export function translateEnToKo(text: string): string {
+  // 0. 사전에서 직접 조회 (최우선)
+  const lowerText = text.toLowerCase();
+  const directTranslation = enToKoWords[lowerText];
+  if (directTranslation) {
+    return directTranslation;
+  }
+
   // 문장인지 단어인지 판별
   const hasSpaces = text.includes(' ');
   const hasCommas = text.includes(',');

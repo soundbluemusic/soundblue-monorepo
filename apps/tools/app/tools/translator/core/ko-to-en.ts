@@ -245,6 +245,12 @@ const KOREAN_IRREGULAR_VERBS: Record<string, { stem: string; tense: string }> = 
  * translateKoToEn('나는 밥을 먹었다') → 'I ate rice'
  */
 export function translateKoToEn(text: string): string {
+  // 0. 사전에서 직접 조회 (최우선)
+  const directTranslation = koToEnWords[text];
+  if (directTranslation) {
+    return directTranslation;
+  }
+
   // 문장인지 단어인지 판별
   const hasSpaces = text.includes(' ');
   const hasCommas = text.includes(',');
