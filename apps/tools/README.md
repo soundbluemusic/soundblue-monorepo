@@ -45,12 +45,14 @@ No sign-up required. No ads. Completely free.
 | Metronome | BPM, time signature, pendulum metronome |
 | Drum Machine | Drum pattern sequencer |
 | QR Generator | QR code generator |
+| Translator | Ko↔En bidirectional translation (algorithm-based) |
 
 | 도구 | 설명 |
 |------|------|
 | Metronome | BPM, 박자, 펜듈럼 메트로놈 |
 | Drum Machine | 드럼 패턴 시퀀서 |
 | QR Generator | QR 코드 생성기 |
+| Translator | 한↔영 양방향 번역 (알고리즘 기반) |
 
 ### Routes (라우트)
 

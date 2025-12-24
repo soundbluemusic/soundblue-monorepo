@@ -52,6 +52,36 @@ Ask before: removing code, changing core logic, breaking changes.
 - 추측은 추측이라고 표시한다 (Mark assumptions as assumptions)
 - 출처를 명시한다 (Cite sources)
 
+## Translator Development Rules (번역기 개발 규칙)
+
+> **Location**: `apps/tools/app/tools/translator/`
+> **Full docs**: `apps/tools/app/tools/translator/README.md`
+
+### Core Principle (핵심 원칙)
+**100% Algorithm-Based Testing** - All translation tests must pass through algorithm/logic improvements only.
+(100% 알고리즘 기반 테스트 - 모든 번역 테스트는 알고리즘/로직 개선만으로 통과해야 함)
+
+### Prohibited (절대 금지)
+| File | Prohibition |
+|------|-------------|
+| `dictionary/i18n-sentences.ts` | Adding test sentences (테스트 문장 추가) |
+| `dictionary/idioms.ts` | Adding regular sentences (일반 문장 추가) |
+| `dictionary/cultural-expressions.ts` | Adding test sentences (테스트 문장 추가) |
+
+### Allowed (허용)
+| File | Allowed Actions |
+|------|-----------------|
+| `dictionary/words.ts` | Individual word pairs only (개별 단어 쌍만) |
+| `grammar/morpheme-analyzer.ts` | Morpheme patterns, verb rules (형태소 패턴, 동사 규칙) |
+| `grammar/sentence-parser.ts` | Parsing logic (파싱 로직) |
+| `grammar/english-generator.ts` | Generation rules (생성 규칙) |
+| `core/en-to-ko.ts`, `core/ko-to-en.ts` | Translation algorithms (번역 알고리즘) |
+
+### When Test Fails (테스트 실패 시)
+1. **DO NOT** add the sentence to dictionary files
+2. **DO** analyze which algorithm component needs improvement
+3. **DO** make structural changes to grammar/core files
+
 ## The Perfect Dodecagon (12 Quality Metrics / 12가지 품질 지표)
 
 > All code must satisfy the 12 metrics below. (모든 코드는 아래 12가지 지표를 만족해야 한다.)

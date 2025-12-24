@@ -33,6 +33,7 @@
 - 🥁 Drum Machine (드럼 머신)
 - ⏱️ Metronome (메트로놈)
 - 📱 QR Code Generator (QR 코드 생성기)
+- 🌐 Translator (번역기) - Ko↔En bidirectional (한영 양방향)
 
 <br>
 
