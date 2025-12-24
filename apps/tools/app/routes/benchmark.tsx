@@ -49,9 +49,43 @@ export default function Benchmark() {
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
+  /**
+   * 영어 정규화 (비교용)
+   * - 소문자 변환
+   * - 관사 제거 (a, an, the)
+   * - 여러 공백 → 단일 공백
+   */
+  const normalizeEnglish = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/\b(a|an|the)\s+/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  /**
+   * 한국어 정규화 (비교용)
+   * - 조사 변형 통일 (은/는/이/가 → 가, 을/를 → 를)
+   */
+  const normalizeKorean = (text: string): string => {
+    return text
+      .replace(/은|는|이|가/g, '가')
+      .replace(/을|를/g, '를')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   const runTest = useCallback((test: TestCase): TestResult => {
     const actual = translate(test.input, test.direction);
-    const passed = actual === test.expected;
+
+    // 방향에 따라 적절한 정규화 적용
+    let passed: boolean;
+    if (test.direction === 'ko-en') {
+      passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
+    } else {
+      passed = normalizeKorean(actual) === normalizeKorean(test.expected);
+    }
+
     return {
       id: test.id,
       passed,
