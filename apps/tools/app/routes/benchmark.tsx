@@ -10,6 +10,7 @@ import {
   type TestCase,
   type TestLevel,
   typoTests,
+  uniqueTests,
 } from '~/tools/translator/benchmark-data';
 import { translate } from '~/tools/translator/translator-service';
 
@@ -46,6 +47,7 @@ export default function Benchmark() {
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
   const [contextResults, setContextResults] = useState<LevelResult[]>([]);
   const [typoResults, setTypoResults] = useState<LevelResult[]>([]);
+  const [uniqueResults, setUniqueResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
@@ -134,11 +136,13 @@ export default function Benchmark() {
       const catRes = runLevelTests(categoryTests);
       const ctxRes = runLevelTests(contextTests);
       const typoRes = runLevelTests(typoTests);
+      const uniqueRes = runLevelTests(uniqueTests);
 
       setLevelResults(levelRes);
       setCategoryResults(catRes);
       setContextResults(ctxRes);
       setTypoResults(typoRes);
+      setUniqueResults(uniqueRes);
       setIsRunning(false);
     }, 50);
   }, [runLevelTests]);
@@ -177,14 +181,38 @@ export default function Benchmark() {
   const categoryStats = calcTotalStats(categoryResults);
   const contextStats = calcTotalStats(contextResults);
   const typoStats = calcTotalStats(typoResults);
+  const uniqueStats = calcTotalStats(uniqueResults);
   const totalStats = {
-    total: levelStats.total + categoryStats.total + contextStats.total + typoStats.total,
-    passed: levelStats.passed + categoryStats.passed + contextStats.passed + typoStats.passed,
+    total:
+      levelStats.total +
+      categoryStats.total +
+      contextStats.total +
+      typoStats.total +
+      uniqueStats.total,
+    passed:
+      levelStats.passed +
+      categoryStats.passed +
+      contextStats.passed +
+      typoStats.passed +
+      uniqueStats.passed,
     percentage:
-      levelStats.total + categoryStats.total + contextStats.total + typoStats.total > 0
+      levelStats.total +
+        categoryStats.total +
+        contextStats.total +
+        typoStats.total +
+        uniqueStats.total >
+      0
         ? Math.round(
-            ((levelStats.passed + categoryStats.passed + contextStats.passed + typoStats.passed) /
-              (levelStats.total + categoryStats.total + contextStats.total + typoStats.total)) *
+            ((levelStats.passed +
+              categoryStats.passed +
+              contextStats.passed +
+              typoStats.passed +
+              uniqueStats.passed) /
+              (levelStats.total +
+                categoryStats.total +
+                contextStats.total +
+                typoStats.total +
+                uniqueStats.total)) *
               100,
           )
         : 0,
@@ -337,7 +365,8 @@ export default function Benchmark() {
     countTests(levelTests) +
     countTests(categoryTests) +
     countTests(contextTests) +
-    countTests(typoTests);
+    countTests(typoTests) +
+    countTests(uniqueTests);
 
   return (
     <div className="min-h-screen p-4 sm:p-8">
@@ -385,7 +414,7 @@ export default function Benchmark() {
 
         {/* Overall Stats */}
         {levelResults.length > 0 && (
-          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             <div className="rounded-lg border border-border p-4 text-center">
               <div className="text-2xl font-bold">{totalStats.percentage}%</div>
               <div className="text-sm text-muted-foreground">Overall</div>
@@ -421,6 +450,13 @@ export default function Benchmark() {
                 {typoStats.passed}/{typoStats.total}
               </div>
             </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <div className="text-2xl font-bold">{uniqueStats.percentage}%</div>
+              <div className="text-sm text-muted-foreground">Unique Tests</div>
+              <div className="text-xs text-muted-foreground">
+                {uniqueStats.passed}/{uniqueStats.total}
+              </div>
+            </div>
           </div>
         )}
 
@@ -453,6 +489,16 @@ export default function Benchmark() {
           <div className="mb-6">
             <h2 className="mb-3 text-lg font-semibold">Typo Tests (오타 테스트)</h2>
             {renderResults(typoTests, typoResults, 'typo')}
+          </div>
+        )}
+
+        {/* Unique Tests */}
+        {uniqueResults.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-3 text-lg font-semibold">
+              Unique Tests (유니크 테스트 - 100% 알고리즘 기반)
+            </h2>
+            {renderResults(uniqueTests, uniqueResults, 'unique')}
           </div>
         )}
 
