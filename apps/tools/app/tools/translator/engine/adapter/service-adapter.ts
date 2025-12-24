@@ -146,7 +146,7 @@ export async function translateHybrid(
   if (state.useNewEngine) {
     const newResult = await translateWithNewEngine(text, direction);
 
-    if (newResult && newResult.translated) {
+    if (newResult?.translated) {
       return { result: newResult.translated, source: 'new' };
     }
   }
@@ -172,7 +172,7 @@ export function translateHybridSync(
   if (state.useNewEngine && state.initialized) {
     const newResult = translateWithNewEngineSync(text, direction);
 
-    if (newResult && newResult.translated) {
+    if (newResult?.translated) {
       return { result: newResult.translated, source: 'new' };
     }
   }

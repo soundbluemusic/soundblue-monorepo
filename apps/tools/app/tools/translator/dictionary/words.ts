@@ -19,7 +19,7 @@ const manualKoToEnWords: Record<string, string> = {
   그녀: 'she',
   그들: 'they',
   이: 'this', // 지시형용사 (이 책 = this book)
-  저: 'that', // 지시형용사 (저 책 = that book)
+  // 저: 'that' 는 저: 'I' (겸양어)와 중복되므로 '저것'으로 처리
   이것: 'this',
   저것: 'that',
   그것: 'it',
@@ -1634,8 +1634,8 @@ const manualEnToKoWords: Record<string, string> = {
   its: '그것의',
   our: '우리의',
   their: '그들의',
-  this: '이것',
-  that: '저것',
+  this: '이', // 지시형용사로 처리 (this book = 이 책)
+  that: '저', // 지시형용사로 처리 (that book = 저 책)
   these: '이것들',
   those: '저것들',
 
@@ -1780,6 +1780,10 @@ const manualEnToKoWords: Record<string, string> = {
   hear: '듣다',
   hears: '듣는다',
   heard: '들었다',
+
+  listen: '듣다',
+  listens: '듣는다',
+  listened: '들었다',
 
   play: '놀다',
   plays: '논다',

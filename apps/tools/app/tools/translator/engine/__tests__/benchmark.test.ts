@@ -233,7 +233,7 @@ describe('Complexity Verification', () => {
     }
 
     // 짧은 접미사 검색 시간
-    const shortText = '테스트' + '가'.repeat(3);
+    const shortText = `테스트${'가'.repeat(3)}`;
     const startShort = performance.now();
     for (let i = 0; i < 10000; i++) {
       trie.findLongestSuffix(shortText);
@@ -241,7 +241,7 @@ describe('Complexity Verification', () => {
     const timeShort = performance.now() - startShort;
 
     // 긴 접미사 검색 시간
-    const longText = '테스트' + '가'.repeat(10);
+    const longText = `테스트${'가'.repeat(10)}`;
     const startLong = performance.now();
     for (let i = 0; i < 10000; i++) {
       trie.findLongestSuffix(longText);

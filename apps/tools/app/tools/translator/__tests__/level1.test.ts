@@ -75,12 +75,12 @@ function normalizeEnglish(text: string): string {
 
 /**
  * 한국어 정규화 (비교용)
- * - 조사 변형 통일 (은/는, 이/가, 을/를)
+ * - 조사 변형 통일 (은/는/이/가 → 가, 을/를 → 를)
+ * - 주격과 주제격을 모두 '가'로 통일하여 번역 결과 비교 유연화
  */
 function normalizeKorean(text: string): string {
   return text
-    .replace(/은|는/g, '는')
-    .replace(/이|가/g, '가')
+    .replace(/은|는|이|가/g, '가') // 주격/주제격 모두 '가'로 통일
     .replace(/을|를/g, '를')
     .replace(/\s+/g, ' ')
     .trim();

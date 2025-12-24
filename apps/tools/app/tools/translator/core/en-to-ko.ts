@@ -6,8 +6,208 @@
 import { translatePrefix } from '../dictionary/prefixes';
 import { translateStemEnToKo } from '../dictionary/stems';
 import { translateSuffix } from '../dictionary/suffixes';
-import { enToKoWords } from '../dictionary/words';
+import { enToKoWords, koToEnWords } from '../dictionary/words';
 import { decomposeEnglish, type EnglishMorpheme } from '../jaso/english-morpheme';
+
+// 영어 동사의 3인칭 단수형/과거형에서 기본형 추출
+function getEnglishVerbBase(verb: string): { base: string; tense: 'present' | 'past' } {
+  const lowerVerb = verb.toLowerCase();
+
+  // 불규칙 동사 체크
+  const irregularPast = ENGLISH_IRREGULAR_VERBS[lowerVerb];
+  if (irregularPast) {
+    return { base: irregularPast.base, tense: 'past' };
+  }
+
+  // 3인칭 단수 현재 (-s, -es, -ies)
+  if (lowerVerb.endsWith('ies')) {
+    return { base: `${lowerVerb.slice(0, -3)}y`, tense: 'present' };
+  }
+  if (lowerVerb.endsWith('es')) {
+    // watches → watch, goes → go
+    const withoutEs = lowerVerb.slice(0, -2);
+    if (
+      withoutEs.endsWith('ch') ||
+      withoutEs.endsWith('sh') ||
+      withoutEs.endsWith('x') ||
+      withoutEs.endsWith('o') ||
+      withoutEs.endsWith('s')
+    ) {
+      return { base: withoutEs, tense: 'present' };
+    }
+  }
+  if (lowerVerb.endsWith('s') && !lowerVerb.endsWith('ss')) {
+    return { base: lowerVerb.slice(0, -1), tense: 'present' };
+  }
+
+  // 규칙 과거형 (-ed)
+  if (lowerVerb.endsWith('ed')) {
+    // doubled consonant: stopped → stop
+    if (
+      lowerVerb.length > 4 &&
+      lowerVerb[lowerVerb.length - 3] === lowerVerb[lowerVerb.length - 4]
+    ) {
+      return { base: lowerVerb.slice(0, -3), tense: 'past' };
+    }
+    // -ied: tried → try
+    if (lowerVerb.endsWith('ied')) {
+      return { base: `${lowerVerb.slice(0, -3)}y`, tense: 'past' };
+    }
+    // -ed: played → play
+    return { base: lowerVerb.slice(0, -2), tense: 'past' };
+  }
+
+  return { base: lowerVerb, tense: 'present' };
+}
+
+// 한국어 동사 활용형 생성
+function conjugateKoreanVerb(stem: string, tense: 'present' | 'past', _isPlain = true): string {
+  if (!stem) return stem;
+
+  // 이미 활용된 형태면 그대로 반환 (는다, 었다, 았다로 끝나는 경우만)
+  if (
+    stem.endsWith('는다') ||
+    stem.endsWith('ㄴ다') ||
+    stem.endsWith('었다') ||
+    stem.endsWith('았다')
+  ) {
+    return stem;
+  }
+
+  // 어간 추출 (사전에서 ~다 형태로 저장된 경우: 가다 → 가, 먹다 → 먹)
+  const verbStem = stem.endsWith('다') ? stem.slice(0, -1) : stem;
+
+  // 현재형 (평서문)
+  if (tense === 'present') {
+    // 형용사성 동사 (있다, 없다, 좋다 등)는 ~다 형태
+    const stemForCheck = verbStem;
+    if (
+      stemForCheck.endsWith('있') ||
+      stemForCheck.endsWith('없') ||
+      stemForCheck.endsWith('좋') ||
+      stemForCheck.endsWith('싫') ||
+      stemForCheck.endsWith('재미있') ||
+      stemForCheck.endsWith('재미없')
+    ) {
+      return `${verbStem}다`;
+    }
+    // 일반 동사는 ~ㄴ다/는다
+    // 받침 유무에 따라 ㄴ다/는다 선택
+    const lastChar = verbStem[verbStem.length - 1];
+    if (lastChar) {
+      const code = lastChar.charCodeAt(0);
+      if (code >= 0xac00 && code <= 0xd7a3) {
+        const jongseong = (code - 0xac00) % 28;
+        if (jongseong === 0) {
+          // 받침 없음: ~ㄴ다 (가→간다, 마시→마신다)
+          // 마지막 글자에 ㄴ 받침 추가
+          const newCode = code + 4; // ㄴ은 4번 받침
+          const prefix = verbStem.slice(0, -1); // 마지막 글자 제외한 앞부분
+          return `${prefix + String.fromCharCode(newCode)}다`;
+        }
+        // 받침 있음: ~는다 (먹→먹는다, 읽→읽는다)
+        return `${verbStem}는다`;
+      }
+    }
+    return `${verbStem}다`;
+  }
+
+  // 과거형
+  if (tense === 'past') {
+    // 어간 모음에 따라 았다/었다 선택 (모음 축약 적용)
+    const lastChar = verbStem[verbStem.length - 1];
+    const prefix = verbStem.slice(0, -1); // 마지막 글자 제외한 앞부분
+    if (lastChar) {
+      const code = lastChar.charCodeAt(0);
+      if (code >= 0xac00 && code <= 0xd7a3) {
+        const offset = code - 0xac00;
+        const cho = Math.floor(offset / 588);
+        const jung = Math.floor((offset % 588) / 28);
+        const jong = offset % 28;
+
+        // 양성모음 (ㅏ=0, ㅗ=8): 았다
+        if (jung === 0 || jung === 8) {
+          if (jong === 0) {
+            // 받침 없는 양성모음은 모음 축약
+            if (jung === 0) {
+              // ㅏ → ㅏ+ㅆ (가→갔다)
+              const newCode = 0xac00 + cho * 588 + 0 * 28 + 20; // ㅏ + ㅆ
+              return `${prefix + String.fromCharCode(newCode)}다`;
+            }
+            // ㅗ → ㅘ+ㅆ (보→봤다, 오→왔다)
+            // ㅘ = jung index 9
+            const newCode = 0xac00 + cho * 588 + 9 * 28 + 20; // ㅘ + ㅆ
+            return `${prefix + String.fromCharCode(newCode)}다`;
+          }
+          return `${verbStem}았다`;
+        }
+        // 음성모음: 었다
+        if (jong === 0) {
+          // 받침 없는 음성모음: 축약 (ㅓ→ㅓ+ㅆ, ㅜ→ㅝ+ㅆ, ㅣ→ㅕ+ㅆ 등)
+          if (jung === 4) {
+            // ㅓ → ㅓ+ㅆ (서→섰다)
+            const newCode = 0xac00 + cho * 588 + 4 * 28 + 20;
+            return `${prefix + String.fromCharCode(newCode)}다`;
+          }
+          if (jung === 13) {
+            // ㅜ → ㅝ+ㅆ (주→줬다)
+            const newCode = 0xac00 + cho * 588 + 14 * 28 + 20; // ㅝ = 14
+            return `${prefix + String.fromCharCode(newCode)}다`;
+          }
+          if (jung === 20) {
+            // ㅣ → ㅕ+ㅆ (시→셨다, 하지만 보통 ㅣ+었다 = ㅕ+ㅆ)
+            const newCode = 0xac00 + cho * 588 + 6 * 28 + 20; // ㅕ = 6
+            return `${prefix + String.fromCharCode(newCode)}다`;
+          }
+          // 기타 음성모음: 그냥 ㅆ 받침 추가
+          const newCode = code + 20;
+          return `${prefix + String.fromCharCode(newCode)}다`;
+        }
+        return `${verbStem}었다`;
+      }
+    }
+    return `${verbStem}었다`;
+  }
+
+  return `${verbStem}다`;
+}
+
+// 이동 동사 목록 (to + 장소 → 에)
+const MOVEMENT_VERBS_EN = new Set([
+  'go',
+  'come',
+  'return',
+  'travel',
+  'move',
+  'walk',
+  'run',
+  'fly',
+  'drive',
+]);
+
+// 구문동사 패턴 (to를 전치사로 취하지 않는 동사)
+// 이 동사들 뒤의 to는 무시한다
+const PHRASAL_VERBS_WITH_TO = new Set(['listen', 'look', 'belong', 'refer', 'relate']);
+
+// 장소 부사로 쓰이는 단어 (전치사 없이 사용)
+// "go home", "come home" 등에서 home은 부사로 사용됨
+const LOCATION_ADVERBS = new Set(['home', 'here', 'there', 'upstairs', 'downstairs', 'abroad']);
+
+// 역방향 사전 생성 (한→영에서 영→한 추출)
+function getKoreanFromEnglish(english: string): string | undefined {
+  const lower = english.toLowerCase();
+  // 먼저 enToKoWords에서 직접 검색
+  const direct = enToKoWords[lower];
+  if (direct) return direct;
+
+  // koToEnWords에서 역검색
+  for (const [ko, en] of Object.entries(koToEnWords)) {
+    if (en.toLowerCase() === lower) {
+      return ko;
+    }
+  }
+  return undefined;
+}
 
 export interface EnToKoResult {
   original: string; // 원본
@@ -61,6 +261,9 @@ const ENGLISH_PREPOSITIONS: Record<string, string> = {
 
 // 영어 관사/한정사 (번역 시 생략)
 const ENGLISH_ARTICLES = new Set(['the', 'a', 'an']);
+
+// 지시형용사 (this, that - 다음 명사를 수식)
+const ENGLISH_DEMONSTRATIVES = new Set(['this', 'that', 'these', 'those']);
 
 // 영어 be 동사 (번역 시 특수 처리)
 const ENGLISH_BE_VERBS = new Set(['am', 'is', 'are', 'was', 'were', 'be', 'been', 'being']);
@@ -264,19 +467,32 @@ function translateClauseEnToKo(clause: string): string {
       | 'adjective'
       | 'article'
       | 'auxiliary'
+      | 'negation'
       | 'unknown';
     tense?: 'past' | 'present' | 'future';
+    verbBase?: string;
   }> = [];
 
   let prevRole: string | undefined;
+  let hasVerb = false; // 동사가 나왔는지 추적
+  let prevVerbBase: string | undefined; // 이전 동사의 기본형
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     if (!token) continue;
 
-    const result = analyzeAndTranslateEnToken(token, prevRole, i === 0);
+    const result = analyzeAndTranslateEnToken(token, prevRole, i === 0, { hasVerb, prevVerbBase });
     analyzed.push(result);
     prevRole = result.role;
+
+    // 동사가 나오면 플래그 설정 및 기본형 저장
+    // auxiliary (be, do 등)도 동사로 취급
+    if (result.role === 'verb' || result.role === 'auxiliary') {
+      hasVerb = true;
+      if (result.verbBase) {
+        prevVerbBase = result.verbBase;
+      }
+    }
   }
 
   // SOV 어순으로 재배열
@@ -290,6 +506,12 @@ function analyzeAndTranslateEnToken(
   token: string,
   prevRole: string | undefined,
   isFirst: boolean,
+  context: {
+    hasMovementVerb?: boolean;
+    verbBase?: string;
+    hasVerb?: boolean;
+    prevVerbBase?: string;
+  } = {},
 ): {
   original: string;
   translated: string;
@@ -303,9 +525,12 @@ function analyzeAndTranslateEnToken(
     | 'adjective'
     | 'article'
     | 'auxiliary'
+    | 'negation'
     | 'unknown';
   tense?: 'past' | 'present' | 'future';
   isModifier?: boolean;
+  verbBase?: string;
+  isLocationAdverb?: boolean;
 } {
   const lowerToken = token.toLowerCase();
 
@@ -314,40 +539,82 @@ function analyzeAndTranslateEnToken(
     return { original: token, translated: '', role: 'article' };
   }
 
-  // 2. 접속사 체크
+  // 1.5. 지시형용사 체크 (this, that - 관형어로 처리)
+  if (ENGLISH_DEMONSTRATIVES.has(lowerToken)) {
+    const translation = enToKoWords[lowerToken] || token;
+    return { original: token, translated: translation, role: 'article', isModifier: true };
+  }
+
+  // 2. 부정어 체크
+  if (lowerToken === 'not') {
+    return { original: token, translated: '', role: 'negation' };
+  }
+
+  // 3. 접속사 체크
   const conjunction = ENGLISH_CONJUNCTIONS[lowerToken];
   if (conjunction) {
     return { original: token, translated: conjunction, role: 'conjunction' };
   }
 
-  // 3. 전치사 체크
+  // 4. 전치사 체크
+  // "listen to", "look at" 같은 구문동사의 전치사는 무시
+  if (lowerToken === 'to' && prevRole === 'verb') {
+    // 직전이 phrasal verb면 to 무시, 그 외에는 정상 전치사로 처리
+    if (context.prevVerbBase && PHRASAL_VERBS_WITH_TO.has(context.prevVerbBase)) {
+      return { original: token, translated: '', role: 'preposition' };
+    }
+    // 이동 동사 뒤의 to는 정상 전치사 (에로 번역)
+    return { original: token, translated: '에', role: 'preposition' };
+  }
   const preposition = ENGLISH_PREPOSITIONS[lowerToken];
   if (preposition) {
     return { original: token, translated: preposition, role: 'preposition' };
   }
 
-  // 4. be 동사 체크
+  // 5. be 동사 체크
   if (ENGLISH_BE_VERBS.has(lowerToken)) {
     const tense = ['was', 'were'].includes(lowerToken) ? ('past' as const) : ('present' as const);
+    return { original: token, translated: '있', role: 'auxiliary', tense };
+  }
+
+  // 6. do/does/did 체크 (조동사로 사용)
+  if (['do', 'does', 'did'].includes(lowerToken)) {
+    const tense = lowerToken === 'did' ? ('past' as const) : ('present' as const);
     return { original: token, translated: '', role: 'auxiliary', tense };
   }
 
-  // 5. 불규칙 동사 과거형 체크
+  // 7. 불규칙 동사 과거형 체크
   const irregularVerb = ENGLISH_IRREGULAR_VERBS[lowerToken];
   if (irregularVerb) {
     // 사전에서 기본형 번역
-    const baseTranslation = enToKoWords[irregularVerb.base];
+    const baseTranslation = getKoreanFromEnglish(irregularVerb.base);
     if (baseTranslation) {
       return {
         original: token,
         translated: baseTranslation,
         role: prevRole === 'auxiliary' ? 'adjective' : 'verb',
         tense: 'past',
+        verbBase: irregularVerb.base,
       };
     }
   }
 
-  // 6. 부사 체크
+  // 8. 3인칭 단수 동사 체크 (-s, -es, -ies)
+  const verbInfo = getEnglishVerbBase(lowerToken);
+  if (verbInfo.base !== lowerToken) {
+    const baseTranslation = getKoreanFromEnglish(verbInfo.base);
+    if (baseTranslation) {
+      return {
+        original: token,
+        translated: baseTranslation,
+        role: 'verb',
+        tense: verbInfo.tense,
+        verbBase: verbInfo.base,
+      };
+    }
+  }
+
+  // 9. 부사 체크
   if (ENGLISH_ADVERBS.has(lowerToken)) {
     const directTranslation = enToKoWords[lowerToken];
     return {
@@ -357,7 +624,7 @@ function analyzeAndTranslateEnToken(
     };
   }
 
-  // 7. 형용사 체크 (관형어로 사용될 수 있음)
+  // 10. 형용사 체크 (관형어로 사용될 수 있음)
   if (ENGLISH_ADJECTIVES.has(lowerToken)) {
     const directTranslation = enToKoWords[lowerToken];
     // 이전이 관사나 부사면 관형어 (modifier)
@@ -370,7 +637,23 @@ function analyzeAndTranslateEnToken(
     };
   }
 
-  // 8. 사전에서 직접 검색
+  // 11. 장소 부사 체크 (home, here, there 등 - 전치사 없이 사용)
+  // "go home", "come home"에서 home은 부사로 사용됨 → 장소로 처리
+  if (LOCATION_ADVERBS.has(lowerToken) && prevRole === 'verb') {
+    const directTranslation = enToKoWords[lowerToken];
+    // 이동 동사 + home → 집에
+    if (context.prevVerbBase && MOVEMENT_VERBS_EN.has(context.prevVerbBase)) {
+      return {
+        original: token,
+        translated: directTranslation || token,
+        role: 'object', // rearrangeToSOV에서 장소로 처리되도록
+        isLocationAdverb: true, // 마커 추가
+      };
+    }
+    return { original: token, translated: directTranslation || token, role: 'adverb' };
+  }
+
+  // 12. 사전에서 직접 검색
   const directTranslation = enToKoWords[lowerToken];
   if (directTranslation !== undefined) {
     // 역할 추론
@@ -381,8 +664,17 @@ function analyzeAndTranslateEnToken(
     if (isFirst && ['i', 'you', 'he', 'she', 'it', 'we', 'they'].includes(lowerToken)) {
       role = 'subject';
     }
+    // 관사 뒤에 오는 명사 + 아직 동사가 안 나왔으면 주어 (The cat, The book 등)
+    else if (prevRole === 'article' && !context.hasVerb) {
+      role = 'subject';
+    }
     // 이전이 주어/부사면 동사
-    else if (prevRole === 'subject' || prevRole === 'adverb' || prevRole === 'auxiliary') {
+    else if (
+      prevRole === 'subject' ||
+      prevRole === 'adverb' ||
+      prevRole === 'auxiliary' ||
+      prevRole === 'negation'
+    ) {
       role = 'verb';
     }
     // 이전이 동사면 목적어
@@ -403,16 +695,21 @@ function analyzeAndTranslateEnToken(
       tense = 'past';
     }
 
-    return { original: token, translated: directTranslation, role, tense };
+    return { original: token, translated: directTranslation, role, tense, verbBase: lowerToken };
   }
 
-  // 9. 형태소 분해 번역
+  // 12. 형태소 분해 번역
   const morphemeResult = translateEnToKoDetailed(token);
   if (morphemeResult && morphemeResult.translated !== token) {
     let role: 'subject' | 'verb' | 'object' | 'adverb' | 'adjective' | 'unknown' = 'unknown';
     let tense: 'past' | 'present' | 'future' | undefined;
 
-    if (prevRole === 'subject' || prevRole === 'adverb' || prevRole === 'auxiliary') {
+    if (
+      prevRole === 'subject' ||
+      prevRole === 'adverb' ||
+      prevRole === 'auxiliary' ||
+      prevRole === 'negation'
+    ) {
       role = 'verb';
     } else if (prevRole === 'verb' || prevRole === 'preposition') {
       role = 'object';
@@ -428,7 +725,7 @@ function analyzeAndTranslateEnToken(
     return { original: token, translated: morphemeResult.translated, role, tense };
   }
 
-  // 10. 원본 반환 (로마자 유지)
+  // 13. 원본 반환 (로마자 유지)
   return { original: token, translated: token, role: 'unknown' };
 }
 
@@ -442,10 +739,12 @@ function rearrangeToSOV(
     role: string;
     tense?: string;
     isModifier?: boolean;
+    verbBase?: string;
+    isLocationAdverb?: boolean;
   }>,
 ): string {
   const subjects: string[] = [];
-  const verbs: string[] = [];
+  const verbs: Array<{ text: string; tense: string; base?: string; isAdjective?: boolean }> = [];
   const objects: string[] = [];
   const adverbs: string[] = [];
   const conjunctions: string[] = [];
@@ -453,26 +752,51 @@ function rearrangeToSOV(
   const companions: string[] = []; // with 관계
   const modifiers: string[] = []; // 관형어 (다음 명사 앞에 배치)
   const others: string[] = [];
-  let pastTense = false;
-  let verbTense = 'present';
+  let verbTense: 'past' | 'present' = 'present';
+  let isNegative = false;
+  let hasMovementVerb = false;
+  let pendingPreposition: string | null = null;
 
+  // 1단계: 동사 분석하여 이동 동사 여부 확인
+  for (const token of tokens) {
+    if (token.role === 'verb' && token.verbBase) {
+      if (MOVEMENT_VERBS_EN.has(token.verbBase)) {
+        hasMovementVerb = true;
+        break;
+      }
+    }
+  }
+
+  // 2단계: 토큰 분류
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     const nextToken = tokens[i + 1];
+    const _prevToken = tokens[i - 1];
 
-    // 빈 번역은 건너뜀 (관사, be동사 등)
+    // 부정어 감지
+    if (token.role === 'negation') {
+      isNegative = true;
+      continue;
+    }
+
+    // 빈 번역은 건너뜀 (관사 등)
     if (!token.translated) {
-      // be 동사의 시제는 기억
+      // auxiliary (be/do)의 시제는 기억
       if (token.role === 'auxiliary' && token.tense === 'past') {
-        pastTense = true;
+        verbTense = 'past';
       }
+      continue;
+    }
+
+    // 지시형용사 (this, that)는 modifier로 추가
+    if (token.role === 'article' && token.isModifier && token.translated) {
+      modifiers.push(token.translated);
       continue;
     }
 
     // 동사의 시제 저장
     if (token.tense === 'past') {
       verbTense = 'past';
-      pastTense = true;
     }
 
     switch (token.role) {
@@ -485,70 +809,149 @@ function rearrangeToSOV(
           subjects.push(`${token.translated}는`);
         }
         break;
+
       case 'verb':
-        verbs.push(token.translated);
+        verbs.push({
+          text: token.translated,
+          tense: token.tense || 'present',
+          base: token.verbBase,
+        });
         break;
+
       case 'object':
-        // 수식어가 있으면 목적어 앞에 붙임 (관형절)
-        if (modifiers.length > 0) {
-          // 형용사 → 관형형 변환 (예: 아름다운, 새로운)
-          const modifiedText = modifiers.map((m) => convertToKoreanModifier(m)).join(' ');
-          objects.push(`${modifiedText} ${token.translated}`);
-          modifiers.length = 0;
-        } else {
-          objects.push(token.translated);
+        // 장소 부사 (home, here, there 등 - 전치사 없이 사용되는 경우)
+        if (token.isLocationAdverb) {
+          // 이동 동사 뒤의 home → 집에
+          locations.push({ text: token.translated, preposition: '에' });
+          break;
         }
-        break;
-      case 'preposition':
-        // 전치사는 다음 목적어와 함께 처리
-        if (token.translated === '와 함께') {
-          // with → 다음 명사와 함께 companion에 추가
-          // 다음 토큰이 목적어면 함께 처리
-        } else if (objects.length > 0) {
-          const lastObj = objects.pop();
-          // 전치사 뒤에 조사 배치 (한국어는 조사가 뒤에)
-          if (token.translated.includes('에')) {
-            locations.push({ text: lastObj || '', preposition: token.translated });
+        // 전치사가 pending 상태면 장소로 처리
+        if (pendingPreposition) {
+          // 이동 동사 + to + 장소 → 장소에
+          if (hasMovementVerb && pendingPreposition === '에') {
+            if (modifiers.length > 0) {
+              const modifiedText = modifiers.map((m) => convertToKoreanModifier(m)).join(' ');
+              locations.push({ text: `${modifiedText} ${token.translated}`, preposition: '에' });
+              modifiers.length = 0;
+            } else {
+              locations.push({ text: token.translated, preposition: '에' });
+            }
+          } else if (pendingPreposition === '위에') {
+            locations.push({ text: token.translated, preposition: ' 위에' });
+          } else if (pendingPreposition === '에서') {
+            locations.push({ text: token.translated, preposition: '에' });
+          } else if (pendingPreposition.includes('에') || pendingPreposition.includes('로')) {
+            if (modifiers.length > 0) {
+              const modifiedText = modifiers.map((m) => convertToKoreanModifier(m)).join(' ');
+              locations.push({
+                text: `${modifiedText} ${token.translated}`,
+                preposition: pendingPreposition,
+              });
+              modifiers.length = 0;
+            } else {
+              locations.push({ text: token.translated, preposition: pendingPreposition });
+            }
+          } else if (pendingPreposition === '와 함께') {
+            companions.push(token.translated);
           } else {
-            objects.push(`${lastObj}${token.translated}`);
+            // 일반 목적어
+            if (modifiers.length > 0) {
+              const modifiedText = modifiers.map((m) => convertToKoreanModifier(m)).join(' ');
+              objects.push(`${modifiedText} ${token.translated}`);
+              modifiers.length = 0;
+            } else {
+              objects.push(token.translated);
+            }
           }
+          pendingPreposition = null;
         } else {
-          // 전치사 정보 저장 (다음 명사에 적용될 것)
-          others.push(token.translated);
+          // 수식어가 있으면 목적어 앞에 붙임 (관형절)
+          if (modifiers.length > 0) {
+            const modifiedText = modifiers.map((m) => convertToKoreanModifier(m)).join(' ');
+            objects.push(`${modifiedText} ${token.translated}`);
+            modifiers.length = 0;
+          } else {
+            objects.push(token.translated);
+          }
         }
         break;
+
+      case 'preposition':
+        // 전치사 정보 저장 (다음 명사에 적용될 것)
+        pendingPreposition = token.translated;
+        break;
+
       case 'conjunction':
         conjunctions.push(token.translated);
         break;
+
       case 'adverb':
         adverbs.push(token.translated);
         break;
+
       case 'adjective':
         // 형용사는 관형어로 처리 (다음 명사 앞에 배치)
         if (token.isModifier || (nextToken && ['object', 'unknown'].includes(nextToken.role))) {
           modifiers.push(token.translated);
         } else {
-          // 서술어로 사용
-          verbs.push(token.translated);
+          // 서술어로 사용 (be + adj)
+          // 형용사 어간 추출: 좋은 → 좋, 아름다운 → 아름답
+          let adjStem = token.translated;
+          if (adjStem.endsWith('은') || adjStem.endsWith('운')) {
+            adjStem = adjStem.slice(0, -1);
+          } else if (adjStem.endsWith('ㄴ')) {
+            // 관형형 ㄴ 제거 후 기본형으로
+            adjStem = adjStem.slice(0, -1);
+          }
+          // 형용사는 ~다 형태로 바로 출력 (동사 활용 적용하지 않음)
+          verbs.push({
+            text: `${adjStem}다`,
+            tense: 'present',
+            base: undefined,
+            isAdjective: true,
+          });
         }
         break;
+
+      case 'auxiliary':
+        // be 동사 + 형용사/장소의 경우
+        if (token.translated === '있') {
+          // 다음 토큰 확인하여 장소/형용사 판단
+          // 지금은 일단 동사로 추가
+          verbs.push({ text: token.translated, tense: token.tense || 'present', base: 'be' });
+        }
+        break;
+
       default:
-        // 전치사 뒤에 온 명사 → 장소
-        if (i > 0 && tokens[i - 1]?.role === 'preposition') {
-          const prevPrep = tokens[i - 1].translated;
-          if (prevPrep.includes('에') || prevPrep.includes('로')) {
-            // 수식어가 있으면 장소 앞에 붙임
+        // 전치사 뒤에 온 명사 처리
+        if (pendingPreposition) {
+          // 이동 동사 + to + 장소 → 장소에
+          if (hasMovementVerb && pendingPreposition === '에') {
+            if (modifiers.length > 0) {
+              const modifiedText = modifiers.map((m) => convertToKoreanModifier(m)).join(' ');
+              locations.push({ text: `${modifiedText} ${token.translated}`, preposition: '에' });
+              modifiers.length = 0;
+            } else {
+              locations.push({ text: token.translated, preposition: '에' });
+            }
+          } else if (pendingPreposition === '위에') {
+            // on the desk → 책상 위에
+            locations.push({ text: token.translated, preposition: ' 위에' });
+          } else if (pendingPreposition === '에서') {
+            // at home → 집에 (be 동사 + at → 에)
+            locations.push({ text: token.translated, preposition: '에' });
+          } else if (pendingPreposition.includes('에') || pendingPreposition.includes('로')) {
             if (modifiers.length > 0) {
               const modifiedText = modifiers.map((m) => convertToKoreanModifier(m)).join(' ');
               locations.push({
                 text: `${modifiedText} ${token.translated}`,
-                preposition: prevPrep,
+                preposition: pendingPreposition,
               });
               modifiers.length = 0;
             } else {
-              locations.push({ text: token.translated, preposition: prevPrep });
+              locations.push({ text: token.translated, preposition: pendingPreposition });
             }
-          } else if (prevPrep === '와 함께') {
+          } else if (pendingPreposition === '와 함께') {
             companions.push(token.translated);
           } else {
             if (modifiers.length > 0) {
@@ -558,6 +961,7 @@ function rearrangeToSOV(
               others.push(token.translated);
             }
           }
+          pendingPreposition = null;
         } else if (modifiers.length > 0) {
           others.push(`${modifiers.join(' ')} ${token.translated}`);
           modifiers.length = 0;
@@ -593,9 +997,7 @@ function rearrangeToSOV(
   // 장소 (조사 포함)
   if (locations.length > 0) {
     for (const loc of locations) {
-      // 전치사에서 조사 추출
-      const particle = loc.preposition || '에서';
-      // 이미 조사가 포함되어 있지 않으면 추가
+      const particle = loc.preposition || '에';
       if (
         !loc.text.endsWith('에') &&
         !loc.text.endsWith('에서') &&
@@ -623,9 +1025,7 @@ function rearrangeToSOV(
 
   // 목적어
   if (objects.length > 0) {
-    // 목적어에 조사 추가
     const objsWithParticle = objects.map((obj, idx) => {
-      // 이미 조사가 있으면 건너뜀
       if (
         obj.includes('에') ||
         obj.includes('와') ||
@@ -635,7 +1035,6 @@ function rearrangeToSOV(
       ) {
         return obj;
       }
-      // 마지막 목적어에만 '를' 추가
       if (idx === objects.length - 1) {
         return `${obj}를`;
       }
@@ -644,20 +1043,30 @@ function rearrangeToSOV(
     parts.push(...objsWithParticle);
   }
 
-  // 동사 (문장 끝)
+  // 동사 (문장 끝) - 활용형 적용
   if (verbs.length > 0) {
-    // 과거 시제 적용
-    const verbsWithTense = verbs.map((v) => {
-      if (pastTense && !v.endsWith('다') && !v.endsWith('었다') && !v.endsWith('았다')) {
-        return `${v}었다`;
-      }
-      return v;
-    });
-    parts.push(...verbsWithTense);
+    const lastVerb = verbs[verbs.length - 1];
+    let finalVerb = lastVerb.text;
+
+    // 부정문 처리
+    if (isNegative) {
+      // V-지 않는다 형태로 변환
+      const stem = finalVerb.endsWith('다') ? finalVerb.slice(0, -1) : finalVerb;
+      finalVerb = `${stem}지 않는다`;
+    } else if (lastVerb.isAdjective) {
+      // 형용사는 이미 ~다 형태이므로 그대로 사용
+      // (좋다, 재미있다 등)
+    } else {
+      // 동사 활용형 적용
+      const tense = verbTense === 'past' || lastVerb.tense === 'past' ? 'past' : 'present';
+      finalVerb = conjugateKoreanVerb(finalVerb, tense);
+    }
+
+    parts.push(finalVerb);
   }
 
   // 공백으로 연결
-  return parts.filter((p) => p && p.trim()).join(' ');
+  return parts.filter((p) => p?.trim()).join(' ');
 }
 
 /**

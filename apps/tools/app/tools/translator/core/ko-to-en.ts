@@ -452,7 +452,7 @@ function analyzeAndTranslateToken(token: string): {
 
   // 5. 부사형 어미 체크
   if (role === 'unknown') {
-    for (const [adv, info] of Object.entries(KOREAN_ADVERBIAL_ENDINGS)) {
+    for (const [adv, _info] of Object.entries(KOREAN_ADVERBIAL_ENDINGS)) {
       if (word.endsWith(adv) && word.length > adv.length) {
         word = word.slice(0, -adv.length);
         role = 'adverb';
@@ -698,7 +698,7 @@ function rearrangeToSVO(
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    const nextToken = tokens[i + 1];
+    const _nextToken = tokens[i + 1];
 
     // 연결어미 저장
     if (token.connective) {
