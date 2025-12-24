@@ -34,10 +34,11 @@ export default function Page() {
 ```
 
 ### 클라이언트 전용 컴포넌트 (Client-Only)
-브라우저 API 사용 시 clientOnly HOC 사용:
+브라우저 API 사용 시 React lazy + Suspense 사용:
 ```tsx
-import { clientOnly } from '@solidjs/start';
-export const MyClient = clientOnly(() => import('./MyComponent'));
+import { lazy, Suspense } from 'react';
+const MyClient = lazy(() => import('./MyComponent'));
+// 사용: <Suspense fallback={<Loading />}><MyClient /></Suspense>
 ```
 
 ### i18n 사용 (Using i18n)

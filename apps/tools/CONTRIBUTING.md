@@ -4,11 +4,11 @@ Tools 프로젝트에 기여해 주셔서 감사합니다!
 
 ## 아키텍처
 
-**100% 정적 사이트 - 백엔드 서버 없음.**
+**100% 정적 사이트 생성 (SSG)** - 백엔드 서버 없음.
 
-- **정적 사이트 생성 (SSG)** - 빌드 시 모든 페이지 사전 렌더링
+- **React Router v7 SSG 모드** - 빌드 시 모든 페이지 사전 렌더링
 - **Cloudflare Pages에 정적 파일로 배포**
-- **SolidJS Router로 클라이언트 사이드 라우팅** (초기 로드 후 SPA 네비게이션)
+- **초기 로드 후 클라이언트 사이드 라우팅** (SPA 네비게이션)
 - **API 엔드포인트 없음, 데이터베이스 없음**
 - **SEO 최적화** - 빌드 시 HTML에 메타 태그와 콘텐츠 포함
 
@@ -55,8 +55,8 @@ pnpm dev
 ### 코드 스타일
 
 - **TypeScript**: 엄격 모드 사용
-- **SolidJS**: `createSignal`, `createEffect`, `createStore` 사용 (React 패턴 사용 금지)
-- **Tailwind CSS**: `class` 속성 사용 (`className` 아님)
+- **React**: `useState`, `useEffect`, Zustand stores 사용 (SolidJS 패턴 사용 금지)
+- **Tailwind CSS**: `className` 속성 사용
 - **Biome**: 린트 + 포맷팅 통합 도구
 
 PR 전 반드시 실행:
@@ -112,10 +112,10 @@ pnpm test:e2e:ui
 
 ### 1. 도구 정의 생성
 
-`src/tools/[tool-name]/index.tsx`:
+`app/tools/[tool-name]/index.tsx`:
 
 ```typescript
-import type { Component } from 'solid-js';
+import type { FC } from 'react';
 import type { ToolDefinition, ToolProps } from '../types';
 import { registerTool } from '../registry';
 
@@ -124,10 +124,8 @@ export interface MyToolSettings {
   [key: string]: unknown;
 }
 
-const MyToolComponent: Component<ToolProps<MyToolSettings>> = (props) => {
-  const settings = () => props.settings;
-
-  return <div class="p-4">My Tool - Value: {settings().value}</div>;
+const MyToolComponent: FC<ToolProps<MyToolSettings>> = ({ settings }) => {
+  return <div className="p-4">My Tool - Value: {settings.value}</div>;
 };
 
 export const myTool: ToolDefinition<MyToolSettings> = {
@@ -148,7 +146,7 @@ registerTool(myTool);
 
 ### 2. 도구 내보내기
 
-`src/tools/index.ts`에 추가:
+`app/tools/index.ts`에 추가:
 
 ```typescript
 export * from './my-tool';
@@ -224,7 +222,7 @@ registerProcessor('my-processor', MyProcessor);
 | 변경 항목 | 수정 파일 |
 |-----------|-----------|
 | Node.js 버전 (`engines.node`) | `README.md`, `CONTRIBUTING.md` |
-| 주요 프레임워크 버전 (SolidJS, Vinxi 등) | `README.md`, `CLAUDE.md` |
+| 주요 프레임워크 버전 (React, React Router 등) | `README.md`, `CLAUDE.md` |
 | 새 의존성 추가 | `README.md` (Tech Stack), `CLAUDE.md` (Tech Stack) |
 | 라우트 추가/삭제 | `README.md`, `CLAUDE.md` (Directory Structure) |
 | 새 도구 추가 | `README.md` (Key Features), `CHANGELOG.md` |

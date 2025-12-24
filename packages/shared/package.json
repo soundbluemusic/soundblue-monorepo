@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Shared utilities and types for SoundBlue monorepo",
+  "description": "[DEPRECATED] Legacy SolidJS shared package - use @soundblue/shared-react instead",
   "exports": {
     ".": {
       "types": "./src/index.ts",

@@ -57,7 +57,7 @@ When contributing to this project, please follow these security best practices:
 1. **Dependencies**: Keep dependencies up to date and audit them regularly
 2. **Secrets**: Never commit secrets, API keys, or credentials
 3. **Input Validation**: Always validate and sanitize user input
-4. **XSS Prevention**: Use SolidJS's built-in XSS protection, avoid `innerHTML` directive
+4. **XSS Prevention**: Use React's JSX auto-escaping, avoid `dangerouslySetInnerHTML`, use DOMPurify for user content
 5. **HTTPS**: Always use HTTPS for external requests
 
 ## Security Updates

@@ -53,7 +53,8 @@
 
 | Tech | Description (설명) |
 |------|-------------------|
-| **React** | Fast reactive framework (빠른 반응형 프레임워크) |
+| **React 19** | Fast reactive framework (빠른 반응형 프레임워크) |
+| **React Router 7** | SSG mode routing (SSG 모드 라우팅) |
 | **TypeScript** | Type-safe JavaScript (타입 안전한 자바스크립트) |
 | **Tailwind CSS** | Utility-first styling (유틸리티 기반 스타일링) |
 
@@ -86,8 +87,8 @@ soundblue-monorepo/
 │   └── dialogue/      → Learning tool (학습 도구)
 │
 └── 📦 packages/
-    ├── shared/        → Shared code for SolidJS (SolidJS 공용 코드)
-    └── shared-react/  → Shared code for React (React 공용 코드)
+    ├── shared/        → [Legacy] For SolidJS backups (레거시 - SolidJS 백업용)
+    └── shared-react/  → Shared code for all apps (모든 앱 공용 코드)
 ```
 
 ---

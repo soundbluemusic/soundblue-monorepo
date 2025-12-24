@@ -23,20 +23,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **프레임워크 마이그레이션**: React 19 + Next.js 16 → SolidJS 1.9 + SolidStart 1.0 + Vinxi 0.5
-- **상태관리**: Zustand 5 → solid-js/store (createStore, createSignal)
-- **UI 컴포넌트**: Shadcn UI (Radix) → Kobalte (접근성 프리미티브)
-- **다국어 지원**: next-intl → @solid-primitives/i18n
-- **라우팅**: Next.js App Router → @solidjs/router (파일 기반 라우팅)
-- **빌드 시스템**: Next.js Turbopack → Vinxi + Vite 6
-- **사이트맵 생성**: next-sitemap → scripts/generate-sitemaps.ts (커스텀)
+- **프레임워크**: React 19.1 + React Router 7.6 (SSG mode)
+- **상태관리**: Zustand 5
+- **UI 컴포넌트**: Radix UI (접근성 프리미티브)
+- **다국어 지원**: @inlang/paraglide-js
+- **라우팅**: React Router 7 (파일 기반 라우팅)
+- **빌드 시스템**: Vite 6.3
+- **사이트맵 생성**: scripts/generate-sitemaps.ts (커스텀)
 
-### Why SolidJS?
+### Note
 
-- 더 작은 번들 사이즈 (가상 DOM 없음)
-- 더 나은 런타임 성능 (파인 그레인드 리액티비티)
-- AudioWorklet/WASM과의 더 나은 통합
-- 메모리 사용량 감소
+- SolidJS로의 임시 마이그레이션 후 React로 복귀
+- React 19.1의 개선된 성능과 React Router v7의 SSG 지원 활용
 
 ---
 
@@ -72,9 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- SolidJS에서 React 19로 마이그레이션
-- Vite에서 Next.js 16 (Turbopack)으로 전환
-- AssemblyScript에서 Rust + wasm-pack으로 WASM 빌드 전환
+- 프레임워크 아키텍처 재설계 (React 19 기반)
+- Rust + wasm-pack 기반 WASM 빌드 시스템 도입
 
 ---
 
@@ -134,8 +131,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 드럼머신 (Drum Machine) - 드럼 패턴 시퀀서
 - 드럼 사운드 합성기 (Drum Sound Synth)
 - QR 코드 생성기 (QR Generator)
-- SolidJS + TypeScript 기반 (v1.0.0에서 React로 마이그레이션됨)
-- Vite 6 빌드 도구 (v1.0.0에서 Next.js로 전환됨)
+- TypeScript 기반
+- Vite 빌드 도구
 - PWA 지원
 - Cloudflare Pages 배포
 

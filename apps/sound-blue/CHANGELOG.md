@@ -63,11 +63,11 @@ _향후 변경사항이 여기에 기록됩니다._
 
 ### Added
 
-- SolidStart 1.2 with SolidJS 1.9
+- React 19.1 with React Router 7.6 (SSG mode)
 - TypeScript 5.9 strict mode
 - Tailwind CSS 4.x styling system
 - Pure CSS Particles (lightweight visual effects)
-- @solid-primitives/i18n internationalization (Korean/English)
+- Custom i18n with Zustand (Korean/English)
 - vite-plugin-pwa PWA support
 - Biome 2.x linting and formatting
 - Vitest unit testing
@@ -83,7 +83,7 @@ _향후 변경사항이 여기에 기록됩니다._
 
 ## [2.x] - Legacy
 
-Previous versions used different architecture.
+Previous versions used different architecture (SolidJS → React migration completed in v3.0.0).
 
 ---
 

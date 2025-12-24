@@ -17,15 +17,15 @@ Dialogue is an offline Q&A learning tool that provides instant answers without i
 
 ## Architecture (아키텍처)
 
-**100% Static Site - No backend server required.**
-(**100% 정적 사이트 - 백엔드 서버 없음.**)
+**100% Static Site Generation (SSG)** - No backend server required.
+(**100% 정적 사이트 생성 (SSG)** - 백엔드 서버 없음.)
 
-- **Static Site Generation (SSG)** - All pages pre-rendered at build time
-  (정적 사이트 생성 - 빌드 시 모든 페이지 사전 렌더링)
+- **React Router v7 SSG mode** - All pages pre-rendered at build time
+  (React Router v7 SSG 모드 - 빌드 시 모든 페이지 사전 렌더링)
 - **Deployed as static files** to Cloudflare Pages
   (Cloudflare Pages에 정적 파일로 배포)
-- **Client-side routing** with React Router (SPA navigation after initial load)
-  (React Router로 클라이언트 사이드 라우팅, 초기 로드 후 SPA 네비게이션)
+- **Client-side routing** after initial load (SPA navigation)
+  (초기 로드 후 클라이언트 사이드 라우팅, SPA 네비게이션)
 - **No API endpoints, no database**
   (API 엔드포인트 없음, 데이터베이스 없음)
 - **Offline-first** - All data embedded in static files
