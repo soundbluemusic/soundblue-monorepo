@@ -9,6 +9,7 @@ import {
   levelTests,
   type TestCase,
   type TestLevel,
+  typoTests,
 } from '~/tools/translator/benchmark-data';
 import { translate } from '~/tools/translator/translator-service';
 
@@ -44,6 +45,7 @@ export default function Benchmark() {
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
   const [contextResults, setContextResults] = useState<LevelResult[]>([]);
+  const [typoResults, setTypoResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
@@ -97,10 +99,12 @@ export default function Benchmark() {
       const levelRes = runLevelTests(levelTests);
       const catRes = runLevelTests(categoryTests);
       const ctxRes = runLevelTests(contextTests);
+      const typoRes = runLevelTests(typoTests);
 
       setLevelResults(levelRes);
       setCategoryResults(catRes);
       setContextResults(ctxRes);
+      setTypoResults(typoRes);
       setIsRunning(false);
     }, 50);
   }, [runLevelTests]);
@@ -138,14 +142,15 @@ export default function Benchmark() {
   const levelStats = calcTotalStats(levelResults);
   const categoryStats = calcTotalStats(categoryResults);
   const contextStats = calcTotalStats(contextResults);
+  const typoStats = calcTotalStats(typoResults);
   const totalStats = {
-    total: levelStats.total + categoryStats.total + contextStats.total,
-    passed: levelStats.passed + categoryStats.passed + contextStats.passed,
+    total: levelStats.total + categoryStats.total + contextStats.total + typoStats.total,
+    passed: levelStats.passed + categoryStats.passed + contextStats.passed + typoStats.passed,
     percentage:
-      levelStats.total + categoryStats.total + contextStats.total > 0
+      levelStats.total + categoryStats.total + contextStats.total + typoStats.total > 0
         ? Math.round(
-            ((levelStats.passed + categoryStats.passed + contextStats.passed) /
-              (levelStats.total + categoryStats.total + contextStats.total)) *
+            ((levelStats.passed + categoryStats.passed + contextStats.passed + typoStats.passed) /
+              (levelStats.total + categoryStats.total + contextStats.total + typoStats.total)) *
               100,
           )
         : 0,
@@ -295,7 +300,10 @@ export default function Benchmark() {
   };
 
   const totalTestCount =
-    countTests(levelTests) + countTests(categoryTests) + countTests(contextTests);
+    countTests(levelTests) +
+    countTests(categoryTests) +
+    countTests(contextTests) +
+    countTests(typoTests);
 
   return (
     <div className="min-h-screen p-4 sm:p-8">
@@ -343,7 +351,7 @@ export default function Benchmark() {
 
         {/* Overall Stats */}
         {levelResults.length > 0 && (
-          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
             <div className="rounded-lg border border-border p-4 text-center">
               <div className="text-2xl font-bold">{totalStats.percentage}%</div>
               <div className="text-sm text-muted-foreground">Overall</div>
@@ -372,6 +380,13 @@ export default function Benchmark() {
                 {contextStats.passed}/{contextStats.total}
               </div>
             </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <div className="text-2xl font-bold">{typoStats.percentage}%</div>
+              <div className="text-sm text-muted-foreground">Typo Tests</div>
+              <div className="text-xs text-muted-foreground">
+                {typoStats.passed}/{typoStats.total}
+              </div>
+            </div>
           </div>
         )}
 
@@ -396,6 +411,14 @@ export default function Benchmark() {
           <div className="mb-6">
             <h2 className="mb-3 text-lg font-semibold">Context Tests</h2>
             {renderResults(contextTests, contextResults, 'context')}
+          </div>
+        )}
+
+        {/* Typo Tests */}
+        {typoResults.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-3 text-lg font-semibold">Typo Tests (오타 테스트)</h2>
+            {renderResults(typoTests, typoResults, 'typo')}
           </div>
         )}
 
