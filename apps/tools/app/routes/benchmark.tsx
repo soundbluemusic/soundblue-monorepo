@@ -301,9 +301,30 @@ export default function Benchmark() {
     <div className="min-h-screen p-4 sm:p-8">
       <div className="mx-auto max-w-4xl">
         <h1 className="mb-2 text-2xl font-bold sm:text-3xl">Translator Benchmark</h1>
-        <p className="mb-6 text-muted-foreground">
+        <p className="mb-4 text-muted-foreground">
           Test translation accuracy across {totalTestCount} test cases
         </p>
+
+        {/* Algorithm-Only Testing Notice */}
+        <div className="mb-6 rounded-lg border border-amber-500/50 bg-amber-50 p-4 dark:bg-amber-900/20">
+          <div className="flex items-start gap-3">
+            <span className="text-xl">⚠️</span>
+            <div>
+              <h3 className="font-semibold text-amber-800 dark:text-amber-200">
+                Algorithm-Only Testing (알고리즘 기반 테스트)
+              </h3>
+              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                All test sentences must be translated using algorithms only, not dictionary lookups.
+                Adding test sentences to the dictionary is strictly prohibited as it would result in
+                0% adaptability.
+              </p>
+              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                모든 테스트 문장은 알고리즘으로만 번역되어야 합니다. 사전에 테스트 문장을 등록하면
+                응용력이 0%가 되므로 금지됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Run Button */}
         <button

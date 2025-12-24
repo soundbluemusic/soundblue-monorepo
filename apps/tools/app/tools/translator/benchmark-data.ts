@@ -3,6 +3,25 @@ import type { TranslationDirection } from './settings';
 /**
  * 번역기 벤치마크 테스트 데이터
  * level-test.test.ts, category-test.test.ts, context-test.test.ts에서 추출
+ *
+ * ⚠️ CRITICAL: ALGORITHM-ONLY TESTING REQUIREMENT (알고리즘 기반 테스트 필수)
+ * ========================================
+ *
+ * 이 파일의 모든 테스트 문장은 반드시 알고리즘 기반으로만 번역되어야 합니다.
+ * 사전(dictionary)에 테스트 문장을 직접 등록하여 테스트를 통과시키는 것은 금지됩니다.
+ *
+ * 이유:
+ * 1. 사전 기반 테스트는 응용력 검증이 불가능함 (응용력 0%)
+ * 2. 새로운 문장에 대한 번역 능력을 측정할 수 없음
+ * 3. 실제 사용자 입력은 사전에 없는 문장이 대부분임
+ *
+ * 테스트 문장 추가 시 확인사항:
+ * - i18n-sentences.ts에 해당 문장이 없어야 함
+ * - idioms.ts에 해당 문장이 없어야 함
+ * - cultural-expressions.ts에 해당 문장이 없어야 함
+ * - 기타 모든 사전 파일에 해당 문장이 없어야 함
+ *
+ * ========================================
  */
 
 export interface TestCase {
