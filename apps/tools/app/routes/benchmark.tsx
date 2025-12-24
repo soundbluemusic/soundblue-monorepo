@@ -4,6 +4,7 @@ import type { MetaFunction } from 'react-router';
 import { cn } from '~/lib/utils';
 import {
   categoryTests,
+  contextTests,
   countTests,
   levelTests,
   type TestCase,
@@ -42,6 +43,7 @@ export default function Benchmark() {
   const [isRunning, setIsRunning] = useState(false);
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
+  const [contextResults, setContextResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
@@ -94,9 +96,11 @@ export default function Benchmark() {
     setTimeout(() => {
       const levelRes = runLevelTests(levelTests);
       const catRes = runLevelTests(categoryTests);
+      const ctxRes = runLevelTests(contextTests);
 
       setLevelResults(levelRes);
       setCategoryResults(catRes);
+      setContextResults(ctxRes);
       setIsRunning(false);
     }, 50);
   }, [runLevelTests]);
@@ -133,14 +137,15 @@ export default function Benchmark() {
 
   const levelStats = calcTotalStats(levelResults);
   const categoryStats = calcTotalStats(categoryResults);
+  const contextStats = calcTotalStats(contextResults);
   const totalStats = {
-    total: levelStats.total + categoryStats.total,
-    passed: levelStats.passed + categoryStats.passed,
+    total: levelStats.total + categoryStats.total + contextStats.total,
+    passed: levelStats.passed + categoryStats.passed + contextStats.passed,
     percentage:
-      levelStats.total + categoryStats.total > 0
+      levelStats.total + categoryStats.total + contextStats.total > 0
         ? Math.round(
-            ((levelStats.passed + categoryStats.passed) /
-              (levelStats.total + categoryStats.total)) *
+            ((levelStats.passed + categoryStats.passed + contextStats.passed) /
+              (levelStats.total + categoryStats.total + contextStats.total)) *
               100,
           )
         : 0,
@@ -289,7 +294,8 @@ export default function Benchmark() {
     );
   };
 
-  const totalTestCount = countTests(levelTests) + countTests(categoryTests);
+  const totalTestCount =
+    countTests(levelTests) + countTests(categoryTests) + countTests(contextTests);
 
   return (
     <div className="min-h-screen p-4 sm:p-8">
@@ -316,7 +322,7 @@ export default function Benchmark() {
 
         {/* Overall Stats */}
         {levelResults.length > 0 && (
-          <div className="mb-6 grid grid-cols-3 gap-4">
+          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-lg border border-border p-4 text-center">
               <div className="text-2xl font-bold">{totalStats.percentage}%</div>
               <div className="text-sm text-muted-foreground">Overall</div>
@@ -338,6 +344,13 @@ export default function Benchmark() {
                 {categoryStats.passed}/{categoryStats.total}
               </div>
             </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <div className="text-2xl font-bold">{contextStats.percentage}%</div>
+              <div className="text-sm text-muted-foreground">Context Tests</div>
+              <div className="text-xs text-muted-foreground">
+                {contextStats.passed}/{contextStats.total}
+              </div>
+            </div>
           </div>
         )}
 
@@ -354,6 +367,14 @@ export default function Benchmark() {
           <div className="mb-6">
             <h2 className="mb-3 text-lg font-semibold">Category Tests</h2>
             {renderResults(categoryTests, categoryResults, 'category')}
+          </div>
+        )}
+
+        {/* Context Tests */}
+        {contextResults.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-3 text-lg font-semibold">Context Tests</h2>
+            {renderResults(contextTests, contextResults, 'context')}
           </div>
         )}
 

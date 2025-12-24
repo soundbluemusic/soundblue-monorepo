@@ -4,6 +4,7 @@ import type { MetaFunction } from 'react-router';
 import { cn } from '~/lib/utils';
 import {
   categoryTests,
+  contextTests,
   countTests,
   levelTests,
   type TestCase,
@@ -42,6 +43,7 @@ export default function BenchmarkKo() {
   const [isRunning, setIsRunning] = useState(false);
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
+  const [contextResults, setContextResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
@@ -94,9 +96,11 @@ export default function BenchmarkKo() {
     setTimeout(() => {
       const levelRes = runLevelTests(levelTests);
       const catRes = runLevelTests(categoryTests);
+      const ctxRes = runLevelTests(contextTests);
 
       setLevelResults(levelRes);
       setCategoryResults(catRes);
+      setContextResults(ctxRes);
       setIsRunning(false);
     }, 50);
   }, [runLevelTests]);
@@ -133,14 +137,15 @@ export default function BenchmarkKo() {
 
   const levelStats = calcTotalStats(levelResults);
   const categoryStats = calcTotalStats(categoryResults);
+  const contextStats = calcTotalStats(contextResults);
   const totalStats = {
-    total: levelStats.total + categoryStats.total,
-    passed: levelStats.passed + categoryStats.passed,
+    total: levelStats.total + categoryStats.total + contextStats.total,
+    passed: levelStats.passed + categoryStats.passed + contextStats.passed,
     percentage:
-      levelStats.total + categoryStats.total > 0
+      levelStats.total + categoryStats.total + contextStats.total > 0
         ? Math.round(
-            ((levelStats.passed + categoryStats.passed) /
-              (levelStats.total + categoryStats.total)) *
+            ((levelStats.passed + categoryStats.passed + contextStats.passed) /
+              (levelStats.total + categoryStats.total + contextStats.total)) *
               100,
           )
         : 0,
@@ -289,7 +294,8 @@ export default function BenchmarkKo() {
     );
   };
 
-  const totalTestCount = countTests(levelTests) + countTests(categoryTests);
+  const totalTestCount =
+    countTests(levelTests) + countTests(categoryTests) + countTests(contextTests);
 
   return (
     <div className="min-h-screen p-4 sm:p-8">
@@ -316,7 +322,7 @@ export default function BenchmarkKo() {
 
         {/* Overall Stats */}
         {levelResults.length > 0 && (
-          <div className="mb-6 grid grid-cols-3 gap-4">
+          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-lg border border-border p-4 text-center">
               <div className="text-2xl font-bold">{totalStats.percentage}%</div>
               <div className="text-sm text-muted-foreground">전체</div>
@@ -338,6 +344,13 @@ export default function BenchmarkKo() {
                 {categoryStats.passed}/{categoryStats.total}
               </div>
             </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <div className="text-2xl font-bold">{contextStats.percentage}%</div>
+              <div className="text-sm text-muted-foreground">문맥 테스트</div>
+              <div className="text-xs text-muted-foreground">
+                {contextStats.passed}/{contextStats.total}
+              </div>
+            </div>
           </div>
         )}
 
@@ -354,6 +367,14 @@ export default function BenchmarkKo() {
           <div className="mb-6">
             <h2 className="mb-3 text-lg font-semibold">카테고리 테스트</h2>
             {renderResults(categoryTests, categoryResults, 'category')}
+          </div>
+        )}
+
+        {/* Context Tests */}
+        {contextResults.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-3 text-lg font-semibold">문맥 테스트</h2>
+            {renderResults(contextTests, contextResults, 'context')}
           </div>
         )}
 
