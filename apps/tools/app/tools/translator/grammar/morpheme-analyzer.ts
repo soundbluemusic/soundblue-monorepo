@@ -506,6 +506,115 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'present',
     formality: 'polite',
   },
+
+  // === 평서형 현재 시제 (ㄴ다/는다) ===
+  // 받침 없는 동사 + ㄴ다: 가다→간다, 오다→온다, 보다→본다, 자다→잔다
+  {
+    pattern: /^(.*)간다$/,
+    stemRestore: (m) => `${m[1] ?? ''}가`,
+    ending: 'ㄴ다',
+    tense: 'present',
+    formality: 'casual',
+  },
+  {
+    pattern: /^(.*)온다$/,
+    stemRestore: (m) => `${m[1] ?? ''}오`,
+    ending: 'ㄴ다',
+    tense: 'present',
+    formality: 'casual',
+  },
+  {
+    pattern: /^(.*)본다$/,
+    stemRestore: (m) => `${m[1] ?? ''}보`,
+    ending: 'ㄴ다',
+    tense: 'present',
+    formality: 'casual',
+  },
+  {
+    pattern: /^(.*)잔다$/,
+    stemRestore: (m) => `${m[1] ?? ''}자`,
+    ending: 'ㄴ다',
+    tense: 'present',
+    formality: 'casual',
+  },
+  {
+    pattern: /^(.*)만난다$/,
+    stemRestore: (m) => `${m[1] ?? ''}만나`,
+    ending: 'ㄴ다',
+    tense: 'present',
+    formality: 'casual',
+  },
+  {
+    pattern: /^(.*)탄다$/,
+    stemRestore: (m) => `${m[1] ?? ''}타`,
+    ending: 'ㄴ다',
+    tense: 'present',
+    formality: 'casual',
+  },
+  {
+    pattern: /^(.*)산다$/,
+    stemRestore: (m) => `${m[1] ?? ''}사`,
+    ending: 'ㄴ다',
+    tense: 'present',
+    formality: 'casual',
+  },
+  {
+    pattern: /^(.*)마신다$/,
+    stemRestore: (m) => `${m[1] ?? ''}마시`,
+    ending: 'ㄴ다',
+    tense: 'present',
+    formality: 'casual',
+  },
+  // 받침 있는 동사 + 는다: 먹다→먹는다, 읽다→읽는다
+  {
+    pattern: /^(.+)는다$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '는다',
+    tense: 'present',
+    formality: 'casual',
+  },
+
+  // === 과거 시제 추가 패턴 ===
+  // 먹다 → 먹었다
+  {
+    pattern: /^(.+)었다$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '었다',
+    tense: 'past',
+    formality: 'casual',
+  },
+  // 가다 → 갔다
+  {
+    pattern: /^(.*)갔다$/,
+    stemRestore: (m) => `${m[1] ?? ''}가`,
+    ending: '았다',
+    tense: 'past',
+    formality: 'casual',
+  },
+  // 오다 → 왔다
+  {
+    pattern: /^(.*)왔다$/,
+    stemRestore: (m) => `${m[1] ?? ''}오`,
+    ending: '았다',
+    tense: 'past',
+    formality: 'casual',
+  },
+  // 보다 → 봤다
+  {
+    pattern: /^(.*)봤다$/,
+    stemRestore: (m) => `${m[1] ?? ''}보`,
+    ending: '았다',
+    tense: 'past',
+    formality: 'casual',
+  },
+  // 하다 → 했다
+  {
+    pattern: /^(.*)했다$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '했다',
+    tense: 'past',
+    formality: 'casual',
+  },
 ];
 
 // ========================================

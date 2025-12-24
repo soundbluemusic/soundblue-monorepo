@@ -94,10 +94,9 @@ export const connectiveEndings: Record<string, ConnectiveEndingInfo> = {
   게: { type: 'result', en: 'to', position: 'before', verbForm: 'base' },
   도록: { type: 'result', en: 'so that', position: 'before', verbForm: 'base' },
 
-  // === 종결+연결 (Declarative endings used in subordinate clauses) ===
-  // -ㄴ다/-는다 in compound sentences (declarative)
-  는다: { type: 'sequential', en: ', and', position: 'after', verbForm: 'base' },
-  ㄴ다: { type: 'sequential', en: ', and', position: 'after', verbForm: 'base' },
+  // NOTE: -ㄴ다/-는다 are TERMINAL endings, not connective endings
+  // They should be handled by morpheme-analyzer as terminal endings (종결어미)
+  // Removed from connective endings to prevent incorrect routing
 
   // -다가: while doing, then
   다가: { type: 'sequential', en: 'then', position: 'after', verbForm: 'base' },

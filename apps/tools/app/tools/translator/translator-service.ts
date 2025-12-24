@@ -5,8 +5,9 @@
 // NLP 모듈 (WSD, 연어, 주제 탐지) 통합
 // ========================================
 
-import { translateEnToKo as coreTranslateEnToKo } from './core/en-to-ko';
-import { translateKoToEn as coreTranslateKoToEn } from './core/ko-to-en';
+// Core engines preserved for reference but now using advanced functions
+// import { translateEnToKo as coreTranslateEnToKo } from './core/en-to-ko';
+// import { translateKoToEn as coreTranslateKoToEn } from './core/ko-to-en';
 
 import {
   type ConnectiveEndingInfo,
@@ -37,7 +38,7 @@ import {
   tryExtractContracted,
   tryExtractCopula,
 } from './dictionary';
-import { generateEnglish, parseSentence } from './grammar';
+import { analyzeMorpheme, generateEnglish, parseSentence } from './grammar';
 import {
   applyIrregular,
   decompose,
@@ -128,9 +129,11 @@ export function translateWithCorrection(
     };
   }
 
-  // Use jaso-based translation engine from core/
+  // Use advanced translation engine with NLP, grammar analysis, idiom matching
   let translated =
-    direction === 'ko-en' ? coreTranslateKoToEn(normalized) : coreTranslateEnToKo(normalized);
+    direction === 'ko-en'
+      ? translateKoToEnAdvanced(normalized, isQuestion)
+      : translateEnToKoAdvanced(normalized);
 
   // 질문이었으면 물음표 추가
   if (isQuestion && !translated.endsWith('?')) {
@@ -207,8 +210,9 @@ function getPastParticiple(verb: string): string {
 
 /**
  * 한→영 번역 (고급 문법 분석 기반)
+ * 문화 표현, 관용어, 패턴, NLP(WSD, 연어), 문법 분석 적용
  */
-function _translateKoToEn(text: string, isQuestion: boolean = false): string {
+function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): string {
   // 0. 문화 특수 표현 먼저 체크 (완전 일치)
   for (const expr of culturalExpressionList) {
     if (text === expr || text.replace(/\s+/g, '') === expr.replace(/\s+/g, '')) {
@@ -354,12 +358,40 @@ function decomposeAndTranslateKoWithNlp(text: string): string {
   }
 
   // 3. WSD 적용 (연어에 포함되지 않은 다의어만)
+  // 조사 목록 (명사+조사인 경우 WSD 적용 건너뜀)
+  const NOUN_PARTICLES_FOR_WSD = [
+    '은',
+    '는',
+    '이',
+    '가',
+    '을',
+    '를',
+    '에',
+    '에서',
+    '로',
+    '으로',
+    '와',
+    '과',
+    '의',
+    '도',
+    '만',
+  ];
   const wsdResults = new Map<number, WsdResult>();
   for (let i = 0; i < tokens.length; i++) {
     if (collocationRanges.has(i)) continue;
 
     const token = tokens[i];
     if (!token) continue;
+
+    // 조사가 붙어있으면 명사이므로 WSD 적용 건너뜀
+    // (다의어 동사는 어미가 붙지 조사가 붙지 않음)
+    const hasNounParticle = NOUN_PARTICLES_FOR_WSD.some(
+      (p) => token.endsWith(p) && token.length > p.length,
+    );
+    if (hasNounParticle) {
+      continue;
+    }
+
     const stem = extractStemForWsd(token);
 
     if (isPolysemous(stem)) {
@@ -380,7 +412,35 @@ function decomposeAndTranslateKoWithNlp(text: string): string {
  * WSD 적용이 필요한 문장을 NLP 경로로 라우팅하기 위함
  */
 function hasPolysemousWords(tokens: string[]): boolean {
+  // 조사 목록 (명사+조사인 경우 다의어 체크 건너뜀)
+  const NOUN_PARTICLES = [
+    '은',
+    '는',
+    '이',
+    '가',
+    '을',
+    '를',
+    '에',
+    '에서',
+    '로',
+    '으로',
+    '와',
+    '과',
+    '의',
+    '도',
+    '만',
+  ];
+
   for (const token of tokens) {
+    // 조사가 붙어있으면 명사이므로 다의어 체크 건너뜀
+    // (다의어 동사는 어미가 붙지 조사가 붙지 않음)
+    const hasNounParticle = NOUN_PARTICLES.some(
+      (p) => token.endsWith(p) && token.length > p.length,
+    );
+    if (hasNounParticle) {
+      continue;
+    }
+
     const stem = extractStemForWsd(token);
     if (isPolysemous(stem)) {
       return true;
@@ -448,10 +508,18 @@ function translateTokensWithNlp(
     if (collocationTranslations.has(i)) {
       let translation = collocationTranslations.get(i)!;
 
-      // 동사 토큰에서 연결어미 추출 및 적용
-      // 연어의 마지막 토큰(동사)에서 연결어미를 확인
+      // 동사 토큰에서 시제 및 연결어미 추출
       const verbToken = findVerbTokenInCollocation(tokens, i, collocationRanges);
       if (verbToken) {
+        // 시제 적용 (형태소 분석으로 시제 확인)
+        const morpheme = analyzeMorpheme(verbToken);
+        if (morpheme.tense === 'past') {
+          // 연어의 동사 부분을 과거형으로 변환
+          // "eat rice" → "ate rice"
+          translation = applyTenseToCollocation(translation, 'past');
+        }
+
+        // 연결어미 적용
         const connectiveResult = extractConnectiveEnding(verbToken);
         if (connectiveResult) {
           translation = applyConnectiveToTranslation(translation, connectiveResult.info);
@@ -519,6 +587,27 @@ function applyConnectiveToTranslation(translation: string, info: ConnectiveEndin
 }
 
 /**
+ * 연어에 시제 적용
+ * "eat rice" → "ate rice"
+ */
+function applyTenseToCollocation(translation: string, tense: 'past' | 'future'): string {
+  // 연어의 첫 번째 단어(동사)를 시제에 맞게 변환
+  const words = translation.split(' ');
+  if (words.length === 0) return translation;
+
+  const verb = words[0];
+  if (!verb) return translation;
+
+  if (tense === 'past') {
+    words[0] = conjugateEnglishVerb(verb, 'past');
+  } else if (tense === 'future') {
+    words[0] = `will ${verb}`;
+  }
+
+  return words.join(' ');
+}
+
+/**
  * WSD 결과를 적용한 단일 토큰 번역
  */
 function translateSingleTokenWithWsd(token: string, wsd: WsdResult): string {
@@ -541,7 +630,7 @@ function translateSingleTokenWithWsd(token: string, wsd: WsdResult): string {
 }
 
 /**
- * 단일 토큰 번역 (형태소 분해)
+ * 단일 토큰 번역 (형태소 분해) - 고급 형태소 분석기 사용
  */
 function translateSingleToken(token: string): string {
   // 0. 의성어/의태어 체크
@@ -559,14 +648,44 @@ function translateSingleToken(token: string): string {
     }
   }
 
-  // 서술격 조사 확인
+  // 1. 고급 형태소 분석기 사용
+  const morpheme = analyzeMorpheme(token);
+
+  // 서술어 (동사/형용사)
+  if (morpheme.role === 'predicate' && morpheme.pos === 'verb') {
+    const stem = morpheme.stem;
+    let translated = koToEnWords[stem] || stem;
+
+    // 시제 적용
+    if (morpheme.tense === 'past') {
+      translated = conjugateEnglishVerb(translated, 'past');
+    }
+
+    return translated;
+  }
+
+  // 명사+조사
+  if (morpheme.particle) {
+    const stem = morpheme.stem;
+    let translated = koToEnWords[stem] || stem;
+
+    // 조사에 따른 전치사 추가
+    const prep = getPrepositionForParticle(morpheme.particle);
+    if (prep) {
+      translated = `${prep} ${translated}`;
+    }
+
+    return translated;
+  }
+
+  // 서술격 조사 확인 (fallback)
   const copulaResult = tryExtractCopula(token);
   if (copulaResult) {
     const noun = koToEnWords[copulaResult.noun] || copulaResult.noun;
     return noun;
   }
 
-  // 축약형 어미 확인
+  // 축약형 어미 확인 (fallback)
   const contractedResult = tryExtractContracted(token);
   if (contractedResult) {
     let result = '';
@@ -578,22 +697,7 @@ function translateSingleToken(token: string): string {
     return result;
   }
 
-  // 조사 분리
-  const particleResult = tryExtractParticleSimple(token);
-  if (particleResult) {
-    const { stem, particle } = particleResult;
-    let translated = koToEnWords[stem] || stem;
-
-    // 조사에 따른 전치사 추가
-    const prep = getPrepositionForParticle(particle);
-    if (prep) {
-      translated = `${prep} ${translated}`;
-    }
-
-    return translated;
-  }
-
-  // 연결어미 분리 (먼저 체크 - 더 구체적인 패턴)
+  // 연결어미 분리 (fallback)
   const connectiveResult = extractConnectiveEnding(token);
   if (connectiveResult) {
     return translateWithConnectiveEnding(
@@ -603,13 +707,7 @@ function translateSingleToken(token: string): string {
     );
   }
 
-  // 어미 분리 (종결어미)
-  const endingResult = tryExtractEndingSimple(token);
-  if (endingResult) {
-    return koToEnWords[endingResult.stem] || endingResult.stem;
-  }
-
-  // 복합어 분해
+  // 복합어 분해 (fallback)
   const compoundResult = tryDecomposeCompound(token);
   if (compoundResult) {
     if ('translation' in compoundResult) {
@@ -621,7 +719,7 @@ function translateSingleToken(token: string): string {
   }
 
   // 단어 그대로 번역
-  return koToEnWords[token] || token;
+  return koToEnWords[morpheme.stem] || koToEnWords[token] || token;
 }
 
 /**
@@ -724,7 +822,7 @@ function getPrepositionForParticle(particle: string): string {
 /**
  * 간단한 조사 분리
  */
-function tryExtractParticleSimple(word: string): { stem: string; particle: string } | null {
+function _tryExtractParticleSimple(word: string): { stem: string; particle: string } | null {
   for (const p of particleList) {
     if (word.endsWith(p) && word.length > p.length) {
       const stem = word.slice(0, -p.length);
@@ -740,7 +838,7 @@ function tryExtractParticleSimple(word: string): { stem: string; particle: strin
 /**
  * 간단한 어미 분리
  */
-function tryExtractEndingSimple(word: string): { stem: string; ending: string } | null {
+function _tryExtractEndingSimple(word: string): { stem: string; ending: string } | null {
   for (const e of endingList) {
     if (word.endsWith(e) && word.length > e.length) {
       return { stem: word.slice(0, -e.length), ending: e };
@@ -809,9 +907,10 @@ function translateWithIdioms(
 }
 
 /**
- * 영→한 번역
+ * 영→한 번역 (고급 알고리즘)
+ * 문장 매칭, 관용어, 구동사, 패턴 매칭, 문장 구조 분석 적용
  */
-function _translateEnToKo(text: string): string {
+function translateEnToKoAdvanced(text: string): string {
   const lowerText = text.toLowerCase();
 
   // 1. 문장 완전 일치
