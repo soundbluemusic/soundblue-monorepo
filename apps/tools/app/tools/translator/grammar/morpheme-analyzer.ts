@@ -44,6 +44,7 @@ export interface MorphemeAnalysis {
   tense?: Tense; // 시제
   formality?: Formality; // 높임
   isNegative?: boolean; // 부정
+  negationType?: 'did_not' | 'could_not'; // 부정 유형: 안 했다 vs 못 했다
   isQuestion?: boolean; // 의문
   isHonorable?: boolean; // 존칭
 }
@@ -210,10 +211,20 @@ export const ENDINGS: Record<string, EndingInfo> = {
   '지 않습니다': { tense: 'present', formality: 'formal', isNegative: true },
   '지 않았어요': { tense: 'past', formality: 'polite', isNegative: true },
 
-  // === 의문형 ===
+  // === 의문형 현재 ===
   나요: { tense: 'present', formality: 'polite', isQuestion: true },
   니: { tense: 'present', formality: 'casual', isQuestion: true },
   니까: { tense: 'present', formality: 'casual', isQuestion: true },
+
+  // === 의문형 과거 ===
+  았니: { tense: 'past', formality: 'casual', isQuestion: true },
+  었니: { tense: 'past', formality: 'casual', isQuestion: true },
+  였니: { tense: 'past', formality: 'casual', isQuestion: true },
+  했니: { tense: 'past', formality: 'casual', isQuestion: true },
+  았나요: { tense: 'past', formality: 'polite', isQuestion: true },
+  었나요: { tense: 'past', formality: 'polite', isQuestion: true },
+  였나요: { tense: 'past', formality: 'polite', isQuestion: true },
+  했나요: { tense: 'past', formality: 'polite', isQuestion: true },
 };
 
 // 어미 목록 (길이순)
@@ -335,8 +346,10 @@ const CONTRACTED_PATTERNS: Array<{
   tense: Tense;
   formality: Formality;
   isNegative?: boolean;
+  negationType?: 'did_not' | 'could_not';
+  isQuestion?: boolean;
 }> = [
-  // === 부정 어미 패턴 (가장 먼저 검사!) ===
+  // === 의지 부정 패턴: -지 않았어 (didn't) ===
   // 가다 → 가지 않는다 (띄어쓰기 없이 붙여 쓴 경우)
   {
     pattern: /^(.+)지않는다$/,
@@ -345,6 +358,7 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'present',
     formality: 'casual',
     isNegative: true,
+    negationType: 'did_not',
   },
   {
     pattern: /^(.+)지않았다$/,
@@ -353,6 +367,7 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'past',
     formality: 'casual',
     isNegative: true,
+    negationType: 'did_not',
   },
   {
     pattern: /^(.+)지않아요$/,
@@ -361,6 +376,7 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'present',
     formality: 'polite',
     isNegative: true,
+    negationType: 'did_not',
   },
   {
     pattern: /^(.+)지않습니다$/,
@@ -369,6 +385,7 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'present',
     formality: 'formal',
     isNegative: true,
+    negationType: 'did_not',
   },
   {
     pattern: /^(.+)지않았습니다$/,
@@ -377,6 +394,7 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'past',
     formality: 'formal',
     isNegative: true,
+    negationType: 'did_not',
   },
   {
     pattern: /^(.+)지않았어요$/,
@@ -385,6 +403,7 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'past',
     formality: 'polite',
     isNegative: true,
+    negationType: 'did_not',
   },
   {
     pattern: /^(.+)지않았어$/,
@@ -393,6 +412,64 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'past',
     formality: 'casual',
     isNegative: true,
+    negationType: 'did_not',
+  },
+
+  // === 능력 부정 패턴: -지 못했어 (couldn't) ===
+  // 가다 → 가지 못했다 (띄어쓰기 없이 붙여 쓴 경우)
+  {
+    pattern: /^(.+)지못하다$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지못하다',
+    tense: 'present',
+    formality: 'casual',
+    isNegative: true,
+    negationType: 'could_not',
+  },
+  {
+    pattern: /^(.+)지못해요$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지못해요',
+    tense: 'present',
+    formality: 'polite',
+    isNegative: true,
+    negationType: 'could_not',
+  },
+  {
+    pattern: /^(.+)지못합니다$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지못합니다',
+    tense: 'present',
+    formality: 'formal',
+    isNegative: true,
+    negationType: 'could_not',
+  },
+  {
+    pattern: /^(.+)지못했어$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지못했어',
+    tense: 'past',
+    formality: 'casual',
+    isNegative: true,
+    negationType: 'could_not',
+  },
+  {
+    pattern: /^(.+)지못했어요$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지못했어요',
+    tense: 'past',
+    formality: 'polite',
+    isNegative: true,
+    negationType: 'could_not',
+  },
+  {
+    pattern: /^(.+)지못했습니다$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지못했습니다',
+    tense: 'past',
+    formality: 'formal',
+    isNegative: true,
+    negationType: 'could_not',
   },
 
   // === 과거 시제 축약형 ===
@@ -440,6 +517,15 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'past',
     formality: 'casual',
   },
+  // 만나다 → 만났니? (ㅏ+았+니 → 았니, 의문형)
+  {
+    pattern: /^(.+)났니$/,
+    stemRestore: (m) => `${m[1] ?? ''}나`,
+    ending: '았니',
+    tense: 'past',
+    formality: 'casual',
+    isQuestion: true,
+  },
   // 가다 → 갔어요 (ㅏ+았 → 았)
   {
     pattern: /^(.*)갔어요$/,
@@ -483,6 +569,15 @@ const CONTRACTED_PATTERNS: Array<{
     ending: '했어',
     tense: 'past',
     formality: 'casual',
+  },
+  // 하다 → 했니 (의문형)
+  {
+    pattern: /^(.*)했니$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '했니',
+    tense: 'past',
+    formality: 'casual',
+    isQuestion: true,
   },
   // 오다 → 왔어요
   {
@@ -748,6 +843,10 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
       result.formality = cp.formality;
       if (cp.isNegative) {
         result.isNegative = true;
+        result.negationType = cp.negationType;
+      }
+      if (cp.isQuestion) {
+        result.isQuestion = true;
       }
       return result;
     }
@@ -793,8 +892,9 @@ export interface TokenAnalysis extends MorphemeAnalysis {
   englishWord?: string;
 }
 
-// 부정 어미 패턴 (않다, 않는다, 않았다 등)
+// 부정 어미 패턴 (않다, 않는다, 않았다, 못했다 등)
 const NEGATIVE_ENDINGS = [
+  // 의지 부정 (-지 않다)
   '않는다',
   '않았다',
   '않아요',
@@ -802,19 +902,68 @@ const NEGATIVE_ENDINGS = [
   '않았습니다',
   '않았어요',
   '않았어',
+  '않았고',
   '않아',
   '않다',
+  // 능력 부정 (-지 못하다)
+  '못하다',
+  '못해요',
+  '못합니다',
+  '못했어',
+  '못했어요',
+  '못했습니다',
+  '못해',
+  '못했고',
 ];
 
 // 띄어쓰기 오류 전처리: "한국사람 입니다" → "한국사람입니다"
 // 부정문 패턴 전처리: "가지 않는다" → "가지않는다"
+// 복합 시간 표현 목록 (긴 것 → 짧은 것 순)
+const COMPOUND_TIME_EXPRESSIONS = [
+  // 3토큰 조합 (현재는 2토큰만 처리)
+  // 2토큰 조합
+  ['오늘', '아침에'],
+  ['오늘', '아침'],
+  ['어제', '밤에'],
+  ['어제', '밤'],
+  ['어제', '저녁에'],
+  ['어제', '저녁'],
+  ['내일', '아침에'],
+  ['내일', '아침'],
+  ['오늘', '밤에'],
+  ['오늘', '밤'],
+  ['오늘', '저녁에'],
+  ['오늘', '저녁'],
+];
+
 function preprocessTokens(tokens: string[]): string[] {
   const result: string[] = [];
   const COPULA_LIST = ['입니다', '입니까', '이에요', '예요', '이야', '야'];
 
-  for (let i = 0; i < tokens.length; i++) {
+  // 복합 시간 표현 먼저 처리
+  let i = 0;
+  while (i < tokens.length) {
     const token = tokens[i];
-    if (!token) continue;
+    if (!token) {
+      i++;
+      continue;
+    }
+
+    // 2토큰 복합 시간 표현 체크
+    let matched = false;
+    if (i < tokens.length - 1) {
+      const nextToken = tokens[i + 1];
+      for (const [first, second] of COMPOUND_TIME_EXPRESSIONS) {
+        if (token === first && nextToken === second) {
+          result.push(`${first} ${second}`); // 공백으로 결합하여 하나의 토큰으로
+          i += 2;
+          matched = true;
+          break;
+        }
+      }
+    }
+
+    if (matched) continue;
 
     // 현재 토큰이 분리된 서술격 조사인 경우
     if (COPULA_LIST.includes(token)) {
@@ -838,6 +987,8 @@ function preprocessTokens(tokens: string[]): string[] {
     } else {
       result.push(token);
     }
+
+    i++;
   }
 
   return result;

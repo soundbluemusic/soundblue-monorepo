@@ -50,7 +50,7 @@ export const collocations: Collocation[] = [
   // do 류
   // ========================================
   { ko: ['숙제', '하'], en: 'do homework', type: 'V+N', priority: 10 },
-  { ko: ['운동', '하'], en: 'do exercise', type: 'V+N', priority: 10 },
+  { ko: ['운동', '하'], en: 'exercise', type: 'V+N', priority: 10 },
   { ko: ['요리', '하'], en: 'do the cooking', type: 'V+N', priority: 9 },
   { ko: ['빨래', '하'], en: 'do the laundry', type: 'V+N', priority: 10 },
   { ko: ['설거지', '하'], en: 'do the dishes', type: 'V+N', priority: 10 },

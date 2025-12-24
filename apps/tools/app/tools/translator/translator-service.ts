@@ -116,11 +116,11 @@ export function translateWithCorrection(
     }
   }
 
-  // 질문 여부 저장 (정규화 전)
-  const isQuestion = /[?？]$/.test(textToTranslate.trim());
-  const normalized = normalize(textToTranslate);
+  // 문장 분리 (?, !, . 기준)
+  const sentences = splitSentences(textToTranslate);
 
-  if (!normalized) {
+  // 문장이 없으면 빈 결과 반환
+  if (sentences.length === 0) {
     return {
       translated: '',
       original: input,
@@ -129,19 +129,42 @@ export function translateWithCorrection(
     };
   }
 
-  // Use advanced translation engine with NLP, grammar analysis, idiom matching
-  let translated =
-    direction === 'ko-en'
-      ? translateKoToEnAdvanced(normalized, isQuestion)
-      : translateEnToKoAdvanced(normalized);
+  // 각 문장 개별 번역
+  const translatedSentences: string[] = [];
 
-  // 질문이었으면 물음표 추가
-  if (isQuestion && !translated.endsWith('?')) {
-    translated = `${translated}?`;
+  for (const { sentence, punctuation } of sentences) {
+    const normalized = normalize(sentence);
+    if (!normalized) continue;
+
+    // 문장 유형 감지
+    const isQuestion = punctuation.includes('?') || punctuation.includes('？');
+    const isExclamation = punctuation.includes('!') || punctuation.includes('！');
+
+    // 번역 실행
+    let translated =
+      direction === 'ko-en'
+        ? translateKoToEnAdvanced(normalized, isQuestion)
+        : translateEnToKoAdvanced(normalized);
+
+    // 구두점 추가
+    if (isQuestion && !translated.endsWith('?')) {
+      translated = `${translated}?`;
+    } else if (isExclamation && !translated.endsWith('!')) {
+      translated = `${translated}!`;
+    } else if (punctuation && !isQuestion && !isExclamation) {
+      // 마침표 추가 (원본에 마침표가 있었던 경우)
+      if (!translated.endsWith('.')) {
+        translated = `${translated}.`;
+      }
+    }
+
+    translatedSentences.push(translated);
   }
 
+  const finalTranslation = translatedSentences.join(' ');
+
   return {
-    translated,
+    translated: finalTranslation,
     original: input,
     correctedInput: textToTranslate !== input ? textToTranslate : undefined,
     correction,
@@ -156,6 +179,34 @@ function normalize(text: string): string {
     .trim()
     .replace(/\s+/g, ' ')
     .replace(/[.!?？！。]+$/, '');
+}
+
+/**
+ * 문장 분리 (?, !, . 기준)
+ * 단, 숫자 내 마침표(3.14)나 약어(Dr.)는 분리하지 않음
+ */
+function splitSentences(text: string): { sentence: string; punctuation: string }[] {
+  const results: { sentence: string; punctuation: string }[] = [];
+
+  // 문장 끝 구두점으로 분리 (?, !, .)
+  // 마지막 빈 요소 제거를 위해 filter 사용
+  const parts = text.split(/([.!?？！。]+)/);
+
+  for (let i = 0; i < parts.length; i += 2) {
+    const sentence = parts[i]?.trim();
+    const punctuation = parts[i + 1] || '';
+
+    if (sentence) {
+      results.push({ sentence, punctuation });
+    }
+  }
+
+  // 분리가 안 된 경우 원본 반환
+  if (results.length === 0 && text.trim()) {
+    results.push({ sentence: text.trim(), punctuation: '' });
+  }
+
+  return results;
 }
 
 /**
@@ -248,7 +299,31 @@ function translateMatchedPhrase(phrase: string): string {
  * 문화 표현, 관용어, 패턴, NLP(WSD, 연어), 문법 분석 적용
  */
 function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): string {
-  // 0. 문화 특수 표현 먼저 체크 (완전 일치)
+  // === 0. 주제 표시 의문문 패턴 (X는? → How about X?) ===
+  // 의문문에서 주제 조사 '는'으로 끝나는 단어는 "How about X?" 패턴
+  // 예: "샤워는?" → "How about a shower?"
+  if (isQuestion && /^(.+)는$/.test(text)) {
+    const match = text.match(/^(.+)는$/);
+    if (match?.[1]) {
+      const noun = match[1];
+      const nounEn = koToEnWords[noun] || noun;
+      // 관사 결정 (a/an)
+      const article = /^[aeiou]/i.test(nounEn) ? 'an' : 'a';
+      return `How about ${article} ${nounEn}`;
+    }
+  }
+
+  // === 0.5. 사전 우선 조회 (단일 단어/감탄사) ===
+  // 단일 단어(공백 없음)인 경우 사전에서 먼저 찾기
+  // 예: "와" → "Wow", "음" → "Mmm"
+  if (!text.includes(' ')) {
+    const directTranslation = koToEnWords[text];
+    if (directTranslation) {
+      return directTranslation;
+    }
+  }
+
+  // 0.5. 문화 특수 표현 먼저 체크 (완전 일치)
   for (const expr of culturalExpressionList) {
     if (text === expr || text.replace(/\s+/g, '') === expr.replace(/\s+/g, '')) {
       const translation = culturalExpressions[expr];
@@ -274,9 +349,9 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
   }
 
   // 3. 부정 패턴 처리 - 문법 분석 경로로 직접 라우팅
-  // "~지 않~" 또는 "안 ~" 패턴은 다의어/연어 체크 우회하고 문법 분석으로
-  if (/지\s*않|안\s+/.test(text)) {
-    return translateWithGrammarAnalysis(text);
+  // "~지 않~", "~지 못~", "안 ~" 패턴은 다의어/연어 체크 우회하고 문법 분석으로
+  if (/지\s*않|지\s*못|안\s+/.test(text)) {
+    return translateWithGrammarAnalysis(text, isQuestion);
   }
 
   // 4. 패턴 매칭
@@ -332,22 +407,31 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
 
   // 4.7. 연결어미 체크 (연결어미가 있는 문장은 NLP 경로로)
   // 아서/어서, 면서, 면, 고, 니까 등 연결어미가 포함된 문장
-  if (hasConnectiveEndings(tokens)) {
+  // 단, 의문문일 때는 연결어미 체크 건너뜀 (의문형 어미 -니와 연결어미 -니 충돌 방지)
+  if (!isQuestion && hasConnectiveEndings(tokens)) {
     return decomposeAndTranslateKoWithNlp(text);
   }
 
   // 5. 고급 문법 분석 기반 번역 (SOV→SVO 어순 변환, 시제, be동사, 관사)
-  return translateWithGrammarAnalysis(text);
+  return translateWithGrammarAnalysis(text, isQuestion);
 }
 
 /**
  * 고급 문법 분석 기반 번역
  * 문장 구조 분석 → 어순 변환 → 영어 생성
+ * @param text 번역할 한국어 텍스트
+ * @param isQuestion 의문문 여부 (외부에서 전달)
  */
-function translateWithGrammarAnalysis(text: string): string {
+function translateWithGrammarAnalysis(text: string, isQuestion: boolean = false): string {
   try {
     // 1. 문장 구조 분석
     const parsed = parseSentence(text);
+
+    // 외부에서 전달된 isQuestion 값 반영 (? 가 이미 제거된 경우를 위함)
+    if (isQuestion) {
+      parsed.isQuestion = true;
+      parsed.sentenceType = 'interrogative';
+    }
 
     // 2. 영어 문장 생성 (어순 변환 포함)
     const result = generateEnglish(parsed);
@@ -687,7 +771,15 @@ function translateSingleTokenWithWsd(token: string, wsd: WsdResult): string {
  * 단일 토큰 번역 (형태소 분해) - 고급 형태소 분석기 사용
  */
 function translateSingleToken(token: string): string {
-  // 0. 의성어/의태어 체크
+  // === 0. 사전 우선 조회 (Longest Match First) ===
+  // 전체 토큰이 사전에 있으면 바로 반환 (예: 일찍, 오늘, 어제 등)
+  // 형태소 분석 전에 완전 매칭 시도 - 문맥 파악의 핵심
+  const directTranslation = koToEnWords[token];
+  if (directTranslation) {
+    return directTranslation;
+  }
+
+  // 0.5. 의성어/의태어 체크
   const onoTranslation = koOnomatopoeia[token];
   if (onoTranslation) {
     return onoTranslation;

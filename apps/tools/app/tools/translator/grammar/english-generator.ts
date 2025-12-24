@@ -143,6 +143,7 @@ function conjugateVerb(
   tense: Tense,
   subject: string,
   isNegative: boolean = false,
+  negationType?: 'did_not' | 'could_not',
 ): string {
   const verbLower = verb.toLowerCase();
   const isThirdPerson =
@@ -153,6 +154,20 @@ function conjugateVerb(
 
   // 부정문 처리
   if (isNegative) {
+    // 능력 부정 (couldn't) vs 의지 부정 (didn't)
+    if (negationType === 'could_not') {
+      switch (tense) {
+        case 'present':
+          return `can't ${verbLower}`;
+        case 'past':
+          return `couldn't ${verbLower}`;
+        case 'future':
+          return `won't be able to ${verbLower}`;
+        case 'progressive':
+          return `can't ${getProgressiveForm(verbLower)}`;
+      }
+    }
+    // 기본: 의지 부정 (didn't)
     switch (tense) {
       case 'present':
         return isThirdPerson ? `doesn't ${verbLower}` : `don't ${verbLower}`;
@@ -354,14 +369,44 @@ const VERBS_WITH_OBJECT_PREPOSITION: Record<string, string> = {
 // ========================================
 // 한국어 토큰 → 영어 단어 변환
 // ========================================
+// 시간 표현 목록 (전치사 불필요)
+const TIME_EXPRESSIONS_NO_PREPOSITION = new Set([
+  'this morning',
+  'last night',
+  'last evening',
+  'tomorrow morning',
+  'tonight',
+  'this evening',
+  'yesterday',
+  'today',
+  'tomorrow',
+]);
+
+// 방법/정도 부사 목록 (동사 바로 뒤에 위치)
+const MANNER_ADVERBS = new Set([
+  'early',
+  'late',
+  'quickly',
+  'slowly',
+  'well',
+  'badly',
+  'fast',
+  'hard',
+]);
+
 function translateToken(
   token: TokenAnalysis,
   verbInfo?: { stem: string; english: string },
 ): string {
   const stem = token.stem;
 
-  // 사전에서 검색
-  const english = koToEnWords[stem] || koToEnWords[token.original] || stem;
+  // 사전에서 검색 (원본 먼저, 그 다음 어간)
+  const english = koToEnWords[token.original] || koToEnWords[stem] || stem;
+
+  // 시간 표현이면 전치사 없이 바로 반환
+  if (TIME_EXPRESSIONS_NO_PREPOSITION.has(english.toLowerCase())) {
+    return english;
+  }
 
   // 조사에 따른 전치사 추가
   if (token.particle) {
@@ -509,6 +554,11 @@ function translateConstituent(
 // 기본 주어 추론
 // ========================================
 function inferSubject(parsed: ParsedSentence): string {
+  // 의문문에서 주어 생략 시 → you (상대방에게 묻는 것)
+  if (parsed.isQuestion) {
+    return 'you';
+  }
+
   // 존칭 어미가 있으면 → you (상대방)
   const predicateToken = parsed.predicate?.tokens[0];
   if (predicateToken?.isHonorable) {
@@ -677,6 +727,62 @@ function isAdjective(stem: string, englishWord: string): boolean {
 }
 
 // ========================================
+// 명사+하다 복합동사 (Noun + 하다 → single English verb)
+// 운동을 했니? → Did you exercise? (not "Did you do an exercise?")
+// ========================================
+const NOUN_HADA_COMPOUND_VERBS: Record<string, string> = {
+  운동: 'exercise',
+  공부: 'study',
+  일: 'work',
+  요리: 'cook',
+  청소: 'clean',
+  쇼핑: 'shop',
+  수영: 'swim',
+  조깅: 'jog',
+  산책: 'walk',
+  여행: 'travel',
+  춤: 'dance',
+  노래: 'sing',
+  전화: 'call',
+  문자: 'text',
+  이메일: 'email',
+  검색: 'search',
+  클릭: 'click',
+  드라이브: 'drive',
+  사인: 'sign',
+  서명: 'sign',
+  축하: 'congratulate',
+  인사: 'greet',
+  감사: 'thank',
+  사과: 'apologize',
+  휴식: 'rest',
+};
+
+// ========================================
+// 의문문 보조동사 선택 (Do/Did/Does)
+// ========================================
+function selectAuxiliaryVerb(tense: Tense, subject: string): string {
+  const subjectLower = subject.toLowerCase();
+  const isThirdPerson =
+    subjectLower !== 'i' &&
+    subjectLower !== 'you' &&
+    subjectLower !== 'we' &&
+    subjectLower !== 'they';
+
+  if (tense === 'past') {
+    return 'Did';
+  }
+  if (tense === 'present') {
+    return isThirdPerson ? 'Does' : 'Do';
+  }
+  if (tense === 'future') {
+    return 'Will';
+  }
+  // progressive는 be동사 도치
+  return isThirdPerson ? 'Is' : 'Are';
+}
+
+// ========================================
 // 메인 생성 함수: 한국어 문장 → 영어 문장
 // ========================================
 export function generateEnglish(parsed: ParsedSentence): string {
@@ -705,6 +811,157 @@ export function generateEnglish(parsed: ParsedSentence): string {
     subjectEn = 'I';
   }
 
+  // ========================================
+  // 의문문 처리: Do/Did + Subject + base verb
+  // ========================================
+  if (parsed.isQuestion && parsed.predicate) {
+    const predicateToken = parsed.predicate.tokens[0];
+    const verbStem = predicateToken?.stem || '';
+    const verbEn = koToEnWords[verbStem] || verbStem;
+
+    // 형용사인 경우 be동사 의문문: Is/Was + Subject + adjective?
+    if (isAdjective(verbStem, verbEn) && !parsed.object) {
+      const beAux = parsed.tense === 'past' ? 'Was' : 'Is';
+      const subjectLower = subjectEn.toLowerCase();
+      // I, we, you, they → Are/Were
+      if (['i', 'we', 'you', 'they'].includes(subjectLower)) {
+        const beAuxPlural = parsed.tense === 'past' ? 'Were' : 'Are';
+        parts.push(beAuxPlural);
+      } else {
+        parts.push(beAux);
+      }
+      parts.push(subjectEn.toLowerCase());
+      parts.push(verbEn);
+
+      // 부사어 추가
+      const verbInfo = { stem: verbStem, english: verbEn };
+      for (const adv of parsed.adverbials) {
+        const advEn = translateConstituent(adv, false, false, verbInfo);
+        parts.push(advEn);
+      }
+    } else {
+      // 일반 동사 의문문: Do/Did/Does + Subject + base verb?
+      const aux = selectAuxiliaryVerb(parsed.tense, subjectEn);
+      parts.push(aux);
+      parts.push(subjectEn.toLowerCase());
+
+      // 명사+하다 복합동사 확인 (운동을 했니? → Did you exercise?)
+      // verbStem이 '하'이고 object가 있으면 복합동사 확인
+      let finalVerbEn = verbEn;
+      let skipObject = false;
+
+      if (verbStem === '하' && parsed.object) {
+        const objectToken = parsed.object.tokens[0];
+        const objectStem = objectToken?.stem || '';
+        const compoundVerb = NOUN_HADA_COMPOUND_VERBS[objectStem];
+        if (compoundVerb) {
+          // 복합동사로 대체: "do" + "exercise" → "exercise"
+          finalVerbEn = compoundVerb;
+          skipObject = true; // 목적어는 동사에 포함됨
+        }
+      }
+
+      // 동사는 기본형 사용 (Do/Did가 시제 담당)
+      parts.push(finalVerbEn);
+
+      // 목적어 추가 (복합동사가 아닌 경우에만)
+      if (parsed.object && !skipObject) {
+        const objectEn = translateConstituent(parsed.object, true);
+        // 동사에 따른 목적어 전치사 추가
+        const objPreposition = VERBS_WITH_OBJECT_PREPOSITION[finalVerbEn.toLowerCase()];
+        if (objPreposition) {
+          parts.push(objPreposition);
+        }
+        parts.push(objectEn);
+      }
+
+      // 부사어 분류: 방법/정도 부사 vs 시간 표현
+      // 영어 어순: Verb + manner adverb + time expression
+      const verbInfo = { stem: verbStem, english: verbEn };
+      const mannerAdverbs: string[] = [];
+      const timeExpressions: string[] = [];
+
+      for (const adv of parsed.adverbials) {
+        const advEn = translateConstituent(adv, false, false, verbInfo);
+        // 여러 토큰이 결합된 경우 분리해서 분류
+        const words = advEn.split(' ');
+        for (const word of words) {
+          const wordLower = word.toLowerCase();
+          // 방법/정도 부사인지 확인 (early, late 등)
+          if (MANNER_ADVERBS.has(wordLower)) {
+            mannerAdverbs.push(word);
+          }
+          // 시간 표현인지 확인 (today, yesterday 등)
+          else if (TIME_EXPRESSIONS_NO_PREPOSITION.has(wordLower)) {
+            timeExpressions.push(word);
+          }
+          // 복합 시간 표현 확인 (this morning 등)
+          else if (word.toLowerCase() === 'this' && words.includes('morning')) {
+            // "this morning"은 하나의 표현으로 처리
+            if (!timeExpressions.includes('this morning')) {
+              timeExpressions.push('this morning');
+            }
+          } else if (
+            word.toLowerCase() === 'morning' &&
+            words.some((w) => w.toLowerCase() === 'this')
+          ) {
+          } else if (
+            word.toLowerCase() === 'last' &&
+            (words.includes('night') || words.includes('evening'))
+          ) {
+            // "last night/evening"은 하나의 표현으로 처리
+            const nightIdx = words.findIndex(
+              (w) => w.toLowerCase() === 'night' || w.toLowerCase() === 'evening',
+            );
+            if (nightIdx > -1) {
+              const compound = `last ${words[nightIdx]}`;
+              if (!timeExpressions.includes(compound)) {
+                timeExpressions.push(compound);
+              }
+            }
+          } else if (word.toLowerCase() === 'night' || word.toLowerCase() === 'evening') {
+            // 이미 "last night/evening"으로 처리되었을 수 있음
+            if (!words.some((w) => w.toLowerCase() === 'last')) {
+              timeExpressions.push(word);
+            }
+          } else if (word?.trim()) {
+            // 기타 부사어는 마지막에 추가 (빈 문자열 제외)
+            timeExpressions.push(word);
+          }
+        }
+      }
+
+      // 방법/정도 부사 먼저, 시간 표현 나중에
+      for (const adv of mannerAdverbs) {
+        parts.push(adv);
+      }
+      for (const time of timeExpressions) {
+        parts.push(time);
+      }
+    }
+
+    // 후처리
+    let questionSentence = parts.join(' ');
+    questionSentence = questionSentence.charAt(0).toUpperCase() + questionSentence.slice(1);
+    questionSentence = questionSentence.replace(/\ba ([aeiouAEIOU])/g, 'an $1');
+    questionSentence = questionSentence.replace(/\s+/g, ' ').trim();
+    if (!questionSentence.endsWith('?')) {
+      questionSentence += '?';
+    }
+
+    // 문장 앞 수식어 결합
+    if (sentenceInitialPhrases.length > 0) {
+      const prefix = sentenceInitialPhrases.join(', ');
+      const capitalizedPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+      return `${capitalizedPrefix}, ${questionSentence}`;
+    }
+
+    return questionSentence;
+  }
+
+  // ========================================
+  // 평서문 처리 (기존 로직)
+  // ========================================
   parts.push(subjectEn);
 
   // 2. 서술어 분석 (SVC 패턴인지 확인)
@@ -751,7 +1008,13 @@ export function generateEnglish(parsed: ParsedSentence): string {
           verbEn = selectBeVerb(subjectEn, parsed.tense);
         } else if (parsed.object) {
           // 목적어 있으면 "have"
-          verbEn = conjugateVerb('have', parsed.tense, subjectEn, parsed.isNegative);
+          verbEn = conjugateVerb(
+            'have',
+            parsed.tense,
+            subjectEn,
+            parsed.isNegative,
+            parsed.negationType,
+          );
         } else {
           verbEn = selectBeVerb(subjectEn, parsed.tense);
         }
@@ -759,14 +1022,20 @@ export function generateEnglish(parsed: ParsedSentence): string {
       } else if (verbStem === '없') {
         // 없다 → don't have / there is no
         if (parsed.object) {
-          verbEn = conjugateVerb('have', parsed.tense, subjectEn, true);
+          verbEn = conjugateVerb('have', parsed.tense, subjectEn, true, parsed.negationType);
         } else {
           verbEn = `${selectBeVerb(subjectEn, parsed.tense)} not`;
         }
         parts.push(verbEn);
       } else {
         // 일반 동사
-        const conjugated = conjugateVerb(verbEn, parsed.tense, subjectEn, parsed.isNegative);
+        const conjugated = conjugateVerb(
+          verbEn,
+          parsed.tense,
+          subjectEn,
+          parsed.isNegative,
+          parsed.negationType,
+        );
         parts.push(conjugated);
       }
     }

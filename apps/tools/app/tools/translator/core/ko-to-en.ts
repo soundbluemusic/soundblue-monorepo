@@ -343,6 +343,11 @@ function translateClauseKoToEn(clause: string): string {
 
 /**
  * 토큰 분석 및 번역
+ *
+ * 핵심 원칙:
+ * 1. 사전 우선 조회 (Longest Match First) - 전체 토큰을 먼저 사전에서 찾기
+ * 2. 문맥 기반 역할 판단 - 조사로 역할 결정
+ * 3. 형태소 분석은 사전에서 못 찾은 경우에만
  */
 function analyzeAndTranslateToken(token: string): {
   original: string;
@@ -372,6 +377,44 @@ function analyzeAndTranslateToken(token: string): {
     | 'location'
     | 'unknown' = 'unknown';
 
+  // === 0. 사전 우선 조회 (Longest Match First) ===
+  // 전체 토큰이 사전에 있으면 바로 반환 (예: 일찍, 오늘, 어제 등)
+  const directTranslation = koToEnWords[token];
+  if (directTranslation) {
+    // 시간/부사 표현 판단
+    const timeAdverbs = [
+      '일찍',
+      '늦게',
+      '오늘',
+      '어제',
+      '내일',
+      '지금',
+      '항상',
+      '자주',
+      '가끔',
+      '매일',
+    ];
+    if (timeAdverbs.includes(token)) {
+      return {
+        original: token,
+        translated: directTranslation,
+        role: 'adverb',
+        particle: undefined,
+        connective: undefined,
+        tense: 'present',
+      };
+    }
+    // 일반 단어
+    return {
+      original: token,
+      translated: directTranslation,
+      role: 'unknown',
+      particle: undefined,
+      connective: undefined,
+      tense: 'present',
+    };
+  }
+
   // 1. 조사 분리
   for (const p of KOREAN_PARTICLES) {
     if (word.endsWith(p) && word.length > p.length) {
@@ -379,6 +422,33 @@ function analyzeAndTranslateToken(token: string): {
       word = word.slice(0, -p.length);
       break;
     }
+  }
+
+  // === 1.5. 조사 분리 후 사전에서 다시 조회 ===
+  // 예: "아침에" → 조사 "에" 분리 후 "아침" 사전 조회
+  const wordTranslation = koToEnWords[word];
+  if (wordTranslation && particle) {
+    // 조사로 역할 결정
+    if (['은', '는', '이', '가'].includes(particle)) {
+      role = 'subject';
+    } else if (['을', '를'].includes(particle)) {
+      role = 'object';
+    } else if (['에', '에서'].includes(particle)) {
+      role = 'location';
+    } else if (['에게', '한테', '로', '으로'].includes(particle)) {
+      role = 'location';
+    } else if (['와', '과', '하고', '랑', '이랑'].includes(particle)) {
+      role = 'object';
+    }
+
+    return {
+      original: token,
+      translated: wordTranslation,
+      role,
+      particle,
+      connective: undefined,
+      tense: 'present',
+    };
   }
 
   // 2. 조사로 역할 결정

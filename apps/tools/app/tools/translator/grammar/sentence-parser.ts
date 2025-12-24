@@ -42,6 +42,7 @@ export interface ParsedSentence {
   tense: Tense;
   formality: Formality;
   isNegative: boolean;
+  negationType?: 'did_not' | 'could_not'; // 부정 유형: 안 했다 vs 못 했다
   isQuestion: boolean;
   subjectOmitted: boolean; // 주어 생략 여부
 }
@@ -263,6 +264,7 @@ export function parseSentence(text: string): ParsedSentence {
   const tense: Tense = predicateToken?.tense || 'present';
   const formality: Formality = predicateToken?.formality || 'polite';
   const isNegative = predicateToken?.isNegative || false;
+  const negationType = predicateToken?.negationType;
   const isQuestion = predicateToken?.isQuestion || text.includes('?');
 
   // 문장 유형 결정
@@ -289,6 +291,7 @@ export function parseSentence(text: string): ParsedSentence {
     tense,
     formality,
     isNegative,
+    negationType,
     isQuestion,
     subjectOmitted,
   };
