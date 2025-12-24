@@ -280,7 +280,9 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
 
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <div className="h-2 w-2 rounded-full bg-blue-500" />
-          <span>{settings.direction === 'ko-en' ? '사전 번역' : 'Dictionary Translation'}</span>
+          <span>
+            {settings.direction === 'ko-en' ? '알고리즘 번역' : 'Algorithm-based Translation'}
+          </span>
         </div>
       </div>
     </div>

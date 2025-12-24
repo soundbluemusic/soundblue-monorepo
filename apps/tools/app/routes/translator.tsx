@@ -7,7 +7,7 @@ export const meta: MetaFunction = () => [
   { title: 'Translator - Tools' },
   {
     name: 'description',
-    content: 'Korean ↔ English dictionary-based translator - Free browser-based utility.',
+    content: 'Korean ↔ English algorithm-based translator - Free browser-based utility.',
   },
 ];
 

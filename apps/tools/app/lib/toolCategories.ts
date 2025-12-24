@@ -180,8 +180,8 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         name: { ko: '번역기', en: 'Translator' },
         icon: '\uD83C\uDF10',
         description: {
-          ko: '한국어 ↔ 영어 사전 기반 번역',
-          en: 'Korean ↔ English dictionary-based translation',
+          ko: '한국어 ↔ 영어 알고리즘 기반 번역',
+          en: 'Korean ↔ English algorithm-based translation',
         },
       },
     ],
