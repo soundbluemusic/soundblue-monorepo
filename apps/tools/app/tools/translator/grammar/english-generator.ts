@@ -485,6 +485,102 @@ const LOCATION_NOUN_TO_PREPOSITION: Record<string, string> = {
 };
 
 // ========================================
+// 부사 분류 (영어 어순 정렬용)
+// manner → frequency → time → place
+// ========================================
+
+// 시간 부사 (문장 끝에 위치)
+const TIME_ADVERBS_EN = new Set([
+  'yesterday',
+  'today',
+  'tomorrow',
+  'now',
+  'then',
+  'soon',
+  'later',
+  'already',
+  'finally',
+  'eventually',
+  'this morning',
+  'this afternoon',
+  'this evening',
+  'last night',
+  'tonight',
+]);
+
+// 양태 부사 (동사 직후에 위치)
+const MANNER_ADVERBS_EN = new Set([
+  'early',
+  'late',
+  'fast',
+  'slowly',
+  'quickly',
+  'quietly',
+  'loudly',
+  'well',
+  'badly',
+  'carefully',
+  'easily',
+  'hard',
+  'alone',
+  'together',
+]);
+
+// 한국어 원본 기준 시간 부사
+const TIME_ADVERBS_KO = new Set([
+  '어제',
+  '오늘',
+  '내일',
+  '지금',
+  '방금',
+  '아까',
+  '이제',
+  '곧',
+  '드디어',
+  '마침내',
+  '결국',
+]);
+
+// 한국어 원본 기준 양태 부사
+const MANNER_ADVERBS_KO = new Set([
+  '일찍',
+  '늦게',
+  '빨리',
+  '천천히',
+  '조용히',
+  '크게',
+  '작게',
+  '잘',
+  '혼자',
+  '함께',
+  '같이',
+]);
+
+function classifyAdverb(
+  englishText: string,
+  constituent: Constituent,
+): 'manner' | 'time' | 'place' | 'other' {
+  const lowerText = englishText.toLowerCase().trim();
+
+  // 영어 번역 기준으로 분류
+  if (TIME_ADVERBS_EN.has(lowerText)) return 'time';
+  if (MANNER_ADVERBS_EN.has(lowerText)) return 'manner';
+
+  // 영어에 시간 표현이 포함되어 있으면 time
+  if (/\b(morning|afternoon|evening|night|day|week|month|year)\b/.test(lowerText)) return 'time';
+
+  // 한국어 원본 기준으로 분류
+  const koStem = constituent.tokens[0]?.stem || '';
+  if (TIME_ADVERBS_KO.has(koStem)) return 'time';
+  if (MANNER_ADVERBS_KO.has(koStem)) return 'manner';
+
+  // 장소 표현 (전치사로 시작하는 경우)
+  if (/^(at|in|on|to|from|near|by)\s/.test(lowerText)) return 'place';
+
+  return 'other';
+}
+
+// ========================================
 // 성분(Constituent) → 영어 변환
 // ========================================
 function translateConstituent(
@@ -1065,9 +1161,21 @@ export function generateEnglish(parsed: ParsedSentence): string {
   const verbEnglish = koToEnWords[verbStem] || verbStem;
   const verbInfo = { stem: verbStem, english: verbEnglish };
 
+  // 부사어 번역 및 분류 (영어 어순: manner → frequency → time → place)
+  const adverbTranslations: { text: string; type: 'manner' | 'time' | 'place' | 'other' }[] = [];
+
   for (const adv of parsed.adverbials) {
     const advEn = translateConstituent(adv, false, false, verbInfo);
-    parts.push(advEn);
+    const advType = classifyAdverb(advEn, adv);
+    adverbTranslations.push({ text: advEn, type: advType });
+  }
+
+  // 영어 어순으로 정렬: manner → other → time → place
+  const adverbOrder: Record<string, number> = { manner: 0, other: 1, time: 2, place: 3 };
+  adverbTranslations.sort((a, b) => adverbOrder[a.type] - adverbOrder[b.type]);
+
+  for (const adv of adverbTranslations) {
+    parts.push(adv.text);
   }
 
   // 6. 후처리

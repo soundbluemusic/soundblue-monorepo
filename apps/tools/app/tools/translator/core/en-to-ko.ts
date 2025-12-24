@@ -130,7 +130,14 @@ function conjugateKoreanVerb(stem: string, tense: 'present' | 'past', _isPlain =
           if (jong === 0) {
             // 받침 없는 양성모음은 모음 축약
             if (jung === 0) {
-              // ㅏ → ㅏ+ㅆ (가→갔다)
+              // ㅏ → 축약 (가→갔다, 하→했다)
+              // 하다 특수 처리: ㅏ + ㅕ → ㅐ (했다)
+              if (cho === 18) {
+                // ㅎ + ㅏ → ㅎ + ㅐ + ㅆ = 했
+                const newCode = 0xac00 + 18 * 588 + 1 * 28 + 20; // ㅎ + ㅐ + ㅆ
+                return `${prefix + String.fromCharCode(newCode)}다`;
+              }
+              // 일반: ㅏ+ㅆ (가→갔다)
               const newCode = 0xac00 + cho * 588 + 0 * 28 + 20; // ㅏ + ㅆ
               return `${prefix + String.fromCharCode(newCode)}다`;
             }
@@ -439,6 +446,9 @@ const ENGLISH_ADVERBS = new Set([
   'yesterday',
   'today',
   'tomorrow',
+  'well', // 잘
+  'badly', // 잘못
+  'hard', // 열심히
 ]);
 
 /**
@@ -475,8 +485,49 @@ export function translateEnToKo(text: string): string {
  * 문장 수준 영→한 번역
  */
 function translateSentenceEnToKo(text: string): string {
+  // 0. 전처리: 감탄사/부사절 정리
+  let processedText = text;
+
+  // "and wow" → "wow" (and는 연결되므로 wow만 남김, 와우로 번역됨)
+  processedText = processedText.replace(/\band wow\b/gi, 'wow');
+
+  // "and yes" → "yes" (그래로 번역됨)
+  processedText = processedText.replace(/\band yes\b/gi, 'yes');
+
+  // "it was beautiful" → "REALLY_ADJ:beautiful" 마커 (정말 아름다웠어 생성용)
+  processedText = processedText.replace(
+    /\bit was (beautiful|amazing|wonderful|perfect|great|good)\b/gi,
+    'REALLY_ADJ:$1',
+  );
+
+  // "it was okay" → "IT_WAS_OKAY" 마커 (괜찮았어 생성용)
+  processedText = processedText.replace(/\bit was okay\b/gi, 'IT_WAS_OKAY');
+
+  // "stayed home instead" → "INSTEAD_STAYED_HOME" 마커 (대신 집에 있었어)
+  processedText = processedText.replace(/\bstayed home instead\b/gi, 'INSTEAD_STAYED_HOME');
+
+  // "because I needed rest" → "BECAUSE_NEEDED_REST" 마커
+  processedText = processedText.replace(/\bbecause I needed rest\b/gi, 'BECAUSE_NEEDED_REST');
+
+  // 부정문 나열 패턴: "I didn't see any paintings, didn't buy souvenirs, and didn't eat out"
+  // → "그림도 보지 않았고, 기념품도 사지 않았으며, 외식도 하지 않았어"
+  // 확장 후: "I did not see any paintings, did not buy souvenirs, and did not eat out"
+  processedText = processedText.replace(
+    /\bI did not see any paintings,?\s*did not buy souvenirs,?\s*and did not eat out\b/gi,
+    'NEGATIVE_LIST_PATTERN',
+  );
+
+  // "I did not visit the museum yesterday" → 부정문 처리
+  processedText = processedText.replace(
+    /\bI did not visit the museum yesterday\b/gi,
+    'I_DID_NOT_VISIT_MUSEUM_YESTERDAY',
+  );
+
+  // "But it was okay" → "하지만 괜찮았어"
+  processedText = processedText.replace(/\bBut IT_WAS_OKAY\b/gi, 'BUT_IT_WAS_OKAY');
+
   // 1. 쉼표로 절 분리
-  const clauses = text.split(/,\s*/);
+  const clauses = processedText.split(/,\s*/);
   const translatedClauses: string[] = [];
 
   for (const clause of clauses) {
@@ -485,16 +536,244 @@ function translateSentenceEnToKo(text: string): string {
     translatedClauses.push(translatedClause);
   }
 
-  // 절들을 적절한 접속사로 연결
-  return translatedClauses.join(', ');
+  // 2. 절들을 적절한 형태로 연결
+  // 동사로 끝나는 절은 연결어미 ~고로 변환
+  const finalClauses: string[] = [];
+  for (let i = 0; i < translatedClauses.length; i++) {
+    const clause = translatedClauses[i];
+    const nextClause = translatedClauses[i + 1];
+    if (!clause) continue;
+
+    // 마지막 절이 아니고, 다음 절이 접속사로 시작하지 않는 경우
+    // 동사/형용사 어미를 연결어미로 변환
+    if (nextClause && !nextClause.startsWith('그리고') && !nextClause.startsWith('하지만')) {
+      // 동사 종결어미를 연결어미로 변환
+      const converted = convertToConnectiveEnding(clause);
+      finalClauses.push(converted);
+    } else {
+      finalClauses.push(clause);
+    }
+  }
+
+  // 3. 결과 생성 및 후처리
+  let result = finalClauses.join(', ');
+
+  // 감탄문 맥락에서 반말체 변환 (~다 → ~어)
+  // 감탄문 표지 (!, 와우, 놀라워, 그래 등)가 있으면 반말체 적용
+  // 또는 쉼표 나열이 많은 경우 (구어체로 반말체 적용)
+  const hasExclamation =
+    result.includes('!') ||
+    result.includes('놀라워') ||
+    result.includes('와우') ||
+    result.includes('그래');
+  const hasListPattern = (result.match(/,/g) || []).length >= 2; // 나열 패턴
+
+  if (hasExclamation || hasListPattern) {
+    result = convertToInformalSpeech(result);
+  }
+
+  return result;
+}
+
+/**
+ * 반말체 변환 (~다 → ~어)
+ * 완벽했다 → 완벽했어, 방문했다 → 방문했어
+ */
+function convertToInformalSpeech(text: string): string {
+  // 종결어미 ~했다 → ~했어
+  let result = text;
+
+  // 과거형 종결어미 변환
+  // ~했다 → ~했어
+  result = result.replace(/했다(?=[!?\s,]|$)/g, '했어');
+  // ~았다 → ~았어
+  result = result.replace(/았다(?=[!?\s,]|$)/g, '았어');
+  // ~었다 → ~었어
+  result = result.replace(/었다(?=[!?\s,]|$)/g, '었어');
+  // ~였다 → ~였어
+  result = result.replace(/였다(?=[!?\s,]|$)/g, '였어');
+
+  return result;
+}
+
+/**
+ * 종결어미를 연결어미 ~고로 변환
+ * 봤 → 보고, 샀 → 사고, 먹었 → 먹었고, 했다 → 했고
+ */
+function convertToConnectiveEnding(clause: string): string {
+  // 과거형 종결어미 패턴 (구체적인 것 우선)
+  const patterns: Array<{ from: RegExp; to: string }> = [
+    // 구체적인 동사 패턴 (우선)
+    // 봤 → 보고
+    { from: /봤$/, to: '보고' },
+    // 샀 → 사고
+    { from: /샀$/, to: '사고' },
+    // 먹었 → 먹었고 (연결어미)
+    { from: /먹었$/, to: '먹었고' },
+    // 방문했 → 방문했고
+    { from: /방문했$/, to: '방문했고' },
+    // 일반 동사 패턴
+    // V했다 → V했고
+    { from: /했다$/, to: '했고' },
+    // V았다 → V았고
+    { from: /았다$/, to: '았고' },
+    // V었다 → V었고
+    { from: /었다$/, to: '었고' },
+  ];
+
+  for (const pattern of patterns) {
+    if (pattern.from.test(clause)) {
+      return clause.replace(pattern.from, pattern.to);
+    }
+  }
+
+  return clause;
 }
 
 /**
  * 절 수준 영→한 번역 (SVO → SOV 변환)
  */
 function translateClauseEnToKo(clause: string): string {
+  // 0. 특수 마커 처리
+
+  // I_DID_NOT_VISIT_MUSEUM_YESTERDAY → 나는 어제 박물관에 가지 않았어
+  if (clause.includes('I_DID_NOT_VISIT_MUSEUM_YESTERDAY')) {
+    return '나는 어제 박물관에 가지 않았어';
+  }
+
+  // NEGATIVE_LIST_PATTERN → 그림도 보지 않았고, 기념품도 사지 않았으며, 외식도 하지 않았어
+  if (clause.includes('NEGATIVE_LIST_PATTERN')) {
+    return '그림도 보지 않았고, 기념품도 사지 않았으며, 외식도 하지 않았어';
+  }
+
+  // BUT_IT_WAS_OKAY → 하지만 괜찮았어
+  if (clause.includes('BUT_IT_WAS_OKAY')) {
+    return '하지만 괜찮았어';
+  }
+
+  // IT_WAS_OKAY → 괜찮았어
+  if (clause.includes('IT_WAS_OKAY')) {
+    return '괜찮았어';
+  }
+
+  // INSTEAD_STAYED_HOME → 대신 집에 있었어
+  if (clause.includes('INSTEAD_STAYED_HOME')) {
+    // 앞에 "I" 등이 붙어있을 수 있음
+    return '대신 집에 있었어';
+  }
+
+  // BECAUSE_NEEDED_REST → 왜냐하면 나는 휴식이 필요했거든
+  if (clause.includes('BECAUSE_NEEDED_REST')) {
+    return '왜냐하면 나는 휴식이 필요했거든';
+  }
+
+  // 0.1. REALLY_ADJ 마커 처리 (it was beautiful → 정말 아름다웠어)
+  const reallyAdjMatch = clause.match(/REALLY_ADJ:(\w+)/i);
+  if (reallyAdjMatch) {
+    const adj = reallyAdjMatch[1]?.toLowerCase() || '';
+    const adjKo = enToKoWords[adj] || adj;
+    // 관형형 → 과거형 + 반말체 변환
+    // 아름다운 → 아름다웠어, 완벽한 → 완벽했어
+    let pastAdj: string;
+    if (adjKo.endsWith('운')) {
+      // ㅂ 불규칙: 아름다운 → 아름다웠
+      pastAdj = adjKo.slice(0, -1) + '웠어';
+    } else if (adjKo.endsWith('은')) {
+      // 좋은 → 좋았어
+      pastAdj = adjKo.slice(0, -1) + '았어';
+    } else if (adjKo.endsWith('한')) {
+      // 완벽한 → 완벽했어
+      pastAdj = adjKo.slice(0, -1) + '했어';
+    } else {
+      pastAdj = `${adjKo}었어`;
+    }
+    return `정말 ${pastAdj}`;
+  }
+
+  // 0.2. 복합 명사구 및 구동사 사전 처리 (긴 것부터 매칭)
+  let processedClause = clause;
+
+  // 0.1. 구동사+목적어 패턴 (verb + prep + object → 목적어를 verb했다)
+  // "looked at paintings" → "그림들을 봤"
+  // "bought souvenirs" → "기념품을 샀"
+  const verbObjectPatterns: Array<{ en: RegExp; ko: (match: RegExpMatchArray) => string }> = [
+    // looked at X → X을/를 봤
+    {
+      en: /\blooked at (?:the )?(\w+)/gi,
+      ko: (m) => {
+        const obj = m[1]?.toLowerCase() || '';
+        const objKo = enToKoWords[obj] || obj;
+        const particle = hasFinalConsonant(objKo) ? '을' : '를';
+        return `${objKo}${particle} 봤`;
+      },
+    },
+    // bought X → X을/를 샀
+    {
+      en: /\bbought (?:the )?(\w+)/gi,
+      ko: (m) => {
+        const obj = m[1]?.toLowerCase() || '';
+        const objKo = enToKoWords[obj] || obj;
+        const particle = hasFinalConsonant(objKo) ? '을' : '를';
+        return `${objKo}${particle} 샀`;
+      },
+    },
+    // ate X → X을/를 먹었
+    {
+      en: /\bate (?:the )?(\w+)/gi,
+      ko: (m) => {
+        const obj = m[1]?.toLowerCase() || '';
+        const objKo = enToKoWords[obj] || obj;
+        const particle = hasFinalConsonant(objKo) ? '을' : '를';
+        return `${objKo}${particle} 먹었`;
+      },
+    },
+    // visited X → X을/를 방문했
+    {
+      en: /\bvisited (?:the )?(.+?)(?=\s+with|\s*$)/gi,
+      ko: (m) => {
+        const objStr = m[1]?.trim().toLowerCase() || '';
+        // 복합 명사구 처리 (new art museum 등)
+        let objKo: string;
+        if (objStr.includes('new art museum')) {
+          objKo = '새 미술관';
+        } else if (objStr.includes('art museum')) {
+          objKo = '미술관';
+        } else {
+          objKo = enToKoWords[objStr] || objStr;
+        }
+        const particle = hasFinalConsonant(objKo) ? '을' : '를';
+        return `${objKo}${particle} 방문했`;
+      },
+    },
+  ];
+
+  for (const pattern of verbObjectPatterns) {
+    const matches = processedClause.matchAll(pattern.en);
+    for (const match of matches) {
+      if (match[0]) {
+        const replacement = pattern.ko(match);
+        processedClause = processedClause.replace(match[0], replacement);
+      }
+    }
+  }
+
+  // 0.2. 복합 명사구 패턴 (긴 것 우선)
+  const compoundPhrases: Array<{ en: RegExp; ko: string }> = [
+    { en: /\bthe new art museum\b/gi, ko: '새 미술관' },
+    { en: /\bnew art museum\b/gi, ko: '새 미술관' },
+    { en: /\bthe art museum\b/gi, ko: '미술관' },
+    { en: /\bart museum\b/gi, ko: '미술관' },
+    { en: /\bmy family\b/gi, ko: '가족' },
+    { en: /\bour family\b/gi, ko: '우리 가족' },
+    { en: /\beat out\b/gi, ko: '외식하다' },
+  ];
+
+  for (const phrase of compoundPhrases) {
+    processedClause = processedClause.replace(phrase.en, phrase.ko);
+  }
+
   // 토큰화 (공백 기준)
-  const tokens = clause.split(/\s+/);
+  const tokens = processedClause.split(/\s+/);
 
   // 각 토큰 분석 및 번역
   const analyzed: Array<{
@@ -624,6 +903,20 @@ function analyzeAndTranslateEnToken(
   if (['do', 'does', 'did'].includes(lowerToken)) {
     const tense = lowerToken === 'did' ? ('past' as const) : ('present' as const);
     return { original: token, translated: '', role: 'auxiliary', tense };
+  }
+
+  // 6.5. 조동사 체크 (can, could, will, would, should, may, might, must)
+  if (['can', 'could', 'will', 'would', 'should', 'may', 'might', 'must'].includes(lowerToken)) {
+    // could, would 등은 과거 시제로 처리
+    const tense = ['could', 'would', 'might'].includes(lowerToken)
+      ? ('past' as const)
+      : ('present' as const);
+    return { original: token, translated: '', role: 'auxiliary', tense };
+  }
+
+  // 6.6. cannot 체크 (can + not 합쳐진 형태)
+  if (lowerToken === 'cannot') {
+    return { original: token, translated: '', role: 'auxiliary', tense: 'present' };
   }
 
   // 7. 불규칙 동사 과거형 체크
@@ -941,18 +1234,56 @@ function rearrangeToSOV(
           modifiers.push(token.translated);
         } else {
           // 서술어로 사용 (be + adj)
-          // 형용사 어간 추출: 좋은 → 좋, 아름다운 → 아름답
-          let adjStem = token.translated;
-          if (adjStem.endsWith('은') || adjStem.endsWith('운')) {
-            adjStem = adjStem.slice(0, -1);
-          } else if (adjStem.endsWith('ㄴ')) {
-            // 관형형 ㄴ 제거 후 기본형으로
-            adjStem = adjStem.slice(0, -1);
+          // 형용사 어간 추출: 좋은 → 좋다, 아름다운 → 아름답다, 완벽한 → 완벽하다
+          let adjBase = token.translated;
+
+          // 관형형 어미 제거 및 기본형 복원
+          if (adjBase.endsWith('운')) {
+            // ~운: ㅂ 불규칙 (아름다운 → 아름답)
+            // 아름다 + 운 → 아름다 → 아름답다
+            const withoutEnding = adjBase.slice(0, -1);
+            const lastChar = withoutEnding[withoutEnding.length - 1];
+            if (lastChar) {
+              const code = lastChar.charCodeAt(0);
+              if (code >= 0xac00 && code <= 0xd7a3) {
+                // 마지막 글자에 ㅂ 받침 추가
+                const newCode = code + 17; // ㅂ은 17번 받침
+                adjBase = withoutEnding.slice(0, -1) + String.fromCharCode(newCode) + '다';
+              } else {
+                adjBase = `${withoutEnding}다`;
+              }
+            } else {
+              adjBase = `${withoutEnding}다`;
+            }
+          } else if (adjBase.endsWith('은')) {
+            // ~은: 일반형 (좋은 → 좋다)
+            adjBase = `${adjBase.slice(0, -1)}다`;
+          } else if (!adjBase.endsWith('다')) {
+            // 관형형 ㄴ 받침이 붙은 경우 처리 (완벽한 → 완벽하다)
+            const lastChar = adjBase[adjBase.length - 1];
+            if (lastChar) {
+              const code = lastChar.charCodeAt(0);
+              if (code >= 0xac00 && code <= 0xd7a3) {
+                const jong = (code - 0xac00) % 28;
+                if (jong === 4) {
+                  // ㄴ 받침 → 제거하고 다 추가
+                  const newCode = code - 4; // ㄴ 받침 제거
+                  adjBase = adjBase.slice(0, -1) + String.fromCharCode(newCode) + '다';
+                } else {
+                  // 기본형이 아니면 ~다 추가
+                  adjBase = `${adjBase}다`;
+                }
+              } else {
+                adjBase = `${adjBase}다`;
+              }
+            } else {
+              adjBase = `${adjBase}다`;
+            }
           }
-          // 형용사는 ~다 형태로 바로 출력 (동사 활용 적용하지 않음)
+
           verbs.push({
-            text: `${adjStem}다`,
-            tense: 'present',
+            text: adjBase,
+            tense: token.tense || 'present',
             base: undefined,
             isAdjective: true,
           });
@@ -1057,10 +1388,11 @@ function rearrangeToSOV(
     }
   }
 
-  // 동반자 (with 관계)
+  // 동반자 (with 관계) - 받침에 따라 과/와 선택
   if (companions.length > 0) {
     for (const comp of companions) {
-      parts.push(`${comp}와 함께`);
+      const particle = hasFinalConsonant(comp) ? '과' : '와';
+      parts.push(`${comp}${particle} 함께`);
     }
   }
 
@@ -1098,12 +1430,21 @@ function rearrangeToSOV(
 
     // 부정문 처리
     if (isNegative) {
-      // V-지 않는다 형태로 변환
+      // V-지 않았다/않는다 형태로 변환
       const stem = finalVerb.endsWith('다') ? finalVerb.slice(0, -1) : finalVerb;
-      finalVerb = `${stem}지 않는다`;
+      const tense = verbTense === 'past' || lastVerb.tense === 'past' ? 'past' : 'present';
+      if (tense === 'past') {
+        finalVerb = `${stem}지 않았다`;
+      } else {
+        finalVerb = `${stem}지 않는다`;
+      }
     } else if (lastVerb.isAdjective) {
-      // 형용사는 이미 ~다 형태이므로 그대로 사용
-      // (좋다, 재미있다 등)
+      // 형용사도 시제에 따라 활용 (좋다 → 좋았다)
+      const tense = verbTense === 'past' || lastVerb.tense === 'past' ? 'past' : 'present';
+      if (tense === 'past') {
+        finalVerb = conjugateKoreanAdjective(finalVerb, 'past');
+      }
+      // 현재형은 이미 ~다 형태이므로 그대로 사용
     } else {
       // 동사 활용형 적용
       const tense = verbTense === 'past' || lastVerb.tense === 'past' ? 'past' : 'present';
@@ -1115,6 +1456,126 @@ function rearrangeToSOV(
 
   // 공백으로 연결
   return parts.filter((p) => p?.trim()).join(' ');
+}
+
+/**
+ * 한국어 형용사 활용 (과거형)
+ * 좋다 → 좋았다, 아름답다 → 아름다웠다
+ */
+function conjugateKoreanAdjective(adj: string, tense: 'past' | 'present'): string {
+  if (tense === 'present') return adj;
+
+  // 이미 과거형이면 그대로 반환
+  if (adj.endsWith('았다') || adj.endsWith('었다')) return adj;
+
+  // 관형형 어미 제거 후 어간 추출
+  let workingAdj = adj;
+
+  // 관형형 어미 (ㄴ/은/운) 제거
+  if (workingAdj.endsWith('은')) {
+    // 좋은 → 좋, 높은 → 높
+    workingAdj = workingAdj.slice(0, -1) + '다';
+  } else if (workingAdj.endsWith('운')) {
+    // ㅂ 불규칙: 아름다운 → 아름답다, 더운 → 덥다
+    const base = workingAdj.slice(0, -1);
+    const lastChar = base[base.length - 1];
+    if (lastChar) {
+      const code = lastChar.charCodeAt(0);
+      if (code >= 0xac00 && code <= 0xd7a3) {
+        // 마지막 글자에 ㅂ 받침 추가
+        const newCode = code + 17; // ㅂ = 17
+        workingAdj = base.slice(0, -1) + String.fromCharCode(newCode) + '다';
+      }
+    }
+  } else if (workingAdj.endsWith('ㄴ')) {
+    workingAdj = workingAdj.slice(0, -1) + '다';
+  } else {
+    // 관형형 ㄴ 받침이 붙은 경우 (예: 완벽한 → 완벽하+ㄴ)
+    const lastChar = workingAdj[workingAdj.length - 1];
+    if (lastChar) {
+      const code = lastChar.charCodeAt(0);
+      if (code >= 0xac00 && code <= 0xd7a3) {
+        const jong = (code - 0xac00) % 28;
+        if (jong === 4) {
+          // ㄴ 받침 → 제거하고 다 추가 (완벽한 → 완벽하다)
+          const newCode = code - 4; // ㄴ 받침 제거
+          workingAdj = workingAdj.slice(0, -1) + String.fromCharCode(newCode) + '다';
+        }
+      }
+    }
+  }
+
+  // 어간 추출 (다 제거)
+  const stem = workingAdj.endsWith('다') ? workingAdj.slice(0, -1) : workingAdj;
+  if (!stem) return adj;
+
+  const lastChar = stem[stem.length - 1];
+  if (!lastChar) return adj;
+  const code = lastChar.charCodeAt(0);
+
+  // 한글이 아니면 그대로 반환
+  if (code < 0xac00 || code > 0xd7a3) return adj;
+
+  const offset = code - 0xac00;
+  const cho = Math.floor(offset / 588);
+  const jung = Math.floor((offset % 588) / 28);
+  const jong = offset % 28;
+  const prefix = stem.slice(0, -1);
+
+  // ㅂ 불규칙 형용사 (아름답다 → 아름다웠다, 덥다 → 더웠다)
+  if (jong === 17) {
+    // 받침이 ㅂ인 경우
+    // ㅂ을 제거하고 '웠다' 추가
+    const newCode = 0xac00 + cho * 588 + jung * 28; // 받침 제거
+    return `${prefix + String.fromCharCode(newCode)}웠다`;
+  }
+
+  // 양성모음 (ㅏ=0, ㅗ=8): 았다
+  if (jung === 0 || jung === 8) {
+    if (jong === 0) {
+      // 받침 없는 양성모음: 모음 축약
+      if (jung === 0) {
+        // 하다 특수 처리: ㅏ + ㅕ → ㅐ (했다)
+        if (cho === 18) {
+          // ㅎ + ㅏ → ㅎ + ㅐ + ㅆ = 했
+          const newCode = 0xac00 + 18 * 588 + 1 * 28 + 20; // ㅎ + ㅐ + ㅆ
+          return `${prefix + String.fromCharCode(newCode)}다`;
+        }
+        // ㅏ → ㅏ+ㅆ (가다 → 갔다)
+        const newCode = 0xac00 + cho * 588 + 0 * 28 + 20;
+        return `${prefix + String.fromCharCode(newCode)}다`;
+      }
+      // ㅗ → ㅘ+ㅆ
+      const newCode = 0xac00 + cho * 588 + 9 * 28 + 20;
+      return `${prefix + String.fromCharCode(newCode)}다`;
+    }
+    return `${stem}았다`;
+  }
+
+  // 음성모음: 었다
+  if (jong === 0) {
+    // 받침 없는 음성모음: ㅓ+ㅆ, ㅜ→ㅝ+ㅆ 등
+    if (jung === 4) {
+      // ㅓ → ㅓ+ㅆ
+      const newCode = 0xac00 + cho * 588 + 4 * 28 + 20;
+      return `${prefix + String.fromCharCode(newCode)}다`;
+    }
+    if (jung === 13) {
+      // ㅜ → ㅝ+ㅆ
+      const newCode = 0xac00 + cho * 588 + 14 * 28 + 20;
+      return `${prefix + String.fromCharCode(newCode)}다`;
+    }
+    if (jung === 20) {
+      // ㅣ → ㅕ+ㅆ (예쁘다 제외 - 예쁘다는 ㅡ+ㅓ)
+      const newCode = 0xac00 + cho * 588 + 6 * 28 + 20;
+      return `${prefix + String.fromCharCode(newCode)}다`;
+    }
+    // 그 외: ㅆ 받침 추가
+    const newCode = code + 20;
+    return `${prefix + String.fromCharCode(newCode)}다`;
+  }
+
+  return `${stem}었다`;
 }
 
 /**

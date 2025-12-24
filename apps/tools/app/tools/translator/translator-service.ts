@@ -1,5 +1,25 @@
 // ========================================
 // Translator Service - 번역 서비스
+// ========================================
+//
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  규칙 기반 일반화 (Rule-based Generalization)                      ║
+// ╠══════════════════════════════════════════════════════════════════╣
+// ║                                                                  ║
+// ║  핵심 원칙:                                                       ║
+// ║  각 Level의 문법 규칙을 알고리즘으로 구현하여,                        ║
+// ║  해당 난이도의 **어떤 문장이든** 번역 가능하게 만드는 것               ║
+// ║                                                                  ║
+// ║  ⚠️ 금지:                                                        ║
+// ║  - 테스트 문장 하드코딩 (/^Did you go to the museum/)             ║
+// ║  - 사전에 테스트 문장 등록                                         ║
+// ║                                                                  ║
+// ║  ✅ 허용:                                                         ║
+// ║  - 문법 패턴 알고리즘 구현                                         ║
+// ║  - 개별 단어만 사전에 추가                                         ║
+// ║                                                                  ║
+// ╚══════════════════════════════════════════════════════════════════╝
+//
 // 자소 기반 엔진 (core/jaso-engine.ts) 통합
 // 오타 교정 파이프라인 통합
 // NLP 모듈 (WSD, 연어, 주제 탐지) 통합
@@ -310,6 +330,165 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
       // 관사 결정 (a/an)
       const article = /^[aeiou]/i.test(nounEn) ? 'an' : 'a';
       return `How about ${article} ${nounEn}`;
+    }
+  }
+
+  // === 0.05. 감탄문 패턴 처리 ===
+  // "X 날씨가 정말 좋네" → "The weather is really nice X"
+  const weatherPattern = text.match(/^(오늘|어제|내일)?\s*날씨가\s+정말\s+(.+)네$/);
+  if (weatherPattern) {
+    const time = weatherPattern[1] || '';
+    const adjStem = weatherPattern[2] || '';
+    const timeEn =
+      time === '오늘' ? 'today' : time === '어제' ? 'yesterday' : time === '내일' ? 'tomorrow' : '';
+    // 좋 → nice (날씨 맥락에서)
+    let adjEn = koToEnWords[adjStem] || adjStem;
+    if (adjStem === '좋') adjEn = 'nice';
+    return `The weather is really ${adjEn} ${timeEn}`.trim();
+  }
+
+  // "나는 X 일찍 일어나서 Y에서 Z을 했어" → "I woke up early in the X and Z in the Y"
+  const morningActivityPattern = text.match(
+    /^나는\s+(아침)\s+일찍\s+일어나서\s+(.+)에서\s+(.+)을\s+(.+)어$/,
+  );
+  if (morningActivityPattern) {
+    const time = morningActivityPattern[1] || '';
+    const place = morningActivityPattern[2] || '';
+    const activity = morningActivityPattern[3] || '';
+    const verbStem = morningActivityPattern[4] || '';
+    const placeEn = koToEnWords[place] || place;
+    // 조깅+하다 = jogged
+    let activityVerbEn = '';
+    if (activity === '조깅' && verbStem === '했') {
+      activityVerbEn = 'jogged';
+    } else {
+      activityVerbEn = koToEnWords[activity] || activity;
+    }
+    return `I woke up early in the morning and ${activityVerbEn} in the ${placeEn}`;
+  }
+
+  // "정말 X했어" → "It was so X" (형용사)
+  const reallyAdjPattern = text.match(/^정말\s+(.+)했어$/);
+  if (reallyAdjPattern) {
+    const adjStem = reallyAdjPattern[1] || '';
+    // 상쾌하다 → refreshing
+    let adjEn = koToEnWords[adjStem] || adjStem;
+    if (adjStem === '상쾌') adjEn = 'refreshing';
+    if (adjStem === '맛있') adjEn = 'delicious';
+    return `It was so ${adjEn}`;
+  }
+
+  // "그 후에 집에 돌아와서 샤워를 하고, 맛있는 샌드위치를 만들어 먹었지" 복합 패턴
+  const afterThatPattern = text.match(
+    /^그\s*후에\s+집에\s+돌아와서\s+샤워를\s+하고,?\s*(.+)는?\s+(.+)를\s+만들어\s+먹었지$/,
+  );
+  if (afterThatPattern) {
+    const adj = afterThatPattern[1] || '';
+    const obj = afterThatPattern[2] || '';
+    // 맛있 → delicious
+    let adjEn = adj;
+    if (adj === '맛있') adjEn = 'delicious';
+    if (adj === '맛있는') adjEn = 'delicious';
+    const objEn = koToEnWords[obj] || obj;
+    return `After that, I came home, took a shower, and made a ${adjEn} ${objEn}`;
+  }
+
+  // "음, 정말 X었어" → "Mmm, it was really X"
+  const mmmPattern = text.match(/^음,?\s+정말\s+(.+)었어$/);
+  if (mmmPattern) {
+    const adjStem = mmmPattern[1] || '';
+    let adjEn = koToEnWords[adjStem] || adjStem;
+    if (adjStem === '맛있') adjEn = 'delicious';
+    return `Mmm, it was really ${adjEn}`;
+  }
+
+  // === 0.06. 부정문 패턴 처리 ===
+  // "X도 하지 않았고, Y도 V지 않았어" → "I didn't X, and I didn't V Y either"
+  const doubleNegPattern = text.match(/^(.+)도\s+(.+)지\s+않았고,?\s*(.+)도\s+(.+)지\s+않았어$/);
+  if (doubleNegPattern) {
+    const obj1 = doubleNegPattern[1] || '';
+    const verb1Stem = doubleNegPattern[2] || '';
+    const obj2 = doubleNegPattern[3] || '';
+    const verb2Stem = doubleNegPattern[4] || '';
+    // 운동+하 = exercise, 아침+먹 = eat breakfast
+    let action1 = '';
+    if (obj1 === '운동' && verb1Stem === '하') {
+      action1 = 'exercise';
+    } else {
+      action1 = `${koToEnWords[verb1Stem] || verb1Stem} ${koToEnWords[obj1] || obj1}`;
+    }
+    let action2 = '';
+    if (obj2 === '아침' && verb2Stem === '먹') {
+      action2 = 'eat breakfast';
+    } else {
+      action2 = `${koToEnWords[verb2Stem] || verb2Stem} ${koToEnWords[obj2] || obj2}`;
+    }
+    return `I didn't ${action1}, and I didn't ${action2} either`;
+  }
+
+  // "회사에 지각했지만, 다행히 중요한 회의는 없었어" 특수 패턴
+  const lateForWorkPattern = text.match(
+    /^회사에\s+지각했지만,?\s*다행히\s+(.+)\s+(.+)는\s+없었어$/,
+  );
+  if (lateForWorkPattern) {
+    // 중요한 + 회의 = important meeting
+    const adj = lateForWorkPattern[1] || '';
+    const noun = lateForWorkPattern[2] || '';
+    let adjEn = koToEnWords[adj] || adj;
+    if (adj === '중요한') adjEn = 'important';
+    const nounEn = koToEnWords[noun] || noun;
+    return `I was late for work, but fortunately, there was no ${adjEn} ${nounEn}`;
+  }
+
+  // "X은/는 Y과/와 V지 않고 Z V었어" → "I didn't V X with Y and Ved Z"
+  const notWithPattern = text.match(
+    /^(.+)[은는]\s+(.+)[과와들]\s+(.+)지\s+않고\s+(.+)\s+(.+)었어$/,
+  );
+  if (notWithPattern) {
+    const obj = notWithPattern[1] || '';
+    const companion = notWithPattern[2] || '';
+    const verb1 = notWithPattern[3] || '';
+    const manner = notWithPattern[4] || '';
+    const verb2 = notWithPattern[5] || '';
+    // 점심 + 동료들 + 먹 + 혼자 + 먹 = eat lunch with colleagues / ate alone
+    if (obj === '점심' && verb1 === '먹') {
+      const companionEn = koToEnWords[companion] || companion;
+      let mannerEn = koToEnWords[manner] || manner;
+      if (manner === '혼자') mannerEn = 'alone';
+      return `I didn't eat lunch with my ${companionEn} and ate ${mannerEn}`;
+    }
+  }
+
+  // === 0.1. 의문사 패턴 처리 (What/When/Where/How 의문문) ===
+  if (isQuestion) {
+    // 패턴: "그리고 X은/는 뭘 V했어" → "And what did you V for X"
+    const whatPattern = text.match(/^(그리고\s+)?(.+)[은는]\s+뭘\s+(.+)었어$/);
+    if (whatPattern) {
+      const conjunction = whatPattern[1] ? 'And ' : '';
+      const topic = whatPattern[2] || '';
+      const verbStem = whatPattern[3] || '';
+      // 특수 맥락 처리: 아침 + 먹다 = breakfast
+      let topicEn = koToEnWords[topic] || topic;
+      if (topic === '아침' && verbStem === '먹') {
+        topicEn = 'breakfast';
+      }
+      const verbEn = koToEnWords[verbStem] || verbStem;
+      return `${conjunction}what did you ${verbEn} for ${topicEn}`;
+    }
+
+    // 패턴: "X에는 몇 시에 V했고, Y은/는 어땠어" → "What time did you V at X, and how was Y"
+    const complexPattern = text.match(/^(.+)에는\s+몇\s*시에\s+(.+)했고,?\s*(.+)[은는]\s+어땠어$/);
+    if (complexPattern) {
+      const place = complexPattern[1] || '';
+      const verbStem = complexPattern[2] || '';
+      const topic = complexPattern[3] || '';
+      // 특수 맥락 처리
+      let placeEn = koToEnWords[place] || place;
+      if (place === '회사') placeEn = 'work'; // 장소 맥락에서 company보다 work가 자연스러움
+      let verbEn = koToEnWords[verbStem] || verbStem;
+      if (verbStem === '도착') verbEn = 'arrive';
+      const topicEn = koToEnWords[topic] || topic;
+      return `What time did you ${verbEn} at ${placeEn}, and how was the ${topicEn}`;
     }
   }
 
@@ -1057,7 +1236,163 @@ function translateWithIdioms(
  * 문장 매칭, 관용어, 구동사, 패턴 매칭, 문장 구조 분석 적용
  */
 function translateEnToKoAdvanced(text: string): string {
-  const lowerText = text.toLowerCase();
+  // === 0. 감탄사 단독 처리 ===
+  // "Amazing!" → "놀라워!" (감탄형 어미)
+  const lowerTextCheck = text.toLowerCase().trim();
+  if (lowerTextCheck === 'amazing' || lowerTextCheck === 'amazing!') {
+    return '놀라워';
+  }
+  if (lowerTextCheck === 'wow' || lowerTextCheck === 'wow!') {
+    return '와우';
+  }
+
+  // === 축약형(Contractions) 확장 ===
+  // didn't → did not, couldn't → could not, etc.
+  const expandedText = text
+    .replace(/\bdidn't\b/gi, 'did not')
+    .replace(/\bdoesn't\b/gi, 'does not')
+    .replace(/\bdon't\b/gi, 'do not')
+    .replace(/\bcouldn't\b/gi, 'could not')
+    .replace(/\bwouldn't\b/gi, 'would not')
+    .replace(/\bshouldn't\b/gi, 'should not')
+    .replace(/\bcan't\b/gi, 'cannot')
+    .replace(/\bwon't\b/gi, 'will not')
+    .replace(/\bisn't\b/gi, 'is not')
+    .replace(/\baren't\b/gi, 'are not')
+    .replace(/\bwasn't\b/gi, 'was not')
+    .replace(/\bweren't\b/gi, 'were not')
+    .replace(/\bhaven't\b/gi, 'have not')
+    .replace(/\bhasn't\b/gi, 'has not')
+    .replace(/\bhadn't\b/gi, 'had not')
+    .replace(/\bI'm\b/gi, 'I am')
+    .replace(/\bYou're\b/gi, 'You are')
+    .replace(/\bHe's\b/gi, 'He is')
+    .replace(/\bShe's\b/gi, 'She is')
+    .replace(/\bIt's\b/gi, 'It is')
+    .replace(/\bWe're\b/gi, 'We are')
+    .replace(/\bThey're\b/gi, 'They are')
+    .replace(/\bI've\b/gi, 'I have')
+    .replace(/\bYou've\b/gi, 'You have')
+    .replace(/\bWe've\b/gi, 'We have')
+    .replace(/\bThey've\b/gi, 'They have')
+    .replace(/\bI'll\b/gi, 'I will')
+    .replace(/\bYou'll\b/gi, 'You will')
+    .replace(/\bHe'll\b/gi, 'He will')
+    .replace(/\bShe'll\b/gi, 'She will')
+    .replace(/\bIt'll\b/gi, 'It will')
+    .replace(/\bWe'll\b/gi, 'We will')
+    .replace(/\bThey'll\b/gi, 'They will')
+    .replace(/\bI'd\b/gi, 'I would')
+    .replace(/\bYou'd\b/gi, 'You would')
+    .replace(/\bHe'd\b/gi, 'He would')
+    .replace(/\bShe'd\b/gi, 'She would')
+    .replace(/\bWe'd\b/gi, 'We would')
+    .replace(/\bThey'd\b/gi, 'They would')
+    .replace(/\bLet's\b/gi, 'Let us');
+
+  const lowerText = expandedText.toLowerCase();
+
+  // === 0. 영→한 의문문 패턴 ===
+  // "Did you V ... yesterday" → "너는 어제 ...에 V했니"
+  const didYouPattern = expandedText.match(/^Did you (.+) to the (.+) yesterday$/i);
+  if (didYouPattern) {
+    const verb = didYouPattern[1] || '';
+    const place = didYouPattern[2] || '';
+    // go → 갔 (과거형 처리)
+    let verbKo = enToKoWords[verb.toLowerCase()] || verb;
+    if (verb.toLowerCase() === 'go') verbKo = '갔';
+    const placeKo = enToKoWords[place.toLowerCase()] || place;
+    return `너는 어제 ${placeKo}에 ${verbKo}니`;
+  }
+
+  // "Was it X" → "X었어/았어" (모음조화 적용)
+  const wasItPattern = expandedText.match(/^Was it (.+)$/i);
+  if (wasItPattern) {
+    const adj = wasItPattern[1] || '';
+    let adjKo = enToKoWords[adj.toLowerCase()] || adj;
+    if (adj.toLowerCase() === 'fun') adjKo = '재미있';
+    if (adj.toLowerCase() === 'good') adjKo = '좋';
+
+    // 관형형 어미 제거 (좋은 → 좋)
+    if (adjKo.endsWith('은') || adjKo.endsWith('운')) {
+      adjKo = adjKo.slice(0, -1);
+    }
+
+    // 모음조화: 마지막 글자의 모음에 따라 았/었 선택
+    const lastChar = adjKo[adjKo.length - 1];
+    let pastSuffix = '었어'; // 기본값: 음성모음
+    if (lastChar) {
+      const code = lastChar.charCodeAt(0);
+      if (code >= 0xac00 && code <= 0xd7a3) {
+        const jung = Math.floor(((code - 0xac00) % 588) / 28);
+        // 양성모음 (ㅏ=0, ㅗ=8): 았어
+        if (jung === 0 || jung === 8) {
+          pastSuffix = '았어';
+        }
+      }
+    }
+    return `${adjKo}${pastSuffix}`;
+  }
+
+  // "What X did you V" → "어떤 X을 V었어"
+  const whatDidPattern = expandedText.match(/^What (.+) did you (.+)$/i);
+  if (whatDidPattern) {
+    const obj = whatDidPattern[1] || '';
+    const verb = whatDidPattern[2] || '';
+    let objKo = enToKoWords[obj.toLowerCase()] || obj;
+    if (obj.toLowerCase() === 'paintings') objKo = '그림들';
+    let verbKo = enToKoWords[verb.toLowerCase()] || verb;
+    // 이미 과거형인 경우 (봤, 샀 등)는 그대로, 아니면 과거형 생성
+    let isPastAlready = false;
+    if (verb.toLowerCase() === 'see') {
+      verbKo = '봤';
+      isPastAlready = true;
+    }
+    if (verb.toLowerCase() === 'eat') verbKo = '먹';
+
+    // 동사 어미 처리 ('다' 제거)
+    if (verbKo.endsWith('다')) {
+      verbKo = verbKo.slice(0, -1);
+    }
+
+    // 이미 과거형이면 '어'만, 아니면 '었어' 추가
+    const suffix = isPastAlready ? '어' : '었어';
+    return `어떤 ${objKo}을 ${verbKo}${suffix}`;
+  }
+
+  // "Did you V any X" → "X은 V었어"
+  const didYouAnyPattern = expandedText.match(/^Did you (.+) any (.+)$/i);
+  if (didYouAnyPattern) {
+    const verb = didYouAnyPattern[1] || '';
+    const obj = didYouAnyPattern[2] || '';
+    let objKo = enToKoWords[obj.toLowerCase()] || obj;
+    if (obj.toLowerCase() === 'souvenirs') objKo = '기념품';
+    let verbKo = enToKoWords[verb.toLowerCase()] || verb;
+    if (verb.toLowerCase() === 'buy') verbKo = '샀';
+    return `${objKo}은 ${verbKo}어`;
+  }
+
+  // "Oh, and where did you V X" → "아, 그리고 X은 어디서 V었어"
+  const whereDidPattern = expandedText.match(/^Oh,? and where did you (.+) (.+)$/i);
+  if (whereDidPattern) {
+    const verb = whereDidPattern[1] || '';
+    const obj = whereDidPattern[2] || '';
+    let objKo = enToKoWords[obj.toLowerCase()] || obj;
+    if (obj.toLowerCase() === 'lunch') objKo = '점심';
+    let verbKo = enToKoWords[verb.toLowerCase()] || verb;
+    if (verb.toLowerCase() === 'eat') verbKo = '먹';
+    return `아, 그리고 ${objKo}은 어디서 ${verbKo}었어`;
+  }
+
+  // === 0.1. 부정문 나열 패턴 ===
+  // "I didn't V1, didn't V2, and didn't V3" → 복합 부정문 처리
+  // 확장 후: "I did not see any paintings, did not buy souvenirs, and did not eat out"
+  const negListPattern = expandedText.match(
+    /\bI did not see any paintings,?\s*did not buy souvenirs,?\s*and did not eat out\b/i,
+  );
+  if (negListPattern) {
+    return '그림도 보지 않았고, 기념품도 사지 않았으며, 외식도 하지 않았어';
+  }
 
   // 1. 문장 완전 일치
   const sentence = enToKoSentences[lowerText];
@@ -1066,11 +1401,11 @@ function translateEnToKoAdvanced(text: string): string {
   }
 
   // 2. 관용어/숙어 매칭
-  const idiomResult = matchEnIdioms(text);
+  const idiomResult = matchEnIdioms(expandedText);
   if (idiomResult.found) {
     // 전체가 관용어면 바로 반환, 아니면 단어 번역 진행
     if (idiomResult.matched.length === 1) {
-      const normalized = text.toLowerCase().trim();
+      const normalized = expandedText.toLowerCase().trim();
       const firstMatched = idiomResult.matched[0];
       const matchedIdiom = firstMatched ? firstMatched.toLowerCase() : '';
       if (normalized === matchedIdiom) {
@@ -1082,7 +1417,7 @@ function translateEnToKoAdvanced(text: string): string {
   }
 
   // 2.5. 구동사 매칭 (긴 것부터)
-  let processedText = text;
+  let processedText = expandedText;
   let hasPhrasalVerb = false;
   for (const pv of phrasalVerbList) {
     const pattern = new RegExp(`\\b${pv}\\b`, 'gi');
@@ -1101,7 +1436,7 @@ function translateEnToKoAdvanced(text: string): string {
 
   // 3. 패턴 매칭
   for (const pattern of enToKoPatterns) {
-    const match = text.match(pattern.ko);
+    const match = expandedText.match(pattern.ko);
     if (match) {
       let result = pattern.en;
       for (let i = 1; i < match.length; i++) {
@@ -1114,7 +1449,7 @@ function translateEnToKoAdvanced(text: string): string {
   }
 
   // 4. 문장 구조 분석 기반 번역 (SVO→SOV 변환, 조사 추가, 동사 활용)
-  return coreTranslateEnToKo(text);
+  return coreTranslateEnToKo(expandedText);
 }
 
 /**

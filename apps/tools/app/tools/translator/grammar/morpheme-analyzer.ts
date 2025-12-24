@@ -115,6 +115,79 @@ export const PARTICLES: Record<string, { role: Role; en: string }> = {
 export const PARTICLE_LIST = Object.keys(PARTICLES).sort((a, b) => b.length - a.length);
 
 // ========================================
+// 순수 부사 목록 (조사 없이 단독으로 부사어 역할)
+// 시간 부사, 빈도 부사, 정도 부사, 양태 부사
+// ========================================
+const PURE_ADVERBS = new Set([
+  // 시간 부사
+  '어제',
+  '오늘',
+  '내일',
+  '지금',
+  '방금',
+  '아까',
+  '이제',
+  '곧',
+  '드디어',
+  '마침내',
+  '결국',
+  '다시',
+  '또',
+  '이미',
+  '벌써',
+  '아직',
+  '여전히',
+  '항상',
+  '늘',
+  '자주',
+  '가끔',
+  '때때로',
+  '종종',
+  '매일',
+  '매번',
+  // 양태 부사 (manner)
+  '일찍',
+  '늦게',
+  '빨리',
+  '천천히',
+  '조용히',
+  '크게',
+  '작게',
+  '잘',
+  '못',
+  '함께',
+  '혼자',
+  '같이',
+  // 정도 부사
+  '매우',
+  '아주',
+  '정말',
+  '진짜',
+  '너무',
+  '조금',
+  '약간',
+  '많이',
+  '적게',
+  '거의',
+  '전혀',
+  // 부정 부사
+  '안',
+  // 접속 부사
+  '그리고',
+  '그러나',
+  '하지만',
+  '그래서',
+  '그러면',
+  '그런데',
+  '또한',
+  '게다가',
+  '다행히',
+  '불행히',
+  '분명히',
+  '확실히',
+]);
+
+// ========================================
 // 어미 사전 (확장)
 // ========================================
 export interface EndingInfo {
@@ -802,6 +875,14 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
     result.ending = copulaResult.copula;
     result.tense = copulaResult.tense;
     result.formality = copulaResult.formality;
+    return result;
+  }
+
+  // 1.5. 순수 부사 확인 (조사 없이 단독으로 부사어 역할)
+  if (PURE_ADVERBS.has(word)) {
+    result.stem = word;
+    result.pos = 'adverb';
+    result.role = 'adverbial';
     return result;
   }
 

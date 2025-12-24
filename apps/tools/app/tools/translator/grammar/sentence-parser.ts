@@ -146,7 +146,23 @@ function groupConstituents(tokens: TokenAnalysis[]): Constituent[] {
     }
 
     // 같은 역할이면 그룹에 추가
-    if (currentRole === null || currentRole === role || role === 'modifier' || role === 'unknown') {
+    // 단, adverbial은 각각 별도의 성분으로 분리 (영어 어순 정렬을 위해)
+    if (role === 'adverbial' && currentGroup.length > 0) {
+      // 이전 그룹 저장하고 새 adverbial 그룹 시작
+      constituents.push({
+        tokens: [...currentGroup],
+        role: currentRole || 'modifier',
+        text: currentGroup.map((t) => t.original).join(' '),
+        headIndex: currentGroup.length - 1,
+      });
+      currentGroup = [token];
+      currentRole = role;
+    } else if (
+      currentRole === null ||
+      currentRole === role ||
+      role === 'modifier' ||
+      role === 'unknown'
+    ) {
       currentGroup.push(token);
       if (role !== 'modifier' && role !== 'unknown') {
         currentRole = role;

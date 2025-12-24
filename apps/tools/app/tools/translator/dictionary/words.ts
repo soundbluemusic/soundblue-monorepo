@@ -83,9 +83,15 @@ const manualKoToEnWords: Record<string, string> = {
   누구: 'who',
   무엇: 'what',
   뭐: 'what',
+  뭘: 'what', // 뭐를의 줄임말
   언제: 'when',
   왜: 'why',
   어떻게: 'how',
+  어땠: 'how was', // 어떻다 + 었 (과거)
+  어떻: 'how',
+  몇: 'how many',
+  '몇 시': 'what time',
+  '몇 시에': 'what time',
 
   // === 명사: 사람/직업 ===
   사람: 'person',
@@ -1572,7 +1578,7 @@ const manualKoToEnWords: Record<string, string> = {
   반: 'half',
   둘째: 'second',
   셋째: 'third',
-  몇: 'how many',
+  // 몇: 'how many', // 92번째 줄에 이미 존재
   여러: 'several',
   수많: 'numerous',
 
@@ -1992,6 +1998,16 @@ const manualEnToKoWords: Record<string, string> = {
   postpones: '연기한다',
   postponed: '연기되었다',
 
+  // === 감탄사/형용사 (감탄문용) ===
+  wow: '와우',
+  amazing: '놀라운', // 감탄문에서: 놀라워!
+  awesome: '멋진',
+  wonderful: '훌륭한',
+  fantastic: '환상적인',
+  incredible: '믿기 어려운',
+  beautiful: '아름다운',
+  yes: '그래',
+
   // === 형용사 ===
   good: '좋은',
   bad: '나쁜',
@@ -2032,7 +2048,6 @@ const manualEnToKoWords: Record<string, string> = {
   happy: '행복한',
   sad: '슬픈',
   angry: '화난',
-  beautiful: '아름다운',
   pretty: '예쁜',
   busy: '바쁜',
   tired: '피곤한',
@@ -2151,6 +2166,7 @@ const manualEnToKoWords: Record<string, string> = {
   offer: '제안',
   meeting: '회의',
   dictionary: '사전',
+  library: '도서관', // library(건물) vs 라이브러리(IT) 구분
   dream: '꿈',
   dreams: '꿈들',
   korean: '한국어',
@@ -2159,6 +2175,31 @@ const manualEnToKoWords: Record<string, string> = {
   eyes: '눈',
   eye: '눈',
   kids: '아이들',
+  painting: '그림',
+  paintings: '그림들',
+  souvenir: '기념품',
+  souvenirs: '기념품',
+  pasta: '파스타',
+  perfect: '완벽하다',
+  weather: '날씨',
+  visited: '방문했다',
+  visit: '방문하다',
+  looked: '봤다',
+  rest: '휴식',
+  instead: '대신',
+  stayed: '있었다',
+  stay: '있다',
+  okay: '괜찮은',
+  needed: '필요했다',
+  need: '필요하다',
+  'art museum': '미술관',
+  museum: '박물관',
+  art: '예술',
+  // === 복합 명사 구문 ===
+  'new art museum': '새 미술관',
+  'my family': '가족',
+  // === 부정문 지원 ===
+  'eat out': '외식하다',
 };
 
 // 역방향 사전 (영→한) 자동 생성 + 수동 사전 병합
