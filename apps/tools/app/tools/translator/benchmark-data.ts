@@ -1895,6 +1895,973 @@ export const uniqueTests: TestLevel[] = [
 ];
 
 // ========================================
+// 다의어/동음이의어 테스트 (Polysemy & Homonyms)
+// 문맥 기반 의미 구분 테스트 - 초급/중급/고급 3단계
+// ========================================
+
+export const polysemyTests: TestLevel[] = [
+  {
+    id: 'polysemy-beginner',
+    name: 'Beginner Polysemy',
+    nameKo: '초급 다의어',
+    categories: [
+      {
+        id: 'poly-beg-ko-en',
+        name: 'Korean → English (Beginner)',
+        nameKo: '한→영 초급',
+        tests: [
+          // 일 (work / day)
+          {
+            id: 'poly-beg-1a',
+            input: '나는 일을 해요.',
+            expected: 'I work.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-beg-1b',
+            input: '오늘은 좋은 일이에요.',
+            expected: 'Today is a good day.',
+            direction: 'ko-en',
+          },
+          // 밤 (night / chestnut)
+          {
+            id: 'poly-beg-2a',
+            input: '밤에 잠을 자요.',
+            expected: 'I sleep at night.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-beg-2b',
+            input: '밤을 구워 먹었어요.',
+            expected: 'I roasted and ate chestnuts.',
+            direction: 'ko-en',
+          },
+          // 눈 (eye / snow)
+          {
+            id: 'poly-beg-3a',
+            input: '눈이 아파요.',
+            expected: 'My eyes hurt.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-beg-3b',
+            input: '눈이 와요.',
+            expected: "It's snowing.",
+            direction: 'ko-en',
+          },
+          // 말 (horse / speech)
+          {
+            id: 'poly-beg-4a',
+            input: '말을 타요.',
+            expected: 'I ride a horse.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-beg-4b',
+            input: '말을 해요.',
+            expected: 'I speak.',
+            direction: 'ko-en',
+          },
+          // 배 (stomach / pear / ship)
+          {
+            id: 'poly-beg-5a',
+            input: '배가 고파요.',
+            expected: "I'm hungry.",
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-beg-5b',
+            input: '배가 달아요.',
+            expected: 'The pear is sweet.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-beg-5c',
+            input: '배를 타요.',
+            expected: 'I take a boat.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'poly-beg-en-ko',
+        name: 'English → Korean (Beginner)',
+        nameKo: '영→한 초급',
+        tests: [
+          // Date (날짜 / 데이트 / 대추야자)
+          {
+            id: 'poly-beg-6a',
+            input: "What's the date today?",
+            expected: '오늘 날짜가 뭐예요?',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-beg-6b',
+            input: 'I have a date tonight.',
+            expected: '오늘 밤 데이트가 있어요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-beg-6c',
+            input: 'I like eating dates.',
+            expected: '나는 대추야자 먹는 것을 좋아해요.',
+            direction: 'en-ko',
+          },
+          // Light (빛 / 가볍다 / 밝은)
+          {
+            id: 'poly-beg-7a',
+            input: 'Turn on the light.',
+            expected: '불을 켜세요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-beg-7b',
+            input: 'This box is light.',
+            expected: '이 상자는 가벼워요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-beg-7c',
+            input: 'I like light colors.',
+            expected: '나는 밝은 색을 좋아해요.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'polysemy-intermediate',
+    name: 'Intermediate Polysemy',
+    nameKo: '중급 다의어',
+    categories: [
+      {
+        id: 'poly-int-ko-en',
+        name: 'Korean → English (Intermediate)',
+        nameKo: '한→영 중급',
+        tests: [
+          // 보다 (see / watch / meet / look / take exam)
+          {
+            id: 'poly-int-1a',
+            input: '멀리서 산을 봤어요.',
+            expected: 'I saw the mountain from afar.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-1b',
+            input: '어제 영화를 봤어요.',
+            expected: 'I watched a movie yesterday.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-1c',
+            input: '내일 친구를 봐요.',
+            expected: "I'm meeting my friend tomorrow.",
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-1d',
+            input: '이거 좀 봐봐.',
+            expected: 'Look at this.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-1e',
+            input: '내일 시험을 봐요.',
+            expected: "I'm taking an exam tomorrow.",
+            direction: 'ko-en',
+          },
+          // 차다 (kick / cold / full / wear)
+          {
+            id: 'poly-int-2a',
+            input: '공을 세게 찼어요.',
+            expected: 'I kicked the ball hard.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-2b',
+            input: '물이 너무 차요.',
+            expected: 'The water is too cold.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-2c',
+            input: '버스가 사람들로 가득 찼어요.',
+            expected: 'The bus is full of people.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-2d',
+            input: '시계를 차고 있어요.',
+            expected: "I'm wearing a watch.",
+            direction: 'ko-en',
+          },
+          // 잡다 (catch / book / hold / fix / set)
+          {
+            id: 'poly-int-3a',
+            input: '도둑을 잡았어요.',
+            expected: 'I caught the thief.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-3b',
+            input: '호텔 방을 잡았어요.',
+            expected: 'I booked a hotel room.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-3c',
+            input: '손잡이를 꽉 잡으세요.',
+            expected: 'Hold the handle tightly.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-3d',
+            input: '기계 고장을 잡았어요.',
+            expected: 'I fixed the machine breakdown.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-int-3e',
+            input: '회의 시간을 잡았어요.',
+            expected: 'I set the meeting time.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'poly-int-en-ko',
+        name: 'English → Korean (Intermediate)',
+        nameKo: '영→한 중급',
+        tests: [
+          // Run (달리다 / 운영하다 / 작동하다 / 출마하다)
+          {
+            id: 'poly-int-4a',
+            input: 'I run 5km every morning.',
+            expected: '나는 매일 아침 5km를 달려요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-int-4b',
+            input: 'She runs a restaurant.',
+            expected: '그녀는 식당을 운영해요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-int-4c',
+            input: 'This program runs on Windows.',
+            expected: '이 프로그램은 윈도우에서 작동해요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-int-4d',
+            input: "He's running for president.",
+            expected: '그는 대통령에 출마하고 있어요.',
+            direction: 'en-ko',
+          },
+          // Bank (은행 / 강둑 / 비축)
+          {
+            id: 'poly-int-5a',
+            input: 'I need to go to the bank to withdraw money.',
+            expected: '돈을 인출하러 은행에 가야 해요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-int-5b',
+            input: 'We sat on the bank of the river.',
+            expected: '우리는 강둑에 앉았어요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-int-5c',
+            input: 'I need to build up a bank of vacation days.',
+            expected: '휴가 일수를 비축해야 해요.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'polysemy-advanced',
+    name: 'Advanced Polysemy',
+    nameKo: '고급 다의어',
+    categories: [
+      {
+        id: 'poly-adv-ko-en',
+        name: 'Korean → English (Advanced)',
+        nameKo: '한→영 고급',
+        tests: [
+          // 들다 (hold / hear / like / age / develop habit / lift)
+          {
+            id: 'poly-adv-1a',
+            input: '가방을 들고 있어요.',
+            expected: "I'm holding a bag.",
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-adv-1b',
+            input: '소리가 들려요.',
+            expected: 'I can hear a sound.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-adv-1c',
+            input: '이 옷이 마음에 들어요.',
+            expected: 'I like these clothes.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-adv-1d',
+            input: '나이가 드니까 피곤해요.',
+            expected: "I'm tired as I'm getting older.",
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-adv-1e',
+            input: '운동하는 습관이 들었어요.',
+            expected: "I've developed an exercise habit.",
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-adv-1f',
+            input: '이 상자 좀 들어줄래요?',
+            expected: 'Can you lift this box for me?',
+            direction: 'ko-en',
+          },
+          // 밝다 (bright / cheerful / promising / smart)
+          {
+            id: 'poly-adv-2a',
+            input: '이 방은 밝아요.',
+            expected: 'This room is bright.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-adv-2b',
+            input: '그 아이는 성격이 밝아요.',
+            expected: 'That child has a cheerful personality.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-adv-2c',
+            input: '미래가 밝아요.',
+            expected: 'The future is promising.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'poly-adv-2d',
+            input: '그 학생은 머리가 밝아요.',
+            expected: 'That student is smart.',
+            direction: 'ko-en',
+          },
+          // 복합 다의어 문장
+          {
+            id: 'poly-adv-3',
+            input: '배를 타고 가다가 배가 고파서 배를 먹었어요.',
+            expected: 'While riding on the ship, I got hungry so I ate a pear.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'poly-adv-en-ko',
+        name: 'English → Korean (Advanced)',
+        nameKo: '영→한 고급',
+        tests: [
+          // Get (얻다 / 이해하다 / 도착하다 / 되다 / 사다 / 받다)
+          {
+            id: 'poly-adv-4a',
+            input: 'I got a new job.',
+            expected: '새 직장을 얻었어요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-4b',
+            input: "I don't get what you mean.",
+            expected: '무슨 말인지 이해가 안 돼요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-4c',
+            input: 'What time did you get home?',
+            expected: '몇 시에 집에 도착했어요?',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-4d',
+            input: "It's getting cold.",
+            expected: '추워지고 있어요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-4e',
+            input: 'Can you get some milk?',
+            expected: '우유 좀 사올래?',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-4f',
+            input: 'I got your message.',
+            expected: '메시지 받았어요.',
+            direction: 'en-ko',
+          },
+          // Spring (봄 / 스프링 / 온천 / 뛰어오르다)
+          {
+            id: 'poly-adv-5a',
+            input: 'Spring is my favorite season.',
+            expected: '봄은 내가 가장 좋아하는 계절이에요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-5b',
+            input: 'The spring in my mattress is broken.',
+            expected: '내 매트리스의 스프링이 망가졌어요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-5c',
+            input: 'We visited a natural hot spring.',
+            expected: '우리는 천연 온천을 방문했어요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-5d',
+            input: 'The cat sprang onto the table.',
+            expected: '고양이가 테이블 위로 뛰어올랐어요.',
+            direction: 'en-ko',
+          },
+          // Match (성냥 / 경기 / 어울리다 / 일치하다)
+          {
+            id: 'poly-adv-6a',
+            input: 'Strike the match.',
+            expected: '성냥을 그으세요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-6b',
+            input: 'We won the match.',
+            expected: '우리가 경기에서 이겼어요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-6c',
+            input: 'These colors match well.',
+            expected: '이 색들은 잘 어울려요.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'poly-adv-6d',
+            input: 'The fingerprints match.',
+            expected: '지문이 일치해요.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+];
+
+// ========================================
+// SVO↔SOV 어순 변환 테스트 (Word Order Conversion)
+// 4단계 길이별 테스트 - 짧은/중간/긴/매우 긴 문장
+// ========================================
+
+export const wordOrderTests: TestLevel[] = [
+  {
+    id: 'word-order-level1',
+    name: 'Level 1: Short Sentences (5-7 words)',
+    nameKo: 'Level 1: 짧은 문장 (5-7 단어)',
+    categories: [
+      {
+        id: 'wo-l1-ko-en',
+        name: 'Korean(SOV) → English(SVO)',
+        nameKo: '한국어(SOV) → 영어(SVO)',
+        tests: [
+          {
+            id: 'wo-l1-1',
+            input: '나는 커피를 마셨어.',
+            expected: 'I drank coffee.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'wo-l1-2',
+            input: '그녀는 노래를 불렀어.',
+            expected: 'She sang a song.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'wo-l1-3',
+            input: '너는 영화를 봤어?',
+            expected: 'Did you watch the movie?',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'wo-l1-en-ko',
+        name: 'English(SVO) → Korean(SOV)',
+        nameKo: '영어(SVO) → 한국어(SOV)',
+        tests: [
+          {
+            id: 'wo-l1-4',
+            input: 'He bought a car.',
+            expected: '그는 차를 샀어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'wo-l1-5',
+            input: "I don't eat meat.",
+            expected: '나는 고기를 안 먹어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'wo-l1-6',
+            input: 'Do you like pizza?',
+            expected: '너는 피자를 좋아해?',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'word-order-level2',
+    name: 'Level 2: Medium Sentences (10-15 words)',
+    nameKo: 'Level 2: 중간 문장 (10-15 단어)',
+    categories: [
+      {
+        id: 'wo-l2-ko-en',
+        name: 'Korean(SOV) → English(SVO)',
+        nameKo: '한국어(SOV) → 영어(SVO)',
+        tests: [
+          {
+            id: 'wo-l2-1',
+            input: '나는 어제 친구와 함께 맛있는 파스타를 먹었어.',
+            expected: 'I ate delicious pasta with my friend yesterday.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'wo-l2-2',
+            input: '우리는 주말에 새로 생긴 카페에서 브런치를 먹었어.',
+            expected: 'We had brunch at the new cafe on the weekend.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'wo-l2-3',
+            input: '그는 생일 선물로 비싼 시계와 예쁜 꽃을 샀어.',
+            expected: 'He bought an expensive watch and pretty flowers for a birthday gift.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'wo-l2-en-ko',
+        name: 'English(SVO) → Korean(SOV)',
+        nameKo: '영어(SVO) → 한국어(SOV)',
+        tests: [
+          {
+            id: 'wo-l2-4',
+            input: 'My brother finished his homework before dinner yesterday.',
+            expected: '내 동생은 어제 저녁 먹기 전에 숙제를 끝냈어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'wo-l2-5',
+            input: 'I met my old friend at the shopping mall last weekend.',
+            expected: '나는 지난 주말에 쇼핑몰에서 오랜 친구를 만났어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'wo-l2-6',
+            input: 'We studied hard all night to pass the exam.',
+            expected: '우리는 시험에 합격하기 위해 밤새도록 열심히 공부했어.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'word-order-level3',
+    name: 'Level 3: Long Sentences (20-30 words)',
+    nameKo: 'Level 3: 긴 문장 (20-30 단어)',
+    categories: [
+      {
+        id: 'wo-l3-ko-en',
+        name: 'Korean(SOV) → English(SVO)',
+        nameKo: '한국어(SOV) → 영어(SVO)',
+        tests: [
+          {
+            id: 'wo-l3-1',
+            input:
+              '나는 지난주 화요일 저녁에 회사 근처 새로 생긴 이탈리안 레스토랑에서 동료들과 함께 맛있는 피자와 파스타를 먹으면서 프로젝트에 대해 이야기했어.',
+            expected:
+              'I ate delicious pizza and pasta with my colleagues at the new Italian restaurant near the office last Tuesday evening while talking about the project.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'wo-l3-2',
+            input:
+              '그녀는 어젯밤에 친구의 생일 파티 준비를 하느라 너무 늦게까지 잠을 못 자서 오늘 아침 회의에 지각했고 상사한테 혼났어.',
+            expected:
+              "She couldn't sleep until very late last night because she was preparing for her friend's birthday party, so she was late to the meeting this morning and got scolded by her boss.",
+            direction: 'ko-en',
+          },
+          {
+            id: 'wo-l3-3',
+            input:
+              '만약 내일 날씨가 좋으면 나는 친구들과 함께 한강 공원에 가서 자전거를 타고 치킨과 맥주를 먹으면서 저녁 노을을 보고 싶어.',
+            expected:
+              'If the weather is nice tomorrow, I want to go to Hangang Park with my friends, ride bikes, eat chicken and beer, and watch the sunset.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'wo-l3-en-ko',
+        name: 'English(SVO) → Korean(SOV)',
+        nameKo: '영어(SVO) → 한국어(SOV)',
+        tests: [
+          {
+            id: 'wo-l3-4',
+            input:
+              'Last Saturday morning, I woke up early, made fresh coffee, read the newspaper on the balcony, called my parents, and then went to the gym for two hours.',
+            expected:
+              '나는 지난 토요일 아침에 일찍 일어나서 신선한 커피를 만들고 발코니에서 신문을 읽고 부모님께 전화하고 그 다음에 두 시간 동안 헬스장에 갔어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'wo-l3-5',
+            input:
+              'Because I failed my driving test three times, I decided to take professional lessons from next month, practice every weekend, and try again before summer vacation starts.',
+            expected:
+              '운전 시험에 세 번이나 떨어져서 나는 다음 달부터 전문 레슨을 받고 매주 주말마다 연습하고 여름 방학이 시작하기 전에 다시 시도하기로 결정했어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'wo-l3-6',
+            input:
+              'My younger sister graduated from university last year, found a great job at a tech company, moved to her own apartment downtown, and seems much happier than when she lived with our parents.',
+            expected:
+              '내 여동생은 작년에 대학을 졸업하고 테크 회사에서 좋은 직장을 찾고 도심에 있는 자기 아파트로 이사했고 부모님과 살 때보다 훨씬 더 행복해 보여.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'word-order-level4',
+    name: 'Level 4: Very Long Sentences (40+ words)',
+    nameKo: 'Level 4: 매우 긴 문장 (40+ 단어)',
+    categories: [
+      {
+        id: 'wo-l4-ko-en',
+        name: 'Korean(SOV) → English(SVO)',
+        nameKo: '한국어(SOV) → 영어(SVO)',
+        tests: [
+          {
+            id: 'wo-l4-1',
+            input:
+              '나는 작년 3월부터 올해 11월까지 거의 9개월 동안 매일 새벽 5시에 일어나서 30분 동안 명상을 하고 1시간 동안 조깅을 하고 건강한 아침 식사를 직접 만들어 먹고 출근 전에 영어 공부를 30분씩 하면서 규칙적인 생활 습관을 만들려고 노력했는데 이제는 완전히 자연스럽게 몸에 배어서 아무 생각 없이도 자동으로 하게 되고 덕분에 건강도 좋아지고 영어 실력도 많이 늘었어.',
+            expected:
+              'From March last year to November this year, for almost nine months, I woke up every day at 5 AM, meditated for 30 minutes, jogged for one hour, made and ate a healthy breakfast myself, and studied English for 30 minutes before going to work, trying to build regular life habits, and now it has become completely natural and automatic without thinking, and thanks to this, my health has improved and my English skills have increased a lot.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'wo-l4-en-ko',
+        name: 'English(SVO) → Korean(SOV)',
+        nameKo: '영어(SVO) → 한국어(SOV)',
+        tests: [
+          {
+            id: 'wo-l4-2',
+            input:
+              'During my three-month backpacking trip through Southeast Asia last summer, I visited twelve different countries, tried countless street foods, learned basic phrases in six languages, made friends from all over the world, got lost in unfamiliar cities multiple times, experienced both amazing kindness and unfortunate scams, ran out of money twice and had to work at hostels, missed my flight once, got food poisoning three times, but looking back now, I realize it was the most valuable and life-changing experience that taught me independence, resilience, and how to appreciate different cultures and perspectives.',
+            expected:
+              '나는 작년 여름에 3개월 동안 동남아시아를 배낭여행하면서 12개의 다른 나라들을 방문했고 수많은 길거리 음식을 먹어봤고 6개 언어로 기본적인 문구를 배웠고 전 세계에서 온 친구들을 사귀었고 낯선 도시에서 여러 번 길을 잃었고 놀라운 친절과 불행한 사기를 모두 경험했고 두 번이나 돈이 떨어져서 호스텔에서 일해야 했고 한 번은 비행기를 놓쳤고 세 번이나 식중독에 걸렸지만 지금 돌이켜보면 그것이 내게 독립심과 회복력과 다양한 문화와 관점을 감상하는 방법을 가르쳐준 가장 가치 있고 인생을 바꾼 경험이었다는 것을 깨달았어.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+];
+
+// ========================================
+// 띄어쓰기 오류 + 문맥 파악 테스트 (Spacing Error Chaos)
+// 극악 난이도 - 모든 혼란 요소 총집합
+// ========================================
+
+export const spacingErrorTests: TestLevel[] = [
+  {
+    id: 'spacing-level1',
+    name: 'Level 1: Short (5-7 spacing errors)',
+    nameKo: 'Level 1: 짧은 문장 (띄어쓰기 5-7곳)',
+    categories: [
+      {
+        id: 'sp-l1-ko-en',
+        name: 'Korean(no spacing) → English',
+        nameKo: '한국어(띄어쓰기X) → 영어',
+        tests: [
+          {
+            id: 'sp-l1-1',
+            input: '나는일찍일어나서일을했어.',
+            expected: 'I woke up early and worked.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l1-2',
+            input: '그는배를타고배가고파서배를먹었어.',
+            expected: 'He rode the ship, got hungry, and ate a pear.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l1-3',
+            input: '눈이와서눈이아파서집에있어.',
+            expected: "It's snowing and my eyes hurt, so I'm at home.",
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l1-4',
+            input: '말을타고말을했는데말이안들려.',
+            expected: "I rode a horse and spoke, but couldn't hear the words.",
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'sp-l1-en-ko',
+        name: 'English(no spacing) → Korean',
+        nameKo: '영어(띄어쓰기X) → 한국어',
+        tests: [
+          {
+            id: 'sp-l1-5',
+            input: 'Iwatchedthemoviewhileeating.',
+            expected: '나는 먹으면서 영화를 봤어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'sp-l1-6',
+            input: 'Heworksatthebankbytheriver.',
+            expected: '그는 강가에 있는 은행에서 일해.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'sp-l1-7',
+            input: 'Shesangasongaboutlove.',
+            expected: '그녀는 사랑에 관한 노래를 불렀어.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'spacing-level2',
+    name: 'Level 2: Medium (10-15 spacing errors)',
+    nameKo: 'Level 2: 중간 문장 (띄어쓰기 10-15곳)',
+    categories: [
+      {
+        id: 'sp-l2-ko-en',
+        name: 'Korean(no spacing) → English',
+        nameKo: '한국어(띄어쓰기X) → 영어',
+        tests: [
+          {
+            id: 'sp-l2-1',
+            input: '나는어제친구를보러카페에가서커피를마시면서코딩을했는데너무행복했어.',
+            expected:
+              'I went to a cafe to see my friend yesterday, drank coffee while coding, and was very happy.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l2-2',
+            input: '그녀는화가나서말을안하고방에들어가서문을쾅닫았어.',
+            expected: "She was angry so she didn't talk, went into her room, and slammed the door.",
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l2-3',
+            input: 'AI개발을하는회사에서일하면서머신러닝을공부하고데이터를분석해.',
+            expected:
+              'I work at a company that develops AI, study machine learning, and analyze data.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l2-4',
+            input: '밤에밤을구워먹으면서영화를보다가잠이들었어.',
+            expected: 'At night, I fell asleep while watching a movie and roasting chestnuts.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'sp-l2-en-ko',
+        name: 'English(no spacing) → Korean',
+        nameKo: '영어(띄어쓰기X) → 한국어',
+        tests: [
+          {
+            id: 'sp-l2-5',
+            input: 'Iwenttothegymthismorningandranonthetreadmillfor30minutes.',
+            expected: '나는 오늘 아침 헬스장에 가서 러닝머신에서 30분 동안 달렸어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'sp-l2-6',
+            input: 'Myfriendissadandcryingbecauseshefailedtheexam.',
+            expected: '내 친구는 시험에 떨어져서 슬퍼하고 울고 있어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'sp-l2-7',
+            input: 'TheprogrammerisfixingbugsandwritingcodefortheAIproject.',
+            expected: '그 프로그래머는 AI 프로젝트를 위해 버그를 고치고 코드를 작성하고 있어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'sp-l2-8',
+            input: 'Lightcolorsarebetterthandarkonesforspring.',
+            expected: '밝은 색이 봄에는 어두운 색보다 더 좋아.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'spacing-level3',
+    name: 'Level 3: Long (20-30 spacing errors)',
+    nameKo: 'Level 3: 긴 문장 (띄어쓰기 20-30곳)',
+    categories: [
+      {
+        id: 'sp-l3-ko-en',
+        name: 'Korean(no spacing) → English',
+        nameKo: '한국어(띄어쓰기X) → 영어',
+        tests: [
+          {
+            id: 'sp-l3-1',
+            input:
+              '나는지난주일요일에친구들과함께한강공원에가서자전거를타고치킨과맥주를먹으면서프로젝트일정에대해이야기했는데다들걱정이많아서나도불안해졌어.',
+            expected:
+              'Last Sunday, I went to Hangang Park with friends, rode bikes, ate chicken and beer while talking about the project schedule, and everyone was worried so I became anxious too.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l3-2',
+            input:
+              '그는화가나서사무실을나갔다가다시들어와서컴퓨터를켜고코드를보다가버그를잡았는데기분이좋아졌어.',
+            expected:
+              'He got angry and left the office, came back, turned on the computer, looked at the code, caught a bug, and felt better.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l3-3',
+            input:
+              '데이터사이언티스트가빅데이터를분석하면서인공지능모델을학습시키고있는데결과가좋아서너무기뻐.',
+            expected:
+              'The data scientist is analyzing big data and training an AI model, and is very happy because the results are good.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l3-4',
+            input:
+              '배를타고여행을가다가배가고파서배와사과를먹었는데배탈이나서배가아파서병원에갔어.',
+            expected:
+              'While traveling by ship, I got hungry so I ate pears and apples, but got a stomachache and my stomach hurt so I went to the hospital.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'sp-l3-en-ko',
+        name: 'English(no spacing) → Korean',
+        nameKo: '영어(띄어쓰기X) → 한국어',
+        tests: [
+          {
+            id: 'sp-l3-5',
+            input:
+              'LastnightIwassostressedaboutworksoIwenttothebarwithmycolleaguesanddrankbeerandtalkedaboutourproblemsandfeelsomuchbetternow.',
+            expected:
+              '어젯밤 나는 일 때문에 너무 스트레스 받아서 동료들과 바에 가서 맥주를 마시고 우리 문제들에 대해 얘기했고 지금은 훨씬 나아진 기분이야.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'sp-l3-6',
+            input:
+              'ThesoftwaredeveloperisfrustratedcausethebugkeepsappearingandthecodeisntworkingproperlysohedecidestorefactortheentiremoduleusingPython.',
+            expected:
+              '그 소프트웨어 개발자는 버그가 계속 나타나고 코드가 제대로 작동하지 않아서 좌절했고 Python을 사용해서 전체 모듈을 리팩토링하기로 결정했어.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'sp-l3-7',
+            input:
+              'Iwatchedamovieaboutalighthousekeeperwhogotlostinthedarkandusedamatchtolight afirebutthelightwasntenoughandhefeltsadandlonely.',
+            expected:
+              '나는 어둠 속에서 길을 잃은 등대지기가 성냥으로 불을 켰지만 빛이 충분하지 않아서 슬프고 외로워하는 영화를 봤어.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'spacing-level4',
+    name: 'Level 4: Very Long (40+ spacing errors + typos)',
+    nameKo: 'Level 4: 매우 긴 문장 (띄어쓰기 40+ 곳 + 오타)',
+    categories: [
+      {
+        id: 'sp-l4-ko-en',
+        name: 'Korean(no spacing) → English',
+        nameKo: '한국어(띄어쓰기X) → 영어',
+        tests: [
+          {
+            id: 'sp-l4-1',
+            input:
+              '나는작년부터올해까지거의일년동안매일일찍일어나서일을하면서파이썬과자바스크립트로코딩을공부하고머신러닝과딥러닝알고리즘을구현해봤는데처음에는너무어려워서화가나고짜증이났지만점점이해가되면서기쁘고행복해졌고이제는AI개발자로취업을해서회사에서데이터를분석하고모델을학습시키면서정말뿌듯하고자랑스러워.',
+            expected:
+              'From last year until this year, for almost a year, I woke up early every day, worked, studied coding with Python and JavaScript, and tried implementing machine learning and deep learning algorithms, but at first it was so difficult that I got angry and irritated, but gradually as I understood it I became happy and joyful, and now I got a job as an AI developer and feel really proud and accomplished while analyzing data and training models at the company.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'sp-l4-2',
+            input:
+              '우리팀은지난달부터이번달까지한달동안밤낮으로일을하면서새로운앱을개발했는데프론트엔드는리액트로백엔드는노드제이에스로데이터베이스는몽고디비로구축했고중간에버그가너무많이나와서다들스트레스받고화가났지만팀장님이격려해주시고피자를사주셔서다시힘을내서코드를수정하고테스트를반복했더니마침내완성이돼서정말기쁘고감동이었어.',
+            expected:
+              'Our team worked day and night for a month from last month until this month developing a new app, built the frontend with React, backend with Node.js, and database with MongoDB, but there were so many bugs in the middle that everyone was stressed and angry, but the team leader encouraged us and bought pizza so we got motivated again, fixed the code and repeated testing, and finally completed it so we were really happy and moved.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'sp-l4-en-ko',
+        name: 'English(no spacing + typos) → Korean',
+        nameKo: '영어(띄어쓰기X + 오타) → 한국어',
+        tests: [
+          {
+            id: 'sp-l4-3',
+            input:
+              'IvebeenanAIdeveloperforthreeyearsandworkingondeeplearnignprojectsisprettyexcitingbutalsoverystressfulcausewhenyoutrainneuralnetworksthebugscanbeveryconfusingandsometimesIfeelfrustartedandsadwhenthemodeldoesntconvergebutwhenitsfinallworkingandtheaccuracyishighIfeelamazingandhappyandproudofmyselfandmyteamandnowwerelookingintotransformermodelsandlargelanguagemodelswhicharesocoolandIcantwaittostartbuildingthem.',
+            expected:
+              '나는 3년 동안 AI 개발자로 일하고 있고 딥러닝 프로젝트를 하는 건 꽤 신나지만 또 아주 스트레스 받는데 왜냐하면 신경망을 학습시킬 때 버그가 정말 헷갈릴 수 있고 때때로 모델이 수렴하지 않을 때 좌절되고 슬프지만 마침내 작동하고 정확도가 높을 때는 놀랍고 행복하고 나 자신과 우리 팀이 자랑스럽고 이제 우리는 트랜스포머 모델과 대규모 언어 모델을 살펴보고 있는데 정말 멋있어서 그것들을 만들기 시작하는 게 기다려져.',
+            direction: 'en-ko',
+          },
+          {
+            id: 'sp-l4-4',
+            input:
+              'WhenIwasworkingatthetechstartuplastyearIhadtodealwithmultipleproblemslikeservercrashesdatabaseerrorsAPIfailuresandteamconflictswhichmademeanxiousanddepressedbutIlearnedtodebugmoreeffieicntlywritecleanercodeandcommunicatebetterwithmycolleaguessometimesIhadtoworkovernightfixingcriticalbugsandIfeltsotiredandlonelybutwhenwefinallylaunchedtheproductandgotreallypositivefeedbackfromusersIwassohappyandrelievedthatallthehardworkpaidoffandnowIfeelmuchmorecondidentandreadyforthenextchallenge.',
+            expected:
+              '작년에 테크 스타트업에서 일할 때 서버 충돌이나 데이터베이스 오류나 API 실패 그리고 팀 갈등 같은 여러 문제들을 처리해야 했고 이게 나를 불안하고 우울하게 만들었지만 더 효율적으로 디버그하고 더 깨끗한 코드를 작성하고 동료들과 더 잘 소통하는 법을 배웠고 때때로 밤새워 중요한 버그를 고쳐야 했고 너무 피곤하고 외로웠지만 마침내 제품을 출시하고 사용자들로부터 정말 긍정적인 피드백을 받았을 때 모든 노력이 보람 있었다는 게 너무 행복하고 안도됐고 이제 훨씬 더 자신감 있고 다음 도전을 할 준비가 됐어.',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+];
+
+// ========================================
 // 헬퍼 함수
 // ========================================
 
@@ -1926,6 +2893,24 @@ export function getAllTests(): TestCase[] {
   }
 
   for (const level of uniqueTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  for (const level of polysemyTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  for (const level of wordOrderTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  for (const level of spacingErrorTests) {
     for (const category of level.categories) {
       tests.push(...category.tests);
     }
