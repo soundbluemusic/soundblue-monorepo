@@ -139,41 +139,61 @@ export const irregularVerbs: Record<string, VerbForms> = {
 
 /**
  * 영어 동사 시제 변환
+ * 구동사(phrasal verb) 지원: "listen to" → "listens to"
  */
 export function conjugateEnglishVerb(
   verb: string,
   tense: 'present' | 'past' | 'future' | 'progressive',
   subject?: string,
 ): string {
-  const lowerVerb = verb.toLowerCase();
+  // 구동사 처리: "listen to" → ["listen", "to"]
+  const parts = verb.split(' ');
+  const mainVerb = parts[0] ?? verb;
+  const particle = parts.slice(1).join(' '); // "to", "up", "out" 등
+
+  const lowerVerb = mainVerb.toLowerCase();
   const irregular = irregularVerbs[lowerVerb];
+
+  let conjugated: string;
 
   switch (tense) {
     case 'past':
       if (irregular) {
-        return irregular.past;
+        conjugated = irregular.past;
+      } else {
+        // 규칙 동사 과거형
+        conjugated = makeRegularPast(mainVerb);
       }
-      // 규칙 동사 과거형
-      return makeRegularPast(verb);
+      break;
 
     case 'future':
-      return `will ${verb}`;
+      conjugated = `will ${mainVerb}`;
+      break;
 
     case 'progressive':
       if (irregular) {
-        return irregular.ing;
+        conjugated = irregular.ing;
+      } else {
+        conjugated = makeProgressiveForm(mainVerb);
       }
-      return makeProgressiveForm(verb);
+      break;
+
     default:
       // 3인칭 단수 처리
       if (subject && isThirdPersonSingular(subject)) {
         if (irregular) {
-          return irregular.thirdPerson;
+          conjugated = irregular.thirdPerson;
+        } else {
+          conjugated = makeThirdPersonSingular(mainVerb);
         }
-        return makeThirdPersonSingular(verb);
+      } else {
+        conjugated = mainVerb;
       }
-      return verb;
+      break;
   }
+
+  // 구동사면 particle 다시 붙이기
+  return particle ? `${conjugated} ${particle}` : conjugated;
 }
 
 /**

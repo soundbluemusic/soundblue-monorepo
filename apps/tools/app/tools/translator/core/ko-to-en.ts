@@ -4,6 +4,7 @@
 // ========================================
 
 import { getEnglishTense, matchEnding } from '../dictionary/endings';
+import { conjugateEnglishVerb } from '../dictionary/english-verbs';
 import { isAdjective, translateStemKoToEn } from '../dictionary/stems';
 import { koToEnWords } from '../dictionary/words';
 import { composeFromJaso, decomposeAll, removeEndingPattern } from '../jaso/hangul-jaso';
@@ -223,8 +224,8 @@ const KOREAN_IRREGULAR_VERBS: Record<string, { stem: string; tense: string }> = 
   샀고: { stem: 'buy', tense: 'past' },
   났다: { stem: 'come out', tense: 'past' },
   났고: { stem: 'come out', tense: 'past' },
-  봤다: { stem: 'see', tense: 'past' },
-  봤고: { stem: 'see', tense: 'past' },
+  봤다: { stem: 'watch', tense: 'past' },
+  봤고: { stem: 'watch', tense: 'past' },
   왔다: { stem: 'come', tense: 'past' },
   왔고: { stem: 'come', tense: 'past' },
   // ㅓ 불규칙 (서다, 먹다 등)
@@ -287,8 +288,29 @@ function translateSentenceKoToEn(text: string): string {
  * 절 수준 한→영 번역 (SOV → SVO 변환)
  */
 function translateClauseKoToEn(clause: string): string {
+  // 부정문 패턴 전처리: "V-지 않는다" → "do not V"
+  // 예: "가지 않는다" → "do not go"
+  let processedClause = clause;
+  let isNegative = false;
+  let negativeVerb = '';
+
+  // "V지 않는다/않았다/않아요" 패턴 감지
+  const negationMatch = clause.match(/(\S+)지\s+않([는았아])/);
+  if (negationMatch) {
+    const verbPart = negationMatch[1]; // 가, 먹, 읽 등
+    const verbStem = verbPart ?? '';
+    // 동사 어간 번역
+    const translatedVerb = translateWord(verbStem, 'present', 'verb');
+    if (translatedVerb && translatedVerb !== verbStem) {
+      isNegative = true;
+      negativeVerb = translatedVerb;
+      // 부정 패턴 제거하고 동사 부분만 남김
+      processedClause = clause.replace(/(\S+)지\s+않[는았아요습니다]+/, '');
+    }
+  }
+
   // 토큰화
-  const tokens = clause.split(/\s+/);
+  const tokens = processedClause.split(/\s+/).filter((t) => t.trim());
 
   // 각 토큰 분석 및 번역
   const analyzed: Array<{
@@ -302,6 +324,17 @@ function translateClauseKoToEn(clause: string): string {
   for (const token of tokens) {
     const result = analyzeAndTranslateToken(token);
     analyzed.push(result);
+  }
+
+  // 부정문인 경우 "do not V" 추가
+  if (isNegative && negativeVerb) {
+    analyzed.push({
+      original: '않는다',
+      translated: `do not ${negativeVerb}`,
+      role: 'verb',
+      particle: undefined,
+      connective: undefined,
+    });
   }
 
   // SVO 어순으로 재배열
@@ -361,6 +394,13 @@ function analyzeAndTranslateToken(token: string): {
     } else if (['와', '과', '하고', '랑', '이랑'].includes(particle)) {
       role = 'object'; // with 관계
     }
+  }
+
+  // 2.3. 지시형용사 체크 (이, 저, 그 - 다음 명사 수식)
+  const DEMONSTRATIVE_ADJECTIVES = ['이', '저', '그'];
+  if (DEMONSTRATIVE_ADJECTIVES.includes(word) && !particle) {
+    role = 'modifier';
+    isModifier = true;
   }
 
   // 2.5. 불규칙 활용형 체크 (갔다, 봤다, 왔다 등)
@@ -748,8 +788,44 @@ function rearrangeToSVO(
     others.push(...modifiers);
   }
 
+  // 위치 전치사 패턴 처리: "책상 위에" → "on desk"
+  // "위/아래/옆/앞/뒤" + "에"가 location으로 들어오고, 앞에 일반 명사가 others에 있는 경우
+  const POSITION_WORDS = [
+    'on',
+    'above',
+    'below',
+    'under',
+    'beside',
+    'next to',
+    'behind',
+    'in front of',
+    'inside',
+    'in',
+    'outside',
+  ];
+  if (locations.length > 0 && others.length > 0) {
+    const lastOther = others[others.length - 1];
+    const firstLoc = locations[0];
+    if (lastOther && firstLoc && POSITION_WORDS.includes(firstLoc.text.toLowerCase())) {
+      // "책상" + "위" → "on desk"
+      // others에서 명사 제거하고, locations의 preposition으로 결합
+      others.pop();
+      locations[0] = { text: lastOther, particle: firstLoc.particle };
+      // 원래 위치 전치사를 앞에 붙여서 새 위치로
+      locations.unshift({ text: firstLoc.text.toLowerCase(), particle: undefined });
+    }
+  }
+
   // 동사 타입에 따른 전치사 결정
-  const isMovementVerb = verbs.some((v) => MOVEMENT_VERBS.has(v.toLowerCase()));
+  // "do not go" 같은 복합 동사도 이동 동사로 인식
+  const isMovementVerb = verbs.some((v) => {
+    const verbLower = v.toLowerCase();
+    // 직접 매칭
+    if (MOVEMENT_VERBS.has(verbLower)) return true;
+    // 복합 동사 (do not go, will go 등)에서 이동 동사 포함 여부
+    const words = verbLower.split(' ');
+    return words.some((word) => MOVEMENT_VERBS.has(word));
+  });
 
   // SVO 순서로 조합
   const parts: string[] = [];
@@ -773,9 +849,57 @@ function rearrangeToSVO(
     }
   }
 
-  // 동사
+  // 동사 (3인칭 단수 및 시제 처리)
   if (verbs.length > 0) {
-    parts.push(...verbs);
+    // 주어에서 3인칭 단수 여부 판단
+    const subjectText = subjects.join(' ').toLowerCase();
+    const isThirdPersonSingular =
+      subjectText === 'he' ||
+      subjectText === 'she' ||
+      subjectText === 'it' ||
+      // 관사 + 명사 (the cat, a dog 등)는 3인칭 단수
+      /^(the|a|an)\s+\w+$/.test(subjectText) ||
+      // 단일 명사 (cat, dog 등)도 3인칭 단수
+      (subjects.length === 1 && !['i', 'you', 'we', 'they'].includes(subjectText));
+
+    // "있다" → "be" 변환 (위치/존재 문맥)
+    // "have" + location → "be" (나는 집에 있다 = I am at home)
+    const processedVerbs = verbs.map((verb) => {
+      if (verb.toLowerCase() === 'have' && locations.length > 0) {
+        // 위치가 있으면 be 동사로 변환
+        if (verbTense === 'past') {
+          return subjectText === 'i' ||
+            subjectText === 'he' ||
+            subjectText === 'she' ||
+            subjectText === 'it'
+            ? 'was'
+            : 'were';
+        }
+        return subjectText === 'i' ? 'am' : isThirdPersonSingular ? 'is' : 'are';
+      }
+      return verb;
+    });
+
+    // 형용사가 아닌 경우에만 동사 활용 (형용사는 is/was 처리됨)
+    if (!hasAdjective) {
+      // 과거형은 이미 conjugatePast()에서 처리됨 - 중복 활용 방지
+      // 현재형에서만 3인칭 단수 처리
+      if (verbTense === 'present' && isThirdPersonSingular) {
+        const conjugatedVerbs = processedVerbs.map((verb) => {
+          // be 동사는 이미 is로 변환됨
+          if (verb === 'am' || verb === 'is' || verb === 'are') {
+            return verb;
+          }
+          return conjugateEnglishVerb(verb, 'present', 'he');
+        });
+        parts.push(...conjugatedVerbs);
+      } else {
+        // 과거형/미래형이거나 1/2인칭은 이미 처리된 동사 사용
+        parts.push(...processedVerbs);
+      }
+    } else {
+      parts.push(...processedVerbs);
+    }
   }
 
   // 목적어
@@ -790,9 +914,46 @@ function rearrangeToSVO(
     }
   }
 
+  // 위치 전치사 매핑 (위, 아래, 옆, 앞, 뒤 등)
+  const POSITION_PREPOSITIONS: Record<string, string> = {
+    on: 'on',
+    above: 'above',
+    below: 'below',
+    under: 'under',
+    beside: 'beside',
+    'next to': 'next to',
+    behind: 'behind',
+    'in front of': 'in front of',
+    inside: 'inside',
+    in: 'in',
+    outside: 'outside',
+    between: 'between',
+  };
+
   // 장소 (전치사 포함)
   if (locations.length > 0) {
-    for (const loc of locations) {
+    for (let i = 0; i < locations.length; i++) {
+      const loc = locations[i];
+      if (!loc) continue;
+
+      // "home"은 이동 동사와 함께 전치사 없이 사용 (go home, come home)
+      const locLower = loc.text.toLowerCase();
+      if (isMovementVerb && (locLower === 'home' || locLower === 'here' || locLower === 'there')) {
+        parts.push(loc.text);
+        continue;
+      }
+
+      // 위치 전치사인 경우 (on, under, beside 등)
+      // 다음 위치가 있으면 그것과 결합: "on" + "desk" → "on the desk"
+      if (POSITION_PREPOSITIONS[locLower] && i + 1 < locations.length) {
+        const nextLoc = locations[i + 1];
+        if (nextLoc) {
+          parts.push(`${locLower} ${nextLoc.text}`);
+          i++; // 다음 위치 건너뛰기
+          continue;
+        }
+      }
+
       let prep = 'at'; // 기본값
       if (isMovementVerb && loc.particle === '에') {
         prep = 'to'; // 이동 동사 + 에 = to

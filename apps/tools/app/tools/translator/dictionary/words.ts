@@ -18,6 +18,8 @@ const manualKoToEnWords: Record<string, string> = {
   그: 'he',
   그녀: 'she',
   그들: 'they',
+  이: 'this', // 지시형용사 (이 책 = this book)
+  저: 'that', // 지시형용사 (저 책 = that book)
   이것: 'this',
   저것: 'that',
   그것: 'it',
@@ -1188,7 +1190,7 @@ const manualKoToEnWords: Record<string, string> = {
   일어나: 'wake up',
   하: 'do',
   보: 'see',
-  듣: 'hear',
+  듣: 'listen to',
   말하: 'speak',
   읽: 'read',
   쓰: 'write',
@@ -1327,7 +1329,7 @@ const manualKoToEnWords: Record<string, string> = {
   어두: 'dark',
   깨끗하: 'clean',
   더럽: 'dirty',
-  재미있: 'fun',
+  재미있: 'interesting',
   재미없: 'boring',
   피곤하: 'tired',
   배고프: 'hungry',
