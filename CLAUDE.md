@@ -57,9 +57,65 @@ Ask before: removing code, changing core logic, breaking changes.
 > **Location**: `apps/tools/app/tools/translator/`
 > **Full docs**: `apps/tools/app/tools/translator/README.md`
 
+### 🎯 하드코딩 정책 (Hardcoding Policy)
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              하드코딩은 좋은 로직 설계일 경우에만 허용                             ║
+║              (Hardcoding allowed ONLY with excellent logic design)            ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ✅ 허용되는 하드코딩 (ALLOWED - Good Logic Design):                           ║
+║                                                                              ║
+║  • 일반화된 문법 패턴 (Generalized Grammar Patterns)                           ║
+║    예: "Did + S + V + O?" → 모든 의문문 처리                                   ║
+║    예: "-지 않았어" 패턴 → 모든 부정문 처리                                      ║
+║                                                                              ║
+║  • 언어학적 규칙 (Linguistic Rules)                                           ║
+║    예: 받침 유무에 따른 조사 선택 (을/를, 은/는)                                 ║
+║    예: 모음조화 규칙 (양성모음 → 아, 음성모음 → 어)                               ║
+║                                                                              ║
+║  • 재사용 가능한 구조 패턴 (Reusable Structure Patterns)                        ║
+║    예: SVO → SOV 어순 변환 알고리즘                                            ║
+║    예: 시제 변환 규칙 (과거 -ed → -었/았)                                       ║
+║                                                                              ║
+║  핵심: 동일 패턴의 모든 문장이 같은 로직으로 처리되어야 함                          ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ❌ 금지되는 하드코딩 (FORBIDDEN - Bad Logic Design):                          ║
+║                                                                              ║
+║  • 특정 테스트 문장만 매칭하는 정규식                                            ║
+║    예: /^Did you go to the museum yesterday/                                 ║
+║                                                                              ║
+║  • 테스트 문장을 사전에 직접 추가                                               ║
+║    예: sentences['I visited the museum'] = '나는 박물관을 방문했다'             ║
+║                                                                              ║
+║  • 특정 문장만 처리하는 마커(MARKER) 패턴                                       ║
+║    예: if (text.includes('SPECIFIC_SENTENCE')) return '...';                 ║
+║                                                                              ║
+║  • 테스트 통과만을 위한 조건문                                                  ║
+║    예: if (text === 'test sentence') return 'expected output';               ║
+║                                                                              ║
+║  핵심: 해당 문장만 통과하고, 비슷한 다른 문장은 실패하면 나쁜 로직                   ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+### 좋은 로직 vs 나쁜 로직 판단 기준
+
+| 질문 | ✅ 좋은 로직 | ❌ 나쁜 로직 |
+|------|-------------|-------------|
+| 비슷한 다른 문장도 통과하는가? | Yes | No |
+| 일반화된 패턴인가? | Yes | No |
+| 언어학적 규칙 기반인가? | Yes | No |
+| 재사용 가능한가? | Yes | No |
+
 ### Core Principle (핵심 원칙)
-**100% Algorithm-Based Testing** - All translation tests must pass through algorithm/logic improvements only.
-(100% 알고리즘 기반 테스트 - 모든 번역 테스트는 알고리즘/로직 개선만으로 통과해야 함)
+**100% Algorithm-Based Generalization** - 알고리즘 기반 일반화
+- Level = 난이도 수준 (특정 테스트 문장이 아님)
+- 해당 난이도의 **어떤 문장이든** 번역 가능해야 함
+- 테스트 문장 = 샘플일 뿐, 하드코딩 대상 아님
 
 ### Prohibited (절대 금지)
 | File | Prohibition |
@@ -67,20 +123,25 @@ Ask before: removing code, changing core logic, breaking changes.
 | `dictionary/i18n-sentences.ts` | Adding test sentences (테스트 문장 추가) |
 | `dictionary/idioms.ts` | Adding regular sentences (일반 문장 추가) |
 | `dictionary/cultural-expressions.ts` | Adding test sentences (테스트 문장 추가) |
+| `translator-service.ts` | 특정 문장 정규식 매칭 패턴 |
+| `core/en-to-ko.ts` | 특정 문장 마커/하드코딩 |
+| `core/ko-to-en.ts` | 특정 문장 마커/하드코딩 |
 
 ### Allowed (허용)
 | File | Allowed Actions |
 |------|-----------------|
 | `dictionary/words.ts` | Individual word pairs only (개별 단어 쌍만) |
-| `grammar/morpheme-analyzer.ts` | Morpheme patterns, verb rules (형태소 패턴, 동사 규칙) |
-| `grammar/sentence-parser.ts` | Parsing logic (파싱 로직) |
-| `grammar/english-generator.ts` | Generation rules (생성 규칙) |
-| `core/en-to-ko.ts`, `core/ko-to-en.ts` | Translation algorithms (번역 알고리즘) |
+| `grammar/morpheme-analyzer.ts` | 일반화된 형태소 패턴, 동사 규칙 |
+| `grammar/sentence-parser.ts` | 일반화된 문장 구조 파싱 로직 |
+| `grammar/english-generator.ts` | 일반화된 영어 생성 규칙 |
+| `core/en-to-ko.ts`, `core/ko-to-en.ts` | 일반화된 번역 알고리즘 |
 
 ### When Test Fails (테스트 실패 시)
-1. **DO NOT** add the sentence to dictionary files
-2. **DO** analyze which algorithm component needs improvement
-3. **DO** make structural changes to grammar/core files
+1. **DO NOT** add the sentence to dictionary files (사전에 문장 추가 금지)
+2. **DO NOT** add regex patterns for specific sentences (특정 문장 정규식 금지)
+3. **DO NOT** add MARKER patterns for specific phrases (마커 패턴 금지)
+4. **DO** analyze which GENERAL algorithm component needs improvement (일반화 알고리즘 개선)
+5. **DO** make structural changes that work for ALL similar sentences (모든 유사 문장에 적용)
 
 ## The Perfect Dodecagon (12 Quality Metrics / 12가지 품질 지표)
 

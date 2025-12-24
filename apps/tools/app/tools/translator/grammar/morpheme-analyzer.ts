@@ -298,6 +298,14 @@ export const ENDINGS: Record<string, EndingInfo> = {
   었나요: { tense: 'past', formality: 'polite', isQuestion: true },
   였나요: { tense: 'past', formality: 'polite', isQuestion: true },
   했나요: { tense: 'past', formality: 'polite', isQuestion: true },
+
+  // === 구어체 과거 (복합 동사 어미) ===
+  // 예: "갔다 왔어?", "책을 샀어"
+  왔어: { tense: 'past', formality: 'casual' },
+  줬어: { tense: 'past', formality: 'casual' },
+  샀어: { tense: 'past', formality: 'casual' },
+  봤어: { tense: 'past', formality: 'casual' },
+  갔어: { tense: 'past', formality: 'casual' },
 };
 
 // 어미 목록 (길이순)

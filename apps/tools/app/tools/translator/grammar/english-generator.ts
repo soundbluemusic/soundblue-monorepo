@@ -380,7 +380,65 @@ const TIME_EXPRESSIONS_NO_PREPOSITION = new Set([
   'yesterday',
   'today',
   'tomorrow',
+  'now',
 ]);
+
+// 시간 명사 + 조사 '에' → 전치사 + 시간 표현
+// 예: 주말에 → on the weekend, 아침에 → in the morning
+const TIME_NOUN_PREPOSITIONS: Record<string, string> = {
+  주말: 'on the weekend',
+  평일: 'on weekdays',
+  아침: 'in the morning',
+  오전: 'in the morning',
+  오후: 'in the afternoon',
+  저녁: 'in the evening',
+  밤: 'at night',
+  낮: 'during the day',
+  방학: 'during vacation',
+  휴일: 'on the holiday',
+  휴가: 'during vacation',
+  생일: 'on the birthday',
+  크리스마스: 'on Christmas',
+  설날: 'on New Year',
+  추석: 'on Chuseok',
+};
+
+// 시간 명사 (조사 없이도 시간으로 인식)
+const TIME_NOUNS_KO = new Set([
+  '주말',
+  '평일',
+  '아침',
+  '오전',
+  '오후',
+  '저녁',
+  '밤',
+  '낮',
+  '방학',
+  '휴일',
+  '휴가',
+  '생일',
+]);
+
+// 시간 표현 영어 패턴 (문장 끝에 배치해야 함)
+const TIME_EXPRESSION_PATTERNS = [
+  /^on the weekend$/i,
+  /^on weekdays$/i,
+  /^in the morning$/i,
+  /^in the afternoon$/i,
+  /^in the evening$/i,
+  /^at night$/i,
+  /^during the day$/i,
+  /^during vacation$/i,
+  /^on the (holiday|birthday)$/i,
+  /^on (Christmas|New Year|Chuseok)$/i,
+  /^(yesterday|today|tomorrow)$/i,
+  /^(last|this|next) (night|morning|evening|week|month|year)$/i,
+];
+
+function isTimeExpression(text: string): boolean {
+  const lower = text.toLowerCase().trim();
+  return TIME_EXPRESSION_PATTERNS.some((pattern) => pattern.test(lower));
+}
 
 // 방법/정도 부사 목록 (동사 바로 뒤에 위치)
 const MANNER_ADVERBS = new Set([
@@ -411,6 +469,16 @@ function translateToken(
   // 조사에 따른 전치사 추가
   if (token.particle) {
     const particleInfo = PARTICLES[token.particle];
+
+    // 시간 명사 + '에' 조사 → 특수 전치사 표현
+    // 예: 주말에 → on the weekend, 아침에 → in the morning
+    if (token.particle === '에' && TIME_NOUNS_KO.has(stem)) {
+      const timeExpression = TIME_NOUN_PREPOSITIONS[stem];
+      if (timeExpression) {
+        return timeExpression;
+      }
+    }
+
     if (particleInfo?.en) {
       // '에' 조사 특수 처리: 동사와 장소에 따라 전치사 결정
       if (token.particle === '에' && verbInfo) {
@@ -613,6 +681,15 @@ function translateConstituent(
   }
 
   for (const token of constituent.tokens) {
+    // 부정 부사(안, 못)는 건너뛰기 - 동사 활용에서 처리됨
+    if (
+      token.stem === '안' ||
+      token.stem === '못' ||
+      token.original === '안' ||
+      token.original === '못'
+    ) {
+      continue;
+    }
     const translated = translateToken(token, verbInfo);
     parts.push(translated);
   }
@@ -855,6 +932,28 @@ const NOUN_HADA_COMPOUND_VERBS: Record<string, string> = {
 };
 
 // ========================================
+// 명사+가다/오다 복합표현 (go/come + Verb-ing)
+// 쇼핑 가다 → go shopping, 여행 가다 → go traveling
+// ========================================
+const NOUN_GO_COMPOUND_VERBS: Record<string, string> = {
+  쇼핑: 'shopping',
+  여행: 'traveling',
+  수영: 'swimming',
+  조깅: 'jogging',
+  산책: 'walking',
+  하이킹: 'hiking',
+  등산: 'hiking',
+  낚시: 'fishing',
+  스키: 'skiing',
+  캠핑: 'camping',
+  피크닉: 'for a picnic',
+  소풍: 'on a picnic',
+  드라이브: 'for a drive',
+  데이트: 'on a date',
+  외출: 'out',
+};
+
+// ========================================
 // 의문문 보조동사 선택 (Do/Did/Does)
 // ========================================
 function selectAuxiliaryVerb(tense: Tense, subject: string): string {
@@ -884,14 +983,8 @@ function selectAuxiliaryVerb(tense: Tense, subject: string): string {
 export function generateEnglish(parsed: ParsedSentence): string {
   const parts: string[] = [];
 
-  // 0. 문장 앞 수식어/독립어 처리 (인사말 등)
-  const sentenceInitialPhrases: string[] = [];
-  for (const mod of parsed.modifiers) {
-    const modEn = translateConstituent(mod);
-    if (modEn?.trim()) {
-      sentenceInitialPhrases.push(modEn);
-    }
-  }
+  // 사용된 modifier 추적 (go shopping 등의 복합표현에서 사용된 것 제외)
+  const usedModifierIndices = new Set<number>();
 
   // 1. 주어 결정
   let subjectEn: string;
@@ -945,6 +1038,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
       // verbStem이 '하'이고 object가 있으면 복합동사 확인
       let finalVerbEn = verbEn;
       let skipObject = false;
+      let goCompoundSuffix = ''; // go shopping, go hiking 등의 suffix
 
       if (verbStem === '하' && parsed.object) {
         const objectToken = parsed.object.tokens[0];
@@ -957,8 +1051,47 @@ export function generateEnglish(parsed: ParsedSentence): string {
         }
       }
 
+      // 명사+가다/오다 복합표현 확인 (쇼핑 갔어? → Did you go shopping?)
+      // modifier 또는 adverbial에서 명사를 찾아서 go + Verb-ing 패턴 생성
+      if (verbStem === '가' || verbStem === '오') {
+        // 1. modifier에서 찾기
+        for (let i = 0; i < parsed.modifiers.length; i++) {
+          const mod = parsed.modifiers[i];
+          const modToken = mod?.tokens[0];
+          const modStem = modToken?.stem || '';
+          const goCompound = NOUN_GO_COMPOUND_VERBS[modStem];
+          if (goCompound) {
+            goCompoundSuffix = goCompound;
+            usedModifierIndices.add(i);
+            break;
+          }
+        }
+
+        // 2. adverbial에서도 찾기 (주말에 쇼핑 → 주말에+쇼핑이 하나의 adverbial로 묶인 경우)
+        if (!goCompoundSuffix) {
+          for (const adv of parsed.adverbials) {
+            for (const token of adv.tokens) {
+              const tokenStem = token.stem || '';
+              const goCompound = NOUN_GO_COMPOUND_VERBS[tokenStem];
+              if (goCompound) {
+                goCompoundSuffix = goCompound;
+                // 해당 토큰을 adverbial에서 제거하면 복잡해지므로
+                // 나중에 번역 시 중복 체크로 처리
+                break;
+              }
+            }
+            if (goCompoundSuffix) break;
+          }
+        }
+      }
+
       // 동사는 기본형 사용 (Do/Did가 시제 담당)
       parts.push(finalVerbEn);
+
+      // go + Verb-ing 패턴 추가
+      if (goCompoundSuffix) {
+        parts.push(goCompoundSuffix);
+      }
 
       // 목적어 추가 (복합동사가 아닌 경우에만)
       if (parsed.object && !skipObject) {
@@ -972,63 +1105,70 @@ export function generateEnglish(parsed: ParsedSentence): string {
       }
 
       // 부사어 분류: 방법/정도 부사 vs 시간 표현
-      // 영어 어순: Verb + manner adverb + time expression
+      // 영어 어순: Verb + Object + manner adverb + time expression (문장 끝)
       const verbInfo = { stem: verbStem, english: verbEn };
       const mannerAdverbs: string[] = [];
       const timeExpressions: string[] = [];
+      const otherAdverbs: string[] = [];
+
+      // go compound에서 사용된 단어 (중복 출력 방지)
+      const usedGoCompoundWord = goCompoundSuffix
+        ? Object.entries(NOUN_GO_COMPOUND_VERBS).find(([_, v]) => v === goCompoundSuffix)?.[0]
+        : null;
 
       for (const adv of parsed.adverbials) {
-        const advEn = translateConstituent(adv, false, false, verbInfo);
-        // 여러 토큰이 결합된 경우 분리해서 분류
-        const words = advEn.split(' ');
-        for (const word of words) {
-          const wordLower = word.toLowerCase();
-          // 방법/정도 부사인지 확인 (early, late 등)
-          if (MANNER_ADVERBS.has(wordLower)) {
-            mannerAdverbs.push(word);
+        // 각 토큰별로 처리 (go compound 단어는 건너뛰기)
+        const filteredTokens: TokenAnalysis[] = [];
+        for (const token of adv.tokens) {
+          // go compound에 사용된 단어면 건너뛰기
+          if (usedGoCompoundWord && token.stem === usedGoCompoundWord) {
+            continue;
           }
-          // 시간 표현인지 확인 (today, yesterday 등)
-          else if (TIME_EXPRESSIONS_NO_PREPOSITION.has(wordLower)) {
-            timeExpressions.push(word);
+          filteredTokens.push(token);
+        }
+
+        // 필터링된 토큰이 없으면 건너뛰기
+        if (filteredTokens.length === 0) continue;
+
+        // 필터링된 토큰으로 번역
+        const advParts: string[] = [];
+        for (const token of filteredTokens) {
+          const tokenEn = translateToken(token, verbInfo);
+          if (tokenEn?.trim()) {
+            advParts.push(tokenEn);
           }
-          // 복합 시간 표현 확인 (this morning 등)
-          else if (word.toLowerCase() === 'this' && words.includes('morning')) {
-            // "this morning"은 하나의 표현으로 처리
-            if (!timeExpressions.includes('this morning')) {
-              timeExpressions.push('this morning');
-            }
-          } else if (
-            word.toLowerCase() === 'morning' &&
-            words.some((w) => w.toLowerCase() === 'this')
-          ) {
-          } else if (
-            word.toLowerCase() === 'last' &&
-            (words.includes('night') || words.includes('evening'))
-          ) {
-            // "last night/evening"은 하나의 표현으로 처리
-            const nightIdx = words.findIndex(
-              (w) => w.toLowerCase() === 'night' || w.toLowerCase() === 'evening',
-            );
-            if (nightIdx > -1) {
-              const compound = `last ${words[nightIdx]}`;
-              if (!timeExpressions.includes(compound)) {
-                timeExpressions.push(compound);
-              }
-            }
-          } else if (word.toLowerCase() === 'night' || word.toLowerCase() === 'evening') {
-            // 이미 "last night/evening"으로 처리되었을 수 있음
-            if (!words.some((w) => w.toLowerCase() === 'last')) {
-              timeExpressions.push(word);
-            }
-          } else if (word?.trim()) {
-            // 기타 부사어는 마지막에 추가 (빈 문자열 제외)
-            timeExpressions.push(word);
-          }
+        }
+        const advEn = advParts.join(' ');
+        if (!advEn?.trim()) continue;
+
+        // 전체 문자열로 시간 표현인지 먼저 확인 (on the weekend, in the morning 등)
+        if (isTimeExpression(advEn)) {
+          timeExpressions.push(advEn);
+          continue;
+        }
+
+        // 단일 단어 분류
+        const wordLower = advEn.toLowerCase().trim();
+
+        // 방법/정도 부사인지 확인 (early, late 등)
+        if (MANNER_ADVERBS.has(wordLower)) {
+          mannerAdverbs.push(advEn);
+        }
+        // 시간 표현인지 확인 (today, yesterday 등)
+        else if (TIME_EXPRESSIONS_NO_PREPOSITION.has(wordLower)) {
+          timeExpressions.push(advEn);
+        }
+        // 기타 부사어
+        else if (advEn?.trim()) {
+          otherAdverbs.push(advEn);
         }
       }
 
-      // 방법/정도 부사 먼저, 시간 표현 나중에
+      // 어순: 방법 부사 → 기타 부사 → 시간 표현 (문장 끝)
       for (const adv of mannerAdverbs) {
+        parts.push(adv);
+      }
+      for (const adv of otherAdverbs) {
         parts.push(adv);
       }
       for (const time of timeExpressions) {
@@ -1045,7 +1185,19 @@ export function generateEnglish(parsed: ParsedSentence): string {
       questionSentence += '?';
     }
 
-    // 문장 앞 수식어 결합
+    // 문장 앞 수식어 결합 (go shopping 등에서 사용된 modifier 제외)
+    const sentenceInitialPhrases: string[] = [];
+    for (let i = 0; i < parsed.modifiers.length; i++) {
+      if (usedModifierIndices.has(i)) continue; // 이미 사용된 modifier 건너뛰기
+      const mod = parsed.modifiers[i];
+      if (mod) {
+        const modEn = translateConstituent(mod);
+        if (modEn?.trim()) {
+          sentenceInitialPhrases.push(modEn);
+        }
+      }
+    }
+
     if (sentenceInitialPhrases.length > 0) {
       const prefix = sentenceInitialPhrases.join(', ');
       const capitalizedPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
@@ -1058,6 +1210,16 @@ export function generateEnglish(parsed: ParsedSentence): string {
   // ========================================
   // 평서문 처리 (기존 로직)
   // ========================================
+
+  // 문장 앞 수식어/독립어 처리 (인사말 등)
+  const sentenceInitialPhrases: string[] = [];
+  for (const mod of parsed.modifiers) {
+    const modEn = translateConstituent(mod);
+    if (modEn?.trim()) {
+      sentenceInitialPhrases.push(modEn);
+    }
+  }
+
   parts.push(subjectEn);
 
   // 2. 서술어 분석 (SVC 패턴인지 확인)

@@ -2,6 +2,25 @@
 // English to Korean Engine - 영→한 자소 기반 번역
 // 문장 수준 번역 지원 (토큰화, 접속사 처리, 어순 변환)
 // ========================================
+//
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  🎯 하드코딩 정책: 좋은 로직 설계일 경우에만 허용                    ║
+// ╠══════════════════════════════════════════════════════════════════╣
+// ║                                                                  ║
+// ║  ✅ 허용 (Good Logic):                                           ║
+// ║  - 일반화된 문법 패턴 (예: "Did + S + V?" → 모든 의문문)           ║
+// ║  - 언어학적 규칙 (예: 받침 유무 → 조사 선택)                       ║
+// ║  - 재사용 가능한 구조 패턴 (예: SVO → SOV 변환)                    ║
+// ║                                                                  ║
+// ║  ❌ 금지 (Bad Logic):                                            ║
+// ║  - 특정 테스트 문장만 매칭하는 정규식                              ║
+// ║  - 테스트 문장을 사전에 직접 추가                                  ║
+// ║  - 특정 문장만 처리하는 마커 패턴                                  ║
+// ║                                                                  ║
+// ║  판단: 비슷한 다른 문장도 통과하는가? Yes=허용, No=금지            ║
+// ║                                                                  ║
+// ╚══════════════════════════════════════════════════════════════════╝
+//
 
 import { translatePrefix } from '../dictionary/prefixes';
 import { translateStemEnToKo } from '../dictionary/stems';
@@ -793,6 +812,9 @@ function translateClauseEnToKo(clause: string): string {
       | 'unknown';
     tense?: 'past' | 'present' | 'future';
     verbBase?: string;
+    isModifier?: boolean;
+    isLocationAdverb?: boolean;
+    negationType?: 'did_not' | 'could_not';
   }> = [];
 
   let prevRole: string | undefined;
@@ -853,6 +875,7 @@ function analyzeAndTranslateEnToken(
   isModifier?: boolean;
   verbBase?: string;
   isLocationAdverb?: boolean;
+  negationType?: 'did_not' | 'could_not'; // 부정 유형: 의지 부정 vs 능력 부정
 } {
   const lowerToken = token.toLowerCase();
 
@@ -916,7 +939,32 @@ function analyzeAndTranslateEnToken(
 
   // 6.6. cannot 체크 (can + not 합쳐진 형태)
   if (lowerToken === 'cannot') {
-    return { original: token, translated: '', role: 'auxiliary', tense: 'present' };
+    return {
+      original: token,
+      translated: '',
+      role: 'auxiliary',
+      tense: 'present',
+      negationType: 'could_not',
+    };
+  }
+
+  // 6.7. 축약형 부정 조동사 체크 (couldn't, wouldn't, shouldn't, didn't, don't, doesn't, can't, won't 등)
+  // 패턴: V + n't → 부정 조동사 (능력 부정 vs 의지 부정)
+  // 참고: ' (U+2019 curly quote)와 ' (U+0027 straight quote) 모두 지원
+  const normalizedToken = lowerToken.replace(/[\u2018\u2019']/g, "'"); // curly quotes (U+2018, U+2019) → straight quote
+  const contractionMatch = normalizedToken.match(
+    /^(could|would|should|did|do|does|can|will|won|has|have|had|is|are|was|were)n't$/,
+  );
+  if (contractionMatch) {
+    const base = contractionMatch[1];
+    // 능력 부정: can't, couldn't, won't, wouldn't
+    // 의지 부정: didn't, don't, doesn't, hasn't, haven't, hadn't, isn't, aren't, wasn't, weren't
+    const isAbilityNegation = ['can', 'could', 'will', 'won', 'would'].includes(base);
+    const negationType = isAbilityNegation ? ('could_not' as const) : ('did_not' as const);
+    const tense = ['did', 'could', 'would', 'had', 'was', 'were'].includes(base)
+      ? ('past' as const)
+      : ('present' as const);
+    return { original: token, translated: '', role: 'auxiliary', tense, negationType };
   }
 
   // 7. 불규칙 동사 과거형 체크
@@ -1077,6 +1125,7 @@ function rearrangeToSOV(
     isModifier?: boolean;
     verbBase?: string;
     isLocationAdverb?: boolean;
+    negationType?: 'did_not' | 'could_not';
   }>,
 ): string {
   const subjects: string[] = [];
@@ -1090,6 +1139,7 @@ function rearrangeToSOV(
   const others: string[] = [];
   let verbTense: 'past' | 'present' = 'present';
   let isNegative = false;
+  let negationType: 'did_not' | 'could_not' | undefined; // 부정 유형 추적
   let hasMovementVerb = false;
   let pendingPreposition: string | null = null;
 
@@ -1112,6 +1162,15 @@ function rearrangeToSOV(
     // 부정어 감지
     if (token.role === 'negation') {
       isNegative = true;
+      // 이전 토큰이 능력 조동사(can, could, will, would)면 능력 부정으로 설정
+      // "could not", "can not", "will not", "would not" → 능력 부정
+      const prevToken = tokens[i - 1];
+      if (prevToken && prevToken.role === 'auxiliary') {
+        const prevOriginal = prevToken.original.toLowerCase();
+        if (['can', 'could', 'will', 'would'].includes(prevOriginal)) {
+          negationType = 'could_not';
+        }
+      }
       continue;
     }
 
@@ -1120,6 +1179,11 @@ function rearrangeToSOV(
       // auxiliary (be/do)의 시제는 기억
       if (token.role === 'auxiliary' && token.tense === 'past') {
         verbTense = 'past';
+      }
+      // 축약형 부정 조동사의 negationType 추적 (couldn't, didn't 등)
+      if (token.role === 'auxiliary' && token.negationType) {
+        isNegative = true;
+        negationType = token.negationType;
       }
       continue;
     }
@@ -1430,13 +1494,25 @@ function rearrangeToSOV(
 
     // 부정문 처리
     if (isNegative) {
-      // V-지 않았다/않는다 형태로 변환
+      // negationType에 따라 다른 부정 형태 사용
+      // could_not (능력 부정): ~지 못했다/못한다
+      // did_not (의지 부정): ~지 않았다/않는다
       const stem = finalVerb.endsWith('다') ? finalVerb.slice(0, -1) : finalVerb;
       const tense = verbTense === 'past' || lastVerb.tense === 'past' ? 'past' : 'present';
-      if (tense === 'past') {
-        finalVerb = `${stem}지 않았다`;
+      if (negationType === 'could_not') {
+        // 능력 부정: ~지 못했다/못한다
+        if (tense === 'past') {
+          finalVerb = `${stem}지 못했다`;
+        } else {
+          finalVerb = `${stem}지 못한다`;
+        }
       } else {
-        finalVerb = `${stem}지 않는다`;
+        // 의지 부정 (기본): ~지 않았다/않는다
+        if (tense === 'past') {
+          finalVerb = `${stem}지 않았다`;
+        } else {
+          finalVerb = `${stem}지 않는다`;
+        }
       }
     } else if (lastVerb.isAdjective) {
       // 형용사도 시제에 따라 활용 (좋다 → 좋았다)

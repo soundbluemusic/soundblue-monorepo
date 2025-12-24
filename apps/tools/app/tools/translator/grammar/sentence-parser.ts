@@ -279,9 +279,22 @@ export function parseSentence(text: string): ParsedSentence {
   const predicateToken = predicate?.tokens[0];
   const tense: Tense = predicateToken?.tense || 'present';
   const formality: Formality = predicateToken?.formality || 'polite';
-  const isNegative = predicateToken?.isNegative || false;
-  const negationType = predicateToken?.negationType;
+  let isNegative = predicateToken?.isNegative || false;
+  let negationType = predicateToken?.negationType;
   const isQuestion = predicateToken?.isQuestion || text.includes('?');
+
+  // 부정 부사 감지 (안, 못)
+  // '안 V' → didn't V (의지 부정)
+  // '못 V' → couldn't V (능력 부정)
+  for (const token of tokens) {
+    if (token.stem === '안' || token.original === '안') {
+      isNegative = true;
+      negationType = 'did_not';
+    } else if (token.stem === '못' || token.original === '못') {
+      isNegative = true;
+      negationType = 'could_not';
+    }
+  }
 
   // 문장 유형 결정
   let sentenceType: SentenceType = 'declarative';

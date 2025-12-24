@@ -194,6 +194,35 @@ Before suggesting any improvement:
 
 ---
 
+## 🎯 Translator: Hardcoding Policy (번역기: 하드코딩 정책)
+
+> **Hardcoding allowed ONLY with excellent logic design**
+> **(좋은 로직 설계일 경우에만 하드코딩 허용)**
+
+The translator at `apps/tools/app/tools/translator/` follows **algorithm-based generalization**.
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              하드코딩은 좋은 로직 설계일 경우에만 허용                             ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ✅ 허용 (Good Logic): 일반화된 패턴, 언어학적 규칙, 재사용 가능한 구조           ║
+║     예: "Did + S + V?" → 모든 의문문 처리                                     ║
+║     예: 받침 유무 → 조사 선택 (을/를)                                          ║
+║                                                                              ║
+║  ❌ 금지 (Bad Logic): 특정 문장만 통과하고 비슷한 문장은 실패하는 로직            ║
+║     예: /^Did you go to the museum/                                          ║
+║     예: if (text === 'test sentence') return 'expected';                     ║
+║                                                                              ║
+║  판단 기준: 비슷한 다른 문장도 통과하는가? → Yes면 허용, No면 금지               ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+📄 **Full documentation:** `apps/tools/app/tools/translator/README.md`
+
+---
+
 ## ✨ Features (특징)
 
 - 🌐 **Bilingual** - English & Korean (영어 & 한국어 지원)

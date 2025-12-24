@@ -10,13 +10,21 @@
 // ║  각 Level의 문법 규칙을 알고리즘으로 구현하여,                        ║
 // ║  해당 난이도의 **어떤 문장이든** 번역 가능하게 만드는 것               ║
 // ║                                                                  ║
-// ║  ⚠️ 금지:                                                        ║
-// ║  - 테스트 문장 하드코딩 (/^Did you go to the museum/)             ║
-// ║  - 사전에 테스트 문장 등록                                         ║
+// ╠══════════════════════════════════════════════════════════════════╣
 // ║                                                                  ║
-// ║  ✅ 허용:                                                         ║
-// ║  - 문법 패턴 알고리즘 구현                                         ║
-// ║  - 개별 단어만 사전에 추가                                         ║
+// ║  🎯 하드코딩 정책: 좋은 로직 설계일 경우에만 허용                    ║
+// ║                                                                  ║
+// ║  ✅ 허용 (Good Logic):                                           ║
+// ║  - 일반화된 문법 패턴 (예: "Did + S + V?" → 모든 의문문)           ║
+// ║  - 언어학적 규칙 (예: 받침 유무 → 조사 선택)                       ║
+// ║  - 재사용 가능한 구조 패턴 (예: SVO → SOV 변환)                    ║
+// ║                                                                  ║
+// ║  ❌ 금지 (Bad Logic):                                            ║
+// ║  - 특정 테스트 문장만 매칭하는 정규식                              ║
+// ║  - 테스트 문장을 사전에 직접 추가                                  ║
+// ║  - 특정 문장만 처리하는 마커 패턴                                  ║
+// ║                                                                  ║
+// ║  판단: 비슷한 다른 문장도 통과하는가? Yes=허용, No=금지            ║
 // ║                                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 //
@@ -199,6 +207,148 @@ function normalize(text: string): string {
     .trim()
     .replace(/\s+/g, ' ')
     .replace(/[.!?？！。]+$/, '');
+}
+
+// ========================================
+// 감탄사 목록 (일반화된 패턴)
+// Level 1 감탄문에서 사용되는 감탄사들
+// ========================================
+const KOREAN_INTERJECTIONS: Record<string, string> = {
+  // 기본 감탄사
+  와: 'Wow',
+  와우: 'Wow',
+  우와: 'Wow',
+  헐: 'Whoa',
+  대박: 'Awesome',
+  세상에: 'Oh my',
+  아이고: 'Oh my',
+  어머: 'Oh my',
+  어머나: 'Oh my',
+  맙소사: 'Oh my God',
+  // 긍정 감탄
+  야호: 'Yay',
+  만세: 'Hooray',
+  좋아: 'Great',
+  최고: 'Amazing',
+  짱: 'Awesome',
+  굿: 'Good',
+  // 부정/놀람 감탄
+  아: 'Ah',
+  아아: 'Aah',
+  음: 'Hmm',
+  으음: 'Hmm',
+  어: 'Uh',
+  에: 'Huh',
+  에이: 'Ugh',
+  아이: 'Geez',
+  아악: 'Aaah',
+  윽: 'Ugh',
+  // 감정 표현
+  하아: 'Sigh',
+  휴: 'Phew',
+  오: 'Oh',
+  오오: 'Ooh',
+  // 구어체 감탄
+  진짜: 'Really',
+  정말: 'Really',
+  미쳤다: 'Crazy',
+  미쳤어: 'Crazy',
+  쩐다: 'Awesome',
+  쩔어: 'Amazing',
+  대단해: 'Wow',
+  놀라워: 'Amazing',
+};
+
+/**
+ * 감탄문 처리 (감탄사 + 구분자 + 문장)
+ * 일반화된 패턴: 감탄사(,!.)로 시작하는 문장 처리
+ *
+ * 예시:
+ * - "헐, 오늘 치킨 직접 만들어 먹었어!" → "Whoa, I made and ate chicken myself today!"
+ * - "와! 정말 맛있어!" → "Wow! It's really delicious!"
+ * - "대박, 진짜?" → "Awesome, really?"
+ *
+ * @param text 원본 텍스트
+ * @param isQuestion 의문문 여부
+ * @returns 번역된 문장 또는 null (감탄문이 아닌 경우)
+ */
+function handleExclamatorySentence(text: string, isQuestion: boolean): string | null {
+  // 패턴: 감탄사 + 구분자(, ! .) + 나머지 문장
+  // 정규식: ^(감탄사)(,|!|\.|\s)+(.+)$
+  const exclamatoryPattern = /^([가-힣]+)([,!.。！，]\s*|\s+)(.+)$/;
+  const match = text.match(exclamatoryPattern);
+
+  if (!match) return null;
+
+  const [, interjection, separator, restSentence] = match;
+  if (!interjection || !restSentence) return null;
+
+  // 감탄사 사전에서 검색
+  const interjectionEn = KOREAN_INTERJECTIONS[interjection];
+  if (!interjectionEn) return null; // 감탄사가 아니면 null 반환
+
+  // 구분자 처리: 쉼표, 느낌표, 마침표
+  const separatorNormalized = separator?.trim() || '';
+  let punctuation = ',';
+  if (separatorNormalized.includes('!') || separatorNormalized.includes('！')) {
+    punctuation = '!';
+  } else if (separatorNormalized.includes('.') || separatorNormalized.includes('。')) {
+    punctuation = '.';
+  }
+
+  // 나머지 문장 번역 (재귀적으로 translate 호출하지 않고 내부 함수 사용)
+  // 의문문 여부는 나머지 문장에 ? 가 있는지로 판단
+  const restIsQuestion = isQuestion || restSentence.includes('?');
+  const restNormalized = normalize(restSentence);
+
+  // 나머지 문장 번역
+  let translatedRest: string;
+  try {
+    // translateWithGrammarAnalysis 사용 (무한 재귀 방지)
+    translatedRest = translateKoToEnInternal(restNormalized, restIsQuestion);
+  } catch {
+    // 실패 시 토큰 기반 번역
+    translatedRest = decomposeAndTranslateKo(restNormalized);
+  }
+
+  // 결과 조합
+  // 느낌표인 경우: "Wow! It's delicious!"
+  // 쉼표인 경우: "Wow, I ate chicken today!"
+  let result = `${interjectionEn}${punctuation} ${translatedRest}`;
+
+  // 첫 글자 대문자 (나머지 문장 시작)
+  const restStartIndex = interjectionEn.length + punctuation.length + 1;
+  if (result.length > restStartIndex) {
+    const beforeRest = result.slice(0, restStartIndex);
+    const restPart = result.slice(restStartIndex);
+    result = beforeRest + restPart.charAt(0).toUpperCase() + restPart.slice(1);
+  }
+
+  return result;
+}
+
+/**
+ * Ko→En 내부 번역 함수 (재귀 호출용)
+ * handleExclamatorySentence에서 나머지 문장 번역 시 사용
+ */
+function translateKoToEnInternal(text: string, isQuestion: boolean): string {
+  // 문법 분석 기반 번역 시도
+  try {
+    const parsed = parseSentence(text);
+    if (isQuestion) {
+      parsed.isQuestion = true;
+      parsed.sentenceType = 'interrogative';
+    }
+    const result = generateEnglish(parsed);
+    if (result && result !== text && result.length >= 2) {
+      return result;
+    }
+  } catch {
+    // 무시하고 fallback
+  }
+
+  // Fallback: NLP 기반 번역
+  return decomposeAndTranslateKoWithNlp(text);
 }
 
 /**
@@ -492,6 +642,15 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     }
   }
 
+  // === 0.4. 감탄문 처리 (감탄사, 문장 → Interjection, sentence) ===
+  // "헐, 오늘 치킨 먹었어!" → "Wow, I ate chicken today!"
+  // "와! 정말 맛있어!" → "Wow! It's really delicious!"
+  // 일반화된 패턴: 감탄사 + 구분자(,!.) + 문장
+  const exclamatoryResult = handleExclamatorySentence(text, isQuestion);
+  if (exclamatoryResult) {
+    return exclamatoryResult;
+  }
+
   // === 0.5. 사전 우선 조회 (단일 단어/감탄사) ===
   // 단일 단어(공백 없음)인 경우 사전에서 먼저 찾기
   // 예: "와" → "Wow", "음" → "Mmm"
@@ -528,8 +687,8 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
   }
 
   // 3. 부정 패턴 처리 - 문법 분석 경로로 직접 라우팅
-  // "~지 않~", "~지 못~", "안 ~" 패턴은 다의어/연어 체크 우회하고 문법 분석으로
-  if (/지\s*않|지\s*못|안\s+/.test(text)) {
+  // "~지 않~", "~지 못~", "안 ~", "못 ~" 패턴은 다의어/연어 체크 우회하고 문법 분석으로
+  if (/지\s*않|지\s*못|안\s+|못\s+/.test(text)) {
     return translateWithGrammarAnalysis(text, isQuestion);
   }
 
