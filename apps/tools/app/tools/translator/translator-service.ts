@@ -5,8 +5,8 @@
 // NLP 모듈 (WSD, 연어, 주제 탐지) 통합
 // ========================================
 
-// Core engines preserved for reference but now using advanced functions
-// import { translateEnToKo as coreTranslateEnToKo } from './core/en-to-ko';
+// Core engines - using advanced sentence translation
+import { translateEnToKo as coreTranslateEnToKo } from './core/en-to-ko';
 // import { translateKoToEn as coreTranslateKoToEn } from './core/ko-to-en';
 
 import {
@@ -209,6 +209,41 @@ function getPastParticiple(verb: string): string {
 }
 
 /**
+ * 패턴 매칭된 구문을 단어 단위로 번역
+ * "나는 학교에 가" → "I go to school" (주어+부사어+동사 번역)
+ */
+function translateMatchedPhrase(phrase: string): string {
+  // 단어 사전에서 직접 검색 (단일 단어인 경우)
+  if (koToEnWords[phrase]) {
+    return koToEnWords[phrase];
+  }
+
+  // 공백으로 분리된 여러 토큰인 경우
+  const tokens = phrase.split(/\s+/).filter((t) => t.length > 0);
+  if (tokens.length === 1) {
+    // 단일 토큰 - 형태소 분석 후 번역
+    const analyzed = analyzeMorpheme(tokens[0] ?? '');
+    const translated = koToEnWords[analyzed.stem] ?? koToEnWords[tokens[0] ?? ''] ?? tokens[0];
+    return translated ?? '';
+  }
+
+  // 여러 토큰 - 문법 분석 기반 번역 시도
+  const parsed = parseSentence(phrase);
+  const result = generateEnglish(parsed);
+
+  // 결과가 한글을 포함하면 단어별 번역으로 폴백
+  if (/[가-힣]/.test(result)) {
+    const translatedTokens = tokens.map((token) => {
+      const analyzed = analyzeMorpheme(token);
+      return koToEnWords[analyzed.stem] ?? koToEnWords[token] ?? token;
+    });
+    return translatedTokens.join(' ');
+  }
+
+  return result;
+}
+
+/**
  * 한→영 번역 (고급 문법 분석 기반)
  * 문화 표현, 관용어, 패턴, NLP(WSD, 연어), 문법 분석 적용
  */
@@ -238,7 +273,13 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     }
   }
 
-  // 3. 패턴 매칭
+  // 3. 부정 패턴 처리 - 문법 분석 경로로 직접 라우팅
+  // "~지 않~" 또는 "안 ~" 패턴은 다의어/연어 체크 우회하고 문법 분석으로
+  if (/지\s*않|안\s+/.test(text)) {
+    return translateWithGrammarAnalysis(text);
+  }
+
+  // 4. 패턴 매칭
   for (const pattern of koToEnPatterns) {
     // questionOnly 패턴은 질문일 때만 매칭
     if (pattern.questionOnly && !isQuestion) continue;
@@ -248,7 +289,9 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
       let result = pattern.en;
       for (let i = 1; i < match.length; i++) {
         const matchedGroup = match[i] ?? '';
-        const translated = koToEnWords[matchedGroup] || matchedGroup;
+
+        // 매칭된 그룹을 단어 단위로 번역 (구문 번역)
+        const translated = translateMatchedPhrase(matchedGroup);
 
         // $PP = past participle (eaten, not eated)
         if (result.includes(`$${i}PP`)) {
@@ -431,7 +474,18 @@ function hasPolysemousWords(tokens: string[]): boolean {
     '만',
   ];
 
-  for (const token of tokens) {
+  // 지시사/대명사는 다의어로 취급하지 않음 (문법 분석 경로에서 더 잘 처리됨)
+  // 이, 그, 저 + 명사 패턴은 형용사 결정자로 명확함
+  const DEMONSTRATIVES = new Set(['이', '그', '저', '이것', '그것', '저것']);
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i] ?? '';
+
+    // 지시사는 다의어 체크에서 제외 (다음 토큰이 명사이면 지시사로 간주)
+    if (DEMONSTRATIVES.has(token)) {
+      continue;
+    }
+
     // 조사가 붙어있으면 명사이므로 다의어 체크 건너뜀
     // (다의어 동사는 어미가 붙지 조사가 붙지 않음)
     const hasNounParticle = NOUN_PARTICLES.some(
@@ -967,8 +1021,8 @@ function translateEnToKoAdvanced(text: string): string {
     }
   }
 
-  // 4. 단어별 번역 + 조사 자동 선택
-  return translateEnWordsToKo(text);
+  // 4. 문장 구조 분석 기반 번역 (SVO→SOV 변환, 조사 추가, 동사 활용)
+  return coreTranslateEnToKo(text);
 }
 
 /**

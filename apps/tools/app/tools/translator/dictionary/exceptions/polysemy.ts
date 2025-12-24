@@ -1314,10 +1314,22 @@ export const KOREAN_POLYSEMY: PolysemyEntry[] = [
   {
     word: '이',
     senses: [
-      { meaning: '치아', translation: 'tooth', context: ['닦다', '빠지다'], example: '이를 닦다' },
+      // 지시형용사가 가장 흔한 용법 (이 책, 이 사람 등)
+      {
+        meaning: '지시어',
+        translation: 'this',
+        context: ['것', '사람', '책', '집', '곳', '날', '번'],
+        example: '이 책',
+      },
+      // 치아는 조사와 함께 사용: 이를, 이가 (닦다, 빠지다 문맥)
+      {
+        meaning: '치아',
+        translation: 'tooth',
+        context: ['닦다', '빠지다', '아프다', '이빨'],
+        example: '이를 닦다',
+      },
       { meaning: '이익', translation: 'profit (short)', context: ['득'], example: '이득' },
       { meaning: '성씨', translation: 'Lee (surname)', context: ['씨'], example: '이 씨' },
-      { meaning: '지시어', translation: 'this', context: ['것', '사람'], example: '이것' },
     ],
   },
   {

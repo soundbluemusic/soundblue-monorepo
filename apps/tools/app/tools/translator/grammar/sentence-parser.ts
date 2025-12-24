@@ -47,6 +47,24 @@ export interface ParsedSentence {
 }
 
 // ========================================
+// 위치 명사 목록 (위, 아래, 앞, 뒤 등 + 조사 '에')
+// ========================================
+const LOCATION_NOUNS = new Set([
+  '위',
+  '아래',
+  '밑',
+  '옆',
+  '앞',
+  '뒤',
+  '안',
+  '속',
+  '사이',
+  '가운데',
+  '근처',
+  '주변',
+]);
+
+// ========================================
 // 문장 성분 그룹화
 // ========================================
 function groupConstituents(tokens: TokenAnalysis[]): Constituent[] {
@@ -54,7 +72,8 @@ function groupConstituents(tokens: TokenAnalysis[]): Constituent[] {
   let currentGroup: TokenAnalysis[] = [];
   let currentRole: Role | null = null;
 
-  for (const token of tokens) {
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
     const role = token.role || 'unknown';
 
     // 서술어는 항상 별도 처리
@@ -80,7 +99,35 @@ function groupConstituents(tokens: TokenAnalysis[]): Constituent[] {
       continue;
     }
 
+    // Look-ahead: unknown 토큰 다음에 위치 표현(위/아래/앞/뒤 + 에)이 오면
+    // 현재 그룹을 닫고, unknown 토큰을 새 adverbial 그룹에 포함시킴
+    const nextToken = tokens[i + 1];
+    if (
+      role === 'unknown' &&
+      nextToken &&
+      nextToken.role === 'adverbial' &&
+      nextToken.particle === '에' &&
+      LOCATION_NOUNS.has(nextToken.stem)
+    ) {
+      // 이전 그룹 저장
+      if (currentGroup.length > 0) {
+        constituents.push({
+          tokens: [...currentGroup],
+          role: currentRole || 'modifier',
+          text: currentGroup.map((t) => t.original).join(' '),
+          headIndex: currentGroup.length - 1,
+        });
+        currentGroup = [];
+      }
+      // unknown 토큰을 새 그룹에 추가하고, 역할을 adverbial로 설정
+      // (다음 위치 표현 토큰과 함께 하나의 부사구가 됨)
+      currentGroup.push(token);
+      currentRole = 'adverbial'; // ← 핵심: 역할을 adverbial로 미리 설정
+      continue;
+    }
+
     // unknown 역할 토큰 처리: known 역할 토큰이 오면 이전 unknown 그룹을 modifier로 저장
+    // 단, 이미 adverbial 그룹으로 설정된 경우는 제외 (위치 표현 처리)
     if (
       role !== 'unknown' &&
       role !== 'modifier' &&

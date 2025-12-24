@@ -91,6 +91,17 @@ export const PARTICLES: Record<string, { role: Role; en: string }> = {
   // 소유격 조사
   의: { role: 'modifier', en: "'s" },
 
+  // 위치 표현 조사 (명사+에 복합형)
+  위에: { role: 'adverbial', en: 'on' },
+  아래에: { role: 'adverbial', en: 'under' },
+  밑에: { role: 'adverbial', en: 'under' },
+  옆에: { role: 'adverbial', en: 'beside' },
+  앞에: { role: 'adverbial', en: 'in front of' },
+  뒤에: { role: 'adverbial', en: 'behind' },
+  안에: { role: 'adverbial', en: 'inside' },
+  속에: { role: 'adverbial', en: 'inside' },
+  밖에서: { role: 'adverbial', en: 'outside' },
+
   // 보조사
   도: { role: 'topic', en: 'also' },
   만: { role: 'topic', en: 'only' },
@@ -323,8 +334,68 @@ const CONTRACTED_PATTERNS: Array<{
   ending: string;
   tense: Tense;
   formality: Formality;
+  isNegative?: boolean;
 }> = [
-  // === 과거 시제 축약형 (먼저 검사) ===
+  // === 부정 어미 패턴 (가장 먼저 검사!) ===
+  // 가다 → 가지 않는다 (띄어쓰기 없이 붙여 쓴 경우)
+  {
+    pattern: /^(.+)지않는다$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지않는다',
+    tense: 'present',
+    formality: 'casual',
+    isNegative: true,
+  },
+  {
+    pattern: /^(.+)지않았다$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지않았다',
+    tense: 'past',
+    formality: 'casual',
+    isNegative: true,
+  },
+  {
+    pattern: /^(.+)지않아요$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지않아요',
+    tense: 'present',
+    formality: 'polite',
+    isNegative: true,
+  },
+  {
+    pattern: /^(.+)지않습니다$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지않습니다',
+    tense: 'present',
+    formality: 'formal',
+    isNegative: true,
+  },
+  {
+    pattern: /^(.+)지않았습니다$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지않았습니다',
+    tense: 'past',
+    formality: 'formal',
+    isNegative: true,
+  },
+  {
+    pattern: /^(.+)지않았어요$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지않았어요',
+    tense: 'past',
+    formality: 'polite',
+    isNegative: true,
+  },
+  {
+    pattern: /^(.+)지않았어$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지않았어',
+    tense: 'past',
+    formality: 'casual',
+    isNegative: true,
+  },
+
+  // === 과거 시제 축약형 ===
   // 먹다 → 먹었어요 (일반 규칙)
   {
     pattern: /^(.+)었어요$/,
@@ -675,6 +746,9 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
       result.role = 'predicate';
       result.tense = cp.tense;
       result.formality = cp.formality;
+      if (cp.isNegative) {
+        result.isNegative = true;
+      }
       return result;
     }
   }
@@ -719,7 +793,21 @@ export interface TokenAnalysis extends MorphemeAnalysis {
   englishWord?: string;
 }
 
+// 부정 어미 패턴 (않다, 않는다, 않았다 등)
+const NEGATIVE_ENDINGS = [
+  '않는다',
+  '않았다',
+  '않아요',
+  '않습니다',
+  '않았습니다',
+  '않았어요',
+  '않았어',
+  '않아',
+  '않다',
+];
+
 // 띄어쓰기 오류 전처리: "한국사람 입니다" → "한국사람입니다"
+// 부정문 패턴 전처리: "가지 않는다" → "가지않는다"
 function preprocessTokens(tokens: string[]): string[] {
   const result: string[] = [];
   const COPULA_LIST = ['입니다', '입니까', '이에요', '예요', '이야', '야'];
@@ -733,6 +821,16 @@ function preprocessTokens(tokens: string[]): string[] {
       // 이전 토큰과 결합
       const lastIndex = result.length - 1;
       if (lastIndex >= 0 && result[lastIndex]) {
+        result[lastIndex] = result[lastIndex] + token;
+      } else {
+        result.push(token);
+      }
+    }
+    // 부정 어미 패턴 처리: "가지 않는다" → "가지않는다"
+    else if (NEGATIVE_ENDINGS.includes(token)) {
+      // 이전 토큰이 "~지"로 끝나면 결합
+      const lastIndex = result.length - 1;
+      if (lastIndex >= 0 && result[lastIndex]?.endsWith('지')) {
         result[lastIndex] = result[lastIndex] + token;
       } else {
         result.push(token);

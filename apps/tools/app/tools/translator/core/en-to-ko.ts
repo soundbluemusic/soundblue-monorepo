@@ -172,6 +172,49 @@ function conjugateKoreanVerb(stem: string, tense: 'present' | 'past', _isPlain =
   return `${verbStem}다`;
 }
 
+// ========================================
+// 받침에 따른 조사 선택 헬퍼 함수
+// ========================================
+
+/**
+ * 단어의 마지막 글자에 받침이 있는지 확인
+ */
+function hasFinalConsonant(word: string): boolean {
+  if (!word) return false;
+  const lastChar = word[word.length - 1];
+  if (!lastChar) return false;
+  const code = lastChar.charCodeAt(0);
+  // 한글 범위 확인
+  if (code >= 0xac00 && code <= 0xd7a3) {
+    const jongseong = (code - 0xac00) % 28;
+    return jongseong !== 0;
+  }
+  // 한글이 아니면 받침 없음으로 처리
+  return false;
+}
+
+/**
+ * 주격 조사 선택 (이/가)
+ * @remarks 현재 미사용이나 향후 주격 처리에 필요
+ */
+function _selectSubjectParticle(word: string): string {
+  return hasFinalConsonant(word) ? '이' : '가';
+}
+
+/**
+ * 주제 조사 선택 (은/는)
+ */
+function selectTopicParticle(word: string): string {
+  return hasFinalConsonant(word) ? '은' : '는';
+}
+
+/**
+ * 목적격 조사 선택 (을/를)
+ */
+function selectObjectParticle(word: string): string {
+  return hasFinalConsonant(word) ? '을' : '를';
+}
+
 // 이동 동사 목록 (to + 장소 → 에)
 const MOVEMENT_VERBS_EN = new Set([
   'go',
@@ -802,11 +845,14 @@ function rearrangeToSOV(
     switch (token.role) {
       case 'subject':
         // 수식어가 있으면 주어 앞에 붙임
+        // 주제 조사 (은/는) 사용 - 받침에 따라 선택
         if (modifiers.length > 0) {
-          subjects.push(`${modifiers.join(' ')} ${token.translated}는`);
+          const particle = selectTopicParticle(token.translated);
+          subjects.push(`${modifiers.join(' ')} ${token.translated}${particle}`);
           modifiers.length = 0;
         } else {
-          subjects.push(`${token.translated}는`);
+          const particle = selectTopicParticle(token.translated);
+          subjects.push(`${token.translated}${particle}`);
         }
         break;
 
@@ -1036,7 +1082,9 @@ function rearrangeToSOV(
         return obj;
       }
       if (idx === objects.length - 1) {
-        return `${obj}를`;
+        // 받침에 따라 을/를 선택
+        const particle = selectObjectParticle(obj);
+        return `${obj}${particle}`;
       }
       return obj;
     });

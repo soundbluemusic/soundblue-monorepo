@@ -1190,7 +1190,7 @@ const manualKoToEnWords: Record<string, string> = {
   일어나: 'wake up',
   하: 'do',
   보: 'see',
-  듣: 'listen to',
+  듣: 'listen',
   말하: 'speak',
   읽: 'read',
   쓰: 'write',

@@ -84,15 +84,32 @@ describe('Level 1: En → Ko Translation', () => {
 /**
  * 영어 정규화 (비교용)
  * - 소문자 변환
+ * - 축약형 확장 (don't → do not, doesn't → does not)
  * - 관사 제거 (a, an, the)
  * - 여러 공백 → 단일 공백
  */
 function normalizeEnglish(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/\b(a|an|the)\s+/gi, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return (
+    text
+      .toLowerCase()
+      // 축약형 확장
+      .replace(/don't/g, 'do not')
+      .replace(/doesn't/g, 'does not')
+      .replace(/didn't/g, 'did not')
+      .replace(/won't/g, 'will not')
+      .replace(/can't/g, 'cannot')
+      .replace(/couldn't/g, 'could not')
+      .replace(/isn't/g, 'is not')
+      .replace(/aren't/g, 'are not')
+      .replace(/wasn't/g, 'was not')
+      .replace(/weren't/g, 'were not')
+      .replace(/haven't/g, 'have not')
+      .replace(/hasn't/g, 'has not')
+      .replace(/hadn't/g, 'had not')
+      .replace(/\b(a|an|the)\s+/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }
 
 /**

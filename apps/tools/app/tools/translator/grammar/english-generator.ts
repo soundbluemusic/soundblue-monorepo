@@ -72,6 +72,9 @@ const IRREGULAR_VERBS: Record<string, { past: string; pastParticiple: string }> 
   set: { past: 'set', pastParticiple: 'set' },
   hit: { past: 'hit', pastParticiple: 'hit' },
   hurt: { past: 'hurt', pastParticiple: 'hurt' },
+  // 규칙 동사지만 자주 사용되므로 명시
+  listen: { past: 'listened', pastParticiple: 'listened' },
+  watch: { past: 'watched', pastParticiple: 'watched' },
 };
 
 // ========================================
@@ -299,9 +302,62 @@ function selectArticle(noun: string, isSpecific: boolean = false): string {
 }
 
 // ========================================
+// 이동 동사 목록 (전치사 'to' 사용)
+// ========================================
+const MOVEMENT_VERBS = new Set([
+  'go',
+  'come',
+  'return',
+  'arrive',
+  'leave',
+  'travel',
+  'move',
+  'run',
+  'walk',
+  'fly',
+  'drive',
+  'ride',
+]);
+
+// 전치사 없이 사용되는 장소 부사
+const ADVERBIAL_PLACES = new Set([
+  'home',
+  'here',
+  'there',
+  'abroad',
+  'downtown',
+  'upstairs',
+  'downstairs',
+]);
+
+// ========================================
+// 목적어 전치사가 필요한 동사 (listen to, look at 등)
+// ========================================
+const VERBS_WITH_OBJECT_PREPOSITION: Record<string, string> = {
+  listen: 'to',
+  look: 'at',
+  wait: 'for',
+  search: 'for',
+  ask: 'for',
+  care: 'about',
+  think: 'about',
+  talk: 'about',
+  worry: 'about',
+  dream: 'about',
+  apologize: 'for',
+  apply: 'for',
+  belong: 'to',
+  depend: 'on',
+  rely: 'on',
+};
+
+// ========================================
 // 한국어 토큰 → 영어 단어 변환
 // ========================================
-function translateToken(token: TokenAnalysis): string {
+function translateToken(
+  token: TokenAnalysis,
+  verbInfo?: { stem: string; english: string },
+): string {
   const stem = token.stem;
 
   // 사전에서 검색
@@ -311,7 +367,27 @@ function translateToken(token: TokenAnalysis): string {
   if (token.particle) {
     const particleInfo = PARTICLES[token.particle];
     if (particleInfo?.en) {
-      // 전치사가 있는 경우
+      // '에' 조사 특수 처리: 동사와 장소에 따라 전치사 결정
+      if (token.particle === '에' && verbInfo) {
+        const verbEnglish = verbInfo.english.toLowerCase();
+        const placeEnglish = english.toLowerCase();
+
+        // 이동 동사 + home/here/there → 전치사 없음
+        if (MOVEMENT_VERBS.has(verbEnglish) && ADVERBIAL_PLACES.has(placeEnglish)) {
+          return english;
+        }
+        // 이동 동사 + 장소 → 'to'
+        if (MOVEMENT_VERBS.has(verbEnglish)) {
+          return `to ${english}`;
+        }
+        // 존재 동사(있다) → 'at'
+        if (verbInfo.stem === '있') {
+          // home은 'at home'
+          return `at ${english}`;
+        }
+      }
+
+      // 기본: 조사에 정의된 전치사 사용
       return `${particleInfo.en} ${english}`;
     }
   }
@@ -346,17 +422,57 @@ const DEFINITE_ARTICLE_NOUNS = new Set([
 ]);
 
 // ========================================
+// 위치 명사 → 전치사 매핑
+// ========================================
+const LOCATION_NOUN_TO_PREPOSITION: Record<string, string> = {
+  위: 'on',
+  아래: 'under',
+  밑: 'under',
+  옆: 'beside',
+  앞: 'in front of',
+  뒤: 'behind',
+  안: 'in',
+  속: 'inside',
+  사이: 'between',
+  가운데: 'in the middle of',
+  근처: 'near',
+  주변: 'around',
+};
+
+// ========================================
 // 성분(Constituent) → 영어 변환
 // ========================================
 function translateConstituent(
   constituent: Constituent,
   addArticle: boolean = false,
   isSubject: boolean = false,
+  verbInfo?: { stem: string; english: string },
 ): string {
   const parts: string[] = [];
 
+  // 위치 표현 부사구 특별 처리: "책상 위에" → "on the desk"
+  // 마지막 토큰이 위치 명사(위/아래/앞 등) + 조사 '에'인 경우
+  const lastToken = constituent.tokens[constituent.tokens.length - 1];
+  if (
+    constituent.role === 'adverbial' &&
+    lastToken?.particle === '에' &&
+    LOCATION_NOUN_TO_PREPOSITION[lastToken.stem]
+  ) {
+    const preposition = LOCATION_NOUN_TO_PREPOSITION[lastToken.stem];
+    // 위치 명사 앞의 모든 토큰을 번역 (장소 명사들)
+    const placeTokens = constituent.tokens.slice(0, -1);
+    const placeParts: string[] = [];
+    for (const token of placeTokens) {
+      const translated = koToEnWords[token.stem] || token.stem;
+      placeParts.push(translated);
+    }
+    const placeText = placeParts.join(' ');
+    // "on the desk" 형태로 조합 (정관사 추가)
+    return `${preposition} the ${placeText}`;
+  }
+
   for (const token of constituent.tokens) {
-    const translated = translateToken(token);
+    const translated = translateToken(token, verbInfo);
     parts.push(translated);
   }
 
@@ -658,13 +774,30 @@ export function generateEnglish(parsed: ParsedSentence): string {
     // 4. 목적어 추가 (SVO 어순)
     if (parsed.object) {
       const objectEn = translateConstituent(parsed.object, true);
+
+      // 동사에 따른 목적어 전치사 추가 (listen to music, look at the picture 등)
+      const predicateTokenForObj = parsed.predicate?.tokens[0];
+      const verbStemForObj = predicateTokenForObj?.stem || '';
+      const verbEnForObj = koToEnWords[verbStemForObj] || verbStemForObj;
+      const objPreposition = VERBS_WITH_OBJECT_PREPOSITION[verbEnForObj.toLowerCase()];
+
+      if (objPreposition) {
+        parts.push(objPreposition);
+      }
+
       parts.push(objectEn);
     }
   }
 
-  // 5. 부사어 추가
+  // 5. 부사어 추가 (동사 정보 전달)
+  // 동사 정보 추출 (전치사 결정에 사용)
+  const predicateToken = parsed.predicate?.tokens[0];
+  const verbStem = predicateToken?.stem || '';
+  const verbEnglish = koToEnWords[verbStem] || verbStem;
+  const verbInfo = { stem: verbStem, english: verbEnglish };
+
   for (const adv of parsed.adverbials) {
-    const advEn = translateConstituent(adv);
+    const advEn = translateConstituent(adv, false, false, verbInfo);
     parts.push(advEn);
   }
 
