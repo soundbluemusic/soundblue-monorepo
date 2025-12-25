@@ -452,6 +452,7 @@ const manualKoToEnWords: Record<string, string> = {
   반찬: 'side dish',
   김치: 'kimchi',
   물: 'water',
+  정보: 'information',
   우유: 'milk',
   주스: 'juice',
   커피: 'coffee',
@@ -1939,6 +1940,29 @@ const manualKoToEnWords: Record<string, string> = {
   늘어났: 'expanded',
   말했: 'spoke',
   말할: 'speak',
+
+  // === Level 14-22 한→영 어휘 (중복 제거 후 추가분만) ===
+  // Level 17: 동명사/to부정사
+  수영하다: 'swim',
+  즐긴다: 'enjoy',
+  멈췄다: 'stopped',
+
+  // Level 21: 불규칙 동사 (한→영)
+  갔다: 'went',
+  봤다: 'saw',
+  샀다: 'bought',
+  생각했다: 'thought',
+  썼다: 'wrote',
+  왔다: 'came',
+  잤다: 'slept',
+  알았다: 'knew',
+  만들었다: 'made',
+  가르쳤다: 'taught',
+  잡았다: 'caught',
+
+  // Level 22: 복합 문장
+  새들: 'birds',
+  노래하다: 'sing',
 };
 
 // ========================================
@@ -2284,6 +2308,28 @@ const manualEnToKoWords: Record<string, string> = {
   fluently: '유창하게',
   standing: '서 있는',
 
+  // === Level 1 영→한 어휘 (숫자+복수형) ===
+  apple: '사과',
+  cat: '고양이',
+  dog: '강아지',
+  bird: '새',
+  fish: '물고기',
+  // book: '책', // 2508줄에 이미 정의됨
+
+  // === Level 5 영→한 어휘 (주어-동사 수일치) ===
+  student: '학생',
+  students: '학생들',
+  bus: '버스',
+  buses: '버스들',
+  study: '공부하다',
+  studies: '공부한다',
+
+  // === Level 8 영→한 어휘 (가산/불가산 명사) ===
+  coffee: '커피',
+  information: '정보',
+  people: '사람들',
+  person: '사람',
+
   // === Level 2 영→한 어휘 ===
   // 학업/교육
   graduate: '졸업하다',
@@ -2510,8 +2556,7 @@ const manualEnToKoWords: Record<string, string> = {
   man: '남자',
   woman: '여자',
   child: '아이',
-  person: '사람',
-  people: '사람들',
+  honest: '정직한',
   family: '가족',
   friend: '친구',
   mother: '어머니',

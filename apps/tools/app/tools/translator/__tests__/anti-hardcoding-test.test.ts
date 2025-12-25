@@ -134,7 +134,7 @@ describe('Level 22 - 조합 폭발 처리', () => {
   });
 
   test('복합 문장 2', () => {
-    expect(translate('5명의 작은 파란 새들이 내일 노래할 것이다', 'ko-en')).toBe(
+    expect(translate('5마리의 작은 파란 새들이 내일 노래할 것이다', 'ko-en')).toBe(
       '5 small blue birds will sing tomorrow',
     );
   });

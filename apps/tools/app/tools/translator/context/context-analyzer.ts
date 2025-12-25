@@ -42,7 +42,8 @@ export type Situation =
   | 'court' // 법정
   | 'comedy' // 코미디
   | 'thriller' // 스릴러
-  | 'casual'; // 일상
+  | 'casual' // 일상
+  | 'neutral'; // 중립 (기본)
 
 /**
  * 문맥 분석 결과
@@ -272,13 +273,15 @@ export function analyzeContext(text: string): ContextAnalysis {
   }
 
   // 상황 결정
-  let situation: Situation = 'casual';
+  // 기본값을 'neutral'로 설정하여 문맥 증거 없이 축약형이 적용되지 않도록 함
+  let situation: Situation = 'neutral';
 
   if (scores.formal > 3) situation = 'court';
   else if (scores.romance > 3) situation = 'romance';
   else if (scores.angry > 3 || scores.sarcasm > 3) situation = 'conflict';
   else if (scores.loving > 3) situation = 'comfort';
   else if (scores.villain > 3) situation = 'thriller';
+  else if (scores.teen > 2) situation = 'casual'; // 10대 마커가 있을 때만 casual
 
   // 신뢰도 계산
   const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);

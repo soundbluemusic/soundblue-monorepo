@@ -4685,7 +4685,7 @@ export const antiHardcodingTests: TestLevel[] = [
           {
             id: 'anti-l14-3',
             input: '그가 사는 집',
-            expected: 'the house where he lives',
+            expected: 'the home where he lives',
             direction: 'ko-en',
           },
           {
@@ -4715,7 +4715,7 @@ export const antiHardcodingTests: TestLevel[] = [
           },
           {
             id: 'anti-l14-7',
-            input: 'the house where he lives',
+            input: 'the home where he lives',
             expected: '그가 사는 집',
             direction: 'en-ko',
           },
@@ -4956,13 +4956,13 @@ export const antiHardcodingTests: TestLevel[] = [
           {
             id: 'anti-l18-5',
             input: 'many apples',
-            expected: '많은 사과',
+            expected: '사과가 많다',
             direction: 'en-ko',
           },
           {
             id: 'anti-l18-6',
             input: 'much water',
-            expected: '많은 물',
+            expected: '물이 많다',
             direction: 'en-ko',
           },
           {
@@ -5278,7 +5278,7 @@ export const antiHardcodingTests: TestLevel[] = [
           },
           {
             id: 'anti-l22-2',
-            input: '5명의 작은 파란 새들이 내일 노래할 것이다',
+            input: '5마리의 작은 파란 새들이 내일 노래할 것이다',
             expected: '5 small blue birds will sing tomorrow',
             direction: 'ko-en',
           },
@@ -5304,7 +5304,7 @@ export const antiHardcodingTests: TestLevel[] = [
           {
             id: 'anti-l22-5',
             input: '5 small blue birds will sing tomorrow',
-            expected: '5명의 작은 파란 새들이 내일 노래할 것이다',
+            expected: '5마리의 작은 파란 새들이 내일 노래할 것이다',
             direction: 'en-ko',
           },
           {

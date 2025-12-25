@@ -296,8 +296,9 @@ function selectBeVerb(subject: string, tense: Tense): string {
 // ========================================
 // 관사 선택
 // ========================================
-// "a" 사용 예외: 발음이 /j/ 또는 /w/로 시작하는 단어들
+// "a" 사용 예외: 발음이 /j/ 또는 /w/로 시작하는 단어들 (철자는 모음이지만 발음은 자음)
 const A_NOT_AN_WORDS = new Set([
+  // uni- 시작 (발음: /juː/)
   'university',
   'uniform',
   'unique',
@@ -307,11 +308,47 @@ const A_NOT_AN_WORDS = new Set([
   'universe',
   'universal',
   'unicorn',
+  'unification',
+  'unilateral',
+  // use-/usu- 시작 (발음: /juː/)
   'useful',
+  'useless',
   'user',
   'usual',
-  'one', // "a one-way street"
+  'usually',
+  'usurp',
+  'utensil',
+  'utility',
+  'utilize',
+  'utopia',
+  // eu- 시작 (발음: /juː/)
+  'european',
+  'euro',
+  'euphoria',
+  'eulogy',
+  'euphemism',
+  // one/once (발음: /wʌn/)
+  'one',
   'once',
+  'one-way',
+  'one-time',
+]);
+
+// "an" 사용 예외: 묵음 h로 시작하는 단어들 (철자는 자음이지만 발음은 모음)
+const AN_NOT_A_WORDS = new Set([
+  // 묵음 h (발음: 모음으로 시작)
+  'hour',
+  'hourly',
+  'honest',
+  'honestly',
+  'honor',
+  'honour',
+  'honorable',
+  'honourable',
+  'heir',
+  'heiress',
+  'herb', // American English에서 묵음
+  'herbal',
 ]);
 
 function selectArticle(noun: string, isSpecific: boolean = false): string {
@@ -327,12 +364,19 @@ function selectArticle(noun: string, isSpecific: boolean = false): string {
     return 'the ';
   }
 
-  // 발음이 자음으로 시작하는 예외 단어들 (uni-, use- 등)
+  // 발음이 자음으로 시작하는 예외 단어들 (uni-, use-, eu- 등)
+  // 철자는 모음이지만 발음은 /j/ 또는 /w/로 시작
   if (A_NOT_AN_WORDS.has(nounLower)) {
     return 'a ';
   }
 
-  // 불특정 단수 → a/an
+  // 묵음 h로 시작하는 예외 단어들 (hour, honest 등)
+  // 철자는 자음이지만 발음은 모음으로 시작
+  if (AN_NOT_A_WORDS.has(nounLower)) {
+    return 'an ';
+  }
+
+  // 불특정 단수 → a/an (철자 기반)
   if (/^[aeiou]/i.test(noun)) {
     return 'an ';
   }

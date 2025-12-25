@@ -274,7 +274,8 @@ const nounVerbPatterns: { pattern: RegExp; replacement: string }[] = [
   // 일반 동작
   { pattern: /(공부|운동|일|청소|빨래|요리|쇼핑)(하|했|해)/g, replacement: '$1 $2' },
   // 감정/상태 + 되다/하다
-  { pattern: /(좋|싫|행복|슬프|기쁘|화나|배고프|피곤)(하|해|했)/g, replacement: '$1 $2' },
+  // 주의: 피곤해, 배고파, 졸려 등 형용사 활용형은 띄어쓰기 없이 사용
+  { pattern: /(좋|싫|행복|슬프|기쁘|화나)(하|해|했)/g, replacement: '$1 $2' },
 ];
 
 /**
