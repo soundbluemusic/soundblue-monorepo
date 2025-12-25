@@ -7,8 +7,13 @@ import {
   contextTests,
   countTests,
   levelTests,
+  polysemyTests,
+  spacingErrorTests,
   type TestCase,
   type TestLevel,
+  typoTests,
+  uniqueTests,
+  wordOrderTests,
 } from '~/tools/translator/benchmark-data';
 import { translate } from '~/tools/translator/translator-service';
 
@@ -44,12 +49,51 @@ export default function BenchmarkKo() {
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
   const [contextResults, setContextResults] = useState<LevelResult[]>([]);
+  const [typoResults, setTypoResults] = useState<LevelResult[]>([]);
+  const [uniqueResults, setUniqueResults] = useState<LevelResult[]>([]);
+  const [polysemyResults, setPolysemyResults] = useState<LevelResult[]>([]);
+  const [wordOrderResults, setWordOrderResults] = useState<LevelResult[]>([]);
+  const [spacingResults, setSpacingResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
+  /**
+   * 영어 정규화 (비교용)
+   * - 소문자 변환
+   * - 관사 제거 (a, an, the)
+   * - 여러 공백 → 단일 공백
+   */
+  const normalizeEnglish = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/\b(a|an|the)\s+/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  /**
+   * 한국어 정규화 (비교용)
+   * - 조사 변형 통일 (은/는/이/가 → 가, 을/를 → 를)
+   */
+  const normalizeKorean = (text: string): string => {
+    return text
+      .replace(/은|는|이|가/g, '가')
+      .replace(/을|를/g, '를')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   const runTest = useCallback((test: TestCase): TestResult => {
     const actual = translate(test.input, test.direction);
-    const passed = actual === test.expected;
+
+    // 방향에 따라 적절한 정규화 적용
+    let passed: boolean;
+    if (test.direction === 'ko-en') {
+      passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
+    } else {
+      passed = normalizeKorean(actual) === normalizeKorean(test.expected);
+    }
+
     return {
       id: test.id,
       passed,
@@ -97,10 +141,20 @@ export default function BenchmarkKo() {
       const levelRes = runLevelTests(levelTests);
       const catRes = runLevelTests(categoryTests);
       const ctxRes = runLevelTests(contextTests);
+      const typoRes = runLevelTests(typoTests);
+      const uniqueRes = runLevelTests(uniqueTests);
+      const polysemyRes = runLevelTests(polysemyTests);
+      const wordOrderRes = runLevelTests(wordOrderTests);
+      const spacingRes = runLevelTests(spacingErrorTests);
 
       setLevelResults(levelRes);
       setCategoryResults(catRes);
       setContextResults(ctxRes);
+      setTypoResults(typoRes);
+      setUniqueResults(uniqueRes);
+      setPolysemyResults(polysemyRes);
+      setWordOrderResults(wordOrderRes);
+      setSpacingResults(spacingRes);
       setIsRunning(false);
     }, 50);
   }, [runLevelTests]);
@@ -138,14 +192,30 @@ export default function BenchmarkKo() {
   const levelStats = calcTotalStats(levelResults);
   const categoryStats = calcTotalStats(categoryResults);
   const contextStats = calcTotalStats(contextResults);
+  const typoStats = calcTotalStats(typoResults);
+  const uniqueStats = calcTotalStats(uniqueResults);
+  const polysemyStats = calcTotalStats(polysemyResults);
+  const wordOrderStats = calcTotalStats(wordOrderResults);
+  const spacingStats = calcTotalStats(spacingResults);
+
+  const allStats = [
+    levelStats,
+    categoryStats,
+    contextStats,
+    typoStats,
+    uniqueStats,
+    polysemyStats,
+    wordOrderStats,
+    spacingStats,
+  ];
   const totalStats = {
-    total: levelStats.total + categoryStats.total + contextStats.total,
-    passed: levelStats.passed + categoryStats.passed + contextStats.passed,
+    total: allStats.reduce((sum, s) => sum + s.total, 0),
+    passed: allStats.reduce((sum, s) => sum + s.passed, 0),
     percentage:
-      levelStats.total + categoryStats.total + contextStats.total > 0
+      allStats.reduce((sum, s) => sum + s.total, 0) > 0
         ? Math.round(
-            ((levelStats.passed + categoryStats.passed + contextStats.passed) /
-              (levelStats.total + categoryStats.total + contextStats.total)) *
+            (allStats.reduce((sum, s) => sum + s.passed, 0) /
+              allStats.reduce((sum, s) => sum + s.total, 0)) *
               100,
           )
         : 0,
@@ -177,7 +247,7 @@ export default function BenchmarkKo() {
                   ) : (
                     <ChevronRight className="h-4 w-4" />
                   )}
-                  <span className="font-medium">{level.name}</span>
+                  <span className="font-medium">{level.nameKo || level.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-muted-foreground">
@@ -221,7 +291,7 @@ export default function BenchmarkKo() {
                             ) : (
                               <ChevronRight className="h-3 w-3" />
                             )}
-                            <span className="text-sm">{category.name}</span>
+                            <span className="text-sm">{category.nameKo || category.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground">
@@ -295,15 +365,38 @@ export default function BenchmarkKo() {
   };
 
   const totalTestCount =
-    countTests(levelTests) + countTests(categoryTests) + countTests(contextTests);
+    countTests(levelTests) +
+    countTests(categoryTests) +
+    countTests(contextTests) +
+    countTests(typoTests) +
+    countTests(uniqueTests) +
+    countTests(polysemyTests) +
+    countTests(wordOrderTests) +
+    countTests(spacingErrorTests);
 
   return (
     <div className="min-h-screen p-4 sm:p-8">
       <div className="mx-auto max-w-4xl">
         <h1 className="mb-2 text-2xl font-bold sm:text-3xl">번역기 벤치마크</h1>
-        <p className="mb-6 text-muted-foreground">
+        <p className="mb-4 text-muted-foreground">
           {totalTestCount}개 테스트 케이스로 번역 정확도 측정
         </p>
+
+        {/* Algorithm-Only Testing Notice */}
+        <div className="mb-6 rounded-lg border border-amber-500/50 bg-amber-50 p-4 dark:bg-amber-900/20">
+          <div className="flex items-start gap-3">
+            <span className="text-xl">⚠️</span>
+            <div>
+              <h3 className="font-semibold text-amber-800 dark:text-amber-200">
+                알고리즘 기반 테스트
+              </h3>
+              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                모든 테스트 문장은 알고리즘으로만 번역되어야 합니다. 사전에 테스트 문장을 등록하면
+                응용력이 0%가 되므로 금지됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Run Button */}
         <button
@@ -322,7 +415,7 @@ export default function BenchmarkKo() {
 
         {/* Overall Stats */}
         {levelResults.length > 0 && (
-          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             <div className="rounded-lg border border-border p-4 text-center">
               <div className="text-2xl font-bold">{totalStats.percentage}%</div>
               <div className="text-sm text-muted-foreground">전체</div>
@@ -332,23 +425,58 @@ export default function BenchmarkKo() {
             </div>
             <div className="rounded-lg border border-border p-4 text-center">
               <div className="text-2xl font-bold">{levelStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">레벨 테스트</div>
+              <div className="text-sm text-muted-foreground">레벨</div>
               <div className="text-xs text-muted-foreground">
                 {levelStats.passed}/{levelStats.total}
               </div>
             </div>
             <div className="rounded-lg border border-border p-4 text-center">
               <div className="text-2xl font-bold">{categoryStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">카테고리 테스트</div>
+              <div className="text-sm text-muted-foreground">카테고리</div>
               <div className="text-xs text-muted-foreground">
                 {categoryStats.passed}/{categoryStats.total}
               </div>
             </div>
             <div className="rounded-lg border border-border p-4 text-center">
               <div className="text-2xl font-bold">{contextStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">문맥 테스트</div>
+              <div className="text-sm text-muted-foreground">문맥</div>
               <div className="text-xs text-muted-foreground">
                 {contextStats.passed}/{contextStats.total}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <div className="text-2xl font-bold">{typoStats.percentage}%</div>
+              <div className="text-sm text-muted-foreground">오타</div>
+              <div className="text-xs text-muted-foreground">
+                {typoStats.passed}/{typoStats.total}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <div className="text-2xl font-bold">{uniqueStats.percentage}%</div>
+              <div className="text-sm text-muted-foreground">유니크</div>
+              <div className="text-xs text-muted-foreground">
+                {uniqueStats.passed}/{uniqueStats.total}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <div className="text-2xl font-bold">{polysemyStats.percentage}%</div>
+              <div className="text-sm text-muted-foreground">다의어</div>
+              <div className="text-xs text-muted-foreground">
+                {polysemyStats.passed}/{polysemyStats.total}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <div className="text-2xl font-bold">{wordOrderStats.percentage}%</div>
+              <div className="text-sm text-muted-foreground">SVO↔SOV</div>
+              <div className="text-xs text-muted-foreground">
+                {wordOrderStats.passed}/{wordOrderStats.total}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <div className="text-2xl font-bold">{spacingStats.percentage}%</div>
+              <div className="text-sm text-muted-foreground">띄어쓰기</div>
+              <div className="text-xs text-muted-foreground">
+                {spacingStats.passed}/{spacingStats.total}
               </div>
             </div>
           </div>
@@ -375,6 +503,46 @@ export default function BenchmarkKo() {
           <div className="mb-6">
             <h2 className="mb-3 text-lg font-semibold">문맥 테스트</h2>
             {renderResults(contextTests, contextResults, 'context')}
+          </div>
+        )}
+
+        {/* Typo Tests */}
+        {typoResults.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-3 text-lg font-semibold">오타 테스트</h2>
+            {renderResults(typoTests, typoResults, 'typo')}
+          </div>
+        )}
+
+        {/* Unique Tests */}
+        {uniqueResults.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-3 text-lg font-semibold">유니크 테스트 (100% 알고리즘 기반)</h2>
+            {renderResults(uniqueTests, uniqueResults, 'unique')}
+          </div>
+        )}
+
+        {/* Polysemy Tests */}
+        {polysemyResults.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-3 text-lg font-semibold">다의어 테스트</h2>
+            {renderResults(polysemyTests, polysemyResults, 'polysemy')}
+          </div>
+        )}
+
+        {/* Word Order Tests */}
+        {wordOrderResults.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-3 text-lg font-semibold">SVO↔SOV 어순 변환 테스트</h2>
+            {renderResults(wordOrderTests, wordOrderResults, 'wordorder')}
+          </div>
+        )}
+
+        {/* Spacing Error Tests */}
+        {spacingResults.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-3 text-lg font-semibold">띄어쓰기 오류 테스트</h2>
+            {renderResults(spacingErrorTests, spacingResults, 'spacing')}
           </div>
         )}
 
