@@ -5,12 +5,15 @@ import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
 import { cn } from '~/lib/utils';
 import {
+  antiHardcodingTests,
   categoryTests,
   contextTests,
   countTests,
   finalTests,
   levelTests,
+  localizationTests,
   polysemyTests,
+  professionalTranslatorTests,
   spacingErrorTests,
   type TestCase,
   type TestLevel,
@@ -47,7 +50,7 @@ interface LevelResult {
   categories: CategoryResult[];
 }
 
-export default function BenchmarkKo() {
+export default function Benchmark() {
   const [isRunning, setIsRunning] = useState(false);
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
@@ -58,6 +61,9 @@ export default function BenchmarkKo() {
   const [wordOrderResults, setWordOrderResults] = useState<LevelResult[]>([]);
   const [spacingResults, setSpacingResults] = useState<LevelResult[]>([]);
   const [finalResults, setFinalResults] = useState<LevelResult[]>([]);
+  const [professionalResults, setProfessionalResults] = useState<LevelResult[]>([]);
+  const [localizationResults, setLocalizationResults] = useState<LevelResult[]>([]);
+  const [antiHardcodingResults, setAntiHardcodingResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
@@ -151,6 +157,9 @@ export default function BenchmarkKo() {
       const wordOrderRes = runLevelTests(wordOrderTests);
       const spacingRes = runLevelTests(spacingErrorTests);
       const finalRes = runLevelTests(finalTests);
+      const professionalRes = runLevelTests(professionalTranslatorTests);
+      const localizationRes = runLevelTests(localizationTests);
+      const antiHardcodingRes = runLevelTests(antiHardcodingTests);
 
       setLevelResults(levelRes);
       setCategoryResults(catRes);
@@ -161,6 +170,9 @@ export default function BenchmarkKo() {
       setWordOrderResults(wordOrderRes);
       setSpacingResults(spacingRes);
       setFinalResults(finalRes);
+      setProfessionalResults(professionalRes);
+      setLocalizationResults(localizationRes);
+      setAntiHardcodingResults(antiHardcodingRes);
       setIsRunning(false);
     }, 50);
   }, [runLevelTests]);
@@ -204,6 +216,9 @@ export default function BenchmarkKo() {
   const wordOrderStats = calcTotalStats(wordOrderResults);
   const spacingStats = calcTotalStats(spacingResults);
   const finalStats = calcTotalStats(finalResults);
+  const professionalStats = calcTotalStats(professionalResults);
+  const localizationStats = calcTotalStats(localizationResults);
+  const antiHardcodingStats = calcTotalStats(antiHardcodingResults);
 
   const allStats = [
     levelStats,
@@ -215,6 +230,9 @@ export default function BenchmarkKo() {
     wordOrderStats,
     spacingStats,
     finalStats,
+    professionalStats,
+    localizationStats,
+    antiHardcodingStats,
   ];
   const totalStats = {
     total: allStats.reduce((sum, s) => sum + s.total, 0),
@@ -255,7 +273,7 @@ export default function BenchmarkKo() {
                   ) : (
                     <ChevronRight className="h-4 w-4" />
                   )}
-                  <span className="font-medium">{level.nameKo || level.name}</span>
+                  <span className="font-medium">{level.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-muted-foreground">
@@ -299,7 +317,7 @@ export default function BenchmarkKo() {
                             ) : (
                               <ChevronRight className="h-3 w-3" />
                             )}
-                            <span className="text-sm">{category.nameKo || category.name}</span>
+                            <span className="text-sm">{category.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground">
@@ -345,11 +363,11 @@ export default function BenchmarkKo() {
                                     {!result.passed && (
                                       <div className="space-y-1">
                                         <div className="wrap-break-word text-red-600 dark:text-red-400">
-                                          <span className="font-medium">결과: </span>
+                                          <span className="font-medium">Got: </span>
                                           {result.actual}
                                         </div>
                                         <div className="wrap-break-word text-green-600 dark:text-green-400">
-                                          <span className="font-medium">예상: </span>
+                                          <span className="font-medium">Expected: </span>
                                           {result.expected}
                                         </div>
                                       </div>
@@ -381,16 +399,19 @@ export default function BenchmarkKo() {
     countTests(polysemyTests) +
     countTests(wordOrderTests) +
     countTests(spacingErrorTests) +
-    countTests(finalTests);
+    countTests(finalTests) +
+    countTests(professionalTranslatorTests) +
+    countTests(localizationTests) +
+    countTests(antiHardcodingTests);
 
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 p-4 sm:p-8">
         <div className="mx-auto max-w-4xl">
-          <h1 className="mb-2 text-2xl font-bold sm:text-3xl">번역기 벤치마크</h1>
+          <h1 className="mb-2 text-2xl font-bold sm:text-3xl">Translator Benchmark</h1>
           <p className="mb-4 text-muted-foreground">
-            {totalTestCount}개 테스트 케이스로 번역 정확도 측정
+            Test translation accuracy across {totalTestCount} test cases
           </p>
 
           {/* Algorithm Description */}
@@ -417,7 +438,7 @@ export default function BenchmarkKo() {
             )}
           >
             <Play className="h-4 w-4" />
-            {isRunning ? '실행 중...' : '전체 테스트 실행'}
+            {isRunning ? 'Running...' : 'Run All Tests'}
           </button>
 
           {/* Overall Stats */}
@@ -425,49 +446,49 @@ export default function BenchmarkKo() {
             <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
               <div className="rounded-lg border border-border p-4 text-center">
                 <div className="text-2xl font-bold">{totalStats.percentage}%</div>
-                <div className="text-sm text-muted-foreground">전체</div>
+                <div className="text-sm text-muted-foreground">Overall</div>
                 <div className="text-xs text-muted-foreground">
                   {totalStats.passed}/{totalStats.total}
                 </div>
               </div>
               <div className="rounded-lg border border-border p-4 text-center">
                 <div className="text-2xl font-bold">{levelStats.percentage}%</div>
-                <div className="text-sm text-muted-foreground">레벨</div>
+                <div className="text-sm text-muted-foreground">Level</div>
                 <div className="text-xs text-muted-foreground">
                   {levelStats.passed}/{levelStats.total}
                 </div>
               </div>
               <div className="rounded-lg border border-border p-4 text-center">
                 <div className="text-2xl font-bold">{categoryStats.percentage}%</div>
-                <div className="text-sm text-muted-foreground">카테고리</div>
+                <div className="text-sm text-muted-foreground">Category</div>
                 <div className="text-xs text-muted-foreground">
                   {categoryStats.passed}/{categoryStats.total}
                 </div>
               </div>
               <div className="rounded-lg border border-border p-4 text-center">
                 <div className="text-2xl font-bold">{contextStats.percentage}%</div>
-                <div className="text-sm text-muted-foreground">문맥</div>
+                <div className="text-sm text-muted-foreground">Context</div>
                 <div className="text-xs text-muted-foreground">
                   {contextStats.passed}/{contextStats.total}
                 </div>
               </div>
               <div className="rounded-lg border border-border p-4 text-center">
                 <div className="text-2xl font-bold">{typoStats.percentage}%</div>
-                <div className="text-sm text-muted-foreground">오타</div>
+                <div className="text-sm text-muted-foreground">Typo</div>
                 <div className="text-xs text-muted-foreground">
                   {typoStats.passed}/{typoStats.total}
                 </div>
               </div>
               <div className="rounded-lg border border-border p-4 text-center">
                 <div className="text-2xl font-bold">{uniqueStats.percentage}%</div>
-                <div className="text-sm text-muted-foreground">유니크</div>
+                <div className="text-sm text-muted-foreground">Unique</div>
                 <div className="text-xs text-muted-foreground">
                   {uniqueStats.passed}/{uniqueStats.total}
                 </div>
               </div>
               <div className="rounded-lg border border-border p-4 text-center">
                 <div className="text-2xl font-bold">{polysemyStats.percentage}%</div>
-                <div className="text-sm text-muted-foreground">다의어</div>
+                <div className="text-sm text-muted-foreground">Polysemy</div>
                 <div className="text-xs text-muted-foreground">
                   {polysemyStats.passed}/{polysemyStats.total}
                 </div>
@@ -481,16 +502,37 @@ export default function BenchmarkKo() {
               </div>
               <div className="rounded-lg border border-border p-4 text-center">
                 <div className="text-2xl font-bold">{spacingStats.percentage}%</div>
-                <div className="text-sm text-muted-foreground">띄어쓰기</div>
+                <div className="text-sm text-muted-foreground">Spacing</div>
                 <div className="text-xs text-muted-foreground">
                   {spacingStats.passed}/{spacingStats.total}
                 </div>
               </div>
               <div className="rounded-lg border border-border p-4 text-center">
                 <div className="text-2xl font-bold">{finalStats.percentage}%</div>
-                <div className="text-sm text-muted-foreground">파이널</div>
+                <div className="text-sm text-muted-foreground">Final</div>
                 <div className="text-xs text-muted-foreground">
                   {finalStats.passed}/{finalStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{professionalStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Professional</div>
+                <div className="text-xs text-muted-foreground">
+                  {professionalStats.passed}/{professionalStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{localizationStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Localization</div>
+                <div className="text-xs text-muted-foreground">
+                  {localizationStats.passed}/{localizationStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{antiHardcodingStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Anti-Hardcode</div>
+                <div className="text-xs text-muted-foreground">
+                  {antiHardcodingStats.passed}/{antiHardcodingStats.total}
                 </div>
               </div>
             </div>
@@ -499,7 +541,7 @@ export default function BenchmarkKo() {
           {/* Level Tests */}
           {levelResults.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">레벨 테스트</h2>
+              <h2 className="mb-3 text-lg font-semibold">Level Tests</h2>
               {renderResults(levelTests, levelResults, 'level')}
             </div>
           )}
@@ -507,7 +549,7 @@ export default function BenchmarkKo() {
           {/* Category Tests */}
           {categoryResults.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">카테고리 테스트</h2>
+              <h2 className="mb-3 text-lg font-semibold">Category Tests</h2>
               {renderResults(categoryTests, categoryResults, 'category')}
             </div>
           )}
@@ -515,7 +557,7 @@ export default function BenchmarkKo() {
           {/* Context Tests */}
           {contextResults.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">문맥 테스트</h2>
+              <h2 className="mb-3 text-lg font-semibold">Context Tests</h2>
               {renderResults(contextTests, contextResults, 'context')}
             </div>
           )}
@@ -523,7 +565,7 @@ export default function BenchmarkKo() {
           {/* Typo Tests */}
           {typoResults.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">오타 테스트</h2>
+              <h2 className="mb-3 text-lg font-semibold">Typo Tests (오타 테스트)</h2>
               {renderResults(typoTests, typoResults, 'typo')}
             </div>
           )}
@@ -531,7 +573,9 @@ export default function BenchmarkKo() {
           {/* Unique Tests */}
           {uniqueResults.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">유니크 테스트 (100% 알고리즘 기반)</h2>
+              <h2 className="mb-3 text-lg font-semibold">
+                Unique Tests (유니크 테스트 - 100% 알고리즘 기반)
+              </h2>
               {renderResults(uniqueTests, uniqueResults, 'unique')}
             </div>
           )}
@@ -539,7 +583,7 @@ export default function BenchmarkKo() {
           {/* Polysemy Tests */}
           {polysemyResults.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">다의어 테스트</h2>
+              <h2 className="mb-3 text-lg font-semibold">Polysemy Tests (다의어 테스트)</h2>
               {renderResults(polysemyTests, polysemyResults, 'polysemy')}
             </div>
           )}
@@ -547,7 +591,9 @@ export default function BenchmarkKo() {
           {/* Word Order Tests */}
           {wordOrderResults.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">SVO↔SOV 어순 변환 테스트</h2>
+              <h2 className="mb-3 text-lg font-semibold">
+                Word Order Tests (SVO↔SOV 어순 변환 테스트)
+              </h2>
               {renderResults(wordOrderTests, wordOrderResults, 'wordorder')}
             </div>
           )}
@@ -555,7 +601,9 @@ export default function BenchmarkKo() {
           {/* Spacing Error Tests */}
           {spacingResults.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">띄어쓰기 오류 테스트</h2>
+              <h2 className="mb-3 text-lg font-semibold">
+                Spacing Error Tests (띄어쓰기 오류 테스트)
+              </h2>
               {renderResults(spacingErrorTests, spacingResults, 'spacing')}
             </div>
           )}
@@ -563,20 +611,50 @@ export default function BenchmarkKo() {
           {/* Final Tests */}
           {finalResults.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">최종 파이널 테스트</h2>
+              <h2 className="mb-3 text-lg font-semibold">Final Tests (최종 파이널 테스트)</h2>
               {renderResults(finalTests, finalResults, 'final')}
+            </div>
+          )}
+
+          {/* Professional Translator Tests */}
+          {professionalResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Professional Translator Tests (전문 번역가 테스트)
+              </h2>
+              {renderResults(professionalTranslatorTests, professionalResults, 'professional')}
+            </div>
+          )}
+
+          {/* Localization Tests */}
+          {localizationResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Localization Tests (의역/문화적 번역 테스트)
+              </h2>
+              {renderResults(localizationTests, localizationResults, 'localization')}
+            </div>
+          )}
+
+          {/* Anti-Hardcoding Tests */}
+          {antiHardcodingResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Anti-Hardcoding Tests (안티하드코딩 알고리즘 테스트)
+              </h2>
+              {renderResults(antiHardcodingTests, antiHardcodingResults, 'antihardcoding')}
             </div>
           )}
 
           {/* Initial State */}
           {levelResults.length === 0 && !isRunning && (
             <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-              "전체 테스트 실행" 버튼을 클릭하여 벤치마크를 시작하세요
+              Click "Run All Tests" to start the benchmark
             </div>
           )}
         </div>
       </main>
-      <Footer appName="번역기 벤치마크" />
+      <Footer appName="Translator Benchmark" />
     </div>
   );
 }

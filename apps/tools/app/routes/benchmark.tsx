@@ -5,12 +5,15 @@ import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
 import { cn } from '~/lib/utils';
 import {
+  antiHardcodingTests,
   categoryTests,
   contextTests,
   countTests,
   finalTests,
   levelTests,
+  localizationTests,
   polysemyTests,
+  professionalTranslatorTests,
   spacingErrorTests,
   type TestCase,
   type TestLevel,
@@ -58,6 +61,9 @@ export default function Benchmark() {
   const [wordOrderResults, setWordOrderResults] = useState<LevelResult[]>([]);
   const [spacingResults, setSpacingResults] = useState<LevelResult[]>([]);
   const [finalResults, setFinalResults] = useState<LevelResult[]>([]);
+  const [professionalResults, setProfessionalResults] = useState<LevelResult[]>([]);
+  const [localizationResults, setLocalizationResults] = useState<LevelResult[]>([]);
+  const [antiHardcodingResults, setAntiHardcodingResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
@@ -151,6 +157,9 @@ export default function Benchmark() {
       const wordOrderRes = runLevelTests(wordOrderTests);
       const spacingRes = runLevelTests(spacingErrorTests);
       const finalRes = runLevelTests(finalTests);
+      const professionalRes = runLevelTests(professionalTranslatorTests);
+      const localizationRes = runLevelTests(localizationTests);
+      const antiHardcodingRes = runLevelTests(antiHardcodingTests);
 
       setLevelResults(levelRes);
       setCategoryResults(catRes);
@@ -161,6 +170,9 @@ export default function Benchmark() {
       setWordOrderResults(wordOrderRes);
       setSpacingResults(spacingRes);
       setFinalResults(finalRes);
+      setProfessionalResults(professionalRes);
+      setLocalizationResults(localizationRes);
+      setAntiHardcodingResults(antiHardcodingRes);
       setIsRunning(false);
     }, 50);
   }, [runLevelTests]);
@@ -204,6 +216,9 @@ export default function Benchmark() {
   const wordOrderStats = calcTotalStats(wordOrderResults);
   const spacingStats = calcTotalStats(spacingResults);
   const finalStats = calcTotalStats(finalResults);
+  const professionalStats = calcTotalStats(professionalResults);
+  const localizationStats = calcTotalStats(localizationResults);
+  const antiHardcodingStats = calcTotalStats(antiHardcodingResults);
 
   const allStats = [
     levelStats,
@@ -215,6 +230,9 @@ export default function Benchmark() {
     wordOrderStats,
     spacingStats,
     finalStats,
+    professionalStats,
+    localizationStats,
+    antiHardcodingStats,
   ];
   const totalStats = {
     total: allStats.reduce((sum, s) => sum + s.total, 0),
@@ -381,7 +399,10 @@ export default function Benchmark() {
     countTests(polysemyTests) +
     countTests(wordOrderTests) +
     countTests(spacingErrorTests) +
-    countTests(finalTests);
+    countTests(finalTests) +
+    countTests(professionalTranslatorTests) +
+    countTests(localizationTests) +
+    countTests(antiHardcodingTests);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -493,6 +514,27 @@ export default function Benchmark() {
                   {finalStats.passed}/{finalStats.total}
                 </div>
               </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{professionalStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Professional</div>
+                <div className="text-xs text-muted-foreground">
+                  {professionalStats.passed}/{professionalStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{localizationStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Localization</div>
+                <div className="text-xs text-muted-foreground">
+                  {localizationStats.passed}/{localizationStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{antiHardcodingStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Anti-Hardcode</div>
+                <div className="text-xs text-muted-foreground">
+                  {antiHardcodingStats.passed}/{antiHardcodingStats.total}
+                </div>
+              </div>
             </div>
           )}
 
@@ -571,6 +613,36 @@ export default function Benchmark() {
             <div className="mb-6">
               <h2 className="mb-3 text-lg font-semibold">Final Tests (최종 파이널 테스트)</h2>
               {renderResults(finalTests, finalResults, 'final')}
+            </div>
+          )}
+
+          {/* Professional Translator Tests */}
+          {professionalResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Professional Translator Tests (전문 번역가 테스트)
+              </h2>
+              {renderResults(professionalTranslatorTests, professionalResults, 'professional')}
+            </div>
+          )}
+
+          {/* Localization Tests */}
+          {localizationResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Localization Tests (의역/문화적 번역 테스트)
+              </h2>
+              {renderResults(localizationTests, localizationResults, 'localization')}
+            </div>
+          )}
+
+          {/* Anti-Hardcoding Tests */}
+          {antiHardcodingResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Anti-Hardcoding Tests (안티하드코딩 알고리즘 테스트)
+              </h2>
+              {renderResults(antiHardcodingTests, antiHardcodingResults, 'antihardcoding')}
             </div>
           )}
 
