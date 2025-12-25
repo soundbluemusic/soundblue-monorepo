@@ -154,5 +154,11 @@
   "translator_switchDirection": "Switch direction",
   "translator_languages_ko": "한국어",
   "translator_languages_en": "English",
-  "footer_tagline": "UI/UX based on web standards"
+  "footer_tagline": "UI/UX based on web standards",
+  "sitemap_title": "Sitemap",
+  "sitemap_sections_main": "Main Pages",
+  "sitemap_sections_tools": "Tools",
+  "sitemap_sections_other": "Other",
+  "sitemap_xml": "XML Sitemap (for search engines)",
+  "sitemap_lastUpdated": "Last updated"
 }

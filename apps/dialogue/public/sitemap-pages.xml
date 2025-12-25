@@ -38,4 +38,22 @@
     <xhtml:link rel="alternate" hreflang="ko" href="https://dialogue.soundbluemusic.com/ko/about" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://dialogue.soundbluemusic.com/about" />
   </url>
+  <url>
+    <loc>https://dialogue.soundbluemusic.com/sitemap</loc>
+    <lastmod>2025-12-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://dialogue.soundbluemusic.com/sitemap" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://dialogue.soundbluemusic.com/ko/sitemap" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://dialogue.soundbluemusic.com/sitemap" />
+  </url>
+  <url>
+    <loc>https://dialogue.soundbluemusic.com/ko/sitemap</loc>
+    <lastmod>2025-12-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://dialogue.soundbluemusic.com/sitemap" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://dialogue.soundbluemusic.com/ko/sitemap" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://dialogue.soundbluemusic.com/sitemap" />
+  </url>
 </urlset>

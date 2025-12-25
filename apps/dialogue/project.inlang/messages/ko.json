@@ -63,5 +63,12 @@
   "app_metaTitleHome": "Dialogue - 대화형 학습 도구",
   "app_metaDescHome": "100% 오프라인으로 작동하는 대화형 학습 도구",
   "app_metaTitleAbout": "소개 - Dialogue",
-  "app_metaDescAbout": "Dialogue 소개 - 대화형 학습 도구"
+  "app_metaDescAbout": "Dialogue 소개 - 대화형 학습 도구",
+  "app_sitemap": "사이트맵",
+  "app_sitemap_title": "사이트맵",
+  "app_sitemap_sections_main": "주요 페이지",
+  "app_sitemap_sections_other": "기타",
+  "app_sitemap_links_home": "홈",
+  "app_sitemap_xml": "XML 사이트맵 (검색 엔진용)",
+  "app_sitemap_lastUpdated": "마지막 업데이트"
 }

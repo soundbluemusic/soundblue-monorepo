@@ -137,16 +137,14 @@ export function ToolSidebar() {
               <Activity className="h-4 w-4" />
               <span>{m['sidebar.benchmark']?.()}</span>
             </Link>
-            <a
-              href="/sitemap.xml"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={localizedPath('/sitemap')}
               className={MENU_ITEM_CLASS}
               onClick={() => setMoreMenuOpen(false)}
             >
               <FileText className="h-4 w-4" />
               <span>{m['sidebar.sitemap']?.()}</span>
-            </a>
+            </Link>
           </div>
         )}
         <button

@@ -63,5 +63,12 @@
   "app_metaTitleHome": "Dialogue - Conversational Learning Tool",
   "app_metaDescHome": "A conversational learning tool that works 100% offline",
   "app_metaTitleAbout": "About - Dialogue",
-  "app_metaDescAbout": "About Dialogue - A conversational learning tool"
+  "app_metaDescAbout": "About Dialogue - A conversational learning tool",
+  "app_sitemap": "Sitemap",
+  "app_sitemap_title": "Sitemap",
+  "app_sitemap_sections_main": "Main Pages",
+  "app_sitemap_sections_other": "Other",
+  "app_sitemap_links_home": "Home",
+  "app_sitemap_xml": "XML Sitemap (for search engines)",
+  "app_sitemap_lastUpdated": "Last updated"
 }

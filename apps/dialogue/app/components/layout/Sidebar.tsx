@@ -208,6 +208,16 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
         {/* Footer */}
         <div className="p-2 border-t border-gray-200 dark:border-gray-700">
           <Link
+            to={getLocalizedPath('/sitemap', locale)}
+            className={`${MENU_ITEM_CLASS} text-gray-600 dark:text-gray-400 ${
+              sidebarCollapsed ? 'justify-center' : ''
+            }`}
+            title={sidebarCollapsed ? m['app.sitemap']?.() : undefined}
+          >
+            <SitemapIcon />
+            {!sidebarCollapsed && <span>{m['app.sitemap']?.()}</span>}
+          </Link>
+          <Link
             to={getAboutUrl()}
             className={`${MENU_ITEM_CLASS} text-gray-600 dark:text-gray-400 ${
               sidebarCollapsed ? 'justify-center' : ''
@@ -326,6 +336,14 @@ function InfoIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+    </svg>
+  );
+}
+
+function SitemapIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 12h8v2H8zm0 4h8v2H8z" />
     </svg>
   );
 }

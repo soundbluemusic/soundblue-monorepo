@@ -154,5 +154,11 @@
   "translator_switchDirection": "방향 전환",
   "translator_languages_ko": "한국어",
   "translator_languages_en": "English",
-  "footer_tagline": "웹 표준 기반 UI/UX"
+  "footer_tagline": "웹 표준 기반 UI/UX",
+  "sitemap_title": "사이트맵",
+  "sitemap_sections_main": "주요 페이지",
+  "sitemap_sections_tools": "도구",
+  "sitemap_sections_other": "기타",
+  "sitemap_xml": "XML 사이트맵 (검색 엔진용)",
+  "sitemap_lastUpdated": "마지막 업데이트"
 }

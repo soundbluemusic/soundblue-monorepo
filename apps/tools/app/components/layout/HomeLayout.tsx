@@ -123,10 +123,8 @@ export function HomeLayout() {
                   <Info className="h-4 w-4" />
                   <span>{m['navigation_about']?.()}</span>
                 </Link>
-                <a
-                  href="/sitemap.xml"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to={localizedPath('/sitemap')}
                   onClick={() => setMenuOpen(false)}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
@@ -136,7 +134,7 @@ export function HomeLayout() {
                 >
                   <FileText className="h-4 w-4" />
                   <span>{m['sidebar_sitemap']?.()}</span>
-                </a>
+                </Link>
               </div>
             )}
           </div>
