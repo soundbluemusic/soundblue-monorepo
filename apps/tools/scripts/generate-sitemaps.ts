@@ -27,6 +27,7 @@ interface UrlDef {
 const PAGES: UrlDef[] = [
   { path: '', priority: '1.0', changefreq: 'daily' }, // Home
   { path: 'built-with', priority: '0.6', changefreq: 'monthly' },
+  { path: 'benchmark', priority: '0.5', changefreq: 'weekly' },
 ];
 
 // Tool pages (actual existing tools)
@@ -34,6 +35,7 @@ const TOOLS: UrlDef[] = [
   { path: 'metronome', priority: '0.9', changefreq: 'weekly' },
   { path: 'drum-machine', priority: '0.9', changefreq: 'weekly' },
   { path: 'qr', priority: '0.8', changefreq: 'monthly' },
+  { path: 'translator', priority: '0.9', changefreq: 'weekly' },
 ];
 
 // Generate URL (no trailing slash for cleaner URLs)

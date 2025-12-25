@@ -1,11 +1,14 @@
 import { CheckCircle2, ChevronDown, ChevronRight, Play, XCircle } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import type { MetaFunction } from 'react-router';
+import { Footer } from '~/components/layout/Footer';
+import { Header } from '~/components/layout/Header';
 import { cn } from '~/lib/utils';
 import {
   categoryTests,
   contextTests,
   countTests,
+  finalTests,
   levelTests,
   polysemyTests,
   spacingErrorTests,
@@ -54,6 +57,7 @@ export default function Benchmark() {
   const [polysemyResults, setPolysemyResults] = useState<LevelResult[]>([]);
   const [wordOrderResults, setWordOrderResults] = useState<LevelResult[]>([]);
   const [spacingResults, setSpacingResults] = useState<LevelResult[]>([]);
+  const [finalResults, setFinalResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
@@ -146,6 +150,7 @@ export default function Benchmark() {
       const polysemyRes = runLevelTests(polysemyTests);
       const wordOrderRes = runLevelTests(wordOrderTests);
       const spacingRes = runLevelTests(spacingErrorTests);
+      const finalRes = runLevelTests(finalTests);
 
       setLevelResults(levelRes);
       setCategoryResults(catRes);
@@ -155,6 +160,7 @@ export default function Benchmark() {
       setPolysemyResults(polysemyRes);
       setWordOrderResults(wordOrderRes);
       setSpacingResults(spacingRes);
+      setFinalResults(finalRes);
       setIsRunning(false);
     }, 50);
   }, [runLevelTests]);
@@ -197,6 +203,7 @@ export default function Benchmark() {
   const polysemyStats = calcTotalStats(polysemyResults);
   const wordOrderStats = calcTotalStats(wordOrderResults);
   const spacingStats = calcTotalStats(spacingResults);
+  const finalStats = calcTotalStats(finalResults);
 
   const allStats = [
     levelStats,
@@ -207,6 +214,7 @@ export default function Benchmark() {
     polysemyStats,
     wordOrderStats,
     spacingStats,
+    finalStats,
   ];
   const totalStats = {
     total: allStats.reduce((sum, s) => sum + s.total, 0),
@@ -331,18 +339,18 @@ export default function Benchmark() {
                                     <XCircle className="mt-0.5 h-3 w-3 shrink-0 text-red-600 dark:text-red-400" />
                                   )}
                                   <div className="min-w-0 flex-1">
-                                    <div className="mb-1 truncate font-mono text-muted-foreground">
-                                      {result.input.slice(0, 50)}...
+                                    <div className="mb-1 wrap-break-word font-mono text-muted-foreground">
+                                      {result.input}
                                     </div>
                                     {!result.passed && (
                                       <div className="space-y-1">
-                                        <div className="text-red-600 dark:text-red-400">
+                                        <div className="wrap-break-word text-red-600 dark:text-red-400">
                                           <span className="font-medium">Got: </span>
-                                          {result.actual.slice(0, 100)}...
+                                          {result.actual}
                                         </div>
-                                        <div className="text-green-600 dark:text-green-400">
+                                        <div className="wrap-break-word text-green-600 dark:text-green-400">
                                           <span className="font-medium">Expected: </span>
-                                          {result.expected.slice(0, 100)}...
+                                          {result.expected}
                                         </div>
                                       </div>
                                     )}
@@ -372,198 +380,209 @@ export default function Benchmark() {
     countTests(uniqueTests) +
     countTests(polysemyTests) +
     countTests(wordOrderTests) +
-    countTests(spacingErrorTests);
+    countTests(spacingErrorTests) +
+    countTests(finalTests);
 
   return (
-    <div className="min-h-screen p-4 sm:p-8">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="mb-2 text-2xl font-bold sm:text-3xl">Translator Benchmark</h1>
-        <p className="mb-4 text-muted-foreground">
-          Test translation accuracy across {totalTestCount} test cases
-        </p>
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1 p-4 sm:p-8">
+        <div className="mx-auto max-w-4xl">
+          <h1 className="mb-2 text-2xl font-bold sm:text-3xl">Translator Benchmark</h1>
+          <p className="mb-4 text-muted-foreground">
+            Test translation accuracy across {totalTestCount} test cases
+          </p>
 
-        {/* Algorithm-Only Testing Notice */}
-        <div className="mb-6 rounded-lg border border-amber-500/50 bg-amber-50 p-4 dark:bg-amber-900/20">
-          <div className="flex items-start gap-3">
-            <span className="text-xl">⚠️</span>
-            <div>
-              <h3 className="font-semibold text-amber-800 dark:text-amber-200">
-                Algorithm-Only Testing (알고리즘 기반 테스트)
-              </h3>
-              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
-                All test sentences must be translated using algorithms only, not dictionary lookups.
-                Adding test sentences to the dictionary is strictly prohibited as it would result in
-                0% adaptability.
-              </p>
-              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
-                모든 테스트 문장은 알고리즘으로만 번역되어야 합니다. 사전에 테스트 문장을 등록하면
-                응용력이 0%가 되므로 금지됩니다.
-              </p>
-            </div>
+          {/* Algorithm Description */}
+          <div className="mb-6 space-y-3 rounded-lg border border-blue-500/50 bg-blue-50 p-4 text-sm dark:bg-blue-900/20">
+            <p className="text-blue-700 dark:text-blue-300">
+              <strong className="text-blue-800 dark:text-blue-200">🔬 번역 알고리즘:</strong> 형태소
+              분석 → 문장 구조 파싱 (주어/목적어/서술어) → 어순 변환 (SOV↔SVO) → 목표 언어 생성
+            </p>
+            <p className="text-blue-700 dark:text-blue-300">
+              <strong className="text-blue-800 dark:text-blue-200">📋 테스트 방식:</strong> 문장
+              사전 없음, 하드코딩 없음, 패턴 매칭 없음 — 100% 알고리즘 기반 번역
+            </p>
           </div>
-        </div>
 
-        {/* Run Button */}
-        <button
-          type="button"
-          onClick={runAllTests}
-          disabled={isRunning}
-          className={cn(
-            'mb-6 flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors',
-            'bg-blue-600 text-white hover:bg-blue-700',
-            'disabled:cursor-not-allowed disabled:opacity-50',
+          {/* Run Button */}
+          <button
+            type="button"
+            onClick={runAllTests}
+            disabled={isRunning}
+            className={cn(
+              'mb-6 flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors',
+              'bg-blue-600 text-white hover:bg-blue-700',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+            )}
+          >
+            <Play className="h-4 w-4" />
+            {isRunning ? 'Running...' : 'Run All Tests'}
+          </button>
+
+          {/* Overall Stats */}
+          {levelResults.length > 0 && (
+            <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{totalStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Overall</div>
+                <div className="text-xs text-muted-foreground">
+                  {totalStats.passed}/{totalStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{levelStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Level</div>
+                <div className="text-xs text-muted-foreground">
+                  {levelStats.passed}/{levelStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{categoryStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Category</div>
+                <div className="text-xs text-muted-foreground">
+                  {categoryStats.passed}/{categoryStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{contextStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Context</div>
+                <div className="text-xs text-muted-foreground">
+                  {contextStats.passed}/{contextStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{typoStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Typo</div>
+                <div className="text-xs text-muted-foreground">
+                  {typoStats.passed}/{typoStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{uniqueStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Unique</div>
+                <div className="text-xs text-muted-foreground">
+                  {uniqueStats.passed}/{uniqueStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{polysemyStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Polysemy</div>
+                <div className="text-xs text-muted-foreground">
+                  {polysemyStats.passed}/{polysemyStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{wordOrderStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">SVO↔SOV</div>
+                <div className="text-xs text-muted-foreground">
+                  {wordOrderStats.passed}/{wordOrderStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{spacingStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Spacing</div>
+                <div className="text-xs text-muted-foreground">
+                  {spacingStats.passed}/{spacingStats.total}
+                </div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold">{finalStats.percentage}%</div>
+                <div className="text-sm text-muted-foreground">Final</div>
+                <div className="text-xs text-muted-foreground">
+                  {finalStats.passed}/{finalStats.total}
+                </div>
+              </div>
+            </div>
           )}
-        >
-          <Play className="h-4 w-4" />
-          {isRunning ? 'Running...' : 'Run All Tests'}
-        </button>
 
-        {/* Overall Stats */}
-        {levelResults.length > 0 && (
-          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold">{totalStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">Overall</div>
-              <div className="text-xs text-muted-foreground">
-                {totalStats.passed}/{totalStats.total}
-              </div>
+          {/* Level Tests */}
+          {levelResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Level Tests</h2>
+              {renderResults(levelTests, levelResults, 'level')}
             </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold">{levelStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">Level</div>
-              <div className="text-xs text-muted-foreground">
-                {levelStats.passed}/{levelStats.total}
-              </div>
+          )}
+
+          {/* Category Tests */}
+          {categoryResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Category Tests</h2>
+              {renderResults(categoryTests, categoryResults, 'category')}
             </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold">{categoryStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">Category</div>
-              <div className="text-xs text-muted-foreground">
-                {categoryStats.passed}/{categoryStats.total}
-              </div>
+          )}
+
+          {/* Context Tests */}
+          {contextResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Context Tests</h2>
+              {renderResults(contextTests, contextResults, 'context')}
             </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold">{contextStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">Context</div>
-              <div className="text-xs text-muted-foreground">
-                {contextStats.passed}/{contextStats.total}
-              </div>
+          )}
+
+          {/* Typo Tests */}
+          {typoResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Typo Tests (오타 테스트)</h2>
+              {renderResults(typoTests, typoResults, 'typo')}
             </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold">{typoStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">Typo</div>
-              <div className="text-xs text-muted-foreground">
-                {typoStats.passed}/{typoStats.total}
-              </div>
+          )}
+
+          {/* Unique Tests */}
+          {uniqueResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Unique Tests (유니크 테스트 - 100% 알고리즘 기반)
+              </h2>
+              {renderResults(uniqueTests, uniqueResults, 'unique')}
             </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold">{uniqueStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">Unique</div>
-              <div className="text-xs text-muted-foreground">
-                {uniqueStats.passed}/{uniqueStats.total}
-              </div>
+          )}
+
+          {/* Polysemy Tests */}
+          {polysemyResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Polysemy Tests (다의어 테스트)</h2>
+              {renderResults(polysemyTests, polysemyResults, 'polysemy')}
             </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold">{polysemyStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">Polysemy</div>
-              <div className="text-xs text-muted-foreground">
-                {polysemyStats.passed}/{polysemyStats.total}
-              </div>
+          )}
+
+          {/* Word Order Tests */}
+          {wordOrderResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Word Order Tests (SVO↔SOV 어순 변환 테스트)
+              </h2>
+              {renderResults(wordOrderTests, wordOrderResults, 'wordorder')}
             </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold">{wordOrderStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">SVO↔SOV</div>
-              <div className="text-xs text-muted-foreground">
-                {wordOrderStats.passed}/{wordOrderStats.total}
-              </div>
+          )}
+
+          {/* Spacing Error Tests */}
+          {spacingResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Spacing Error Tests (띄어쓰기 오류 테스트)
+              </h2>
+              {renderResults(spacingErrorTests, spacingResults, 'spacing')}
             </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold">{spacingStats.percentage}%</div>
-              <div className="text-sm text-muted-foreground">Spacing</div>
-              <div className="text-xs text-muted-foreground">
-                {spacingStats.passed}/{spacingStats.total}
-              </div>
+          )}
+
+          {/* Final Tests */}
+          {finalResults.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Final Tests (최종 파이널 테스트)</h2>
+              {renderResults(finalTests, finalResults, 'final')}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Level Tests */}
-        {levelResults.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold">Level Tests</h2>
-            {renderResults(levelTests, levelResults, 'level')}
-          </div>
-        )}
-
-        {/* Category Tests */}
-        {categoryResults.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold">Category Tests</h2>
-            {renderResults(categoryTests, categoryResults, 'category')}
-          </div>
-        )}
-
-        {/* Context Tests */}
-        {contextResults.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold">Context Tests</h2>
-            {renderResults(contextTests, contextResults, 'context')}
-          </div>
-        )}
-
-        {/* Typo Tests */}
-        {typoResults.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold">Typo Tests (오타 테스트)</h2>
-            {renderResults(typoTests, typoResults, 'typo')}
-          </div>
-        )}
-
-        {/* Unique Tests */}
-        {uniqueResults.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold">
-              Unique Tests (유니크 테스트 - 100% 알고리즘 기반)
-            </h2>
-            {renderResults(uniqueTests, uniqueResults, 'unique')}
-          </div>
-        )}
-
-        {/* Polysemy Tests */}
-        {polysemyResults.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold">Polysemy Tests (다의어 테스트)</h2>
-            {renderResults(polysemyTests, polysemyResults, 'polysemy')}
-          </div>
-        )}
-
-        {/* Word Order Tests */}
-        {wordOrderResults.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold">
-              Word Order Tests (SVO↔SOV 어순 변환 테스트)
-            </h2>
-            {renderResults(wordOrderTests, wordOrderResults, 'wordorder')}
-          </div>
-        )}
-
-        {/* Spacing Error Tests */}
-        {spacingResults.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold">
-              Spacing Error Tests (띄어쓰기 오류 테스트)
-            </h2>
-            {renderResults(spacingErrorTests, spacingResults, 'spacing')}
-          </div>
-        )}
-
-        {/* Initial State */}
-        {levelResults.length === 0 && !isRunning && (
-          <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-            Click "Run All Tests" to start the benchmark
-          </div>
-        )}
-      </div>
+          {/* Initial State */}
+          {levelResults.length === 0 && !isRunning && (
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
+              Click "Run All Tests" to start the benchmark
+            </div>
+          )}
+        </div>
+      </main>
+      <Footer appName="Translator Benchmark" />
     </div>
   );
 }
