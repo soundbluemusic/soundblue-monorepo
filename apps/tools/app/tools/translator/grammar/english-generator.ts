@@ -296,6 +296,24 @@ function selectBeVerb(subject: string, tense: Tense): string {
 // ========================================
 // 관사 선택
 // ========================================
+// "a" 사용 예외: 발음이 /j/ 또는 /w/로 시작하는 단어들
+const A_NOT_AN_WORDS = new Set([
+  'university',
+  'uniform',
+  'unique',
+  'unit',
+  'united',
+  'union',
+  'universe',
+  'universal',
+  'unicorn',
+  'useful',
+  'user',
+  'usual',
+  'one', // "a one-way street"
+  'once',
+]);
+
 function selectArticle(noun: string, isSpecific: boolean = false): string {
   const nounLower = noun.toLowerCase();
 
@@ -307,6 +325,11 @@ function selectArticle(noun: string, isSpecific: boolean = false): string {
   // 특정한 것 → the
   if (isSpecific) {
     return 'the ';
+  }
+
+  // 발음이 자음으로 시작하는 예외 단어들 (uni-, use- 등)
+  if (A_NOT_AN_WORDS.has(nounLower)) {
+    return 'a ';
   }
 
   // 불특정 단수 → a/an
@@ -364,6 +387,10 @@ const VERBS_WITH_OBJECT_PREPOSITION: Record<string, string> = {
   belong: 'to',
   depend: 'on',
   rely: 'on',
+  // Level 2 동사
+  graduate: 'from',
+  prepare: 'for',
+  adapt: 'to',
 };
 
 // ========================================
@@ -904,6 +931,7 @@ function isAdjective(stem: string, englishWord: string): boolean {
 // 운동을 했니? → Did you exercise? (not "Did you do an exercise?")
 // ========================================
 const NOUN_HADA_COMPOUND_VERBS: Record<string, string> = {
+  // 기본 동작
   운동: 'exercise',
   공부: 'study',
   일: 'work',
@@ -929,6 +957,22 @@ const NOUN_HADA_COMPOUND_VERBS: Record<string, string> = {
   감사: 'thank',
   사과: 'apologize',
   휴식: 'rest',
+  // Level 2 취업/학업 관련
+  졸업: 'graduate',
+  취업: 'get employed',
+  지원: 'apply',
+  면접: 'interview',
+  합격: 'pass',
+  불합격: 'fail',
+  준비: 'prepare',
+  도전: 'challenge',
+  적응: 'adapt',
+  포기: 'give up',
+  연습: 'practice',
+  향상: 'improve',
+  소통: 'communicate',
+  출근: 'go to work',
+  퇴근: 'leave work',
 };
 
 // ========================================
@@ -1002,11 +1046,28 @@ export function generateEnglish(parsed: ParsedSentence): string {
 
   // ========================================
   // 의문문 처리: Do/Did + Subject + base verb
+  // 추측 의문문: Did ... really? / Could it be that ...?
   // ========================================
   if (parsed.isQuestion && parsed.predicate) {
     const predicateToken = parsed.predicate.tokens[0];
     const verbStem = predicateToken?.stem || '';
-    const verbEn = koToEnWords[verbStem] || verbStem;
+    let verbEn = koToEnWords[verbStem] || verbStem;
+
+    // 복합동사 처리: 졸업하 → graduate (명사+하다 패턴)
+    // verbStem이 '하'로 끝나는 경우, 앞부분도 확인
+    if (verbStem.endsWith('하') && verbStem.length > 1) {
+      const nounPart = verbStem.slice(0, -1);
+      const compoundVerb = NOUN_HADA_COMPOUND_VERBS[nounPart];
+      if (compoundVerb) {
+        verbEn = compoundVerb;
+      } else {
+        // 사전에서 직접 검색
+        const fullVerbEn = koToEnWords[verbStem];
+        if (fullVerbEn) {
+          verbEn = fullVerbEn;
+        }
+      }
+    }
 
     // 형용사인 경우 be동사 의문문: Is/Was + Subject + adjective?
     if (isAdjective(verbStem, verbEn) && !parsed.object) {
@@ -1029,10 +1090,50 @@ export function generateEnglish(parsed: ParsedSentence): string {
         parts.push(advEn);
       }
     } else {
-      // 일반 동사 의문문: Do/Did/Does + Subject + base verb?
+      // 일반 동사 의문문: Do/Did/Does + Subject + (really) + base verb?
       const aux = selectAuxiliaryVerb(parsed.tense, subjectEn);
       parts.push(aux);
       parts.push(subjectEn.toLowerCase());
+
+      // 정도 부사 (really, probably 등)는 주어 바로 뒤에 위치
+      // modifiers 또는 adverbials에서 정도 부사를 찾아서 먼저 추가
+      const DEGREE_ADVERBS = new Set(['really', 'truly', 'actually', 'certainly', 'definitely']);
+      const DEGREE_ADVERBS_KO = new Set(['정말', '정말로', '진짜', '진짜로', '사실', '확실히']);
+      let degreeAdverb = '';
+      const usedAdverbialIndices = new Set<number>();
+
+      // 1. modifiers에서 찾기
+      for (const mod of parsed.modifiers) {
+        const modToken = mod.tokens[0];
+        if (modToken) {
+          const modEn = koToEnWords[modToken.stem] || koToEnWords[modToken.original] || '';
+          if (DEGREE_ADVERBS.has(modEn.toLowerCase())) {
+            degreeAdverb = modEn;
+            usedModifierIndices.add(parsed.modifiers.indexOf(mod));
+            break;
+          }
+        }
+      }
+
+      // 2. adverbials에서 찾기 (정말, 진짜 등 한국어 정도 부사)
+      if (!degreeAdverb) {
+        for (let i = 0; i < parsed.adverbials.length; i++) {
+          const adv = parsed.adverbials[i];
+          const advToken = adv?.tokens[0];
+          if (advToken && DEGREE_ADVERBS_KO.has(advToken.stem)) {
+            const advEn = koToEnWords[advToken.stem] || koToEnWords[advToken.original] || '';
+            if (advEn && DEGREE_ADVERBS.has(advEn.toLowerCase())) {
+              degreeAdverb = advEn;
+              usedAdverbialIndices.add(i);
+              break;
+            }
+          }
+        }
+      }
+
+      if (degreeAdverb) {
+        parts.push(degreeAdverb);
+      }
 
       // 명사+하다 복합동사 확인 (운동을 했니? → Did you exercise?)
       // verbStem이 '하'이고 object가 있으면 복합동사 확인
@@ -1116,7 +1217,13 @@ export function generateEnglish(parsed: ParsedSentence): string {
         ? Object.entries(NOUN_GO_COMPOUND_VERBS).find(([_, v]) => v === goCompoundSuffix)?.[0]
         : null;
 
-      for (const adv of parsed.adverbials) {
+      for (let advIdx = 0; advIdx < parsed.adverbials.length; advIdx++) {
+        // 이미 정도 부사로 사용된 adverbial은 건너뛰기
+        if (usedAdverbialIndices.has(advIdx)) continue;
+
+        const adv = parsed.adverbials[advIdx];
+        if (!adv) continue;
+
         // 각 토큰별로 처리 (go compound 단어는 건너뛰기)
         const filteredTokens: TokenAnalysis[] = [];
         for (const token of adv.tokens) {
@@ -1179,7 +1286,15 @@ export function generateEnglish(parsed: ParsedSentence): string {
     // 후처리
     let questionSentence = parts.join(' ');
     questionSentence = questionSentence.charAt(0).toUpperCase() + questionSentence.slice(1);
-    questionSentence = questionSentence.replace(/\ba ([aeiouAEIOU])/g, 'an $1');
+    // a/an 수정: 모음으로 시작하는 단어 앞에 an, 단 uni-, use- 등 예외 제외
+    questionSentence = questionSentence.replace(/\ba ([aeiouAEIOU]\w*)/gi, (_match, word) => {
+      const wordLower = word.toLowerCase();
+      // 발음이 자음으로 시작하는 예외 단어들
+      if (A_NOT_AN_WORDS.has(wordLower) || /^uni|^use|^usual/.test(wordLower)) {
+        return `a ${word}`;
+      }
+      return `an ${word}`;
+    });
     questionSentence = questionSentence.replace(/\s+/g, ' ').trim();
     if (!questionSentence.endsWith('?')) {
       questionSentence += '?';

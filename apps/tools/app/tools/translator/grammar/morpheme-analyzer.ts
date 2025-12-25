@@ -47,6 +47,9 @@ export interface MorphemeAnalysis {
   negationType?: 'did_not' | 'could_not'; // 부정 유형: 안 했다 vs 못 했다
   isQuestion?: boolean; // 의문
   isHonorable?: boolean; // 존칭
+  isSpeculative?: boolean; // 추측 (~했을까?, ~겠지?)
+  isConditional?: boolean; // 조건 (~다면, ~으면)
+  isHypothetical?: boolean; // 가정법 (~했을 텐데, ~했더라면)
 }
 
 // ========================================
@@ -196,6 +199,9 @@ export interface EndingInfo {
   isQuestion?: boolean;
   isNegative?: boolean;
   isHonorable?: boolean;
+  isSpeculative?: boolean; // 추측 (~했을까?, ~겠지?)
+  isConditional?: boolean; // 조건 (~다면, ~으면)
+  isHypothetical?: boolean; // 가정법 (~했을 텐데, ~했더라면)
 }
 
 export const ENDINGS: Record<string, EndingInfo> = {
@@ -306,6 +312,67 @@ export const ENDINGS: Record<string, EndingInfo> = {
   샀어: { tense: 'past', formality: 'casual' },
   봤어: { tense: 'past', formality: 'casual' },
   갔어: { tense: 'past', formality: 'casual' },
+
+  // === 추측 어미 (Speculative) ===
+  // 과거 추측 의문 (~했을까?)
+  았을까: { tense: 'past', formality: 'casual', isQuestion: true, isSpeculative: true },
+  었을까: { tense: 'past', formality: 'casual', isQuestion: true, isSpeculative: true },
+  였을까: { tense: 'past', formality: 'casual', isQuestion: true, isSpeculative: true },
+  했을까: { tense: 'past', formality: 'casual', isQuestion: true, isSpeculative: true },
+  // 현재/미래 추측 확인 (~겠지?)
+  겠지: { tense: 'future', formality: 'casual', isQuestion: true, isSpeculative: true },
+  았겠지: { tense: 'past', formality: 'casual', isQuestion: true, isSpeculative: true },
+  었겠지: { tense: 'past', formality: 'casual', isQuestion: true, isSpeculative: true },
+  였겠지: { tense: 'past', formality: 'casual', isQuestion: true, isSpeculative: true },
+  했겠지: { tense: 'past', formality: 'casual', isQuestion: true, isSpeculative: true },
+  // 추측 확인 정중 (~겠죠?)
+  겠죠: { tense: 'future', formality: 'polite', isQuestion: true, isSpeculative: true },
+  // 추측 평서 (~겠지만, ~을 것 같아)
+  '을 것 같아': { tense: 'future', formality: 'casual', isSpeculative: true },
+  '을 것 같아요': { tense: 'future', formality: 'polite', isSpeculative: true },
+  '았을 것 같아': { tense: 'past', formality: 'casual', isSpeculative: true },
+  '었을 것 같아': { tense: 'past', formality: 'casual', isSpeculative: true },
+
+  // === 조건 어미 (Conditional) ===
+  // ~하면 (if)
+  으면: { tense: 'present', formality: 'casual', isConditional: true },
+  면: { tense: 'present', formality: 'casual', isConditional: true },
+  // ~한다면 (if, formal)
+  다면: { tense: 'present', formality: 'casual', isConditional: true },
+  ㄴ다면: { tense: 'present', formality: 'casual', isConditional: true },
+  는다면: { tense: 'present', formality: 'casual', isConditional: true },
+  // ~했다면 (if, past)
+  았다면: { tense: 'past', formality: 'casual', isConditional: true },
+  었다면: { tense: 'past', formality: 'casual', isConditional: true },
+  였다면: { tense: 'past', formality: 'casual', isConditional: true },
+  했다면: { tense: 'past', formality: 'casual', isConditional: true },
+
+  // === 가정법 어미 (Hypothetical) ===
+  // ~했을 텐데 (would have)
+  '았을 텐데': { tense: 'past', formality: 'casual', isHypothetical: true },
+  '었을 텐데': { tense: 'past', formality: 'casual', isHypothetical: true },
+  '였을 텐데': { tense: 'past', formality: 'casual', isHypothetical: true },
+  '했을 텐데': { tense: 'past', formality: 'casual', isHypothetical: true },
+  // ~했더라면 (if ... had)
+  았더라면: { tense: 'past', formality: 'casual', isHypothetical: true, isConditional: true },
+  었더라면: { tense: 'past', formality: 'casual', isHypothetical: true, isConditional: true },
+  였더라면: { tense: 'past', formality: 'casual', isHypothetical: true, isConditional: true },
+  했더라면: { tense: 'past', formality: 'casual', isHypothetical: true, isConditional: true },
+  // ~할 텐데 (would)
+  'ㄹ 텐데': { tense: 'future', formality: 'casual', isHypothetical: true },
+  '을 텐데': { tense: 'future', formality: 'casual', isHypothetical: true },
+  // ~했을 거야 (would have, certainty)
+  '았을 거야': { tense: 'past', formality: 'casual', isHypothetical: true },
+  '었을 거야': { tense: 'past', formality: 'casual', isHypothetical: true },
+  '였을 거야': { tense: 'past', formality: 'casual', isHypothetical: true },
+  '했을 거야': { tense: 'past', formality: 'casual', isHypothetical: true },
+
+  // === 부정 + 가정 ===
+  // ~하지 못했을 거야 (wouldn't have been able to)
+  '지 못했을 거야': { tense: 'past', formality: 'casual', isNegative: true, isHypothetical: true },
+  // ~하지 않았다면 (if hadn't)
+  '지 않았다면': { tense: 'past', formality: 'casual', isNegative: true, isConditional: true },
+  '지 않았으면': { tense: 'past', formality: 'casual', isNegative: true, isConditional: true },
 };
 
 // 어미 목록 (길이순)
@@ -429,6 +496,9 @@ const CONTRACTED_PATTERNS: Array<{
   isNegative?: boolean;
   negationType?: 'did_not' | 'could_not';
   isQuestion?: boolean;
+  isSpeculative?: boolean;
+  isConditional?: boolean;
+  isHypothetical?: boolean;
 }> = [
   // === 의지 부정 패턴: -지 않았어 (didn't) ===
   // 가다 → 가지 않는다 (띄어쓰기 없이 붙여 쓴 경우)
@@ -862,6 +932,237 @@ const CONTRACTED_PATTERNS: Array<{
     tense: 'past',
     formality: 'casual',
   },
+
+  // === 추측 어미 패턴 (Speculative) ===
+  // 졸업하다 → 졸업했을까 (과거 추측 의문)
+  {
+    pattern: /^(.*)했을까$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '했을까',
+    tense: 'past',
+    formality: 'casual',
+    isQuestion: true,
+    isSpeculative: true,
+  },
+  {
+    pattern: /^(.+)었을까$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '었을까',
+    tense: 'past',
+    formality: 'casual',
+    isQuestion: true,
+    isSpeculative: true,
+  },
+  {
+    pattern: /^(.+)았을까$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '았을까',
+    tense: 'past',
+    formality: 'casual',
+    isQuestion: true,
+    isSpeculative: true,
+  },
+  // 떨어지다 → 떨어졌을까 (ㅈ 축약형)
+  {
+    pattern: /^(.*)졌을까$/,
+    stemRestore: (m) => `${m[1] ?? ''}지`,
+    ending: '었을까',
+    tense: 'past',
+    formality: 'casual',
+    isQuestion: true,
+    isSpeculative: true,
+  },
+  // 지원하다 → 지원했겠지 (추측 확인)
+  {
+    pattern: /^(.*)했겠지$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '했겠지',
+    tense: 'past',
+    formality: 'casual',
+    isQuestion: true,
+    isSpeculative: true,
+  },
+  {
+    pattern: /^(.+)겠지$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '겠지',
+    tense: 'future',
+    formality: 'casual',
+    isQuestion: true,
+    isSpeculative: true,
+  },
+  // 떨리다 → 떨렸겠지만 (추측 + 역접)
+  {
+    pattern: /^(.*)렸겠지만$/,
+    stemRestore: (m) => `${m[1] ?? ''}리`,
+    ending: '었겠지만',
+    tense: 'past',
+    formality: 'casual',
+    isSpeculative: true,
+  },
+
+  // === 조건 어미 패턴 (Conditional) ===
+  // 포기하다 → 포기했다면 (과거 조건)
+  {
+    pattern: /^(.*)했다면$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '했다면',
+    tense: 'past',
+    formality: 'casual',
+    isConditional: true,
+  },
+  {
+    pattern: /^(.+)았다면$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '았다면',
+    tense: 'past',
+    formality: 'casual',
+    isConditional: true,
+  },
+  {
+    pattern: /^(.+)었다면$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '었다면',
+    tense: 'past',
+    formality: 'casual',
+    isConditional: true,
+  },
+  // 도전하다 → 도전하지 않았다면 (부정 조건)
+  {
+    pattern: /^(.+)지않았다면$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지않았다면',
+    tense: 'past',
+    formality: 'casual',
+    isNegative: true,
+    isConditional: true,
+  },
+  // 도와주다 → 도와주지 않았다면 (부정 조건)
+  {
+    pattern: /^(.+)주지않았다면$/,
+    stemRestore: (m) => `${m[1] ?? ''}주`,
+    ending: '지않았다면',
+    tense: 'past',
+    formality: 'casual',
+    isNegative: true,
+    isConditional: true,
+  },
+
+  // === 가정법 어미 패턴 (Hypothetical) ===
+  // 어렵다 → 어려웠을 텐데 (가정법 과거)
+  {
+    pattern: /^(.+)웠을텐데$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '웠을텐데',
+    tense: 'past',
+    formality: 'casual',
+    isHypothetical: true,
+  },
+  {
+    pattern: /^(.+)었을텐데$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '었을텐데',
+    tense: 'past',
+    formality: 'casual',
+    isHypothetical: true,
+  },
+  {
+    pattern: /^(.*)했을텐데$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '했을텐데',
+    tense: 'past',
+    formality: 'casual',
+    isHypothetical: true,
+  },
+  // 합격하다 → 합격하지 못했을 거야 (부정 가정)
+  {
+    pattern: /^(.+)지못했을거야$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '지못했을거야',
+    tense: 'past',
+    formality: 'casual',
+    isNegative: true,
+    isHypothetical: true,
+  },
+  // 합격했을 때 (때 어미: when)
+  {
+    pattern: /^(.*)했을때$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '했을때',
+    tense: 'past',
+    formality: 'casual',
+  },
+  {
+    pattern: /^(.+)었을때$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '었을때',
+    tense: 'past',
+    formality: 'casual',
+  },
+  // 기쁘다 → 기뻤대 (전문)
+  {
+    pattern: /^(.+)뻤대$/,
+    stemRestore: (m) => `${m[1] ?? ''}쁘`,
+    ending: '었대',
+    tense: 'past',
+    formality: 'casual',
+  },
+  // 적응하다 → 적응했다니 (인용)
+  {
+    pattern: /^(.*)했다니$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '했다니',
+    tense: 'past',
+    formality: 'casual',
+  },
+  // 하던데 (회상/경험)
+  {
+    pattern: /^(.*)하던데$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '하던데',
+    tense: 'past',
+    formality: 'casual',
+  },
+  // 했다고 (인용)
+  {
+    pattern: /^(.*)했다고$/,
+    stemRestore: (m) => `${m[1] ?? ''}하`,
+    ending: '했다고',
+    tense: 'past',
+    formality: 'casual',
+  },
+  // 정말일까 (의문)
+  {
+    pattern: /^(.+)일까$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '일까',
+    tense: 'present',
+    formality: 'casual',
+    isQuestion: true,
+    isSpeculative: true,
+  },
+  // 아닐까 (부정 추측)
+  {
+    pattern: /^(.+)아닐까$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '아닐까',
+    tense: 'present',
+    formality: 'casual',
+    isQuestion: true,
+    isNegative: true,
+    isSpeculative: true,
+  },
+  // 건 아닐까 (아니다 + 추측)
+  {
+    pattern: /^(.+)건아닐까$/,
+    stemRestore: (m) => m[1] ?? '',
+    ending: '건아닐까',
+    tense: 'present',
+    formality: 'casual',
+    isQuestion: true,
+    isNegative: true,
+    isSpeculative: true,
+  },
 ];
 
 // ========================================
@@ -937,6 +1238,15 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
       if (cp.isQuestion) {
         result.isQuestion = true;
       }
+      if (cp.isSpeculative) {
+        result.isSpeculative = true;
+      }
+      if (cp.isConditional) {
+        result.isConditional = true;
+      }
+      if (cp.isHypothetical) {
+        result.isHypothetical = true;
+      }
       return result;
     }
   }
@@ -963,6 +1273,9 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
         result.isQuestion = endingInfo.isQuestion;
         result.isNegative = endingInfo.isNegative;
         result.isHonorable = endingInfo.isHonorable;
+        result.isSpeculative = endingInfo.isSpeculative;
+        result.isConditional = endingInfo.isConditional;
+        result.isHypothetical = endingInfo.isHypothetical;
       }
       return result;
     }

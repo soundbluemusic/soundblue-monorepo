@@ -45,6 +45,9 @@ export interface ParsedSentence {
   negationType?: 'did_not' | 'could_not'; // 부정 유형: 안 했다 vs 못 했다
   isQuestion: boolean;
   subjectOmitted: boolean; // 주어 생략 여부
+  isSpeculative?: boolean; // 추측 (~했을까?, ~겠지?)
+  isConditional?: boolean; // 조건 (~다면, ~으면)
+  isHypothetical?: boolean; // 가정법 (~했을 텐데, ~했더라면)
 }
 
 // ========================================
@@ -282,6 +285,9 @@ export function parseSentence(text: string): ParsedSentence {
   let isNegative = predicateToken?.isNegative || false;
   let negationType = predicateToken?.negationType;
   const isQuestion = predicateToken?.isQuestion || text.includes('?');
+  const isSpeculative = predicateToken?.isSpeculative || false;
+  const isConditional = predicateToken?.isConditional || false;
+  const isHypothetical = predicateToken?.isHypothetical || false;
 
   // 부정 부사 감지 (안, 못)
   // '안 V' → didn't V (의지 부정)
@@ -323,6 +329,9 @@ export function parseSentence(text: string): ParsedSentence {
     negationType,
     isQuestion,
     subjectOmitted,
+    isSpeculative,
+    isConditional,
+    isHypothetical,
   };
 }
 
