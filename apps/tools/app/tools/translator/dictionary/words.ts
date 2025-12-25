@@ -564,7 +564,19 @@ const manualKoToEnWords: Record<string, string> = {
   어제: 'yesterday',
   모레: 'day after tomorrow',
   지금: 'now',
+  이제: 'now',
+  이젠: 'now',
   나중에: 'later',
+  이번: 'this time',
+  이번만: 'just this once',
+  이번에: 'this time',
+  이번에만: 'just this once',
+  다음번: 'next time',
+  다음번에: 'next time',
+  저번: 'last time',
+  저번에: 'last time',
+  처음: 'first time',
+  마지막: 'last time',
   아침: 'morning',
   점심: 'lunch',
   저녁: 'evening',
@@ -2482,6 +2494,8 @@ const manualEnToKoWords: Record<string, string> = {
   again: '다시',
   here: '여기',
   there: '저기',
+  outside: '밖에',
+  inside: '안에',
   now: '지금',
   then: '그때',
   today: '오늘',
@@ -2492,6 +2506,17 @@ const manualEnToKoWords: Record<string, string> = {
   slowly: '천천히',
   together: '함께',
   alone: '혼자',
+
+  // === 오디션/공연 관련 ===
+  audition: '오디션',
+  concert: '콘서트',
+  performance: '공연',
+  stage: '무대',
+
+  // === 일상 표현 ===
+  worry: '걱정',
+  "don't worry": '걱정 마',
+  "don't": '', // 부정 표현은 문맥에서 처리
 
   // === 전치사 ===
   in: '안에',

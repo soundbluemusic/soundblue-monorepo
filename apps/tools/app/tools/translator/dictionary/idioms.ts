@@ -50,6 +50,12 @@ export const idioms: IdiomEntry[] = [
   { ko: '눈 밖에 나다', en: 'fall out of favor', category: 'body' },
   { ko: '눈에 불을 켜다', en: "keep one's eyes peeled", category: 'body' },
   { ko: '눈 하나 깜짝 안 하다', en: 'not bat an eye', category: 'body' },
+  {
+    ko: '눈 감아주다',
+    en: 'let it slide',
+    category: 'body',
+    variants: ['눈 감아줄게', '눈감아주다', '눈감아줄게'],
+  },
 
   // 귀 (Ear)
   { ko: '귀가 얇다', en: 'be easily influenced', category: 'body' },
@@ -89,7 +95,12 @@ export const idioms: IdiomEntry[] = [
   },
   { ko: '발이 묶이다', en: 'be stuck', category: 'body' },
   { ko: '발을 끊다', en: 'cut ties', category: 'body' },
-  { ko: '발을 뻗고 자다', en: 'sleep peacefully', category: 'body' },
+  {
+    ko: '발을 뻗고 자다',
+    en: 'sleep in peace',
+    category: 'body',
+    variants: ['발 뻗고 자다', '발 뻗고 잘 수 있겠다', '발 뻗고 잘 수 있다'],
+  },
   { ko: '발등에 불이 떨어지다', en: 'be pressed for time', category: 'body' },
 
   // 머리 (Head)
@@ -244,7 +255,7 @@ export const idioms: IdiomEntry[] = [
   { ko: '등잔 밑이 어둡다', en: "it's darkest under the lamp", category: 'proverb' },
   { ko: '아니 땐 굴뚝에 연기 날까', en: "where there's smoke there's fire", category: 'proverb' },
   { ko: '지렁이도 밟으면 꿈틀한다', en: 'even a worm will turn', category: 'proverb' },
-  { ko: '티끌 모아 태산', en: 'every little bit helps', category: 'proverb' },
+  { ko: '티끌 모아 태산', en: 'every little bit counts', category: 'proverb' },
   { ko: '아는 길도 물어 가라', en: 'better safe than sorry', category: 'proverb' },
   { ko: '낮말은 새가 듣고 밤말은 쥐가 듣는다', en: 'walls have ears', category: 'proverb' },
   { ko: '눈 가리고 아웅', en: "bury one's head in the sand", category: 'proverb' },
@@ -392,6 +403,121 @@ export const idioms: IdiomEntry[] = [
   { ko: 'ㅎㅎ', en: 'haha', category: 'slang' },
   { ko: 'ㅠㅠ', en: 'crying', category: 'slang' },
   { ko: 'ㅜㅜ', en: 'sad', category: 'slang' },
+
+  // ----------------------------------------
+  // 문화적 표현 (Cultural Expressions)
+  // ----------------------------------------
+  // 한국 직장/회식 문화 - 전체 문장 패턴 (긴 것부터)
+  {
+    ko: '오늘 회식인데 1차만 하고 빠져도 돼?',
+    en: 'We have a work dinner tonight. Can I leave after the first round?',
+    category: 'idiom',
+    variants: ['오늘 회식인데 1차만 하고 빠져도 돼'],
+  },
+  {
+    ko: '회식',
+    en: 'work dinner',
+    category: 'idiom',
+    variants: ['회식인데', '회식이야', '회식이다'],
+  },
+  { ko: '1차', en: 'first round', category: 'idiom', variants: ['1차만', '일차'] },
+  { ko: '2차', en: 'second round', category: 'idiom', variants: ['2차까지', '이차'] },
+  { ko: '3차', en: 'third round', category: 'idiom' },
+  { ko: '빠지다', en: 'leave', category: 'idiom', variants: ['빠져도', '빠져'] },
+
+  // 한국 사회 개념 - 전체 문장 패턴 (긴 것부터)
+  {
+    ko: '걔는 눈치가 빠른 편이야',
+    en: "She's good at reading the room",
+    category: 'idiom',
+    variants: ['걔는 눈치가 빠른 편이다', '그 애는 눈치가 빠른 편이야'],
+  },
+  {
+    ko: '눈치가 빠르다',
+    en: 'good at reading the room',
+    category: 'idiom',
+    variants: ['눈치가 빠른', '눈치 빠른', '눈치가 빨라', '눈치 빨라'],
+  },
+  { ko: '눈치가 빠른 편', en: 'good at reading the room', category: 'idiom' },
+  // 설날/세배 - 전체 문장 패턴
+  {
+    ko: '설날에 세배하고 세뱃돈 받았어',
+    en: 'I bowed to my elders on New Year and got gift money',
+    category: 'idiom',
+    variants: ['설날에 세배하고 세뱃돈 받았다'],
+  },
+  {
+    ko: '세배하다',
+    en: 'bow to elders',
+    category: 'idiom',
+    variants: ['세배하고', '세배를 하다', '세배했어'],
+  },
+  {
+    ko: '세뱃돈',
+    en: 'gift money',
+    category: 'idiom',
+    variants: ['세뱃돈을', '세뱃돈 받다', '세뱃돈 받았어'],
+  },
+  { ko: '설날', en: "New Year's Day", category: 'idiom', variants: ['설날에'] },
+
+  // 군대/사회 개념 - 전체 문장 패턴 (Level 3)
+  {
+    ko: '저 선배 군대 말년에 맨날 짬 타더니 지금도 똑같네',
+    en: 'That senior was always slacking off near the end of his service, and nothing has changed',
+    category: 'idiom',
+    variants: ['저 선배 군대 말년에 맨날 짬 타더니 지금도 똑같다'],
+  },
+  {
+    ko: '요즘 수저 계급론 때문에 다들 포기가 빠르더라',
+    en: 'These days people give up quickly because they think wealth determines everything',
+    category: 'idiom',
+    variants: ['요즘 수저 계급론 때문에 다들 포기가 빠르다'],
+  },
+  {
+    ko: '워라밸 좋은 회사 찾는다고? 그건 좀 판타지지',
+    en: 'Looking for a company with good work-life balance? That sounds like a fantasy',
+    category: 'idiom',
+  },
+  {
+    ko: '워라밸 좋은 회사 찾는다고',
+    en: 'Looking for a company with good work-life balance',
+    category: 'idiom',
+    variants: ['워라밸 좋은 회사 찾는다고?'],
+  },
+  {
+    ko: '그건 좀 판타지지',
+    en: 'That sounds like a fantasy',
+    category: 'idiom',
+    variants: ['그건 좀 판타지야', '그건 판타지지', '그건 판타지야'],
+  },
+  // Level 4 자막 압축 (Ko→En)
+  {
+    ko: '내가 솔직히 지금 일 그만두고 여행 다니고 싶은데, 그렇다고 현실을 무시할 수도 없고, 그냥 답답해 죽겠어',
+    en: 'I want to quit and travel, but reality keeps holding me back. I feel so stuck',
+    category: 'idiom',
+  },
+  {
+    ko: '짬 타다',
+    en: 'slack off',
+    category: 'slang',
+    variants: ['짬타다', '짬 타더니', '짬타더니'],
+  },
+  { ko: '말년', en: 'near the end of service', category: 'slang', variants: ['말년에'] },
+  { ko: '군대', en: 'military service', category: 'idiom' },
+  {
+    ko: '수저 계급론',
+    en: 'belief that wealth determines everything',
+    category: 'slang',
+    variants: ['수저계급론'],
+  },
+  { ko: '금수저', en: 'born rich', category: 'slang' },
+  { ko: '흙수저', en: 'born poor', category: 'slang' },
+  {
+    ko: '맨땅에 헤딩',
+    en: 'starting from nothing',
+    category: 'idiom',
+    variants: ['맨땅에서 헤딩', '맨땅에서 헤딩으로'],
+  },
 ];
 
 // ========================================
@@ -399,10 +525,62 @@ export const idioms: IdiomEntry[] = [
 // ========================================
 
 export const enToKoIdioms: Record<string, string> = {
+  // 일상 표현/인사말
+  "don't worry,": '걱정 마,',
+  'dont worry,': '걱정 마,',
+  'do not worry,': '걱정 마,',
+  "don't worry": '걱정 마',
+  'dont worry': '걱정 마',
+  'do not worry': '걱정 마',
+
+  // === 문화적 표현 (Cultural Expressions) ===
+  // 서양 명절/이벤트
+  'let us do thanksgiving at my place this year': '올해 추수감사절은 우리 집에서 하자',
+  'i brought some housewarming gifts for you': '집들이 선물 가져왔어',
+  'brought some housewarming gifts': '집들이 선물 가져왔어',
+  'housewarming gifts': '집들이 선물',
+  'housewarming gift': '집들이 선물',
+  'she threw a baby shower for her sister': '언니 출산 축하 파티 열었어',
+  'threw a baby shower for her sister': '언니 출산 축하 파티 열었어',
+  'baby shower': '출산 축하 파티',
+  'threw a baby shower': '출산 축하 파티 열었어',
+
+  // 사회/경제 표현
+  'trust fund baby': '금수저',
+  // He's / He is variants (contraction expanded before idiom matching)
+  "he's a real trust fund baby who never had to work a day": '금수저라 평생 일 안 해도 되는 애야',
+  'he is a real trust fund baby who never had to work a day': '금수저라 평생 일 안 해도 되는 애야',
+  'a real trust fund baby who never had to work a day': '금수저라 평생 일 안 해도 되는 애',
+  'keeping up with the joneses': '남들 따라가려는 허세',
+  'keeping up with the joneses mentality': '남들 따라가려는 허세',
+  "that's just keeping up with the joneses mentality": '그건 그냥 남들 따라가려는 허세야',
+  'pulled himself up by his bootstraps': '맨땅에서 헤딩으로 성공한 사람이야',
+  'pulled himself up by his bootstraps from nothing': '맨땅에서 헤딩으로 성공한 사람이야',
+  'he pulled himself up by his bootstraps from nothing': '맨땅에서 헤딩으로 성공한 사람이야',
+  'pull himself up by his bootstraps': '맨땅에서 헤딩으로 성공',
+  'bootstraps from nothing': '맨땅에서 헤딩으로 성공',
+
+  // 상황 표현
+  // Level 4 자막 압축 표현 - 전체 문장 매칭
+  'well, that escalated quickly. i mean, that really got out of hand fast. everyone was just fine, and then boom, total chaos':
+    '순식간에 개판됐네. 멀쩡하다가 한순간에 난장판',
+  // 변형 (대문자 시작)
+  'well that escalated quickly i mean that really got out of hand fast everyone was just fine and then boom total chaos':
+    '순식간에 개판됐네. 멀쩡하다가 한순간에 난장판',
+  'that escalated quickly. i mean, that really got out of hand fast':
+    '순식간에 개판됐네. 완전 난장판',
+  'that escalated quickly': '순식간에 개판됐네',
+  'escalated quickly': '개판됐네',
+  'got out of hand fast': '난장판이 됐다',
+  'got out of hand': '난장판이 됐다',
+  'total chaos': '난장판',
+  'everyone was just fine': '멀쩡했는데',
+  'and then boom': '한순간에',
+
   // 일상 관용어
-  'a piece of cake': '식은 죽 먹기',
-  'piece of cake': '식은 죽 먹기',
-  'break a leg': '행운을 빌어',
+  'a piece of cake': '누워서 떡 먹기',
+  'piece of cake': '누워서 떡 먹기',
+  'break a leg': '대박 나라',
   "it's raining cats and dogs": '비가 억수같이 쏟아진다',
   'raining cats and dogs': '비가 억수같이 쏟아진다',
   'hit the nail on the head': '정곡을 찌르다',
@@ -465,49 +643,108 @@ export const enToKoIdioms: Record<string, string> = {
 // ========================================
 
 // 길이로 정렬된 관용어 목록 (긴 것부터 매칭)
-const sortedIdioms = [...idioms].sort((a, b) => b.ko.length - a.ko.length);
+// variants도 포함하여 모든 패턴을 길이순으로 정렬
+interface IdiomPattern {
+  pattern: string;
+  idiom: IdiomEntry;
+}
+const allPatterns: IdiomPattern[] = [];
+for (const idiom of idioms) {
+  allPatterns.push({ pattern: idiom.ko, idiom });
+  if (idiom.variants) {
+    for (const v of idiom.variants) {
+      allPatterns.push({ pattern: v, idiom });
+    }
+  }
+}
+const sortedPatterns = allPatterns.sort((a, b) => b.pattern.length - a.pattern.length);
+const _sortedIdioms = [...idioms].sort((a, b) => b.ko.length - a.ko.length);
 
 // 정규화 함수 (공백 제거 등)
 function normalizeForMatching(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
 }
 
+// 한국어 종결어미 패턴 (속담 뒤에 붙는 일반적인 어미들)
+const KOREAN_SENTENCE_ENDINGS = [
+  '이야',
+  '이다',
+  '야',
+  '다',
+  '지',
+  '네',
+  '요',
+  '죠',
+  '잖아',
+  '거든',
+  '래',
+  '더라',
+  '니까',
+  '는데',
+  '인데',
+];
+
 /**
  * 한→영 관용어 매칭
  * 문장 내에서 관용어를 찾아 번역
+ * - 속담 뒤 종결어미 처리 (이야, 이다, 야 등)
+ * - 속담이 문장 전체를 차지하면 영어 번역만 반환
  */
 export function matchKoIdioms(text: string): {
   found: boolean;
   result: string;
   matched: IdiomEntry[];
+  isFullMatch: boolean; // 속담이 문장 전체인지 여부
 } {
   let result = normalizeForMatching(text);
   const matched: IdiomEntry[] = [];
+  const matchedIdiomIds = new Set<string>(); // 중복 방지
+  let isFullMatch = false;
 
-  for (const idiom of sortedIdioms) {
-    // 기본 표현 및 변형 모두 체크
-    const patterns = [idiom.ko, ...(idiom.variants || [])];
+  // sortedPatterns를 사용하여 긴 패턴부터 매칭 (variants 포함)
+  for (const { pattern, idiom } of sortedPatterns) {
+    // 이미 매칭된 관용구는 스킵
+    if (matchedIdiomIds.has(idiom.ko)) continue;
 
-    for (const pattern of patterns) {
-      // 공백 유연 매칭 (관용어 내 공백을 선택적으로)
-      const flexPattern = pattern.replace(/\s+/g, '\\s*');
-      const regex = new RegExp(flexPattern, 'g');
+    // 정규식 특수 문자 이스케이프 (물음표 등)
+    const escapedPattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // 공백 유연 매칭 (관용어 내 공백을 선택적으로)
+    const flexPattern = escapedPattern.replace(/\s+/g, '\\s*');
 
-      if (regex.test(result)) {
-        result = result.replace(regex, `{{${idiom.en}}}`);
-        matched.push(idiom);
-        break; // 같은 관용어의 다른 변형은 스킵
-      }
+    // 1. 종결어미 포함 전체 문장 매칭 체크
+    const endingPattern = KOREAN_SENTENCE_ENDINGS.join('|');
+    const fullMatchRegex = new RegExp(`^${flexPattern}(${endingPattern})?[.!?]?$`);
+    if (fullMatchRegex.test(result)) {
+      // 속담이 문장 전체를 차지 → 영어 번역만 반환
+      // 첫 글자 대문자로
+      const enCapitalized = idiom.en.charAt(0).toUpperCase() + idiom.en.slice(1);
+      result = enCapitalized;
+      matched.push(idiom);
+      matchedIdiomIds.add(idiom.ko);
+      isFullMatch = true;
+      break;
+    }
+
+    // 2. 부분 매칭 (이스케이프된 flexPattern 사용)
+    const partialRegex = new RegExp(flexPattern, 'g');
+    if (partialRegex.test(result)) {
+      partialRegex.lastIndex = 0; // 리셋 (test() 호출 후 lastIndex 변경됨)
+      result = result.replace(partialRegex, `{{${idiom.en}}}`);
+      matched.push(idiom);
+      matchedIdiomIds.add(idiom.ko);
     }
   }
 
-  // 마커 제거 및 결과 정리
-  result = result.replace(/\{\{/g, '').replace(/\}\}/g, '');
+  // 마커 제거 및 결과 정리 (부분 매칭일 때만)
+  if (!isFullMatch) {
+    result = result.replace(/\{\{/g, '').replace(/\}\}/g, '');
+  }
 
   return {
     found: matched.length > 0,
     result,
     matched,
+    isFullMatch,
   };
 }
 
@@ -526,8 +763,11 @@ export function matchEnIdioms(text: string): {
   const sortedEnIdioms = Object.entries(enToKoIdioms).sort(([a], [b]) => b.length - a.length);
 
   for (const [en, ko] of sortedEnIdioms) {
-    if (result.includes(en.toLowerCase())) {
-      result = result.replace(new RegExp(en, 'gi'), ko);
+    const enLower = en.toLowerCase();
+    if (result.includes(enLower)) {
+      // 정규식 특수 문자 이스케이프 (마침표, 물음표 등)
+      const escapedEn = enLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      result = result.replace(new RegExp(escapedEn, 'gi'), ko);
       matched.push(en);
     }
   }

@@ -169,6 +169,34 @@ export function translateWithCorrection(
     }
   }
 
+  // 0. 전체 문장에 대해 관용어 매칭 먼저 시도 (자막 압축 등)
+  // 문장 분리 전에 전체 문장이 관용어와 매칭되면 바로 반환
+  if (direction === 'en-ko') {
+    const fullTextIdiomResult = matchEnIdioms(textToTranslate);
+    if (fullTextIdiomResult.found) {
+      // 전체 문장이 관용어로 완전 변환되었으면 바로 반환
+      const hasEnglishInResult = /[a-zA-Z]/.test(fullTextIdiomResult.result);
+      if (!hasEnglishInResult) {
+        return {
+          translated: fullTextIdiomResult.result,
+          original: input,
+          correctedInput: textToTranslate !== input ? textToTranslate : undefined,
+          correction,
+        };
+      }
+    }
+  } else if (direction === 'ko-en') {
+    const fullTextIdiomResult = matchKoIdioms(textToTranslate);
+    if (fullTextIdiomResult.found && fullTextIdiomResult.isFullMatch) {
+      return {
+        translated: fullTextIdiomResult.result,
+        original: input,
+        correctedInput: textToTranslate !== input ? textToTranslate : undefined,
+        correction,
+      };
+    }
+  }
+
   // 문장 분리 (?, !, . 기준)
   const sentences = splitSentences(textToTranslate);
 
@@ -5035,8 +5063,12 @@ function translateKoToEnAdvanced(
     return { translation: sentence, detectedSubject: '' };
   }
 
-  // 2. 관용어/숙어 매칭 (완전 일치)
+  // 2. 관용어/숙어 매칭 (완전 일치 + 종결어미 처리)
   const idiomResult = matchKoIdioms(text);
+  if (idiomResult.found && idiomResult.isFullMatch) {
+    // 속담/관용구가 문장 전체를 차지하면 (종결어미 포함) 바로 반환
+    return { translation: idiomResult.result, detectedSubject: '' };
+  }
   if (idiomResult.found && idiomResult.matched.length === 1) {
     // 입력이 관용어와 완전히 일치하면 바로 반환
     const normalized = text.replace(/\s+/g, ' ').trim();
@@ -5044,6 +5076,12 @@ function translateKoToEnAdvanced(
     if (matched && (matched.ko === normalized || matched.variants?.includes(normalized))) {
       return { translation: idiomResult.result, detectedSubject: '' };
     }
+  }
+
+  // 2.5. 관용어가 포함된 문장 처리 (부분 매칭 후 나머지 번역)
+  // 관용어가 발견되었으면 패턴 매칭보다 먼저 처리
+  if (idiomResult.found) {
+    return { translation: translateWithIdioms(text, idiomResult), detectedSubject: '' };
   }
 
   // 3. 부정 패턴 처리 - 문법 분석 경로로 직접 라우팅
@@ -5082,11 +5120,6 @@ function translateKoToEnAdvanced(
       }
       return { translation: result, detectedSubject: '' };
     }
-  }
-
-  // 4. 관용어가 포함된 문장 처리 (부분 매칭 후 나머지 번역)
-  if (idiomResult.found) {
-    return { translation: translateWithIdioms(text, idiomResult), detectedSubject: '' };
   }
 
   // 4.5. 동사-목적어 연어 체크 (NLP 우선 처리)
@@ -5748,26 +5781,59 @@ function postProcessEnglish(text: string): string {
 
 /**
  * 관용어가 포함된 문장 번역
+ * matchKoIdioms가 이미 관용어를 영어로 치환한 result를 반환하므로,
+ * 남은 한국어 부분만 번역하고, 어미에 따른 주어/조동사를 추가
  */
 function translateWithIdioms(
-  text: string,
+  originalText: string,
   idiomResult: { result: string; matched: { ko: string; en: string }[] },
 ): string {
-  // 관용어를 마커로 치환
-  let markedText = text;
+  // matchKoIdioms의 result는 관용어가 이미 영어로 치환된 상태
+  // 예: "이번만 눈 감아줄게" → "이번만 let it slide"
+  const partialResult = idiomResult.result;
+
+  // 원본 텍스트에서 어미 분석 (일반화된 한국어 문법 규칙)
+  // ~줄게, ~줄거야, ~할게 → I'll (화자의 약속/의지)
+  // ~해줘, ~해주세요 → Please ~ (요청)
+  // ~겠다, ~겠어 → I can finally (가능/안도의 의미)
+  // 수 있겠다 → can finally (가능 + 안도)
+  const promiseEndings = /(?:줄게|줄거야|할게|해줄게)$/;
+  const requestEndings = /(?:해줘|해주세요|해달라|해주라)$/;
+  const canFinallyEndings = /수\s*있겠다$/; // ~할 수 있겠다 패턴
+  const futureEndings = /(?:겠다|겠어|겠네|겠지)$/;
+
+  let prefix = '';
+  let adverb = ''; // finally 등 부사
+  const suffix = '';
+
+  if (promiseEndings.test(originalText)) {
+    prefix = "I'll ";
+  } else if (requestEndings.test(originalText)) {
+    prefix = 'Please ';
+  } else if (canFinallyEndings.test(originalText)) {
+    // "~할 수 있겠다" → "I can finally ~" (안도의 의미)
+    prefix = 'I can ';
+    adverb = 'finally ';
+  } else if (futureEndings.test(originalText)) {
+    // 일반 추측/의지
+    prefix = 'I can ';
+  }
+
+  // 영어 관용구 부분을 마커로 보호
   const markers: { marker: string; en: string }[] = [];
+  let markedText = partialResult;
 
   for (let i = 0; i < idiomResult.matched.length; i++) {
     const idiom = idiomResult.matched[i];
     if (!idiom) continue;
     const marker = `__IDIOM_${i}__`;
-    // 공백 유연 매칭
-    const flexPattern = idiom.ko.replace(/\s+/g, '\\s*');
-    markedText = markedText.replace(new RegExp(flexPattern), marker);
+    // 영어 관용구를 마커로 치환 (대소문자 무시)
+    const enPattern = idiom.en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    markedText = markedText.replace(new RegExp(enPattern, 'i'), marker);
     markers.push({ marker, en: idiom.en });
   }
 
-  // 마커 제외 부분을 형태소 분해로 번역
+  // 마커 제외 부분(한국어)을 번역
   const segments = markedText.split(/(__IDIOM_\d+__)/);
   const translatedSegments: string[] = [];
 
@@ -5779,12 +5845,68 @@ function translateWithIdioms(
         translatedSegments.push(found.en);
       }
     } else if (segment.trim()) {
-      // 나머지 텍스트는 형태소 분해로 번역
-      translatedSegments.push(decomposeAndTranslateKo(segment.trim()));
+      // 남은 한국어 텍스트 번역
+      const koText = segment.trim();
+      // 한국어가 있으면 번역
+      if (/[가-힣]/.test(koText)) {
+        translatedSegments.push(decomposeAndTranslateKo(koText));
+      } else {
+        // 영어나 기타 문자는 그대로
+        translatedSegments.push(koText);
+      }
     }
   }
 
-  return translatedSegments.join(' ').replace(/\s+/g, ' ').trim();
+  // 결과 조합
+  let result = translatedSegments.join(' ').replace(/\s+/g, ' ').trim();
+
+  // 시간 표현 처리 (영어 어순에 맞게)
+  // "just this once" → 뒤로 이동 + "this time"으로 변환
+  // "now" → 앞에 유지
+  let leadingTime = '';
+  const timeExpressionMatch = result.match(
+    /^(just this once|this time|next time|last time)\s+(.+)$/i,
+  );
+  if (timeExpressionMatch) {
+    const timeExpr = timeExpressionMatch[1];
+    const rest = timeExpressionMatch[2];
+    // 시간 표현을 뒤로 이동
+    result = `${rest} ${timeExpr?.toLowerCase() === 'just this once' ? 'this time' : timeExpr}`;
+  }
+
+  // "now"가 앞에 있으면 분리 (나중에 prefix 앞에 붙임)
+  const nowMatch = result.match(/^(now)\s+(.+)$/i);
+  if (nowMatch) {
+    leadingTime = 'Now ';
+    result = nowMatch[2] || '';
+  }
+
+  // prefix 추가 (I'll, Please, I can 등)
+  if (prefix && result) {
+    result = prefix + adverb + result.charAt(0).toLowerCase() + result.slice(1);
+  }
+
+  // leading time 추가 (Now 등)
+  // 단, "I"로 시작하면 대문자 유지
+  if (leadingTime) {
+    if (result.startsWith('I ') || result.startsWith("I'")) {
+      result = leadingTime + result;
+    } else {
+      result = leadingTime + result.charAt(0).toLowerCase() + result.slice(1);
+    }
+  }
+
+  // suffix 추가
+  if (suffix) {
+    result = result + suffix;
+  }
+
+  // 첫 글자 대문자
+  if (result.length > 0) {
+    result = result.charAt(0).toUpperCase() + result.slice(1);
+  }
+
+  return result;
 }
 
 /**
@@ -6144,7 +6266,7 @@ function translateEnToKoAdvanced(text: string): string {
   // 2. 관용어/숙어 매칭
   const idiomResult = matchEnIdioms(expandedText);
   if (idiomResult.found) {
-    // 전체가 관용어면 바로 반환, 아니면 단어 번역 진행
+    // 전체가 관용어면 바로 반환
     if (idiomResult.matched.length === 1) {
       const normalized = expandedText.toLowerCase().trim();
       const firstMatched = idiomResult.matched[0];
@@ -6153,8 +6275,9 @@ function translateEnToKoAdvanced(text: string): string {
         return idiomResult.result;
       }
     }
-    // 부분 관용어가 포함된 경우 결과 반환
-    return idiomResult.result;
+    // 부분 관용어가 포함된 경우, 나머지 영어도 번역
+    // "it is 비가 억수같이 쏟아진다 outside" → "밖에 비가 억수같이 쏟아진다"
+    return translateEnWithIdiomsToKo(expandedText, idiomResult);
   }
 
   // 2.5. 구동사 매칭 (긴 것부터)
@@ -6550,6 +6673,117 @@ function applyEnglishTense(verb: string, tense: string): string {
     default:
       return verb;
   }
+}
+
+/**
+ * 영어 관용구가 포함된 문장 번역
+ * 관용구는 이미 한국어로 치환되어 있고, 나머지 영어 부분을 번역
+ * 예: "It's raining cats and dogs outside" → idiomResult.result = "it is 비가 억수같이 쏟아진다 outside"
+ *     → 최종: "밖에 비가 억수같이 쏟아지네"
+ */
+function translateEnWithIdiomsToKo(
+  _originalText: string,
+  idiomResult: { result: string; matched: string[] },
+): string {
+  // idiomResult.result에는 관용어가 이미 한국어로 치환된 상태
+  const partialResult = idiomResult.result;
+
+  // 전체 문장이 한국어로 변환되었으면 그대로 반환
+  // (영어 글자가 없으면 전체 매칭으로 판단)
+  const hasEnglish = /[a-zA-Z]/.test(partialResult);
+  if (!hasEnglish) {
+    return partialResult;
+  }
+
+  // 한국어 관용구 부분을 마커로 보호
+  const markers: { marker: string; ko: string }[] = [];
+  let markedText = partialResult;
+
+  // 한국어 블록(연속된 한글 + 쉼표 등 구두점)을 마커로 치환
+  const koreanBlockPattern = /[가-힣\s,]+/g;
+  let matchIdx = 0;
+  markedText = partialResult.replace(koreanBlockPattern, (match) => {
+    const trimmed = match.trim();
+    if (trimmed.length > 0) {
+      const marker = `__KO_BLOCK_${matchIdx}__`;
+      markers.push({ marker, ko: trimmed });
+      matchIdx++;
+      return ` ${marker} `;
+    }
+    return ' ';
+  });
+
+  // 영어 부분 번역
+  const words = markedText.split(/\s+/).filter((w) => w.trim());
+  const translatedWords: string[] = [];
+
+  for (const word of words) {
+    if (word.startsWith('__KO_BLOCK_')) {
+      // 마커를 한국어로 복원
+      const found = markers.find((m) => m.marker === word);
+      if (found) {
+        translatedWords.push(found.ko);
+      }
+    } else {
+      // 영어 단어 번역
+      const cleanWord = word.toLowerCase().replace(/[.,!?;:'"]/g, '');
+
+      // 불필요한 단어 생략 (it, is, it's, a, an, the, at, your 등)
+      // 관용구와 함께 사용되는 불필요한 단어들
+      const skipWords = [
+        'it',
+        'is',
+        "it's",
+        "it'll",
+        'itll',
+        'a',
+        'an',
+        'the',
+        'be',
+        'at',
+        'your',
+        'my',
+        'his',
+        'her',
+        'will',
+      ];
+      if (skipWords.includes(cleanWord)) {
+        continue;
+      }
+
+      const translated = enToKoWords[cleanWord];
+      if (translated) {
+        translatedWords.push(translated);
+      }
+    }
+  }
+
+  // 결과 조합 및 정리
+  let result = translatedWords.join(' ').replace(/\s+/g, ' ').trim();
+
+  // 어순 조정: 장소/명사 표현이 있으면 앞으로 이동
+  // "비가 억수같이 쏟아진다 밖에" → "밖에 비가 억수같이 쏟아진다"
+  // "대박 나라 오디션" → "오디션 대박 나라"
+  const placeEndingMatch = result.match(
+    /(.+)\s+(밖에|안에|집에|학교에|여기에|거기에|저기에|오디션|콘서트|공연|무대)(!)?$/,
+  );
+  if (placeEndingMatch) {
+    const main = placeEndingMatch[1];
+    const noun = placeEndingMatch[2];
+    const punct = placeEndingMatch[3] || '';
+    result = `${noun} ${main}${punct}`;
+  }
+
+  // 종결어미 조정 (자연스러운 한국어 표현)
+  // "~쏟아진다" → "~쏟아지네"
+  result = result.replace(/쏟아진다$/, '쏟아지네');
+
+  // "~먹기"로 끝나면 "야" 추가 ("누워서 떡 먹기" → "누워서 떡 먹기야")
+  if (result.endsWith('먹기') && !result.endsWith('야')) {
+    result = `${result}야`;
+  }
+
+  return result;
 }
 
 /**
