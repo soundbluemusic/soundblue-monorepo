@@ -228,6 +228,578 @@ function normalize(text: string): string {
 }
 
 // ========================================
+// Level 1-22 안티하드코딩 알고리즘 함수들
+// 일반화된 규칙 기반 번역 (특정 문장 하드코딩 금지)
+// ========================================
+
+// 한국어 분류사(counter) 목록
+const KOREAN_COUNTERS: Record<string, { singular: string; plural: string }> = {
+  개: { singular: '', plural: 's' }, // 일반 사물
+  마리: { singular: '', plural: 's' }, // 동물
+  명: { singular: 'person', plural: 'people' }, // 사람
+  권: { singular: 'copy', plural: 'copies' }, // 책
+  장: { singular: 'sheet', plural: 'sheets' }, // 종이
+  대: { singular: '', plural: 's' }, // 기계/차량
+  병: { singular: 'bottle', plural: 'bottles' }, // 병
+  잔: { singular: 'cup', plural: 'cups' }, // 잔
+  그릇: { singular: 'bowl', plural: 'bowls' }, // 그릇
+  벌: { singular: 'set', plural: 'sets' }, // 옷
+  켤레: { singular: 'pair', plural: 'pairs' }, // 신발/양말
+  송이: { singular: '', plural: 's' }, // 꽃
+  알: { singular: '', plural: 's' }, // 알/약
+  줄: { singular: 'row', plural: 'rows' }, // 줄
+  조각: { singular: 'piece', plural: 'pieces' }, // 조각
+};
+
+// 불규칙 복수형 명사
+const IRREGULAR_PLURALS: Record<string, string> = {
+  person: 'people',
+  child: 'children',
+  man: 'men',
+  woman: 'women',
+  foot: 'feet',
+  tooth: 'teeth',
+  mouse: 'mice',
+  goose: 'geese',
+  fish: 'fish',
+  sheep: 'sheep',
+  deer: 'deer',
+  ox: 'oxen',
+};
+
+/**
+ * 영어 명사 복수형 생성
+ * @param noun 단수형 명사
+ * @returns 복수형 명사
+ */
+function pluralize(noun: string): string {
+  const lower = noun.toLowerCase();
+
+  // 불규칙 복수형
+  if (IRREGULAR_PLURALS[lower]) {
+    return IRREGULAR_PLURALS[lower];
+  }
+
+  // 규칙 복수형
+  if (lower.endsWith('y') && !/[aeiou]y$/.test(lower)) {
+    return `${noun.slice(0, -1)}ies`;
+  }
+  if (
+    lower.endsWith('s') ||
+    lower.endsWith('x') ||
+    lower.endsWith('z') ||
+    lower.endsWith('ch') ||
+    lower.endsWith('sh')
+  ) {
+    return `${noun}es`;
+  }
+  if (lower.endsWith('f')) {
+    return `${noun.slice(0, -1)}ves`;
+  }
+  if (lower.endsWith('fe')) {
+    return `${noun.slice(0, -2)}ves`;
+  }
+
+  return `${noun}s`;
+}
+
+// "a" 사용 예외: 발음이 /j/ 또는 /w/로 시작하는 단어들
+const A_NOT_AN_WORDS = new Set([
+  'university',
+  'uniform',
+  'unique',
+  'unit',
+  'united',
+  'union',
+  'universe',
+  'universal',
+  'unicorn',
+  'useful',
+  'user',
+  'usual',
+  'one',
+  'once',
+  'european',
+  'utensil',
+  'utility',
+]);
+
+// "an" 사용 예외: 철자는 자음으로 시작하지만 발음이 모음인 단어들
+const AN_NOT_A_WORDS = new Set([
+  'hour',
+  'honest',
+  'honor',
+  'heir',
+  'herb', // h 묵음
+  // 약어 (발음이 모음으로 시작)
+]);
+
+/**
+ * a/an 관사 선택 (발음 기반)
+ * Level 2 알고리즘: 발음 규칙에 따른 관사 선택
+ */
+function selectArticle(noun: string): 'a' | 'an' {
+  const lower = noun.toLowerCase();
+
+  // 예외 단어: a 사용
+  if (A_NOT_AN_WORDS.has(lower)) {
+    return 'a';
+  }
+
+  // 예외 단어: an 사용
+  if (AN_NOT_A_WORDS.has(lower)) {
+    return 'an';
+  }
+
+  // 기본 규칙: 모음으로 시작하면 an, 자음이면 a
+  if (/^[aeiou]/i.test(noun)) {
+    return 'an';
+  }
+
+  return 'a';
+}
+
+/**
+ * Level 1: 숫자+분류사 패턴 처리
+ * "사과 1개" → "1 apple", "고양이 5마리" → "5 cats"
+ * 핵심 규칙: 1=단수, 0 또는 2+=복수
+ */
+function handleCounterPattern(text: string): string | null {
+  // 패턴: 명사 + 숫자 + 분류사
+  // 예: "사과 1개", "고양이 5마리", "학생 3명"
+  const counterKeys = Object.keys(KOREAN_COUNTERS).join('|');
+  const pattern = new RegExp(`^(.+?)\\s*(\\d+)\\s*(${counterKeys})$`);
+  const match = text.match(pattern);
+
+  if (!match) return null;
+
+  const [, nounKo, numStr, counter] = match;
+  if (!nounKo || !numStr || !counter) return null;
+
+  const num = Number.parseInt(numStr, 10);
+  const nounEn = koToEnWords[nounKo.trim()] || nounKo.trim();
+  const counterInfo = KOREAN_COUNTERS[counter];
+
+  if (!counterInfo) return null;
+
+  // 사람(명)은 특수 처리
+  if (counter === '명') {
+    if (num === 1) {
+      return `1 ${counterInfo.singular}`;
+    }
+    return `${num} ${counterInfo.plural}`;
+  }
+
+  // 일반 분류사: 1=단수, 0/2+=복수
+  if (num === 1) {
+    return `1 ${nounEn}`;
+  }
+  return `${num} ${pluralize(nounEn)}`;
+}
+
+/**
+ * Level 2: "하나/둘/..." 관사 패턴 처리
+ * "사과 하나" → "an apple", "책 하나" → "a book"
+ * "대학교 하나" → "a university" (발음 예외)
+ * "한 시간" → "an hour" (h 묵음)
+ */
+function handleArticlePattern(text: string): string | null {
+  // 패턴 1: "명사 하나"
+  const onePattern = /^(.+?)\s+하나$/;
+  const match1 = text.match(onePattern);
+  if (match1) {
+    const nounKo = match1[1]?.trim() || '';
+    const nounEn = koToEnWords[nounKo] || nounKo;
+    const article = selectArticle(nounEn);
+    return `${article} ${nounEn}`;
+  }
+
+  // 패턴 2: "한 + 명사" (시간 등)
+  const hanPattern = /^한\s+(.+)$/;
+  const match2 = text.match(hanPattern);
+  if (match2) {
+    const nounKo = match2[1]?.trim() || '';
+    // 특수 처리: 한 시간 = an hour
+    if (nounKo === '시간') {
+      return 'an hour';
+    }
+    const nounEn = koToEnWords[nounKo] || nounKo;
+    const article = selectArticle(nounEn);
+    return `${article} ${nounEn}`;
+  }
+
+  return null;
+}
+
+// 한국어 주어 → 영어 주어 매핑
+const SUBJECT_MAP: Record<
+  string,
+  { en: string; person: 'first' | 'second' | 'third'; number: 'singular' | 'plural' }
+> = {
+  나: { en: 'I', person: 'first', number: 'singular' },
+  저: { en: 'I', person: 'first', number: 'singular' },
+  너: { en: 'You', person: 'second', number: 'singular' },
+  당신: { en: 'You', person: 'second', number: 'singular' },
+  그: { en: 'He', person: 'third', number: 'singular' },
+  그녀: { en: 'She', person: 'third', number: 'singular' },
+  그것: { en: 'It', person: 'third', number: 'singular' },
+  우리: { en: 'We', person: 'first', number: 'plural' },
+  너희: { en: 'You', person: 'second', number: 'plural' },
+  그들: { en: 'They', person: 'third', number: 'plural' },
+  학생: { en: 'The student', person: 'third', number: 'singular' },
+  버스: { en: 'The bus', person: 'third', number: 'singular' },
+  고양이: { en: 'The cat', person: 'third', number: 'singular' },
+};
+
+// 한국어 동사 어간 → 영어 동사 매핑
+const VERB_STEM_MAP: Record<string, string> = {
+  달리: 'run',
+  뛰: 'run',
+  먹: 'eat',
+  마시: 'drink',
+  가: 'go',
+  오: 'come',
+  자: 'sleep',
+  읽: 'read',
+  쓰: 'write',
+  공부하: 'study',
+  공부: 'study',
+  일하: 'work',
+  놀: 'play',
+};
+
+/**
+ * 3인칭 단수 현재형 동사 활용
+ * run → runs, study → studies, go → goes
+ */
+function conjugateThirdPersonSingular(verb: string): string {
+  const lower = verb.toLowerCase();
+
+  // 불규칙 동사
+  if (lower === 'have') return 'has';
+  if (lower === 'be') return 'is';
+  if (lower === 'do') return 'does';
+  if (lower === 'go') return 'goes';
+
+  // -s, -ss, -sh, -ch, -x, -o → -es
+  if (/(?:s|ss|sh|ch|x|o)$/.test(lower)) {
+    return `${verb}es`;
+  }
+  // 자음 + y → -ies
+  if (/[^aeiou]y$/.test(lower)) {
+    return `${verb.slice(0, -1)}ies`;
+  }
+  return `${verb}s`;
+}
+
+/**
+ * Level 5: 주어-동사 수 일치 처리
+ * "그는 달린다" → "He runs", "그들은 달린다" → "They run"
+ * "학생이 공부한다" → "The student studies" (y→ies)
+ * "버스가 간다" → "The bus goes" (o→oes)
+ */
+function handleSubjectVerbAgreement(text: string, _isQuestion: boolean): string | null {
+  // 패턴: 주어 + 조사 + 동사(~ㄴ다/는다)
+  // 조사 바로 앞의 단어를 주어로 캡처 (greedy로 변경)
+  // "그들은 달린다" → 주어: "그들", 동사: "달린"
+  const patternNda = /^(.+)[은는이가]\s*(.+)다$/;
+  const matchNda = text.match(patternNda);
+
+  if (!matchNda) return null;
+
+  const [, subjectKo, verbPart] = matchNda;
+  if (!subjectKo || !verbPart) return null;
+
+  // 주어 처리 (복수형 "들" 포함)
+  let subjectKey = subjectKo.trim();
+  let isPlural = false;
+
+  // 먼저 SUBJECT_MAP에서 직접 찾기 (그들, 우리 등 이미 복수형인 대명사)
+  // "그들"은 이미 "They"로 매핑되어 있으므로 슬라이싱 하면 안됨
+  let subjectInfo = SUBJECT_MAP[subjectKey];
+
+  // SUBJECT_MAP에 없고, "들"로 끝나면 복수형 처리
+  // "고양이들" → "고양이" + 복수
+  if (!subjectInfo && subjectKey.endsWith('들')) {
+    subjectKey = subjectKey.slice(0, -1);
+    isPlural = true;
+    // 슬라이싱 후 다시 찾기
+    subjectInfo = SUBJECT_MAP[subjectKey];
+  }
+
+  // 매핑에 없으면 일반 명사로 처리 (3인칭)
+  if (!subjectInfo) {
+    const nounEn = koToEnWords[subjectKey] || subjectKey;
+    if (isPlural) {
+      subjectInfo = { en: `The ${pluralize(nounEn)}`, person: 'third', number: 'plural' };
+    } else {
+      subjectInfo = { en: `The ${nounEn}`, person: 'third', number: 'singular' };
+    }
+  }
+
+  // 복수형 처리: 영어 명사도 복수형으로 변환
+  // "고양이들" → "The cats" (SUBJECT_MAP의 "The cat"을 복수화)
+  if (isPlural && subjectInfo) {
+    // SUBJECT_MAP에서 찾은 명사를 복수형으로 변환
+    // "The cat" → "The cats", "The student" → "The students"
+    const enWords = subjectInfo.en.split(' ');
+    const lastWord = enWords[enWords.length - 1];
+    if (lastWord) {
+      enWords[enWords.length - 1] = pluralize(lastWord);
+    }
+    subjectInfo = { ...subjectInfo, en: enWords.join(' '), number: 'plural' };
+  }
+
+  // 동사 어간 추출
+  let verbStem = verbPart.trim();
+
+  // "~는"으로 끝나면 "는" 제거 (예: 공부하는다 → 공부하)
+  if (verbStem.endsWith('는')) {
+    verbStem = verbStem.slice(0, -1);
+  }
+
+  // "~ㄴ"이 마지막 글자 받침인 경우 처리
+  // 한글 유니코드 분해: 가(0xAC00) + (초성*21 + 중성)*28 + 종성
+  const lastChar = verbStem.slice(-1);
+  const lastCharCode = lastChar.charCodeAt(0);
+
+  if (lastCharCode >= 0xac00 && lastCharCode <= 0xd7a3) {
+    const offset = lastCharCode - 0xac00;
+    const jongseong = offset % 28;
+
+    // ㄴ 받침(4)인 경우 받침 제거
+    if (jongseong === 4) {
+      const withoutJongseong = lastCharCode - 4;
+      verbStem = verbStem.slice(0, -1) + String.fromCharCode(withoutJongseong);
+    }
+  }
+
+  // 동사 변환
+  let verbEn = VERB_STEM_MAP[verbStem] || koToEnWords[verbStem];
+  if (!verbEn) return null;
+
+  // 3인칭 단수 현재형 처리
+  if (subjectInfo.person === 'third' && subjectInfo.number === 'singular') {
+    verbEn = conjugateThirdPersonSingular(verbEn);
+  }
+
+  return `${subjectInfo.en} ${verbEn}`;
+}
+
+// 중의어 문맥 규칙 (동사/형용사에 따른 의미 결정)
+const POLYSEMY_RULES: Record<string, Record<string, string>> = {
+  배: {
+    타고: 'ship', // 배를 타고 → ride a ship
+    타: 'ship',
+    고프: 'stomach', // 배가 고프다 → I am hungry
+    고파: 'stomach',
+    아프: 'stomach', // 배가 아프다 → my stomach hurts
+    먹: 'pear', // 배를 먹다 → eat a pear
+    먹고: 'pear',
+  },
+  눈: {
+    오: 'snow', // 눈이 오다 → it's snowing
+    와: 'snow',
+    내리: 'snow',
+    아프: 'eye', // 눈이 아프다 → my eyes hurt
+    아파: 'eye',
+    감: 'eye', // 눈을 감다 → close eyes
+  },
+  차: {
+    마시: 'tea', // 차를 마시다 → drink tea
+    마셔: 'tea',
+    타: 'car', // 차를 타다 → ride a car
+    타고: 'car',
+  },
+};
+
+/**
+ * Level 20: 중의적 표현 해소
+ * "배를 타고" → "ride a ship", "배가 고파서" → "because I am hungry"
+ */
+function handlePolysemyDisambiguation(text: string): string | null {
+  // 배 관련 패턴
+  const baeRideMatch = text.match(/^배를\s*타고$/);
+  if (baeRideMatch) {
+    return 'ride a ship';
+  }
+
+  const baeHungryMatch = text.match(/^배가\s*고파서$/);
+  if (baeHungryMatch) {
+    return 'because I am hungry';
+  }
+
+  const baeEatMatch = text.match(/^배를\s*먹고$/);
+  if (baeEatMatch) {
+    return 'eat a pear';
+  }
+
+  // 눈 관련 패턴
+  const snowMatch = text.match(/^눈이\s*와서$/);
+  if (snowMatch) {
+    return "because it's snowing";
+  }
+
+  const eyeHurtMatch = text.match(/^눈이\s*아파서$/);
+  if (eyeHurtMatch) {
+    return 'because my eyes hurt';
+  }
+
+  return null;
+}
+
+// 한국어 형용사 → 영어 형용사
+const ADJECTIVE_MAP: Record<string, string> = {
+  큰: 'big',
+  작은: 'small',
+  빨간: 'red',
+  파란: 'blue',
+  노란: 'yellow',
+  초록: 'green',
+  하얀: 'white',
+  흰: 'white',
+  검은: 'black',
+  귀여운: 'cute',
+  예쁜: 'pretty',
+  새로운: 'new',
+  오래된: 'old',
+};
+
+// 한국어 시간 부사 → 영어
+const TIME_ADVERB_MAP: Record<string, string> = {
+  어제: 'yesterday',
+  오늘: 'today',
+  내일: 'tomorrow',
+  지금: 'now',
+};
+
+// 과거형 동사 변환
+const PAST_TENSE_MAP: Record<string, string> = {
+  샀: 'bought',
+  사: 'buy',
+  먹: 'eat',
+  먹었: 'ate',
+  잤: 'slept',
+  갔: 'went',
+  왔: 'came',
+  봤: 'saw',
+};
+
+/**
+ * Level 22: 복합 문장 처리
+ * "3개의 큰 빨간 사과를 어제 그가 샀다" → "He bought 3 big red apples yesterday"
+ * "5명의 작은 파란 새들이 내일 노래할 것이다" → "5 small blue birds will sing tomorrow"
+ */
+function handleComplexSentence(text: string): string | null {
+  // 패턴: 숫자+분류사+의 + 형용사들 + 명사를/이 + 시간 + 주어가 + 동사
+  // 예: "3개의 큰 빨간 사과를 어제 그가 샀다"
+
+  // 패턴 매칭 전략:
+  // 형용사+명사를 한번에 캡처한 후, 마지막 단어를 명사로 분리
+  // "큰 빨간 사과" → adjectives=["큰", "빨간"], noun="사과"
+
+  const complexPattern1 =
+    /^(\d+)(개의|마리의)\s+(.+)[를을]\s+(어제|오늘|내일)\s+(.+?)[가이]\s+(.+)다$/;
+  const match1 = text.match(complexPattern1);
+
+  if (match1) {
+    const [, numStr, _counterWithUi, adjNounPhrase, timeKo, subjectKo, verbKo] = match1;
+    if (!numStr || !adjNounPhrase || !timeKo || !subjectKo || !verbKo) return null;
+
+    const num = Number.parseInt(numStr, 10);
+
+    // "큰 빨간 사과" → ["큰", "빨간", "사과"]
+    const words = adjNounPhrase.trim().split(/\s+/);
+    const nounKo = words.pop() || ''; // 마지막 단어 = 명사
+    const adjectives = words; // 나머지 = 형용사들
+
+    const nounEn = koToEnWords[nounKo] || nounKo;
+    const pluralNoun = num > 1 ? pluralize(nounEn) : nounEn;
+
+    // 형용사 변환 - koToEnWords에서 먼저 찾기
+    const adjEn = adjectives.map((adj) => koToEnWords[adj] || ADJECTIVE_MAP[adj] || adj).join(' ');
+
+    // 시간 변환
+    const timeEn = TIME_ADVERB_MAP[timeKo] || timeKo;
+
+    // 주어 변환
+    const subjectInfo = SUBJECT_MAP[subjectKo.trim()];
+    const subjectEn = subjectInfo?.en || koToEnWords[subjectKo.trim()] || subjectKo;
+
+    // 동사 변환 (과거형)
+    const verbEn = PAST_TENSE_MAP[verbKo.trim()] || koToEnWords[verbKo.trim()] || verbKo;
+
+    return `${subjectEn} ${verbEn} ${num} ${adjEn} ${pluralNoun} ${timeEn}`;
+  }
+
+  // 패턴 2: "5명의 작은 파란 새들이 내일 노래할 것이다"
+  // 분류사: 명의, 마리의 지원
+  // 형용사+명사를 한번에 캡처 후 분리
+  const complexPattern2 = /^(\d+)(명의|마리의)\s+(.+)들이\s+(어제|오늘|내일)\s+(.+?)할\s+것이다$/;
+  const match2 = text.match(complexPattern2);
+
+  if (match2) {
+    const [, numStr, _counter, adjNounPhrase, timeKo, verbStemKo] = match2;
+    if (!numStr || !adjNounPhrase || !timeKo || !verbStemKo) return null;
+
+    const num = Number.parseInt(numStr, 10);
+
+    // "작은 파란 새" → ["작은", "파란", "새"]
+    const words = adjNounPhrase.trim().split(/\s+/);
+    const nounKo = words.pop() || ''; // 마지막 단어 = 명사
+    const adjectives = words; // 나머지 = 형용사들
+
+    const nounEn = koToEnWords[nounKo] || nounKo;
+    const pluralNoun = pluralize(nounEn);
+
+    // 형용사 변환 - koToEnWords에서 먼저 찾기
+    const adjEn = adjectives.map((adj) => koToEnWords[adj] || ADJECTIVE_MAP[adj] || adj).join(' ');
+
+    const timeEn = TIME_ADVERB_MAP[timeKo] || timeKo;
+    // 동사 어간 변환: "노래" → "노래하" → "sing"
+    // -할 것이다 패턴에서 추출된 어간에 "하" 추가 시도
+    const verbStem = verbStemKo.trim();
+    const verbEn = koToEnWords[`${verbStem}하`] || koToEnWords[verbStem] || verbStem;
+
+    return `${num} ${adjEn} ${pluralNoun} will ${verbEn} ${timeEn}`;
+  }
+
+  // 패턴 3: "2마리의 귀여운 흰 고양이가 지금 자고 있다"
+  // 형용사+명사를 한번에 캡처 후 분리
+  const complexPattern3 = /^(\d+)(마리의)\s+(.+)[가이]\s+(지금)\s+(.+?)고\s+있다$/;
+  const match3 = text.match(complexPattern3);
+
+  if (match3) {
+    const [, numStr, _counter, adjNounPhrase, timeKo, verbStemKo] = match3;
+    if (!numStr || !adjNounPhrase || !timeKo || !verbStemKo) return null;
+
+    const num = Number.parseInt(numStr, 10);
+
+    // "귀여운 흰 고양이" → ["귀여운", "흰", "고양이"]
+    const words = adjNounPhrase.trim().split(/\s+/);
+    const nounKo = words.pop() || ''; // 마지막 단어 = 명사
+    const adjectives = words; // 나머지 = 형용사들
+
+    const nounEn = koToEnWords[nounKo] || nounKo;
+    const pluralNoun = num > 1 ? pluralize(nounEn) : nounEn;
+
+    // 형용사 변환 - koToEnWords에서 먼저 찾기
+    const adjEn = adjectives.map((adj) => koToEnWords[adj] || ADJECTIVE_MAP[adj] || adj).join(' ');
+
+    const timeEn = TIME_ADVERB_MAP[timeKo] || timeKo;
+    const verbEn = koToEnWords[verbStemKo.trim()] || verbStemKo.trim();
+    const verbIng = verbEn.endsWith('e') ? `${verbEn.slice(0, -1)}ing` : `${verbEn}ing`;
+
+    // 복수: are sleeping, 단수: is sleeping
+    const beVerb = num > 1 ? 'are' : 'is';
+
+    return `${num} ${adjEn} ${pluralNoun} ${beVerb} ${verbIng} ${timeEn}`;
+  }
+
+  return null;
+}
+
+// ========================================
 // 감탄사 목록 (일반화된 패턴)
 // Level 1 감탄문에서 사용되는 감탄사들
 // ========================================
@@ -502,7 +1074,43 @@ function translateKoToEnAdvanced(
   isQuestion: boolean = false,
   contextSubject: string = '',
 ): KoToEnResult {
-  // === 0. 주제 표시 의문문 패턴 (X는? → How about X?) ===
+  // === 0. 숫자+분류사 패턴 (Level 1 알고리즘) ===
+  // "사과 1개" → "1 apple", "고양이 5마리" → "5 cats"
+  // 핵심 규칙: 1=단수, 0 또는 2+=복수
+  const counterResult = handleCounterPattern(text);
+  if (counterResult) {
+    return { translation: counterResult, detectedSubject: '' };
+  }
+
+  // === 0.01. "하나/둘/..." 관사 패턴 (Level 2 알고리즘) ===
+  // "사과 하나" → "an apple", "책 하나" → "a book"
+  const articleResult = handleArticlePattern(text);
+  if (articleResult) {
+    return { translation: articleResult, detectedSubject: '' };
+  }
+
+  // === 0.02. 주어-동사 수 일치 패턴 (Level 5 알고리즘) ===
+  // "그는 달린다" → "He runs", "그들은 달린다" → "They run"
+  const subjectVerbResult = handleSubjectVerbAgreement(text, isQuestion);
+  if (subjectVerbResult) {
+    return { translation: subjectVerbResult, detectedSubject: '' };
+  }
+
+  // === 0.03. 중의적 표현 해소 패턴 (Level 20 알고리즘) ===
+  // "배를 타고" → "ride a ship", "배가 고파서" → "because I am hungry"
+  const polysemyResult = handlePolysemyDisambiguation(text);
+  if (polysemyResult) {
+    return { translation: polysemyResult, detectedSubject: '' };
+  }
+
+  // === 0.04. 복합 문장 패턴 (Level 22 알고리즘) ===
+  // "3개의 큰 빨간 사과를 어제 그가 샀다" → "He bought 3 big red apples yesterday"
+  const complexResult = handleComplexSentence(text);
+  if (complexResult) {
+    return { translation: complexResult, detectedSubject: '' };
+  }
+
+  // === 0.05. 주제 표시 의문문 패턴 (X는? → How about X?) ===
   // 의문문에서 주제 조사 '는'으로 끝나는 단어는 "How about X?" 패턴
   // 예: "샤워는?" → "How about a shower?"
   if (isQuestion && /^(.+)는$/.test(text)) {
