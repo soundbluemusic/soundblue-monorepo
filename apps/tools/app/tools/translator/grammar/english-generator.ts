@@ -477,6 +477,11 @@ const MANNER_ADVERBS = new Set([
   'badly',
   'fast',
   'hard',
+  'properly',
+  'correctly',
+  'carefully',
+  'continuously',
+  'constantly',
 ]);
 
 function translateToken(
@@ -649,6 +654,11 @@ const MANNER_ADVERBS_KO = new Set([
   '혼자',
   '함께',
   '같이',
+  '제대로',
+  '정확히',
+  '조심스럽게',
+  '계속',
+  '지속적으로',
 ]);
 
 function classifyAdverb(
@@ -1022,20 +1032,568 @@ function selectAuxiliaryVerb(tense: Tense, subject: string): string {
 }
 
 // ========================================
+// 추측 의문문 생성 (Level 2)
+// ~했을까? → "Did ... really ...?" / "Could it be that ...?"
+// ========================================
+function generateSpeculativeQuestion(
+  parsed: ParsedSentence,
+  subjectEn: string,
+  verbEn: string,
+  verbStem: string,
+): string {
+  const parts: string[] = [];
+
+  // 접속사 (하지만, 그런데 등)를 문장 앞에 배치
+  const CONJUNCTIONS_KO = new Set(['하지만', '그러나', '그런데', '그리고', '또한', '그래서']);
+  let leadingConjunction = '';
+  for (const adv of parsed.adverbials) {
+    const token = adv.tokens[0];
+    if (token && CONJUNCTIONS_KO.has(token.stem)) {
+      leadingConjunction = koToEnWords[token.stem] || '';
+      break;
+    }
+  }
+  // modifiers에서도 접속사 찾기
+  if (!leadingConjunction) {
+    for (const mod of parsed.modifiers) {
+      for (const token of mod.tokens) {
+        if (CONJUNCTIONS_KO.has(token.stem)) {
+          leadingConjunction = koToEnWords[token.stem] || '';
+          break;
+        }
+      }
+      if (leadingConjunction) break;
+    }
+  }
+
+  // 의문사 (왜, 어떻게, 언제 등)를 찾기
+  const INTERROGATIVES_KO = new Set(['왜', '어떻게', '언제', '어디서', '누가', '뭐', '뭘']);
+  let interrogative = '';
+  for (const mod of parsed.modifiers) {
+    for (const token of mod.tokens) {
+      if (INTERROGATIVES_KO.has(token.stem) || INTERROGATIVES_KO.has(token.original)) {
+        interrogative = koToEnWords[token.stem] || koToEnWords[token.original] || '';
+        break;
+      }
+    }
+    if (interrogative) break;
+  }
+  // tokens에서도 의문사 찾기 (modifiers에 없을 경우)
+  if (!interrogative) {
+    for (const token of parsed.tokens) {
+      if (INTERROGATIVES_KO.has(token.stem) || INTERROGATIVES_KO.has(token.original)) {
+        interrogative = koToEnWords[token.stem] || koToEnWords[token.original] || '';
+        break;
+      }
+    }
+  }
+
+  // 접속사가 있으면 먼저 추가
+  if (leadingConjunction) {
+    parts.push(leadingConjunction.charAt(0).toUpperCase() + leadingConjunction.slice(1));
+  }
+
+  // 의문사가 있으면 "Why did...?" 패턴 사용
+  if (interrogative) {
+    parts.push(interrogative);
+    const aux = selectAuxiliaryVerb(parsed.tense, subjectEn);
+    parts.push(aux.toLowerCase());
+    parts.push(subjectEn.toLowerCase());
+
+    // 계속 → keep + V-ing 패턴 확인
+    const hasKeep = parsed.tokens.some((t) => t.stem === '계속' || t.original === '계속');
+    if (hasKeep) {
+      parts.push('keep');
+      // 동사를 -ing 형태로 변환
+      const verbIng = verbEn.endsWith('e') ? `${verbEn.slice(0, -1)}ing` : `${verbEn}ing`;
+      parts.push(verbIng);
+    } else {
+      parts.push(verbEn);
+    }
+
+    const result = `${parts.join(' ')}?`;
+    return result.charAt(0).toUpperCase() + result.slice(1);
+  }
+
+  // 부정 추측: ~건 아닐까? / ~이 아닐까? → "Could it be that ... not ...?"
+  if (parsed.isNegative) {
+    parts.push('Could it be that');
+    // 주어가 3인칭 단수면 "he/she/it", 아니면 원래 주어
+    const subjectLower = subjectEn.toLowerCase();
+    const isThirdPerson = !['i', 'you', 'we', 'they'].includes(subjectLower);
+
+    if (isThirdPerson) {
+      parts.push(subjectLower === 'he' || subjectLower === 'she' ? subjectLower : 'it');
+    } else {
+      parts.push(subjectLower);
+    }
+
+    // 동사 부정형: "was not", "didn't"
+    if (parsed.tense === 'past') {
+      parts.push("didn't");
+      parts.push(verbEn);
+    } else {
+      parts.push("doesn't");
+      parts.push(verbEn);
+    }
+  } else {
+    // 긍정 추측: ~했을까? → "Did ... really ...?"
+    const aux = selectAuxiliaryVerb(parsed.tense, subjectEn);
+    parts.push(aux);
+    parts.push(subjectEn.toLowerCase());
+
+    // 정도/추측 부사 추가 (정말, 진짜 → really; 아마 → probably)
+    const DEGREE_ADVERBS_KO_SET = new Set(['정말', '진짜', '정말로', '진짜로']);
+    const PROBABILITY_ADVERBS_KO = new Set(['아마', '아마도', '혹시', '어쩌면']);
+    const usedModifierIndices = new Set<number>();
+
+    // modifiers에서 정도/추측 부사 찾기
+    for (let i = 0; i < parsed.modifiers.length; i++) {
+      const mod = parsed.modifiers[i];
+      for (const token of mod.tokens) {
+        if (DEGREE_ADVERBS_KO_SET.has(token.stem)) {
+          parts.push('really');
+          usedModifierIndices.add(i);
+        } else if (
+          PROBABILITY_ADVERBS_KO.has(token.stem) ||
+          PROBABILITY_ADVERBS_KO.has(token.original)
+        ) {
+          const probEn = koToEnWords[token.stem] || koToEnWords[token.original] || '';
+          if (probEn) {
+            parts.push(probEn);
+            usedModifierIndices.add(i);
+          }
+        }
+      }
+    }
+
+    // adverbials에서도 찾기
+    const hasReallyAdverbial = parsed.adverbials.some((adv) => {
+      const token = adv.tokens[0];
+      return token && DEGREE_ADVERBS_KO_SET.has(token.stem);
+    });
+    if (hasReallyAdverbial) {
+      parts.push('really');
+    }
+
+    // 명사+하다 복합동사 처리
+    let finalVerbEn = verbEn;
+    let compoundObjectSuffix = '';
+
+    if (verbStem === '하' && parsed.object) {
+      const objectToken = parsed.object.tokens[0];
+      const objectStem = objectToken?.stem || '';
+      const compoundVerb = NOUN_HADA_COMPOUND_VERBS[objectStem];
+      if (compoundVerb) {
+        finalVerbEn = compoundVerb;
+
+        // 복합 목적어 패턴: 취업 + 준비 → prepare for employment
+        if (objectStem === '준비' || objectStem === '연습') {
+          for (let i = 0; i < parsed.modifiers.length; i++) {
+            const mod = parsed.modifiers[i];
+            const modToken = mod?.tokens[0];
+            const modStem = modToken?.stem || '';
+            const modEn = koToEnWords[modStem] || koToEnWords[modToken?.original || ''];
+            if (modEn && !DEGREE_ADVERBS_KO_SET.has(modStem)) {
+              compoundObjectSuffix = `for ${modEn}`;
+              usedModifierIndices.add(i);
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // 방법 부사 추가 (제대로 → properly)
+    const MANNER_ADVS_KO = new Set([
+      '제대로',
+      '제대',
+      '정확히',
+      '조심스럽게',
+      '계속',
+      '지속적으로',
+    ]);
+    for (const adv of parsed.adverbials) {
+      const advToken = adv.tokens[0];
+      if (
+        advToken &&
+        (MANNER_ADVS_KO.has(advToken.stem) || MANNER_ADVS_KO.has(advToken.original))
+      ) {
+        const advEn = koToEnWords[advToken.original] || koToEnWords[advToken.stem] || advToken.stem;
+        if (advEn && advEn !== advToken.stem && advEn !== advToken.original) {
+          parts.push(advEn);
+        }
+      }
+    }
+
+    parts.push(finalVerbEn);
+
+    // 복합 목적어 접미사 추가
+    if (compoundObjectSuffix) {
+      parts.push(compoundObjectSuffix);
+    }
+  }
+
+  // 목적어 추가 (복합동사로 처리되지 않은 경우)
+  // 복합동사 처리 변수가 이 스코프에서 접근 가능하지 않으므로 재확인
+  let shouldSkipObject = false;
+  if (verbStem === '하' && parsed.object) {
+    const objectToken = parsed.object.tokens[0];
+    const objectStem = objectToken?.stem || '';
+    const compoundVerb = NOUN_HADA_COMPOUND_VERBS[objectStem];
+    if (compoundVerb) {
+      shouldSkipObject = true;
+    }
+  }
+
+  if (parsed.object && !shouldSkipObject) {
+    const objectToken = parsed.object.tokens[0];
+    if (objectToken) {
+      const objectEn = koToEnWords[objectToken.stem] || objectToken.stem;
+      // 동사에 따른 전치사 추가
+      const prep = VERBS_WITH_OBJECT_PREPOSITION[verbEn.toLowerCase()];
+      if (prep) {
+        parts.push(prep);
+      }
+      // 관사 추가
+      const article = selectArticle(objectEn, false);
+      parts.push(article + objectEn);
+    }
+  }
+
+  // 부사어 추가 (시간, 장소 등) - 정도 부사와 방법 부사는 이미 위에서 추가됨
+  const verbInfo = { stem: verbStem, english: verbEn };
+  const DEGREE_ADVERBS_KO = new Set(['정말', '진짜', '정말로', '진짜로']);
+  const MANNER_ADVS_KO_SKIP = new Set([
+    '제대로',
+    '제대',
+    '정확히',
+    '조심스럽게',
+    '계속',
+    '지속적으로',
+  ]);
+  const QUANTITY_ADJECTIVES_KO = new Set(['여러', '많은', '몇', '수십', '수백', '다양한']);
+  const PROBABILITY_ADVERBS_SKIP = new Set(['아마', '아마도', '혹시', '어쩌면']);
+
+  // modifiers에서 수량 형용사 찾기 (여러 회사 → several companies)
+  let quantityAdjective = '';
+  for (const mod of parsed.modifiers) {
+    for (const token of mod.tokens) {
+      if (QUANTITY_ADJECTIVES_KO.has(token.stem) || QUANTITY_ADJECTIVES_KO.has(token.original)) {
+        quantityAdjective = koToEnWords[token.stem] || koToEnWords[token.original] || '';
+        break;
+      }
+    }
+    if (quantityAdjective) break;
+  }
+
+  for (const adv of parsed.adverbials) {
+    const firstToken = adv.tokens[0];
+    // 이미 처리된 부사는 건너뛰기 (stem과 original 모두 확인)
+    if (
+      firstToken &&
+      (DEGREE_ADVERBS_KO.has(firstToken.stem) ||
+        DEGREE_ADVERBS_KO.has(firstToken.original) ||
+        MANNER_ADVS_KO_SKIP.has(firstToken.stem) ||
+        MANNER_ADVS_KO_SKIP.has(firstToken.original) ||
+        PROBABILITY_ADVERBS_SKIP.has(firstToken.stem) ||
+        PROBABILITY_ADVERBS_SKIP.has(firstToken.original))
+    ) {
+      continue;
+    }
+
+    // 수량 형용사가 있으면 명사에 적용 (여러 + 회사 → several companies)
+    if (quantityAdjective && firstToken) {
+      const nounEn =
+        koToEnWords[firstToken.stem] || koToEnWords[firstToken.original] || firstToken.stem;
+      // 복수형 처리 (간단히 's' 추가)
+      const pluralNoun = nounEn.endsWith('y') ? `${nounEn.slice(0, -1)}ies` : `${nounEn}s`;
+      // 전치사 추가
+      const prep = firstToken.particle === '에' ? 'to' : '';
+      parts.push(
+        prep ? `${prep} ${quantityAdjective} ${pluralNoun}` : `${quantityAdjective} ${pluralNoun}`,
+      );
+      quantityAdjective = ''; // 한 번만 사용
+    } else {
+      const advEn = translateConstituent(adv, false, false, verbInfo);
+      parts.push(advEn);
+    }
+  }
+
+  let result = parts.join(' ');
+  result = result.charAt(0).toUpperCase() + result.slice(1);
+  result = result.replace(/\s+/g, ' ').trim();
+  if (!result.endsWith('?')) {
+    result += '?';
+  }
+
+  return result;
+}
+
+// ========================================
+// 조건문 생성 (Level 2)
+// 만약 ~했다면 → "If ... had ..." / "If ... hadn't ..."
+// ========================================
+function generateConditionalClause(
+  parsed: ParsedSentence,
+  subjectEn: string,
+  verbEn: string,
+  verbStem: string,
+): string {
+  const parts: string[] = [];
+
+  // 과거 조건: ~했다면 → "If ... had ..."
+  if (parsed.tense === 'past') {
+    if (parsed.isNegative) {
+      // 부정 조건: ~하지 않았다면 → "If ... hadn't ..."
+      parts.push('If');
+      parts.push(subjectEn.toLowerCase());
+      parts.push("hadn't");
+      // 과거분사
+      const pastParticiple =
+        IRREGULAR_VERBS[verbEn.toLowerCase()]?.pastParticiple || getPastTense(verbEn);
+      parts.push(pastParticiple);
+    } else {
+      // 긍정 조건: ~했다면 → "If ... had ..."
+      parts.push('If');
+      parts.push(subjectEn.toLowerCase());
+      parts.push('had');
+      // 과거분사
+      const pastParticiple =
+        IRREGULAR_VERBS[verbEn.toLowerCase()]?.pastParticiple || getPastTense(verbEn);
+      parts.push(pastParticiple);
+    }
+  } else {
+    // 현재 조건: ~한다면 → "If ... ..."
+    parts.push('If');
+    parts.push(subjectEn.toLowerCase());
+    if (parsed.isNegative) {
+      parts.push("doesn't");
+      parts.push(verbEn);
+    } else {
+      parts.push(`${verbEn}s`);
+    }
+  }
+
+  // 목적어 추가
+  if (parsed.object) {
+    const objectToken = parsed.object.tokens[0];
+    if (objectToken) {
+      const objectEn = koToEnWords[objectToken.stem] || objectToken.stem;
+      const prep = VERBS_WITH_OBJECT_PREPOSITION[verbEn.toLowerCase()];
+      if (prep) {
+        parts.push(prep);
+      }
+      parts.push(objectEn);
+    }
+  }
+
+  // 부사어 추가
+  const verbInfo = { stem: verbStem, english: verbEn };
+  for (const adv of parsed.adverbials) {
+    const advEn = translateConstituent(adv, false, false, verbInfo);
+    parts.push(advEn);
+  }
+
+  let result = parts.join(' ');
+  result = result.replace(/\s+/g, ' ').trim();
+
+  return result;
+}
+
+// ========================================
+// 가정법 생성 (Level 2)
+// ~했을 텐데 → "would have ..."
+// ~하지 못했을 거야 → "wouldn't have been able to ..."
+// ========================================
+function generateHypotheticalClause(
+  parsed: ParsedSentence,
+  subjectEn: string,
+  verbEn: string,
+  verbStem: string,
+): string {
+  const parts: string[] = [];
+
+  parts.push(subjectEn);
+
+  if (parsed.isNegative) {
+    // 부정 가정: ~하지 못했을 거야 → "wouldn't have been able to ..."
+    if (parsed.negationType === 'could_not') {
+      parts.push("wouldn't have been able to");
+      parts.push(verbEn);
+    } else {
+      parts.push("wouldn't have");
+      const pastParticiple =
+        IRREGULAR_VERBS[verbEn.toLowerCase()]?.pastParticiple || getPastTense(verbEn);
+      parts.push(pastParticiple);
+    }
+  } else {
+    // 긍정 가정: ~했을 텐데 → "would have ..."
+    parts.push('would have');
+    const pastParticiple =
+      IRREGULAR_VERBS[verbEn.toLowerCase()]?.pastParticiple || getPastTense(verbEn);
+    parts.push(pastParticiple);
+  }
+
+  // 목적어 추가
+  if (parsed.object) {
+    const objectToken = parsed.object.tokens[0];
+    if (objectToken) {
+      const objectEn = koToEnWords[objectToken.stem] || objectToken.stem;
+      const prep = VERBS_WITH_OBJECT_PREPOSITION[verbEn.toLowerCase()];
+      if (prep) {
+        parts.push(prep);
+      }
+      parts.push(objectEn);
+    }
+  }
+
+  // 부사어 추가
+  const verbInfo = { stem: verbStem, english: verbEn };
+  for (const adv of parsed.adverbials) {
+    const advEn = translateConstituent(adv, false, false, verbInfo);
+    parts.push(advEn);
+  }
+
+  let result = parts.join(' ');
+  result = result.charAt(0).toUpperCase() + result.slice(1);
+  result = result.replace(/\s+/g, ' ').trim();
+
+  return result;
+}
+
+// ========================================
+// 영어 생성 결과 타입
+// ========================================
+export interface GenerateEnglishResult {
+  translation: string;
+  detectedSubject: string; // 이 문장에서 명시된 주어 (다음 문장에 전달용)
+}
+
+// ========================================
 // 메인 생성 함수: 한국어 문장 → 영어 문장
 // ========================================
-export function generateEnglish(parsed: ParsedSentence): string {
+/**
+ * 영어 문장 생성
+ * @param parsed 파싱된 문장 구조
+ * @param contextSubject 복수 문장에서 이전 문장의 주어 (문맥 주어)
+ * @returns 생성된 영어 문장과 탐지된 주어
+ */
+export function generateEnglish(
+  parsed: ParsedSentence,
+  contextSubject?: string,
+): GenerateEnglishResult {
   const parts: string[] = [];
 
   // 사용된 modifier 추적 (go shopping 등의 복합표현에서 사용된 것 제외)
   const usedModifierIndices = new Set<number>();
 
+  // ========================================
+  // 순수 감탄문 처리: predicate가 없는 문장
+  // 예: "야 진짜 대박!" → "OMG!"
+  // 이 경우 주어를 추론하지 않고, 감탄사와 부사만 조합
+  // ========================================
+  if (!parsed.predicate && parsed.subjectOmitted) {
+    // 모든 토큰의 stem을 수집 (복합 표현 감지용)
+    const allStems: string[] = [];
+    for (const mod of parsed.modifiers) {
+      for (const token of mod.tokens) {
+        allStems.push(token.stem);
+      }
+    }
+    for (const adv of parsed.adverbials) {
+      for (const token of adv.tokens) {
+        allStems.push(token.stem);
+      }
+    }
+
+    // 복합 감탄 표현 매핑 (우선순위: 긴 표현 먼저)
+    const COMPOUND_EXCLAMATIONS: Record<string, string> = {
+      '진짜 대박': 'OMG',
+      '완전 대박': 'OMG',
+      대박: 'OMG',
+    };
+
+    // 호출어 (감탄사 앞에서 생략 가능)
+    const VOCATIVES = new Set(['야', '어이', '얘', '이봐']);
+
+    // 복합 표현 확인
+    const stemsText = allStems.join(' ');
+    let exclamation = '';
+
+    // 복합 표현 매칭 (긴 표현 우선)
+    const sortedCompounds = Object.entries(COMPOUND_EXCLAMATIONS).sort(
+      ([a], [b]) => b.length - a.length,
+    );
+    for (const [pattern, translation] of sortedCompounds) {
+      if (stemsText.includes(pattern)) {
+        exclamation = translation;
+        break;
+      }
+    }
+
+    // 복합 표현이 없으면 개별 번역
+    if (!exclamation) {
+      const exclamationParts: string[] = [];
+
+      for (const mod of parsed.modifiers) {
+        const modEn = translateConstituent(mod);
+        if (modEn?.trim()) {
+          exclamationParts.push(modEn);
+        }
+      }
+
+      for (const adv of parsed.adverbials) {
+        const advEn = translateConstituent(adv);
+        if (advEn?.trim()) {
+          exclamationParts.push(advEn);
+        }
+      }
+
+      exclamation = exclamationParts.join(' ');
+    } else {
+      // 복합 표현이 있으면 호출어(야 등)만 앞에 추가
+      const vocativeParts: string[] = [];
+      for (const mod of parsed.modifiers) {
+        for (const token of mod.tokens) {
+          if (VOCATIVES.has(token.stem)) {
+            // 호출어는 OMG 앞에서 생략 (자연스러운 영어)
+            // 대신 OMG만 사용
+          }
+        }
+      }
+      // vocativeParts가 있으면 앞에 추가
+      if (vocativeParts.length > 0) {
+        exclamation = `${vocativeParts.join(' ')} ${exclamation}`;
+      }
+    }
+
+    // 결과가 있으면 감탄문으로 반환
+    if (exclamation.trim()) {
+      // 첫 글자 대문자
+      exclamation = exclamation.charAt(0).toUpperCase() + exclamation.slice(1);
+      // 느낌표 추가
+      if (!exclamation.endsWith('!') && !exclamation.endsWith('?')) {
+        exclamation += '!';
+      }
+      return { translation: exclamation.trim(), detectedSubject: '' };
+    }
+  }
+
   // 1. 주어 결정
   let subjectEn: string;
+  let detectedSubject = ''; // 이 문장에서 명시된 주어 (다음 문장에 전달용)
+
   if (parsed.subjectOmitted) {
-    subjectEn = inferSubject(parsed);
+    // 주어가 생략된 경우: 문맥 주어가 있으면 우선 사용
+    if (contextSubject) {
+      subjectEn = contextSubject;
+    } else {
+      subjectEn = inferSubject(parsed);
+    }
   } else if (parsed.subject) {
     subjectEn = translateConstituent(parsed.subject, false, true); // isSubject = true
+    detectedSubject = subjectEn; // 명시된 주어 저장
     // 대명사가 아닌 경우 대문자로 시작
     if (!['I', 'you', 'he', 'she', 'it', 'we', 'they'].includes(subjectEn.toLowerCase())) {
       subjectEn = subjectEn.charAt(0).toUpperCase() + subjectEn.slice(1);
@@ -1045,10 +1603,79 @@ export function generateEnglish(parsed: ParsedSentence): string {
   }
 
   // ========================================
+  // Level 2: 조건문 처리 (만약 ~했다면)
+  // 조건문은 의문문보다 먼저 처리 (If절은 의문문이 아님)
+  // ========================================
+  if (parsed.isConditional && !parsed.isQuestion && parsed.predicate) {
+    const predicateToken = parsed.predicate.tokens[0];
+    const verbStem = predicateToken?.stem || '';
+    let verbEn = koToEnWords[verbStem] || verbStem;
+
+    // 복합동사 처리: 졸업하 → graduate
+    if (verbStem.endsWith('하') && verbStem.length > 1) {
+      const nounPart = verbStem.slice(0, -1);
+      const compoundVerb = NOUN_HADA_COMPOUND_VERBS[nounPart];
+      if (compoundVerb) {
+        verbEn = compoundVerb;
+      }
+    }
+
+    return {
+      translation: generateConditionalClause(parsed, subjectEn, verbEn, verbStem),
+      detectedSubject,
+    };
+  }
+
+  // ========================================
+  // Level 2: 가정법 처리 (~했을 텐데, ~했을 거야)
+  // ========================================
+  if (parsed.isHypothetical && !parsed.isQuestion && parsed.predicate) {
+    const predicateToken = parsed.predicate.tokens[0];
+    const verbStem = predicateToken?.stem || '';
+    let verbEn = koToEnWords[verbStem] || verbStem;
+
+    // 복합동사 처리
+    if (verbStem.endsWith('하') && verbStem.length > 1) {
+      const nounPart = verbStem.slice(0, -1);
+      const compoundVerb = NOUN_HADA_COMPOUND_VERBS[nounPart];
+      if (compoundVerb) {
+        verbEn = compoundVerb;
+      }
+    }
+
+    return {
+      translation: generateHypotheticalClause(parsed, subjectEn, verbEn, verbStem),
+      detectedSubject,
+    };
+  }
+
+  // ========================================
   // 의문문 처리: Do/Did + Subject + base verb
-  // 추측 의문문: Did ... really? / Could it be that ...?
+  // Level 2 추측 의문문: Did ... really? / Could it be that ...?
   // ========================================
   if (parsed.isQuestion && parsed.predicate) {
+    // Level 2: 추측 의문문 (~했을까?)
+    if (parsed.isSpeculative) {
+      const predicateToken = parsed.predicate.tokens[0];
+      const verbStem = predicateToken?.stem || '';
+      let verbEn = koToEnWords[verbStem] || verbStem;
+
+      // 복합동사 처리
+      if (verbStem.endsWith('하') && verbStem.length > 1) {
+        const nounPart = verbStem.slice(0, -1);
+        const compoundVerb = NOUN_HADA_COMPOUND_VERBS[nounPart];
+        if (compoundVerb) {
+          verbEn = compoundVerb;
+        }
+      }
+
+      return {
+        translation: generateSpeculativeQuestion(parsed, subjectEn, verbEn, verbStem),
+        detectedSubject,
+      };
+    }
+
+    // 기존 의문문 처리 (Level 1)
     const predicateToken = parsed.predicate.tokens[0];
     const verbStem = predicateToken?.stem || '';
     let verbEn = koToEnWords[verbStem] || verbStem;
@@ -1140,6 +1767,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
       let finalVerbEn = verbEn;
       let skipObject = false;
       let goCompoundSuffix = ''; // go shopping, go hiking 등의 suffix
+      let compoundObjectSuffix = ''; // "prepare for employment" 등
 
       if (verbStem === '하' && parsed.object) {
         const objectToken = parsed.object.tokens[0];
@@ -1149,6 +1777,25 @@ export function generateEnglish(parsed: ParsedSentence): string {
           // 복합동사로 대체: "do" + "exercise" → "exercise"
           finalVerbEn = compoundVerb;
           skipObject = true; // 목적어는 동사에 포함됨
+
+          // 복합 목적어 패턴: modifier + 준비/연습 등 → "prepare for X"
+          // 예: 취업(modifier) + 준비(object) + 하다 → "prepare for employment"
+          if (objectStem === '준비' || objectStem === '연습') {
+            // modifier에서 목적어의 수식어 찾기 (취업, 면접 등)
+            for (let i = 0; i < parsed.modifiers.length; i++) {
+              const mod = parsed.modifiers[i];
+              const modToken = mod?.tokens[0];
+              const modStem = modToken?.stem || '';
+              // 준비/연습의 대상이 되는 명사인지 확인
+              const modEn = koToEnWords[modStem] || koToEnWords[modToken?.original || ''];
+              if (modEn && !DEGREE_ADVERBS_KO.has(modStem)) {
+                // "prepare for employment", "practice for interview"
+                compoundObjectSuffix = `for ${modEn}`;
+                usedModifierIndices.add(i);
+                break;
+              }
+            }
+          }
         }
       }
 
@@ -1188,6 +1835,11 @@ export function generateEnglish(parsed: ParsedSentence): string {
 
       // 동사는 기본형 사용 (Do/Did가 시제 담당)
       parts.push(finalVerbEn);
+
+      // 복합 목적어 접미사 추가 (prepare for employment 등)
+      if (compoundObjectSuffix) {
+        parts.push(compoundObjectSuffix);
+      }
 
       // go + Verb-ing 패턴 추가
       if (goCompoundSuffix) {
@@ -1316,10 +1968,13 @@ export function generateEnglish(parsed: ParsedSentence): string {
     if (sentenceInitialPhrases.length > 0) {
       const prefix = sentenceInitialPhrases.join(', ');
       const capitalizedPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
-      return `${capitalizedPrefix}, ${questionSentence}`;
+      return {
+        translation: `${capitalizedPrefix}, ${questionSentence}`,
+        detectedSubject,
+      };
     }
 
-    return questionSentence;
+    return { translation: questionSentence, detectedSubject };
   }
 
   // ========================================
@@ -1340,23 +1995,69 @@ export function generateEnglish(parsed: ParsedSentence): string {
   // 2. 서술어 분석 (SVC 패턴인지 확인)
   const isCopula = parsed.pattern === 'SVC';
 
+  // SVC에서 사용된 부사어 인덱스 추적
+  const usedSvcAdverbialIndices = new Set<number>();
+
   if (isCopula && parsed.predicate) {
-    // SVC: 주어 + be동사 + 보어
+    // SVC: 주어 + be동사 + (부사) + (소유격) + 보어
     const beVerb = selectBeVerb(subjectEn, parsed.tense);
     parts.push(beVerb);
+
+    // 정도 부사와 소유격 추출 (보어 앞에 위치)
+    const degreeAdverbs: string[] = [];
+    let possessive = '';
+    const DEGREE_ADVERBS_KO = new Set(['완전', '정말', '진짜', '아주', '매우', '너무']);
+    const POSSESSIVES_KO = new Set([
+      '내',
+      '제',
+      '네',
+      '니',
+      '그의',
+      '그녀의',
+      '우리',
+      '저희',
+      '그들의',
+    ]);
+
+    for (let advIdx = 0; advIdx < parsed.adverbials.length; advIdx++) {
+      const adv = parsed.adverbials[advIdx];
+      for (const token of adv.tokens) {
+        if (DEGREE_ADVERBS_KO.has(token.stem)) {
+          const advEn = koToEnWords[token.stem] || token.stem;
+          if (advEn && advEn !== token.stem) {
+            degreeAdverbs.push(advEn);
+            usedSvcAdverbialIndices.add(advIdx);
+          }
+        } else if (POSSESSIVES_KO.has(token.stem)) {
+          possessive = koToEnWords[token.stem] || token.stem;
+          usedSvcAdverbialIndices.add(advIdx);
+        }
+      }
+    }
+
+    // 정도 부사 추가 (be동사 뒤, 보어 앞): "is totally"
+    for (const adv of degreeAdverbs) {
+      parts.push(adv);
+    }
 
     // 보어 (서술격 조사 앞의 명사)
     const predicateToken = parsed.predicate.tokens[0];
     if (predicateToken) {
       let complement = koToEnWords[predicateToken.stem] || predicateToken.stem;
-      // 고유명사 감지 (첫 글자 대문자로 시작하는 단어)
-      const isProperNoun = /^[A-Z]/.test(complement);
-      // 보어가 명사면 관사 추가 (고유명사 제외)
-      if (!isProperNoun) {
-        const article = selectArticle(complement, false);
-        complement = article + complement;
+
+      // 소유격이 있으면 관사 없이 소유격 + 보어: "my dream guy"
+      if (possessive) {
+        parts.push(`${possessive} ${complement}`);
+      } else {
+        // 고유명사 감지 (첫 글자 대문자로 시작하는 단어)
+        const isProperNoun = /^[A-Z]/.test(complement);
+        // 보어가 명사면 관사 추가 (고유명사 제외)
+        if (!isProperNoun) {
+          const article = selectArticle(complement, false);
+          complement = article + complement;
+        }
+        parts.push(complement);
       }
-      parts.push(complement);
     }
   } else {
     // SVO, SV: 주어 + 동사 + 목적어
@@ -1439,9 +2140,12 @@ export function generateEnglish(parsed: ParsedSentence): string {
   const verbInfo = { stem: verbStem, english: verbEnglish };
 
   // 부사어 번역 및 분류 (영어 어순: manner → frequency → time → place)
+  // SVC에서 이미 사용된 부사어는 건너뛰기
   const adverbTranslations: { text: string; type: 'manner' | 'time' | 'place' | 'other' }[] = [];
 
-  for (const adv of parsed.adverbials) {
+  for (let advIdx = 0; advIdx < parsed.adverbials.length; advIdx++) {
+    if (usedSvcAdverbialIndices.has(advIdx)) continue; // SVC에서 사용된 부사어 건너뛰기
+    const adv = parsed.adverbials[advIdx];
     const advEn = translateConstituent(adv, false, false, verbInfo);
     const advType = classifyAdverb(advEn, adv);
     adverbTranslations.push({ text: advEn, type: advType });
@@ -1484,16 +2188,22 @@ export function generateEnglish(parsed: ParsedSentence): string {
     if (isSentenceLike) {
       // 독립적 표현: 마침표로 분리
       // 본문 첫 글자 대문자 유지
-      return `${capitalizedPrefix}. ${mainSentence}`;
+      return {
+        translation: `${capitalizedPrefix}. ${mainSentence}`,
+        detectedSubject,
+      };
     } else {
       // 시간/부사 표현: 쉼표 없이 문장에 합류
       // 메인 문장 첫 글자 소문자
       const mainLower = mainSentence.charAt(0).toLowerCase() + mainSentence.slice(1);
-      return `${capitalizedPrefix} ${mainLower}`;
+      return {
+        translation: `${capitalizedPrefix} ${mainLower}`,
+        detectedSubject,
+      };
     }
   }
 
-  return mainSentence;
+  return { translation: mainSentence, detectedSubject };
 }
 
 // ========================================

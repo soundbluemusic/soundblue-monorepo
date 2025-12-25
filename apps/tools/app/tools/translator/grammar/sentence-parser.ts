@@ -226,10 +226,15 @@ function determineSentencePattern(
     return particle === '에게' || particle === '한테' || particle === '께';
   });
 
-  // 서술격 조사(입니다) 있으면 SVC
+  // 서술격 조사(입니다, 이에요, 이야, 야, 예요) 있으면 SVC
+  // 예: 학생입니다, 학생이에요, 학생이야, 친구야
+  const ending = predicate?.tokens[0]?.ending || '';
   if (
-    predicate?.tokens[0]?.ending?.includes('입니') ||
-    predicate?.tokens[0]?.ending?.includes('이에요')
+    ending.includes('입니') ||
+    ending.includes('이에요') ||
+    ending.includes('예요') ||
+    ending === '이야' ||
+    ending === '야'
   ) {
     return 'SVC';
   }

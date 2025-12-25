@@ -118,6 +118,34 @@ export const PARTICLES: Record<string, { role: Role; en: string }> = {
 export const PARTICLE_LIST = Object.keys(PARTICLES).sort((a, b) => b.length - a.length);
 
 // ========================================
+// 대명사 목록 (조사 없이도 주어 역할)
+// 3인칭 지시대명사, 1/2인칭 대명사
+// ========================================
+const SUBJECT_PRONOUNS = new Set([
+  // 3인칭 지시 (that person)
+  '쟤', // that person (casual, pointing)
+  '걔', // that person (casual)
+  '얘', // this person (casual)
+  '그', // he/that (formal)
+  '그녀', // she (formal)
+  '그것', // it/that thing
+  '이것', // this thing
+  '저것', // that thing (far)
+  // 1인칭
+  '나', // I (casual)
+  '저', // I (formal)
+  // 2인칭
+  '너', // you (casual)
+  '당신', // you (formal)
+  '자네', // you (semi-formal, older to younger)
+  // 복수
+  '우리', // we
+  '저희', // we (humble)
+  '너희', // you all
+  '그들', // they
+]);
+
+// ========================================
 // 순수 부사 목록 (조사 없이 단독으로 부사어 역할)
 // 시간 부사, 빈도 부사, 정도 부사, 양태 부사
 // ========================================
@@ -173,6 +201,7 @@ const PURE_ADVERBS = new Set([
   '적게',
   '거의',
   '전혀',
+  '완전', // 완전히 (MZ세대 줄임말)
   // 부정 부사
   '안',
   // 접속 부사
@@ -1169,14 +1198,24 @@ const CONTRACTED_PATTERNS: Array<{
 // 형태소 분석 함수
 // ========================================
 export function analyzeMorpheme(word: string): MorphemeAnalysis {
+  // 물음표/느낌표 등 구두점 분리 (의문/감탄 판별은 별도로 처리)
+  const punctuation = word.match(/[?!]+$/)?.[0] || '';
+  const cleanWord = punctuation ? word.slice(0, -punctuation.length) : word;
+  const hasQuestionMark = punctuation.includes('?');
+
   const result: MorphemeAnalysis = {
     original: word,
-    stem: word,
+    stem: cleanWord,
     pos: 'unknown',
   };
 
+  // 물음표가 있으면 의문형으로 표시
+  if (hasQuestionMark) {
+    result.isQuestion = true;
+  }
+
   // 1. 서술격 조사 확인 (N+입니다)
-  const copulaResult = analyzeCopula(word);
+  const copulaResult = analyzeCopula(cleanWord);
   if (copulaResult) {
     result.stem = copulaResult.noun;
     result.pos = 'noun';
@@ -1188,17 +1227,25 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
   }
 
   // 1.5. 순수 부사 확인 (조사 없이 단독으로 부사어 역할)
-  if (PURE_ADVERBS.has(word)) {
-    result.stem = word;
+  if (PURE_ADVERBS.has(cleanWord)) {
+    result.stem = cleanWord;
     result.pos = 'adverb';
     result.role = 'adverbial';
     return result;
   }
 
+  // 1.6. 대명사 확인 (조사 없이도 주어 역할)
+  if (SUBJECT_PRONOUNS.has(cleanWord)) {
+    result.stem = cleanWord;
+    result.pos = 'pronoun';
+    result.role = 'subject'; // 조사 없어도 주어로 인식
+    return result;
+  }
+
   // 2. 조사 분리 (명사+조사)
   for (const p of PARTICLE_LIST) {
-    if (word.endsWith(p) && word.length > p.length) {
-      const stem = word.slice(0, -p.length);
+    if (cleanWord.endsWith(p) && cleanWord.length > p.length) {
+      const stem = cleanWord.slice(0, -p.length);
       const lastChar = stem[stem.length - 1];
       if (stem && lastChar && isHangul(lastChar)) {
         result.stem = stem;
@@ -1215,7 +1262,7 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
 
   // 3. 축약형 활용 패턴 매칭 (가요, 봤어요, 했어요 등)
   for (const cp of CONTRACTED_PATTERNS) {
-    const match = word.match(cp.pattern);
+    const match = cleanWord.match(cp.pattern);
     if (match) {
       let stem = cp.stemRestore(match);
 
@@ -1253,8 +1300,8 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
 
   // 4. 일반 어미 분리 (동사/형용사+어미)
   for (const e of ENDING_LIST) {
-    if (word.endsWith(e) && word.length > e.length) {
-      let stem = word.slice(0, -e.length);
+    if (cleanWord.endsWith(e) && cleanWord.length > e.length) {
+      let stem = cleanWord.slice(0, -e.length);
       const endingInfo = ENDINGS[e];
 
       // 불규칙 활용 복원

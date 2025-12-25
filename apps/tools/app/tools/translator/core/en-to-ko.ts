@@ -696,13 +696,13 @@ function translateClauseEnToKo(clause: string): string {
     let pastAdj: string;
     if (adjKo.endsWith('운')) {
       // ㅂ 불규칙: 아름다운 → 아름다웠
-      pastAdj = adjKo.slice(0, -1) + '웠어';
+      pastAdj = `${adjKo.slice(0, -1)}웠어`;
     } else if (adjKo.endsWith('은')) {
       // 좋은 → 좋았어
-      pastAdj = adjKo.slice(0, -1) + '았어';
+      pastAdj = `${adjKo.slice(0, -1)}았어`;
     } else if (adjKo.endsWith('한')) {
       // 완벽한 → 완벽했어
-      pastAdj = adjKo.slice(0, -1) + '했어';
+      pastAdj = `${adjKo.slice(0, -1)}했어`;
     } else {
       pastAdj = `${adjKo}었어`;
     }
@@ -1312,7 +1312,7 @@ function rearrangeToSOV(
               if (code >= 0xac00 && code <= 0xd7a3) {
                 // 마지막 글자에 ㅂ 받침 추가
                 const newCode = code + 17; // ㅂ은 17번 받침
-                adjBase = withoutEnding.slice(0, -1) + String.fromCharCode(newCode) + '다';
+                adjBase = `${withoutEnding.slice(0, -1) + String.fromCharCode(newCode)}다`;
               } else {
                 adjBase = `${withoutEnding}다`;
               }
@@ -1332,7 +1332,7 @@ function rearrangeToSOV(
                 if (jong === 4) {
                   // ㄴ 받침 → 제거하고 다 추가
                   const newCode = code - 4; // ㄴ 받침 제거
-                  adjBase = adjBase.slice(0, -1) + String.fromCharCode(newCode) + '다';
+                  adjBase = `${adjBase.slice(0, -1) + String.fromCharCode(newCode)}다`;
                 } else {
                   // 기본형이 아니면 ~다 추가
                   adjBase = `${adjBase}다`;
@@ -1550,7 +1550,7 @@ function conjugateKoreanAdjective(adj: string, tense: 'past' | 'present'): strin
   // 관형형 어미 (ㄴ/은/운) 제거
   if (workingAdj.endsWith('은')) {
     // 좋은 → 좋, 높은 → 높
-    workingAdj = workingAdj.slice(0, -1) + '다';
+    workingAdj = `${workingAdj.slice(0, -1)}다`;
   } else if (workingAdj.endsWith('운')) {
     // ㅂ 불규칙: 아름다운 → 아름답다, 더운 → 덥다
     const base = workingAdj.slice(0, -1);
@@ -1560,11 +1560,11 @@ function conjugateKoreanAdjective(adj: string, tense: 'past' | 'present'): strin
       if (code >= 0xac00 && code <= 0xd7a3) {
         // 마지막 글자에 ㅂ 받침 추가
         const newCode = code + 17; // ㅂ = 17
-        workingAdj = base.slice(0, -1) + String.fromCharCode(newCode) + '다';
+        workingAdj = `${base.slice(0, -1) + String.fromCharCode(newCode)}다`;
       }
     }
   } else if (workingAdj.endsWith('ㄴ')) {
-    workingAdj = workingAdj.slice(0, -1) + '다';
+    workingAdj = `${workingAdj.slice(0, -1)}다`;
   } else {
     // 관형형 ㄴ 받침이 붙은 경우 (예: 완벽한 → 완벽하+ㄴ)
     const lastChar = workingAdj[workingAdj.length - 1];
@@ -1575,7 +1575,7 @@ function conjugateKoreanAdjective(adj: string, tense: 'past' | 'present'): strin
         if (jong === 4) {
           // ㄴ 받침 → 제거하고 다 추가 (완벽한 → 완벽하다)
           const newCode = code - 4; // ㄴ 받침 제거
-          workingAdj = workingAdj.slice(0, -1) + String.fromCharCode(newCode) + '다';
+          workingAdj = `${workingAdj.slice(0, -1) + String.fromCharCode(newCode)}다`;
         }
       }
     }

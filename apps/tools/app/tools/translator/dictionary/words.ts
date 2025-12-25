@@ -23,6 +23,7 @@ const manualKoToEnWords: Record<string, string> = {
   아이고: 'Oh my',
   세상에: 'Oh my',
   대박: 'Awesome',
+  '진짜 대박': 'OMG', // 10대 감탄사 표현
   헐: 'Wow',
   짱: 'Awesome',
   굿: 'Good',
@@ -33,6 +34,75 @@ const manualKoToEnWords: Record<string, string> = {
   아뇨: 'No',
   그래: 'Yeah',
   좋아: 'Okay',
+  에이: 'Ugh',
+  야: 'Hey',
+  뭘: 'what',
+  진짜: 'really',
+  완전: 'totally',
+  정말: 'really',
+  너무: 'so',
+  엄청: 'super',
+  쟤: 'that person',
+  걔: 'that person',
+
+  // === 구어체/캐릭터 표현 (Colloquial/Character Expressions) ===
+  이상형: 'ideal type',
+  '내 이상형': 'my dream guy',
+  파리하다: 'look pale',
+  파리했: 'look thin',
+  '눈 똑바로': 'properly',
+  대체: 'the hell',
+  괜찮아: "It's okay",
+  괜찮: 'okay',
+  속상해하지: "don't beat yourself up",
+  과분하다: 'too good for',
+  과분했: 'too good for',
+  차이다: 'get dumped',
+  차였: 'got dumped',
+  웃기네: "That's rich",
+  있어주다: 'be there for',
+  있어주: 'be there',
+  이길: 'win',
+  내다보다: 'see ahead',
+  내다보: 'see ahead',
+  손바닥: 'palm',
+  크크크: 'Hehehe',
+
+  // === 10대/MZ세대 표현 ===
+  오글거리다: 'cringe',
+  오글거려: 'cringe',
+  쪽팔리다: 'embarrassing',
+  쪽팔려: 'embarrassed',
+  민망하다: 'embarrassing',
+  갓생: 'best life',
+  워라밸: 'work-life balance',
+
+  // === 감정 표현 ===
+  지긋지긋하다: "I'm so done",
+  지긋지긋해: "I'm so done",
+  절박함: 'desperation',
+  절박하다: 'desperate',
+  두렵다: 'terrifying',
+  두려워: 'scared',
+  무섭다: 'scary',
+  무서워: 'scared',
+  도망치다: 'run away',
+  도망쳤: 'ran away',
+  멈추다: 'stop',
+  멈추게: 'make stop',
+  배신하다: 'betray',
+  배신: 'betrayal',
+
+  // === 법정/공식 표현 ===
+  판사님: 'Your Honor',
+  배심원: 'jury',
+  '배심원 여러분': 'ladies and gentlemen of the jury',
+  검사: 'prosecutor',
+  의뢰인: 'client',
+  냉혈한: 'cold-blooded',
+  살인자: 'killer',
+  정의: 'justice',
+  법: 'law',
 
   // === 복합 시간 표현 (Compound Time Expressions) ===
   '오늘 아침': 'this morning',
@@ -64,14 +134,21 @@ const manualKoToEnWords: Record<string, string> = {
 
   // === 대명사 ===
   나: 'I',
+  내: 'my', // 나의 축약형
   저: 'I',
+  제: 'my', // 저의 축약형
   너: 'you',
+  // 네: 'your', // 너의 축약형 - 중복 (31행 '네: Yes'와 충돌)
+  니: 'your', // 구어체 너의
   당신: 'you',
   우리: 'we',
   저희: 'we',
   그: 'he',
+  그의: 'his',
   그녀: 'she',
+  그녀의: 'her',
   그들: 'they',
+  그들의: 'their',
   이: 'this', // 지시형용사 (이 책 = this book)
   // 저: 'that' 는 저: 'I' (겸양어)와 중복되므로 '저것'으로 처리
   이것: 'this',
@@ -83,7 +160,7 @@ const manualKoToEnWords: Record<string, string> = {
   누구: 'who',
   무엇: 'what',
   뭐: 'what',
-  뭘: 'what', // 뭐를의 줄임말
+  // 뭘은 위에서 정의됨 (what)
   언제: 'when',
   왜: 'why',
   어떻게: 'how',
@@ -156,7 +233,7 @@ const manualKoToEnWords: Record<string, string> = {
   교수: 'professor',
   변호사: 'lawyer',
   판사: 'judge',
-  검사: 'prosecutor',
+  // 검사는 법정 표현 섹션에서 정의됨 (prosecutor)
   회계사: 'accountant',
   세무사: 'tax accountant',
   약사: 'pharmacist',
@@ -1478,9 +1555,7 @@ const manualKoToEnWords: Record<string, string> = {
   // === 부사 ===
   아주: 'very',
   매우: 'very',
-  너무: 'too',
-  정말: 'really',
-  진짜: 'really',
+  // 너무, 정말, 진짜는 위에서 정의됨 (감탄사 섹션)
   조금: 'a little',
   많이: 'a lot',
   빨리: 'quickly',
@@ -1522,17 +1597,20 @@ const manualKoToEnWords: Record<string, string> = {
   다행: 'fortunate',
 
   // [신규] 부사 확장
-  완전: 'completely',
+  // 완전은 위에서 정의됨 (totally)
   거의: 'almost',
   약간: 'slightly',
   대략: 'approximately',
   정확히: 'exactly',
-  아마: 'maybe',
-  아마도: 'perhaps',
+  아마: 'probably',
+  아마도: 'probably',
   확실히: 'certainly',
   분명히: 'clearly',
   당연히: 'of course',
   특히: 'especially',
+  여러: 'several',
+  수십: 'dozens of',
+  '수십 군데': 'dozens of places',
   주로: 'mainly',
   보통: 'usually',
   대부분: 'mostly',
@@ -1579,7 +1657,7 @@ const manualKoToEnWords: Record<string, string> = {
   둘째: 'second',
   셋째: 'third',
   // 몇: 'how many', // 92번째 줄에 이미 존재
-  여러: 'several',
+  // 여러: 'several', // 1536번째 줄에 이미 존재
   수많: 'numerous',
 
   // === 고유명사 ===
@@ -1716,8 +1794,13 @@ const manualKoToEnWords: Record<string, string> = {
   완치: 'complete recovery',
 
   // === Level 2 취업/경력 관련 ===
+  준비: 'preparation',
+  준비하: 'prepare',
+  준비했: 'prepared',
   취업: 'employment',
+  '취업 준비': 'employment preparation',
   면접: 'interview',
+  '면접 준비': 'interview preparation',
   합격: 'pass',
   합격했: 'passed',
   불합격: 'fail',
@@ -1767,7 +1850,7 @@ const manualKoToEnWords: Record<string, string> = {
   // === Level 2 감정/상태 관련 (기존 미포함 항목만) ===
   힘들: 'hard',
   힘들었: 'had a hard time',
-  수십: 'dozens',
+  // 수십: 'dozens', // 1537번째 줄에 이미 존재
   군데: 'places',
   포기: 'give up',
   포기했: 'gave up',
@@ -2260,6 +2343,47 @@ const manualEnToKoWords: Record<string, string> = {
   'oh my': '세상에',
   however: '하지만',
 
+  // === 전문 번역가용 구어체/감정 표현 ===
+  bruh: '야',
+  literally: '진짜',
+  cringe: '오글거려',
+  "can't even": '못 보겠어',
+  honey: '여보',
+  finances: '돈 문제',
+  spending: '쓰는 것',
+  seriously: '진짜',
+  embarrass: '창피하게 하다',
+  // cool은 위에서 정의됨 (시원한)
+  'not cool': '쪽팔려',
+  'so done': '지긋지긋해',
+  'talking to a wall': '벽보고 얘기하는',
+  wall: '벽',
+  // listen은 위에서 정의됨 (듣다)
+  'never listen': '절대 안 들어',
+  terrifies: '무섭게 하다',
+  terrify: '무섭게 하다',
+  // running은 위에서 정의됨 (달리는)
+  'stop running': '멈추게 하다',
+  pain: '고통',
+  loss: '상실',
+  hurt: '아프게 하다',
+  'your honor': '판사님',
+  jury: '배심원',
+  prosecution: '검찰',
+  'cold-blooded': '냉혈한',
+  killer: '살인자',
+  desperation: '절박함',
+  justice: '정의',
+  betray: '배신하다',
+  rational: '합리적인',
+  'cruel joke': '잔인한 농담',
+  youth: '청춘',
+  relationships: '인간관계',
+  'end up': '결국 ~하게 되다',
+  lesson: '교훈',
+  // dreams, give up은 아래에서 정의됨
+  yourself: '자신',
+
   // 대조 구문
   'not just': '단지 ~만이 아니라',
   'not only': '~뿐만 아니라',
@@ -2373,7 +2497,8 @@ const manualEnToKoWords: Record<string, string> = {
   dictionary: '사전',
   library: '도서관', // library(건물) vs 라이브러리(IT) 구분
   dream: '꿈',
-  dreams: '꿈들',
+  dreams: '꿈들', // dreams는 문맥 표현 섹션에서도 참조되나 여기 정의 유지
+  // give up은 위 2331줄에서 정의됨
   korean: '한국어',
   leg: '다리',
   horse: '말',

@@ -35,8 +35,10 @@
 
 // Core engines - using advanced sentence translation
 import { translateEnToKo as coreTranslateEnToKo } from './core/en-to-ko';
+
 // import { translateKoToEn as coreTranslateKoToEn } from './core/ko-to-en';
 
+import { applyContextToTranslation } from './context';
 import {
   type ConnectiveEndingInfo,
   conjugateEnglishVerb,
@@ -160,6 +162,10 @@ export function translateWithCorrection(
   // 각 문장 개별 번역
   const translatedSentences: string[] = [];
 
+  // 복수 문장에서 주어 문맥 추적 (Level 2 지원)
+  // 첫 문장에서 주어가 명시되면 이후 문장에서 생략된 주어로 사용
+  let contextSubject = '';
+
   for (const { sentence, punctuation } of sentences) {
     const normalized = normalize(sentence);
     if (!normalized) continue;
@@ -168,11 +174,18 @@ export function translateWithCorrection(
     const isQuestion = punctuation.includes('?') || punctuation.includes('？');
     const isExclamation = punctuation.includes('!') || punctuation.includes('！');
 
-    // 번역 실행
-    let translated =
-      direction === 'ko-en'
-        ? translateKoToEnAdvanced(normalized, isQuestion)
-        : translateEnToKoAdvanced(normalized);
+    // 번역 실행 (문맥 주어 전달)
+    let translated: string;
+    if (direction === 'ko-en') {
+      const result = translateKoToEnAdvanced(normalized, isQuestion, contextSubject);
+      translated = result.translation;
+      // 이 문장에서 주어가 명시되었으면 문맥 주어 업데이트
+      if (result.detectedSubject) {
+        contextSubject = result.detectedSubject;
+      }
+    } else {
+      translated = translateEnToKoAdvanced(normalized);
+    }
 
     // 구두점 추가
     if (isQuestion && !translated.endsWith('?')) {
@@ -189,7 +202,12 @@ export function translateWithCorrection(
     translatedSentences.push(translated);
   }
 
-  const finalTranslation = translatedSentences.join(' ');
+  let finalTranslation = translatedSentences.join(' ');
+
+  // 문맥 분석 적용: 원문의 문맥에 따라 어휘 조정
+  if (direction === 'ko-en') {
+    finalTranslation = applyContextToTranslation(finalTranslation, textToTranslate);
+  }
 
   return {
     translated: finalTranslation,
@@ -339,9 +357,9 @@ function translateKoToEnInternal(text: string, isQuestion: boolean): string {
       parsed.isQuestion = true;
       parsed.sentenceType = 'interrogative';
     }
-    const result = generateEnglish(parsed);
-    if (result && result !== text && result.length >= 2) {
-      return result;
+    const { translation } = generateEnglish(parsed);
+    if (translation && translation !== text && translation.length >= 2) {
+      return translation;
     }
   } catch {
     // 무시하고 fallback
@@ -450,10 +468,10 @@ function translateMatchedPhrase(phrase: string): string {
 
   // 여러 토큰 - 문법 분석 기반 번역 시도
   const parsed = parseSentence(phrase);
-  const result = generateEnglish(parsed);
+  const { translation } = generateEnglish(parsed);
 
   // 결과가 한글을 포함하면 단어별 번역으로 폴백
-  if (/[가-힣]/.test(result)) {
+  if (/[가-힣]/.test(translation)) {
     const translatedTokens = tokens.map((token) => {
       const analyzed = analyzeMorpheme(token);
       return koToEnWords[analyzed.stem] ?? koToEnWords[token] ?? token;
@@ -461,14 +479,29 @@ function translateMatchedPhrase(phrase: string): string {
     return translatedTokens.join(' ');
   }
 
-  return result;
+  return translation;
+}
+
+/**
+ * Ko→En 번역 결과 타입
+ */
+interface KoToEnResult {
+  translation: string;
+  detectedSubject: string;
 }
 
 /**
  * 한→영 번역 (고급 문법 분석 기반)
  * 문화 표현, 관용어, 패턴, NLP(WSD, 연어), 문법 분석 적용
+ * @param text 번역할 한국어 텍스트
+ * @param isQuestion 의문문 여부
+ * @param contextSubject 이전 문장에서 탐지된 주어 (복수 문장에서 주어 생략 시 사용)
  */
-function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): string {
+function translateKoToEnAdvanced(
+  text: string,
+  isQuestion: boolean = false,
+  contextSubject: string = '',
+): KoToEnResult {
   // === 0. 주제 표시 의문문 패턴 (X는? → How about X?) ===
   // 의문문에서 주제 조사 '는'으로 끝나는 단어는 "How about X?" 패턴
   // 예: "샤워는?" → "How about a shower?"
@@ -479,7 +512,7 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
       const nounEn = koToEnWords[noun] || noun;
       // 관사 결정 (a/an)
       const article = /^[aeiou]/i.test(nounEn) ? 'an' : 'a';
-      return `How about ${article} ${nounEn}`;
+      return { translation: `How about ${article} ${nounEn}`, detectedSubject: '' };
     }
   }
 
@@ -494,7 +527,7 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     // 좋 → nice (날씨 맥락에서)
     let adjEn = koToEnWords[adjStem] || adjStem;
     if (adjStem === '좋') adjEn = 'nice';
-    return `The weather is really ${adjEn} ${timeEn}`.trim();
+    return { translation: `The weather is really ${adjEn} ${timeEn}`.trim(), detectedSubject: '' };
   }
 
   // "나는 X 일찍 일어나서 Y에서 Z을 했어" → "I woke up early in the X and Z in the Y"
@@ -502,7 +535,7 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     /^나는\s+(아침)\s+일찍\s+일어나서\s+(.+)에서\s+(.+)을\s+(.+)어$/,
   );
   if (morningActivityPattern) {
-    const time = morningActivityPattern[1] || '';
+    const _time = morningActivityPattern[1] || '';
     const place = morningActivityPattern[2] || '';
     const activity = morningActivityPattern[3] || '';
     const verbStem = morningActivityPattern[4] || '';
@@ -514,7 +547,10 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     } else {
       activityVerbEn = koToEnWords[activity] || activity;
     }
-    return `I woke up early in the morning and ${activityVerbEn} in the ${placeEn}`;
+    return {
+      translation: `I woke up early in the morning and ${activityVerbEn} in the ${placeEn}`,
+      detectedSubject: 'I',
+    };
   }
 
   // "정말 X했어" → "It was so X" (형용사)
@@ -525,7 +561,7 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     let adjEn = koToEnWords[adjStem] || adjStem;
     if (adjStem === '상쾌') adjEn = 'refreshing';
     if (adjStem === '맛있') adjEn = 'delicious';
-    return `It was so ${adjEn}`;
+    return { translation: `It was so ${adjEn}`, detectedSubject: '' };
   }
 
   // "그 후에 집에 돌아와서 샤워를 하고, 맛있는 샌드위치를 만들어 먹었지" 복합 패턴
@@ -540,7 +576,10 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     if (adj === '맛있') adjEn = 'delicious';
     if (adj === '맛있는') adjEn = 'delicious';
     const objEn = koToEnWords[obj] || obj;
-    return `After that, I came home, took a shower, and made a ${adjEn} ${objEn}`;
+    return {
+      translation: `After that, I came home, took a shower, and made a ${adjEn} ${objEn}`,
+      detectedSubject: 'I',
+    };
   }
 
   // "음, 정말 X었어" → "Mmm, it was really X"
@@ -549,7 +588,7 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     const adjStem = mmmPattern[1] || '';
     let adjEn = koToEnWords[adjStem] || adjStem;
     if (adjStem === '맛있') adjEn = 'delicious';
-    return `Mmm, it was really ${adjEn}`;
+    return { translation: `Mmm, it was really ${adjEn}`, detectedSubject: '' };
   }
 
   // === 0.06. 부정문 패턴 처리 ===
@@ -573,7 +612,10 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     } else {
       action2 = `${koToEnWords[verb2Stem] || verb2Stem} ${koToEnWords[obj2] || obj2}`;
     }
-    return `I didn't ${action1}, and I didn't ${action2} either`;
+    return {
+      translation: `I didn't ${action1}, and I didn't ${action2} either`,
+      detectedSubject: 'I',
+    };
   }
 
   // "회사에 지각했지만, 다행히 중요한 회의는 없었어" 특수 패턴
@@ -587,7 +629,10 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     let adjEn = koToEnWords[adj] || adj;
     if (adj === '중요한') adjEn = 'important';
     const nounEn = koToEnWords[noun] || noun;
-    return `I was late for work, but fortunately, there was no ${adjEn} ${nounEn}`;
+    return {
+      translation: `I was late for work, but fortunately, there was no ${adjEn} ${nounEn}`,
+      detectedSubject: 'I',
+    };
   }
 
   // "X은/는 Y과/와 V지 않고 Z V었어" → "I didn't V X with Y and Ved Z"
@@ -599,13 +644,16 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     const companion = notWithPattern[2] || '';
     const verb1 = notWithPattern[3] || '';
     const manner = notWithPattern[4] || '';
-    const verb2 = notWithPattern[5] || '';
+    const _verb2 = notWithPattern[5] || '';
     // 점심 + 동료들 + 먹 + 혼자 + 먹 = eat lunch with colleagues / ate alone
     if (obj === '점심' && verb1 === '먹') {
       const companionEn = koToEnWords[companion] || companion;
       let mannerEn = koToEnWords[manner] || manner;
       if (manner === '혼자') mannerEn = 'alone';
-      return `I didn't eat lunch with my ${companionEn} and ate ${mannerEn}`;
+      return {
+        translation: `I didn't eat lunch with my ${companionEn} and ate ${mannerEn}`,
+        detectedSubject: 'I',
+      };
     }
   }
 
@@ -623,7 +671,10 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
         topicEn = 'breakfast';
       }
       const verbEn = koToEnWords[verbStem] || verbStem;
-      return `${conjunction}what did you ${verbEn} for ${topicEn}`;
+      return {
+        translation: `${conjunction}what did you ${verbEn} for ${topicEn}`,
+        detectedSubject: '',
+      };
     }
 
     // 패턴: "X에는 몇 시에 V했고, Y은/는 어땠어" → "What time did you V at X, and how was Y"
@@ -638,7 +689,10 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
       let verbEn = koToEnWords[verbStem] || verbStem;
       if (verbStem === '도착') verbEn = 'arrive';
       const topicEn = koToEnWords[topic] || topic;
-      return `What time did you ${verbEn} at ${placeEn}, and how was the ${topicEn}`;
+      return {
+        translation: `What time did you ${verbEn} at ${placeEn}, and how was the ${topicEn}`,
+        detectedSubject: '',
+      };
     }
   }
 
@@ -648,7 +702,7 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
   // 일반화된 패턴: 감탄사 + 구분자(,!.) + 문장
   const exclamatoryResult = handleExclamatorySentence(text, isQuestion);
   if (exclamatoryResult) {
-    return exclamatoryResult;
+    return { translation: exclamatoryResult, detectedSubject: '' };
   }
 
   // === 0.5. 사전 우선 조회 (단일 단어/감탄사) ===
@@ -657,7 +711,17 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
   if (!text.includes(' ')) {
     const directTranslation = koToEnWords[text];
     if (directTranslation) {
-      return directTranslation;
+      return { translation: directTranslation, detectedSubject: '' };
+    }
+
+    // 서술격 조사 단독 사용: "이상형이야" → "is my ideal type" (주어 없이)
+    // 주어 없이 서술격 조사로 끝나는 단어는 "is + noun" 형태로 번역
+    const copulaResult = tryExtractCopula(text);
+    if (copulaResult) {
+      const nounEn = koToEnWords[copulaResult.noun] || copulaResult.noun;
+      // be동사 선택 (시제에 따라)
+      const beVerb = copulaResult.info.tense === 'past' ? 'was' : 'is';
+      return { translation: `${beVerb} ${nounEn}`, detectedSubject: '' };
     }
   }
 
@@ -665,14 +729,14 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
   for (const expr of culturalExpressionList) {
     if (text === expr || text.replace(/\s+/g, '') === expr.replace(/\s+/g, '')) {
       const translation = culturalExpressions[expr];
-      if (translation) return translation;
+      if (translation) return { translation, detectedSubject: '' };
     }
   }
 
   // 1. 문장 완전 일치
   const sentence = koToEnSentences[text];
   if (sentence) {
-    return sentence;
+    return { translation: sentence, detectedSubject: '' };
   }
 
   // 2. 관용어/숙어 매칭 (완전 일치)
@@ -682,14 +746,14 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
     const normalized = text.replace(/\s+/g, ' ').trim();
     const matched = idiomResult.matched[0];
     if (matched && (matched.ko === normalized || matched.variants?.includes(normalized))) {
-      return idiomResult.result;
+      return { translation: idiomResult.result, detectedSubject: '' };
     }
   }
 
   // 3. 부정 패턴 처리 - 문법 분석 경로로 직접 라우팅
   // "~지 않~", "~지 못~", "안 ~", "못 ~" 패턴은 다의어/연어 체크 우회하고 문법 분석으로
   if (/지\s*않|지\s*못|안\s+|못\s+/.test(text)) {
-    return translateWithGrammarAnalysis(text, isQuestion);
+    return translateWithGrammarAnalysisResult(text, isQuestion, contextSubject);
   }
 
   // 4. 패턴 매칭
@@ -720,13 +784,13 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
 
         result = result.replace(`$${i}`, translated);
       }
-      return result;
+      return { translation: result, detectedSubject: '' };
     }
   }
 
   // 4. 관용어가 포함된 문장 처리 (부분 매칭 후 나머지 번역)
   if (idiomResult.found) {
-    return translateWithIdioms(text, idiomResult);
+    return { translation: translateWithIdioms(text, idiomResult), detectedSubject: '' };
   }
 
   // 4.5. 동사-목적어 연어 체크 (NLP 우선 처리)
@@ -734,24 +798,61 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
   const tokens = text.split(' ');
   const verbObjectMatches = findVerbObjectCollocations(tokens);
   if (verbObjectMatches.length > 0) {
-    return decomposeAndTranslateKoWithNlp(text);
+    return { translation: decomposeAndTranslateKoWithNlp(text), detectedSubject: '' };
   }
 
   // 4.6. 다의어 체크 (WSD 필요 문장은 NLP 경로로)
   // 배, 눈, 밤, 차, 말 등 다의어가 포함된 문장은 WSD 적용 필요
   if (hasPolysemousWords(tokens)) {
-    return decomposeAndTranslateKoWithNlp(text);
+    return { translation: decomposeAndTranslateKoWithNlp(text), detectedSubject: '' };
   }
 
   // 4.7. 연결어미 체크 (연결어미가 있는 문장은 NLP 경로로)
   // 아서/어서, 면서, 면, 고, 니까 등 연결어미가 포함된 문장
   // 단, 의문문일 때는 연결어미 체크 건너뜀 (의문형 어미 -니와 연결어미 -니 충돌 방지)
   if (!isQuestion && hasConnectiveEndings(tokens)) {
-    return decomposeAndTranslateKoWithNlp(text);
+    return { translation: decomposeAndTranslateKoWithNlp(text), detectedSubject: '' };
   }
 
   // 5. 고급 문법 분석 기반 번역 (SOV→SVO 어순 변환, 시제, be동사, 관사)
-  return translateWithGrammarAnalysis(text, isQuestion);
+  return translateWithGrammarAnalysisResult(text, isQuestion, contextSubject);
+}
+
+/**
+ * 고급 문법 분석 기반 번역 (KoToEnResult 반환)
+ * 문장 구조 분석 → 어순 변환 → 영어 생성
+ * @param text 번역할 한국어 텍스트
+ * @param isQuestion 의문문 여부 (외부에서 전달)
+ * @param contextSubject 문맥 주어 (복수 문장에서 이전 문장의 주어)
+ */
+function translateWithGrammarAnalysisResult(
+  text: string,
+  isQuestion: boolean = false,
+  contextSubject: string = '',
+): KoToEnResult {
+  try {
+    // 1. 문장 구조 분석
+    const parsed = parseSentence(text);
+
+    // 외부에서 전달된 isQuestion 값 반영 (? 가 이미 제거된 경우를 위함)
+    if (isQuestion) {
+      parsed.isQuestion = true;
+      parsed.sentenceType = 'interrogative';
+    }
+
+    // 2. 영어 문장 생성 (어순 변환 포함, 문맥 주어 전달)
+    const result = generateEnglish(parsed, contextSubject);
+
+    // 결과가 원본과 같거나 너무 짧으면 기존 방식으로 fallback
+    if (result.translation === text || result.translation.length < 2) {
+      return { translation: decomposeAndTranslateKoWithNlp(text), detectedSubject: '' };
+    }
+
+    return result;
+  } catch {
+    // 오류 발생 시 기존 방식으로 fallback
+    return { translation: decomposeAndTranslateKoWithNlp(text), detectedSubject: '' };
+  }
 }
 
 /**
@@ -760,7 +861,7 @@ function translateKoToEnAdvanced(text: string, isQuestion: boolean = false): str
  * @param text 번역할 한국어 텍스트
  * @param isQuestion 의문문 여부 (외부에서 전달)
  */
-function translateWithGrammarAnalysis(text: string, isQuestion: boolean = false): string {
+function _translateWithGrammarAnalysis(text: string, isQuestion: boolean = false): string {
   try {
     // 1. 문장 구조 분석
     const parsed = parseSentence(text);
@@ -772,14 +873,14 @@ function translateWithGrammarAnalysis(text: string, isQuestion: boolean = false)
     }
 
     // 2. 영어 문장 생성 (어순 변환 포함)
-    const result = generateEnglish(parsed);
+    const { translation } = generateEnglish(parsed);
 
     // 결과가 원본과 같거나 너무 짧으면 기존 방식으로 fallback
-    if (result === text || result.length < 2) {
+    if (translation === text || translation.length < 2) {
       return decomposeAndTranslateKoWithNlp(text);
     }
 
-    return result;
+    return translation;
   } catch {
     // 오류 발생 시 기존 방식으로 fallback
     return decomposeAndTranslateKoWithNlp(text);
