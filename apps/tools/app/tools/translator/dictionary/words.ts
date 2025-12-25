@@ -956,6 +956,8 @@ const manualKoToEnWords: Record<string, string> = {
   파일: 'file',
   폴더: 'folder',
   문서: 'document',
+  보고: 'report',
+  보고서: 'report',
   이메일: 'email',
   메일: 'mail',
   메시지: 'message',

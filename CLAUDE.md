@@ -135,13 +135,63 @@ Ask before: removing code, changing core logic, breaking changes.
 | `grammar/sentence-parser.ts` | 일반화된 문장 구조 파싱 로직 |
 | `grammar/english-generator.ts` | 일반화된 영어 생성 규칙 |
 | `core/en-to-ko.ts`, `core/ko-to-en.ts` | 일반화된 번역 알고리즘 |
+| `context/context-analyzer.ts` | 문맥별 어휘 매핑 (CONTEXT_VOCABULARY) |
+
+### 📚 문맥 기반 어휘 사전 정책 (Context-Based Vocabulary Policy)
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║         기존 단어는 삭제하지 않고, 문맥별 변형을 추가한다                          ║
+║         (Never delete existing words, ADD context-specific variants)         ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  📖 words.ts - 기본 단어 사전 (Base Dictionary)                               ║
+║     • 기존 단어 쌍 유지 (Keep existing word pairs)                            ║
+║     • 새로운 단어만 추가 (Only add new words)                                  ║
+║     • 절대 삭제 금지 (Never delete)                                           ║
+║                                                                              ║
+║  🎭 context/context-analyzer.ts - 문맥별 어휘 (Context Vocabulary)            ║
+║     • 화자 유형별 변형 추가 (Add speaker-type variants)                        ║
+║       - teen: 10대 표현 (OMG, literally, cringe)                             ║
+║       - elderly: 노인 표현 (dear, sweetie)                                   ║
+║       - formal: 격식체 (remarkable, truly)                                   ║
+║       - angry: 화남 표현 (what the hell)                                     ║
+║       - villain: 악당 표현                                                   ║
+║       - loving: 애정 표현 (alright sweetie)                                  ║
+║       - romance: 연애 표현                                                   ║
+║       - sarcastic: 비꼬는 표현 (that's rich)                                 ║
+║                                                                              ║
+║  ✅ 올바른 추가 방식:                                                         ║
+║     CONTEXT_VOCABULARY['대박'] = {                                           ║
+║       default: 'awesome',    // 기본값 (유지)                                 ║
+║       teen: 'OMG',           // 10대 문맥 (추가)                              ║
+║       formal: 'remarkable',  // 격식 문맥 (추가)                              ║
+║     };                                                                       ║
+║                                                                              ║
+║  ❌ 잘못된 방식:                                                              ║
+║     • 기존 default 값 변경/삭제                                               ║
+║     • 문맥 없이 words.ts에서 단어 의미 변경                                    ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+### 번역 흐름 (Translation Flow)
+```
+입력 문장 → 문맥 분석 (analyzeContext) → 화자/감정/상황 파악
+         → 기본 번역 (words.ts 기반)
+         → 문맥 적용 (CONTEXT_VOCABULARY로 어휘 치환)
+         → 최종 출력
+```
 
 ### When Test Fails (테스트 실패 시)
 1. **DO NOT** add the sentence to dictionary files (사전에 문장 추가 금지)
 2. **DO NOT** add regex patterns for specific sentences (특정 문장 정규식 금지)
 3. **DO NOT** add MARKER patterns for specific phrases (마커 패턴 금지)
-4. **DO** analyze which GENERAL algorithm component needs improvement (일반화 알고리즘 개선)
-5. **DO** make structural changes that work for ALL similar sentences (모든 유사 문장에 적용)
+4. **DO NOT** delete existing word mappings from dictionaries (기존 단어 매핑 삭제 금지)
+5. **DO** analyze which GENERAL algorithm component needs improvement (일반화 알고리즘 개선)
+6. **DO** make structural changes that work for ALL similar sentences (모든 유사 문장에 적용)
+7. **DO** ADD new context variants to CONTEXT_VOCABULARY (문맥별 변형 추가)
+8. **DO** ADD new words to words.ts (keep existing, add new) (기존 유지, 새 단어 추가)
 
 ## The Perfect Dodecagon (12 Quality Metrics / 12가지 품질 지표)
 

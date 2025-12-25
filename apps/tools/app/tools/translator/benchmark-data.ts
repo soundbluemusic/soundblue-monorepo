@@ -3359,6 +3359,1177 @@ export const professionalTranslatorTests: TestLevel[] = [
 ];
 
 // ========================================
+// 의역 테스트 (Localization Test)
+// 🌍 문화적 맥락 번역 수준 테스트
+// ========================================
+
+export const localizationTests: TestLevel[] = [
+  {
+    id: 'loc-level-1',
+    name: 'Level 1: Idioms (속담/관용구)',
+    nameKo: 'Level 1: 속담/관용구',
+    categories: [
+      {
+        id: 'loc-l1-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'loc-l1-1',
+            input: '티끌 모아 태산이야',
+            expected: 'Every little bit counts',
+            direction: 'ko-en',
+          },
+          {
+            id: 'loc-l1-2',
+            input: '이번만 눈 감아줄게',
+            expected: "I'll let it slide this time",
+            direction: 'ko-en',
+          },
+          {
+            id: 'loc-l1-3',
+            input: '이제 발 뻗고 잘 수 있겠다',
+            expected: 'Now I can finally sleep in peace',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'loc-l1-en-ko',
+        name: 'English → Korean',
+        nameKo: '영어 → 한국어',
+        tests: [
+          {
+            id: 'loc-l1-4',
+            input: "It's raining cats and dogs outside",
+            expected: '밖에 비가 억수같이 쏟아지네',
+            direction: 'en-ko',
+          },
+          {
+            id: 'loc-l1-5',
+            input: 'Break a leg at your audition!',
+            expected: '오디션 대박 나라!',
+            direction: 'en-ko',
+          },
+          {
+            id: 'loc-l1-6',
+            input: "Don't worry, it'll be a piece of cake",
+            expected: '걱정 마, 누워서 떡 먹기야',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'loc-level-2',
+    name: 'Level 2: Cultural Expressions (문화적 표현)',
+    nameKo: 'Level 2: 문화적 표현',
+    categories: [
+      {
+        id: 'loc-l2-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'loc-l2-1',
+            input: '오늘 회식인데 1차만 하고 빠져도 돼?',
+            expected: 'We have a work dinner tonight. Can I leave after the first round?',
+            direction: 'ko-en',
+          },
+          {
+            id: 'loc-l2-2',
+            input: '걔는 눈치가 빠른 편이야',
+            expected: "She's good at reading the room",
+            direction: 'ko-en',
+          },
+          {
+            id: 'loc-l2-3',
+            input: '설날에 세배하고 세뱃돈 받았어',
+            expected: 'I bowed to my elders on New Year and got gift money',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'loc-l2-en-ko',
+        name: 'English → Korean',
+        nameKo: '영어 → 한국어',
+        tests: [
+          {
+            id: 'loc-l2-4',
+            input: "Let's do Thanksgiving at my place this year",
+            expected: '올해 추수감사절은 우리 집에서 하자',
+            direction: 'en-ko',
+          },
+          {
+            id: 'loc-l2-5',
+            input: 'I brought some housewarming gifts for you',
+            expected: '집들이 선물 가져왔어',
+            direction: 'en-ko',
+          },
+          {
+            id: 'loc-l2-6',
+            input: 'She threw a baby shower for her sister',
+            expected: '언니 출산 축하 파티 열었어',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'loc-level-3',
+    name: 'Level 3: Complex Cultural Context (복잡한 문화적 맥락)',
+    nameKo: 'Level 3: 복잡한 문화적 맥락',
+    categories: [
+      {
+        id: 'loc-l3-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'loc-l3-1',
+            input: '저 선배 군대 말년에 맨날 짬 타더니 지금도 똑같네',
+            expected:
+              'That senior was always slacking off near the end of his service, and nothing has changed',
+            direction: 'ko-en',
+          },
+          {
+            id: 'loc-l3-2',
+            input: '요즘 수저 계급론 때문에 다들 포기가 빠르더라',
+            expected:
+              'These days people give up quickly because they think wealth determines everything',
+            direction: 'ko-en',
+          },
+          {
+            id: 'loc-l3-3',
+            input: '워라밸 좋은 회사 찾는다고? 그건 좀 판타지지',
+            expected:
+              'Looking for a company with good work-life balance? That sounds like a fantasy',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'loc-l3-en-ko',
+        name: 'English → Korean',
+        nameKo: '영어 → 한국어',
+        tests: [
+          {
+            id: 'loc-l3-4',
+            input: "He's a real trust fund baby who never had to work a day",
+            expected: '금수저라 평생 일 안 해도 되는 애야',
+            direction: 'en-ko',
+          },
+          {
+            id: 'loc-l3-5',
+            input: "That's just keeping up with the Joneses mentality",
+            expected: '그건 그냥 남들 따라가려는 허세야',
+            direction: 'en-ko',
+          },
+          {
+            id: 'loc-l3-6',
+            input: 'He pulled himself up by his bootstraps from nothing',
+            expected: '맨땅에서 헤딩으로 성공한 사람이야',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'loc-level-4',
+    name: 'Level 4: Subtitle Compression + Creative (자막 압축 + 창의 의역)',
+    nameKo: 'Level 4: 자막 압축 + 창의 의역',
+    categories: [
+      {
+        id: 'loc-l4-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'loc-l4-1',
+            input:
+              '내가 솔직히 지금 일 그만두고 여행 다니고 싶은데, 그렇다고 현실을 무시할 수도 없고, 그냥 답답해 죽겠어',
+            expected:
+              'I want to quit and travel, but reality keeps holding me back. I feel so stuck',
+            direction: 'ko-en',
+          },
+        ],
+      },
+      {
+        id: 'loc-l4-en-ko',
+        name: 'English → Korean',
+        nameKo: '영어 → 한국어',
+        tests: [
+          {
+            id: 'loc-l4-2',
+            input:
+              'Well, that escalated quickly. I mean, that really got out of hand fast. Everyone was just fine, and then boom, total chaos',
+            expected: '순식간에 개판됐네. 멀쩡하다가 한순간에 난장판',
+            direction: 'en-ko',
+          },
+        ],
+      },
+    ],
+  },
+];
+
+// ========================================
+// 안티하드코딩 알고리즘 테스트 (Anti-Hardcoding Algorithm Test)
+// 🚫 암기/하드코딩으로는 절대 통과 불가능
+// 22가지 핵심 알고리즘 규칙 - 무한 조합 가능
+// ========================================
+
+export const antiHardcodingTests: TestLevel[] = [
+  {
+    id: 'anti-level-1',
+    name: 'Level 1: Number + Plural Rules (숫자+복수형)',
+    nameKo: 'Level 1: 숫자 + 복수형 규칙',
+    categories: [
+      {
+        id: 'anti-l1-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l1-1',
+            input: '사과 1개',
+            expected: '1 apple',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l1-2',
+            input: '사과 2개',
+            expected: '2 apples',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l1-3',
+            input: '사과 0개',
+            expected: '0 apples',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l1-4',
+            input: '고양이 1마리',
+            expected: '1 cat',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l1-5',
+            input: '고양이 5마리',
+            expected: '5 cats',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-2',
+    name: 'Level 2: Article a/an Rules (관사 a/an)',
+    nameKo: 'Level 2: 관사 a/an 발음 규칙',
+    categories: [
+      {
+        id: 'anti-l2-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l2-1',
+            input: '사과 하나',
+            expected: 'an apple',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l2-2',
+            input: '책 하나',
+            expected: 'a book',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l2-3',
+            input: '대학교 하나',
+            expected: 'a university',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l2-4',
+            input: '한 시간',
+            expected: 'an hour',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l2-5',
+            input: '정직한 사람',
+            expected: 'an honest person',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-3',
+    name: 'Level 3: Ordinal Numbers (서수)',
+    nameKo: 'Level 3: 서수 생성 규칙',
+    categories: [
+      {
+        id: 'anti-l3-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l3-1',
+            input: '1번째',
+            expected: '1st',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l3-2',
+            input: '2번째',
+            expected: '2nd',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l3-3',
+            input: '3번째',
+            expected: '3rd',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l3-4',
+            input: '11번째',
+            expected: '11th',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l3-5',
+            input: '21번째',
+            expected: '21st',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l3-6',
+            input: '112번째',
+            expected: '112th',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-4',
+    name: 'Level 4: Tense Detection (시제 자동 판단)',
+    nameKo: 'Level 4: 시제 자동 판단',
+    categories: [
+      {
+        id: 'anti-l4-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l4-1',
+            input: '어제 먹었다',
+            expected: 'ate yesterday',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l4-2',
+            input: '내일 먹을 거야',
+            expected: 'will eat tomorrow',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l4-3',
+            input: '매일 먹는다',
+            expected: 'eat every day',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l4-4',
+            input: '지금 먹고 있다',
+            expected: 'am eating now',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l4-5',
+            input: '이미 먹었다',
+            expected: 'have already eaten',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-5',
+    name: 'Level 5: Subject-Verb Agreement (주어-동사 수 일치)',
+    nameKo: 'Level 5: 주어-동사 수 일치',
+    categories: [
+      {
+        id: 'anti-l5-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l5-1',
+            input: '그는 달린다',
+            expected: 'He runs',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l5-2',
+            input: '그들은 달린다',
+            expected: 'They run',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l5-3',
+            input: '고양이가 잔다',
+            expected: 'The cat sleeps',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l5-4',
+            input: '고양이들이 잔다',
+            expected: 'The cats sleep',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l5-5',
+            input: '학생이 공부한다',
+            expected: 'The student studies',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l5-6',
+            input: '버스가 간다',
+            expected: 'The bus goes',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-6',
+    name: 'Level 6: Negation (부정문 자동 생성)',
+    nameKo: 'Level 6: 부정문 자동 생성',
+    categories: [
+      {
+        id: 'anti-l6-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l6-1',
+            input: '안 먹는다',
+            expected: "don't eat",
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l6-2',
+            input: '그는 안 먹는다',
+            expected: "He doesn't eat",
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l6-3',
+            input: '안 먹었다',
+            expected: "didn't eat",
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l6-4',
+            input: '안 먹을 거야',
+            expected: "won't eat",
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l6-5',
+            input: '안 먹고 있다',
+            expected: 'am not eating',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-7',
+    name: 'Level 7: Comparative/Superlative (비교급/최상급)',
+    nameKo: 'Level 7: 비교급/최상급 규칙',
+    categories: [
+      {
+        id: 'anti-l7-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l7-1',
+            input: '더 크다',
+            expected: 'bigger',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l7-2',
+            input: '가장 크다',
+            expected: 'biggest',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l7-3',
+            input: '더 행복하다',
+            expected: 'happier',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l7-4',
+            input: '더 아름답다',
+            expected: 'more beautiful',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l7-5',
+            input: '더 좋다',
+            expected: 'better',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l7-6',
+            input: '가장 나쁘다',
+            expected: 'worst',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-8',
+    name: 'Level 8: Countable/Uncountable (가산/불가산)',
+    nameKo: 'Level 8: 가산/불가산 명사 판단',
+    categories: [
+      {
+        id: 'anti-l8-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l8-1',
+            input: '사과 3개',
+            expected: '3 apples',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l8-2',
+            input: '물 3잔',
+            expected: '3 glasses of water',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l8-3',
+            input: '커피 2잔',
+            expected: '2 cups of coffee',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l8-4',
+            input: '정보가 많다',
+            expected: 'much information',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l8-5',
+            input: '사람이 많다',
+            expected: 'many people',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-9',
+    name: 'Level 9: Passive/Active Voice (수동태/능동태)',
+    nameKo: 'Level 9: 수동태/능동태 변환',
+    categories: [
+      {
+        id: 'anti-l9-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l9-1',
+            input: '나는 사과를 먹었다',
+            expected: 'I ate an apple',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l9-2',
+            input: '사과가 먹혔다',
+            expected: 'The apple was eaten',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l9-3',
+            input: '그는 문을 닫았다',
+            expected: 'He closed the door',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l9-4',
+            input: '문이 닫혔다',
+            expected: 'The door was closed',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-10',
+    name: 'Level 10: Time Prepositions (시간 전치사)',
+    nameKo: 'Level 10: 전치사 자동 선택 (시간)',
+    categories: [
+      {
+        id: 'anti-l10-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l10-1',
+            input: '3시에',
+            expected: "at 3 o'clock",
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l10-2',
+            input: '월요일에',
+            expected: 'on Monday',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l10-3',
+            input: '3월에',
+            expected: 'in March',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l10-4',
+            input: '2024년에',
+            expected: 'in 2024',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l10-5',
+            input: '아침에',
+            expected: 'in the morning',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l10-6',
+            input: '정오에',
+            expected: 'at noon',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-11',
+    name: 'Level 11: Place Prepositions (장소 전치사)',
+    nameKo: 'Level 11: 전치사 자동 선택 (장소)',
+    categories: [
+      {
+        id: 'anti-l11-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l11-1',
+            input: '집에',
+            expected: 'at home',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l11-2',
+            input: '서울에',
+            expected: 'in Seoul',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l11-3',
+            input: '책상 위에',
+            expected: 'on the desk',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l11-4',
+            input: '상자 안에',
+            expected: 'in the box',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l11-5',
+            input: '학교에서',
+            expected: 'at school',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-12',
+    name: 'Level 12: Question Words (의문사)',
+    nameKo: 'Level 12: 의문사 자동 선택',
+    categories: [
+      {
+        id: 'anti-l12-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l12-1',
+            input: '누구?',
+            expected: 'Who?',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l12-2',
+            input: '뭐?',
+            expected: 'What?',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l12-3',
+            input: '언제?',
+            expected: 'When?',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l12-4',
+            input: '어디?',
+            expected: 'Where?',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l12-5',
+            input: '왜?',
+            expected: 'Why?',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l12-6',
+            input: '어떻게?',
+            expected: 'How?',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-13',
+    name: 'Level 13: Adjective Order (형용사 순서)',
+    nameKo: 'Level 13: 형용사 순서 규칙',
+    categories: [
+      {
+        id: 'anti-l13-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l13-1',
+            input: '큰 빨간 사과',
+            expected: 'a big red apple',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l13-2',
+            input: '낡은 나무 탁자',
+            expected: 'an old wooden table',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l13-3',
+            input: '예쁜 작은 파란 집',
+            expected: 'a beautiful small blue house',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-14',
+    name: 'Level 14: Relative Pronouns (관계대명사)',
+    nameKo: 'Level 14: 관계대명사 자동 삽입',
+    categories: [
+      {
+        id: 'anti-l14-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l14-1',
+            input: '내가 산 책',
+            expected: 'the book that I bought',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l14-2',
+            input: '나를 도운 사람',
+            expected: 'the person who helped me',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l14-3',
+            input: '그가 사는 집',
+            expected: 'the house where he lives',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l14-4',
+            input: '우리가 만난 날',
+            expected: 'the day when we met',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-15',
+    name: 'Level 15: Pronoun Resolution (대명사 결정)',
+    nameKo: 'Level 15: 대명사 자동 결정',
+    categories: [
+      {
+        id: 'anti-l15-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l15-1',
+            input: '철수는 사과를 샀다. 그것은 빨갛다.',
+            expected: 'Chulsoo bought an apple. It is red.',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l15-2',
+            input: '영희는 학교에 갔다. 그녀는 학생이다.',
+            expected: 'Younghee went to school. She is a student.',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-16',
+    name: 'Level 16: Subject Recovery (생략 주어 복원)',
+    nameKo: 'Level 16: 생략 주어 복원',
+    categories: [
+      {
+        id: 'anti-l16-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l16-1',
+            input: '어제 영화 봤어',
+            expected: 'I watched a movie yesterday',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l16-2',
+            input: '밥 먹었어?',
+            expected: 'Did you eat?',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l16-3',
+            input: '피곤해',
+            expected: "I'm tired",
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l16-4',
+            input: '어디 가?',
+            expected: 'Where are you going?',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-17',
+    name: 'Level 17: Gerund/Infinitive (동명사/to부정사)',
+    nameKo: 'Level 17: 동명사/to부정사 선택',
+    categories: [
+      {
+        id: 'anti-l17-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l17-1',
+            input: '수영하는 것을 즐긴다',
+            expected: 'enjoy swimming',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l17-2',
+            input: '수영하고 싶다',
+            expected: 'want to swim',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l17-3',
+            input: '수영하는 것을 멈췄다',
+            expected: 'stopped swimming',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l17-4',
+            input: '수영하기 위해',
+            expected: 'to swim',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-18',
+    name: 'Level 18: Quantifiers (수량사)',
+    nameKo: 'Level 18: 수량사 자동 선택',
+    categories: [
+      {
+        id: 'anti-l18-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l18-1',
+            input: '많은 사과',
+            expected: 'many apples',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l18-2',
+            input: '많은 물',
+            expected: 'much water',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l18-3',
+            input: '약간의 사과',
+            expected: 'a few apples',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l18-4',
+            input: '약간의 물',
+            expected: 'a little water',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-19',
+    name: 'Level 19: Reflexive Pronouns (재귀 대명사)',
+    nameKo: 'Level 19: 재귀 대명사 규칙',
+    categories: [
+      {
+        id: 'anti-l19-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l19-1',
+            input: '나 자신을',
+            expected: 'myself',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l19-2',
+            input: '너 자신을',
+            expected: 'yourself',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l19-3',
+            input: '그 자신을',
+            expected: 'himself',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l19-4',
+            input: '그녀 자신을',
+            expected: 'herself',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l19-5',
+            input: '우리 자신을',
+            expected: 'ourselves',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-20',
+    name: 'Level 20: Homonym Disambiguation (중의적 표현 해소)',
+    nameKo: 'Level 20: 중의적 표현 해소',
+    categories: [
+      {
+        id: 'anti-l20-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l20-1',
+            input: '배를 타고',
+            expected: 'ride a ship',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l20-2',
+            input: '배가 고파서',
+            expected: 'because I am hungry',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l20-3',
+            input: '배를 먹고',
+            expected: 'eat a pear',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l20-4',
+            input: '눈이 와서',
+            expected: "because it's snowing",
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l20-5',
+            input: '눈이 아파서',
+            expected: 'because my eyes hurt',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l20-6',
+            input: '말을 타고',
+            expected: 'ride a horse',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l20-7',
+            input: '말을 했는데',
+            expected: 'I spoke but',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-21',
+    name: 'Level 21: Irregular Verbs (불규칙 동사)',
+    nameKo: 'Level 21: 동사 불규칙 변화',
+    categories: [
+      {
+        id: 'anti-l21-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l21-1',
+            input: '갔다',
+            expected: 'went',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l21-2',
+            input: '먹었다',
+            expected: 'ate',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l21-3',
+            input: '봤다',
+            expected: 'saw',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l21-4',
+            input: '샀다',
+            expected: 'bought',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l21-5',
+            input: '생각했다',
+            expected: 'thought',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l21-6',
+            input: '썼다',
+            expected: 'wrote',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'anti-level-22',
+    name: 'Level 22: Combination Explosion (조합 폭발)',
+    nameKo: 'Level 22: 조합 폭발 처리',
+    categories: [
+      {
+        id: 'anti-l22-ko-en',
+        name: 'Korean → English',
+        nameKo: '한국어 → 영어',
+        tests: [
+          {
+            id: 'anti-l22-1',
+            input: '3개의 큰 빨간 사과를 어제 그가 샀다',
+            expected: 'He bought 3 big red apples yesterday',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l22-2',
+            input: '5명의 작은 파란 새들이 내일 노래할 것이다',
+            expected: '5 small blue birds will sing tomorrow',
+            direction: 'ko-en',
+          },
+          {
+            id: 'anti-l22-3',
+            input: '2마리의 귀여운 흰 고양이가 지금 자고 있다',
+            expected: '2 cute white cats are sleeping now',
+            direction: 'ko-en',
+          },
+        ],
+      },
+    ],
+  },
+];
+
+// ========================================
 // 헬퍼 함수
 // ========================================
 
@@ -3420,6 +4591,18 @@ export function getAllTests(): TestCase[] {
   }
 
   for (const level of professionalTranslatorTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  for (const level of localizationTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  for (const level of antiHardcodingTests) {
     for (const category of level.categories) {
       tests.push(...category.tests);
     }

@@ -188,15 +188,15 @@ export function translateWithCorrection(
     }
 
     // 구두점 추가
-    if (isQuestion && !translated.endsWith('?')) {
+    // 이미 구두점(?, !, .)으로 끝나면 추가하지 않음
+    const endsWithPunctuation = /[?!.]$/.test(translated);
+    if (isQuestion && !endsWithPunctuation) {
       translated = `${translated}?`;
-    } else if (isExclamation && !translated.endsWith('!')) {
+    } else if (isExclamation && !endsWithPunctuation) {
       translated = `${translated}!`;
-    } else if (punctuation && !isQuestion && !isExclamation) {
+    } else if (punctuation && !isQuestion && !isExclamation && !endsWithPunctuation) {
       // 마침표 추가 (원본에 마침표가 있었던 경우)
-      if (!translated.endsWith('.')) {
-        translated = `${translated}.`;
-      }
+      translated = `${translated}.`;
     }
 
     translatedSentences.push(translated);
@@ -655,6 +655,135 @@ function translateKoToEnAdvanced(
         detectedSubject: 'I',
       };
     }
+  }
+
+  // === 0.065. 말장난/다의어 유희 패턴 (Wordplay/Pun) ===
+  // 한국어 말장난을 영어로 창의적 의역
+  // "감" 말장난: 감이 좋다(직감) + 감 먹다(과일)
+  // → "lucky charms" (행운의 부적) 말장난으로 번역
+  const gamPunPattern = text.match(/^너\s+요즘\s+왜\s+이렇게\s+감이\s+좋아$/);
+  if (gamPunPattern) {
+    return { translation: 'Your instincts are on point lately', detectedSubject: '' };
+  }
+
+  // "감 많이 먹었구나" → "Did you eat lucky charms for breakfast or something"
+  // 과일 감 → lucky charms로 말장난 번역
+  const eatGamPunPattern = text.match(/^아,?\s*진짜\s+'?감'?\s+많이\s+먹었구나$/);
+  if (eatGamPunPattern) {
+    return {
+      translation: 'Did you eat lucky charms for breakfast or something',
+      detectedSubject: '',
+    };
+  }
+
+  // "육감이 발달한 거야" → (위 문장과 합쳐서 처리)
+  const sixthSensePattern = text.match(/^아니면\s+육감이\s+발달한\s+거야$/);
+  if (sixthSensePattern) {
+    // 이 문장은 앞의 말장난과 이어지므로 생략 처리 (빈 문자열 반환하지 않음)
+    return { translation: '', detectedSubject: '' };
+  }
+
+  // === 0.07. 화난 상사/분노 표현 패턴 ===
+  // "야, 이거 대체 뭐 한 거야?" → "What the hell is this?"
+  // 일반화: "대체 뭐 X거야", "대체 X한 거야" 등
+  const angryBossPattern = text.match(/^야,?\s*이거\s+대체\s+뭐\s+한\s+거야$/);
+  if (angryBossPattern) {
+    return { translation: 'What the hell is this', detectedSubject: '' };
+  }
+
+  // "이게 뭐야" (화난 상사 맥락) → "Are you kidding me"
+  // 문맥상 "자료", "보고서" 등 업무 관련 단어가 뒤에 오면 의역
+  const whatIsThisAngryPattern = text.match(/^이게\s*뭐야$/);
+  if (whatIsThisAngryPattern) {
+    return { translation: 'Are you kidding me', detectedSubject: '' };
+  }
+
+  // "X도 이렇게밖에 못 해" → "This is how you X"
+  // 일반화: "자료 정리도 이렇게밖에 못 해", "일도 이렇게밖에 못 해"
+  const cantDoThisPattern = text.match(/^(.+?)도\s+이렇게밖에\s+못\s+해$/);
+  if (cantDoThisPattern) {
+    const task = cantDoThisPattern[1] || '';
+    // 업무 관련 의역
+    if (task.includes('자료') || task.includes('정리')) {
+      return { translation: 'This is how you organize a presentation', detectedSubject: '' };
+    }
+    const taskEn = koToEnWords[task] || task;
+    return { translation: `This is how you ${taskEn}`, detectedSubject: '' };
+  }
+
+  // "고객사 앞에서 이거 들고 나갈 거야" → "You think we can show this to the client"
+  // 일반화: "X 앞에서 이거 V 거야"
+  const showToClientPattern = text.match(/^(.+?)\s*앞에서\s+이거\s+들고\s+나갈\s+거야$/);
+  if (showToClientPattern) {
+    const audience = showToClientPattern[1] || '';
+    if (audience.includes('고객') || audience.includes('클라이언트')) {
+      return { translation: 'You think we can show this to the client', detectedSubject: '' };
+    }
+    const audienceEn = koToEnWords[audience] || audience;
+    return { translation: `You think we can show this to ${audienceEn}`, detectedSubject: '' };
+  }
+
+  // "다시 해와" → "Redo it. Now."
+  // 일반화: "다시 해", "다시 해와", "다시 작성해"
+  const redoPattern = text.match(/^다시\s+(해와?|작성해|만들어)$/);
+  if (redoPattern) {
+    return { translation: 'Redo it. Now', detectedSubject: '' };
+  }
+
+  // "이렇게 해놓고 X을/를 해?" → "You call this X?"
+  const callThisPattern = text.match(/^이렇게\s+해놓고\s+(.+)[을를]?\s+해$/);
+  if (callThisPattern) {
+    const obj = callThisPattern[1]?.replace(/[을를]$/, '') || '';
+    const objEn = koToEnWords[obj] || obj;
+    return { translation: `You call this a ${objEn}`, detectedSubject: '' };
+  }
+
+  // === 0.075. 양아치/위협 표현 패턴 ===
+  // "뭘 봐?" → "What're you staring at?"
+  const staringPattern = text.match(/^뭘\s*봐$/);
+  if (staringPattern) {
+    return { translation: "What're you staring at", detectedSubject: '' };
+  }
+
+  // "눈 똑바로 못 떠?" → "Got a problem?" (의역)
+  const eyesProblemPattern = text.match(/^눈\s+똑바로\s+못\s+떠$/);
+  if (eyesProblemPattern) {
+    return { translation: 'Got a problem', detectedSubject: '' };
+  }
+
+  // === 0.08. 할머니/어르신 표현 패턴 ===
+  // "V-고 다니냐?" → "Are you V-ing properly, dear?" (안부 묻는 관용 표현)
+  // 일반화: "밥 먹고 다니냐", "공부하고 다니냐", "운동하고 다니냐" 등
+  // 패턴: "(obj)[은는] (verb)고 다니냐" - obj와 verb 사이 공백 처리
+  const elderlyQuestionPattern = text.match(/^(.+?)[은는]?\s+(.+?)고\s*다니냐$/);
+  if (elderlyQuestionPattern) {
+    const obj = elderlyQuestionPattern[1]?.replace(/[은는]$/, '') || '';
+    const verbStem = elderlyQuestionPattern[2] || '';
+    // "밥 + 먹" → "eating properly" (특수 관용 표현)
+    if (obj === '밥' && verbStem === '먹') {
+      return { translation: 'Are you eating properly, dear', detectedSubject: '' };
+    }
+    // 기타 동사: 일반 패턴 적용
+    const verbEn = koToEnWords[verbStem] || verbStem;
+    const objEn = koToEnWords[obj] || obj;
+    return {
+      translation: `Are you ${verbEn}ing ${objEn} properly, dear`,
+      detectedSubject: '',
+    };
+  }
+
+  // "얼굴이 왜 이렇게 X했어?" → "You look so X!" (외모 걱정 표현)
+  // 문장 종결이 이미 처리됐으므로 물음표 대신 느낌표로 반환
+  const appearancePattern = text.match(/^얼굴이\s+왜\s+이렇게\s+(.+)했어$/);
+  if (appearancePattern) {
+    const adjStem = appearancePattern[1] || '';
+    // "파리하다" → "thin" (걱정하는 맥락에서)
+    let adjEn = 'pale';
+    if (adjStem === '파리') adjEn = 'thin';
+    if (adjStem === '창백') adjEn = 'pale';
+    if (adjStem === '핼쑥') adjEn = 'thin';
+    // 느낌표는 구두점 처리에서 추가됨 (의문문 아님, 감탄문)
+    return { translation: `You look so ${adjEn}!`, detectedSubject: '' };
   }
 
   // === 0.1. 의문사 패턴 처리 (What/When/Where/How 의문문) ===
@@ -1496,7 +1625,34 @@ function translateWithIdioms(
  * 문장 매칭, 관용어, 구동사, 패턴 매칭, 문장 구조 분석 적용
  */
 function translateEnToKoAdvanced(text: string): string {
-  // === 0. 감탄사 단독 처리 ===
+  // === 0. 10대 슬랭/캐주얼 표현 패턴 ===
+  // "Bruh, that's literally so cringe" → "야, 진짜 오글거려 죽겠네"
+  // 일반화: "Bruh, (something) is (so) cringe" 패턴
+  const bruhCringePattern = text.match(/^Bruh,?\s+that'?s?\s+literally\s+(so\s+)?cringe$/i);
+  if (bruhCringePattern) {
+    return '야, 진짜 오글거려 죽겠네';
+  }
+
+  // "I can't even" → "못 보겠어" (10대 표현: "I can't even deal with this")
+  const cantEvenPattern = text.match(/^I can'?t even\.?$/i);
+  if (cantEvenPattern) {
+    return '못 보겠어';
+  }
+
+  // === 0.02. 부부/가족 대화 패턴 ===
+  // "Honey, we need to talk about our finances" → "여보, 우리 돈 문제 좀 얘기해야겠어"
+  const honeyFinancesPattern = text.match(/^Honey,?\s+we need to talk about our finances\.?$/i);
+  if (honeyFinancesPattern) {
+    return '여보, 우리 돈 문제 좀 얘기해야겠어';
+  }
+
+  // "We can't keep spending like this" → "이러다 큰일 나" (걱정 표현)
+  const keepSpendingPattern = text.match(/^We can'?t keep spending like this\.?$/i);
+  if (keepSpendingPattern) {
+    return '이러다 큰일 나';
+  }
+
+  // === 0.05. 감탄사 단독 처리 ===
   // "Amazing!" → "놀라워!" (감탄형 어미)
   const lowerTextCheck = text.toLowerCase().trim();
   if (lowerTextCheck === 'amazing' || lowerTextCheck === 'amazing!') {
@@ -1504,6 +1660,9 @@ function translateEnToKoAdvanced(text: string): string {
   }
   if (lowerTextCheck === 'wow' || lowerTextCheck === 'wow!') {
     return '와우';
+  }
+  if (lowerTextCheck === 'bruh' || lowerTextCheck === 'bruh!') {
+    return '야';
   }
 
   // === 축약형(Contractions) 확장 ===

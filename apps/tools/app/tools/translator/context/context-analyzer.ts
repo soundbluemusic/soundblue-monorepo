@@ -319,12 +319,29 @@ const CONTEXT_VOCABULARY: Record<
     elderly?: string;
     romance?: string;
     sarcastic?: string;
+    threatening?: string;
   }
 > = {
+  // === 대명사 (문맥에 따라 변환) ===
+  쟤: {
+    default: 'that person',
+    teen: 'He', // 10대: 자연스러운 대명사
+    romance: 'He',
+  },
+  걔: {
+    default: 'that person',
+    teen: 'He',
+    romance: 'He',
+  },
+  // === 감탄사/부사 ===
   대박: {
     default: 'Awesome',
     teen: 'OMG',
     formal: 'remarkable',
+  },
+  '진짜 대박': {
+    default: 'Really awesome',
+    teen: 'OMG',
   },
   진짜: {
     default: 'really',
@@ -332,18 +349,29 @@ const CONTEXT_VOCABULARY: Record<
     formal: 'truly',
   },
   완전: {
-    default: 'completely',
-    teen: 'totally',
+    default: 'totally', // words.ts와 일치
+    teen: 'literally', // 10대: "totally" 대신 "literally" 선호
     formal: 'entirely',
   },
+  // === 10대 표현 ===
+  '내 이상형': {
+    default: 'my ideal type',
+    teen: 'my dream guy',
+    romance: 'the one for me',
+  },
   이상형이야: {
-    default: 'ideal type',
-    teen: 'dream guy',
-    romance: 'the one',
+    default: 'is my ideal type',
+    teen: 'is my dream guy',
+    romance: 'is the one',
+  },
+  '이상형이야!': {
+    default: 'is my ideal type!',
+    teen: 'is my dream guy!',
+    romance: 'is the one!',
   },
   야: {
     default: 'Hey',
-    teen: '',
+    teen: '', // 10대: 감탄사로 시작하는 문장에서 생략 가능
     angry: 'Hey',
     villain: '',
   },
@@ -418,6 +446,30 @@ export function applyContextToTranslation(translation: string, originalText: str
       // 기본값과 다르면 치환
       result = result.replace(new RegExp(vocabMap.default, 'gi'), contextWord);
     }
+  }
+
+  // 10대/캐주얼 문맥: 축약형 적용 (He is → He's, I am → I'm)
+  if (context.speakerType === 'teen' || context.situation === 'casual') {
+    result = result
+      .replace(/\bHe is\b/g, "He's")
+      .replace(/\bShe is\b/g, "She's")
+      .replace(/\bIt is\b/g, "It's")
+      .replace(/\bI am\b/g, "I'm")
+      .replace(/\bYou are\b/g, "You're")
+      .replace(/\bWe are\b/g, "We're")
+      .replace(/\bThey are\b/g, "They're")
+      .replace(/\bThat is\b/g, "That's")
+      .replace(/\bThere is\b/g, "There's")
+      .replace(/\bI have\b/g, "I've")
+      .replace(/\bYou have\b/g, "You've")
+      .replace(/\bI will\b/g, "I'll")
+      .replace(/\bYou will\b/g, "You'll")
+      .replace(/\bcannot\b/g, "can't")
+      .replace(/\bdo not\b/g, "don't")
+      .replace(/\bdoes not\b/g, "doesn't")
+      .replace(/\bdid not\b/g, "didn't")
+      .replace(/\bwill not\b/g, "won't")
+      .replace(/\bcan not\b/g, "can't");
   }
 
   return result;
