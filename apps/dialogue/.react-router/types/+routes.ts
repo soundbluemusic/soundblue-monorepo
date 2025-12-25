@@ -17,10 +17,16 @@ type Pages = {
   "/about": {
     params: {};
   };
+  "/sitemap": {
+    params: {};
+  };
   "/ko": {
     params: {};
   };
   "/ko/about": {
+    params: {};
+  };
+  "/ko/sitemap": {
     params: {};
   };
 };
@@ -28,7 +34,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/about" | "/ko" | "/ko/about";
+    page: "/" | "/about" | "/sitemap" | "/ko" | "/ko/about" | "/ko/sitemap";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -38,6 +44,10 @@ type RouteFiles = {
     id: "routes/about";
     page: "/about";
   };
+  "routes/sitemap.tsx": {
+    id: "routes/sitemap";
+    page: "/sitemap";
+  };
   "routes/ko/home.tsx": {
     id: "routes/ko/home";
     page: "/ko";
@@ -46,12 +56,18 @@ type RouteFiles = {
     id: "routes/ko/about";
     page: "/ko/about";
   };
+  "routes/ko/sitemap.tsx": {
+    id: "routes/ko/sitemap";
+    page: "/ko/sitemap";
+  };
 };
 
 type RouteModules = {
   "root": typeof import("./app/root.tsx");
   "routes/home": typeof import("./app/routes/home.tsx");
   "routes/about": typeof import("./app/routes/about.tsx");
+  "routes/sitemap": typeof import("./app/routes/sitemap.tsx");
   "routes/ko/home": typeof import("./app/routes/ko/home.tsx");
   "routes/ko/about": typeof import("./app/routes/ko/about.tsx");
+  "routes/ko/sitemap": typeof import("./app/routes/ko/sitemap.tsx");
 };
