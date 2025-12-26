@@ -103,6 +103,8 @@
 
 // ========== Conversation Item ==========
 .conversationItem {
+  // WCAG 2.1 AA: Minimum touch target 44x44px
+  min-height: 44px;
   display: flex;
   width: 100%;
   align-items: center;

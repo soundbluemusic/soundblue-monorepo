@@ -6,6 +6,6 @@ export default {
 
   // Pre-render all routes for static hosting
   async prerender() {
-    return ['/', '/ko', '/about', '/ko/about'];
+    return ['/', '/ko', '/about', '/ko/about', '/sitemap', '/ko/sitemap'];
   },
 } satisfies Config;

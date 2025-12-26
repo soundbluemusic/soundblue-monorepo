@@ -113,6 +113,15 @@ img {
   }
 }
 
+// iOS auto-zoom prevention (requires 16px+ font-size)
+@media (hover: none) and (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 // Reduced motion
 @media (prefers-reduced-motion: reduce) {
   *,

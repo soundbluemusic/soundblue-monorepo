@@ -19,6 +19,7 @@ export default {
       '/sound-recording',
       '/ko/sound-recording',
       '/offline',
+      '/ko/offline',
       '/blog',
       '/ko/blog',
       '/news',

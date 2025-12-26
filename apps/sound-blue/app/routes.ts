@@ -24,4 +24,5 @@ export default [
   route('ko/blog', 'routes/ko/blog.tsx'),
   route('ko/chat', 'routes/ko/chat.tsx'),
   route('ko/built-with', 'routes/ko/built-with.tsx'),
+  route('ko/offline', 'routes/ko/offline.tsx'),
 ] satisfies RouteConfig;

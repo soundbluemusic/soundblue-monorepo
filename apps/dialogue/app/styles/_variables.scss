@@ -18,8 +18,8 @@ $chat-width-default: 360px;
 
 // ========== Z-Index Layers ==========
 $z-dropdown: 30;
-$z-sidebar: 50;
-$z-overlay: 40;
+$z-sidebar: 40;
+$z-overlay: 50; // Must be above sidebar for mobile close
 $z-header: 100;
 
 // ========== Spacing ==========

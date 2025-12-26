@@ -73,11 +73,13 @@
 
 // ========== New Chat Button ==========
 .newChatButton {
+  // WCAG 2.1 AA: Minimum touch target 44x44px
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: $spacing-md;
   width: 100%;
-  padding: 10px $spacing-md;
+  padding: $spacing-sm $spacing-md;
   background-color: var(--color-accent-primary);
   color: white;
   border: none;
@@ -104,6 +106,8 @@
 
 // ========== Ghost Mode Button ==========
 .ghostModeButton {
+  // WCAG 2.1 AA: Minimum touch target 44x44px
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: $spacing-md;
