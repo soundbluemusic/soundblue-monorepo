@@ -13,7 +13,7 @@ import {
 } from 'react-router';
 import m from '~/lib/messages';
 import { setLocale } from '~/paraglide/runtime';
-import './app.scss';
+import './app.css';
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
