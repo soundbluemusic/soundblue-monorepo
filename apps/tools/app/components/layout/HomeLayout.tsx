@@ -1,13 +1,33 @@
 'use client';
 
 import { useParaglideI18n, useTheme } from '@soundblue/shared-react';
-import { Code2, FileText, Globe, Info, Menu, Moon, Search, Sun, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Code2, FileText, Globe, Info, Menu, Moon, Sun, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '~/components/ui/button';
 import m from '~/lib/messages';
 import { ALL_TOOLS, type ToolInfo } from '~/lib/toolCategories';
 import { useToolStore } from '~/stores/tool-store';
+
+// ========================================
+// 검색 대상 페이지 정의
+// ========================================
+type PageKey = 'home' | 'about' | 'builtWith' | 'sitemap' | 'benchmark';
+
+interface SearchPage {
+  path: string;
+  key: PageKey;
+}
+
+const SITE_PAGES: SearchPage[] = [
+  { path: '/', key: 'home' },
+  { path: '/about', key: 'about' },
+  { path: '/built-with', key: 'builtWith' },
+  { path: '/sitemap', key: 'sitemap' },
+  { path: '/benchmark', key: 'benchmark' },
+];
+
+type SearchResult = { type: 'page'; data: SearchPage } | { type: 'tool'; data: ToolInfo };
 
 // ========================================
 // HomeLayout Component - 런처 스타일 홈 레이아웃
@@ -20,8 +40,67 @@ export function HomeLayout() {
   const { openTool } = useToolStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Filter tools based on search query (memoized)
+  const isMac =
+    typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+
+  // 페이지 타이틀/설명 가져오기
+  const getPageTitle = (key: PageKey): string => {
+    const titles: Record<PageKey, () => string | undefined> = {
+      home: () => m['navigation_home']?.(),
+      about: () => m['navigation_about']?.(),
+      builtWith: () => m['navigation_builtWith']?.(),
+      sitemap: () => m['sitemap_title']?.(),
+      benchmark: () => m['sidebar_benchmark']?.(),
+    };
+    return titles[key]?.() ?? key;
+  };
+
+  const getPageDesc = (key: PageKey): string => {
+    const descs: Record<PageKey, () => string | undefined> = {
+      home: () => m['about_tagline']?.(),
+      about: () => m['about_intro']?.(),
+      builtWith: () => m['builtWith_intro']?.(),
+      sitemap: () => m['sitemap_sections_main']?.(),
+      benchmark: () => m['benchmark_description']?.(),
+    };
+    return descs[key]?.() ?? '';
+  };
+
+  // 검색 결과 (도구 + 페이지)
+  const searchResults = useMemo((): SearchResult[] => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return [];
+
+    const matchedTools: SearchResult[] = ALL_TOOLS.filter((tool) => {
+      const name = tool.name[locale];
+      const desc = tool.description[locale];
+      return (
+        name.toLowerCase().includes(q) ||
+        desc.toLowerCase().includes(q) ||
+        tool.slug.toLowerCase().includes(q)
+      );
+    }).map((tool) => ({ type: 'tool', data: tool }));
+
+    const matchedPages: SearchResult[] = SITE_PAGES.filter((page) => {
+      const title = getPageTitle(page.key);
+      const desc = getPageDesc(page.key);
+      return (
+        title.toLowerCase().includes(q) ||
+        desc.toLowerCase().includes(q) ||
+        page.path.toLowerCase().includes(q)
+      );
+    }).map((page) => ({ type: 'page', data: page }));
+
+    return [...matchedTools, ...matchedPages];
+  }, [searchQuery, locale]);
+
+  // 도구만 필터링 (그리드 표시용)
   const filteredTools = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return ALL_TOOLS;
@@ -36,9 +115,95 @@ export function HomeLayout() {
     });
   }, [searchQuery]);
 
+  // 전역 키보드 단축키
+  const handleGlobalKeyDown = useCallback((e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      inputRef.current?.focus();
+    }
+    if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
+      e.preventDefault();
+      inputRef.current?.focus();
+    }
+  }, []);
+
+  // 외부 클릭 감지
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      setIsDropdownOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [handleGlobalKeyDown, handleClickOutside]);
+
+  const getResultPath = (result: SearchResult): string => {
+    if (result.type === 'page') {
+      return result.data.path;
+    }
+    return `/${result.data.slug}`;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isDropdownOpen || searchResults.length === 0) {
+      if (e.key === 'Enter' && searchQuery.trim()) setIsDropdownOpen(true);
+      return;
+    }
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : 0));
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : searchResults.length - 1));
+        break;
+      case 'Enter': {
+        e.preventDefault();
+        const selectedResult = searchResults[selectedIndex];
+        if (selectedIndex >= 0 && selectedResult) {
+          if (selectedResult.type === 'tool') {
+            openTool(selectedResult.data.id);
+          }
+          navigate(localizedPath(getResultPath(selectedResult)));
+          setIsDropdownOpen(false);
+          setSearchQuery('');
+        }
+        break;
+      }
+      case 'Escape':
+        setIsDropdownOpen(false);
+        setSelectedIndex(-1);
+        inputRef.current?.blur();
+        break;
+    }
+  };
+
+  const handleClear = () => {
+    setSearchQuery('');
+    setIsDropdownOpen(false);
+    setSelectedIndex(-1);
+    inputRef.current?.focus();
+  };
+
   const handleToolClick = (tool: ToolInfo) => {
     openTool(tool.id);
     navigate(localizedPath(`/${tool.slug}`));
+  };
+
+  const handleResultClick = (result: SearchResult) => {
+    if (result.type === 'tool') {
+      openTool(result.data.id);
+    }
+    navigate(localizedPath(getResultPath(result)));
+    setIsDropdownOpen(false);
+    setSearchQuery('');
   };
 
   return (
@@ -134,17 +299,132 @@ export function HomeLayout() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <div className="mx-auto max-w-4xl px-4 py-8 md:py-12">
-          {/* Search Section */}
+          {/* Search Section - Sound Blue 스타일 */}
           <div className="mb-8 md:mb-12">
-            <div className="relative mx-auto max-w-md">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-(--muted-foreground)" />
-              <input
-                type="text"
-                placeholder={locale === 'ko' ? '도구 검색...' : 'Search tools...'}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.currentTarget.value)}
-                className="w-full rounded-3xl border border-(--border) bg-(--card) py-3 pl-12 pr-4 text-base transition-all duration-200 placeholder:text-(--muted-foreground) focus:outline-none focus:ring-2 focus:ring-(--ring) focus:ring-offset-2 focus:ring-offset-(--background)"
-              />
+            <div className="relative mx-auto max-w-md" ref={containerRef}>
+              <div className="relative flex items-center">
+                <svg
+                  className="absolute left-4 w-5 h-5 text-(--muted-foreground) pointer-events-none"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input
+                  ref={inputRef}
+                  type="search"
+                  role="combobox"
+                  placeholder={m['search_placeholder']?.() ?? 'Search...'}
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.currentTarget.value);
+                    setIsDropdownOpen(e.currentTarget.value.trim().length > 0);
+                    setSelectedIndex(-1);
+                  }}
+                  onFocus={() => {
+                    setIsFocused(true);
+                    if (searchQuery.trim()) setIsDropdownOpen(true);
+                  }}
+                  onBlur={() => setIsFocused(false)}
+                  onKeyDown={handleKeyDown}
+                  className="w-full h-12 pl-12 pr-16 text-base rounded-2xl border border-(--border) bg-(--card) transition-all duration-200 placeholder:text-(--muted-foreground) focus:outline-none focus:ring-2 focus:ring-(--ring) focus:ring-offset-2 focus:ring-offset-(--background) [&::-webkit-search-cancel-button]:hidden"
+                  aria-label={m['search_label']?.() ?? 'Search'}
+                  aria-expanded={isDropdownOpen}
+                  aria-haspopup="listbox"
+                  aria-autocomplete="list"
+                />
+                {!isFocused && !searchQuery && (
+                  <span className="absolute right-4 flex items-center px-2 py-1 text-xs font-medium text-(--muted-foreground) bg-(--muted)/50 border border-(--border) rounded-lg pointer-events-none">
+                    {isMac ? '\u2318K' : 'Ctrl+K'}
+                  </span>
+                )}
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className="absolute right-4 flex items-center justify-center w-7 h-7 p-0 bg-transparent border-none rounded-lg text-(--muted-foreground) cursor-pointer transition-all duration-150 hover:text-(--foreground) hover:bg-(--muted)/50 active:scale-90"
+                    onClick={handleClear}
+                    aria-label={m['search_clear']?.() ?? 'Clear'}
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {/* 드롭다운 결과 목록 */}
+              {isDropdownOpen && searchResults.length > 0 && (
+                <div
+                  className="absolute top-[calc(100%+8px)] left-0 right-0 z-[600] max-h-80 overflow-y-auto bg-(--card) border border-(--border) rounded-2xl shadow-lg p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--border) [&::-webkit-scrollbar-thumb]:rounded-full"
+                  role="listbox"
+                >
+                  {searchResults.map((result, index) => {
+                    const isSelected = index === selectedIndex;
+                    if (result.type === 'tool') {
+                      const tool = result.data;
+                      return (
+                        <button
+                          key={`tool-${tool.id}`}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          className={`flex items-center gap-3 w-full py-3 px-4 text-left rounded-xl transition-all duration-150 cursor-pointer hover:bg-(--muted)/50 ${
+                            isSelected ? 'bg-(--muted)/50' : ''
+                          }`}
+                          onClick={() => handleResultClick(result)}
+                        >
+                          <span className="text-2xl">{tool.icon}</span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-sm font-medium text-(--foreground)">
+                              {tool.name[locale]}
+                            </span>
+                            <span className="text-xs text-(--muted-foreground)">
+                              {tool.description[locale]}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    }
+                    const page = result.data;
+                    return (
+                      <button
+                        key={`page-${page.key}`}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        className={`flex flex-col gap-0.5 w-full py-3 px-4 text-left rounded-xl transition-all duration-150 cursor-pointer hover:bg-(--muted)/50 ${
+                          isSelected ? 'bg-(--muted)/50' : ''
+                        }`}
+                        onClick={() => handleResultClick(result)}
+                      >
+                        <span className="text-sm font-medium text-(--foreground)">
+                          {getPageTitle(page.key)}
+                        </span>
+                        <span className="text-xs text-(--muted-foreground)">
+                          {getPageDesc(page.key)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* 검색 결과 없음 */}
+              {isDropdownOpen && searchQuery.trim() && searchResults.length === 0 && (
+                <div className="absolute top-[calc(100%+8px)] left-0 right-0 z-[600] bg-(--card) border border-(--border) rounded-2xl shadow-lg p-6 text-center text-sm text-(--muted-foreground)">
+                  {m['search_noResults']?.() ?? 'No results found'}
+                </div>
+              )}
             </div>
           </div>
 
@@ -179,7 +459,7 @@ export function HomeLayout() {
           {filteredTools.length === 0 && (
             <div className="py-12 text-center">
               <p className="text-(--muted-foreground)">
-                {locale === 'ko' ? '검색 결과가 없습니다' : 'No tools found'}
+                {m['search_noResults']?.() ?? 'No results found'}
               </p>
             </div>
           )}
