@@ -434,13 +434,13 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
             />
           </div>
         </div>
-        <div className="hidden items-center gap-2 sm:flex">
-          <Volume2 className="h-4 w-4 text-muted-foreground" />
+        <div className="hidden items-center gap-3 sm:flex">
+          <Volume2 className="h-4 w-4 shrink-0 text-muted-foreground" />
           <Slider
             value={[settings.volume * 100]}
             onValueChange={([v]) => handleSettingsChange({ volume: (v ?? 0) / 100 })}
             max={100}
-            className="w-20"
+            className="w-24"
           />
         </div>
       </div>

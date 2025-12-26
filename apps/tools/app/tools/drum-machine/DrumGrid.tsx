@@ -14,6 +14,7 @@ const DRUMS: { id: DrumId; name: string; color: string }[] = [
   { id: 'kick', name: 'Kick', color: '#ff6b6b' },
   { id: 'snare', name: 'Snare', color: '#4ecdc4' },
   { id: 'hihat', name: 'Hi-Hat', color: '#ffe66d' },
+  { id: 'openhat', name: 'Open Hat', color: '#ffd93d' },
   { id: 'clap', name: 'Clap', color: '#a29bfe' },
 ];
 
