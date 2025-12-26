@@ -16,7 +16,7 @@ export default function About() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex flex-1 flex-col items-center justify-center px-6">
-        <div className="max-w-xl text-center">
+        <div className="max-w-md text-center">
           {/* Philosophy - The only thing that matters */}
           <blockquote className="mb-12 text-2xl font-light leading-relaxed tracking-tight text-foreground sm:text-3xl sm:leading-relaxed">
             "{m['about_missionText']?.()}"
