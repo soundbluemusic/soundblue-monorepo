@@ -23,11 +23,25 @@ $z-overlay: 40;
 $z-header: 100;
 
 // ========== Spacing ==========
-$spacing-xs: 0.25rem;
-$spacing-sm: 0.5rem;
-$spacing-md: 1rem;
-$spacing-lg: 1.5rem;
-$spacing-xl: 2rem;
+$spacing-0: 0;
+$spacing-1: 0.25rem;
+$spacing-2: 0.5rem;
+$spacing-3: 0.75rem;
+$spacing-4: 1rem;
+$spacing-5: 1.25rem;
+$spacing-6: 1.5rem;
+$spacing-7: 1.75rem;
+$spacing-8: 2rem;
+$spacing-10: 2.5rem;
+$spacing-12: 3rem;
+$spacing-16: 4rem;
+
+// Legacy aliases
+$spacing-xs: $spacing-1;
+$spacing-sm: $spacing-2;
+$spacing-md: $spacing-4;
+$spacing-lg: $spacing-6;
+$spacing-xl: $spacing-8;
 
 // ========== Transitions ==========
 $transition-fast: 150ms;

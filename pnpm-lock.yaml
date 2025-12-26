@@ -80,12 +80,6 @@ importers:
       '@soundblue/shared-react':
         specifier: workspace:*
         version: link:../../packages/shared-react
-      '@tailwindcss/vite':
-        specifier: ^4.1.18
-        version: 4.1.18(vite@6.4.1(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
       isbot:
         specifier: ^5.1.27
         version: 5.1.32
@@ -98,9 +92,6 @@ importers:
       react-router:
         specifier: ^7.6.1
         version: 7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      tailwindcss:
-        specifier: ^4.1.18
-        version: 4.1.18
       zustand:
         specifier: ^5.0.6
         version: 5.0.9(@types/react@19.2.7)(react@19.2.3)

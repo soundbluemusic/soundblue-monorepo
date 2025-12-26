@@ -1,0 +1,61 @@
+@use '../styles/variables' as *;
+@use '../styles/tokens' as *;
+@use '../styles/mixins' as *;
+
+// ========================================
+// Sitemap Page Styles
+// ========================================
+
+.container {
+  min-height: 100vh;
+  background-color: var(--color-bg-secondary);
+}
+
+.content {
+  max-width: 48rem; // max-w-3xl
+  margin: 0 auto;
+  padding: $spacing-6;
+}
+
+.title {
+  font-size: 1.875rem; // text-3xl
+  line-height: 2.25rem;
+  font-weight: 700;
+  margin-bottom: $spacing-8;
+  color: var(--color-text-primary);
+}
+
+.section {
+  margin-bottom: $spacing-8;
+}
+
+.sectionTitle {
+  font-size: 1.25rem; // text-xl
+  line-height: 1.75rem;
+  font-weight: 600;
+  margin-bottom: $spacing-4;
+  color: var(--color-text-tertiary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.link {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.footer {
+  font-size: 0.875rem; // text-sm
+  line-height: 1.25rem;
+  color: var(--color-text-tertiary);
+  margin-top: $spacing-8;
+}
