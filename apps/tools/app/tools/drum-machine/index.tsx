@@ -1,4 +1,4 @@
-import { ChevronDown, Pause, Play, RotateCcw, Timer, Volume2 } from 'lucide-react';
+import { ChevronDown, Music, Pause, Play, RotateCcw, Timer, Volume2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Slider } from '~/components/ui/slider';
 import { getAudioContext, resumeAudioContext } from '~/lib/audio-context';
@@ -14,6 +14,8 @@ import {
   type DrumSynthParams,
   defaultDrumMachineSettings,
   METRONOME,
+  PRESET_PATTERNS,
+  type PresetName,
 } from './settings';
 
 interface DrumMachineProps {
@@ -39,6 +41,7 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [showSynth, setShowSynth] = useState(false);
+  const [showPresets, setShowPresets] = useState(false);
 
   const schedulerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextStepTimeRef = useRef(0);
@@ -116,6 +119,17 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
     [settings.volume],
   );
 
+  // Create real white noise using AudioBuffer (like HTML reference)
+  const createNoiseBuffer = useCallback((ctx: AudioContext, duration: number): AudioBuffer => {
+    const bufferSize = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1; // Real white noise: -1 to 1
+    }
+    return buffer;
+  }, []);
+
   const playDrumSound = useCallback(
     (drumId: DrumId, time: number) => {
       try {
@@ -127,101 +141,125 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
         const toneFactor = params.tone / 100;
 
         if (drumId === 'kick') {
+          // Kick: Sine oscillator with pitch sweep (like HTML reference)
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.connect(gain);
           gain.connect(ctx.destination);
 
-          const startFreq = params.pitch * (1 + punchFactor * 2);
+          const startFreq = 150 * (1 + punchFactor);
           osc.frequency.setValueAtTime(startFreq, time);
           osc.frequency.exponentialRampToValueAtTime(Math.max(20, params.pitch), time + 0.05);
           osc.type = 'sine';
-
-          if (toneFactor < 0.5) {
-            const sub = ctx.createOscillator();
-            const subGain = ctx.createGain();
-            sub.connect(subGain);
-            subGain.connect(ctx.destination);
-            sub.frequency.value = params.pitch * 0.5;
-            sub.type = 'sine';
-            subGain.gain.setValueAtTime(vol * (0.5 - toneFactor), time);
-            subGain.gain.exponentialRampToValueAtTime(0.01, time + params.decay * 0.8);
-            sub.start(time);
-            sub.stop(time + params.decay);
-          }
 
           gain.gain.setValueAtTime(vol, time);
           gain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
           osc.start(time);
           osc.stop(time + params.decay);
         } else if (drumId === 'snare') {
+          // Snare: Triangle oscillator + real noise buffer (like HTML reference)
+          // Body oscillator
           const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
+          const oscGain = ctx.createGain();
+          osc.connect(oscGain);
+          oscGain.connect(ctx.destination);
           osc.frequency.value = params.pitch;
           osc.type = 'triangle';
+          oscGain.gain.setValueAtTime(vol * 0.5 * punchFactor, time);
+          oscGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+          osc.start(time);
+          osc.stop(time + 0.1);
 
-          const noise = ctx.createOscillator();
+          // Noise (real AudioBuffer noise, like HTML reference)
+          const noiseBuffer = createNoiseBuffer(ctx, params.decay);
+          const noise = ctx.createBufferSource();
+          noise.buffer = noiseBuffer;
           const noiseGain = ctx.createGain();
-          noise.frequency.value = 800 + toneFactor * 400;
-          noise.type = 'square';
           noise.connect(noiseGain);
           noiseGain.connect(ctx.destination);
-          noiseGain.gain.setValueAtTime(vol * (0.2 + toneFactor * 0.3), time);
+          noiseGain.gain.setValueAtTime(vol * (0.3 + toneFactor * 0.4), time);
           noiseGain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
           noise.start(time);
           noise.stop(time + params.decay);
+        } else if (drumId === 'hihat' || drumId === 'openhat') {
+          // Hi-hat/Open hat: Noise + highpass filter (like HTML reference)
+          const duration = drumId === 'hihat' ? params.decay : params.decay * 2;
 
-          gain.gain.setValueAtTime(vol * punchFactor, time);
-          gain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
-          osc.start(time);
-          osc.stop(time + params.decay);
-        } else if (drumId === 'hihat') {
-          const osc1 = ctx.createOscillator();
-          const osc2 = ctx.createOscillator();
+          const noiseBuffer = createNoiseBuffer(ctx, duration);
+          const noise = ctx.createBufferSource();
+          noise.buffer = noiseBuffer;
+
+          // Highpass filter at 8kHz (like HTML reference)
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'highpass';
+          filter.frequency.value = params.pitch; // Default 8000Hz
+
           const gain = ctx.createGain();
-          osc1.connect(gain);
-          osc2.connect(gain);
+          noise.connect(filter);
+          filter.connect(gain);
           gain.connect(ctx.destination);
 
-          osc1.frequency.value = params.pitch;
-          osc1.type = 'square';
-          osc2.frequency.value = params.pitch * (1.5 + toneFactor);
-          osc2.type = 'sawtooth';
-
-          gain.gain.setValueAtTime(vol * 0.3, time);
-          gain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
-          osc1.start(time);
-          osc2.start(time);
-          osc1.stop(time + params.decay);
-          osc2.stop(time + params.decay);
-        } else {
-          const burstCount = 3;
-          const burstGap = 0.01;
+          const hatVolume = drumId === 'openhat' ? vol * 0.4 : vol * 0.3;
+          gain.gain.setValueAtTime(hatVolume, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+          noise.start(time);
+          noise.stop(time + duration);
+        } else if (drumId === 'clap') {
+          // Clap: Multiple short noise bursts (like HTML reference)
+          const burstCount = 4;
+          const burstGap = 0.02;
 
           for (let i = 0; i < burstCount; i++) {
-            const osc = ctx.createOscillator();
+            const burstDuration = 0.03;
+            const noiseBuffer = createNoiseBuffer(ctx, burstDuration);
+            const noise = ctx.createBufferSource();
+            noise.buffer = noiseBuffer;
+
+            // Bandpass filter for clap character
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 1000 + toneFactor * 1000;
+            filter.Q.value = 0.5;
+
             const gain = ctx.createGain();
-            osc.connect(gain);
+            noise.connect(filter);
+            filter.connect(gain);
             gain.connect(ctx.destination);
 
-            osc.frequency.value = params.pitch * (1 + toneFactor * 0.5);
-            osc.type = 'sawtooth';
-
             const burstTime = time + i * burstGap;
-            const burstVol = vol * (1 - i * 0.2) * punchFactor;
-            gain.gain.setValueAtTime(burstVol, burstTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, burstTime + params.decay / burstCount);
-            osc.start(burstTime);
-            osc.stop(burstTime + params.decay / burstCount);
+            const burstVol = vol * (1 - i * 0.15) * punchFactor;
+            gain.gain.setValueAtTime(burstVol * 0.5, burstTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, burstTime + burstDuration);
+            noise.start(burstTime);
+            noise.stop(burstTime + burstDuration);
           }
+
+          // Tail noise
+          const tailDuration = params.decay;
+          const tailBuffer = createNoiseBuffer(ctx, tailDuration);
+          const tailNoise = ctx.createBufferSource();
+          tailNoise.buffer = tailBuffer;
+
+          const tailFilter = ctx.createBiquadFilter();
+          tailFilter.type = 'highpass';
+          tailFilter.frequency.value = 1000;
+
+          const tailGain = ctx.createGain();
+          tailNoise.connect(tailFilter);
+          tailFilter.connect(tailGain);
+          tailGain.connect(ctx.destination);
+
+          const tailStart = time + burstCount * burstGap;
+          tailGain.gain.setValueAtTime(vol * 0.3 * punchFactor, tailStart);
+          tailGain.gain.exponentialRampToValueAtTime(0.01, tailStart + tailDuration);
+          tailNoise.start(tailStart);
+          tailNoise.stop(tailStart + tailDuration);
         }
       } catch (e) {
         console.error('[DrumMachine] playDrumSound failed:', e);
       }
     },
-    [getSynthParams, settings.volume],
+    [getSynthParams, settings.volume, createNoiseBuffer],
   );
 
   const previewDrum = useCallback(
@@ -313,6 +351,25 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
     handleSettingsChange({ pattern: createEmptyPattern(settings.steps) });
   }, [settings.steps, handleSettingsChange]);
 
+  const loadPreset = useCallback(
+    (presetName: PresetName) => {
+      const preset = PRESET_PATTERNS[presetName];
+      if (preset) {
+        // Deep copy the pattern to avoid mutation
+        const patternCopy: Record<DrumId, boolean[]> = {
+          kick: [...preset.pattern.kick],
+          snare: [...preset.pattern.snare],
+          hihat: [...preset.pattern.hihat],
+          openhat: [...preset.pattern.openhat],
+          clap: [...preset.pattern.clap],
+        };
+        handleSettingsChange({ pattern: patternCopy });
+        setShowPresets(false);
+      }
+    },
+    [handleSettingsChange],
+  );
+
   useEffect(() => {
     return () => {
       if (schedulerTimeoutRef.current) {
@@ -400,6 +457,39 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
         />
       </div>
 
+      {/* Preset Panel Toggle */}
+      <button
+        type="button"
+        onClick={() => setShowPresets(!showPresets)}
+        className={cn(
+          'flex w-full items-center justify-center gap-2 border-t py-2',
+          'text-sm text-muted-foreground transition-colors hover:text-foreground',
+        )}
+      >
+        <Music className="h-4 w-4" />
+        <span>Presets</span>
+        <ChevronDown className={cn('h-4 w-4 transition-transform', showPresets && 'rotate-180')} />
+      </button>
+
+      {/* Preset Panel */}
+      {showPresets && (
+        <div className="flex flex-wrap gap-2 border-t bg-muted/30 p-3">
+          {(Object.keys(PRESET_PATTERNS) as PresetName[]).map((presetName) => {
+            const preset = PRESET_PATTERNS[presetName];
+            return (
+              <button
+                key={presetName}
+                type="button"
+                onClick={() => loadPreset(presetName)}
+                className="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {preset.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Synth Panel Toggle */}
       <button
         type="button"
@@ -453,8 +543,20 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
                     <Slider
                       value={[params.pitch]}
                       onValueChange={([v]) => updateSynthParam(drum.id, 'pitch', v ?? 80)}
-                      min={drum.id === 'kick' ? 20 : drum.id === 'hihat' ? 400 : 80}
-                      max={drum.id === 'kick' ? 150 : drum.id === 'hihat' ? 2000 : 800}
+                      min={
+                        drum.id === 'kick'
+                          ? 20
+                          : drum.id === 'hihat' || drum.id === 'openhat'
+                            ? 4000
+                            : 80
+                      }
+                      max={
+                        drum.id === 'kick'
+                          ? 150
+                          : drum.id === 'hihat' || drum.id === 'openhat'
+                            ? 12000
+                            : 800
+                      }
                       step={1}
                     />
                   </div>
