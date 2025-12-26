@@ -65,12 +65,8 @@
 }
 
 .ghostModeActive {
-  background-color: rgba(168, 85, 247, 0.2);
-  color: #9333ea;
-
-  .dark & {
-    color: #a855f7;
-  }
+  background-color: var(--color-ghost-light);
+  color: var(--color-ghost);
 }
 
 .ghostModeInactive {
@@ -129,7 +125,7 @@
 }
 
 .conversationItemActive {
-  background-color: rgba(59, 130, 246, 0.1);
+  background-color: var(--color-accent-light);
   color: var(--color-accent-primary);
 }
 
@@ -155,12 +151,19 @@
 }
 
 .deleteButton {
+  // WCAG 2.1 AA: Minimum touch target 44x44px
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
-  padding: $spacing-xs;
-  border-radius: $radius-sm;
+  padding: $spacing-sm;
+  border-radius: $radius-md;
   background: none;
   border: none;
   cursor: pointer;
+  color: var(--color-text-tertiary);
   transition: opacity $transition-fast, background-color $transition-fast, color $transition-fast;
 
   .conversationItem:hover & {
@@ -168,9 +171,11 @@
   }
 
   &:hover {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.15);
+    color: var(--color-error);
   }
+
+  @include focus-ring;
 }
 
 // ========== Empty State ==========

@@ -138,9 +138,11 @@
 .icon {
   height: 1rem;
   width: 1rem;
+  flex-shrink: 0;
 }
 
 .iconMd {
   height: 1.25rem;
   width: 1.25rem;
+  flex-shrink: 0;
 }

@@ -32,6 +32,12 @@
 }
 
 .iconButton {
+  // WCAG 2.1 AA: Minimum touch target 44x44px
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: $spacing-sm;
   border-radius: $radius-lg;
   background: none;
@@ -50,10 +56,15 @@
 .icon {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
 .textButton {
-  padding: $spacing-xs $spacing-md;
+  // WCAG 2.1 AA: Minimum touch target 44x44px
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm $spacing-md;
   font-size: 0.875rem;
   border-radius: $radius-lg;
   background: none;

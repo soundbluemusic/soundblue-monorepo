@@ -23,6 +23,7 @@
 .avatar {
   width: 32px;
   height: 32px;
+  line-height: 32px; // Match height for vertical centering
   border-radius: $radius-full;
   display: flex;
   align-items: center;

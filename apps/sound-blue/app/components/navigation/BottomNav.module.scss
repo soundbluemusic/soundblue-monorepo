@@ -10,7 +10,7 @@
   height: var(--bottom-nav-height);
   background-color: var(--color-bg-secondary);
   border-top: 1px solid var(--color-border-primary);
-  z-index: $z-modal-backdrop;
+  z-index: $z-fixed;
   padding-bottom: env(safe-area-inset-bottom);
 
   @include mobile-only {

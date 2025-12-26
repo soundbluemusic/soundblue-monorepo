@@ -17,7 +17,8 @@
 .nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  column-gap: 0.25rem;
+  row-gap: 0.5rem; // Larger gap for wrapped rows
   justify-content: center;
   align-items: center;
   margin-bottom: 1rem;
