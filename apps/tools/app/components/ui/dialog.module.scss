@@ -8,11 +8,11 @@
   backdrop-filter: blur(4px);
 
   &[data-state='open'] {
-    animation: fadeIn 200ms ease-out;
+    animation: fadeIn $duration-normal $ease-out;
   }
 
   &[data-state='closed'] {
-    animation: fadeOut 200ms ease-out;
+    animation: fadeOut $duration-normal $ease-out;
   }
 }
 
@@ -32,11 +32,11 @@
   padding: 1.5rem;
 
   &[data-state='open'] {
-    animation: dialogIn 200ms ease-out;
+    animation: dialogIn $duration-normal $ease-out;
   }
 
   &[data-state='closed'] {
-    animation: dialogOut 200ms ease-out;
+    animation: dialogOut $duration-normal $ease-out;
   }
 }
 

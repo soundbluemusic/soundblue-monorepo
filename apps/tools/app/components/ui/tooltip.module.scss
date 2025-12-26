@@ -11,26 +11,26 @@
   font-weight: 500;
   color: var(--background);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  animation: fadeIn 150ms ease-out;
+  animation: fadeIn $duration-fast $ease-out;
 
   &[data-state='closed'] {
-    animation: fadeOut 150ms ease-out;
+    animation: fadeOut $duration-fast $ease-out;
   }
 
   &[data-side='bottom'] {
-    animation: slideFromTop 150ms ease-out;
+    animation: slideFromTop $duration-fast $ease-out;
   }
 
   &[data-side='top'] {
-    animation: slideFromBottom 150ms ease-out;
+    animation: slideFromBottom $duration-fast $ease-out;
   }
 
   &[data-side='left'] {
-    animation: slideFromRight 150ms ease-out;
+    animation: slideFromRight $duration-fast $ease-out;
   }
 
   &[data-side='right'] {
-    animation: slideFromLeft 150ms ease-out;
+    animation: slideFromLeft $duration-fast $ease-out;
   }
 }
 

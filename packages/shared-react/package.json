@@ -28,7 +28,9 @@
     "./storage": {
       "types": "./src/storage/index.ts",
       "import": "./src/storage/index.ts"
-    }
+    },
+    "./styles": "./src/styles/index.scss",
+    "./styles/*": "./src/styles/*"
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",

@@ -116,7 +116,7 @@
   background-color: var(--card);
   padding: 0.25rem;
   box-shadow: $shadow-lg;
-  animation: dropdownIn 150ms ease-out;
+  animation: dropdownIn $duration-fast $ease-out;
 }
 
 @keyframes dropdownIn {

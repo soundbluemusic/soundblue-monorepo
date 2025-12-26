@@ -1,14 +1,17 @@
 // ============================================
-// Dialogue SCSS Variables
+// Dialogue App - Design System Variables
 // ============================================
+// Forwards shared design system (Single Source of Truth)
+// All common tokens come from shared-react
 
-// ========== Breakpoints ==========
-$breakpoint-sm: 640px;
-$breakpoint-md: 768px;
-$breakpoint-lg: 1024px;
-$breakpoint-xl: 1280px;
+@forward '@soundblue/shared-react/styles/design-system';
 
-// ========== Layout ==========
+// ============================================
+// App-Specific Variables (Dialogue only)
+// ============================================
+// These are NOT in shared because they're unique to this app
+
+// Layout
 $header-height: 56px;
 $sidebar-width-expanded: 208px;
 $sidebar-width-collapsed: 56px;
@@ -16,42 +19,8 @@ $chat-width-min: 280px;
 $chat-width-max: 600px;
 $chat-width-default: 360px;
 
-// ========== Z-Index Layers ==========
+// Z-Index Layers (app-specific stacking)
 $z-dropdown: 30;
 $z-sidebar: 40;
-$z-overlay: 50; // Must be above sidebar for mobile close
+$z-overlay: 50;
 $z-header: 100;
-
-// ========== Spacing ==========
-$spacing-0: 0;
-$spacing-1: 0.25rem;
-$spacing-2: 0.5rem;
-$spacing-3: 0.75rem;
-$spacing-4: 1rem;
-$spacing-5: 1.25rem;
-$spacing-6: 1.5rem;
-$spacing-7: 1.75rem;
-$spacing-8: 2rem;
-$spacing-10: 2.5rem;
-$spacing-12: 3rem;
-$spacing-16: 4rem;
-
-// Legacy aliases
-$spacing-xs: $spacing-1;
-$spacing-sm: $spacing-2;
-$spacing-md: $spacing-4;
-$spacing-lg: $spacing-6;
-$spacing-xl: $spacing-8;
-
-// ========== Transitions ==========
-$transition-fast: 150ms;
-$transition-normal: 200ms;
-$transition-slow: 300ms;
-
-// ========== Radius ==========
-$radius-sm: 4px;
-$radius-md: 6px;
-$radius-lg: 8px;
-$radius-xl: 12px;
-$radius-2xl: 16px;
-$radius-full: 9999px;
