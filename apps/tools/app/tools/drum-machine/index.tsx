@@ -113,7 +113,7 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
         osc.start(time);
         osc.stop(time + METRONOME.CLICK_DURATION);
       } catch (e) {
-        console.error('[DrumMachine] Metronome click failed:', e);
+        if (import.meta.env.DEV) console.error('[DrumMachine] Metronome click failed:', e);
       }
     },
     [settings.volume],
@@ -256,7 +256,7 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
           tailNoise.stop(tailStart + tailDuration);
         }
       } catch (e) {
-        console.error('[DrumMachine] playDrumSound failed:', e);
+        if (import.meta.env.DEV) console.error('[DrumMachine] playDrumSound failed:', e);
       }
     },
     [getSynthParams, settings.volume, createNoiseBuffer],
@@ -269,7 +269,7 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
         const ctx = getAudioContext();
         playDrumSound(drumId, ctx.currentTime);
       } catch (e) {
-        console.error('[DrumMachine] previewDrum failed:', e);
+        if (import.meta.env.DEV) console.error('[DrumMachine] previewDrum failed:', e);
       }
     },
     [playDrumSound],
@@ -330,7 +330,7 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
         scheduler();
         setIsPlaying(true);
       } catch (e) {
-        console.error('[DrumMachine] Failed to start audio:', e);
+        if (import.meta.env.DEV) console.error('[DrumMachine] Failed to start audio:', e);
       }
     }
   }, [isPlaying, scheduler]);
