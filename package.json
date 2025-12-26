@@ -20,7 +20,8 @@
     "check:env": "pnpm exec dotenv-linter apps/*/.env* || true",
     "lighthouse": "pnpm exec lhci autorun",
     "validate": "pnpm typecheck && pnpm check && pnpm test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "sync:context": "tsx scripts/sync-context.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",

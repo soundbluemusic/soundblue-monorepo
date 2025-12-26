@@ -3,6 +3,13 @@
 // 체스 게임처럼 여러 요소를 종합 평가하여 최적의 번역 선택
 // ========================================
 
+import {
+  CATEGORY_KEYWORDS,
+  MULTI_TRANSLATION_WORDS,
+  type WordCategory,
+  type WordTranslation,
+} from '../dictionary/word-types';
+
 /**
  * 화자 유형 (Speaker Type)
  */
@@ -476,4 +483,128 @@ export function applyContextToTranslation(translation: string, originalText: str
   }
 
   return result;
+}
+
+// ========================================
+// 카테고리 기반 단어 선택 (Category-Based Word Selection)
+// ========================================
+
+/**
+ * 문장에서 카테고리 점수 계산
+ * 문맥 키워드를 분석하여 어떤 카테고리가 가장 적합한지 판단
+ */
+export function analyzeCategoryContext(text: string): Record<WordCategory, number> {
+  const scores: Record<WordCategory, number> = {
+    food: 0,
+    transportation: 0,
+    math: 0,
+    music: 0,
+    art: 0,
+    sports: 0,
+    travel: 0,
+    work: 0,
+    family: 0,
+    emotions: 0,
+    greetings: 0,
+    shopping: 0,
+    'daily-life': 0,
+    'time-date': 0,
+    culture: 0,
+    physics: 0,
+    space: 0,
+    numbers: 0,
+    'adjectives-basic': 0,
+    'verbs-basic': 0,
+    general: 0,
+  };
+
+  const lowerText = text.toLowerCase();
+
+  for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    for (const keyword of keywords) {
+      if (text.includes(keyword) || lowerText.includes(keyword.toLowerCase())) {
+        scores[category as WordCategory] += 1;
+      }
+    }
+  }
+
+  return scores;
+}
+
+/**
+ * 가장 높은 점수를 가진 카테고리 반환
+ */
+export function detectDominantCategory(text: string): WordCategory {
+  const scores = analyzeCategoryContext(text);
+
+  let maxCategory: WordCategory = 'general';
+  let maxScore = 0;
+
+  for (const [category, score] of Object.entries(scores)) {
+    if (score > maxScore) {
+      maxScore = score;
+      maxCategory = category as WordCategory;
+    }
+  }
+
+  return maxCategory;
+}
+
+/**
+ * 다중 번역 단어에서 문맥에 맞는 번역 선택
+ *
+ * 알고리즘:
+ * 1. 문장의 카테고리 점수 계산
+ * 2. contextHints 매칭 점수 계산
+ * 3. 우선순위(priority) 가중치 적용
+ * 4. 종합 점수가 가장 높은 번역 선택
+ *
+ * @param korean 한국어 단어
+ * @param sentenceContext 전체 문장 (문맥 분석용)
+ * @returns 선택된 영어 번역 또는 null (다중 번역 단어가 아닌 경우)
+ */
+export function selectMultiTranslation(korean: string, sentenceContext: string): string | null {
+  // 다중 번역 단어 찾기
+  const multiWord = MULTI_TRANSLATION_WORDS.find((w) => w.korean === korean);
+  if (!multiWord) return null;
+
+  const categoryScores = analyzeCategoryContext(sentenceContext);
+
+  // 각 번역에 대해 점수 계산
+  let bestTranslation: WordTranslation | null = null;
+  let bestScore = -Infinity;
+
+  for (const translation of multiWord.translations) {
+    let score = 0;
+
+    // 1. 카테고리 점수 (해당 카테고리의 문맥 점수)
+    score += categoryScores[translation.category] * 3;
+
+    // 2. contextHints 매칭 점수
+    if (translation.contextHints) {
+      for (const hint of translation.contextHints) {
+        if (sentenceContext.includes(hint)) {
+          score += 2;
+        }
+      }
+    }
+
+    // 3. 우선순위 가중치
+    score += (translation.priority ?? 0) * 0.5;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestTranslation = translation;
+    }
+  }
+
+  return bestTranslation?.english ?? multiWord.translations[0].english;
+}
+
+/**
+ * 한국어 단어를 문맥에 맞게 영어로 번역
+ * 다중 번역 단어면 문맥 분석, 아니면 null 반환 (기존 사전 사용)
+ */
+export function translateWordWithContext(korean: string, sentenceContext: string): string | null {
+  return selectMultiTranslation(korean, sentenceContext);
 }
