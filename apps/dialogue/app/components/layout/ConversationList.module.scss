@@ -1,0 +1,272 @@
+// ============================================
+// ConversationList SCSS Module
+// ============================================
+
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// ========== Mobile Header ==========
+.mobileHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.newChatButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  width: 100%;
+  padding: $spacing-md $spacing-md;
+  background-color: var(--color-accent-primary);
+  color: white;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color $transition-fast, transform $transition-fast;
+
+  &:hover {
+    background-color: var(--color-accent-secondary);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @include focus-ring;
+}
+
+// ========== Ghost Mode Toggle ==========
+.ghostModeToggle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  width: 100%;
+  padding: 10px $spacing-md;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color $transition-fast;
+
+  @include focus-ring;
+}
+
+.ghostModeActive {
+  background-color: rgba(168, 85, 247, 0.2);
+  color: #9333ea;
+
+  .dark & {
+    color: #a855f7;
+  }
+}
+
+.ghostModeInactive {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+
+  &:hover {
+    background-color: var(--color-bg-hover);
+  }
+}
+
+.ghostModeContent {
+  flex: 1;
+  text-align: left;
+}
+
+.ghostModeTitle {
+  font-weight: 500;
+}
+
+.ghostModeDesc {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+// ========== Conversation List ==========
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  flex: 1;
+  overflow-y: auto;
+}
+
+// ========== Conversation Item ==========
+.conversationItem {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color $transition-fast, color $transition-fast;
+
+  &:hover {
+    background-color: var(--color-bg-hover);
+    color: var(--color-accent-primary);
+  }
+
+  @include focus-ring;
+}
+
+.conversationItemActive {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--color-accent-primary);
+}
+
+.conversationItemInactive {
+  color: var(--color-text-secondary);
+}
+
+.conversationContent {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+}
+
+.conversationTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  @include truncate;
+}
+
+.conversationDate {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.deleteButton {
+  opacity: 0;
+  padding: $spacing-xs;
+  border-radius: $radius-sm;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity $transition-fast, background-color $transition-fast, color $transition-fast;
+
+  .conversationItem:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+  }
+}
+
+// ========== Empty State ==========
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: $spacing-md $spacing-xl;
+}
+
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: $spacing-md;
+  border-radius: $radius-full;
+  background-color: var(--color-bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: $spacing-xs;
+}
+
+.emptyDescription {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  margin-bottom: $spacing-md;
+}
+
+.emptyNewChatButton {
+  padding: $spacing-sm $spacing-md;
+  background-color: var(--color-accent-primary);
+  color: white;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color $transition-fast, transform $transition-fast;
+
+  &:hover {
+    background-color: var(--color-accent-secondary);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  @include focus-ring;
+}
+
+// ========== Loading Skeleton ==========
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+}
+
+.skeletonIcon {
+  width: 16px;
+  height: 16px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: $radius-sm;
+}
+
+.skeletonContent {
+  flex: 1;
+}
+
+.skeletonTitle {
+  height: 16px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: $radius-sm;
+  width: 75%;
+  margin-bottom: $spacing-sm;
+}
+
+.skeletonDate {
+  height: 12px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: $radius-sm;
+  width: 50%;
+}

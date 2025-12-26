@@ -1,6 +1,7 @@
 import { getLocaleFromPath, getLocalizedPath, useTheme } from '@soundblue/shared-react';
 import { useLocation, useNavigate } from 'react-router';
 import m from '~/lib/messages';
+import styles from './Header.module.scss';
 
 export function Header() {
   const { resolvedTheme, toggleTheme } = useTheme();
@@ -16,21 +17,21 @@ export function Header() {
   };
 
   return (
-    <header className="h-14 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
-      <div className="flex items-center gap-2">
-        <span className="text-xl font-bold">{m['app.title']()}</span>
+    <header className={styles.header}>
+      <div className={styles.left}>
+        <span className={styles.title}>{m['app.title']()}</span>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className={styles.right}>
         {/* Theme toggle */}
         <button
           type="button"
           onClick={toggleTheme}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className={styles.iconButton}
           title={resolvedTheme === 'dark' ? m['app.lightMode']() : m['app.darkMode']()}
         >
           {resolvedTheme === 'dark' ? (
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className={styles.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -39,7 +40,7 @@ export function Header() {
               />
             </svg>
           ) : (
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className={styles.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -51,19 +52,12 @@ export function Header() {
         </button>
 
         {/* Language toggle */}
-        <button
-          type="button"
-          onClick={toggleLocale}
-          className="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        >
+        <button type="button" onClick={toggleLocale} className={styles.textButton}>
           {locale === 'en' ? m['app.korean']() : m['app.english']()}
         </button>
 
         {/* About link */}
-        <a
-          href={locale === 'ko' ? '/ko/about' : '/about'}
-          className="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        >
+        <a href={locale === 'ko' ? '/ko/about' : '/about'} className={styles.textButton}>
           {m['app.about']()}
         </a>
       </div>

@@ -1,0 +1,350 @@
+// ============================================
+// Sidebar SCSS Module
+// ============================================
+
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-right: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  transition: width $transition-normal;
+}
+
+.expanded {
+  width: $sidebar-width-expanded;
+}
+
+.collapsed {
+  width: $sidebar-width-collapsed;
+}
+
+// ========== Header ==========
+.header {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  padding: $spacing-md;
+}
+
+.headerExpanded {
+  justify-content: space-between;
+}
+
+.headerCollapsed {
+  justify-content: center;
+}
+
+.headerTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.collapseButton {
+  padding: 6px;
+  border-radius: $radius-lg;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  transition: background-color $transition-fast, color $transition-fast;
+
+  &:hover {
+    background-color: var(--color-bg-hover);
+    color: var(--color-accent-primary);
+  }
+
+  @include focus-ring;
+}
+
+// ========== Content ==========
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+// ========== New Chat Button ==========
+.newChatButton {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  width: 100%;
+  padding: 10px $spacing-md;
+  background-color: var(--color-accent-primary);
+  color: white;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color $transition-fast, transform $transition-fast;
+
+  &:hover {
+    background-color: var(--color-accent-secondary);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @include focus-ring;
+}
+
+.newChatButtonCollapsed {
+  justify-content: center;
+}
+
+// ========== Ghost Mode Button ==========
+.ghostModeButton {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color $transition-fast;
+
+  @include focus-ring;
+}
+
+.ghostModeButtonCollapsed {
+  justify-content: center;
+}
+
+.ghostModeActive {
+  background-color: rgba(168, 85, 247, 0.2);
+  color: #a855f7;
+}
+
+.ghostModeInactive {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+
+  &:hover {
+    background-color: var(--color-bg-hover);
+  }
+}
+
+.ghostModeContent {
+  flex: 1;
+  text-align: left;
+}
+
+.ghostModeTitle {
+  font-weight: 500;
+}
+
+.ghostModeDesc {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+// ========== Conversation List Container ==========
+.conversationListContainer {
+  margin-top: $spacing-md;
+}
+
+// ========== Ghost Mode Indicator (Collapsed) ==========
+.ghostIndicator {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.ghostDot {
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-full;
+  background-color: #a855f7;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// ========== More Section ==========
+.moreSection {
+  border-top: 1px solid var(--color-border);
+}
+
+.moreHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm $spacing-md;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: var(--color-text-secondary);
+  }
+}
+
+.chevronIcon {
+  transition: transform $transition-normal;
+}
+
+.chevronExpanded {
+  transform: rotate(180deg);
+}
+
+// ========== More Content ==========
+.moreContent {
+  padding: 0 $spacing-sm $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+// ========== Menu Item ==========
+.menuItem {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color $transition-fast, color $transition-fast;
+
+  &:hover {
+    background-color: var(--color-bg-hover);
+    color: var(--color-accent-primary);
+  }
+
+  @include focus-ring;
+}
+
+.menuItemCollapsed {
+  justify-content: center;
+}
+
+.menuItemActive {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--color-accent-primary);
+}
+
+.themeButton {
+  background-color: var(--color-bg-tertiary);
+}
+
+.themeIcon {
+  color: var(--color-accent-primary);
+}
+
+.themeLabel {
+  flex: 1;
+  text-align: left;
+  color: var(--color-text-primary);
+}
+
+// ========== Language Options ==========
+.languageOptions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.languageFlag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: 28px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-sm;
+}
+
+.languageFlagActive {
+  background-color: var(--color-accent-primary);
+  color: white;
+}
+
+.languageFlagInactive {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+}
+
+.languageLabel {
+  flex: 1;
+  text-align: left;
+}
+
+// ========== Collapsed Theme Toggle ==========
+.collapsedTheme {
+  padding: $spacing-sm;
+}
+
+.collapsedThemeButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: $spacing-sm;
+  border-radius: $radius-lg;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  transition: background-color $transition-fast;
+
+  &:hover {
+    background-color: var(--color-bg-hover);
+  }
+
+  @include focus-ring;
+}
+
+// ========== Footer ==========
+.sidebarFooter {
+  padding: $spacing-sm;
+  border-top: 1px solid var(--color-border);
+}
+
+.footerLink {
+  color: var(--color-text-secondary);
+}
+
+// ========== Offline Badge ==========
+.offlineBadge {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border-radius: $radius-lg;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  .dark & {
+    background-color: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+  }
+}
+
+.offlineBadgeCollapsed {
+  justify-content: center;
+  padding: $spacing-sm;
+}

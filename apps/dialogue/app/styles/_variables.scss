@@ -1,0 +1,43 @@
+// ============================================
+// Dialogue SCSS Variables
+// ============================================
+
+// ========== Breakpoints ==========
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+
+// ========== Layout ==========
+$header-height: 56px;
+$sidebar-width-expanded: 208px;
+$sidebar-width-collapsed: 56px;
+$chat-width-min: 280px;
+$chat-width-max: 600px;
+$chat-width-default: 360px;
+
+// ========== Z-Index Layers ==========
+$z-dropdown: 30;
+$z-sidebar: 50;
+$z-overlay: 40;
+$z-header: 100;
+
+// ========== Spacing ==========
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+
+// ========== Transitions ==========
+$transition-fast: 150ms;
+$transition-normal: 200ms;
+$transition-slow: 300ms;
+
+// ========== Radius ==========
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+$radius-xl: 12px;
+$radius-2xl: 16px;
+$radius-full: 9999px;

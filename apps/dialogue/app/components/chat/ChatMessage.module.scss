@@ -1,0 +1,68 @@
+// ============================================
+// ChatMessage SCSS Module
+// ============================================
+
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.message {
+  display: flex;
+  gap: $spacing-md;
+  animation: fadeIn $transition-slow ease-out;
+}
+
+.messageUser {
+  flex-direction: row-reverse;
+}
+
+.messageAssistant {
+  flex-direction: row;
+}
+
+// ========== Avatar ==========
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.avatarUser {
+  background-color: var(--color-accent-primary);
+  color: white;
+}
+
+.avatarAssistant {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+// ========== Bubble ==========
+.bubble {
+  max-width: 80%;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-2xl;
+}
+
+.bubbleUser {
+  background-color: var(--color-accent-primary);
+  color: white;
+  border-bottom-right-radius: $radius-md;
+}
+
+.bubbleAssistant {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border-bottom-left-radius: $radius-md;
+}
+
+// ========== Content ==========
+.content {
+  white-space: pre-wrap;
+  word-break: break-word;
+}

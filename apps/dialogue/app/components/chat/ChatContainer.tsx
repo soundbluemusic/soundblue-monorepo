@@ -6,6 +6,7 @@ import { addToContext, analyzeInput, type ConversationTurn } from '~/lib/nlu';
 import { detectLanguageSwitch, getResponse, initializeQA } from '~/lib/response-handler';
 import { getLocale } from '~/paraglide/runtime';
 import { generateId, type Message, useChatStore } from '~/stores';
+import styles from './ChatContainer.module.scss';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 
@@ -272,48 +273,38 @@ export function ChatContainer() {
   // Show loading state while hydrating
   if (!isHydrated) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">{m['app.thinking']()}</div>
+      <div className={styles.loading}>
+        <div className={styles.loadingText}>{m['app.thinking']()}</div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={styles.container}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <div>
-          <h1 className="text-xl font-semibold">{m['app.title']()}</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{m['app.subtitle']()}</p>
+      <div className={styles.header}>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.title}>{m['app.title']()}</h1>
+          <p className={styles.subtitle}>{m['app.subtitle']()}</p>
         </div>
-        <div className="flex items-center gap-2">
-          {ghostMode && (
-            <span className="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded">
-              {m['app.ghostMode']()}
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={handleNewChat}
-            className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          >
+        <div className={styles.headerRight}>
+          {ghostMode && <span className={styles.ghostBadge}>{m['app.ghostMode']()}</span>}
+          <button type="button" onClick={handleNewChat} className={styles.newChatButton}>
             {m['app.newChat']()}
           </button>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className={styles.messages}>
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}
         {isThinking && (
-          <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0 text-sm font-medium text-gray-600 dark:text-gray-300">
-              D
-            </div>
-            <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-bl-md">
-              <span className="animate-pulse">{m['app.thinking']()}</span>
+          <div className={styles.thinking}>
+            <div className={styles.thinkingAvatar}>D</div>
+            <div className={styles.thinkingBubble}>
+              <span className={styles.thinkingText}>{m['app.thinking']()}</span>
             </div>
           </div>
         )}
@@ -321,7 +312,7 @@ export function ChatContainer() {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className={styles.inputArea}>
         <ChatInput onSend={handleSend} disabled={isThinking} />
       </div>
     </div>

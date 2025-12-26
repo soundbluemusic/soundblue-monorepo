@@ -14,7 +14,7 @@ import {
 import m from '~/lib/messages';
 import { setLocale } from '~/paraglide/runtime';
 
-import './app.css';
+import './styles/app.scss';
 
 /**
  * Safely set locale for both SSR and client
@@ -71,7 +71,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
       </head>
-      <body className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+      <body>
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -121,18 +121,15 @@ export function ErrorBoundary() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
-      <div className="text-center">
-        <h1 className="text-6xl font-bold text-gray-300 dark:text-gray-600 mb-4">{message}</h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">{details}</p>
-        <a
-          href="/"
-          className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
+    <main className="error-page">
+      <div className="error-content">
+        <h1 className="error-title">{message}</h1>
+        <p className="error-message">{details}</p>
+        <a href="/" className="error-link">
           {m['app.notFoundBackHome']()}
         </a>
         {stack && (
-          <pre className="mt-8 w-full max-w-2xl p-4 overflow-x-auto text-left bg-gray-100 dark:bg-gray-800 rounded-lg text-sm">
+          <pre className="error-stack">
             <code>{stack}</code>
           </pre>
         )}

@@ -2,16 +2,11 @@ import { useCallback } from 'react';
 import m from '~/lib/messages';
 import type { Conversation } from '~/stores';
 import { useChatStore } from '~/stores';
+import styles from './ConversationList.module.scss';
 
 // ========================================
 // ConversationList Component - 대화 내역 목록
 // ========================================
-
-const HOVER_STYLES =
-  'hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400';
-const FOCUS_STYLES =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1';
-const MENU_ITEM_CLASS = `flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 ${HOVER_STYLES} ${FOCUS_STYLES}`;
 
 interface ConversationListProps {
   onLoadConversation?: () => void;
@@ -67,13 +62,13 @@ export function ConversationList({
   // Loading skeleton
   if (!isHydrated) {
     return (
-      <div className="flex flex-col gap-2 animate-pulse">
+      <div className={styles.skeleton}>
         {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center gap-3 px-3 py-2">
-            <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="flex-1">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+          <div key={i} className={styles.skeletonItem}>
+            <div className={styles.skeletonIcon} />
+            <div className={styles.skeletonContent}>
+              <div className={styles.skeletonTitle} />
+              <div className={styles.skeletonDate} />
             </div>
           </div>
         ))}
@@ -82,15 +77,11 @@ export function ConversationList({
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={styles.container}>
       {/* Mobile Header - 새 대화 + Ghost Mode */}
       {isMobile && onNewChat && (
-        <div className="flex flex-col gap-2 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-          <button
-            type="button"
-            onClick={onNewChat}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-700 active:scale-[0.98]"
-          >
+        <div className={styles.mobileHeader}>
+          <button type="button" onClick={onNewChat} className={styles.newChatButton}>
             <PlusIcon />
             <span>{m['app.newChat']()}</span>
           </button>
@@ -99,16 +90,17 @@ export function ConversationList({
           <button
             type="button"
             onClick={toggleGhostMode}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200 ${
-              ghostMode
-                ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
+            className={[
+              styles.ghostModeToggle,
+              ghostMode ? styles.ghostModeActive : styles.ghostModeInactive,
+            ]
+              .filter(Boolean)
+              .join(' ')}
           >
             <GhostIcon />
-            <div className="flex-1 text-left">
-              <div className="font-medium">{m['app.ghostMode']()}</div>
-              {ghostMode && <div className="text-xs opacity-70">{m['app.ghostModeDesc']()}</div>}
+            <div className={styles.ghostModeContent}>
+              <div className={styles.ghostModeTitle}>{m['app.ghostMode']()}</div>
+              {ghostMode && <div className={styles.ghostModeDesc}>{m['app.ghostModeDesc']()}</div>}
             </div>
             {ghostMode && <CheckIcon />}
           </button>
@@ -117,31 +109,30 @@ export function ConversationList({
 
       {/* Conversation List */}
       {conversations.length > 0 ? (
-        <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
+        <div className={styles.list}>
           {conversations.map((conv) => (
             <button
               key={conv.id}
               type="button"
               onClick={() => handleLoadConversation(conv)}
-              className={`${MENU_ITEM_CLASS} group cursor-pointer w-full ${
+              className={[
+                styles.conversationItem,
                 activeConversationId === conv.id
-                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-400'
-              }`}
+                  ? styles.conversationItemActive
+                  : styles.conversationItemInactive,
+              ]
+                .filter(Boolean)
+                .join(' ')}
             >
               <ChatIcon />
-              <div className="flex-1 text-left overflow-hidden">
-                <div className="truncate text-sm font-medium">
-                  {conv.title || m['app.untitled']()}
-                </div>
-                <div className="text-xs text-gray-400 dark:text-gray-500">
-                  {formatDate(conv.updatedAt)}
-                </div>
+              <div className={styles.conversationContent}>
+                <div className={styles.conversationTitle}>{conv.title || m['app.untitled']()}</div>
+                <div className={styles.conversationDate}>{formatDate(conv.updatedAt)}</div>
               </div>
               <button
                 type="button"
                 onClick={(e) => handleDeleteConversation(e, conv.id)}
-                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 hover:text-red-400 transition-all cursor-pointer"
+                className={styles.deleteButton}
                 title={m['app.deleteChat']()}
               >
                 <TrashIcon />
@@ -150,24 +141,18 @@ export function ConversationList({
           ))}
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-8">
-          <div className="w-16 h-16 mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>
             <ChatIcon />
           </div>
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-            {m['app.noHistory']()}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+          <p className={styles.emptyTitle}>{m['app.noHistory']()}</p>
+          <p className={styles.emptyDescription}>
             {isMobile
               ? 'Start a new conversation to begin'
               : 'Click "New Chat" to start a conversation'}
           </p>
           {isMobile && onNewChat && (
-            <button
-              type="button"
-              onClick={onNewChat}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-700 active:scale-95"
-            >
+            <button type="button" onClick={onNewChat} className={styles.emptyNewChatButton}>
               {m['app.newChat']()}
             </button>
           )}
