@@ -47,8 +47,8 @@
 
 ## Technical Information
 
-- **Framework**: SolidJS with SolidStart
-- **Styling**: Tailwind CSS
+- **Framework**: React 19 with React Router 7 (SSG mode)
+- **Styling**: Tailwind CSS v4
 - **Hosting**: Cloudflare Pages
 - **PWA**: Full offline support with Service Worker
 - **No backend required**: All processing happens client-side

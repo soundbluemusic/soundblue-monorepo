@@ -34,12 +34,19 @@
 - **Description**: Convert URL or text to QR code
 - **Features**: Text/URL input, customizable size, download as PNG
 
+#### Translator (번역기)
+- **URL**: https://tools.soundbluemusic.com/translator
+- **Korean URL**: https://tools.soundbluemusic.com/ko/translator
+- **Description**: Korean ↔ English algorithm-based translation
+- **Features**: Bidirectional translation, no external API, works offline
+
 ## Technical Information
 
-- **Framework**: SolidJS with SolidStart
+- **Framework**: React 19 with React Router 7 (SSG mode)
 - **Audio**: Web Audio API, AudioWorklet
 - **Rendering**: Canvas API
 - **Storage**: IndexedDB (Dexie)
+- **Styling**: Tailwind CSS v4
 - **Hosting**: Cloudflare Pages
 
 ## Contact
