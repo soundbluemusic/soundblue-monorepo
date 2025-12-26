@@ -1,0 +1,51 @@
+@use '../styles/variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-6;
+}
+
+.content {
+  max-width: 28rem; // 448px
+  text-align: center;
+}
+
+.quote {
+  margin-bottom: $space-12;
+  font-size: $text-2xl;
+  font-weight: 300;
+  line-height: 1.625;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+
+  @include sm {
+    font-size: $text-3xl;
+    line-height: 1.625;
+  }
+}
+
+.divider {
+  width: 4rem;
+  height: 1px;
+  margin: 0 auto $space-12;
+  background-color: var(--border);
+}
+
+.intro {
+  font-size: $text-base;
+  color: var(--muted-foreground);
+
+  @include sm {
+    font-size: $text-lg;
+  }
+}

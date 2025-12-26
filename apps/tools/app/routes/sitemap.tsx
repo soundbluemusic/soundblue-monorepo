@@ -5,6 +5,7 @@ import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
 import m from '~/lib/messages';
 import { ALL_TOOLS } from '~/lib/toolCategories';
+import styles from './Sitemap.module.scss';
 
 export const meta: MetaFunction = () => [
   { title: 'Sitemap | Tools' },
@@ -15,57 +16,39 @@ export default function Sitemap() {
   const { locale, localizedPath } = useParaglideI18n();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className={styles.page}>
       <Header />
-      <main className="flex-1 p-4 sm:p-8">
-        <div className="mx-auto max-w-3xl">
-          <h1 className="mb-8 text-2xl font-bold sm:text-3xl">{m['sitemap_title']?.()}</h1>
+      <main className={styles.main}>
+        <div className={styles.container}>
+          <h1 className={styles.title}>{m['sitemap_title']?.()}</h1>
 
-          {/* Main Pages */}
-          <section className="mb-8">
-            <h2 className="mb-4 text-xl font-semibold text-muted-foreground">
-              {m['sitemap_sections_main']?.()}
-            </h2>
-            <ul className="space-y-2">
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>{m['sitemap_sections_main']?.()}</h2>
+            <ul className={styles.list}>
               <li>
-                <Link
-                  to={localizedPath('/')}
-                  className="text-primary transition-colors hover:underline"
-                >
+                <Link to={localizedPath('/')} className={styles.link}>
                   {m['navigation_home']?.()}
                 </Link>
               </li>
               <li>
-                <Link
-                  to={localizedPath('/about')}
-                  className="text-primary transition-colors hover:underline"
-                >
+                <Link to={localizedPath('/about')} className={styles.link}>
                   {m['navigation_about']?.()}
                 </Link>
               </li>
               <li>
-                <Link
-                  to={localizedPath('/built-with')}
-                  className="text-primary transition-colors hover:underline"
-                >
+                <Link to={localizedPath('/built-with')} className={styles.link}>
                   {m['navigation_builtWith']?.()}
                 </Link>
               </li>
             </ul>
           </section>
 
-          {/* Tools */}
-          <section className="mb-8">
-            <h2 className="mb-4 text-xl font-semibold text-muted-foreground">
-              {m['sitemap_sections_tools']?.()}
-            </h2>
-            <ul className="space-y-2">
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>{m['sitemap_sections_tools']?.()}</h2>
+            <ul className={styles.list}>
               {ALL_TOOLS.map((tool) => (
                 <li key={tool.id}>
-                  <Link
-                    to={localizedPath(`/${tool.slug}`)}
-                    className="inline-flex items-center gap-2 text-primary transition-colors hover:underline"
-                  >
+                  <Link to={localizedPath(`/${tool.slug}`)} className={styles.toolLink}>
                     <span>{tool.icon}</span>
                     <span>{tool.name[locale]}</span>
                   </Link>
@@ -74,17 +57,11 @@ export default function Sitemap() {
             </ul>
           </section>
 
-          {/* Other */}
-          <section className="mb-8">
-            <h2 className="mb-4 text-xl font-semibold text-muted-foreground">
-              {m['sitemap_sections_other']?.()}
-            </h2>
-            <ul className="space-y-2">
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>{m['sitemap_sections_other']?.()}</h2>
+            <ul className={styles.list}>
               <li>
-                <Link
-                  to={localizedPath('/benchmark')}
-                  className="text-primary transition-colors hover:underline"
-                >
+                <Link to={localizedPath('/benchmark')} className={styles.link}>
                   {m['sidebar_benchmark']?.()}
                 </Link>
               </li>
@@ -93,7 +70,7 @@ export default function Sitemap() {
                   href="/sitemap.xml"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary transition-colors hover:underline"
+                  className={styles.link}
                 >
                   {m['sitemap_xml']?.()}
                 </a>
@@ -101,8 +78,7 @@ export default function Sitemap() {
             </ul>
           </section>
 
-          {/* Footer note */}
-          <p className="mt-8 text-sm text-muted-foreground">
+          <p className={styles.footer}>
             {m['sitemap_lastUpdated']?.()}:{' '}
             {new Date().toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US')}
           </p>

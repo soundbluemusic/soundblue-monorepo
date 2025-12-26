@@ -1,0 +1,75 @@
+@use '../styles/variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  padding: $space-4;
+
+  @include sm {
+    padding: $space-8;
+  }
+}
+
+.container {
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.title {
+  margin-bottom: $space-8;
+  font-size: $text-2xl;
+  font-weight: $font-bold;
+
+  @include sm {
+    font-size: $text-3xl;
+  }
+}
+
+.section {
+  margin-bottom: $space-8;
+}
+
+.sectionTitle {
+  margin-bottom: $space-4;
+  font-size: $text-xl;
+  font-weight: $font-semibold;
+  color: var(--muted-foreground);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.link {
+  color: var(--primary);
+  transition: color $duration-fast;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.toolLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  color: var(--primary);
+  transition: color $duration-fast;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.footer {
+  margin-top: $space-8;
+  font-size: $text-sm;
+  color: var(--muted-foreground);
+}
