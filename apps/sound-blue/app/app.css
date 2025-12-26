@@ -1,0 +1,493 @@
+@import 'tailwindcss';
+
+/* ========================================
+   Tailwind v4 Dark Mode Configuration
+   Enable data-theme based dark mode
+   ======================================== */
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ========================================
+   Sound Blue Design Tokens
+   ======================================== */
+
+:root {
+  /* Font Family */
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* ========== Light Mode Colors ========== */
+  --color-bg-primary: #f7fafa;
+  --color-bg-secondary: #eff5f4;
+  --color-bg-tertiary: #e5efec;
+  --color-bg-elevated: #ffffff;
+
+  --color-text-primary: #2a3836;
+  --color-text-secondary: #4a5e5a;
+  --color-text-tertiary: #6b807a;
+
+  --color-border-primary: #d5e0dd;
+  --color-border-secondary: #e5efec;
+  --color-border-focus: #4a9e95;
+
+  --color-interactive-hover: rgba(74, 158, 149, 0.08);
+  --color-interactive-active: rgba(74, 158, 149, 0.15);
+
+  --color-accent-primary: #4a9e95;
+  --color-accent-secondary: #5daea2;
+  --color-accent-hover: #3d8880;
+  --color-accent-light: rgba(126, 196, 184, 0.18);
+
+  --color-youtube: #ff0000;
+  --color-link: #4a9e95;
+  --color-link-hover: #3d8880;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Layout Dimensions */
+  --header-height: 56px;
+  --sidebar-width: 240px;
+  --bottom-nav-height: 56px;
+  --touch-target-min: 44px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(42, 70, 65, 0.05);
+  --shadow-md: 0 2px 6px rgba(42, 70, 65, 0.05), 0 1px 3px rgba(42, 70, 65, 0.03);
+  --shadow-lg: 0 4px 12px rgba(42, 70, 65, 0.08);
+
+  /* Transitions */
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========== Dark Mode ========== */
+[data-theme='dark'] {
+  --color-bg-primary: #0f1716;
+  --color-bg-secondary: #161f1e;
+  --color-bg-tertiary: #1e2928;
+  --color-bg-elevated: #253332;
+
+  --color-text-primary: #e5f0ee;
+  --color-text-secondary: #b0c5c2;
+  --color-text-tertiary: #8aa5a0;
+
+  --color-border-primary: #2e3e3c;
+  --color-border-secondary: #1e2928;
+  --color-border-focus: #6ecec5;
+
+  --color-interactive-hover: rgba(110, 206, 197, 0.1);
+  --color-interactive-active: rgba(110, 206, 197, 0.18);
+
+  --color-accent-primary: #6ecec5;
+  --color-accent-secondary: #85d8d0;
+  --color-accent-hover: #85d8d0;
+  --color-accent-light: rgba(110, 206, 197, 0.2);
+
+  --color-link: #6ecec5;
+  --color-link-hover: #9ce4db;
+
+  --shadow-sm: 0 1px 3px rgba(0, 15, 12, 0.25);
+  --shadow-md: 0 2px 6px rgba(0, 15, 12, 0.25);
+  --shadow-lg: 0 4px 12px rgba(0, 15, 12, 0.3);
+}
+
+/* ========================================
+   Tailwind v4 Theme Extension
+   ======================================== */
+
+@theme {
+  /* Custom Colors */
+  --color-bg-primary: var(--color-bg-primary);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-tertiary: var(--color-bg-tertiary);
+  --color-bg-elevated: var(--color-bg-elevated);
+
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-tertiary: var(--color-text-tertiary);
+
+  --color-border-primary: var(--color-border-primary);
+  --color-border-secondary: var(--color-border-secondary);
+  --color-border-focus: var(--color-border-focus);
+
+  --color-accent-primary: var(--color-accent-primary);
+  --color-accent-secondary: var(--color-accent-secondary);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-light: var(--color-accent-light);
+
+  --color-interactive-hover: var(--color-interactive-hover);
+  --color-interactive-active: var(--color-interactive-active);
+
+  --color-youtube: var(--color-youtube);
+  --color-link: var(--color-link);
+  --color-link-hover: var(--color-link-hover);
+
+  /* Custom Animations */
+  --animate-spin: spin 1s linear infinite;
+  --animate-fade-in: fadeIn 0.4s ease-out forwards;
+  --animate-slide-up: slideUp 0.5s ease-out forwards;
+  --animate-routing: routingSlide 1s ease-in-out infinite;
+  --animate-float: float 8s ease-in-out infinite;
+}
+
+/* ========================================
+   Keyframe Animations
+   ======================================== */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes routingSlide {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-30px) translateX(10px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-15px) translateX(-10px);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translateY(-40px) translateX(5px);
+    opacity: 0.5;
+  }
+}
+
+@keyframes sheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheetSlideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   Layout Classes
+   ======================================== */
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: var(--header-height);
+  transition: margin-left var(--transition-normal) var(--ease-default);
+}
+
+@media (max-width: 767px) {
+  .main-content {
+    margin-left: 0;
+    padding-bottom: var(--bottom-nav-height);
+  }
+}
+
+/* ========================================
+   Routing Indicator
+   ======================================== */
+
+.routing-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-accent-primary) 50%, transparent);
+  background-size: 200% 100%;
+  animation: routingSlide 1s ease-in-out infinite;
+  z-index: 9999;
+}
+
+/* ========================================
+   Page Loader
+   ======================================== */
+
+.page-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+
+.loader-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border-primary);
+  border-top-color: var(--color-accent-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ========================================
+   Animation Classes
+   ======================================== */
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-up {
+  opacity: 0;
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ========================================
+   Prose Content
+   ======================================== */
+
+.prose {
+  color: var(--color-text-secondary);
+  line-height: 1.75;
+}
+
+.prose h2 {
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+}
+
+.prose ul,
+.prose ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+/* ========================================
+   Social Links
+   ======================================== */
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.social-link:hover {
+  background-color: var(--color-interactive-hover);
+  transform: translateY(-1px);
+}
+
+.social-youtube:hover {
+  background-color: var(--color-youtube);
+  color: #ffffff;
+}
+
+.social-discography:hover {
+  background-color: var(--color-accent-primary);
+  color: #ffffff;
+}
+
+/* ========================================
+   Error Page
+   ======================================== */
+
+.error-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: var(--color-bg-primary);
+}
+
+.error-content {
+  text-align: center;
+}
+
+.error-title {
+  font-size: 3.75rem;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+  margin: 0 0 1rem;
+}
+
+.error-message {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 2rem;
+}
+
+.error-link {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-accent-primary);
+  color: white;
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: background-color var(--transition-fast);
+}
+
+.error-link:hover {
+  background-color: var(--color-accent-hover);
+}
+
+/* ========================================
+   Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

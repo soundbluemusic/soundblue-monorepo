@@ -29,6 +29,8 @@
   "devDependencies": {
     "@biomejs/biome": "^2.3.9",
     "@react-router/dev": "^7.6.1",
+    "@tailwindcss/vite": "^4.1.18",
+    "tailwindcss": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@types/react": "^19.1.8",

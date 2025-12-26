@@ -14,7 +14,7 @@ import {
 import m from '~/lib/messages';
 import { setLocale } from '~/paraglide/runtime';
 
-import './styles/app.scss';
+import './app.css';
 
 /**
  * Safely set locale for both SSR and client

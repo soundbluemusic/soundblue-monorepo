@@ -2,6 +2,45 @@
 
 프로젝트 개요, 기술 스택, 구조, 명령어: @README.md
 
+## 📚 Official References (공식 참고 문서)
+
+> **항상 최신 공식 문서를 참고하여 코드 품질을 유지하고 향상시킬 것.**
+
+| Technology | Official Docs | GitHub Repository |
+|------------|---------------|-------------------|
+| **Tailwind CSS v4** | [React Router Guide](https://tailwindcss.com/docs/installation/framework-guides/react-router) | [tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss) |
+| **React Router v7** | [Official Docs](https://reactrouter.com/start/framework/deploying) | [remix-run/react-router](https://github.com/remix-run/react-router) |
+| **TypeScript** | [Official Docs](https://www.typescriptlang.org/docs/) | [microsoft/TypeScript](https://github.com/microsoft/TypeScript) |
+
+### 참고 시점 (When to Reference)
+- 새로운 기능 구현 시 최신 API 확인
+- 빌드/설정 문제 해결 시 공식 가이드 참조
+- 버전 업그레이드 시 마이그레이션 가이드 확인
+- 베스트 프랙티스 적용 시 공식 예제 참고
+
+### Tailwind CSS v4 + React Router v7 공식 설정
+
+```typescript
+// vite.config.ts - 공식 방식
+import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [
+    tailwindcss(),  // @tailwindcss/vite 플러그인
+    reactRouter(),
+  ],
+});
+```
+
+```css
+/* app.css - 공식 방식 */
+@import "tailwindcss";
+```
+
+**Note**: Tailwind v4는 `tailwind.config.js`, `postcss.config.js` 불필요 (Zero-config)
+
 ## 절대 규칙 (CRITICAL RULES)
 
 > **이 규칙들은 절대 위반하지 말 것. CMS, 외부 DB, 서버 로직 제안 금지.**
