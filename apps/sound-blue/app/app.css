@@ -14,11 +14,11 @@
   /* Font Family */
   --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* ========== Light Mode Colors ========== */
-  --color-bg-primary: #f7fafa;
-  --color-bg-secondary: #eff5f4;
-  --color-bg-tertiary: #e5efec;
-  --color-bg-elevated: #ffffff;
+  /* ========== Light Mode Colors - Enhanced contrast ========== */
+  --color-bg-primary: #f9fcfc;     /* Lightest - main content */
+  --color-bg-secondary: #e8f0ef;   /* Sidebar, cards (darker) */
+  --color-bg-tertiary: #d8e5e3;    /* Footer, dividers (darkest) */
+  --color-bg-elevated: #ffffff;    /* Modals, dropdowns */
 
   --color-text-primary: #2a3836;
   --color-text-secondary: #4a5e5a;
@@ -64,12 +64,12 @@
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ========== Dark Mode ========== */
+/* ========== Dark Mode - Enhanced contrast ========== */
 [data-theme='dark'] {
-  --color-bg-primary: #0f1716;
-  --color-bg-secondary: #161f1e;
-  --color-bg-tertiary: #1e2928;
-  --color-bg-elevated: #253332;
+  --color-bg-primary: #0c1312;     /* Darkest - main content */
+  --color-bg-secondary: #182220;   /* Sidebar, cards (lighter) */
+  --color-bg-tertiary: #243331;    /* Footer, dividers (lightest) */
+  --color-bg-elevated: #2e3f3d;    /* Modals, dropdowns */
 
   --color-text-primary: #e5f0ee;
   --color-text-secondary: #b0c5c2;

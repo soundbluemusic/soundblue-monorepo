@@ -41,11 +41,11 @@
   --ring: 262 45% 52%; /* Brand purple */
   --radius: 0.75rem;
 
-  /* Surface backgrounds */
-  --surface-primary: 40 25% 95%;
-  --surface-secondary: 38 20% 91%;
-  --surface-tertiary: 36 15% 86%;
-  --surface-elevated: 40 30% 98%;
+  /* Surface backgrounds - Enhanced contrast for clear separation */
+  --surface-primary: 40 25% 97%;    /* Lightest - main content */
+  --surface-secondary: 38 20% 89%;  /* Sidebar, cards */
+  --surface-tertiary: 36 15% 82%;   /* Footer, dividers */
+  --surface-elevated: 0 0% 100%;    /* Modals, dropdowns */
 
   /* Brand Color - Purple (창의성을 상징) */
   --brand: 262 52% 58%; /* #8B7AAE - Soft purple for light mode */
@@ -125,11 +125,11 @@
   --color-warning: 38 70% 60%; /* #D9A54A - Warm amber */
   --color-error: 0 65% 65%; /* #E07070 */
 
-  /* Dark surfaces */
-  --surface-primary: 220 15% 13%;
-  --surface-secondary: 215 12% 17%;
-  --surface-tertiary: 218 10% 20%;
-  --surface-elevated: 215 10% 22%;
+  /* Dark surfaces - Enhanced contrast for clear separation */
+  --surface-primary: 220 15% 11%;   /* Darkest - main content */
+  --surface-secondary: 215 12% 18%; /* Sidebar, cards */
+  --surface-tertiary: 218 10% 24%;  /* Footer, dividers */
+  --surface-elevated: 215 10% 28%;  /* Modals, dropdowns */
 
   /* DAW Colors - Dark */
   --daw-track-bg: 215 12% 15%;
