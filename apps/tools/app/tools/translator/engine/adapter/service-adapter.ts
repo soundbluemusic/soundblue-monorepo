@@ -32,7 +32,7 @@ export async function initializeNewEngine(): Promise<void> {
     state.initialized = true;
     state.useNewEngine = true;
   } catch (error) {
-    console.error('Failed to initialize new engine:', error);
+    if (import.meta.env.DEV) console.error('Failed to initialize new engine:', error);
     state.useNewEngine = false;
   }
 }
@@ -76,7 +76,7 @@ export function translateWithNewEngineSync(
   try {
     return engine.translate(text, { direction });
   } catch (error) {
-    console.error('New engine translation failed:', error);
+    if (import.meta.env.DEV) console.error('New engine translation failed:', error);
     return null;
   }
 }
@@ -96,7 +96,7 @@ export async function translateWithNewEngine(
     const engine = await getEngine();
     return engine.translate(text, { direction });
   } catch (error) {
-    console.error('New engine translation failed:', error);
+    if (import.meta.env.DEV) console.error('New engine translation failed:', error);
     return null;
   }
 }

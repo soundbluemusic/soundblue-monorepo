@@ -97,7 +97,7 @@ export class EngineLoader {
 
     const chunk = this.chunks.get(chunkId);
     if (!chunk) {
-      console.warn(`Chunk not found: ${chunkId}`);
+      if (import.meta.env.DEV) console.warn(`Chunk not found: ${chunkId}`);
       return false;
     }
 
@@ -115,7 +115,7 @@ export class EngineLoader {
       this.loadingState.inProgress.delete(chunkId);
       return true;
     } catch (error) {
-      console.error(`Failed to load chunk: ${chunkId}`, error);
+      if (import.meta.env.DEV) console.error(`Failed to load chunk: ${chunkId}`, error);
       this.loadingState.failed.push(chunkId);
       this.loadingState.inProgress.delete(chunkId);
       return false;
