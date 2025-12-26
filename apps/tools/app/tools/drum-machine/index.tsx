@@ -92,125 +92,133 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
 
   const playMetronomeClick = useCallback(
     (time: number, isAccent: boolean) => {
-      const ctx = getAudioContext();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
 
-      const vol = settings.volume * 0.5;
-      osc.frequency.value = isAccent ? METRONOME.ACCENT_FREQ : METRONOME.REGULAR_FREQ;
-      osc.type = 'sine';
+        const vol = settings.volume * 0.5;
+        osc.frequency.value = isAccent ? METRONOME.ACCENT_FREQ : METRONOME.REGULAR_FREQ;
+        osc.type = 'sine';
 
-      gain.gain.setValueAtTime(isAccent ? vol * 0.8 : vol * 0.5, time);
-      gain.gain.exponentialRampToValueAtTime(0.01, time + METRONOME.CLICK_DURATION);
+        gain.gain.setValueAtTime(isAccent ? vol * 0.8 : vol * 0.5, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + METRONOME.CLICK_DURATION);
 
-      osc.start(time);
-      osc.stop(time + METRONOME.CLICK_DURATION);
+        osc.start(time);
+        osc.stop(time + METRONOME.CLICK_DURATION);
+      } catch (e) {
+        console.error('[DrumMachine] Metronome click failed:', e);
+      }
     },
     [settings.volume],
   );
 
   const playDrumSound = useCallback(
     (drumId: DrumId, time: number) => {
-      const ctx = getAudioContext();
-      const params = getSynthParams(drumId);
-      const vol = settings.volume;
+      try {
+        const ctx = getAudioContext();
+        const params = getSynthParams(drumId);
+        const vol = settings.volume;
 
-      const punchFactor = params.punch / 100;
-      const toneFactor = params.tone / 100;
+        const punchFactor = params.punch / 100;
+        const toneFactor = params.tone / 100;
 
-      if (drumId === 'kick') {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        const startFreq = params.pitch * (1 + punchFactor * 2);
-        osc.frequency.setValueAtTime(startFreq, time);
-        osc.frequency.exponentialRampToValueAtTime(Math.max(20, params.pitch), time + 0.05);
-        osc.type = 'sine';
-
-        if (toneFactor < 0.5) {
-          const sub = ctx.createOscillator();
-          const subGain = ctx.createGain();
-          sub.connect(subGain);
-          subGain.connect(ctx.destination);
-          sub.frequency.value = params.pitch * 0.5;
-          sub.type = 'sine';
-          subGain.gain.setValueAtTime(vol * (0.5 - toneFactor), time);
-          subGain.gain.exponentialRampToValueAtTime(0.01, time + params.decay * 0.8);
-          sub.start(time);
-          sub.stop(time + params.decay);
-        }
-
-        gain.gain.setValueAtTime(vol, time);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
-        osc.start(time);
-        osc.stop(time + params.decay);
-      } else if (drumId === 'snare') {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = params.pitch;
-        osc.type = 'triangle';
-
-        const noise = ctx.createOscillator();
-        const noiseGain = ctx.createGain();
-        noise.frequency.value = 800 + toneFactor * 400;
-        noise.type = 'square';
-        noise.connect(noiseGain);
-        noiseGain.connect(ctx.destination);
-        noiseGain.gain.setValueAtTime(vol * (0.2 + toneFactor * 0.3), time);
-        noiseGain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
-        noise.start(time);
-        noise.stop(time + params.decay);
-
-        gain.gain.setValueAtTime(vol * punchFactor, time);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
-        osc.start(time);
-        osc.stop(time + params.decay);
-      } else if (drumId === 'hihat') {
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc1.connect(gain);
-        osc2.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc1.frequency.value = params.pitch;
-        osc1.type = 'square';
-        osc2.frequency.value = params.pitch * (1.5 + toneFactor);
-        osc2.type = 'sawtooth';
-
-        gain.gain.setValueAtTime(vol * 0.3, time);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
-        osc1.start(time);
-        osc2.start(time);
-        osc1.stop(time + params.decay);
-        osc2.stop(time + params.decay);
-      } else {
-        const burstCount = 3;
-        const burstGap = 0.01;
-
-        for (let i = 0; i < burstCount; i++) {
+        if (drumId === 'kick') {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.connect(gain);
           gain.connect(ctx.destination);
 
-          osc.frequency.value = params.pitch * (1 + toneFactor * 0.5);
-          osc.type = 'sawtooth';
+          const startFreq = params.pitch * (1 + punchFactor * 2);
+          osc.frequency.setValueAtTime(startFreq, time);
+          osc.frequency.exponentialRampToValueAtTime(Math.max(20, params.pitch), time + 0.05);
+          osc.type = 'sine';
 
-          const burstTime = time + i * burstGap;
-          const burstVol = vol * (1 - i * 0.2) * punchFactor;
-          gain.gain.setValueAtTime(burstVol, burstTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, burstTime + params.decay / burstCount);
-          osc.start(burstTime);
-          osc.stop(burstTime + params.decay / burstCount);
+          if (toneFactor < 0.5) {
+            const sub = ctx.createOscillator();
+            const subGain = ctx.createGain();
+            sub.connect(subGain);
+            subGain.connect(ctx.destination);
+            sub.frequency.value = params.pitch * 0.5;
+            sub.type = 'sine';
+            subGain.gain.setValueAtTime(vol * (0.5 - toneFactor), time);
+            subGain.gain.exponentialRampToValueAtTime(0.01, time + params.decay * 0.8);
+            sub.start(time);
+            sub.stop(time + params.decay);
+          }
+
+          gain.gain.setValueAtTime(vol, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
+          osc.start(time);
+          osc.stop(time + params.decay);
+        } else if (drumId === 'snare') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = params.pitch;
+          osc.type = 'triangle';
+
+          const noise = ctx.createOscillator();
+          const noiseGain = ctx.createGain();
+          noise.frequency.value = 800 + toneFactor * 400;
+          noise.type = 'square';
+          noise.connect(noiseGain);
+          noiseGain.connect(ctx.destination);
+          noiseGain.gain.setValueAtTime(vol * (0.2 + toneFactor * 0.3), time);
+          noiseGain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
+          noise.start(time);
+          noise.stop(time + params.decay);
+
+          gain.gain.setValueAtTime(vol * punchFactor, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
+          osc.start(time);
+          osc.stop(time + params.decay);
+        } else if (drumId === 'hihat') {
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc1.frequency.value = params.pitch;
+          osc1.type = 'square';
+          osc2.frequency.value = params.pitch * (1.5 + toneFactor);
+          osc2.type = 'sawtooth';
+
+          gain.gain.setValueAtTime(vol * 0.3, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + params.decay);
+          osc1.start(time);
+          osc2.start(time);
+          osc1.stop(time + params.decay);
+          osc2.stop(time + params.decay);
+        } else {
+          const burstCount = 3;
+          const burstGap = 0.01;
+
+          for (let i = 0; i < burstCount; i++) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.frequency.value = params.pitch * (1 + toneFactor * 0.5);
+            osc.type = 'sawtooth';
+
+            const burstTime = time + i * burstGap;
+            const burstVol = vol * (1 - i * 0.2) * punchFactor;
+            gain.gain.setValueAtTime(burstVol, burstTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, burstTime + params.decay / burstCount);
+            osc.start(burstTime);
+            osc.stop(burstTime + params.decay / burstCount);
+          }
         }
+      } catch (e) {
+        console.error('[DrumMachine] playDrumSound failed:', e);
       }
     },
     [getSynthParams, settings.volume],
@@ -218,9 +226,13 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
 
   const previewDrum = useCallback(
     async (drumId: DrumId) => {
-      await resumeAudioContext();
-      const ctx = getAudioContext();
-      playDrumSound(drumId, ctx.currentTime);
+      try {
+        await resumeAudioContext();
+        const ctx = getAudioContext();
+        playDrumSound(drumId, ctx.currentTime);
+      } catch (e) {
+        console.error('[DrumMachine] previewDrum failed:', e);
+      }
     },
     [playDrumSound],
   );
@@ -272,12 +284,16 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
       setIsPlaying(false);
       setCurrentStep(-1);
     } else {
-      await resumeAudioContext();
-      const ctx = getAudioContext();
-      currentStepRef.current = 0;
-      nextStepTimeRef.current = ctx.currentTime;
-      scheduler();
-      setIsPlaying(true);
+      try {
+        await resumeAudioContext();
+        const ctx = getAudioContext();
+        currentStepRef.current = 0;
+        nextStepTimeRef.current = ctx.currentTime;
+        scheduler();
+        setIsPlaying(true);
+      } catch (e) {
+        console.error('[DrumMachine] Failed to start audio:', e);
+      }
     }
   }, [isPlaying, scheduler]);
 
