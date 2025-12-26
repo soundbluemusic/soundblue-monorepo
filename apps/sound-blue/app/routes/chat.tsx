@@ -12,7 +12,7 @@ export default function Chat() {
       <div className="max-w-3xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-4">{m['chat.title']()}</h1>
         <p className="text-content-muted mb-8">{m['chat.subtitle']()}</p>
-        <div className="p-4 rounded-lg bg-[var(--color-bg-secondary)] text-content-muted">
+        <div className="p-4 rounded-lg bg-(--color-bg-secondary) text-content-muted">
           {m['chat.welcome']()}
         </div>
       </div>

@@ -175,7 +175,7 @@ describe('Sitemap Route', () => {
     it('모든 링크에 올바른 스타일', () => {
       renderWithRouter(<Sitemap />);
       const homeLink = screen.getByText('Home').closest('a');
-      expect(homeLink?.className).toContain('text-[var(--color-link)]');
+      expect(homeLink?.className).toContain('text-(--color-link)');
       expect(homeLink?.className).toContain('hover:underline');
     });
   });

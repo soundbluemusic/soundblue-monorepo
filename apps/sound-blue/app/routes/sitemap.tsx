@@ -20,12 +20,12 @@ export default function Sitemap() {
           <h2 className="text-xl font-semibold mb-4">{m['sitemap.sections.main']()}</h2>
           <ul className="space-y-2">
             <li>
-              <Link to={prefix || '/'} className="text-[var(--color-link)] hover:underline">
+              <Link to={prefix || '/'} className="text-(--color-link) hover:underline">
                 {m['sitemap.links.home']()}
               </Link>
             </li>
             <li>
-              <Link to={`${prefix}/about`} className="text-[var(--color-link)] hover:underline">
+              <Link to={`${prefix}/about`} className="text-(--color-link) hover:underline">
                 {m['nav.about']()}
               </Link>
             </li>
@@ -35,19 +35,19 @@ export default function Sitemap() {
           <h2 className="text-xl font-semibold mb-4">{m['sitemap.sections.content']()}</h2>
           <ul className="space-y-2">
             <li>
-              <Link to={`${prefix}/news`} className="text-[var(--color-link)] hover:underline">
+              <Link to={`${prefix}/news`} className="text-(--color-link) hover:underline">
                 {m['sitemap.links.news']()}
               </Link>
             </li>
             <li>
-              <Link to={`${prefix}/blog`} className="text-[var(--color-link)] hover:underline">
+              <Link to={`${prefix}/blog`} className="text-(--color-link) hover:underline">
                 {m['sitemap.links.blog']()}
               </Link>
             </li>
             <li>
               <Link
                 to={`${prefix}/sound-recording`}
-                className="text-[var(--color-link)] hover:underline"
+                className="text-(--color-link) hover:underline"
               >
                 {m['sitemap.links.soundRecording']()}
               </Link>
@@ -58,17 +58,17 @@ export default function Sitemap() {
           <h2 className="text-xl font-semibold mb-4">{m['sitemap.sections.legal']()}</h2>
           <ul className="space-y-2">
             <li>
-              <Link to={`${prefix}/privacy`} className="text-[var(--color-link)] hover:underline">
+              <Link to={`${prefix}/privacy`} className="text-(--color-link) hover:underline">
                 {m['sitemap.links.privacy']()}
               </Link>
             </li>
             <li>
-              <Link to={`${prefix}/terms`} className="text-[var(--color-link)] hover:underline">
+              <Link to={`${prefix}/terms`} className="text-(--color-link) hover:underline">
                 {m['sitemap.links.terms']()}
               </Link>
             </li>
             <li>
-              <Link to={`${prefix}/license`} className="text-[var(--color-link)] hover:underline">
+              <Link to={`${prefix}/license`} className="text-(--color-link) hover:underline">
                 {m['sitemap.links.license']()}
               </Link>
             </li>

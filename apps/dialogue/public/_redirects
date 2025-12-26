@@ -1,5 +1,5 @@
 # SPA fallback for dynamic chat routes
-# These routes are not pre-rendered, so we serve index.html and let client-side routing handle them
+# These routes are not pre-rendered, so we serve __spa-fallback.html and let client-side routing handle them
 
-/c/*    /index.html    200
-/ko/c/*    /ko/index.html    200
+/c/*    /__spa-fallback.html    200
+/ko/c/*    /__spa-fallback.html    200
