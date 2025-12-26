@@ -165,6 +165,13 @@ const KOREAN_ENDINGS: Record<string, { tense: string; form: string }> = {
   다: { tense: 'present', form: 'declarative' },
 };
 
+// 사전 정렬된 배열 (길이순 내림차순) - 함수 호출마다 정렬하지 않도록 캐싱
+const SORTED_CONNECTIVES = Object.entries(KOREAN_CONNECTIVES).sort(
+  (a, b) => b[0].length - a[0].length,
+);
+const SORTED_MODIFIERS = Object.entries(KOREAN_MODIFIERS).sort((a, b) => b[0].length - a[0].length);
+const SORTED_ENDINGS = Object.entries(KOREAN_ENDINGS).sort((a, b) => b[0].length - a[0].length);
+
 // 이동 동사 (to 전치사 사용)
 const MOVEMENT_VERBS = new Set([
   'go',
@@ -506,11 +513,8 @@ function analyzeAndTranslateToken(token: string): {
     };
   }
 
-  // 3. 연결어미 체크 (복합문) - 긴 것부터 매칭
-  const sortedConnectives = Object.entries(KOREAN_CONNECTIVES).sort(
-    (a, b) => b[0].length - a[0].length,
-  );
-  for (const [conn, info] of sortedConnectives) {
+  // 3. 연결어미 체크 (복합문) - 사전 정렬된 배열 사용
+  for (const [conn, info] of SORTED_CONNECTIVES) {
     if (word.endsWith(conn)) {
       word = word.slice(0, -conn.length);
       connective = info.en;
@@ -523,12 +527,9 @@ function analyzeAndTranslateToken(token: string): {
     }
   }
 
-  // 4. 관형형 어미 체크 (수식어) - 긴 것부터 매칭
+  // 4. 관형형 어미 체크 (수식어) - 사전 정렬된 배열 사용
   if (role === 'unknown') {
-    const sortedModifiers = Object.entries(KOREAN_MODIFIERS).sort(
-      (a, b) => b[0].length - a[0].length,
-    );
-    for (const [mod, info] of sortedModifiers) {
+    for (const [mod, info] of SORTED_MODIFIERS) {
       if (word.endsWith(mod)) {
         word = word.slice(0, -mod.length);
         isModifier = true;
@@ -550,10 +551,9 @@ function analyzeAndTranslateToken(token: string): {
     }
   }
 
-  // 6. 종결어미 분리
+  // 6. 종결어미 분리 - 사전 정렬된 배열 사용
   if (role !== 'modifier' && role !== 'adverb' && !connective) {
-    const sortedEndings = Object.entries(KOREAN_ENDINGS).sort((a, b) => b[0].length - a[0].length);
-    for (const [ending, info] of sortedEndings) {
+    for (const [ending, info] of SORTED_ENDINGS) {
       if (word.endsWith(ending)) {
         word = word.slice(0, -ending.length);
         tense = info.tense;

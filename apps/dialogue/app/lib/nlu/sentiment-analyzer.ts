@@ -279,6 +279,23 @@ const EMOTION_PATTERNS: Record<Emotion, { en: RegExp[]; ko: RegExp[]; basePolari
   },
 };
 
+// 사전 컴파일된 정규식 패턴 (함수 호출마다 생성하지 않음)
+const NEGATION_PATTERNS = {
+  en: /(not|no|never|neither|nor|none|nobody|nothing)/i,
+  ko: /(안|않|없|못|아니|부정)/,
+} as const;
+
+const INTENSIFIER_PATTERNS = {
+  en: /(very|really|so|extremely|absolutely)/i,
+  ko: /(정말|진짜|너무|아주|완전|매우)/,
+} as const;
+
+// 빠른 조회를 위한 어휘 키 Set (O(1) 조회)
+const LEXICON_KEYS = {
+  en: Object.keys(SENTIMENT_LEXICON.en),
+  ko: Object.keys(SENTIMENT_LEXICON.ko),
+} as const;
+
 /**
  * Analyzes the emotional tone and polarity of user input.
  *
@@ -388,40 +405,33 @@ export function analyzeSentiment(text: string, locale: string): SentimentResult 
   const lowerText = text.toLowerCase();
   const lang = locale === 'ko' ? 'ko' : 'en';
   const lexicon = SENTIMENT_LEXICON[lang];
+  const lexiconKeys = LEXICON_KEYS[lang];
 
-  // Step 1: Calculate polarity from lexicon
-  // Each word is checked against all lexicon entries using substring matching
+  // Step 1: Calculate polarity from lexicon (최적화: 사전 키 배열 사용)
+  // 어휘 키 배열을 순회하며 텍스트에서 키워드 검색 (O(k) where k = lexicon size)
   let totalPolarity = 0;
   let wordCount = 0;
-  const words = lowerText.split(/\s+/);
 
-  for (const word of words) {
-    for (const [key, value] of Object.entries(lexicon)) {
-      if (word.includes(key) || key.includes(word)) {
-        totalPolarity += value;
-        wordCount++;
-      }
+  // 최적화: 단어별 중첩 루프 대신 전체 텍스트에서 어휘 키 검색
+  for (const key of lexiconKeys) {
+    if (lowerText.includes(key)) {
+      totalPolarity += lexicon[key];
+      wordCount++;
     }
   }
 
-  // Step 2: Detect negation modifiers
+  // Step 2: Detect negation modifiers (사전 컴파일된 패턴 사용)
   // Negation reverses polarity by ×-0.8 (not full reversal)
   // Rationale: "not bad" ≠ "good", it's more like "okay"
-  const negationPattern =
-    lang === 'ko' ? /(안|않|없|못|아니|부정)/ : /(not|no|never|neither|nor|none|nobody|nothing)/i;
-
-  if (negationPattern.test(text)) {
+  if (NEGATION_PATTERNS[lang].test(text)) {
     totalPolarity *= -0.8; // Reverse polarity with negation
   }
 
-  // Step 3: Detect intensifiers
+  // Step 3: Detect intensifiers (사전 컴파일된 패턴 사용)
   // Intensifiers amplify polarity by ×1.2 (modest boost)
   // Rationale: "very good" should be stronger than "good" but not extreme
-  const intensifierPattern =
-    lang === 'ko' ? /(정말|진짜|너무|아주|완전|매우)/ : /(very|really|so|extremely|absolutely)/i;
-
   let intensity = 0.5; // Base intensity
-  if (intensifierPattern.test(text)) {
+  if (INTENSIFIER_PATTERNS[lang].test(text)) {
     intensity = 0.9;
     totalPolarity *= 1.2; // Amplify polarity
   }

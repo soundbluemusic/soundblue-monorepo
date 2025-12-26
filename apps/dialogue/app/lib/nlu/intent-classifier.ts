@@ -497,8 +497,9 @@ export function classifyIntent(text: string, locale: string): IntentResult {
     }
 
     // Check keywords - all matches are cumulative (+5 points each)
+    // 키워드는 이미 소문자로 정의되어 있으므로 toLowerCase() 호출 불필요
     for (const keyword of pattern.keywords[lang]) {
-      if (lowerText.includes(keyword.toLowerCase())) {
+      if (lowerText.includes(keyword)) {
         score += 5;
       }
     }
