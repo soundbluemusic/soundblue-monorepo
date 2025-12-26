@@ -26,8 +26,10 @@ interface UrlDef {
 // Static pages (actual existing pages)
 const PAGES: UrlDef[] = [
   { path: '', priority: '1.0', changefreq: 'daily' }, // Home
+  { path: 'about', priority: '0.7', changefreq: 'monthly' },
   { path: 'built-with', priority: '0.6', changefreq: 'monthly' },
   { path: 'benchmark', priority: '0.5', changefreq: 'weekly' },
+  { path: 'sitemap', priority: '0.4', changefreq: 'weekly' },
 ];
 
 // Tool pages (actual existing tools)
