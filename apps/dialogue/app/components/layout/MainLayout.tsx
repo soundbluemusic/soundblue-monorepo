@@ -4,7 +4,6 @@ import { useUIStore } from '~/stores';
 import { ChatContainer } from '../chat/ChatContainer';
 import { ConversationList } from './ConversationList';
 import { Header } from './Header';
-import styles from './MainLayout.module.scss';
 import { ResultPanel } from './ResultPanel';
 import { Sidebar } from './Sidebar';
 
@@ -119,17 +118,17 @@ export function MainLayout() {
   }, [isMobile]);
 
   return (
-    <div className={styles.layout}>
+    <div className="flex flex-col h-screen bg-(--color-bg-primary)">
       {/* Header */}
       <Header />
 
       {/* Main Content */}
-      <main className={styles.main}>
+      <main className="flex flex-1 overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
           <button
             type="button"
-            className={styles.mobileOverlay}
+            className="fixed inset-0 z-40 bg-black/50 border-none cursor-default md:hidden"
             onClick={() => setSidebarOpen(false)}
             aria-label={m['app.closeSidebar']()}
           />
@@ -138,9 +137,11 @@ export function MainLayout() {
         {/* Sidebar */}
         <div
           className={[
-            styles.sidebarContainer,
-            isHydrated && styles.sidebarHydrated,
-            !sidebarOpen && styles.sidebarHidden,
+            'z-50',
+            'max-md:fixed max-md:inset-0 max-md:left-0 max-md:pt-14',
+            'md:relative',
+            isHydrated && 'max-md:transition-transform max-md:duration-300 max-md:ease-in-out',
+            !sidebarOpen && 'max-md:-translate-x-full',
           ]
             .filter(Boolean)
             .join(' ')}
@@ -149,17 +150,19 @@ export function MainLayout() {
         </div>
 
         {/* Main Area (Chat + Result Panel) */}
-        <div className={styles.mainArea}>
+        <div className="flex flex-1 overflow-hidden">
           {/* Mobile: Tab-based view */}
-          <div className={styles.mobileTabView}>
+          <div className="flex flex-col flex-1 min-h-[200px] md:hidden">
             {/* Tab Switcher */}
-            <div className={styles.tabSwitcher}>
+            <div className="flex shrink-0 border-b border-(--color-border-primary) bg-(--color-bg-secondary)">
               <button
                 type="button"
                 onClick={() => setActiveTab('chat')}
                 className={[
-                  styles.tabButton,
-                  activeTab === 'chat' ? styles.tabActive : styles.tabInactive,
+                  'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
+                  activeTab === 'chat'
+                    ? 'border-b-2 border-(--color-accent-primary) text-(--color-accent-primary)'
+                    : 'text-(--color-text-tertiary)',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -170,8 +173,10 @@ export function MainLayout() {
                 type="button"
                 onClick={() => setActiveTab('history')}
                 className={[
-                  styles.tabButton,
-                  activeTab === 'history' ? styles.tabActive : styles.tabInactive,
+                  'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
+                  activeTab === 'history'
+                    ? 'border-b-2 border-(--color-accent-primary) text-(--color-accent-primary)'
+                    : 'text-(--color-text-tertiary)',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -182,8 +187,10 @@ export function MainLayout() {
                 type="button"
                 onClick={() => setActiveTab('result')}
                 className={[
-                  styles.tabButton,
-                  activeTab === 'result' ? styles.tabActive : styles.tabInactive,
+                  'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
+                  activeTab === 'result'
+                    ? 'border-b-2 border-(--color-accent-primary) text-(--color-accent-primary)'
+                    : 'text-(--color-text-tertiary)',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -193,10 +200,10 @@ export function MainLayout() {
             </div>
 
             {/* Tab Content */}
-            <div className={styles.tabContent}>
+            <div className="flex-1 overflow-hidden min-h-[150px]">
               {activeTab === 'chat' && <ChatContainer />}
               {activeTab === 'history' && (
-                <div className={styles.historyPanel}>
+                <div className="h-full p-4 overflow-hidden">
                   <ConversationList
                     onLoadConversation={handleLoadConversation}
                     onNewChat={handleNewChat}
@@ -209,9 +216,12 @@ export function MainLayout() {
           </div>
 
           {/* Desktop: 2 columns with resizable chat */}
-          <div className={styles.desktopView}>
+          <div className="hidden md:flex md:flex-1">
             {/* Chat Area */}
-            <div className={styles.chatPanel} style={{ width: `${chatWidth}px` }}>
+            <div
+              className="relative shrink-0 border-r border-(--color-border-primary) min-h-[200px]"
+              style={{ width: `${chatWidth}px` }}
+            >
               <ChatContainer />
 
               {/* Resize Handle */}
@@ -224,10 +234,14 @@ export function MainLayout() {
                 aria-valuemin={CHAT_WIDTH.min}
                 aria-valuemax={CHAT_WIDTH.max}
                 tabIndex={0}
-                className={styles.resizeHandle}
+                className="absolute -right-1 top-0 h-full w-3 cursor-col-resize flex items-center justify-center group"
               >
                 <div
-                  className={[styles.resizeBar, isResizing && styles.resizeBarActive]
+                  className={[
+                    'h-full w-1 transition-colors duration-150',
+                    'group-hover:bg-blue-500/30 group-active:bg-blue-500/30',
+                    isResizing && 'bg-blue-500/50',
+                  ]
                     .filter(Boolean)
                     .join(' ')}
                 />
@@ -235,7 +249,7 @@ export function MainLayout() {
             </div>
 
             {/* Result Panel Area */}
-            <div className={styles.resultArea}>
+            <div className="flex-1">
               <ResultPanel />
             </div>
           </div>
@@ -243,9 +257,9 @@ export function MainLayout() {
       </main>
 
       {/* Footer */}
-      <footer className={styles.footer}>
+      <footer className="border-t border-(--color-border-primary) py-2 px-4 text-center text-xs text-(--color-text-tertiary)">
         <span>{m['app.title']()}</span>
-        <span className={styles.footerSeparator}>·</span>
+        <span className="mx-2">·</span>
         <span>{m['app.footerDescription']()}</span>
       </footer>
     </div>

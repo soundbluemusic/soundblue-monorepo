@@ -15,7 +15,6 @@ import m from '~/lib/messages';
 import { getToolInfo, TOOL_CATEGORIES } from '~/lib/toolCategories';
 import { type ToolType, useToolStore } from '~/stores/tool-store';
 import { ToolCategory } from './ToolCategory';
-import styles from './ToolSidebar.module.scss';
 
 // ========================================
 // ToolSidebar Component - 도구 사이드바
@@ -58,47 +57,35 @@ export function ToolSidebar() {
     setMoreMenuOpen(!moreMenuOpen);
   };
 
-  const sidebarClasses = [styles.sidebar, sidebarCollapsed ? styles.collapsed : styles.expanded]
-    .filter(Boolean)
-    .join(' ');
-
-  const headerClasses = [styles.header, sidebarCollapsed ? styles.collapsed : styles.expanded]
-    .filter(Boolean)
-    .join(' ');
-
-  const dropdownClasses = [styles.moreMenuDropdown, sidebarCollapsed && styles.collapsed]
-    .filter(Boolean)
-    .join(' ');
-
-  const moreButtonClasses = [
-    styles.moreButton,
-    moreMenuOpen && styles.active,
-    sidebarCollapsed && styles.collapsed,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <aside className={sidebarClasses}>
+    <aside
+      className={`flex h-full flex-col border-r border-(--border) bg-(--card) transition-[width] duration-200 ${
+        sidebarCollapsed ? 'w-14' : 'w-52'
+      }`}
+    >
       {/* Header */}
-      <div className={headerClasses}>
-        {!sidebarCollapsed && <h2 className={styles.title}>{m['sidebar.tools']?.()}</h2>}
+      <div
+        className={`flex items-center border-b border-(--border) p-3 ${
+          sidebarCollapsed ? 'justify-center' : 'justify-between'
+        }`}
+      >
+        {!sidebarCollapsed && <h2 className="text-sm font-semibold">{m['sidebar.tools']?.()}</h2>}
         <button
           type="button"
           onClick={toggleCollapse}
-          className={styles.collapseButton}
+          className="cursor-pointer rounded-xl border-none bg-transparent p-1.5 text-inherit transition-all duration-200 ease-out hover:bg-black/8 hover:text-(--foreground) active:scale-95 active:bg-black/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary) dark:hover:bg-white/12 dark:active:bg-white/18"
           aria-label={sidebarCollapsed ? m['sidebar.expand']?.() : m['sidebar.collapse']?.()}
         >
           {sidebarCollapsed ? (
-            <PanelLeftOpen className={styles.collapseIcon} />
+            <PanelLeftOpen className="size-4" />
           ) : (
-            <PanelLeftClose className={styles.collapseIcon} />
+            <PanelLeftClose className="size-4" />
           )}
         </button>
       </div>
 
       {/* Tool Categories */}
-      <div className={styles.content}>
+      <div className="flex-1 space-y-4 overflow-y-auto p-2">
         {TOOL_CATEGORIES.map((category) => (
           <ToolCategory
             key={category.id}
@@ -110,31 +97,35 @@ export function ToolSidebar() {
       </div>
 
       {/* More Menu */}
-      <div ref={moreMenuRef} className={styles.moreMenuWrapper}>
+      <div ref={moreMenuRef} className="relative border-t border-(--border) p-2">
         {moreMenuOpen && (
-          <div className={dropdownClasses}>
+          <div
+            className={`absolute bottom-full z-50 mb-1 rounded-xl border border-(--border) bg-(--popover) p-1 shadow-lg ${
+              sidebarCollapsed ? 'left-0 right-auto w-48' : 'left-2 right-2'
+            }`}
+          >
             <Link
               to={localizedPath('/about')}
-              className={styles.menuItem}
+              className="flex w-full cursor-pointer items-center gap-3 rounded-md border-none bg-transparent px-3 py-2 text-sm text-inherit no-underline transition-all duration-200 ease-out hover:bg-black/8 hover:text-(--foreground) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary) dark:hover:bg-white/12"
               onClick={() => setMoreMenuOpen(false)}
             >
-              <Info className={styles.menuItemIcon} />
+              <Info className="size-4" />
               <span>{m['navigation.about']?.()}</span>
             </Link>
             <Link
               to={localizedPath('/benchmark')}
-              className={styles.menuItem}
+              className="flex w-full cursor-pointer items-center gap-3 rounded-md border-none bg-transparent px-3 py-2 text-sm text-inherit no-underline transition-all duration-200 ease-out hover:bg-black/8 hover:text-(--foreground) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary) dark:hover:bg-white/12"
               onClick={() => setMoreMenuOpen(false)}
             >
-              <Activity className={styles.menuItemIcon} />
+              <Activity className="size-4" />
               <span>{m['sidebar.benchmark']?.()}</span>
             </Link>
             <Link
               to={localizedPath('/sitemap')}
-              className={styles.menuItem}
+              className="flex w-full cursor-pointer items-center gap-3 rounded-md border-none bg-transparent px-3 py-2 text-sm text-inherit no-underline transition-all duration-200 ease-out hover:bg-black/8 hover:text-(--foreground) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary) dark:hover:bg-white/12"
               onClick={() => setMoreMenuOpen(false)}
             >
-              <FileText className={styles.menuItemIcon} />
+              <FileText className="size-4" />
               <span>{m['sidebar.sitemap']?.()}</span>
             </Link>
           </div>
@@ -142,10 +133,12 @@ export function ToolSidebar() {
         <button
           type="button"
           onClick={toggleMoreMenu}
-          className={moreButtonClasses}
+          className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-none bg-transparent text-sm text-(--muted-foreground) transition-all duration-200 ease-out hover:bg-black/8 hover:text-(--foreground) active:scale-98 active:bg-black/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary) dark:hover:bg-white/12 dark:active:bg-white/18 ${
+            moreMenuOpen ? 'bg-black/5 dark:bg-white/8' : ''
+          } ${sidebarCollapsed ? 'justify-center p-2' : 'px-3 py-2'}`}
           title={sidebarCollapsed ? m['sidebar.more']?.() : undefined}
         >
-          <MoreHorizontal className={styles.moreIcon} />
+          <MoreHorizontal className="size-5" />
           {!sidebarCollapsed && <span>{m['sidebar.more']?.()}</span>}
         </button>
       </div>

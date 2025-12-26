@@ -6,7 +6,6 @@ import { ToolContainer } from '~/components/tools';
 import { useToolStore } from '~/stores/tool-store';
 import { Footer } from './Footer';
 import { Header } from './Header';
-import styles from './MainLayout.module.scss';
 
 const BREAKPOINT_MOBILE = 768;
 
@@ -45,25 +44,26 @@ export function MainLayout() {
   const showMobileOverlay = isMobile && sidebarOpen;
 
   const sidebarClasses = [
-    styles.sidebarWrapper,
-    isMobile ? styles.mobile : styles.desktop,
-    isMobile && !sidebarOpen ? styles.closed : '',
+    'z-50',
+    isMobile
+      ? `fixed inset-0 left-0 pt-14 transition-transform duration-200 ${!sidebarOpen ? '-translate-x-full' : ''}`
+      : 'relative',
   ]
     .filter(Boolean)
     .join(' ');
 
   return (
-    <div className={styles.container}>
+    <div className="flex h-screen flex-col bg-(--background)">
       {/* Header */}
       <Header />
 
       {/* Main Content */}
-      <main className={styles.main}>
+      <main className="flex flex-1 overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         {showMobileOverlay && (
           <button
             type="button"
-            className={styles.mobileOverlay}
+            className="fixed inset-0 z-40 border-none bg-black/50 cursor-default md:hidden"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close sidebar"
           />
@@ -75,7 +75,7 @@ export function MainLayout() {
         </div>
 
         {/* Tool Area */}
-        <div className={styles.toolArea}>
+        <div className="flex-1 overflow-auto">
           <ToolContainer />
         </div>
       </main>

@@ -1,6 +1,5 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import styles from './BottomSheet.module.scss';
 
 interface BottomSheetProps {
   isOpen: boolean;
@@ -45,19 +44,13 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
 
   if (!mounted || !isVisible) return null;
 
-  const backdropClasses = [styles.backdrop, isOpen ? styles.backdropVisible : styles.backdropHidden]
-    .filter(Boolean)
-    .join(' ');
-
-  const sheetClasses = [styles.sheet, isOpen ? styles.sheetOpen : styles.sheetClosed]
-    .filter(Boolean)
-    .join(' ');
-
   return createPortal(
     <>
       {/* Backdrop */}
       <div
-        className={backdropClasses}
+        className={`fixed inset-0 z-[400] bg-black/50 transition-opacity duration-250 ${
+          isOpen ? 'opacity-100' : 'opacity-0'
+        }`}
         onClick={onClose}
         onTransitionEnd={() => {
           if (!isOpen) {
@@ -69,7 +62,9 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
 
       {/* Sheet */}
       <div
-        className={sheetClasses}
+        className={`fixed bottom-0 left-0 right-0 z-[401] bg-(--color-bg-secondary) rounded-t-2xl shadow-(--shadow-lg) transition-transform duration-300 ease-out pb-[env(safe-area-inset-bottom)] ${
+          isOpen ? 'translate-y-0' : 'translate-y-full'
+        }`}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -80,19 +75,19 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
         }}
       >
         {/* Drag handle */}
-        <div className={styles.dragHandle}>
-          <div className={styles.handleBar} />
+        <div className="flex justify-center pt-3 pb-2">
+          <div className="w-10 h-1 bg-(--color-border-primary) rounded-full" />
         </div>
 
         {/* Title */}
         {title && (
-          <div className={styles.titleWrapper}>
-            <h2 className={styles.title}>{title}</h2>
+          <div className="px-4 pb-2">
+            <h2 className="text-lg font-semibold text-(--color-text-primary) m-0">{title}</h2>
           </div>
         )}
 
         {/* Content */}
-        <div className={styles.content}>{children}</div>
+        <div className="px-2 pb-4">{children}</div>
       </div>
     </>,
     document.body,

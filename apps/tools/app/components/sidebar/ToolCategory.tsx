@@ -5,7 +5,6 @@ import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import type { ToolCategory as ToolCategoryType } from '~/lib/toolCategories';
 import type { ToolType } from '~/stores/tool-store';
-import styles from './ToolCategory.module.scss';
 import { ToolItem } from './ToolItem';
 
 // ========================================
@@ -22,24 +21,25 @@ export function ToolCategory({ category, onToolClick, collapsed }: ToolCategoryP
   const { locale } = useParaglideI18n();
   const [isOpen, setIsOpen] = useState(true);
 
-  const chevronClasses = [styles.chevronIcon, isOpen && styles.open].filter(Boolean).join(' ');
-  const toolListClasses = [styles.toolList, !collapsed && styles.expanded]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <div className={styles.category}>
+    <div className="space-y-1">
       {/* Category Header */}
       {!collapsed && (
-        <button type="button" onClick={() => setIsOpen(!isOpen)} className={styles.categoryHeader}>
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex w-full cursor-pointer items-center justify-between rounded-md border-none bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-wide text-(--muted-foreground) transition-colors duration-150 hover:text-(--foreground) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
+        >
           <span>{category.name[locale]}</span>
-          <ChevronDown className={chevronClasses} />
+          <ChevronDown
+            className={`size-4 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
+          />
         </button>
       )}
 
       {/* Tool List */}
       {(isOpen || collapsed) && (
-        <div className={toolListClasses}>
+        <div className={`space-y-0.5 ${!collapsed ? 'pl-1' : ''}`}>
           {category.tools.map((tool) => (
             <ToolItem key={tool.id} tool={tool} onClick={onToolClick} collapsed={collapsed} />
           ))}

@@ -2,7 +2,6 @@ import { useParaglideI18n } from '@soundblue/shared-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import m from '~/lib/messages';
-import styles from './SearchBox.module.scss';
 
 type PageKey = 'home' | 'sitemap' | 'privacy' | 'terms' | 'license' | 'soundRecording';
 
@@ -112,10 +111,13 @@ export function SearchBox() {
   };
 
   return (
-    <div className={styles.container} ref={containerRef}>
-      <div className={styles.inputWrapper}>
+    <div
+      className="relative flex-1 ml-4 max-w-70 max-md:max-w-40 max-md:ml-2 max-[480px]:max-w-30"
+      ref={containerRef}
+    >
+      <div className="relative flex items-center">
         <svg
-          className={styles.searchIcon}
+          className="absolute left-2.5 w-4 h-4 text-(--color-text-tertiary) pointer-events-none"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -129,7 +131,7 @@ export function SearchBox() {
           ref={inputRef}
           type="search"
           role="combobox"
-          className={styles.input}
+          className="w-full h-9 max-md:h-10 pl-8.5 pr-8 text-base font-inherit text-(--color-text-primary) bg-(--color-bg-tertiary) border border-(--color-border-primary) rounded-xl outline-none transition-[border-color,background-color] duration-150 ease-[var(--ease-default)] placeholder:text-(--color-text-tertiary) focus:border-(--color-border-focus) focus:bg-(--color-bg-secondary) [&::-webkit-search-cancel-button]:hidden"
           placeholder={m['search.placeholder']()}
           value={query}
           onChange={(e) => {
@@ -149,17 +151,19 @@ export function SearchBox() {
           aria-autocomplete="list"
         />
         {!isFocused && !query && (
-          <span className={styles.shortcut}>{isMac ? '\u2318K' : 'Ctrl+K'}</span>
+          <span className="absolute right-2 flex items-center px-1.5 py-0.5 font-inherit text-[0.6875rem] font-medium text-(--color-text-tertiary) bg-(--color-bg-secondary) border border-(--color-border-primary) rounded pointer-events-none max-md:hidden">
+            {isMac ? '\u2318K' : 'Ctrl+K'}
+          </span>
         )}
         {query && (
           <button
             type="button"
-            className={styles.clearButton}
+            className="absolute right-1.5 flex items-center justify-center w-6 h-6 p-0 bg-transparent border-none rounded text-(--color-text-tertiary) cursor-pointer transition-all duration-150 ease-[var(--ease-default)] hover:text-(--color-text-primary) active:scale-90 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2"
             onClick={handleClear}
             aria-label={m['search.clear']()}
           >
             <svg
-              className={styles.clearIcon}
+              className="w-3.5 h-3.5"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -172,39 +176,37 @@ export function SearchBox() {
       </div>
 
       {isOpen && results.length > 0 && (
-        <div className={styles.dropdown} role="listbox">
-          {results.map((result, index) => {
-            const itemClasses = [
-              styles.resultItem,
-              index === selectedIndex && styles.resultItemSelected,
-            ]
-              .filter(Boolean)
-              .join(' ');
-
-            return (
-              <Link
-                key={result.path}
-                to={localizedPath(result.path)}
-                role="option"
-                tabIndex={0}
-                aria-selected={index === selectedIndex}
-                className={itemClasses}
-                onClick={() => setIsOpen(false)}
-              >
-                <span className={styles.resultTitle}>
-                  {m[`search_pages_${result.key}_title`]?.()}
-                </span>
-                <span className={styles.resultDesc}>
-                  {m[`search_pages_${result.key}_desc`]?.()}
-                </span>
-              </Link>
-            );
-          })}
+        <div
+          className="absolute top-[calc(100%+4px)] left-0 right-0 z-[600] max-h-75 overflow-y-auto bg-(--color-bg-secondary) border border-(--color-border-primary) rounded-xl shadow-(--shadow-lg) m-0 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--color-border-primary) [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-(--color-text-tertiary)"
+          role="listbox"
+        >
+          {results.map((result, index) => (
+            <Link
+              key={result.path}
+              to={localizedPath(result.path)}
+              role="option"
+              tabIndex={0}
+              aria-selected={index === selectedIndex}
+              className={`flex flex-col gap-0.5 py-2.5 px-3 no-underline rounded-lg transition-all duration-150 ease-[var(--ease-default)] hover:bg-(--color-interactive-hover) focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 ${
+                index === selectedIndex ? 'bg-(--color-interactive-hover)' : ''
+              }`}
+              onClick={() => setIsOpen(false)}
+            >
+              <span className="text-sm font-medium text-(--color-text-primary)">
+                {m[`search_pages_${result.key}_title`]?.()}
+              </span>
+              <span className="text-xs text-(--color-text-tertiary)">
+                {m[`search_pages_${result.key}_desc`]?.()}
+              </span>
+            </Link>
+          ))}
         </div>
       )}
 
       {isOpen && query.trim() && results.length === 0 && (
-        <div className={styles.noResults}>{m['search.noResults']()}</div>
+        <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-[600] bg-(--color-bg-secondary) border border-(--color-border-primary) rounded-xl shadow-(--shadow-lg) p-4 text-center text-sm text-(--color-text-tertiary)">
+          {m['search.noResults']()}
+        </div>
       )}
     </div>
   );

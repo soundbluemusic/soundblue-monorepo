@@ -253,6 +253,14 @@
   --animate-pulse-soft: pulseSoft 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-bounce-soft: bounceSoft 0.6s cubic-bezier(0.32, 0.72, 0, 1);
   --animate-shimmer: shimmer 2s linear infinite;
+  --animate-dialog-in: dialogIn 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-dialog-out: dialogOut 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-tooltip-fade-in: fadeIn 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-tooltip-fade-out: fadeOut 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-slide-from-top: slideFromTop 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-slide-from-bottom: slideFromBottom 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-slide-from-left: slideFromLeft 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-slide-from-right: slideFromRight 0.15s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ========================================
@@ -417,6 +425,66 @@
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+/* Dialog animations */
+@keyframes dialogIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialogOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.95);
+  }
+}
+
+/* Tooltip slide animations */
+@keyframes slideFromTop {
+  from {
+    transform: translateY(-4px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFromBottom {
+  from {
+    transform: translateY(4px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFromLeft {
+  from {
+    transform: translateX(-4px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideFromRight {
+  from {
+    transform: translateX(4px);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 

@@ -21,7 +21,6 @@ import {
   wordOrderTests,
 } from '~/tools/translator/benchmark-data';
 import { translate } from '~/tools/translator/translator-service';
-import styles from './Benchmark.module.scss';
 
 export const meta: MetaFunction = () => [
   { title: 'Benchmark | Tools' },
@@ -68,10 +67,10 @@ export default function Benchmark() {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   /**
-   * 영어 정규화 (비교용)
-   * - 소문자 변환
-   * - 관사 제거 (a, an, the)
-   * - 여러 공백 → 단일 공백
+   * Normalize English (for comparison)
+   * - Lowercase
+   * - Remove articles (a, an, the)
+   * - Multiple spaces to single space
    */
   const normalizeEnglish = (text: string): string => {
     return text
@@ -82,8 +81,8 @@ export default function Benchmark() {
   };
 
   /**
-   * 한국어 정규화 (비교용)
-   * - 조사 변형 통일 (은/는/이/가 → 가, 을/를 → 를)
+   * Normalize Korean (for comparison)
+   * - Unify particles (은/는/이/가 -> 가, 을/를 -> 를)
    */
   const normalizeKorean = (text: string): string => {
     return text
@@ -96,7 +95,7 @@ export default function Benchmark() {
   const runTest = useCallback((test: TestCase): TestResult => {
     const actual = translate(test.input, test.direction);
 
-    // 방향에 따라 적절한 정규화 적용
+    // Apply appropriate normalization based on direction
     let passed: boolean;
     if (test.direction === 'ko-en') {
       passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
@@ -248,22 +247,24 @@ export default function Benchmark() {
   };
 
   const getBadgeClass = (percentage: number) => {
-    if (percentage === 100) return styles.badgeGreen;
-    if (percentage >= 50) return styles.badgeYellow;
-    return styles.badgeRed;
+    if (percentage === 100)
+      return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+    if (percentage >= 50)
+      return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
+    return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
   };
 
   const getPercentageClass = (percentage: number) => {
-    if (percentage === 100) return styles.categoryPercentageGreen;
-    if (percentage >= 50) return styles.categoryPercentageYellow;
-    return styles.categoryPercentageRed;
+    if (percentage === 100) return 'text-green-600 dark:text-green-400';
+    if (percentage >= 50) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const renderResults = (levels: TestLevel[], results: LevelResult[], prefix: string) => {
     if (results.length === 0) return null;
 
     return (
-      <div className={styles.testList}>
+      <div className="flex flex-col gap-2">
         {levels.map((level, levelIdx) => {
           const levelResult = results[levelIdx];
           if (!levelResult) return null;
@@ -273,32 +274,34 @@ export default function Benchmark() {
           const levelPercentage = Math.round((levelResult.passed / levelResult.total) * 100);
 
           return (
-            <div key={level.id} className={styles.levelCard}>
+            <div key={level.id} className="overflow-hidden rounded-lg border border-(--border)">
               <button
                 type="button"
                 onClick={() => toggleLevel(levelId)}
-                className={styles.levelHeader}
+                className="flex w-full items-center justify-between bg-transparent p-3 text-left transition-colors duration-200 hover:bg-black/5 dark:hover:bg-white/5"
               >
-                <div className={styles.levelLeft}>
+                <div className="flex items-center gap-2">
                   {isLevelExpanded ? (
-                    <ChevronDown className={styles.chevron} />
+                    <ChevronDown className="size-4" />
                   ) : (
-                    <ChevronRight className={styles.chevron} />
+                    <ChevronRight className="size-4" />
                   )}
-                  <span className={styles.levelName}>{level.name}</span>
+                  <span className="font-medium">{level.name}</span>
                 </div>
-                <div className={styles.levelRight}>
-                  <span className={styles.levelScore}>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-(--muted-foreground)">
                     {levelResult.passed}/{levelResult.total}
                   </span>
-                  <span className={`${styles.badge} ${getBadgeClass(levelPercentage)}`}>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeClass(levelPercentage)}`}
+                  >
                     {levelPercentage}%
                   </span>
                 </div>
               </button>
 
               {isLevelExpanded && (
-                <div className={styles.categoryContent}>
+                <div className="border-t border-(--border) p-3 pt-2">
                   {level.categories.map((category, catIdx) => {
                     const catResult = levelResult.categories[catIdx];
                     if (!catResult) return null;
@@ -308,59 +311,59 @@ export default function Benchmark() {
                     const catPercentage = Math.round((catResult.passed / catResult.total) * 100);
 
                     return (
-                      <div key={category.id} className={styles.categoryItem}>
+                      <div key={category.id} className="mb-2 last:mb-0">
                         <button
                           type="button"
                           onClick={() => toggleCategory(catId)}
-                          className={styles.categoryHeader}
+                          className="flex w-full items-center justify-between rounded-md bg-transparent p-2 text-left transition-colors duration-200 hover:bg-black/5 dark:hover:bg-white/5"
                         >
-                          <div className={styles.categoryLeft}>
+                          <div className="flex items-center gap-2">
                             {isCatExpanded ? (
-                              <ChevronDown className={styles.chevronSmall} />
+                              <ChevronDown className="size-3" />
                             ) : (
-                              <ChevronRight className={styles.chevronSmall} />
+                              <ChevronRight className="size-3" />
                             )}
-                            <span className={styles.categoryName}>{category.name}</span>
+                            <span className="text-sm">{category.name}</span>
                           </div>
-                          <div className={styles.categoryRight}>
-                            <span className={styles.categoryScore}>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-(--muted-foreground)">
                               {catResult.passed}/{catResult.total}
                             </span>
-                            <span
-                              className={`${styles.categoryPercentage} ${getPercentageClass(catPercentage)}`}
-                            >
+                            <span className={`text-xs ${getPercentageClass(catPercentage)}`}>
                               {catPercentage}%
                             </span>
                           </div>
                         </button>
 
                         {isCatExpanded && (
-                          <div className={styles.resultsList}>
+                          <div className="ml-5 mt-1 flex flex-col gap-1">
                             {catResult.results.map((result) => (
                               <div
                                 key={result.id}
-                                className={`${styles.resultItem} ${result.passed ? styles.resultPassed : styles.resultFailed}`}
+                                className={`rounded-md p-2 text-xs ${
+                                  result.passed
+                                    ? 'bg-green-50 dark:bg-green-900/20'
+                                    : 'bg-red-50 dark:bg-red-900/20'
+                                }`}
                               >
-                                <div className={styles.resultContent}>
+                                <div className="flex items-start gap-2">
                                   {result.passed ? (
-                                    <CheckCircle2
-                                      className={`${styles.resultIcon} ${styles.resultIconGreen}`}
-                                    />
+                                    <CheckCircle2 className="mt-0.5 size-3 shrink-0 text-green-600 dark:text-green-400" />
                                   ) : (
-                                    <XCircle
-                                      className={`${styles.resultIcon} ${styles.resultIconRed}`}
-                                    />
+                                    <XCircle className="mt-0.5 size-3 shrink-0 text-red-600 dark:text-red-400" />
                                   )}
-                                  <div className={styles.resultBody}>
-                                    <div className={styles.resultInput}>{result.input}</div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="mb-1 break-words font-mono text-(--muted-foreground)">
+                                      {result.input}
+                                    </div>
                                     {!result.passed && (
-                                      <div className={styles.resultDetails}>
-                                        <div className={styles.resultGot}>
-                                          <span className={styles.resultLabel}>Got: </span>
+                                      <div className="flex flex-col gap-1">
+                                        <div className="break-words text-red-600 dark:text-red-400">
+                                          <span className="font-medium">Got: </span>
                                           {result.actual}
                                         </div>
-                                        <div className={styles.resultExpected}>
-                                          <span className={styles.resultLabel}>Expected: </span>
+                                        <div className="break-words text-green-600 dark:text-green-400">
+                                          <span className="font-medium">Expected: </span>
                                           {result.expected}
                                         </div>
                                       </div>
@@ -414,24 +417,29 @@ export default function Benchmark() {
   ];
 
   return (
-    <div className={styles.page}>
+    <div className="flex min-h-screen flex-col">
       <Header />
-      <main className={styles.main}>
-        <div className={styles.container}>
-          <h1 className={styles.title}>Translator Benchmark</h1>
-          <p className={styles.description}>
+      <main className="flex-1 p-4 sm:p-8">
+        <div className="mx-auto max-w-4xl">
+          <h1 className="mb-2 text-2xl font-bold sm:text-3xl">Translator Benchmark</h1>
+          <p className="mb-4 text-(--muted-foreground)">
             Test translation accuracy across {totalTestCount} test cases
           </p>
 
           {/* Algorithm Description */}
-          <div className={styles.infoBox}>
-            <p className={styles.infoText}>
-              <strong className={styles.infoStrong}>🔬 번역 알고리즘:</strong> 형태소 분석 → 문장
-              구조 파싱 (주어/목적어/서술어) → 어순 변환 (SOV↔SVO) → 목표 언어 생성
+          <div className="mb-6 rounded-lg border border-blue-500/50 bg-blue-50 p-4 dark:bg-blue-900/20">
+            <p className="mb-3 text-sm text-blue-700 last:mb-0 dark:text-blue-300">
+              <strong className="font-bold text-blue-800 dark:text-blue-200">
+                🔬 번역 알고리즘:
+              </strong>{' '}
+              형태소 분석 → 문장 구조 파싱 (주어/목적어/서술어) → 어순 변환 (SOV↔SVO) → 목표 언어
+              생성
             </p>
-            <p className={styles.infoText}>
-              <strong className={styles.infoStrong}>📋 테스트 방식:</strong> 문장 사전 없음,
-              하드코딩 없음, 패턴 매칭 없음 — 100% 알고리즘 기반 번역
+            <p className="mb-3 text-sm text-blue-700 last:mb-0 dark:text-blue-300">
+              <strong className="font-bold text-blue-800 dark:text-blue-200">
+                📋 테스트 방식:
+              </strong>{' '}
+              문장 사전 없음, 하드코딩 없음, 패턴 매칭 없음 — 100% 알고리즘 기반 번역
             </p>
           </div>
 
@@ -440,20 +448,20 @@ export default function Benchmark() {
             type="button"
             onClick={runAllTests}
             disabled={isRunning}
-            className={styles.runButton}
+            className="mb-6 flex cursor-pointer items-center gap-2 rounded-lg border-none bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Play className={styles.buttonIcon} />
+            <Play className="size-4" />
             {isRunning ? 'Running...' : 'Run All Tests'}
           </button>
 
           {/* Overall Stats */}
           {levelResults.length > 0 && (
-            <div className={styles.statsGrid}>
+            <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
               {statsData.map(({ label, stats }) => (
-                <div key={label} className={styles.statCard}>
-                  <div className={styles.statValue}>{stats.percentage}%</div>
-                  <div className={styles.statLabel}>{label}</div>
-                  <div className={styles.statDetail}>
+                <div key={label} className="rounded-lg border border-(--border) p-4 text-center">
+                  <div className="text-2xl font-bold">{stats.percentage}%</div>
+                  <div className="text-sm text-(--muted-foreground)">{label}</div>
+                  <div className="text-xs text-(--muted-foreground)">
                     {stats.passed}/{stats.total}
                   </div>
                 </div>
@@ -463,40 +471,40 @@ export default function Benchmark() {
 
           {/* Level Tests */}
           {levelResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Level Tests</h2>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Level Tests</h2>
               {renderResults(levelTests, levelResults, 'level')}
             </div>
           )}
 
           {/* Category Tests */}
           {categoryResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Category Tests</h2>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Category Tests</h2>
               {renderResults(categoryTests, categoryResults, 'category')}
             </div>
           )}
 
           {/* Context Tests */}
           {contextResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Context Tests</h2>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Context Tests</h2>
               {renderResults(contextTests, contextResults, 'context')}
             </div>
           )}
 
           {/* Typo Tests */}
           {typoResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Typo Tests (오타 테스트)</h2>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Typo Tests (오타 테스트)</h2>
               {renderResults(typoTests, typoResults, 'typo')}
             </div>
           )}
 
           {/* Unique Tests */}
           {uniqueResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
                 Unique Tests (유니크 테스트 - 100% 알고리즘 기반)
               </h2>
               {renderResults(uniqueTests, uniqueResults, 'unique')}
@@ -505,40 +513,44 @@ export default function Benchmark() {
 
           {/* Polysemy Tests */}
           {polysemyResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Polysemy Tests (다의어 테스트)</h2>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Polysemy Tests (다의어 테스트)</h2>
               {renderResults(polysemyTests, polysemyResults, 'polysemy')}
             </div>
           )}
 
           {/* Word Order Tests */}
           {wordOrderResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Word Order Tests (SVO↔SOV 어순 변환 테스트)</h2>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Word Order Tests (SVO↔SOV 어순 변환 테스트)
+              </h2>
               {renderResults(wordOrderTests, wordOrderResults, 'wordorder')}
             </div>
           )}
 
           {/* Spacing Error Tests */}
           {spacingResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Spacing Error Tests (띄어쓰기 오류 테스트)</h2>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Spacing Error Tests (띄어쓰기 오류 테스트)
+              </h2>
               {renderResults(spacingErrorTests, spacingResults, 'spacing')}
             </div>
           )}
 
           {/* Final Tests */}
           {finalResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Final Tests (최종 파이널 테스트)</h2>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">Final Tests (최종 파이널 테스트)</h2>
               {renderResults(finalTests, finalResults, 'final')}
             </div>
           )}
 
           {/* Professional Translator Tests */}
           {professionalResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
                 Professional Translator Tests (전문 번역가 테스트)
               </h2>
               {renderResults(professionalTranslatorTests, professionalResults, 'professional')}
@@ -547,16 +559,18 @@ export default function Benchmark() {
 
           {/* Localization Tests */}
           {localizationResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Localization Tests (의역/문화적 번역 테스트)</h2>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
+                Localization Tests (의역/문화적 번역 테스트)
+              </h2>
               {renderResults(localizationTests, localizationResults, 'localization')}
             </div>
           )}
 
           {/* Anti-Hardcoding Tests */}
           {antiHardcodingResults.length > 0 && (
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
+            <div className="mb-6">
+              <h2 className="mb-3 text-lg font-semibold">
                 Anti-Hardcoding Tests (안티하드코딩 알고리즘 테스트)
               </h2>
               {renderResults(antiHardcodingTests, antiHardcodingResults, 'antihardcoding')}
@@ -565,7 +579,9 @@ export default function Benchmark() {
 
           {/* Initial State */}
           {levelResults.length === 0 && !isRunning && (
-            <div className={styles.emptyState}>Click "Run All Tests" to start the benchmark</div>
+            <div className="rounded-lg border border-dashed border-(--border) p-8 text-center text-(--muted-foreground)">
+              Click "Run All Tests" to start the benchmark
+            </div>
           )}
         </div>
       </main>

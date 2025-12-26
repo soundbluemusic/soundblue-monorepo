@@ -4,8 +4,6 @@
  * A simple footer component.
  */
 
-import styles from './Footer.module.scss';
-
 interface FooterProps {
   appName?: string;
   brandName?: string;
@@ -21,17 +19,24 @@ export function Footer({
   tagline,
   className = '',
 }: FooterProps) {
-  const footerClass = className ? `${styles.footer} ${className}` : styles.footer;
+  const footerClass = className
+    ? `border-t border-(--border) bg-(--background) px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] ${className}`
+    : 'border-t border-(--border) bg-(--background) px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]';
 
   return (
     <footer className={footerClass}>
       {/* Tagline */}
-      {tagline && <p className={styles.tagline}>{tagline}</p>}
+      {tagline && <p className="text-center text-xs text-(--muted-foreground) mb-1">{tagline}</p>}
 
       {/* App name and brand */}
-      <p className={styles.credit}>
+      <p className="text-center text-xs text-(--muted-foreground)">
         {appName} by{' '}
-        <a href={brandUrl} target="_blank" rel="noopener noreferrer" className={styles.brandLink}>
+        <a
+          href={brandUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-(--primary) no-underline transition-all duration-200 hover:underline hover:opacity-80"
+        >
           {brandName}
         </a>
       </p>

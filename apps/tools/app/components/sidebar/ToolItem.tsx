@@ -3,7 +3,6 @@
 import { useParaglideI18n } from '@soundblue/shared-react';
 import type { ToolInfo } from '~/lib/toolCategories';
 import { type ToolType, useToolStore } from '~/stores/tool-store';
-import styles from './ToolItem.module.scss';
 
 // ========================================
 // ToolItem Component - 개별 도구 아이템
@@ -20,21 +19,21 @@ export function ToolItem({ tool, onClick, collapsed }: ToolItemProps) {
   const currentTool = useToolStore((state) => state.currentTool);
   const isActive = currentTool === tool.id;
 
-  const buttonClasses = [styles.toolItem, isActive && styles.active, collapsed && styles.collapsed]
-    .filter(Boolean)
-    .join(' ');
-
   return (
     <button
       type="button"
       onClick={() => onClick(tool.id)}
-      className={buttonClasses}
+      className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-none bg-transparent text-sm transition-all duration-200 ease-out hover:bg-black/8 hover:text-(--foreground) active:scale-98 active:bg-black/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary) dark:hover:bg-white/12 dark:active:bg-white/18 ${
+        isActive
+          ? 'bg-(color-mix(in_srgb,var(--brand)_15%,transparent)) text-(--brand) font-medium shadow-sm'
+          : ''
+      } ${collapsed ? 'justify-center p-2' : 'px-3 py-2'}`}
       title={collapsed ? tool.name[locale] : undefined}
     >
-      <span className={styles.toolIcon} aria-hidden="true">
+      <span className="text-lg" aria-hidden="true">
         {tool.icon}
       </span>
-      {!collapsed && <span className={styles.toolName}>{tool.name[locale]}</span>}
+      {!collapsed && <span className="truncate">{tool.name[locale]}</span>}
     </button>
   );
 }

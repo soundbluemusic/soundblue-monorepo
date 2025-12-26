@@ -19,7 +19,6 @@ import {
 import { defaultMetronomeSettings, type MetronomeSettings } from '~/tools/metronome/settings';
 import { defaultQRSettings, type QRSettings } from '~/tools/qr-generator/settings';
 import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator/settings';
-import styles from './ToolContainer.module.scss';
 
 // Lazy load tool components for code splitting
 const LazyMetronome = lazy(() =>
@@ -38,8 +37,8 @@ const LazyTranslator = lazy(() =>
 // Loading fallback component
 function ToolLoading() {
   return (
-    <div className={styles.loadingWrapper}>
-      <Loader2 className={styles.loadingIcon} />
+    <div className="flex h-full items-center justify-center">
+      <Loader2 className="size-8 animate-spin text-(--primary)" />
     </div>
   );
 }
@@ -319,26 +318,22 @@ export function ToolContainer() {
     }
   };
 
-  const shareButtonClasses = [styles.iconButton, urlCopied && styles.copied]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <div className={styles.container}>
+    <div className="flex h-full flex-col bg-(--background)">
       {/* WorldClockWidget shown only on desktop (md+) when no tool selected */}
       {!currentTool ? (
-        <div className={styles.emptyState}>
+        <div className="hidden h-full md:block">
           <WorldClockWidget />
         </div>
       ) : (
         <>
           {/* Tool Header */}
-          <div className={styles.header}>
-            <div className={styles.headerLeft}>
-              <span className={styles.toolIcon}>{toolInfo?.icon}</span>
-              <h2 className={styles.toolTitle}>{toolInfo?.name[locale]}</h2>
+          <div className="flex items-center justify-between border-b border-(--border) px-4 py-2">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{toolInfo?.icon}</span>
+              <h2 className="text-sm font-semibold">{toolInfo?.name[locale]}</h2>
             </div>
-            <div className={styles.headerRight}>
+            <div className="flex items-center gap-1">
               {/* Share URL Button */}
               <TooltipProvider>
                 <Tooltip>
@@ -346,10 +341,12 @@ export function ToolContainer() {
                     <button
                       type="button"
                       onClick={copyShareUrl}
-                      className={shareButtonClasses}
+                      className={`cursor-pointer rounded-xl border-none bg-transparent p-1.5 text-inherit transition-all duration-200 ease-out hover:bg-(color-mix(in_srgb,var(--primary)_10%,transparent)) hover:text-(--primary) active:bg-(color-mix(in_srgb,var(--primary)_20%,transparent)) ${
+                        urlCopied ? 'text-(--color-success)' : ''
+                      }`}
                       aria-label={m['tools.shareUrl']?.()}
                     >
-                      <Link2 className={styles.buttonIcon} />
+                      <Link2 className="size-4" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -361,16 +358,16 @@ export function ToolContainer() {
               <button
                 type="button"
                 onClick={handleClose}
-                className={styles.closeButton}
+                className="cursor-pointer rounded-xl border-none bg-transparent p-1.5 text-inherit transition-all duration-200 ease-out hover:bg-(color-mix(in_srgb,var(--destructive)_25%,transparent)) hover:text-(--destructive) active:bg-(color-mix(in_srgb,var(--destructive)_35%,transparent))"
                 aria-label={m['tools.closeTool']?.()}
               >
-                <X className={styles.buttonIcon} />
+                <X className="size-4" />
               </button>
             </div>
           </div>
 
           {/* Tool Content */}
-          <div ref={containerRef} className={styles.content}>
+          <div ref={containerRef} className="flex-1 overflow-auto">
             <Suspense fallback={<ToolLoading />}>{renderToolContent()}</Suspense>
           </div>
         </>

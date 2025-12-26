@@ -2,7 +2,6 @@ import { useParaglideI18n } from '@soundblue/shared-react';
 import { Link, useLocation } from 'react-router';
 import { EXTERNAL_NAV_ITEMS, isNavActive, NAV_ITEMS } from '~/constants';
 import m from '~/lib/messages';
-import styles from './Sidebar.module.scss';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,50 +11,59 @@ export function Sidebar({ isOpen }: SidebarProps) {
   const { localizedPath } = useParaglideI18n();
   const location = useLocation();
 
-  const sidebarClasses = [
-    'view-transition-sidebar',
-    styles.sidebar,
-    isOpen ? styles.sidebarOpen : styles.sidebarClosed,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <aside className={sidebarClasses}>
-      <nav className={styles.nav} aria-label="Main navigation">
-        <ul className={styles.navList}>
+    <aside
+      className={`view-transition-sidebar fixed top-(--header-height) left-0 bottom-0 w-(--sidebar-width) bg-(--color-bg-secondary) border-r border-(--color-border-primary) overflow-y-auto overflow-x-hidden z-50 transition-transform duration-150 ease-(--ease-default) max-md:hidden scrollbar-thin scrollbar-thumb-(--color-border-primary) scrollbar-track-transparent ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
+      <nav className="py-4" aria-label="Main navigation">
+        <ul className="list-none m-0 p-0">
           {NAV_ITEMS.map((item) => {
             const isActive = isNavActive(item.path, location.pathname, localizedPath);
-            const linkClasses = [styles.navLink, isActive && styles.navLinkActive]
-              .filter(Boolean)
-              .join(' ');
 
             return (
-              <li key={item.path} className={styles.navItem}>
-                <Link to={localizedPath(item.path)} prefetch="intent" className={linkClasses}>
-                  <span className={styles.iconWrapper}>{item.icon()}</span>
-                  <span className={styles.label}>{m[`nav_${item.labelKey}`]?.()}</span>
+              <li key={item.path} className="mb-1 px-3">
+                <Link
+                  to={localizedPath(item.path)}
+                  prefetch="intent"
+                  className={`flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-medium no-underline transition-all duration-150 ease-(--ease-default) focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 ${
+                    isActive
+                      ? 'bg-(--color-accent-light) text-(--color-accent-primary)'
+                      : 'text-(--color-text-secondary) hover:bg-(--color-interactive-hover) hover:text-(--color-text-primary)'
+                  }`}
+                >
+                  <span className="flex items-center justify-center w-5 h-5 shrink-0 [&>svg]:w-full [&>svg]:h-full">
+                    {item.icon()}
+                  </span>
+                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                    {m[`nav_${item.labelKey}`]?.()}
+                  </span>
                 </Link>
               </li>
             );
           })}
 
           {/* Divider */}
-          <li className={styles.divider} aria-hidden="true">
-            <div className={styles.dividerLine} />
+          <li className="mx-3 my-2" aria-hidden="true">
+            <div className="h-px bg-(--color-border-primary)" />
           </li>
 
           {/* External Links Section */}
           {EXTERNAL_NAV_ITEMS.map((item) => (
-            <li key={item.url} className={styles.navItem}>
+            <li key={item.url} className="mb-1 px-3">
               <a
                 href={item.url}
-                className={styles.navLink}
+                className="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-medium no-underline text-(--color-text-secondary) transition-all duration-150 ease-(--ease-default) hover:bg-(--color-interactive-hover) hover:text-(--color-text-primary) focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className={styles.iconWrapper}>{item.icon()}</span>
-                <span className={styles.label}>{m[`externalLinks_${item.labelKey}`]?.()}</span>
+                <span className="flex items-center justify-center w-5 h-5 shrink-0 [&>svg]:w-full [&>svg]:h-full">
+                  {item.icon()}
+                </span>
+                <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                  {m[`externalLinks_${item.labelKey}`]?.()}
+                </span>
               </a>
             </li>
           ))}

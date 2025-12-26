@@ -6,7 +6,6 @@ import {
   type TranslationDirection,
   type TranslatorSettings,
 } from './settings';
-import styles from './Translator.module.scss';
 import { translate } from './translator-service';
 import { createShareUrl, getSharedDataFromCurrentUrl, getTextLengthWarning } from './url-sharing';
 
@@ -177,30 +176,31 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
   const targetLabel = settings.direction === 'ko-en' ? 'English' : '한국어';
 
   const getShareButtonClass = () => {
-    const base = styles.shareButton;
-    if (shareStatus === 'copied') return `${base} ${styles.shareCopied}`;
-    if (shareStatus === 'error') return `${base} ${styles.shareError}`;
-    return `${base} ${styles.shareIdle}`;
+    const base =
+      'inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs bg-transparent border-none cursor-pointer transition-colors duration-200 hover:bg-black/[0.08] dark:hover:bg-white/[0.12] disabled:opacity-50 disabled:cursor-not-allowed';
+    if (shareStatus === 'copied') return `${base} text-green-600 dark:text-green-400`;
+    if (shareStatus === 'error') return `${base} text-red-600 dark:text-red-400`;
+    return `${base} text-(--muted-foreground) hover:text-(--foreground)`;
   };
 
   return (
-    <div className={styles.container}>
+    <div className="flex h-full flex-col gap-3 overflow-auto p-3 sm:p-4">
       {/* Header with direction toggle */}
-      <div className={styles.directionHeader}>
-        <span className={`${styles.langLabel} ${styles.source}`}>{sourceLabel}</span>
+      <div className="flex items-center justify-center gap-3">
+        <span className="min-w-[3.75rem] text-right text-sm font-medium">{sourceLabel}</span>
         <button
           type="button"
           onClick={toggleDirection}
-          className={styles.toggleButton}
+          className="inline-flex size-9 items-center justify-center rounded-lg border border-(--border) bg-transparent transition-all duration-200 hover:scale-105 hover:bg-black/[0.08] active:scale-95 dark:hover:bg-white/[0.12]"
           title="Switch direction"
         >
-          <ArrowLeftRight className={styles.toggleIcon} />
+          <ArrowLeftRight className="size-4" />
         </button>
-        <span className={styles.langLabel}>{targetLabel}</span>
+        <span className="min-w-[3.75rem] text-sm font-medium">{targetLabel}</span>
       </div>
 
       {/* Input area */}
-      <div className={styles.textAreaWrapper}>
+      <div className="min-h-[7.5rem] flex-1">
         <textarea
           value={inputText}
           onChange={(e) => setInputText(e.currentTarget.value)}
@@ -209,35 +209,41 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
               ? '번역할 텍스트를 입력하세요...'
               : 'Enter text to translate...'
           }
-          className={styles.inputTextarea}
+          className="size-full resize-none rounded-xl border border-(--border) bg-(--background) p-3 text-sm transition-[border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
         />
       </div>
 
       {/* Output area */}
-      <div className={styles.outputWrapper}>
-        <div className={styles.outputDisplay}>{outputText}</div>
+      <div className="relative min-h-[7.5rem] flex-1">
+        <div className="size-full overflow-auto rounded-xl border border-(--border) bg-black/[0.03] p-3 text-sm dark:bg-white/[0.03]">
+          {outputText}
+        </div>
 
         {/* Copy button */}
         {outputText && (
           <button
             type="button"
             onClick={copyToClipboard}
-            className={styles.copyButton}
+            className="absolute right-2 top-2 inline-flex size-8 items-center justify-center rounded-lg border border-(--border) bg-white/80 backdrop-blur-sm transition-colors duration-200 hover:bg-black/[0.08] dark:bg-black/80 dark:hover:bg-white/[0.12]"
             title={m['common.copy']?.()}
           >
             {isCopied ? (
-              <Check className={`${styles.copyIcon} ${styles.copyIconSuccess}`} />
+              <Check className="size-3.5 text-green-500" />
             ) : (
-              <Copy className={styles.copyIcon} />
+              <Copy className="size-3.5" />
             )}
           </button>
         )}
       </div>
 
       {/* Footer */}
-      <div className={styles.footer}>
-        <button type="button" onClick={clearAll} className={styles.clearButton}>
-          <Trash2 className={styles.clearIcon} />
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={clearAll}
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-transparent px-3 text-xs text-(--muted-foreground) transition-colors duration-200 hover:bg-black/[0.08] hover:text-(--foreground) dark:hover:bg-white/[0.12]"
+        >
+          <Trash2 className="size-3.5" />
           <span>{settings.direction === 'ko-en' ? '지우기' : 'Clear'}</span>
         </button>
 
@@ -257,24 +263,24 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
         >
           {shareStatus === 'copied' ? (
             <>
-              <Check className={styles.shareIcon} />
+              <Check className="size-3.5" />
               <span>{m['tools.urlCopied']?.()}</span>
             </>
           ) : shareStatus === 'error' ? (
             <>
-              <X className={styles.shareIcon} />
+              <X className="size-3.5" />
               <span>{settings.direction === 'ko-en' ? '너무 깁니다' : 'Too long'}</span>
             </>
           ) : (
             <>
-              <Share2 className={styles.shareIcon} />
+              <Share2 className="size-3.5" />
               <span>{settings.direction === 'ko-en' ? '공유' : 'Share'}</span>
             </>
           )}
         </button>
 
-        <div className={styles.algorithmBadge}>
-          <div className={styles.algorithmDot} />
+        <div className="flex items-center gap-1.5 text-xs text-(--muted-foreground)">
+          <div className="size-2 rounded-full bg-blue-500" />
           <span>
             {settings.direction === 'ko-en' ? '알고리즘 번역' : 'Algorithm-based Translation'}
           </span>

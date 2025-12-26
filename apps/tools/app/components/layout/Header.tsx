@@ -6,7 +6,6 @@ import { Link, useLocation } from 'react-router';
 import { Button } from '~/components/ui/button';
 import m from '~/lib/messages';
 import { useToolStore } from '~/stores/tool-store';
-import styles from './Header.module.scss';
 
 function getPathWithoutLocale(pathname: string): string {
   if (pathname.startsWith('/ko/')) {
@@ -36,41 +35,57 @@ export function Header() {
   };
 
   return (
-    <header className={styles.header}>
+    <header className="relative z-30 flex h-14 items-center justify-between border-b border-(--border) bg-(--background) px-4 pt-[env(safe-area-inset-top)]">
       {/* Left: Mobile menu + Logo */}
-      <div className={styles.leftSection}>
+      <div className="flex items-center gap-3">
         {/* Mobile menu toggle - only show on main pages */}
         {!isSecondaryPage && (
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleMobileSidebar}
-            className={styles.mobileMenuButton}
+            className="text-(--muted-foreground) hover:text-(--foreground) md:hidden"
             aria-label={m['common_menu']?.()}
           >
-            <Menu className={styles.iconMd} />
+            <Menu className="h-5 w-5 shrink-0" />
           </Button>
         )}
 
         {/* Logo with page title */}
-        <Link to={homePath} className={styles.logoLink}>
+        <Link
+          to={homePath}
+          className="text-lg font-semibold tracking-tight text-(--brand) transition-all duration-200 no-underline rounded-sm hover:opacity-80 active:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
+        >
           {m['brand']?.()}
-          {isBuiltWithPage && <span className={styles.pageTitle}> - Built With</span>}
-          {isAboutPage && <span className={styles.pageTitle}> - {m['navigation_about']?.()}</span>}
+          {isBuiltWithPage && (
+            <span className="text-(--muted-foreground) font-normal"> - Built With</span>
+          )}
+          {isAboutPage && (
+            <span className="text-(--muted-foreground) font-normal">
+              {' '}
+              - {m['navigation_about']?.()}
+            </span>
+          )}
         </Link>
       </div>
 
       {/* Right: Controls */}
-      <div className={styles.rightSection}>
+      <div className="flex items-center gap-1">
         {/* Navigation Link - contextual */}
         {isSecondaryPage ? (
-          <Link to={homePath} className={styles.navLink}>
-            <Home className={styles.icon} />
+          <Link
+            to={homePath}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-(--muted-foreground) no-underline transition-all duration-200 hover:text-(--foreground) hover:bg-black/8 dark:hover:bg-white/12"
+          >
+            <Home className="h-4 w-4 shrink-0" />
             <span>{m['navigation_home']?.()}</span>
           </Link>
         ) : (
-          <Link to={builtWithPath} className={styles.navLink}>
-            <Code2 className={styles.icon} />
+          <Link
+            to={builtWithPath}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-(--muted-foreground) no-underline transition-all duration-200 hover:text-(--foreground) hover:bg-black/8 dark:hover:bg-white/12"
+          >
+            <Code2 className="h-4 w-4 shrink-0" />
             <span>Built With</span>
           </Link>
         )}
@@ -81,10 +96,10 @@ export function Header() {
           size="icon"
           onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
           aria-label={resolvedTheme === 'dark' ? m['theme_light']?.() : m['theme_dark']?.()}
-          className={styles.themeButton}
+          className="relative text-(--muted-foreground) hover:text-(--foreground)"
         >
-          <Sun className={styles.sunIcon} />
-          <Moon className={styles.moonIcon} />
+          <Sun className="h-[1.125rem] w-[1.125rem] rotate-0 scale-100 transition-all duration-200 dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-[1.125rem] w-[1.125rem] rotate-90 scale-0 transition-all duration-200 dark:rotate-0 dark:scale-100" />
         </Button>
 
         {/* Language Toggle */}
@@ -92,11 +107,11 @@ export function Header() {
           variant="ghost"
           size="sm"
           onClick={toggleLanguage}
-          className={styles.langButton}
+          className="flex items-center gap-1.5 px-3 text-(--muted-foreground) hover:text-(--foreground)"
           aria-label={locale === 'ko' ? 'Switch to English' : '한국어로 전환'}
         >
-          <Globe className={styles.icon} />
-          <span className={styles.langText}>{locale === 'ko' ? 'KO' : 'EN'}</span>
+          <Globe className="h-4 w-4 shrink-0" />
+          <span className="text-xs font-semibold">{locale === 'ko' ? 'KO' : 'EN'}</span>
         </Button>
       </div>
     </header>
