@@ -220,14 +220,6 @@ function hasFinalConsonant(word: string): boolean {
 }
 
 /**
- * 주격 조사 선택 (이/가)
- * @remarks 현재 미사용이나 향후 주격 처리에 필요
- */
-function _selectSubjectParticle(word: string): string {
-  return hasFinalConsonant(word) ? '이' : '가';
-}
-
-/**
  * 주제 조사 선택 (은/는)
  */
 function selectTopicParticle(word: string): string {

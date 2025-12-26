@@ -1353,9 +1353,6 @@ const KOREAN_TIME_PERIODS: Record<string, string> = {
   밤: 'night', // at night
 };
 
-// at 사용 시간 표현
-const _AT_TIME_EXPRESSIONS = new Set(['정오', '자정', 'noon', 'midnight']);
-
 // ===== Level 12: 의문사 매핑 =====
 const QUESTION_WORDS_KO_TO_EN: Record<string, string> = {
   누구: 'Who',
@@ -3184,34 +3181,6 @@ const FEMALE_NAME_ENDINGS = [
 const MALE_NAME_ENDINGS = ['수', '호', '준', '민', '진', '석', '우', '현', '기', '훈', '철'];
 
 /**
- * 한국어 이름의 성별 추정 (휴리스틱)
- * 마지막 글자 기반으로 성별 추정
- */
-function _guessGenderFromKoreanName(name: string): 'male' | 'female' | 'unknown' {
-  if (name.length < 2) return 'unknown';
-  const lastChar = name[name.length - 1];
-
-  // 여성 이름 끝글자 (우선순위 높음)
-  if (FEMALE_NAME_ENDINGS.includes(lastChar) && !MALE_NAME_ENDINGS.includes(lastChar)) {
-    return 'female';
-  }
-  // 남성 이름 끝글자
-  if (MALE_NAME_ENDINGS.includes(lastChar) && !FEMALE_NAME_ENDINGS.includes(lastChar)) {
-    return 'male';
-  }
-  // 모호한 경우 (철수의 '수', 영희의 '희' 등)
-  // 특정 이름 패턴 확인
-  if (name.endsWith('철수') || name.endsWith('민수') || name.endsWith('준호')) {
-    return 'male';
-  }
-  if (name.endsWith('영희') || name.endsWith('지은') || name.endsWith('수지')) {
-    return 'female';
-  }
-
-  return 'unknown';
-}
-
-/**
  * Level 15: 대명사 자동 결정 (ko→en)
  * "철수는 사과를 샀다. 그것은 빨갛다." → "Chulsoo bought an apple. It is red."
  * "영희는 학교에 갔다. 그녀는 학생이다." → "Younghee went to school. She is a student."
@@ -3492,12 +3461,6 @@ function handleSubjectRecoveryEnKo(text: string): string | null {
 // ========================================
 // Level 17: 동명사/to부정사 선택
 // ========================================
-
-// 동명사를 취하는 동사
-const _GERUND_VERBS = ['enjoy', 'stop', 'finish', 'keep', 'avoid', 'mind', 'consider'];
-
-// to부정사를 취하는 동사
-const _INFINITIVE_VERBS = ['want', 'need', 'hope', 'decide', 'plan', 'promise', 'refuse'];
 
 /**
  * Level 17: 동명사/to부정사 선택 (ko→en)
@@ -4000,33 +3963,6 @@ function handleComplexSentenceEnKo(text: string): string | null {
 
   return null;
 }
-
-// 중의어 문맥 규칙 (동사/형용사에 따른 의미 결정)
-const _POLYSEMY_RULES: Record<string, Record<string, string>> = {
-  배: {
-    타고: 'ship', // 배를 타고 → ride a ship
-    타: 'ship',
-    고프: 'stomach', // 배가 고프다 → I am hungry
-    고파: 'stomach',
-    아프: 'stomach', // 배가 아프다 → my stomach hurts
-    먹: 'pear', // 배를 먹다 → eat a pear
-    먹고: 'pear',
-  },
-  눈: {
-    오: 'snow', // 눈이 오다 → it's snowing
-    와: 'snow',
-    내리: 'snow',
-    아프: 'eye', // 눈이 아프다 → my eyes hurt
-    아파: 'eye',
-    감: 'eye', // 눈을 감다 → close eyes
-  },
-  차: {
-    마시: 'tea', // 차를 마시다 → drink tea
-    마셔: 'tea',
-    타: 'car', // 차를 타다 → ride a car
-    타고: 'car',
-  },
-};
 
 /**
  * Level 20: 중의적 표현 해소
@@ -5185,38 +5121,6 @@ function translateWithGrammarAnalysisResult(
 }
 
 /**
- * 고급 문법 분석 기반 번역
- * 문장 구조 분석 → 어순 변환 → 영어 생성
- * @param text 번역할 한국어 텍스트
- * @param isQuestion 의문문 여부 (외부에서 전달)
- */
-function _translateWithGrammarAnalysis(text: string, isQuestion: boolean = false): string {
-  try {
-    // 1. 문장 구조 분석
-    const parsed = parseSentence(text);
-
-    // 외부에서 전달된 isQuestion 값 반영 (? 가 이미 제거된 경우를 위함)
-    if (isQuestion) {
-      parsed.isQuestion = true;
-      parsed.sentenceType = 'interrogative';
-    }
-
-    // 2. 영어 문장 생성 (어순 변환 포함)
-    const { translation } = generateEnglish(parsed);
-
-    // 결과가 원본과 같거나 너무 짧으면 기존 방식으로 fallback
-    if (translation === text || translation.length < 2) {
-      return decomposeAndTranslateKoWithNlp(text);
-    }
-
-    return translation;
-  } catch {
-    // 오류 발생 시 기존 방식으로 fallback
-    return decomposeAndTranslateKoWithNlp(text);
-  }
-}
-
-/**
  * NLP 기반 한→영 번역 (연어, WSD, 주제 탐지 적용)
  */
 function decomposeAndTranslateKoWithNlp(text: string): string {
@@ -5731,34 +5635,6 @@ function getPrepositionForParticle(particle: string): string {
     같이: 'like',
   };
   return particlePrepositions[particle] || '';
-}
-
-/**
- * 간단한 조사 분리
- */
-function _tryExtractParticleSimple(word: string): { stem: string; particle: string } | null {
-  for (const p of particleList) {
-    if (word.endsWith(p) && word.length > p.length) {
-      const stem = word.slice(0, -p.length);
-      const lastChar = stem[stem.length - 1];
-      if (stem && lastChar && isHangul(lastChar)) {
-        return { stem, particle: p };
-      }
-    }
-  }
-  return null;
-}
-
-/**
- * 간단한 어미 분리
- */
-function _tryExtractEndingSimple(word: string): { stem: string; ending: string } | null {
-  for (const e of endingList) {
-    if (word.endsWith(e) && word.length > e.length) {
-      return { stem: word.slice(0, -e.length), ending: e };
-    }
-  }
-  return null;
 }
 
 /**

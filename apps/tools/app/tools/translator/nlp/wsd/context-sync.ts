@@ -190,7 +190,7 @@ export async function fetchContextData(
   // 빌드 시점에만 실행되는 함수
   // 실제 구현은 빌드 스크립트에서 수행
 
-  console.log('Fetching context data from:', source.baseUrl);
+  if (import.meta.env.DEV) console.log('Fetching context data from:', source.baseUrl);
 
   // 이 함수는 빌드 스크립트에서 구현됨
   // 여기서는 타입 정의만 제공

@@ -22,6 +22,17 @@ export interface TranslationOptions {
   useExceptions?: boolean;
 }
 
+/**
+ * 예외 사전에서 처리된 결과 타입
+ * - proper-noun: 고유명사 (번역하지 않음)
+ * - idiom: 관용구 (통째로 번역)
+ * - loanword: 외래어 (지정된 표기 사용)
+ * - irregular: 불규칙 활용
+ */
+export interface ExceptionResult {
+  exceptionType: 'proper-noun' | 'idiom' | 'loanword' | 'irregular';
+}
+
 export interface TranslationResult {
   /** 번역된 텍스트 */
   translated: string;
@@ -30,7 +41,7 @@ export interface TranslationResult {
   /** 번역 방향 */
   direction: TranslationDirection;
   /** 상세 정보 (detailed: true일 때만) */
-  details?: KoToEnResult | EnToKoResult;
+  details?: KoToEnResult | EnToKoResult | ExceptionResult;
 }
 
 /**
@@ -62,8 +73,7 @@ export function translate(
           translated: properNoun.english,
           original: text,
           direction,
-          // biome-ignore lint/suspicious/noExplicitAny: Exception types not fully typed yet
-          details: { exceptionType: 'proper-noun' } as any,
+          details: { exceptionType: 'proper-noun' },
         };
       }
       if (direction === 'en-ko' && properNoun.korean) {
@@ -71,8 +81,7 @@ export function translate(
           translated: properNoun.korean,
           original: text,
           direction,
-          // biome-ignore lint/suspicious/noExplicitAny: Exception types not fully typed yet
-          details: { exceptionType: 'proper-noun' } as any,
+          details: { exceptionType: 'proper-noun' },
         };
       }
     }
@@ -85,8 +94,7 @@ export function translate(
         translated: idiom.translation,
         original: text,
         direction,
-        // biome-ignore lint/suspicious/noExplicitAny: Exception types not fully typed yet
-        details: { exceptionType: 'idiom' } as any,
+        details: { exceptionType: 'idiom' },
       };
     }
 
@@ -98,8 +106,7 @@ export function translate(
           translated: loanword.korean,
           original: text,
           direction,
-          // biome-ignore lint/suspicious/noExplicitAny: Exception types not fully typed yet
-          details: { exceptionType: 'loanword' } as any,
+          details: { exceptionType: 'loanword' },
         };
       }
     }
@@ -112,8 +119,7 @@ export function translate(
           translated: irregular,
           original: text,
           direction,
-          // biome-ignore lint/suspicious/noExplicitAny: Exception types not fully typed yet
-          details: { exceptionType: 'irregular' } as any,
+          details: { exceptionType: 'irregular' },
         };
       }
     } else {
@@ -123,8 +129,7 @@ export function translate(
           translated: irregular,
           original: text,
           direction,
-          // biome-ignore lint/suspicious/noExplicitAny: Exception types not fully typed yet
-          details: { exceptionType: 'irregular' } as any,
+          details: { exceptionType: 'irregular' },
         };
       }
     }

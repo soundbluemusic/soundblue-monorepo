@@ -19,9 +19,6 @@ export interface Jamo {
   jong: string; // 종성 (없으면 빈 문자열)
 }
 
-// 유니코드 상수 (호환성)
-const _HANGUL_START = HANGUL_BASE;
-
 // Export constants for backward compatibility
 export { CHO_LIST, DOUBLE_JONG, JONG_LIST, JUNG_LIST };
 

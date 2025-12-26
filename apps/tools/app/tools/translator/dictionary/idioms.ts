@@ -658,7 +658,6 @@ for (const idiom of idioms) {
   }
 }
 const sortedPatterns = allPatterns.sort((a, b) => b.pattern.length - a.pattern.length);
-const _sortedIdioms = [...idioms].sort((a, b) => b.ko.length - a.ko.length);
 
 // 정규화 함수 (공백 제거 등)
 function normalizeForMatching(text: string): string {

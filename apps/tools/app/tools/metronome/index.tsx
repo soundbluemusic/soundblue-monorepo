@@ -89,7 +89,7 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
         osc.start(time);
         osc.stop(time + TIMING.CLICK_DURATION_SECONDS);
       } catch (e) {
-        console.error('[Metronome] Audio playback failed:', e);
+        if (import.meta.env.DEV) console.error('[Metronome] Audio playback failed:', e);
       }
     },
     [settings.volume],
@@ -129,7 +129,7 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
         schedulerBeatRef.current = 0;
         setIsPlaying(true);
       } catch (e) {
-        console.error('[Metronome] Failed to start audio:', e);
+        if (import.meta.env.DEV) console.error('[Metronome] Failed to start audio:', e);
       }
     }
   }, [isPlaying, handleStop, settings.timerMinutes, settings.timerSeconds]);
@@ -166,7 +166,7 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
 
         animationIdRef.current = requestAnimationFrame(animate);
       } catch (e) {
-        console.error('[Metronome] Animation error:', e);
+        if (import.meta.env.DEV) console.error('[Metronome] Animation error:', e);
         handleStop();
       }
     };
@@ -195,7 +195,7 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
           schedulerBeatRef.current = (schedulerBeatRef.current + 1) % settings.beatsPerMeasure;
         }
       } catch (e) {
-        console.error('[Metronome] Scheduler error:', e);
+        if (import.meta.env.DEV) console.error('[Metronome] Scheduler error:', e);
       }
     };
 

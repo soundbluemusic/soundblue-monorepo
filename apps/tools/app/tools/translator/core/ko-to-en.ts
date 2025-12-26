@@ -22,7 +22,7 @@
 // ╚══════════════════════════════════════════════════════════════════╝
 //
 
-import { getEnglishTense, matchEnding } from '../dictionary/endings';
+import { type EndingPattern, getEnglishTense, matchEnding } from '../dictionary/endings';
 import { conjugateEnglishVerb } from '../dictionary/english-verbs';
 import { isAdjective, translateStemKoToEn } from '../dictionary/stems';
 import { koToEnWords } from '../dictionary/words';
@@ -164,6 +164,13 @@ const KOREAN_ENDINGS: Record<string, { tense: string; form: string }> = {
   // 2글자 어미
   다: { tense: 'present', form: 'declarative' },
 };
+
+// 사전 정렬된 배열 (길이순 내림차순) - 함수 호출마다 정렬하지 않도록 캐싱
+const SORTED_CONNECTIVES = Object.entries(KOREAN_CONNECTIVES).sort(
+  (a, b) => b[0].length - a[0].length,
+);
+const SORTED_MODIFIERS = Object.entries(KOREAN_MODIFIERS).sort((a, b) => b[0].length - a[0].length);
+const SORTED_ENDINGS = Object.entries(KOREAN_ENDINGS).sort((a, b) => b[0].length - a[0].length);
 
 // 이동 동사 (to 전치사 사용)
 const MOVEMENT_VERBS = new Set([
@@ -506,11 +513,8 @@ function analyzeAndTranslateToken(token: string): {
     };
   }
 
-  // 3. 연결어미 체크 (복합문) - 긴 것부터 매칭
-  const sortedConnectives = Object.entries(KOREAN_CONNECTIVES).sort(
-    (a, b) => b[0].length - a[0].length,
-  );
-  for (const [conn, info] of sortedConnectives) {
+  // 3. 연결어미 체크 (복합문) - 사전 정렬된 배열 사용
+  for (const [conn, info] of SORTED_CONNECTIVES) {
     if (word.endsWith(conn)) {
       word = word.slice(0, -conn.length);
       connective = info.en;
@@ -523,12 +527,9 @@ function analyzeAndTranslateToken(token: string): {
     }
   }
 
-  // 4. 관형형 어미 체크 (수식어) - 긴 것부터 매칭
+  // 4. 관형형 어미 체크 (수식어) - 사전 정렬된 배열 사용
   if (role === 'unknown') {
-    const sortedModifiers = Object.entries(KOREAN_MODIFIERS).sort(
-      (a, b) => b[0].length - a[0].length,
-    );
-    for (const [mod, info] of sortedModifiers) {
+    for (const [mod, info] of SORTED_MODIFIERS) {
       if (word.endsWith(mod)) {
         word = word.slice(0, -mod.length);
         isModifier = true;
@@ -541,7 +542,7 @@ function analyzeAndTranslateToken(token: string): {
 
   // 5. 부사형 어미 체크
   if (role === 'unknown') {
-    for (const [adv, _info] of Object.entries(KOREAN_ADVERBIAL_ENDINGS)) {
+    for (const [adv] of Object.entries(KOREAN_ADVERBIAL_ENDINGS)) {
       if (word.endsWith(adv) && word.length > adv.length) {
         word = word.slice(0, -adv.length);
         role = 'adverb';
@@ -550,10 +551,9 @@ function analyzeAndTranslateToken(token: string): {
     }
   }
 
-  // 6. 종결어미 분리
+  // 6. 종결어미 분리 - 사전 정렬된 배열 사용
   if (role !== 'modifier' && role !== 'adverb' && !connective) {
-    const sortedEndings = Object.entries(KOREAN_ENDINGS).sort((a, b) => b[0].length - a[0].length);
-    for (const [ending, info] of sortedEndings) {
+    for (const [ending, info] of SORTED_ENDINGS) {
       if (word.endsWith(ending)) {
         word = word.slice(0, -ending.length);
         tense = info.tense;
@@ -733,29 +733,6 @@ function translateWord(word: string, tense: string, role: string): string {
 }
 
 /**
- * 조사에 따른 전치사 반환
- */
-function _getPrepositionForParticle(particle: string): string {
-  const map: Record<string, string> = {
-    에: 'at',
-    에서: 'at',
-    로: 'to',
-    으로: 'to',
-    에게: 'to',
-    한테: 'to',
-    와: 'with',
-    과: 'with',
-    의: 'of',
-    부터: 'from',
-    까지: 'until',
-    처럼: 'like',
-    같이: 'with',
-    보다: 'than',
-  };
-  return map[particle] || '';
-}
-
-/**
  * SOV → SVO 어순 변환 (관형절, 부사절 처리 포함)
  */
 function rearrangeToSVO(
@@ -787,7 +764,6 @@ function rearrangeToSVO(
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    const _nextToken = tokens[i + 1];
 
     // 연결어미 저장
     if (token.connective) {
@@ -1206,11 +1182,10 @@ export function translateKoToEnDetailed(text: string): KoToEnResult | null {
  */
 function applyEnglishTense(
   verb: string,
-  endingPattern: { tense?: string; progressive?: boolean },
+  endingPattern: Partial<EndingPattern>,
   koreanStem: string,
 ): string {
-  // biome-ignore lint/suspicious/noExplicitAny: Ending pattern type mismatch - to be fixed later
-  const tense = getEnglishTense(endingPattern as any);
+  const tense = getEnglishTense(endingPattern as EndingPattern);
 
   // 형용사는 시제 변화 없음
   if (isAdjective(koreanStem)) {
@@ -1327,27 +1302,6 @@ function conjugateProgressive(verb: string): string {
   }
 
   return `${verb}ing`;
-}
-
-/**
- * 3인칭 단수 현재형
- */
-function _conjugateThirdPerson(verb: string): string {
-  if (
-    verb.endsWith('s') ||
-    verb.endsWith('x') ||
-    verb.endsWith('z') ||
-    verb.endsWith('ch') ||
-    verb.endsWith('sh')
-  ) {
-    return `${verb}es`;
-  }
-
-  if (/[^aeiou]y$/.test(verb)) {
-    return `${verb.slice(0, -1)}ies`;
-  }
-
-  return `${verb}s`;
 }
 
 /**

@@ -92,6 +92,18 @@ export const JONG_LIST = [
   'ㅎ',
 ] as const;
 
+// 타입 안전한 포함 여부 확인 헬퍼 (as const 배열용)
+type ChoType = (typeof CHO_LIST)[number];
+type JungType = (typeof JUNG_LIST)[number];
+
+function isValidCho(char: string): char is ChoType {
+  return (CHO_LIST as readonly string[]).includes(char);
+}
+
+function isValidJung(char: string): char is JungType {
+  return (JUNG_LIST as readonly string[]).includes(char);
+}
+
 /**
  * 한글 음절 하나를 자소로 분해
  * '먹' → {cho: 'ㅁ', jung: 'ㅓ', jong: 'ㄱ'}
@@ -166,8 +178,7 @@ export function composeFromJaso(jasoArr: string[]): string {
     if (!cho || !jung) break;
 
     // 초성 + 중성만 있는 경우
-    // biome-ignore lint/suspicious/noExplicitAny: Type narrowing for const array includes
-    if (jong && !CHO_LIST.includes(jong as any)) {
+    if (jong && !isValidCho(jong)) {
       const char = composeHangul({ cho, jung, jong: '' });
       result.push(char);
       i += 2;
@@ -176,8 +187,7 @@ export function composeFromJaso(jasoArr: string[]): string {
 
     // 종성이 다음 초성인지 확인
     const nextJung = jasoArr[i + 3];
-    // biome-ignore lint/suspicious/noExplicitAny: Type narrowing for const array includes
-    if (jong && nextJung && JUNG_LIST.includes(nextJung as any)) {
+    if (jong && nextJung && isValidJung(nextJung)) {
       // jong는 다음 음절의 초성
       const char = composeHangul({ cho, jung, jong: '' });
       result.push(char);

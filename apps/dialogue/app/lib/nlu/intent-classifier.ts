@@ -1,9 +1,81 @@
 /**
  * @fileoverview Intent Classification System
  *
- * Classifies user input into specific intents with confidence scores
+ * Classifies user input into specific intents with confidence scores.
+ * This module provides a multi-language (English/Korean) intent classification
+ * engine using pattern matching and keyword scoring.
+ *
+ * ## Architecture Overview
+ *
+ * The classification system uses a three-stage scoring algorithm:
+ *
+ * 1. **Pattern Matching**: Regex patterns are tested against input (+10 points per match)
+ * 2. **Keyword Detection**: Keywords are searched in input (+5 points per keyword)
+ * 3. **Priority Weighting**: Raw score is multiplied by (priority / 10)
+ *
+ * ## Scoring Algorithm
+ *
+ * ```
+ * finalScore = (patternScore + keywordScore) × (priority / 10)
+ * confidence = min(finalScore / 100, 1.0)
+ * ```
+ *
+ * Where:
+ * - patternScore: +10 for first matching regex pattern (max once per intent)
+ * - keywordScore: +5 per matching keyword (cumulative)
+ * - priority: 1-15 range, higher = more likely to be selected in ambiguous cases
+ *
+ * ## Priority Values Explained
+ *
+ * | Priority | Intent Types | Rationale |
+ * |----------|--------------|-----------|
+ * | 15 | greeting, farewell | Most specific, easily detected |
+ * | 14 | gratitude, apology | Clear emotional signals |
+ * | 13 | affirmation, negation | Direct yes/no responses |
+ * | 12 | request, complaint, praise | Action-oriented intents |
+ * | 11 | command, suggestion, clarification | Moderate specificity |
+ * | 10 | question | Common but less specific |
+ * | 8 | exclamation | Often co-occurs with other intents |
+ * | 1 | statement | Default fallback |
+ *
+ * ## Usage Example
+ *
+ * ```typescript
+ * import { classifyIntent, type IntentResult } from './intent-classifier';
+ *
+ * // English greeting
+ * const result1 = classifyIntent('Hello there!', 'en');
+ * // → { intent: 'greeting', confidence: 0.225 }
+ *
+ * // Korean question
+ * const result2 = classifyIntent('이게 뭐예요?', 'ko');
+ * // → { intent: 'question', confidence: 0.15 }
+ *
+ * // Check confidence threshold
+ * if (result1.confidence > 0.1) {
+ *   console.log(`Detected: ${result1.intent}`);
+ * }
+ * ```
+ *
+ * @module nlu/intent-classifier
+ * @see {@link analyzeSentiment} for emotional tone analysis
+ * @see {@link extractEntities} for named entity extraction
  */
 
+/**
+ * Possible intent classifications for user input.
+ *
+ * Intents are ordered by typical conversation flow:
+ * - **Conversational**: greeting → farewell
+ * - **Emotional**: gratitude, apology, praise, complaint, exclamation
+ * - **Responsive**: affirmation, negation
+ * - **Interactive**: question, request, command, suggestion, clarification
+ * - **Default**: statement
+ *
+ * @remarks
+ * The 'statement' intent is the default fallback when no other intent
+ * matches with sufficient confidence.
+ */
 export type Intent =
   | 'question' // 질문
   | 'request' // 요청
@@ -21,12 +93,40 @@ export type Intent =
   | 'apology' // 사과
   | 'clarification'; // 명확화 요청
 
+/**
+ * Result of intent classification.
+ *
+ * @property intent - The classified intent type
+ * @property confidence - Confidence score from 0 to 1
+ *   - 0.0-0.1: Very low confidence (likely default 'statement')
+ *   - 0.1-0.3: Low confidence (single pattern or keyword match)
+ *   - 0.3-0.5: Moderate confidence (multiple signals detected)
+ *   - 0.5-1.0: High confidence (strong pattern + keyword matches)
+ * @property subtype - Optional subtype for finer classification (reserved for future use)
+ *
+ * @example
+ * ```typescript
+ * const result: IntentResult = {
+ *   intent: 'question',
+ *   confidence: 0.35,
+ * };
+ * ```
+ */
 export interface IntentResult {
   intent: Intent;
   confidence: number;
   subtype?: string;
 }
 
+/**
+ * Internal configuration for intent pattern matching.
+ *
+ * @internal
+ * @property intent - The intent this pattern detects
+ * @property patterns - Locale-specific regex patterns (first match wins, +10 points)
+ * @property keywords - Locale-specific keywords (all matches cumulative, +5 points each)
+ * @property priority - Tie-breaker weight (1-15, higher = preferred)
+ */
 interface IntentPattern {
   intent: Intent;
   patterns: {
@@ -40,6 +140,20 @@ interface IntentPattern {
   priority: number;
 }
 
+/**
+ * Intent pattern definitions for classification.
+ *
+ * Each entry defines how to detect a specific intent through:
+ * - **patterns**: Regex patterns that indicate the intent (only first match counts)
+ * - **keywords**: Words that suggest the intent (all matches add to score)
+ * - **priority**: Weight for tie-breaking (higher wins when scores equal)
+ *
+ * @remarks
+ * Patterns are tested in array order. The 'statement' intent with priority 1
+ * acts as the default fallback when no other intent matches well.
+ *
+ * @internal
+ */
 const INTENT_PATTERNS: IntentPattern[] = [
   // Question patterns
   {
@@ -289,6 +403,81 @@ const INTENT_PATTERNS: IntentPattern[] = [
   },
 ];
 
+/**
+ * Classifies user input into an intent category with confidence score.
+ *
+ * This function analyzes text input and determines the user's communicative
+ * intent (e.g., question, greeting, request) using a multi-stage scoring system.
+ *
+ * ## Algorithm Steps
+ *
+ * 1. **Pattern Matching** (+10 points):
+ *    - Tests input against locale-specific regex patterns
+ *    - Only the first matching pattern counts (no cumulative bonus)
+ *    - Uses original text case for patterns like `^(hi|hello)`
+ *
+ * 2. **Keyword Detection** (+5 points each):
+ *    - Searches for keywords in lowercase input
+ *    - All matching keywords contribute to score (cumulative)
+ *    - Example: "What do you think?" matches both "what" and "think"
+ *
+ * 3. **Priority Weighting**:
+ *    - Multiplies raw score by (priority / 10)
+ *    - Higher priority intents are favored in ties
+ *    - Example: greeting (15) beats question (10) at equal raw scores
+ *
+ * 4. **Confidence Normalization**:
+ *    - Divides final score by 100 (assumed max)
+ *    - Caps at 1.0 for very high scores
+ *
+ * ## Score Calculation Example
+ *
+ * Input: "Hello, how are you?" (English)
+ *
+ * | Intent | Pattern | Keywords | Raw | Priority | Final |
+ * |--------|---------|----------|-----|----------|-------|
+ * | greeting | +10 | +5 (hello) | 15 | ×1.5 | 22.5 |
+ * | question | +10 | +5 (how) | 15 | ×1.0 | 15.0 |
+ *
+ * Result: greeting wins (22.5 vs 15.0)
+ *
+ * @param text - The user input text to classify
+ * @param locale - The locale code ('ko' for Korean, anything else defaults to English)
+ * @returns Classification result with intent type and confidence score
+ *
+ * @example Basic usage
+ * ```typescript
+ * // Simple greeting
+ * const result = classifyIntent('Hi there!', 'en');
+ * console.log(result.intent);     // 'greeting'
+ * console.log(result.confidence); // ~0.225
+ *
+ * // Korean question
+ * const ko = classifyIntent('이게 뭐야?', 'ko');
+ * console.log(ko.intent);     // 'question'
+ * console.log(ko.confidence); // ~0.15
+ * ```
+ *
+ * @example With confidence threshold
+ * ```typescript
+ * const result = classifyIntent(userInput, locale);
+ *
+ * if (result.confidence < 0.1) {
+ *   // Very uncertain - treat as generic statement
+ *   return handleStatement(userInput);
+ * } else if (result.intent === 'greeting') {
+ *   return handleGreeting();
+ * }
+ * ```
+ *
+ * @remarks
+ * - Returns 'statement' as fallback when no patterns match
+ * - Confidence below 0.1 indicates unreliable classification
+ * - The function is stateless and does not consider conversation context
+ *
+ * @see {@link IntentResult} for return type details
+ * @see {@link analyzeSentiment} for emotional analysis (often used together)
+ */
 export function classifyIntent(text: string, locale: string): IntentResult {
   const trimmedText = text.trim();
   const lowerText = trimmedText.toLowerCase();
@@ -299,7 +488,7 @@ export function classifyIntent(text: string, locale: string): IntentResult {
     let score = 0;
     const lang = locale === 'ko' ? 'ko' : 'en';
 
-    // Check patterns
+    // Check patterns - only first match counts (+10 points)
     for (const regex of pattern.patterns[lang]) {
       if (regex.test(trimmedText)) {
         score += 10;
@@ -307,14 +496,16 @@ export function classifyIntent(text: string, locale: string): IntentResult {
       }
     }
 
-    // Check keywords
+    // Check keywords - all matches are cumulative (+5 points each)
+    // 키워드는 이미 소문자로 정의되어 있으므로 toLowerCase() 호출 불필요
     for (const keyword of pattern.keywords[lang]) {
-      if (lowerText.includes(keyword.toLowerCase())) {
+      if (lowerText.includes(keyword)) {
         score += 5;
       }
     }
 
-    // Apply priority boost
+    // Apply priority boost: score × (priority / 10)
+    // Example: priority 15 → ×1.5, priority 10 → ×1.0
     score *= pattern.priority / 10;
 
     if (score > 0) {
@@ -326,7 +517,7 @@ export function classifyIntent(text: string, locale: string): IntentResult {
     }
   }
 
-  // Sort by score, then by priority
+  // Sort by score (descending), then by priority (descending) for ties
   scores.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
     return b.priority - a.priority;
@@ -338,7 +529,7 @@ export function classifyIntent(text: string, locale: string): IntentResult {
     priority: 1,
   };
 
-  // Calculate confidence (normalize to 0-1)
+  // Normalize to 0-1 range (100 = assumed theoretical maximum)
   const maxScore = 100;
   const confidence = Math.min(bestMatch.score / maxScore, 1);
 
