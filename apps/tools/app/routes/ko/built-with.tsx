@@ -1,5 +1,8 @@
 import type { MetaFunction } from 'react-router';
+import { Footer } from '~/components/layout/Footer';
+import { Header } from '~/components/layout/Header';
 import m from '~/lib/messages';
+
 export const meta: MetaFunction = () => [
   { title: '기술 스택 | Tools' },
   {
@@ -10,47 +13,51 @@ export const meta: MetaFunction = () => [
 
 export default function BuiltWithKo() {
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">{m['navigation.builtWith']?.()}</h1>
-        <p className="text-muted-foreground mb-8">{m['builtWith.intro']?.()}</p>
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1 p-4 sm:p-8">
+        <div className="mx-auto max-w-3xl">
+          <h1 className="mb-6 text-2xl font-bold sm:text-3xl">{m['navigation_builtWith']?.()}</h1>
+          <p className="mb-8 text-muted-foreground">{m['builtWith_intro']?.()}</p>
 
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{m['builtWith.framework']?.()}</h2>
-          <ul className="space-y-2 text-muted-foreground">
-            <li>React 19</li>
-            <li>React Router v7</li>
-            <li>TypeScript</li>
-            <li>Tailwind CSS v4</li>
-          </ul>
-        </section>
+          <section className="mb-8">
+            <h2 className="mb-4 text-xl font-semibold">{m['builtWith_framework']?.()}</h2>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>React 19</li>
+              <li>React Router v7</li>
+              <li>TypeScript</li>
+              <li>Tailwind CSS v4</li>
+            </ul>
+          </section>
 
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{m['builtWith.deployment']?.()}</h2>
-          <ul className="space-y-2 text-muted-foreground">
-            <li>Cloudflare Pages</li>
-            <li>100% SSG (정적 사이트 생성)</li>
-          </ul>
-        </section>
+          <section className="mb-8">
+            <h2 className="mb-4 text-xl font-semibold">{m['builtWith_deployment']?.()}</h2>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>Cloudflare Pages</li>
+              <li>100% SSG (정적 사이트 생성)</li>
+            </ul>
+          </section>
 
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{m['builtWith.uiux']?.()}</h2>
-          <ul className="space-y-2 text-muted-foreground">
-            <li>{m['builtWith.webStandardsLayout']?.()}</li>
-            <li>{m['builtWith.darkLightMode']?.()}</li>
-            <li>{m['builtWith.responsiveDesign']?.()}</li>
-          </ul>
-        </section>
+          <section className="mb-8">
+            <h2 className="mb-4 text-xl font-semibold">{m['builtWith_uiux']?.()}</h2>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>{m['builtWith_webStandardsLayout']?.()}</li>
+              <li>{m['builtWith_darkLightMode']?.()}</li>
+              <li>{m['builtWith_responsiveDesign']?.()}</li>
+            </ul>
+          </section>
 
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{m['builtWith.browserApi']?.()}</h2>
-          <ul className="space-y-2 text-muted-foreground">
-            <li>Web Audio API</li>
-            <li>Canvas API</li>
-            <li>Service Worker / PWA</li>
-          </ul>
-        </section>
-      </div>
+          <section className="mb-8">
+            <h2 className="mb-4 text-xl font-semibold">{m['builtWith_browserApi']?.()}</h2>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>Web Audio API</li>
+              <li>Canvas API</li>
+              <li>Service Worker / PWA</li>
+            </ul>
+          </section>
+        </div>
+      </main>
+      <Footer appName="기술 스택" />
     </div>
   );
 }

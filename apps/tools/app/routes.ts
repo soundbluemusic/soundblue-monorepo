@@ -8,7 +8,7 @@ export default [
   route('benchmark', 'routes/benchmark.tsx'),
   route('sitemap', 'routes/sitemap.tsx'),
   route('metronome', 'routes/metronome.tsx'),
-  route('drumMachine', 'routes/drum-machine.tsx'),
+  route('drum-machine', 'routes/drum-machine.tsx'),
   route('qr', 'routes/qr.tsx'),
   route('translator', 'routes/translator.tsx'),
 
@@ -19,7 +19,7 @@ export default [
   route('ko/benchmark', 'routes/ko/benchmark.tsx'),
   route('ko/sitemap', 'routes/ko/sitemap.tsx'),
   route('ko/metronome', 'routes/ko/metronome.tsx'),
-  route('ko/drumMachine', 'routes/ko/drum-machine.tsx'),
+  route('ko/drum-machine', 'routes/ko/drum-machine.tsx'),
   route('ko/qr', 'routes/ko/qr.tsx'),
   route('ko/translator', 'routes/ko/translator.tsx'),
 ] satisfies RouteConfig;

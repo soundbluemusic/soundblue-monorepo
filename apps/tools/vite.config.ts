@@ -45,7 +45,7 @@ export default defineConfig({
             name: 'Drum Machine',
             short_name: 'Drums',
             description: 'Open Drum Machine tool',
-            url: '/drumMachine',
+            url: '/drum-machine',
             icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192' }],
           },
           {

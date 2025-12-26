@@ -1,7 +1,7 @@
 import type { Config } from '@react-router/dev/config';
 
 // Tool slugs for pre-rendering
-const tools = ['metronome', 'drumMachine', 'qr', 'translator'];
+const tools = ['metronome', 'drum-machine', 'qr', 'translator'];
 
 export default {
   // 100% SSG - No server-side rendering (CLAUDE.md requirement)
@@ -19,6 +19,8 @@ export default {
       '/ko/built-with',
       '/benchmark',
       '/ko/benchmark',
+      '/sitemap',
+      '/ko/sitemap',
       ...toolRoutes,
     ];
   },
