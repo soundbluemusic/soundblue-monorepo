@@ -1,25 +1,21 @@
 import { CSSParticles } from '~/components/background';
 import { BRAND, YouTubeIcon } from '~/constants';
 import m from '~/lib/messages';
+import styles from './HomeContent.module.scss';
+
 export function HomeContent() {
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-200px)] p-8 text-center overflow-hidden">
+    <div className={styles.container}>
       <CSSParticles />
 
-      <div className="relative z-1 mb-8">
-        <h1 className="text-3xl md:text-[3rem] font-semibold text-content m-0 mb-4">
-          {BRAND.name}
-        </h1>
-        <p className="text-lg md:text-xl text-content-muted m-0 mb-4 italic">
-          {m['home.tagline']()}
-        </p>
-        <p className="text-base md:text-lg text-content-muted m-0 mb-2 max-w-120 leading-relaxed">
-          {m['home.description']()}
-        </p>
-        <p className="text-sm text-content-muted m-0">{m['home.genres']()}</p>
+      <div className={styles.content}>
+        <h1 className={styles.title}>{BRAND.name}</h1>
+        <p className={styles.tagline}>{m['home.tagline']()}</p>
+        <p className={styles.description}>{m['home.description']()}</p>
+        <p className={styles.genres}>{m['home.genres']()}</p>
       </div>
 
-      <div className="relative z-1 flex flex-wrap gap-3 justify-center mt-6">
+      <div className={styles.links}>
         <a
           href="https://www.youtube.com/@SoundBlueMusic"
           target="_blank"

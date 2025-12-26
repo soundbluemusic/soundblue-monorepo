@@ -1,21 +1,23 @@
+import styles from './CSSParticles.module.scss';
+
 /**
  * Pure CSS particle background - no JavaScript, no click blocking issues
  */
 export function CSSParticles() {
   return (
-    <div className="css-particles" aria-hidden="true">
-      <div className="particle particle-1" />
-      <div className="particle particle-2" />
-      <div className="particle particle-3" />
-      <div className="particle particle-4" />
-      <div className="particle particle-5" />
-      <div className="particle particle-6" />
-      <div className="particle particle-7" />
-      <div className="particle particle-8" />
-      <div className="particle particle-9" />
-      <div className="particle particle-10" />
-      <div className="particle particle-11" />
-      <div className="particle particle-12" />
+    <div className={styles.particles} aria-hidden="true">
+      <div className={`${styles.particle} ${styles.particle1}`} />
+      <div className={`${styles.particle} ${styles.particle2}`} />
+      <div className={`${styles.particle} ${styles.particle3}`} />
+      <div className={`${styles.particle} ${styles.particle4}`} />
+      <div className={`${styles.particle} ${styles.particle5}`} />
+      <div className={`${styles.particle} ${styles.particle6}`} />
+      <div className={`${styles.particle} ${styles.particle7}`} />
+      <div className={`${styles.particle} ${styles.particle8}`} />
+      <div className={`${styles.particle} ${styles.particle9}`} />
+      <div className={`${styles.particle} ${styles.particle10}`} />
+      <div className={`${styles.particle} ${styles.particle11}`} />
+      <div className={`${styles.particle} ${styles.particle12}`} />
     </div>
   );
 }

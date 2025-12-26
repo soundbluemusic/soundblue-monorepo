@@ -1,0 +1,189 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-sticky;
+  height: var(--header-height);
+  background-color: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-primary);
+
+  @supports (padding: env(safe-area-inset-top)) {
+    padding-top: env(safe-area-inset-top);
+    height: calc(56px + env(safe-area-inset-top));
+  }
+
+  @include mobile-only {
+    height: 52px;
+
+    @supports (padding: env(safe-area-inset-top)) {
+      height: calc(52px + env(safe-area-inset-top));
+    }
+  }
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  padding: 0 1rem 0 calc(var(--sidebar-width) + 16px);
+
+  @include mobile-only {
+    padding: 0 0.75rem;
+    gap: 0.5rem;
+  }
+}
+
+.sidebarToggle {
+  @include interactive-button;
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: $radius-lg;
+  color: var(--color-text-secondary);
+  display: none;
+
+  @include md {
+    display: inline-flex;
+  }
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+
+  @include mobile-only {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+.toggleIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  text-decoration: none;
+  flex-shrink: 0;
+  border-radius: $radius-lg;
+
+  @include focus-ring;
+}
+
+.logoText {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: -0.025em;
+
+  @include mobile-only {
+    font-size: 1.125rem;
+  }
+}
+
+.spacer {
+  flex: 1;
+}
+
+.toolsLink {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  background-color: rgba(var(--color-accent-primary), 0.1);
+  color: var(--color-accent-primary);
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all $transition-fast var(--ease-default);
+
+  @include sm {
+    display: inline-flex;
+  }
+
+  &:hover {
+    background-color: rgba(var(--color-accent-primary), 0.2);
+  }
+
+  @include focus-ring;
+}
+
+.toolsIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.iconButton {
+  @include interactive-button;
+  @include touch-target;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: $radius-lg;
+  color: var(--color-text-secondary);
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+
+  @include mobile-only {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+.langButton {
+  @include interactive-button;
+  @include touch-target;
+  display: inline-flex;
+  gap: 0.25rem;
+  width: auto;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: $radius-lg;
+  color: var(--color-text-secondary);
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+
+  @include mobile-only {
+    height: 2.25rem;
+    padding: 0 0.5rem;
+  }
+}
+
+.langIcon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.langCode {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}

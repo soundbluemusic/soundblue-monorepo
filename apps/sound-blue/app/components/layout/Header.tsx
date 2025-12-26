@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { SearchBox, ThemeIcon } from '~/components/ui';
 import { ToolsIcon } from '~/constants/icons';
 import m from '~/lib/messages';
+import styles from './Header.module.scss';
 
 interface HeaderProps {
   onSidebarToggle?: () => void;
@@ -16,20 +17,20 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
   const themeTitle = resolvedTheme === 'light' ? m['header.themeDark']() : m['header.themeLight']();
 
   return (
-    <header className="view-transition-header fixed top-0 left-0 right-0 z-100 h-14 bg-surface-alt border-b border-line supports-[padding:env(safe-area-inset-top)]:pt-[env(safe-area-inset-top)] supports-[padding:env(safe-area-inset-top)]:h-[calc(56px+env(safe-area-inset-top))] max-sm:h-13 max-sm:supports-[padding:env(safe-area-inset-top)]:h-[calc(52px+env(safe-area-inset-top))]">
-      <div className="flex items-center gap-4 w-full h-full px-4 md:pl-[calc(var(--sidebar-width)+16px)] max-sm:px-3 max-sm:gap-2">
+    <header className={styles.header}>
+      <div className={styles.headerContent}>
         {/* Sidebar Toggle - Desktop only */}
         {onSidebarToggle && (
           <button
             type="button"
             onClick={onSidebarToggle}
-            className="hidden md:inline-flex absolute left-4 top-1/2 -translate-y-1/2 items-center justify-center w-10 h-10 p-0 bg-transparent rounded-lg text-content-muted hover:bg-state-hover hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-95 transition-all duration-150 max-sm:w-9 max-sm:h-9"
+            className={styles.sidebarToggle}
             title={isSidebarOpen ? m['header.sidebarClose']() : m['header.sidebarOpen']()}
             aria-label={isSidebarOpen ? m['header.sidebarClose']() : m['header.sidebarOpen']()}
             aria-expanded={isSidebarOpen}
           >
             <svg
-              className="w-4.5 h-4.5 shrink-0"
+              className={styles.toggleIcon}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -53,40 +54,35 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
         )}
 
         {/* Logo */}
-        <Link
-          to={localizedPath('/')}
-          className="flex items-center gap-1.5 no-underline shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        >
-          <span className="text-xl font-semibold text-content tracking-tight max-sm:text-lg">
-            Sound Blue
-          </span>
+        <Link to={localizedPath('/')} className={styles.logo}>
+          <span className={styles.logoText}>Sound Blue</span>
         </Link>
 
         {/* Search */}
         <SearchBox />
 
         {/* Spacer */}
-        <div className="flex-1" />
+        <div className={styles.spacer} />
 
         {/* Tools Button */}
         <a
           href="https://tools.soundbluemusic.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden sm:inline-flex items-center justify-center gap-1.5 h-9 px-3 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className={styles.toolsLink}
           title={m['externalLinks.tools']()}
         >
-          <ToolsIcon className="w-4 h-4" />
+          <ToolsIcon className={styles.toolsIcon} />
           <span>{m['externalLinks.tools']()}</span>
         </a>
 
         {/* Controls */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className={styles.controls}>
           {/* Theme Toggle */}
           <button
             type="button"
             onClick={toggleTheme}
-            className="inline-flex items-center justify-center w-10 h-10 p-0 bg-transparent rounded-lg text-content-muted hover:bg-state-hover hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-95 transition-all duration-150 max-sm:w-9 max-sm:h-9"
+            className={styles.iconButton}
             title={themeTitle}
             aria-label={themeTitle}
           >
@@ -97,12 +93,12 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
           <button
             type="button"
             onClick={toggleLanguage}
-            className="inline-flex items-center justify-center gap-1 w-auto h-10 px-3 bg-transparent rounded-lg text-content-muted hover:bg-state-hover hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-95 transition-all duration-150 max-sm:h-9 max-sm:px-2"
+            className={styles.langButton}
             title={m['header.langSwitch']()}
             aria-label={m['header.langSwitch']()}
           >
             <svg
-              className="w-4 h-4 shrink-0"
+              className={styles.langIcon}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -111,7 +107,7 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
               <circle cx="12" cy="12" r="10" />
               <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
             </svg>
-            <span className="text-xs font-semibold tracking-wide">{m['header.langCode']()}</span>
+            <span className={styles.langCode}>{m['header.langCode']()}</span>
           </button>
         </div>
       </div>

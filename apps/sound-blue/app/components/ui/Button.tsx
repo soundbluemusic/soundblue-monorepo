@@ -1,53 +1,41 @@
-import { cva, type VariantProps } from 'class-variance-authority';
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
-import { cn } from '~/lib/utils';
+import styles from './Button.module.scss';
 
-const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-lg font-medium no-underline transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-95 disabled:pointer-events-none disabled:opacity-50',
-  {
-    variants: {
-      variant: {
-        primary: 'bg-accent text-white hover:bg-accent-hover focus-visible:ring-accent',
-        secondary: 'bg-surface-dim text-content hover:bg-state-hover focus-visible:ring-accent',
-        ghost:
-          'bg-transparent text-content-muted hover:bg-state-hover hover:text-content focus-visible:ring-accent',
-        youtube: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
-      },
-      size: {
-        sm: 'px-3 py-1.5 text-sm gap-1.5',
-        md: 'px-4 py-2 text-sm gap-2',
-        lg: 'px-6 py-3 text-base gap-2',
-      },
-    },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'md',
-    },
-  },
-);
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'youtube';
+type ButtonSize = 'sm' | 'md' | 'lg';
 
-type ButtonVariants = VariantProps<typeof buttonVariants>;
-
-interface ButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'>,
-    ButtonVariants {
+interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   className?: string;
 }
 
-interface LinkButtonProps
-  extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'className'>,
-    ButtonVariants {
+interface LinkButtonProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'className'> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   className?: string;
   href: string;
 }
 
-export function Button({ variant, size, className, ...props }: ButtonProps) {
-  return <button className={cn(buttonVariants({ variant, size }), className)} {...props} />;
+function getButtonClasses(
+  variant: ButtonVariant = 'primary',
+  size: ButtonSize = 'md',
+  className?: string,
+): string {
+  return [styles.button, styles[variant], styles[size], className].filter(Boolean).join(' ');
 }
 
-export function LinkButton({ variant, size, className, ...props }: LinkButtonProps) {
-  return <a className={cn(buttonVariants({ variant, size }), className)} {...props} />;
+export function Button({ variant = 'primary', size = 'md', className, ...props }: ButtonProps) {
+  return <button className={getButtonClasses(variant, size, className)} {...props} />;
 }
 
-export { buttonVariants };
-export type { ButtonProps, ButtonVariants, LinkButtonProps };
+export function LinkButton({
+  variant = 'primary',
+  size = 'md',
+  className,
+  ...props
+}: LinkButtonProps) {
+  return <a className={getButtonClasses(variant, size, className)} {...props} />;
+}
+
+export type { ButtonProps, ButtonVariant, ButtonSize, LinkButtonProps };

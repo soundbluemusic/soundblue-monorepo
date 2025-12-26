@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import styles from './BottomSheet.module.scss';
 
 interface BottomSheetProps {
   isOpen: boolean;
@@ -44,13 +45,19 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
 
   if (!mounted || !isVisible) return null;
 
+  const backdropClasses = [styles.backdrop, isOpen ? styles.backdropVisible : styles.backdropHidden]
+    .filter(Boolean)
+    .join(' ');
+
+  const sheetClasses = [styles.sheet, isOpen ? styles.sheetOpen : styles.sheetClosed]
+    .filter(Boolean)
+    .join(' ');
+
   return createPortal(
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-[400] bg-bg-overlay transition-opacity duration-200 ${
-          isOpen ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={backdropClasses}
         onClick={onClose}
         onTransitionEnd={() => {
           if (!isOpen) {
@@ -62,9 +69,7 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
 
       {/* Sheet */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-[401] bg-surface-alt rounded-t-2xl shadow-xl transition-transform duration-300 ease-out pb-[env(safe-area-inset-bottom)] ${
-          isOpen ? 'translate-y-0' : 'translate-y-full'
-        }`}
+        className={sheetClasses}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -75,19 +80,19 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
         }}
       >
         {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-10 h-1 bg-line rounded-full" />
+        <div className={styles.dragHandle}>
+          <div className={styles.handleBar} />
         </div>
 
         {/* Title */}
         {title && (
-          <div className="px-4 pb-2">
-            <h2 className="text-lg font-semibold text-content">{title}</h2>
+          <div className={styles.titleWrapper}>
+            <h2 className={styles.title}>{title}</h2>
           </div>
         )}
 
         {/* Content */}
-        <div className="px-2 pb-4">{children}</div>
+        <div className={styles.content}>{children}</div>
       </div>
     </>,
     document.body,

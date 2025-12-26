@@ -1,0 +1,16 @@
+// ============================================
+// Sound Blue - Main Stylesheet
+// ============================================
+
+// Design tokens (CSS variables)
+@use 'tokens';
+
+// SCSS variables and mixins
+@use 'variables';
+@use 'mixins';
+
+// Base styles and reset
+@use 'base';
+
+// Animation keyframes
+@use 'animations';

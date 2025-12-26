@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { BottomSheet } from '~/components/ui';
 import { isNavActive, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from '~/constants';
 import m from '~/lib/messages';
+import styles from './BottomNav.module.scss';
 
 /**
  * MoreIcon - Three dots icon for "More" menu
@@ -42,49 +43,44 @@ export function BottomNav() {
 
   return (
     <>
-      <nav
-        className="hidden max-md:block fixed bottom-0 left-0 right-0 h-14 bg-surface-alt border-t border-line z-[300] pb-[env(safe-area-inset-bottom)]"
-        aria-label="Mobile navigation"
-      >
-        <ul className="flex items-center justify-around h-full m-0 p-0 list-none">
+      <nav className={styles.bottomNav} aria-label="Mobile navigation">
+        <ul className={styles.navList}>
           {/* Primary navigation items */}
-          {PRIMARY_NAV_ITEMS.map((item) => (
-            <li key={item.path} className="flex-1 h-full">
-              <Link
-                to={localizedPath(item.path)}
-                prefetch="intent"
-                className={`flex flex-col items-center justify-center gap-1 h-full p-2 no-underline transition-all duration-150 focus-visible:outline-none focus-visible:bg-state-hover active:scale-95 ${
-                  isNavActive(item.path, location.pathname, localizedPath)
-                    ? 'text-accent'
-                    : 'text-content-muted hover:text-content'
-                }`}
-              >
-                <span className="flex items-center justify-center w-6 h-6 [&>svg]:w-full [&>svg]:h-full">
-                  {item.icon()}
-                </span>
-                <span className="text-[11px] font-medium">{m[`nav_${item.labelKey}`]?.()}</span>
-              </Link>
-            </li>
-          ))}
+          {PRIMARY_NAV_ITEMS.map((item) => {
+            const isActive = isNavActive(item.path, location.pathname, localizedPath);
+            const linkClasses = [styles.navLink, isActive && styles.navLinkActive]
+              .filter(Boolean)
+              .join(' ');
+
+            return (
+              <li key={item.path} className={styles.navItem}>
+                <Link to={localizedPath(item.path)} prefetch="intent" className={linkClasses}>
+                  <span className={styles.iconWrapper}>{item.icon()}</span>
+                  <span className={styles.label}>{m[`nav_${item.labelKey}`]?.()}</span>
+                </Link>
+              </li>
+            );
+          })}
 
           {/* More button */}
-          <li className="flex-1 h-full">
+          <li className={styles.navItem}>
             <button
               type="button"
               onClick={() => setIsMoreOpen(true)}
-              className={`flex flex-col items-center justify-center gap-1 w-full h-full p-2 bg-transparent transition-all duration-150 focus-visible:outline-none focus-visible:bg-state-hover active:scale-95 ${
-                isSecondaryActive || isMoreOpen
-                  ? 'text-accent'
-                  : 'text-content-muted hover:text-content'
-              }`}
+              className={[
+                styles.moreButton,
+                (isSecondaryActive || isMoreOpen) && styles.moreButtonActive,
+              ]
+                .filter(Boolean)
+                .join(' ')}
               aria-label={m['nav.more']()}
               aria-expanded={isMoreOpen}
               aria-haspopup="dialog"
             >
-              <span className="flex items-center justify-center w-6 h-6 [&>svg]:w-full [&>svg]:h-full">
+              <span className={styles.iconWrapper}>
                 <MoreIcon />
               </span>
-              <span className="text-[11px] font-medium">{m['nav.more']()}</span>
+              <span className={styles.label}>{m['nav.more']()}</span>
             </button>
           </li>
         </ul>
@@ -92,25 +88,26 @@ export function BottomNav() {
 
       {/* More menu bottom sheet */}
       <BottomSheet isOpen={isMoreOpen} onClose={() => setIsMoreOpen(false)} title={m['nav.more']()}>
-        <ul className="m-0 p-0 list-none">
-          {SECONDARY_NAV_ITEMS.map((item) => (
-            <li key={item.path}>
-              <button
-                type="button"
-                onClick={() => handleSecondaryClick(item.path)}
-                className={`flex items-center gap-4 w-full p-4 bg-transparent rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-[0.98] ${
-                  isNavActive(item.path, location.pathname, localizedPath)
-                    ? 'text-accent bg-accent/10'
-                    : 'text-content hover:bg-state-hover'
-                }`}
-              >
-                <span className="flex items-center justify-center w-6 h-6 [&>svg]:w-full [&>svg]:h-full">
-                  {item.icon()}
-                </span>
-                <span className="text-base font-medium">{m[`nav_${item.labelKey}`]?.()}</span>
-              </button>
-            </li>
-          ))}
+        <ul className={styles.sheetList}>
+          {SECONDARY_NAV_ITEMS.map((item) => {
+            const isActive = isNavActive(item.path, location.pathname, localizedPath);
+            const itemClasses = [styles.sheetItem, isActive && styles.sheetItemActive]
+              .filter(Boolean)
+              .join(' ');
+
+            return (
+              <li key={item.path}>
+                <button
+                  type="button"
+                  onClick={() => handleSecondaryClick(item.path)}
+                  className={itemClasses}
+                >
+                  <span className={styles.sheetIconWrapper}>{item.icon()}</span>
+                  <span className={styles.sheetLabel}>{m[`nav_${item.labelKey}`]?.()}</span>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </BottomSheet>
     </>

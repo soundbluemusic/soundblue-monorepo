@@ -1,0 +1,132 @@
+@use '../../styles/variables' as *;
+
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-accent-primary);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-30px) translateX(10px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-15px) translateX(-10px);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translateY(-40px) translateX(5px);
+    opacity: 0.5;
+  }
+}
+
+// Individual particle positions and delays
+.particle1 {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.particle2 {
+  top: 60%;
+  left: 25%;
+  animation-delay: 1s;
+  width: 6px;
+  height: 6px;
+}
+
+.particle3 {
+  top: 40%;
+  left: 40%;
+  animation-delay: 2s;
+}
+
+.particle4 {
+  top: 80%;
+  left: 55%;
+  animation-delay: 3s;
+  width: 10px;
+  height: 10px;
+}
+
+.particle5 {
+  top: 30%;
+  left: 70%;
+  animation-delay: 4s;
+  width: 5px;
+  height: 5px;
+}
+
+.particle6 {
+  top: 70%;
+  left: 85%;
+  animation-delay: 5s;
+}
+
+.particle7 {
+  top: 15%;
+  left: 50%;
+  animation-delay: 0.5s;
+  width: 7px;
+  height: 7px;
+}
+
+.particle8 {
+  top: 85%;
+  left: 15%;
+  animation-delay: 1.5s;
+}
+
+.particle9 {
+  top: 45%;
+  left: 90%;
+  animation-delay: 2.5s;
+  width: 9px;
+  height: 9px;
+}
+
+.particle10 {
+  top: 55%;
+  left: 5%;
+  animation-delay: 3.5s;
+}
+
+.particle11 {
+  top: 25%;
+  left: 80%;
+  animation-delay: 4.5s;
+  width: 6px;
+  height: 6px;
+}
+
+.particle12 {
+  top: 75%;
+  left: 35%;
+  animation-delay: 5.5s;
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .particle {
+    animation: none;
+    opacity: 0.2;
+  }
+}

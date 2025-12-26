@@ -1,0 +1,88 @@
+// ============================================
+// Sound Blue Design Tokens
+// ============================================
+
+:root {
+  // ========== Color Palette - Light Mode ==========
+  --color-bg-primary: #f7fafa;
+  --color-bg-secondary: #eff5f4;
+  --color-bg-tertiary: #e5efec;
+  --color-bg-elevated: #ffffff;
+
+  --color-text-primary: #2a3836;
+  --color-text-secondary: #4a5e5a;
+  --color-text-tertiary: #6b807a;
+
+  --color-border-primary: #d5e0dd;
+  --color-border-secondary: #e5efec;
+  --color-border-focus: #4a9e95;
+
+  --color-interactive-hover: rgba(74, 158, 149, 0.08);
+  --color-interactive-active: rgba(74, 158, 149, 0.15);
+
+  --color-accent-primary: #4a9e95;
+  --color-accent-secondary: #5daea2;
+  --color-accent-hover: #3d8880;
+  --color-accent-light: rgba(126, 196, 184, 0.18);
+
+  --color-youtube: #ff0000;
+  --color-link: #4a9e95;
+  --color-link-hover: #3d8880;
+
+  // ========== Typography ==========
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  // ========== Border Radius ==========
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  // ========== Layout Dimensions ==========
+  --header-height: 56px;
+  --sidebar-width: 240px;
+  --bottom-nav-height: 56px;
+  --touch-target-min: 44px;
+
+  // ========== Shadows ==========
+  --shadow-sm: 0 1px 3px rgba(42, 70, 65, 0.05);
+  --shadow-md: 0 2px 6px rgba(42, 70, 65, 0.05), 0 1px 3px rgba(42, 70, 65, 0.03);
+  --shadow-lg: 0 4px 12px rgba(42, 70, 65, 0.08);
+
+  // ========== Transitions ==========
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ========== Dark Mode ==========
+[data-theme='dark'] {
+  --color-bg-primary: #0f1716;
+  --color-bg-secondary: #161f1e;
+  --color-bg-tertiary: #1e2928;
+  --color-bg-elevated: #253332;
+
+  --color-text-primary: #e5f0ee;
+  --color-text-secondary: #b0c5c2;
+  --color-text-tertiary: #8aa5a0;
+
+  --color-border-primary: #2e3e3c;
+  --color-border-secondary: #1e2928;
+  --color-border-focus: #6ecec5;
+
+  --color-interactive-hover: rgba(110, 206, 197, 0.1);
+  --color-interactive-active: rgba(110, 206, 197, 0.18);
+
+  --color-accent-primary: #6ecec5;
+  --color-accent-secondary: #85d8d0;
+  --color-accent-hover: #85d8d0;
+  --color-accent-light: rgba(110, 206, 197, 0.2);
+
+  --color-link: #6ecec5;
+  --color-link-hover: #9ce4db;
+
+  --shadow-sm: 0 1px 3px rgba(0, 15, 12, 0.25);
+  --shadow-md: 0 2px 6px rgba(0, 15, 12, 0.25);
+  --shadow-lg: 0 4px 12px rgba(0, 15, 12, 0.3);
+}

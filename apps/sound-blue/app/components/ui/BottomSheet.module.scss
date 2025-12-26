@@ -1,0 +1,68 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: $z-modal;
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: opacity 200ms;
+}
+
+.backdropVisible {
+  opacity: 1;
+}
+
+.backdropHidden {
+  opacity: 0;
+}
+
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: calc($z-modal + 1);
+  background-color: var(--color-bg-secondary);
+  border-radius: $radius-xl $radius-xl 0 0;
+  box-shadow: var(--shadow-lg);
+  transition: transform 300ms ease-out;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.sheetOpen {
+  transform: translateY(0);
+}
+
+.sheetClosed {
+  transform: translateY(100%);
+}
+
+.dragHandle {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.handleBar {
+  width: 2.5rem;
+  height: 0.25rem;
+  background-color: var(--color-border-primary);
+  border-radius: $radius-full;
+}
+
+.titleWrapper {
+  padding: 0 1rem 0.5rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.content {
+  padding: 0 0.5rem 1rem;
+}

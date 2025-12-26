@@ -1,0 +1,36 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.skipToContent {
+  position: absolute;
+  left: -9999px;
+  z-index: $z-routing;
+  padding: 1rem;
+  background-color: var(--color-accent-primary);
+  color: white;
+
+  &:focus {
+    left: 0;
+    top: 0;
+  }
+}
+
+.main {
+  transition: margin-left $transition-fast var(--ease-default);
+
+  @include mobile-only {
+    margin-left: 0;
+  }
+}
+
+.mainOpen {
+  margin-left: var(--sidebar-width);
+
+  @include mobile-only {
+    margin-left: 0;
+  }
+}
+
+.mainClosed {
+  margin-left: 0;
+}

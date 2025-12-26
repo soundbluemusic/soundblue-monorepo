@@ -1,0 +1,76 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  margin-top: auto;
+  border-top: 1px solid var(--color-border-primary);
+  background-color: var(--color-bg-secondary);
+  position: relative;
+  z-index: 10;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: $radius-lg;
+  cursor: pointer;
+  transition: all $transition-fast var(--ease-default);
+
+  &:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-interactive-hover);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  @include focus-ring;
+}
+
+.tagline {
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.builtWithLink {
+  color: var(--color-accent-primary);
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--color-accent-primary), 0.5);
+  text-underline-offset: 2px;
+  transition: color $transition-fast var(--ease-default);
+  border-radius: $radius-sm;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+
+  @include focus-ring;
+}
+
+.copyright {
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+  text-align: center;
+}

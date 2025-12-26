@@ -2,6 +2,7 @@ import { useParaglideI18n } from '@soundblue/shared-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import m from '~/lib/messages';
+import styles from './SearchBox.module.scss';
 
 type PageKey = 'home' | 'sitemap' | 'privacy' | 'terms' | 'license' | 'soundRecording';
 
@@ -111,13 +112,10 @@ export function SearchBox() {
   };
 
   return (
-    <div
-      className="relative flex-1 max-w-70 ml-4 max-sm:max-w-40 max-sm:ml-2 max-[480px]:max-w-30"
-      ref={containerRef}
-    >
-      <div className="relative flex items-center">
+    <div className={styles.container} ref={containerRef}>
+      <div className={styles.inputWrapper}>
         <svg
-          className="absolute left-2.5 w-4 h-4 text-content-subtle pointer-events-none"
+          className={styles.searchIcon}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -131,7 +129,7 @@ export function SearchBox() {
           ref={inputRef}
           type="search"
           role="combobox"
-          className="w-full h-9 pl-8.5 pr-8 text-sm font-inherit text-content bg-surface-dim border border-line rounded-lg outline-none transition-[border-color,background-color] duration-150 placeholder:text-content-subtle focus:border-line-focus focus:bg-surface-alt [&::-webkit-search-cancel-button]:hidden max-sm:h-8 max-sm:text-[0.8125rem] max-[480px]:placeholder:text-xs"
+          className={styles.input}
           placeholder={m['search.placeholder']()}
           value={query}
           onChange={(e) => {
@@ -151,19 +149,17 @@ export function SearchBox() {
           aria-autocomplete="list"
         />
         {!isFocused && !query && (
-          <span className="absolute right-2 flex items-center py-0.5 px-1.5 font-inherit text-[0.6875rem] font-medium text-content-subtle bg-surface-alt border border-line rounded pointer-events-none max-sm:hidden">
-            {isMac ? '\u2318K' : 'Ctrl+K'}
-          </span>
+          <span className={styles.shortcut}>{isMac ? '\u2318K' : 'Ctrl+K'}</span>
         )}
         {query && (
           <button
             type="button"
-            className="absolute right-1.5 flex items-center justify-center w-6 h-6 p-0 bg-transparent border-none rounded text-content-subtle cursor-pointer transition-all duration-150 hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-90"
+            className={styles.clearButton}
             onClick={handleClear}
             aria-label={m['search.clear']()}
           >
             <svg
-              className="w-3.5 h-3.5"
+              className={styles.clearIcon}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -176,35 +172,39 @@ export function SearchBox() {
       </div>
 
       {isOpen && results.length > 0 && (
-        <div
-          className="absolute top-[calc(100%+4px)] left-0 right-0 z-700 max-h-75 overflow-y-auto bg-surface-alt border border-line rounded-lg shadow-lg m-0 p-1"
-          role="listbox"
-        >
-          {results.map((result, index) => (
-            <Link
-              key={result.path}
-              to={localizedPath(result.path)}
-              role="option"
-              tabIndex={0}
-              aria-selected={index === selectedIndex}
-              className={`flex flex-col gap-0.5 py-2.5 px-3 no-underline rounded transition-all duration-150 hover:bg-state-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${index === selectedIndex ? 'bg-state-hover' : ''}`}
-              onClick={() => setIsOpen(false)}
-            >
-              <span className="text-sm font-medium text-content">
-                {m[`search_pages_${result.key}_title`]?.()}
-              </span>
-              <span className="text-xs text-content-subtle">
-                {m[`search_pages_${result.key}_desc`]?.()}
-              </span>
-            </Link>
-          ))}
+        <div className={styles.dropdown} role="listbox">
+          {results.map((result, index) => {
+            const itemClasses = [
+              styles.resultItem,
+              index === selectedIndex && styles.resultItemSelected,
+            ]
+              .filter(Boolean)
+              .join(' ');
+
+            return (
+              <Link
+                key={result.path}
+                to={localizedPath(result.path)}
+                role="option"
+                tabIndex={0}
+                aria-selected={index === selectedIndex}
+                className={itemClasses}
+                onClick={() => setIsOpen(false)}
+              >
+                <span className={styles.resultTitle}>
+                  {m[`search_pages_${result.key}_title`]?.()}
+                </span>
+                <span className={styles.resultDesc}>
+                  {m[`search_pages_${result.key}_desc`]?.()}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       )}
 
       {isOpen && query.trim() && results.length === 0 && (
-        <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-700 bg-surface-alt border border-line rounded-lg shadow-lg p-4 text-center text-sm text-content-subtle">
-          {m['search.noResults']()}
-        </div>
+        <div className={styles.noResults}>{m['search.noResults']()}</div>
       )}
     </div>
   );

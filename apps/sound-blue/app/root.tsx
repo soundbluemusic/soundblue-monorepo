@@ -14,7 +14,7 @@ import {
 import m from '~/lib/messages';
 import { setLocale } from '~/paraglide/runtime';
 
-import './app.css';
+import './styles/app.scss';
 
 /**
  * Safely set locale for both SSR and client
@@ -110,14 +110,11 @@ export function ErrorBoundary() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-bg-primary)]">
-      <div className="text-center">
-        <h1 className="text-6xl font-bold text-(--color-text-tertiary) mb-4">{message}</h1>
-        <p className="text-xl text-content-muted mb-8">{details}</p>
-        <a
-          href="/"
-          className="inline-block px-6 py-3 bg-[var(--color-accent-primary)] text-white rounded-lg hover:bg-[var(--color-accent-hover)] transition-colors"
-        >
+    <main className="error-page">
+      <div className="error-content">
+        <h1 className="error-title">{message}</h1>
+        <p className="error-message">{details}</p>
+        <a href="/" className="error-link">
           {m['notFound.backHome']()}
         </a>
       </div>
