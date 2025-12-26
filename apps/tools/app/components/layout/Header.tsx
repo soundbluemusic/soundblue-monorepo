@@ -4,6 +4,7 @@ import { useParaglideI18n, useTheme } from '@soundblue/shared-react';
 import { Code2, Globe, Home, Menu, Moon, Sun } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { Button } from '~/components/ui/button';
+import { SearchBox } from '~/components/ui/SearchBox';
 import m from '~/lib/messages';
 import { useToolStore } from '~/stores/tool-store';
 
@@ -35,9 +36,9 @@ export function Header() {
   };
 
   return (
-    <header className="relative z-30 flex h-14 items-center justify-between border-b border-(--border) bg-(--background) px-4 pt-[env(safe-area-inset-top)]">
+    <header className="relative z-30 flex h-14 items-center gap-4 border-b border-(--border) bg-(--background) px-4 pt-[env(safe-area-inset-top)]">
       {/* Left: Mobile menu + Logo */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 shrink-0">
         {/* Mobile menu toggle - only show on main pages */}
         {!isSecondaryPage && (
           <Button
@@ -69,13 +70,19 @@ export function Header() {
         </Link>
       </div>
 
+      {/* Search Box */}
+      <SearchBox />
+
+      {/* Spacer */}
+      <div className="flex-1" />
+
       {/* Right: Controls */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 shrink-0">
         {/* Navigation Link - contextual */}
         {isSecondaryPage ? (
           <Link
             to={homePath}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-(--muted-foreground) no-underline transition-all duration-200 hover:text-(--foreground) hover:bg-black/8 dark:hover:bg-white/12"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-(--muted-foreground) no-underline transition-all duration-200 hover:text-(--foreground) hover:bg-black/8 dark:hover:bg-white/12"
           >
             <Home className="h-4 w-4 shrink-0" />
             <span>{m['navigation_home']?.()}</span>
@@ -83,7 +90,7 @@ export function Header() {
         ) : (
           <Link
             to={builtWithPath}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-(--muted-foreground) no-underline transition-all duration-200 hover:text-(--foreground) hover:bg-black/8 dark:hover:bg-white/12"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-(--muted-foreground) no-underline transition-all duration-200 hover:text-(--foreground) hover:bg-black/8 dark:hover:bg-white/12"
           >
             <Code2 className="h-4 w-4 shrink-0" />
             <span>Built With</span>

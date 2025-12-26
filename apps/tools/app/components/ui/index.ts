@@ -16,6 +16,7 @@ export {
   DialogTrigger,
 } from './dialog';
 export { Input, type InputProps } from './input';
+export { SearchBox } from './SearchBox';
 export { Slider } from './slider';
 export { Switch } from './switch';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
