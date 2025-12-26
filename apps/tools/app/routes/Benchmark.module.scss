@@ -1,0 +1,484 @@
+@use '../styles/variables' as *;
+
+// ============================================
+// Benchmark Page Layout
+// ============================================
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  padding: $space-4;
+
+  @include sm {
+    padding: $space-8;
+  }
+}
+
+.container {
+  max-width: 56rem; // 896px = max-w-4xl
+  margin: 0 auto;
+}
+
+// ============================================
+// Header Section
+// ============================================
+
+.title {
+  margin-bottom: $space-2;
+  font-size: $text-2xl;
+  font-weight: $font-bold;
+
+  @include sm {
+    font-size: $text-3xl;
+  }
+}
+
+.description {
+  margin-bottom: $space-4;
+  color: var(--muted-foreground);
+}
+
+// ============================================
+// Algorithm Info Box
+// ============================================
+
+.infoBox {
+  margin-bottom: $space-6;
+  padding: $space-4;
+  border-radius: $radius-lg;
+  border: 1px solid rgba(59, 130, 246, 0.5); // blue-500/50
+  background-color: rgb(239, 246, 255); // blue-50
+
+  :global(.dark) & {
+    background-color: rgba(30, 64, 175, 0.2); // blue-900/20
+  }
+}
+
+.infoText {
+  font-size: $text-sm;
+  color: rgb(29, 78, 216); // blue-700
+  margin-bottom: $space-3;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  :global(.dark) & {
+    color: rgb(147, 197, 253); // blue-300
+  }
+}
+
+.infoStrong {
+  font-weight: $font-bold;
+  color: rgb(30, 64, 175); // blue-800
+
+  :global(.dark) & {
+    color: rgb(191, 219, 254); // blue-200
+  }
+}
+
+// ============================================
+// Run Button
+// ============================================
+
+.runButton {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  margin-bottom: $space-6;
+  padding: $space-2 $space-4;
+  border-radius: $radius-lg;
+  font-weight: $font-medium;
+  background-color: rgb(37, 99, 235); // blue-600
+  color: white;
+  transition: background-color $transition-normal;
+  border: none;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: rgb(29, 78, 216); // blue-700
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+// ============================================
+// Stats Grid
+// ============================================
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $space-4;
+  margin-bottom: $space-6;
+
+  @include sm {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include lg {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.statCard {
+  padding: $space-4;
+  text-align: center;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border);
+}
+
+.statValue {
+  font-size: $text-2xl;
+  font-weight: $font-bold;
+}
+
+.statLabel {
+  font-size: $text-sm;
+  color: var(--muted-foreground);
+}
+
+.statDetail {
+  font-size: $text-xs;
+  color: var(--muted-foreground);
+}
+
+// ============================================
+// Test Section
+// ============================================
+
+.section {
+  margin-bottom: $space-6;
+}
+
+.sectionTitle {
+  margin-bottom: $space-3;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+}
+
+.testList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+// ============================================
+// Level Card (Accordion)
+// ============================================
+
+.levelCard {
+  border-radius: $radius-lg;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.levelHeader {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-3;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color $transition-normal;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  :global(.dark) &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.levelLeft {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.levelRight {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+}
+
+.levelName {
+  font-weight: $font-medium;
+}
+
+.levelScore {
+  font-size: $text-sm;
+  color: var(--muted-foreground);
+}
+
+.chevron {
+  width: 1rem;
+  height: 1rem;
+}
+
+// ============================================
+// Percentage Badge
+// ============================================
+
+.badge {
+  padding: $space-0-5 $space-2;
+  border-radius: 9999px;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+}
+
+.badgeGreen {
+  background-color: rgb(220, 252, 231); // green-100
+  color: rgb(21, 128, 61); // green-700
+
+  :global(.dark) & {
+    background-color: rgba(20, 83, 45, 0.3); // green-900/30
+    color: rgb(74, 222, 128); // green-400
+  }
+}
+
+.badgeYellow {
+  background-color: rgb(254, 249, 195); // yellow-100
+  color: rgb(161, 98, 7); // yellow-700
+
+  :global(.dark) & {
+    background-color: rgba(113, 63, 18, 0.3); // yellow-900/30
+    color: rgb(250, 204, 21); // yellow-400
+  }
+}
+
+.badgeRed {
+  background-color: rgb(254, 226, 226); // red-100
+  color: rgb(185, 28, 28); // red-700
+
+  :global(.dark) & {
+    background-color: rgba(127, 29, 29, 0.3); // red-900/30
+    color: rgb(248, 113, 113); // red-400
+  }
+}
+
+// ============================================
+// Category Section
+// ============================================
+
+.categoryContent {
+  padding: $space-3;
+  padding-top: $space-2;
+  border-top: 1px solid var(--border);
+}
+
+.categoryItem {
+  margin-bottom: $space-2;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.categoryHeader {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-2;
+  text-align: left;
+  border-radius: $radius-md;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color $transition-normal;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  :global(.dark) &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.categoryLeft {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.categoryRight {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.categoryName {
+  font-size: $text-sm;
+}
+
+.categoryScore {
+  font-size: $text-xs;
+  color: var(--muted-foreground);
+}
+
+.categoryPercentage {
+  font-size: $text-xs;
+}
+
+.categoryPercentageGreen {
+  color: rgb(22, 163, 74); // green-600
+
+  :global(.dark) & {
+    color: rgb(74, 222, 128); // green-400
+  }
+}
+
+.categoryPercentageYellow {
+  color: rgb(202, 138, 4); // yellow-600
+
+  :global(.dark) & {
+    color: rgb(250, 204, 21); // yellow-400
+  }
+}
+
+.categoryPercentageRed {
+  color: rgb(220, 38, 38); // red-600
+
+  :global(.dark) & {
+    color: rgb(248, 113, 113); // red-400
+  }
+}
+
+.chevronSmall {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+// ============================================
+// Test Results
+// ============================================
+
+.resultsList {
+  margin-left: 1.25rem;
+  margin-top: $space-1;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+}
+
+.resultItem {
+  padding: $space-2;
+  border-radius: $radius-md;
+  font-size: $text-xs;
+}
+
+.resultPassed {
+  background-color: rgb(240, 253, 244); // green-50
+
+  :global(.dark) & {
+    background-color: rgba(20, 83, 45, 0.2); // green-900/20
+  }
+}
+
+.resultFailed {
+  background-color: rgb(254, 242, 242); // red-50
+
+  :global(.dark) & {
+    background-color: rgba(127, 29, 29, 0.2); // red-900/20
+  }
+}
+
+.resultContent {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-2;
+}
+
+.resultIcon {
+  margin-top: 0.125rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
+
+.resultIconGreen {
+  color: rgb(22, 163, 74); // green-600
+
+  :global(.dark) & {
+    color: rgb(74, 222, 128); // green-400
+  }
+}
+
+.resultIconRed {
+  color: rgb(220, 38, 38); // red-600
+
+  :global(.dark) & {
+    color: rgb(248, 113, 113); // red-400
+  }
+}
+
+.resultBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.resultInput {
+  margin-bottom: $space-1;
+  font-family: monospace;
+  color: var(--muted-foreground);
+  word-wrap: break-word;
+}
+
+.resultDetails {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+}
+
+.resultGot {
+  color: rgb(220, 38, 38); // red-600
+  word-wrap: break-word;
+
+  :global(.dark) & {
+    color: rgb(248, 113, 113); // red-400
+  }
+}
+
+.resultExpected {
+  color: rgb(22, 163, 74); // green-600
+  word-wrap: break-word;
+
+  :global(.dark) & {
+    color: rgb(74, 222, 128); // green-400
+  }
+}
+
+.resultLabel {
+  font-weight: $font-medium;
+}
+
+// ============================================
+// Empty State
+// ============================================
+
+.emptyState {
+  padding: $space-8;
+  text-align: center;
+  border-radius: $radius-lg;
+  border: 1px dashed var(--border);
+  color: var(--muted-foreground);
+}

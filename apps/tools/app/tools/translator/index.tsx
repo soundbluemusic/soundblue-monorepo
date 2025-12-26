@@ -1,12 +1,12 @@
 import { ArrowLeftRight, Check, Copy, Share2, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import m from '~/lib/messages';
-import { cn } from '~/lib/utils';
 import {
   defaultTranslatorSettings,
   type TranslationDirection,
   type TranslatorSettings,
 } from './settings';
+import styles from './Translator.module.scss';
 import { translate } from './translator-service';
 import { createShareUrl, getSharedDataFromCurrentUrl, getTextLengthWarning } from './url-sharing';
 
@@ -176,24 +176,31 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
   const sourceLabel = settings.direction === 'ko-en' ? '한국어' : 'English';
   const targetLabel = settings.direction === 'ko-en' ? 'English' : '한국어';
 
+  const getShareButtonClass = () => {
+    const base = styles.shareButton;
+    if (shareStatus === 'copied') return `${base} ${styles.shareCopied}`;
+    if (shareStatus === 'error') return `${base} ${styles.shareError}`;
+    return `${base} ${styles.shareIdle}`;
+  };
+
   return (
-    <div className="flex h-full flex-col gap-3 overflow-auto p-3 sm:p-4">
+    <div className={styles.container}>
       {/* Header with direction toggle */}
-      <div className="flex items-center justify-center gap-3">
-        <span className="min-w-15 text-right text-sm font-medium">{sourceLabel}</span>
+      <div className={styles.directionHeader}>
+        <span className={`${styles.langLabel} ${styles.source}`}>{sourceLabel}</span>
         <button
           type="button"
           onClick={toggleDirection}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border transition-all duration-200 hover:scale-105 hover:bg-black/8 active:scale-95 dark:hover:bg-white/12"
+          className={styles.toggleButton}
           title="Switch direction"
         >
-          <ArrowLeftRight className="h-4 w-4" />
+          <ArrowLeftRight className={styles.toggleIcon} />
         </button>
-        <span className="min-w-15 text-sm font-medium">{targetLabel}</span>
+        <span className={styles.langLabel}>{targetLabel}</span>
       </div>
 
       {/* Input area */}
-      <div className="min-h-30 flex-1">
+      <div className={styles.textAreaWrapper}>
         <textarea
           value={inputText}
           onChange={(e) => setInputText(e.currentTarget.value)}
@@ -202,41 +209,35 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
               ? '번역할 텍스트를 입력하세요...'
               : 'Enter text to translate...'
           }
-          className="h-full w-full resize-none rounded-xl border border-border bg-background p-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+          className={styles.inputTextarea}
         />
       </div>
 
       {/* Output area */}
-      <div className="relative min-h-30 flex-1">
-        <div className="h-full w-full overflow-auto rounded-xl border border-border bg-muted/30 p-3 text-sm">
-          {outputText}
-        </div>
+      <div className={styles.outputWrapper}>
+        <div className={styles.outputDisplay}>{outputText}</div>
 
         {/* Copy button */}
         {outputText && (
           <button
             type="button"
             onClick={copyToClipboard}
-            className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/80 backdrop-blur-sm transition-all duration-200 hover:bg-black/8 dark:hover:bg-white/12"
+            className={styles.copyButton}
             title={m['common.copy']?.()}
           >
             {isCopied ? (
-              <Check className="h-3.5 w-3.5 text-green-500" />
+              <Check className={`${styles.copyIcon} ${styles.copyIconSuccess}`} />
             ) : (
-              <Copy className="h-3.5 w-3.5" />
+              <Copy className={styles.copyIcon} />
             )}
           </button>
         )}
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={clearAll}
-          className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs text-muted-foreground transition-colors hover:bg-black/8 hover:text-foreground dark:hover:bg-white/12"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
+      <div className={styles.footer}>
+        <button type="button" onClick={clearAll} className={styles.clearButton}>
+          <Trash2 className={styles.clearIcon} />
           <span>{settings.direction === 'ko-en' ? '지우기' : 'Clear'}</span>
         </button>
 
@@ -245,13 +246,7 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
           type="button"
           onClick={shareTranslation}
           disabled={!inputText.trim() || textWarning === 'danger'}
-          className={cn(
-            'inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50',
-            'hover:bg-black/8 dark:hover:bg-white/12',
-            shareStatus === 'idle' && 'text-muted-foreground hover:text-foreground',
-            shareStatus === 'copied' && 'text-green-600 dark:text-green-400',
-            shareStatus === 'error' && 'text-red-600 dark:text-red-400',
-          )}
+          className={getShareButtonClass()}
           title={
             textWarning === 'danger'
               ? settings.direction === 'ko-en'
@@ -262,24 +257,24 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
         >
           {shareStatus === 'copied' ? (
             <>
-              <Check className="h-3.5 w-3.5" />
+              <Check className={styles.shareIcon} />
               <span>{m['tools.urlCopied']?.()}</span>
             </>
           ) : shareStatus === 'error' ? (
             <>
-              <X className="h-3.5 w-3.5" />
+              <X className={styles.shareIcon} />
               <span>{settings.direction === 'ko-en' ? '너무 깁니다' : 'Too long'}</span>
             </>
           ) : (
             <>
-              <Share2 className="h-3.5 w-3.5" />
+              <Share2 className={styles.shareIcon} />
               <span>{settings.direction === 'ko-en' ? '공유' : 'Share'}</span>
             </>
           )}
         </button>
 
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <div className="h-2 w-2 rounded-full bg-blue-500" />
+        <div className={styles.algorithmBadge}>
+          <div className={styles.algorithmDot} />
           <span>
             {settings.direction === 'ko-en' ? '알고리즘 번역' : 'Algorithm-based Translation'}
           </span>

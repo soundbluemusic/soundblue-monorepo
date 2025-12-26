@@ -1,0 +1,277 @@
+@use '../../styles/variables' as *;
+
+// ============================================
+// Translator Tool Styles
+// ============================================
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: $space-3;
+  overflow: auto;
+  padding: $space-3;
+
+  @include sm {
+    padding: $space-4;
+  }
+}
+
+// ============================================
+// Direction Toggle Header
+// ============================================
+
+.directionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-3;
+}
+
+.langLabel {
+  min-width: 3.75rem;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+
+  &.source {
+    text-align: right;
+  }
+}
+
+.toggleButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: all $transition-normal;
+
+  &:hover {
+    transform: scale(1.05);
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  :global(.dark) &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.toggleIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+// ============================================
+// Text Areas
+// ============================================
+
+.textAreaWrapper {
+  flex: 1;
+  min-height: 7.5rem; // min-h-30
+}
+
+.inputTextarea {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  padding: $space-3;
+  font-size: $text-sm;
+  border-radius: $radius-xl;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  transition: border-color $transition-normal, box-shadow $transition-normal;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ring);
+  }
+}
+
+.outputWrapper {
+  position: relative;
+  flex: 1;
+  min-height: 7.5rem;
+}
+
+.outputDisplay {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: $space-3;
+  font-size: $text-sm;
+  border-radius: $radius-xl;
+  border: 1px solid var(--border);
+  background-color: rgba(0, 0, 0, 0.03);
+
+  :global(.dark) & {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+}
+
+// ============================================
+// Copy Button
+// ============================================
+
+.copyButton {
+  position: absolute;
+  top: $space-2;
+  right: $space-2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border);
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  transition: background-color $transition-normal;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+
+  :global(.dark) & {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  :global(.dark) &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.copyIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.copyIconSuccess {
+  color: rgb(34, 197, 94); // green-500
+}
+
+// ============================================
+// Footer Controls
+// ============================================
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.clearButton {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1-5;
+  height: 2rem;
+  padding: 0 $space-3;
+  border-radius: $radius-lg;
+  font-size: $text-xs;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color $transition-normal, color $transition-normal;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: var(--foreground);
+  }
+
+  :global(.dark) &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.clearIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+// ============================================
+// Share Button
+// ============================================
+
+.shareButton {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1-5;
+  height: 2rem;
+  padding: 0 $space-3;
+  border-radius: $radius-lg;
+  font-size: $text-xs;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color $transition-normal, color $transition-normal;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+
+  :global(.dark) &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.shareIdle {
+  color: var(--muted-foreground);
+
+  &:hover:not(:disabled) {
+    color: var(--foreground);
+  }
+}
+
+.shareCopied {
+  color: rgb(22, 163, 74); // green-600
+
+  :global(.dark) & {
+    color: rgb(74, 222, 128); // green-400
+  }
+}
+
+.shareError {
+  color: rgb(220, 38, 38); // red-600
+
+  :global(.dark) & {
+    color: rgb(248, 113, 113); // red-400
+  }
+}
+
+.shareIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+// ============================================
+// Algorithm Badge
+// ============================================
+
+.algorithmBadge {
+  display: flex;
+  align-items: center;
+  gap: $space-1-5;
+  font-size: $text-xs;
+  color: var(--muted-foreground);
+}
+
+.algorithmDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: rgb(59, 130, 246); // blue-500
+}
