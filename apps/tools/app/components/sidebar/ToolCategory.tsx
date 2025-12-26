@@ -4,8 +4,8 @@ import { useParaglideI18n } from '@soundblue/shared-react';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import type { ToolCategory as ToolCategoryType } from '~/lib/toolCategories';
-import { cn } from '~/lib/utils';
 import type { ToolType } from '~/stores/tool-store';
+import styles from './ToolCategory.module.scss';
 import { ToolItem } from './ToolItem';
 
 // ========================================
@@ -22,28 +22,24 @@ export function ToolCategory({ category, onToolClick, collapsed }: ToolCategoryP
   const { locale } = useParaglideI18n();
   const [isOpen, setIsOpen] = useState(true);
 
+  const chevronClasses = [styles.chevronIcon, isOpen && styles.open].filter(Boolean).join(' ');
+  const toolListClasses = [styles.toolList, !collapsed && styles.expanded]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className="space-y-1">
+    <div className={styles.category}>
       {/* Category Header */}
       {!collapsed && (
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className={cn(
-            'flex w-full items-center justify-between px-3 py-2 rounded-md',
-            'text-xs font-semibold uppercase tracking-wider text-muted-foreground',
-            'hover:text-foreground transition-colors',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-          )}
-        >
+        <button type="button" onClick={() => setIsOpen(!isOpen)} className={styles.categoryHeader}>
           <span>{category.name[locale]}</span>
-          <ChevronDown className={cn('h-4 w-4 transition-transform', isOpen && 'rotate-180')} />
+          <ChevronDown className={chevronClasses} />
         </button>
       )}
 
       {/* Tool List */}
       {(isOpen || collapsed) && (
-        <div className={cn('space-y-0.5', !collapsed && 'pl-1')}>
+        <div className={toolListClasses}>
           {category.tools.map((tool) => (
             <ToolItem key={tool.id} tool={tool} onClick={onToolClick} collapsed={collapsed} />
           ))}

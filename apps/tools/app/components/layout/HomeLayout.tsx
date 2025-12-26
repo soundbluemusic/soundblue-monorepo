@@ -7,8 +7,8 @@ import { Link, useNavigate } from 'react-router';
 import { Button } from '~/components/ui/button';
 import m from '~/lib/messages';
 import { ALL_TOOLS, type ToolInfo } from '~/lib/toolCategories';
-import { cn } from '~/lib/utils';
 import { useToolStore } from '~/stores/tool-store';
+import styles from './HomeLayout.module.scss';
 
 // ========================================
 // HomeLayout Component - 런처 스타일 홈 레이아웃
@@ -43,96 +43,70 @@ export function HomeLayout() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className={styles.container}>
       {/* Header */}
-      <header className="relative z-30 flex h-14 items-center justify-between border-b px-4">
-        <Link to={localizedPath('/')} className="text-lg font-semibold tracking-tight text-brand">
+      <header className={styles.header}>
+        <Link to={localizedPath('/')} className={styles.logoLink}>
           {m['brand']?.()}
         </Link>
 
-        <div className="flex items-center gap-1">
+        <div className={styles.headerControls}>
           {/* Theme Toggle */}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             aria-label={resolvedTheme === 'dark' ? m['theme_light']?.() : m['theme_dark']?.()}
-            className="text-muted-foreground hover:text-foreground"
+            className={styles.themeButton}
           >
-            <Sun className="h-[18px] w-[18px] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[18px] w-[18px] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className={styles.sunIcon} />
+            <Moon className={styles.moonIcon} />
           </Button>
 
           {/* Language Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleLanguage}
-            className="gap-1.5 px-3 text-muted-foreground hover:text-foreground"
-          >
-            <Globe className="h-4 w-4" />
-            <span className="text-xs font-semibold">{locale === 'ko' ? 'KO' : 'EN'}</span>
+          <Button variant="ghost" size="sm" onClick={toggleLanguage} className={styles.langButton}>
+            <Globe className={styles.langIcon} />
+            <span className={styles.langText}>{locale === 'ko' ? 'KO' : 'EN'}</span>
           </Button>
 
           {/* Menu Button */}
-          <div className="relative">
+          <div className={styles.menuButtonWrapper}>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={m['common_menu']?.()}
               aria-expanded={menuOpen}
-              className="text-muted-foreground hover:text-foreground"
+              className={styles.menuButton}
             >
-              {menuOpen ? (
-                <X className="h-[18px] w-[18px]" />
-              ) : (
-                <Menu className="h-[18px] w-[18px]" />
-              )}
+              {menuOpen ? <X className={styles.menuIcon} /> : <Menu className={styles.menuIcon} />}
             </Button>
 
             {/* Dropdown Menu */}
             {menuOpen && (
-              <div
-                className={cn(
-                  'absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border bg-card p-1 shadow-lg',
-                  'animate-in fade-in-0 zoom-in-95 slide-in-from-top-2',
-                )}
-              >
+              <div className={styles.dropdown}>
                 <Link
                   to={localizedPath('/built-with')}
                   onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
-                    'text-muted-foreground transition-colors',
-                    'hover:bg-primary/10 hover:text-foreground',
-                  )}
+                  className={styles.dropdownItem}
                 >
-                  <Code2 className="h-4 w-4" />
+                  <Code2 className={styles.dropdownIcon} />
                   <span>{m['navigation_builtWith']?.()}</span>
                 </Link>
                 <Link
                   to={localizedPath('/about')}
                   onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
-                    'text-muted-foreground transition-colors',
-                    'hover:bg-primary/10 hover:text-foreground',
-                  )}
+                  className={styles.dropdownItem}
                 >
-                  <Info className="h-4 w-4" />
+                  <Info className={styles.dropdownIcon} />
                   <span>{m['navigation_about']?.()}</span>
                 </Link>
                 <Link
                   to={localizedPath('/sitemap')}
                   onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm',
-                    'text-muted-foreground transition-colors',
-                    'hover:bg-primary/10 hover:text-foreground',
-                  )}
+                  className={styles.dropdownItem}
                 >
-                  <FileText className="h-4 w-4" />
+                  <FileText className={styles.dropdownIcon} />
                   <span>{m['sidebar_sitemap']?.()}</span>
                 </Link>
               </div>
@@ -143,74 +117,51 @@ export function HomeLayout() {
 
       {/* Click outside to close menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(false)} aria-hidden="true" />
+        <div className={styles.menuOverlay} onClick={() => setMenuOpen(false)} aria-hidden="true" />
       )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-4xl px-4 py-8 md:py-12">
+      <main className={styles.mainContent}>
+        <div className={styles.contentWrapper}>
           {/* Search Section */}
-          <div className="mb-8 md:mb-12">
-            <div className="relative mx-auto max-w-md">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <div className={styles.searchSection}>
+            <div className={styles.searchWrapper}>
+              <Search className={styles.searchIcon} />
               <input
                 type="text"
                 placeholder={locale === 'ko' ? '도구 검색...' : 'Search tools...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.currentTarget.value)}
-                className={cn(
-                  'w-full rounded-2xl border bg-card py-3 pl-12 pr-4',
-                  'text-base placeholder:text-muted-foreground',
-                  'transition-all duration-200',
-                  'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
-                )}
+                className={styles.searchInput}
               />
             </div>
           </div>
 
           {/* Tools Grid */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-6">
+          <div className={styles.toolsGrid}>
             {filteredTools.map((tool) => (
               <button
                 key={tool.id}
                 type="button"
                 onClick={() => handleToolClick(tool)}
-                className={cn(
-                  'group flex flex-col items-center gap-3 rounded-2xl p-4 md:p-6',
-                  'bg-card border transition-all duration-200',
-                  'hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg hover:-translate-y-1',
-                  'active:scale-[0.98] active:translate-y-0',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                )}
+                className={styles.toolCard}
               >
                 {/* Icon */}
-                <div
-                  className={cn(
-                    'flex h-14 w-14 items-center justify-center rounded-2xl md:h-16 md:w-16',
-                    'bg-primary/10 text-3xl md:text-4xl',
-                    'transition-transform duration-200 group-hover:scale-110',
-                  )}
-                >
-                  {tool.icon}
-                </div>
+                <div className={styles.toolIconWrapper}>{tool.icon}</div>
 
                 {/* Name */}
-                <span className="text-sm font-medium text-foreground md:text-base">
-                  {tool.name[locale]}
-                </span>
+                <span className={styles.toolName}>{tool.name[locale]}</span>
 
                 {/* Description - hidden on mobile */}
-                <span className="hidden text-center text-xs text-muted-foreground md:block">
-                  {tool.description[locale]}
-                </span>
+                <span className={styles.toolDescription}>{tool.description[locale]}</span>
               </button>
             ))}
           </div>
 
           {/* Empty State */}
           {filteredTools.length === 0 && (
-            <div className="py-12 text-center">
-              <p className="text-muted-foreground">
+            <div className={styles.emptyState}>
+              <p className={styles.emptyText}>
                 {locale === 'ko' ? '검색 결과가 없습니다' : 'No tools found'}
               </p>
             </div>
@@ -219,14 +170,14 @@ export function HomeLayout() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t px-4 py-3">
-        <p className="text-center text-xs text-muted-foreground">
+      <footer className={styles.footer}>
+        <p className={styles.footerText}>
           Tools by{' '}
           <a
             href="https://soundbluemusic.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary hover:underline"
+            className={styles.footerLink}
           >
             SoundBlueMusic
           </a>

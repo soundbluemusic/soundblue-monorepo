@@ -13,7 +13,7 @@ import {
 } from 'react-router';
 import m from '~/lib/messages';
 import { setLocale } from '~/paraglide/runtime';
-import './app.css';
+import './app.scss';
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -51,7 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
       </head>
-      <body className="min-h-screen bg-background text-foreground antialiased">
+      <body>
         {children}
         <ScrollRestoration />
         <Scripts />

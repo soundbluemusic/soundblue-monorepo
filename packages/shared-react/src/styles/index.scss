@@ -1,0 +1,9 @@
+// ============================================
+// Shared Styles Entry Point
+// ============================================
+// Usage: @use '@soundblue/shared-react/styles' as *;
+// Or:    @use '@soundblue/shared-react/styles' as shared;
+
+@forward 'variables';
+@forward 'mixins';
+@forward 'animations';

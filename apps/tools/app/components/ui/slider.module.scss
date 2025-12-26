@@ -1,0 +1,60 @@
+@use '../../styles/variables' as *;
+
+.root {
+  position: relative;
+  display: flex;
+  width: 100%;
+  touch-action: none;
+  user-select: none;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.track {
+  position: relative;
+  height: 6px;
+  width: 100%;
+  flex-grow: 1;
+  overflow: hidden;
+  border-radius: $radius-full;
+  background-color: var(--secondary);
+  transition: background-color $transition-normal;
+}
+
+.range {
+  position: absolute;
+  height: 100%;
+  border-radius: $radius-full;
+  background-color: var(--primary);
+  transition: all 75ms;
+}
+
+.thumb {
+  display: block;
+  height: 1.75rem;
+  width: 1.75rem;
+  border-radius: $radius-full;
+  background-color: white;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: all $transition-normal ease-out;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary), 0 0 0 4px var(--background);
+  }
+
+  &:active {
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+}

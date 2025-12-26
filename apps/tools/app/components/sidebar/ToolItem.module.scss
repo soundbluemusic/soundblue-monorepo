@@ -1,0 +1,57 @@
+@use '../../styles/variables' as *;
+
+.toolItem {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all $transition-normal ease-out;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: var(--foreground);
+  }
+
+  :global(.dark) &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  &:active {
+    transform: scale(0.98);
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+
+  :global(.dark) &:active {
+    background-color: rgba(255, 255, 255, 0.18);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &.active {
+    background-color: color-mix(in srgb, var(--brand) 15%, transparent);
+    color: var(--brand);
+    font-weight: 500;
+    box-shadow: $shadow-sm;
+  }
+
+  &.collapsed {
+    justify-content: center;
+    padding: 0.5rem;
+  }
+}
+
+.toolIcon {
+  font-size: 1.125rem;
+}
+
+.toolName {
+  @include truncate;
+}

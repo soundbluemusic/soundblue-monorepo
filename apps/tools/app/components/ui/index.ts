@@ -2,7 +2,7 @@
 // UI Components Export
 // ========================================
 
-export { Button, type ButtonProps, buttonVariants } from './button';
+export { Button, type ButtonProps } from './button';
 export {
   Dialog,
   DialogClose,

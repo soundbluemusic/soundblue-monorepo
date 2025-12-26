@@ -1,0 +1,52 @@
+@use '../../styles/variables' as *;
+
+.container {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  background-color: var(--background);
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.mobileOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: none;
+  cursor: default;
+
+  @media (min-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+.sidebarWrapper {
+  z-index: 50;
+
+  &.mobile {
+    position: fixed;
+    inset: 0;
+    left: 0;
+    padding-top: 3.5rem;
+    transition: transform $transition-normal;
+
+    &.closed {
+      transform: translateX(-100%);
+    }
+  }
+
+  &.desktop {
+    position: relative;
+  }
+}
+
+.toolArea {
+  flex: 1;
+  overflow: auto;
+}

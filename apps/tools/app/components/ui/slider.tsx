@@ -1,6 +1,6 @@
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import type { ComponentProps } from 'react';
-import { cn } from '~/lib/utils';
+import styles from './slider.module.scss';
 
 interface SliderProps {
   className?: string;
@@ -28,9 +28,11 @@ export function Slider({
   orientation = 'horizontal',
   ...props
 }: SliderProps & Omit<ComponentProps<typeof SliderPrimitive.Root>, 'value' | 'defaultValue'>) {
+  const classNames = [styles.root, className].filter(Boolean).join(' ');
+
   return (
     <SliderPrimitive.Root
-      className={cn('relative flex w-full touch-none select-none items-center py-2', className)}
+      className={classNames}
       value={value}
       defaultValue={defaultValue}
       onValueChange={onValueChange}
@@ -42,29 +44,10 @@ export function Slider({
       orientation={orientation}
       {...props}
     >
-      <SliderPrimitive.Track
-        className={cn(
-          'relative h-1.5 w-full grow overflow-hidden rounded-full',
-          'bg-secondary',
-          'transition-colors duration-200',
-        )}
-      >
-        <SliderPrimitive.Range
-          className={cn('absolute h-full rounded-full', 'bg-primary', 'transition-all duration-75')}
-        />
+      <SliderPrimitive.Track className={styles.track}>
+        <SliderPrimitive.Range className={styles.range} />
       </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb
-        className={cn(
-          'block h-7 w-7 rounded-full',
-          'bg-white border-0',
-          'shadow-[0_2px_8px_rgba(0,0,0,0.15),0_1px_2px_rgba(0,0,0,0.1)]',
-          'transition-all duration-200 ease-out',
-          'hover:scale-110 hover:shadow-[0_4px_12px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.1)]',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-          'active:scale-105',
-          'disabled:pointer-events-none disabled:opacity-50',
-        )}
-      />
+      <SliderPrimitive.Thumb className={styles.thumb} />
     </SliderPrimitive.Root>
   );
 }

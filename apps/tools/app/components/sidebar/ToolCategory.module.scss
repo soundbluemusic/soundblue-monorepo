@@ -1,0 +1,53 @@
+@use '../../styles/variables' as *;
+
+.category {
+  > * + * {
+    margin-top: 0.25rem;
+  }
+}
+
+.categoryHeader {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: $radius;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: var(--foreground);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.chevronIcon {
+  height: 1rem;
+  width: 1rem;
+  transition: transform $transition-fast;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.toolList {
+  > * + * {
+    margin-top: 0.125rem;
+  }
+
+  &.expanded {
+    padding-left: 0.25rem;
+  }
+}

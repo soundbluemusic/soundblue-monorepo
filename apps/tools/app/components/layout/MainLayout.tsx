@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { ToolSidebar } from '~/components/sidebar';
 import { ToolContainer } from '~/components/tools';
-import { cn } from '~/lib/utils';
 import { useToolStore } from '~/stores/tool-store';
 import { Footer } from './Footer';
 import { Header } from './Header';
+import styles from './MainLayout.module.scss';
 
 const BREAKPOINT_MOBILE = 768;
 
@@ -44,37 +44,38 @@ export function MainLayout() {
 
   const showMobileOverlay = isMobile && sidebarOpen;
 
+  const sidebarClasses = [
+    styles.sidebarWrapper,
+    isMobile ? styles.mobile : styles.desktop,
+    isMobile && !sidebarOpen ? styles.closed : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className={styles.container}>
       {/* Header */}
       <Header />
 
       {/* Main Content */}
-      <main className="flex flex-1 overflow-hidden">
+      <main className={styles.main}>
         {/* Mobile Sidebar Overlay */}
         {showMobileOverlay && (
           <button
             type="button"
-            className="fixed inset-0 z-40 bg-black/50 md:hidden border-none cursor-default"
+            className={styles.mobileOverlay}
             onClick={() => setSidebarOpen(false)}
             aria-label="Close sidebar"
           />
         )}
 
         {/* Sidebar */}
-        <div
-          className={cn(
-            'z-50',
-            isMobile && 'fixed inset-y-0 left-0 pt-14 transition-transform duration-200',
-            isMobile && !sidebarOpen && '-translate-x-full',
-            !isMobile && 'relative',
-          )}
-        >
+        <div className={sidebarClasses}>
           <ToolSidebar />
         </div>
 
         {/* Tool Area */}
-        <div className="flex-1 overflow-auto">
+        <div className={styles.toolArea}>
           <ToolContainer />
         </div>
       </main>

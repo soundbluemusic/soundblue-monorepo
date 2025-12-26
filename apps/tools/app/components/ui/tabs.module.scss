@@ -1,0 +1,54 @@
+@use '../../styles/variables' as *;
+
+.list {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-xl;
+  background-color: color-mix(in srgb, var(--secondary) 80%, transparent);
+  padding: 0.25rem;
+  backdrop-filter: blur(4px);
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: $radius-lg;
+  padding: 0.5rem 1rem;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all $transition-normal ease-out;
+
+  &:hover {
+    color: var(--foreground);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  &[data-state='active'] {
+    background-color: var(--background);
+    color: var(--foreground);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.content {
+  margin-top: 1rem;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}

@@ -9,7 +9,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/comp
 import { WorldClockWidget } from '~/components/widgets';
 import m from '~/lib/messages';
 import { getToolInfo } from '~/lib/toolCategories';
-import { cn } from '~/lib/utils';
 import { useAudioStore } from '~/stores/audio-store';
 import { useToolStore } from '~/stores/tool-store';
 // Import tool types and default settings only (not components)
@@ -20,6 +19,7 @@ import {
 import { defaultMetronomeSettings, type MetronomeSettings } from '~/tools/metronome/settings';
 import { defaultQRSettings, type QRSettings } from '~/tools/qr-generator/settings';
 import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator/settings';
+import styles from './ToolContainer.module.scss';
 
 // Lazy load tool components for code splitting
 const LazyMetronome = lazy(() =>
@@ -38,8 +38,8 @@ const LazyTranslator = lazy(() =>
 // Loading fallback component
 function ToolLoading() {
   return (
-    <div className="flex h-full items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <div className={styles.loadingWrapper}>
+      <Loader2 className={styles.loadingIcon} />
     </div>
   );
 }
@@ -319,22 +319,26 @@ export function ToolContainer() {
     }
   };
 
+  const shareButtonClasses = [styles.iconButton, urlCopied && styles.copied]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className="flex h-full flex-col bg-background">
+    <div className={styles.container}>
       {/* WorldClockWidget shown only on desktop (md+) when no tool selected */}
       {!currentTool ? (
-        <div className="hidden h-full md:block">
+        <div className={styles.emptyState}>
           <WorldClockWidget />
         </div>
       ) : (
         <>
           {/* Tool Header */}
-          <div className="flex items-center justify-between border-b px-4 py-2">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{toolInfo?.icon}</span>
-              <h2 className="font-semibold text-sm">{toolInfo?.name[locale]}</h2>
+          <div className={styles.header}>
+            <div className={styles.headerLeft}>
+              <span className={styles.toolIcon}>{toolInfo?.icon}</span>
+              <h2 className={styles.toolTitle}>{toolInfo?.name[locale]}</h2>
             </div>
-            <div className="flex items-center gap-1">
+            <div className={styles.headerRight}>
               {/* Share URL Button */}
               <TooltipProvider>
                 <Tooltip>
@@ -342,16 +346,10 @@ export function ToolContainer() {
                     <button
                       type="button"
                       onClick={copyShareUrl}
-                      className={cn(
-                        'p-1.5 rounded-lg',
-                        'transition-all duration-200 ease-out',
-                        'hover:bg-primary/10 hover:text-primary',
-                        'active:bg-primary/20',
-                        urlCopied && 'text-green-500',
-                      )}
+                      className={shareButtonClasses}
                       aria-label={m['tools.shareUrl']?.()}
                     >
-                      <Link2 className="h-4 w-4" />
+                      <Link2 className={styles.buttonIcon} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -363,21 +361,16 @@ export function ToolContainer() {
               <button
                 type="button"
                 onClick={handleClose}
-                className={cn(
-                  'p-1.5 rounded-lg',
-                  'transition-all duration-200 ease-out',
-                  'hover:bg-destructive/25 hover:text-destructive',
-                  'active:bg-destructive/35',
-                )}
+                className={styles.closeButton}
                 aria-label={m['tools.closeTool']?.()}
               >
-                <X className="h-4 w-4" />
+                <X className={styles.buttonIcon} />
               </button>
             </div>
           </div>
 
           {/* Tool Content */}
-          <div ref={containerRef} className="flex-1 overflow-auto">
+          <div ref={containerRef} className={styles.content}>
             <Suspense fallback={<ToolLoading />}>{renderToolContent()}</Suspense>
           </div>
         </>
