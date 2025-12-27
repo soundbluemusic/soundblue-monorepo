@@ -29,6 +29,10 @@
       "types": "./src/storage/index.ts",
       "import": "./src/storage/index.ts"
     },
+    "./nlp": {
+      "types": "./src/nlp/index.ts",
+      "import": "./src/nlp/index.ts"
+    },
     "./styles": "./src/styles/index.scss",
     "./styles/*": "./src/styles/*"
   },
