@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { MockBottomSheetProps } from '~/test/types';
 import { BottomNav } from './BottomNav';
 
 // Mock dependencies
@@ -34,7 +35,7 @@ vi.mock('~/lib/messages', () => ({
 }));
 
 vi.mock('~/components/ui', () => ({
-  BottomSheet: ({ isOpen, onClose, title, children }: any) =>
+  BottomSheet: ({ isOpen, onClose, title, children }: MockBottomSheetProps) =>
     isOpen ? (
       <div data-testid="bottom-sheet" role="dialog">
         <h2>{title}</h2>
