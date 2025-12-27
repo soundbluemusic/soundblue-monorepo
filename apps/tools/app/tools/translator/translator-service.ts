@@ -3163,8 +3163,8 @@ function handleRelativePronounEnKo(text: string): string | null {
 // Level 15: 대명사 자동 결정 + 이름 로마자 변환
 // ========================================
 
-// 한국어 이름 성별 판단을 위한 일반적인 패턴
-const FEMALE_NAME_ENDINGS = [
+// 한국어 이름 성별 판단을 위한 일반적인 패턴 (향후 확장용)
+const _FEMALE_NAME_ENDINGS = [
   '희',
   '영',
   '미',
@@ -3178,7 +3178,7 @@ const FEMALE_NAME_ENDINGS = [
   '윤',
   '예',
 ];
-const MALE_NAME_ENDINGS = ['수', '호', '준', '민', '진', '석', '우', '현', '기', '훈', '철'];
+const _MALE_NAME_ENDINGS = ['수', '호', '준', '민', '진', '석', '우', '현', '기', '훈', '철'];
 
 /**
  * Level 15: 대명사 자동 결정 (ko→en)

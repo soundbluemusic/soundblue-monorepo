@@ -112,30 +112,52 @@ export default function Benchmark() {
     };
   }, []);
 
-  const runLevelTests = useCallback(
-    (levels: TestLevel[]): LevelResult[] => {
-      return levels.map((level) => {
-        const categoryResults: CategoryResult[] = level.categories.map((category) => {
-          const results = category.tests.map(runTest);
-          const passed = results.filter((r) => r.passed).length;
-          return {
+  // Async batch processing - runs tests in small batches with yields to UI
+  const runLevelTestsAsync = useCallback(
+    async (levels: TestLevel[]): Promise<LevelResult[]> => {
+      const BATCH_SIZE = 10; // Process 10 tests per batch
+      const results: LevelResult[] = [];
+
+      for (const level of levels) {
+        const categoryResults: CategoryResult[] = [];
+
+        for (const category of level.categories) {
+          const testResults: TestResult[] = [];
+
+          // Process tests in batches
+          for (let i = 0; i < category.tests.length; i += BATCH_SIZE) {
+            const batch = category.tests.slice(i, i + BATCH_SIZE);
+
+            // Yield to UI between batches
+            await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+            // Run batch
+            for (const test of batch) {
+              testResults.push(runTest(test));
+            }
+          }
+
+          const passed = testResults.filter((r) => r.passed).length;
+          categoryResults.push({
             id: category.id,
             passed,
-            total: results.length,
-            results,
-          };
-        });
+            total: testResults.length,
+            results: testResults,
+          });
+        }
 
         const totalPassed = categoryResults.reduce((sum, c) => sum + c.passed, 0);
         const totalTests = categoryResults.reduce((sum, c) => sum + c.total, 0);
 
-        return {
+        results.push({
           id: level.id,
           passed: totalPassed,
           total: totalTests,
           categories: categoryResults,
-        };
-      });
+        });
+      }
+
+      return results;
     },
     [runTest],
   );
@@ -145,53 +167,47 @@ export default function Benchmark() {
     setExpandedLevels(new Set());
     setExpandedCategories(new Set());
 
-    // Helper to run tests in batches to avoid blocking UI
-    const runWithDelay = (fn: () => LevelResult[]) =>
-      new Promise<LevelResult[]>((resolve) => {
-        setTimeout(() => resolve(fn()), 0);
-      });
-
     try {
-      // Run each test group with a small delay to allow UI updates
-      const levelRes = await runWithDelay(() => runLevelTests(levelTests));
+      // Run each test group with async batch processing to avoid blocking UI
+      const levelRes = await runLevelTestsAsync(levelTests);
       setLevelResults(levelRes);
 
-      const catRes = await runWithDelay(() => runLevelTests(categoryTests));
+      const catRes = await runLevelTestsAsync(categoryTests);
       setCategoryResults(catRes);
 
-      const ctxRes = await runWithDelay(() => runLevelTests(contextTests));
+      const ctxRes = await runLevelTestsAsync(contextTests);
       setContextResults(ctxRes);
 
-      const typoRes = await runWithDelay(() => runLevelTests(typoTests));
+      const typoRes = await runLevelTestsAsync(typoTests);
       setTypoResults(typoRes);
 
-      const uniqueRes = await runWithDelay(() => runLevelTests(uniqueTests));
+      const uniqueRes = await runLevelTestsAsync(uniqueTests);
       setUniqueResults(uniqueRes);
 
-      const polysemyRes = await runWithDelay(() => runLevelTests(polysemyTests));
+      const polysemyRes = await runLevelTestsAsync(polysemyTests);
       setPolysemyResults(polysemyRes);
 
-      const wordOrderRes = await runWithDelay(() => runLevelTests(wordOrderTests));
+      const wordOrderRes = await runLevelTestsAsync(wordOrderTests);
       setWordOrderResults(wordOrderRes);
 
-      const spacingRes = await runWithDelay(() => runLevelTests(spacingErrorTests));
+      const spacingRes = await runLevelTestsAsync(spacingErrorTests);
       setSpacingResults(spacingRes);
 
-      const finalRes = await runWithDelay(() => runLevelTests(finalTests));
+      const finalRes = await runLevelTestsAsync(finalTests);
       setFinalResults(finalRes);
 
-      const professionalRes = await runWithDelay(() => runLevelTests(professionalTranslatorTests));
+      const professionalRes = await runLevelTestsAsync(professionalTranslatorTests);
       setProfessionalResults(professionalRes);
 
-      const localizationRes = await runWithDelay(() => runLevelTests(localizationTests));
+      const localizationRes = await runLevelTestsAsync(localizationTests);
       setLocalizationResults(localizationRes);
 
-      const antiHardcodingRes = await runWithDelay(() => runLevelTests(antiHardcodingTests));
+      const antiHardcodingRes = await runLevelTestsAsync(antiHardcodingTests);
       setAntiHardcodingResults(antiHardcodingRes);
     } finally {
       setIsRunning(false);
     }
-  }, [runLevelTests]);
+  }, [runLevelTestsAsync]);
 
   const toggleLevel = (levelId: string) => {
     setExpandedLevels((prev) => {

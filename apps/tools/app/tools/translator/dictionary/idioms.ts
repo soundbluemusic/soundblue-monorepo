@@ -659,6 +659,9 @@ for (const idiom of idioms) {
 }
 const sortedPatterns = allPatterns.sort((a, b) => b.pattern.length - a.pattern.length);
 
+// 영→한 관용어 정렬 캐시 (긴 것부터)
+const sortedEnIdiomsCached = Object.entries(enToKoIdioms).sort(([a], [b]) => b.length - a.length);
+
 // 정규화 함수 (공백 제거 등)
 function normalizeForMatching(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
@@ -683,6 +686,29 @@ const KOREAN_SENTENCE_ENDINGS = [
   '인데',
 ];
 
+// 정규식 캐시 (패턴별 한 번만 컴파일)
+interface CachedPatternRegex {
+  fullMatchRegex: RegExp;
+  partialRegex: RegExp;
+}
+const regexCache = new Map<string, CachedPatternRegex>();
+const endingPatternStr = KOREAN_SENTENCE_ENDINGS.join('|');
+
+function getPatternRegexes(pattern: string): CachedPatternRegex {
+  const cached = regexCache.get(pattern);
+  if (cached) return cached;
+
+  const escapedPattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const flexPattern = escapedPattern.replace(/\s+/g, '\\s*');
+
+  const result: CachedPatternRegex = {
+    fullMatchRegex: new RegExp(`^${flexPattern}(${endingPatternStr})?[.!?]?$`),
+    partialRegex: new RegExp(flexPattern, 'g'),
+  };
+  regexCache.set(pattern, result);
+  return result;
+}
+
 /**
  * 한→영 관용어 매칭
  * 문장 내에서 관용어를 찾아 번역
@@ -705,14 +731,10 @@ export function matchKoIdioms(text: string): {
     // 이미 매칭된 관용구는 스킵
     if (matchedIdiomIds.has(idiom.ko)) continue;
 
-    // 정규식 특수 문자 이스케이프 (물음표 등)
-    const escapedPattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // 공백 유연 매칭 (관용어 내 공백을 선택적으로)
-    const flexPattern = escapedPattern.replace(/\s+/g, '\\s*');
+    // 캐시된 정규식 사용 (성능 최적화)
+    const { fullMatchRegex, partialRegex } = getPatternRegexes(pattern);
 
     // 1. 종결어미 포함 전체 문장 매칭 체크
-    const endingPattern = KOREAN_SENTENCE_ENDINGS.join('|');
-    const fullMatchRegex = new RegExp(`^${flexPattern}(${endingPattern})?[.!?]?$`);
     if (fullMatchRegex.test(result)) {
       // 속담이 문장 전체를 차지 → 영어 번역만 반환
       // 첫 글자 대문자로
@@ -724,8 +746,8 @@ export function matchKoIdioms(text: string): {
       break;
     }
 
-    // 2. 부분 매칭 (이스케이프된 flexPattern 사용)
-    const partialRegex = new RegExp(flexPattern, 'g');
+    // 2. 부분 매칭 (캐시된 정규식 사용)
+    partialRegex.lastIndex = 0; // 리셋 (이전 사용에서 lastIndex 변경될 수 있음)
     if (partialRegex.test(result)) {
       partialRegex.lastIndex = 0; // 리셋 (test() 호출 후 lastIndex 변경됨)
       result = result.replace(partialRegex, `{{${idiom.en}}}`);
@@ -758,10 +780,8 @@ export function matchEnIdioms(text: string): {
   let result = text.toLowerCase();
   const matched: string[] = [];
 
-  // 긴 관용어부터 매칭
-  const sortedEnIdioms = Object.entries(enToKoIdioms).sort(([a], [b]) => b.length - a.length);
-
-  for (const [en, ko] of sortedEnIdioms) {
+  // 캐시된 정렬 사용 (성능 최적화 - 매 호출마다 정렬하지 않음)
+  for (const [en, ko] of sortedEnIdiomsCached) {
     const enLower = en.toLowerCase();
     if (result.includes(enLower)) {
       // 정규식 특수 문자 이스케이프 (마침표, 물음표 등)

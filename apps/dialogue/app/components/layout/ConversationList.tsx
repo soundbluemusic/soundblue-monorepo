@@ -128,17 +128,10 @@ export function ConversationList({
       {conversations.length > 0 ? (
         <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
           {conversations.map((conv) => (
-            <div
+            <button
+              type="button"
               key={conv.id}
-              role="button"
-              tabIndex={0}
               onClick={() => handleLoadConversation(conv)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleLoadConversation(conv);
-                }
-              }}
               className={[
                 'group min-h-[44px] flex w-full items-center gap-4 py-2 px-4 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
                 activeConversationId === conv.id
@@ -165,7 +158,7 @@ export function ConversationList({
               >
                 <TrashIcon />
               </button>
-            </div>
+            </button>
           ))}
         </div>
       ) : (
