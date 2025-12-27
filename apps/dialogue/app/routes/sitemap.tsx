@@ -1,7 +1,17 @@
 import { getLocaleFromPath, getLocalizedPath } from '@soundblue/shared-react';
 import type { MetaFunction } from 'react-router';
-import { Link, useLocation } from 'react-router';
+import { Link, useLoaderData, useLocation } from 'react-router';
 import m from '~/lib/messages';
+
+/**
+ * Build-time loader for sitemap date
+ * Prevents hydration mismatch by using fixed date from build time
+ */
+export async function loader() {
+  return {
+    lastUpdated: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
+  };
+}
 
 export const meta: MetaFunction = () => [
   { title: 'Sitemap - Dialogue' },
@@ -9,6 +19,7 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function Sitemap() {
+  const { lastUpdated } = useLoaderData<typeof loader>();
   const location = useLocation();
   const locale = getLocaleFromPath(location.pathname) as 'en' | 'ko';
 
@@ -65,8 +76,7 @@ export default function Sitemap() {
 
         {/* Footer note */}
         <p className="text-sm text-(--color-text-tertiary) mt-8">
-          {m['app.sitemap.lastUpdated']()}:{' '}
-          {new Date().toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US')}
+          {m['app.sitemap.lastUpdated']()}: {lastUpdated}
         </p>
       </div>
     </div>
