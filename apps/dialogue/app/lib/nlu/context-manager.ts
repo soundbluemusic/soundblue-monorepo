@@ -74,7 +74,7 @@
 
 import type { Entity } from './entity-extractor';
 import type { IntentResult } from './intent-classifier';
-import type { SentimentResult } from './sentiment-analyzer';
+import type { Emotion, SentimentResult } from './sentiment-analyzer';
 
 /**
  * A single conversation turn containing user input, assistant response,
@@ -430,4 +430,118 @@ export function getRecentEntity(type?: Entity['type']): Entity | null {
 export function getLastUserInput(): string | null {
   const last = globalContext.history[globalContext.history.length - 1];
   return last?.userInput || null;
+}
+
+// ========================================
+// Context Summary for Response Generation
+// ========================================
+
+/**
+ * 문맥 요약 정보
+ * 최근 N턴의 대화를 분석하여 응답 생성에 활용
+ */
+export interface ContextSummary {
+  /** 최근 의도들 */
+  recentIntents: string[];
+  /** 지배적인 감정 */
+  dominantEmotion: Emotion;
+  /** 언급된 엔티티들 */
+  mentionedEntities: Entity[];
+  /** 사용자 감정 추세 */
+  userSentimentTrend: 'improving' | 'stable' | 'declining';
+  /** 대화 주제 (추론) */
+  conversationTopic?: string;
+}
+
+/**
+ * 최근 N개의 대화 턴 조회
+ *
+ * @param count - 조회할 턴 수 (기본: 3)
+ * @returns 최근 N개의 대화 턴 (오래된 순)
+ *
+ * @example
+ * ```typescript
+ * const recentTurns = getRecentTurns(3);
+ * for (const turn of recentTurns) {
+ *   console.log(`User: ${turn.userInput}`);
+ *   console.log(`Assistant: ${turn.assistantResponse}`);
+ * }
+ * ```
+ */
+export function getRecentTurns(count = 3): ConversationTurn[] {
+  return globalContext.history.slice(-count);
+}
+
+/**
+ * 문맥 요약 생성
+ *
+ * 최근 3턴의 대화를 분석하여:
+ * - 최근 의도 목록
+ * - 지배적인 감정
+ * - 언급된 엔티티
+ * - 감정 추세 (상승/안정/하락)
+ *
+ * @returns 문맥 요약 정보
+ *
+ * @example
+ * ```typescript
+ * const summary = getContextSummary();
+ *
+ * if (summary.userSentimentTrend === 'declining') {
+ *   // 공감적인 응답 생성
+ * }
+ *
+ * if (summary.mentionedEntities.some(e => e.type === 'tech')) {
+ *   // 기술 관련 응답 강화
+ * }
+ * ```
+ */
+export function getContextSummary(): ContextSummary {
+  const recentTurns = getRecentTurns(3);
+
+  // 최근 의도 수집
+  const recentIntents = recentTurns.map((t) => t.intent.intent);
+
+  // 감정 수집 및 지배적인 감정 계산
+  const emotions = recentTurns.map((t) => t.sentiment.emotion as Emotion);
+  const emotionCounts: Record<string, number> = {};
+  for (const emotion of emotions) {
+    emotionCounts[emotion] = (emotionCounts[emotion] ?? 0) + 1;
+  }
+
+  const dominantEmotion =
+    (Object.entries(emotionCounts).sort(([, a], [, b]) => b - a)[0]?.[0] as Emotion) || 'calm';
+
+  // 극성 수집 및 추세 계산
+  const polarities = recentTurns.map((t) => t.sentiment.polarity);
+  let userSentimentTrend: 'improving' | 'stable' | 'declining' = 'stable';
+
+  if (polarities.length >= 2) {
+    const first = polarities[0] ?? 0;
+    const last = polarities[polarities.length - 1] ?? 0;
+    if (last - first > 0.3) {
+      userSentimentTrend = 'improving';
+    } else if (first - last > 0.3) {
+      userSentimentTrend = 'declining';
+    }
+  }
+
+  // 최근 턴의 엔티티 수집
+  const mentionedEntities = recentTurns.flatMap((t) => t.entities);
+
+  // 대화 주제 추론 (tech 엔티티가 있으면 tech 주제)
+  let conversationTopic: string | undefined;
+  if (mentionedEntities.some((e) => e.type === 'tech')) {
+    conversationTopic = 'technology';
+  } else if (mentionedEntities.some((e) => e.type === 'product')) {
+    conversationTopic = 'product';
+  }
+
+  return {
+    recentIntents,
+    dominantEmotion,
+    mentionedEntities,
+    userSentimentTrend,
+    conversationTopic,
+  };
 }

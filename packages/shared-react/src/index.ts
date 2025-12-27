@@ -9,7 +9,6 @@ export {
   isAtOrAboveBreakpoint,
   isBelowBreakpoint,
 } from './constants';
-
 // Hooks
 export {
   checkForUpdates,
@@ -49,6 +48,8 @@ export {
   SUPPORTED_LOCALES,
   useParaglideI18n,
 } from './i18n';
+// NLP - Natural Language Processing
+export * from './nlp';
 export {
   DEFAULT_I18N_CONFIG,
   getLocaleFromPath,

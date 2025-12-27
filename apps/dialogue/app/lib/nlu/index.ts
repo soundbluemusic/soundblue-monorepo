@@ -75,8 +75,9 @@ export function analyzeInput(text: string, locale: string): NLUResult {
 }
 
 export * from './advanced-analysis';
+export * from './context-aware-response';
 export * from './context-manager';
 export * from './entity-extractor';
-// Re-export types and functions
 export * from './intent-classifier';
+// Re-export types and functions (sentiment-analyzer first to define Emotion)
 export * from './sentiment-analyzer';

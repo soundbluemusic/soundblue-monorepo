@@ -1,10 +1,19 @@
 /**
  * @fileoverview Response handler for dialogue app
  *
- * Handles time/date queries and Q&A matching
+ * Handles time/date queries and Q&A matching with:
+ * - Fuzzy matching (typo tolerance)
+ * - Context-aware responses
  */
 
 import { getLocale } from '~/paraglide/runtime';
+import { type FuzzyQAMatchOptions, fuzzySearchQA } from './fuzzy-qa-matcher';
+import {
+  detectContextReference,
+  enhanceResponseWithContext,
+  getContextSummary,
+  resolveEntityReference,
+} from './nlu';
 
 // ========================================
 // Time/Date Response Handler
@@ -198,56 +207,6 @@ export async function initializeQA(): Promise<void> {
   }
 }
 
-/**
- * Search Q&A database for matching answer
- */
-function searchQA(question: string, locale: string): string | null {
-  const db = qaDatabase[locale] ?? qaDatabase.en;
-  if (!db) return null;
-  const lowerQuestion = question.toLowerCase();
-
-  // Score each item
-  const scored = db.items.map((item) => {
-    let score = 0;
-
-    // Check keywords
-    for (const keyword of item.keywords) {
-      if (lowerQuestion.includes(keyword.toLowerCase())) {
-        score += 2;
-      }
-    }
-
-    // Check patterns
-    if (item.patterns) {
-      for (const pattern of item.patterns) {
-        try {
-          const regex = new RegExp(pattern, 'i');
-          if (regex.test(question)) {
-            score += 3;
-          }
-        } catch {
-          // Invalid regex, skip
-        }
-      }
-    }
-
-    return { item, score };
-  });
-
-  // Find best match
-  const bestMatch = scored.reduce(
-    (best, current) => (current.score > best.score ? current : best),
-    { item: null as QAItem | null, score: 0 },
-  );
-
-  // Return answer if score is good enough
-  if (bestMatch.score >= 2 && bestMatch.item) {
-    return bestMatch.item.answer;
-  }
-
-  return null;
-}
-
 // ========================================
 // Language Switch Detection
 // ========================================
@@ -328,11 +287,11 @@ export function detectLanguageSwitch(
  * Get response for user question with advanced NLU
  *
  * Priority:
- * 1. Language switch detection (redirect to correct locale)
- * 2. Time/Date queries (always accurate)
- * 3. Intent-based responses (greetings, gratitude, etc.)
- * 4. Q&A database match (enhanced with NLU)
- * 5. Context-aware fallback
+ * 1. Time/Date queries (always accurate)
+ * 2. Intent-based responses (greetings, gratitude, etc.)
+ * 3. Fuzzy Q&A database match (typo tolerance with jamo edit distance)
+ * 4. Context reference resolution (pronouns, demonstratives)
+ * 5. Context-aware fallback (sentiment trend awareness)
  * 6. null (no answer found)
  */
 export function getResponse(
@@ -359,18 +318,46 @@ export function getResponse(
     }
   }
 
-  // 3. Search Q&A database
-  const qaResponse = searchQA(question, locale);
-  if (qaResponse) {
-    return qaResponse;
+  // 3. Fuzzy Q&A database search with typo tolerance
+  const db = qaDatabase[locale] ?? qaDatabase.en;
+  if (db?.items) {
+    const fuzzyOptions: FuzzyQAMatchOptions = {
+      maxDistance: 2, // Allow jamo edit distance up to 2
+      locale: locale as 'ko' | 'en',
+    };
+    const fuzzyResult = fuzzySearchQA(question, db.items, fuzzyOptions);
+    if (fuzzyResult) {
+      // Get context summary for response enhancement
+      const contextSummary = getContextSummary();
+
+      // Enhance response with context (sentiment trend, topic continuity)
+      const enhancedResponse = enhanceResponseWithContext(
+        fuzzyResult.item.answer,
+        contextSummary,
+        locale,
+      );
+      return enhancedResponse;
+    }
   }
 
-  // 4. Context-aware fallback
+  // 4. Context reference resolution (pronouns like "그거", "it", etc.)
+  const contextSummary = getContextSummary();
+  const contextRef = detectContextReference(question, contextSummary, locale);
+  if (contextRef.hasReference && contextRef.referencedEntity) {
+    const entityResponse = resolveEntityReference(contextRef, locale);
+    if (entityResponse) {
+      return entityResponse;
+    }
+  }
+
+  // 5. Context-aware fallback
   if (nluResult && nluResult.intent.confidence > 0.7) {
-    return getContextualFallback(nluResult, locale);
+    const fallbackResponse = getContextualFallback(nluResult, locale);
+    // Enhance fallback with sentiment trend
+    return enhanceResponseWithContext(fallbackResponse, contextSummary, locale);
   }
 
-  // 5. No answer found
+  // 6. No answer found
   return null;
 }
 
