@@ -4,11 +4,11 @@
 [![React](https://img.shields.io/badge/React-19.1-blue.svg)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6.3-green.svg)](https://vitejs.dev/)
 
-**A conversational learning tool that works 100% offline**
-(**100% 오프라인으로 작동하는 대화형 학습 도구**)
+**A Q&A tool that works 100% offline**
+(**100% 오프라인으로 작동하는 Q&A 도구**)
 
-Dialogue is an offline Q&A learning tool that provides instant answers without internet connectivity.
-(Dialogue는 인터넷 연결 없이 즉시 답변을 제공하는 오프라인 Q&A 학습 도구입니다.)
+Dialogue is an offline Q&A tool that provides instant answers without internet connectivity.
+(Dialogue는 인터넷 연결 없이 즉시 답변을 제공하는 오프라인 Q&A 도구입니다.)
 
 🌐 **Live Site**: [dialogue.soundbluemusic.com](https://dialogue.soundbluemusic.com)
 (🌐 **라이브 사이트**: [dialogue.soundbluemusic.com](https://dialogue.soundbluemusic.com))
