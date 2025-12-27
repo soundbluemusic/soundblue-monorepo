@@ -171,7 +171,10 @@ export function ChatContainer() {
 
         // Add all previous messages
         for (let i = 1; i < localMessages.length; i++) {
-          addMessage(localMessages[i]);
+          const msg = localMessages[i];
+          if (msg) {
+            addMessage(msg);
+          }
         }
 
         // Add current user message

@@ -291,10 +291,10 @@ const INTENSIFIER_PATTERNS = {
 } as const;
 
 // 빠른 조회를 위한 어휘 키 Set (O(1) 조회)
-const LEXICON_KEYS = {
-  en: Object.keys(SENTIMENT_LEXICON.en),
-  ko: Object.keys(SENTIMENT_LEXICON.ko),
-} as const;
+const LEXICON_KEYS: Record<'en' | 'ko', readonly string[]> = {
+  en: Object.keys(SENTIMENT_LEXICON.en ?? {}),
+  ko: Object.keys(SENTIMENT_LEXICON.ko ?? {}),
+};
 
 /**
  * Analyzes the emotional tone and polarity of user input.
@@ -403,9 +403,9 @@ const LEXICON_KEYS = {
  */
 export function analyzeSentiment(text: string, locale: string): SentimentResult {
   const lowerText = text.toLowerCase();
-  const lang = locale === 'ko' ? 'ko' : 'en';
-  const lexicon = SENTIMENT_LEXICON[lang];
-  const lexiconKeys = LEXICON_KEYS[lang];
+  const lang: 'en' | 'ko' = locale === 'ko' ? 'ko' : 'en';
+  const lexicon = SENTIMENT_LEXICON[lang] ?? {};
+  const lexiconKeys = LEXICON_KEYS[lang] ?? [];
 
   // Step 1: Calculate polarity from lexicon (최적화: 사전 키 배열 사용)
   // 어휘 키 배열을 순회하며 텍스트에서 키워드 검색 (O(k) where k = lexicon size)
@@ -415,8 +415,11 @@ export function analyzeSentiment(text: string, locale: string): SentimentResult 
   // 최적화: 단어별 중첩 루프 대신 전체 텍스트에서 어휘 키 검색
   for (const key of lexiconKeys) {
     if (lowerText.includes(key)) {
-      totalPolarity += lexicon[key];
-      wordCount++;
+      const score = lexicon[key];
+      if (score !== undefined) {
+        totalPolarity += score;
+        wordCount++;
+      }
     }
   }
 

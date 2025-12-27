@@ -16,13 +16,13 @@ export default function Sitemap() {
     <div className="min-h-screen bg-(--color-bg-secondary)">
       <div className="max-w-3xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-8 text-(--color-text-primary)">
-          {m['app_sitemap_title']?.() || 'Sitemap'}
+          {m['app.sitemap.title']()}
         </h1>
 
         {/* Main Pages */}
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-(--color-text-tertiary)">
-            {m['app_sitemap_sections_main']?.() || 'Main Pages'}
+            {m['app.sitemap.sections.main']()}
           </h2>
           <ul className="flex flex-col gap-2">
             <li>
@@ -30,7 +30,7 @@ export default function Sitemap() {
                 to={getLocalizedPath('/', locale)}
                 className="text-(--color-accent-primary) no-underline transition-all duration-200 hover:underline"
               >
-                {m['app_sitemap_links_home']?.() || 'Home'}
+                {m['app.sitemap.links.home']()}
               </Link>
             </li>
             <li>
@@ -38,7 +38,7 @@ export default function Sitemap() {
                 to={getLocalizedPath('/about', locale)}
                 className="text-(--color-accent-primary) no-underline transition-all duration-200 hover:underline"
               >
-                {m['app_about']?.() || 'About'}
+                {m['app.about']()}
               </Link>
             </li>
           </ul>
@@ -47,7 +47,7 @@ export default function Sitemap() {
         {/* XML Sitemap */}
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-(--color-text-tertiary)">
-            {m['app_sitemap_sections_other']?.() || 'Other'}
+            {m['app.sitemap.sections.other']()}
           </h2>
           <ul className="flex flex-col gap-2">
             <li>
@@ -57,7 +57,7 @@ export default function Sitemap() {
                 rel="noopener noreferrer"
                 className="text-(--color-accent-primary) no-underline transition-all duration-200 hover:underline"
               >
-                {m['app_sitemap_xml']?.() || 'XML Sitemap (for search engines)'}
+                {m['app.sitemap.xml']()}
               </a>
             </li>
           </ul>
@@ -65,7 +65,7 @@ export default function Sitemap() {
 
         {/* Footer note */}
         <p className="text-sm text-(--color-text-tertiary) mt-8">
-          {m['app_sitemap_lastUpdated']?.() || 'Last updated'}:{' '}
+          {m['app.sitemap.lastUpdated']()}:{' '}
           {new Date().toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US')}
         </p>
       </div>

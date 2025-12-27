@@ -16,13 +16,13 @@ export default function SitemapKo() {
     <div className="min-h-screen bg-(--color-bg-secondary)">
       <div className="max-w-3xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-8 text-(--color-text-primary)">
-          {m['app_sitemap_title']?.() || '사이트맵'}
+          {m['app.sitemap.title']()}
         </h1>
 
         {/* Main Pages */}
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-(--color-text-tertiary)">
-            {m['app_sitemap_sections_main']?.() || '주요 페이지'}
+            {m['app.sitemap.sections.main']()}
           </h2>
           <ul className="flex flex-col gap-2">
             <li>
@@ -30,7 +30,7 @@ export default function SitemapKo() {
                 to={getLocalizedPath('/', locale)}
                 className="text-(--color-accent-primary) no-underline transition-all duration-200 hover:underline"
               >
-                {m['app_sitemap_links_home']?.() || '홈'}
+                {m['app.sitemap.links.home']()}
               </Link>
             </li>
             <li>
@@ -38,7 +38,7 @@ export default function SitemapKo() {
                 to={getLocalizedPath('/about', locale)}
                 className="text-(--color-accent-primary) no-underline transition-all duration-200 hover:underline"
               >
-                {m['app_about']?.() || '정보'}
+                {m['app.about']()}
               </Link>
             </li>
           </ul>
@@ -47,7 +47,7 @@ export default function SitemapKo() {
         {/* XML Sitemap */}
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-(--color-text-tertiary)">
-            {m['app_sitemap_sections_other']?.() || '기타'}
+            {m['app.sitemap.sections.other']()}
           </h2>
           <ul className="flex flex-col gap-2">
             <li>
@@ -57,7 +57,7 @@ export default function SitemapKo() {
                 rel="noopener noreferrer"
                 className="text-(--color-accent-primary) no-underline transition-all duration-200 hover:underline"
               >
-                {m['app_sitemap_xml']?.() || 'XML 사이트맵 (검색 엔진용)'}
+                {m['app.sitemap.xml']()}
               </a>
             </li>
           </ul>
@@ -65,7 +65,7 @@ export default function SitemapKo() {
 
         {/* Footer note */}
         <p className="text-sm text-(--color-text-tertiary) mt-8">
-          {m['app_sitemap_lastUpdated']?.() || '마지막 업데이트'}:{' '}
+          {m['app.sitemap.lastUpdated']()}:{' '}
           {new Date().toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US')}
         </p>
       </div>

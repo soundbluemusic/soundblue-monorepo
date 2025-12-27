@@ -32,6 +32,20 @@ const messages: Record<string, Record<string, MessageValue>> = {
 };
 
 /**
+ * Convert underscore keys to dotted notation
+ * e.g., "app_title" -> "app.title", "app_sitemap_title" -> "app.sitemap.title"
+ */
+type ToDotted<S extends string> = S extends `${infer A}_${infer B}` ? `${A}.${ToDotted<B>}` : S;
+
+/** Dotted key type derived from message keys */
+type DottedKey = ToDotted<MessageKey>;
+
+/** Message functions type - mapped from dotted keys */
+type MessageFunctions = {
+  readonly [K in DottedKey]: () => string;
+};
+
+/**
  * Get a translated message by key (string only)
  */
 export function getMessage(key: MessageKey): string {
@@ -55,23 +69,27 @@ export function getRawMessage(key: MessageKey): MessageValue {
   try {
     const locale = typeof getLocale === 'function' ? getLocale() : 'en';
     const keyStr = String(key);
-    return messages[locale]?.[keyStr] ?? messages['en']?.[keyStr];
+    return messages[locale]?.[keyStr] ?? messages['en']?.[keyStr] ?? keyStr;
   } catch {
     const keyStr = String(key);
-    return messages['en']?.[keyStr];
+    return messages['en']?.[keyStr] ?? keyStr;
   }
 }
 
 // Create message functions - simple object without Proxy
 const createMessageFn = (key: MessageKey) => () => getMessage(key);
 
-// Export message object with guaranteed non-null functions using Proxy
-const m = new Proxy({} as Record<string, () => string>, {
+/**
+ * Message object with type-safe access
+ * Using Proxy to convert dotted notation (app.title) to underscore (app_title)
+ * Type uses mapped type from literal union to bypass noUncheckedIndexedAccess
+ */
+const m = new Proxy({} as MessageFunctions, {
   get(_target, prop: string) {
     // Convert dotted notation back to underscore for lookup
     const underscoreKey = prop.replace(/\./g, '_');
     return createMessageFn(underscoreKey as MessageKey);
   },
-}) as Record<string, () => string>;
+}) as MessageFunctions;
 
 export default m;
