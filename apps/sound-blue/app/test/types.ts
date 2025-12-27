@@ -77,9 +77,7 @@ export function findMetaTitle(metas: MetaDescriptor[]): MetaTitle | undefined {
  * Helper to find description meta from meta array
  */
 export function findMetaDescription(metas: MetaDescriptor[]): MetaDescription | undefined {
-  return metas.find(
-    (m): m is MetaDescription => isMetaName(m) && m.name === 'description',
-  );
+  return metas.find((m): m is MetaDescription => isMetaName(m) && m.name === 'description');
 }
 
 /**

@@ -28,7 +28,9 @@ const getPrerenderRoutes = async (): Promise<string[]> => {
     throw new Error('prerender is not a function');
   }
   // prerender can be called with empty args for static route discovery
-  const result = await (config.prerender as (args: Record<string, unknown>) => Promise<string[] | PrerenderResult>)({});
+  const result = await (
+    config.prerender as (args: Record<string, unknown>) => Promise<string[] | PrerenderResult>
+  )({});
   // Handle both array and object return types
   return Array.isArray(result) ? result : (result.paths ?? []);
 };
