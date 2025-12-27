@@ -140,40 +140,57 @@ export default function Benchmark() {
     [runTest],
   );
 
-  const runAllTests = useCallback(() => {
+  const runAllTests = useCallback(async () => {
     setIsRunning(true);
     setExpandedLevels(new Set());
     setExpandedCategories(new Set());
 
-    // Use setTimeout to allow UI to update
-    setTimeout(() => {
-      const levelRes = runLevelTests(levelTests);
-      const catRes = runLevelTests(categoryTests);
-      const ctxRes = runLevelTests(contextTests);
-      const typoRes = runLevelTests(typoTests);
-      const uniqueRes = runLevelTests(uniqueTests);
-      const polysemyRes = runLevelTests(polysemyTests);
-      const wordOrderRes = runLevelTests(wordOrderTests);
-      const spacingRes = runLevelTests(spacingErrorTests);
-      const finalRes = runLevelTests(finalTests);
-      const professionalRes = runLevelTests(professionalTranslatorTests);
-      const localizationRes = runLevelTests(localizationTests);
-      const antiHardcodingRes = runLevelTests(antiHardcodingTests);
+    // Helper to run tests in batches to avoid blocking UI
+    const runWithDelay = (fn: () => LevelResult[]) =>
+      new Promise<LevelResult[]>((resolve) => {
+        setTimeout(() => resolve(fn()), 0);
+      });
 
+    try {
+      // Run each test group with a small delay to allow UI updates
+      const levelRes = await runWithDelay(() => runLevelTests(levelTests));
       setLevelResults(levelRes);
+
+      const catRes = await runWithDelay(() => runLevelTests(categoryTests));
       setCategoryResults(catRes);
+
+      const ctxRes = await runWithDelay(() => runLevelTests(contextTests));
       setContextResults(ctxRes);
+
+      const typoRes = await runWithDelay(() => runLevelTests(typoTests));
       setTypoResults(typoRes);
+
+      const uniqueRes = await runWithDelay(() => runLevelTests(uniqueTests));
       setUniqueResults(uniqueRes);
+
+      const polysemyRes = await runWithDelay(() => runLevelTests(polysemyTests));
       setPolysemyResults(polysemyRes);
+
+      const wordOrderRes = await runWithDelay(() => runLevelTests(wordOrderTests));
       setWordOrderResults(wordOrderRes);
+
+      const spacingRes = await runWithDelay(() => runLevelTests(spacingErrorTests));
       setSpacingResults(spacingRes);
+
+      const finalRes = await runWithDelay(() => runLevelTests(finalTests));
       setFinalResults(finalRes);
+
+      const professionalRes = await runWithDelay(() => runLevelTests(professionalTranslatorTests));
       setProfessionalResults(professionalRes);
+
+      const localizationRes = await runWithDelay(() => runLevelTests(localizationTests));
       setLocalizationResults(localizationRes);
+
+      const antiHardcodingRes = await runWithDelay(() => runLevelTests(antiHardcodingTests));
       setAntiHardcodingResults(antiHardcodingRes);
+    } finally {
       setIsRunning(false);
-    }, 50);
+    }
   }, [runLevelTests]);
 
   const toggleLevel = (levelId: string) => {
