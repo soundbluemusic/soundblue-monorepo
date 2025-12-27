@@ -215,9 +215,14 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
 
       {/* Output area */}
       <div className="relative min-h-[7.5rem] flex-1">
-        <div className="size-full overflow-auto rounded-xl border border-(--border) bg-black/[0.03] p-3 text-sm dark:bg-white/[0.03]">
+        <section
+          className="size-full overflow-auto rounded-xl border border-(--border) bg-black/[0.03] p-3 text-sm dark:bg-white/[0.03]"
+          aria-live="polite"
+          aria-atomic="true"
+          aria-label={settings.direction === 'ko-en' ? '번역 결과' : 'Translation result'}
+        >
           {outputText}
-        </div>
+        </section>
 
         {/* Copy button */}
         {outputText && (

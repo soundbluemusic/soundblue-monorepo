@@ -1,4 +1,9 @@
-import { getLocaleFromPath, ThemeProvider } from '@soundblue/shared-react';
+import {
+  getLocaleFromPath,
+  SoftwareApplicationStructuredData,
+  ThemeProvider,
+  WebSiteStructuredData,
+} from '@soundblue/shared-react';
 import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import {
@@ -35,6 +40,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="theme-color" content="#0a0a0a" />
         <Meta />
         <Links />
+        {/* JSON-LD Structured Data for SEO */}
+        <WebSiteStructuredData
+          name="Sound Blue Tools"
+          url="https://tools.soundbluemusic.com"
+          description="Free music tools - Metronome, Drum Machine, QR Generator, Translator"
+          inLanguage={['en', 'ko']}
+        />
+        <SoftwareApplicationStructuredData
+          name="Sound Blue Music Tools"
+          url="https://tools.soundbluemusic.com"
+          description="Free online music tools including metronome, drum machine, QR code generator, and translator"
+          applicationCategory="MusicApplication"
+          offers={{ price: '0', priceCurrency: 'USD' }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

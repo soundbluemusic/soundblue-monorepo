@@ -1,4 +1,14 @@
-// Providers
+// Components - Structured Data for SEO
+
+// Components - Share Button
+export { ShareButton, type ShareButtonProps } from './components/ShareButton';
+export {
+  BreadcrumbStructuredData,
+  MusicGroupStructuredData,
+  OrganizationStructuredData,
+  SoftwareApplicationStructuredData,
+  WebSiteStructuredData,
+} from './components/StructuredData';
 
 // Constants
 export {
@@ -18,11 +28,14 @@ export {
   onOnlineStatusChange,
   onUpdateAvailable,
   type ServiceWorkerState,
+  type ShareData,
   skipWaiting,
   type UseOnlineStatusReturn,
   type UseServiceWorkerReturn,
+  type UseWebShareReturn,
   useOnlineStatus,
   useServiceWorker,
+  useWebShare,
 } from './hooks';
 // Shared i18n types and constants (framework-independent)
 export type {

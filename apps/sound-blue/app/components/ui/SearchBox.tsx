@@ -175,6 +175,15 @@ export function SearchBox() {
         )}
       </div>
 
+      {/* Screen reader announcement for search results */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {isOpen &&
+          query.trim() &&
+          (results.length > 0
+            ? `${results.length} ${results.length === 1 ? 'result' : 'results'} found`
+            : m['search.noResults']())}
+      </div>
+
       {isOpen && results.length > 0 && (
         <div
           className="absolute top-[calc(100%+4px)] left-0 right-0 z-[600] max-h-75 overflow-y-auto bg-(--color-bg-secondary) border border-(--color-border-primary) rounded-xl shadow-(--shadow-lg) m-0 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--color-border-primary) [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-(--color-text-tertiary)"

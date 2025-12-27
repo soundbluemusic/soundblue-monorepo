@@ -15,3 +15,5 @@ export {
   type UseServiceWorkerReturn,
   useServiceWorker,
 } from './use-service-worker';
+
+export { type ShareData, type UseWebShareReturn, useWebShare } from './use-web-share';

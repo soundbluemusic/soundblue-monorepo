@@ -1,4 +1,9 @@
-import { getLocaleFromPath, ThemeProvider } from '@soundblue/shared-react';
+import {
+  getLocaleFromPath,
+  MusicGroupStructuredData,
+  ThemeProvider,
+  WebSiteStructuredData,
+} from '@soundblue/shared-react';
 import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import {
@@ -49,6 +54,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="theme-color" content="#4A9E95" />
         <Meta />
         <Links />
+        {/* JSON-LD Structured Data for SEO */}
+        <WebSiteStructuredData
+          name="Sound Blue"
+          url="https://soundbluemusic.com"
+          description="Music Artist & Producer - Official Website"
+          inLanguage={['en', 'ko']}
+        />
+        <MusicGroupStructuredData
+          name="Sound Blue"
+          url="https://soundbluemusic.com"
+          description="Music Artist & Producer"
+          genre={['Electronic', 'Ambient', 'Experimental']}
+          sameAs={['https://www.youtube.com/@soundbluemusic', 'https://soundblue.music']}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

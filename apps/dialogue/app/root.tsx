@@ -1,4 +1,4 @@
-import { getLocaleFromPath, ThemeProvider } from '@soundblue/shared-react';
+import { getLocaleFromPath, ThemeProvider, WebSiteStructuredData } from '@soundblue/shared-react';
 import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import {
@@ -54,6 +54,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* JSON-LD Structured Data for SEO */}
+        <WebSiteStructuredData
+          name="Dialogue"
+          url="https://dialogue.soundbluemusic.com"
+          description="Offline Q&A learning tool with instant answers"
+          inLanguage={['en', 'ko']}
+        />
         {/* Inline script to prevent FOUC */}
         <script
           dangerouslySetInnerHTML={{
