@@ -1,6 +1,5 @@
 # Tools
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.1-blue.svg)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6.3-green.svg)](https://vitejs.dev/)
@@ -389,14 +388,6 @@ pnpm test:run     # Run tests (테스트 실행)
 
 For more details, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 (자세한 내용은 [CONTRIBUTING.md](./CONTRIBUTING.md)를 참조하세요.)
-
----
-
-## License
-(## 라이선스)
-
-This project is released under the [MIT License](./LICENSE).
-(이 프로젝트는 [MIT 라이선스](./LICENSE)로 공개됩니다.)
 
 ---
 

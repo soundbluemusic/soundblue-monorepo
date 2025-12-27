@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import { ConfirmDialog } from '~/components/ui/ConfirmDialog';
 import m from '~/lib/messages';
 import type { Conversation } from '~/stores';
 import { useChatStore } from '~/stores';
@@ -28,6 +29,9 @@ export function ConversationList({
     toggleGhostMode,
   } = useChatStore();
 
+  // State for delete confirmation dialog
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
   const handleLoadConversation = useCallback(
     (conv: Conversation) => {
       loadConversation(conv.id);
@@ -36,14 +40,22 @@ export function ConversationList({
     [loadConversation, onLoadConversation],
   );
 
-  const handleDeleteConversation = useCallback(
-    (e: React.MouseEvent, id: string) => {
-      e.preventDefault();
-      e.stopPropagation();
-      deleteConversation(id);
-    },
-    [deleteConversation],
-  );
+  const handleDeleteClick = useCallback((e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteTargetId(id);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (deleteTargetId) {
+      deleteConversation(deleteTargetId);
+      setDeleteTargetId(null);
+    }
+  }, [deleteTargetId, deleteConversation]);
+
+  const handleCancelDelete = useCallback(() => {
+    setDeleteTargetId(null);
+  }, []);
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -116,10 +128,17 @@ export function ConversationList({
       {conversations.length > 0 ? (
         <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
           {conversations.map((conv) => (
-            <button
+            <div
               key={conv.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => handleLoadConversation(conv)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleLoadConversation(conv);
+                }
+              }}
               className={[
                 'group min-h-[44px] flex w-full items-center gap-4 py-2 px-4 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
                 activeConversationId === conv.id
@@ -140,13 +159,13 @@ export function ConversationList({
               </div>
               <button
                 type="button"
-                onClick={(e) => handleDeleteConversation(e, conv.id)}
+                onClick={(e) => handleDeleteClick(e, conv.id)}
                 className="min-w-[44px] min-h-[44px] flex items-center justify-center opacity-0 group-hover:opacity-100 p-2 rounded-md bg-none border-none cursor-pointer text-(--color-text-tertiary) transition-all duration-150 hover:bg-red-500/15 hover:text-(--color-error) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
                 title={m['app.deleteChat']()}
               >
                 <TrashIcon />
               </button>
-            </button>
+            </div>
           ))}
         </div>
       ) : (
@@ -173,6 +192,13 @@ export function ConversationList({
           )}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteTargetId !== null}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </div>
   );
 }

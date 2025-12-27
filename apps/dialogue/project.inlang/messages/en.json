@@ -59,7 +59,6 @@
   "app_techPwa": "PWA",
   "app_techPwaValue": "Service Worker",
   "app_githubRepository": "GitHub Repository",
-  "app_mitLicense": "MIT License",
   "app_metaTitleHome": "Dialogue - Conversational Learning Tool",
   "app_metaDescHome": "A conversational learning tool that works 100% offline",
   "app_metaTitleAbout": "About - Dialogue",
@@ -70,5 +69,9 @@
   "app_sitemap_sections_other": "Other",
   "app_sitemap_links_home": "Home",
   "app_sitemap_xml": "XML Sitemap (for search engines)",
-  "app_sitemap_lastUpdated": "Last updated"
+  "app_sitemap_lastUpdated": "Last updated",
+  "app_deleteConfirmTitle": "Delete Conversation",
+  "app_deleteConfirmMessage": "Saved conversations cannot be recovered. Are you sure you want to delete?",
+  "app_cancel": "Cancel",
+  "app_confirm": "Delete"
 }

@@ -55,6 +55,25 @@ export default function BuiltWithKo() {
               <li>Service Worker / PWA</li>
             </ul>
           </section>
+
+          <section className="mb-8">
+            <h2 className="mb-4 text-xl font-semibold">{m['builtWith_devTools']?.()}</h2>
+            <ul className="flex flex-col gap-2 text-(--muted-foreground)">
+              <li>
+                <a
+                  href="https://docs.anthropic.com/en/docs/claude-code"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-(--color-accent-primary) hover:underline"
+                >
+                  Claude Code
+                </a>
+              </li>
+              <li>Vite</li>
+              <li>Vitest</li>
+              <li>Biome</li>
+            </ul>
+          </section>
         </div>
       </main>
       <Footer appName="기술 스택" />

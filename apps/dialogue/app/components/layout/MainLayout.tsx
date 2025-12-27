@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import m from '~/lib/messages';
-import { useUIStore } from '~/stores';
+import { generateId, type Message, useChatStore, useUIStore } from '~/stores';
 import { ChatContainer } from '../chat/ChatContainer';
 import { ConversationList } from './ConversationList';
 import { Header } from './Header';
@@ -29,11 +29,8 @@ export function MainLayout() {
   const [chatWidth, setChatWidth] = useState<number>(CHAT_WIDTH.default);
   const [isResizing, setIsResizing] = useState(false);
 
-  // Chat container triggers
-  const [_chatResetTrigger, setChatResetTrigger] = useState(0);
-  const [_chatLoadTrigger, setChatLoadTrigger] = useState(0);
-
   const { sidebarOpen, sidebarCollapsed, resultPanelOpen, setSidebarOpen } = useUIStore();
+  const { clearActive, createConversation } = useChatStore();
 
   // Check screen size
   const checkScreenSize = useCallback(() => {
@@ -104,14 +101,23 @@ export function MainLayout() {
     }
   }, [isMobile, resultPanelOpen]);
 
-  // Handle new chat - trigger reset via signal
+  // Handle new chat - clear active and create new conversation
   const handleNewChat = useCallback(() => {
-    setChatResetTrigger((prev) => prev + 1);
-  }, []);
+    clearActive();
+    const welcomeMessage: Message = {
+      id: generateId(),
+      role: 'assistant',
+      content: m['app.welcome'](),
+      timestamp: Date.now(),
+    };
+    createConversation(welcomeMessage);
+    if (isMobile) {
+      setActiveTab('chat');
+    }
+  }, [clearActive, createConversation, isMobile]);
 
-  // Handle load conversation - trigger load via signal and switch to chat tab on mobile
+  // Handle load conversation - switch to chat tab on mobile
   const handleLoadConversation = useCallback(() => {
-    setChatLoadTrigger((prev) => prev + 1);
     if (isMobile) {
       setActiveTab('chat');
     }

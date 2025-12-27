@@ -143,10 +143,6 @@ export function About() {
               <span className="flex-1 text-sm">{m['app.githubRepository']()}</span>
               <ExternalIcon />
             </a>
-            <div className="flex items-center gap-4 py-3.5 px-[18px] bg-(--color-bg-secondary) border border-(--color-border-primary) rounded-lg text-(--color-text-primary)">
-              <LicenseIcon />
-              <span className="flex-1 text-sm">{m['app.mitLicense']()}</span>
-            </div>
           </div>
         </section>
       </main>
@@ -230,20 +226,6 @@ function ExternalIcon() {
       className="text-(--color-text-tertiary)"
     >
       <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
-    </svg>
-  );
-}
-
-function LicenseIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      width="20"
-      height="20"
-      className="text-(--color-text-secondary)"
-    >
-      <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
     </svg>
   );
 }

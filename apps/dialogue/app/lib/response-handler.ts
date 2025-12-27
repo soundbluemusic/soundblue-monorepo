@@ -124,7 +124,8 @@ function formatMonth(locale: string): string {
 }
 
 function checkTimeQuery(question: string, locale: string): string | null {
-  const patterns = TIME_PATTERNS[locale] || TIME_PATTERNS.en;
+  const patterns = TIME_PATTERNS[locale] ?? TIME_PATTERNS.en;
+  if (!patterns) return null;
 
   for (const pattern of patterns.time) {
     if (pattern.test(question)) {
@@ -201,7 +202,8 @@ export async function initializeQA(): Promise<void> {
  * Search Q&A database for matching answer
  */
 function searchQA(question: string, locale: string): string | null {
-  const db = qaDatabase[locale] || qaDatabase.en;
+  const db = qaDatabase[locale] ?? qaDatabase.en;
+  if (!db) return null;
   const lowerQuestion = question.toLowerCase();
 
   // Score each item
