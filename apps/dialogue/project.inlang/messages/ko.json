@@ -59,7 +59,6 @@
   "app_techPwa": "PWA",
   "app_techPwaValue": "Service Worker",
   "app_githubRepository": "GitHub 저장소",
-  "app_mitLicense": "MIT 라이선스",
   "app_metaTitleHome": "Dialogue - 대화형 학습 도구",
   "app_metaDescHome": "100% 오프라인으로 작동하는 대화형 학습 도구",
   "app_metaTitleAbout": "소개 - Dialogue",

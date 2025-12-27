@@ -233,12 +233,6 @@ The translator at `apps/tools/app/tools/translator/` follows **algorithm-based g
 
 ---
 
-## 📜 License (라이선스)
-
-MIT License - Free to use (자유롭게 사용 가능)
-
----
-
 <p align="center">
   Made with ❤️ by <a href="https://soundbluemusic.com">SoundBlue</a>
 </p>

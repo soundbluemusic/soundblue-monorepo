@@ -237,7 +237,7 @@ registerProcessor('my-processor', MyProcessor);
 
 ## 라이선스
 
-기여하신 코드는 MIT 라이선스로 배포됩니다.
+이 프로젝트는 비공개 저장소입니다.
 
 ## 행동 강령
 
