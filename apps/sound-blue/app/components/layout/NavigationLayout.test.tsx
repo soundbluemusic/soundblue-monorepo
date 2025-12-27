@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
+import type { CnFunction, MockBottomSheetProps } from '~/test/types';
 import { NavigationLayout } from './NavigationLayout';
 
 // Mock dependencies
@@ -14,7 +15,7 @@ vi.mock('@soundblue/shared-react', () => ({
     resolvedTheme: 'light',
     toggleTheme: vi.fn(),
   }),
-  cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
+  cn: ((...classes) => classes.filter(Boolean).join(' ')) as CnFunction,
 }));
 
 vi.mock('react-router', async () => {
@@ -50,7 +51,7 @@ vi.mock('~/lib/messages', () => ({
 vi.mock('~/components/ui', () => ({
   SearchBox: () => <div data-testid="search-box">SearchBox</div>,
   ThemeIcon: ({ theme }: { theme: string }) => <div data-testid="theme-icon">{theme}</div>,
-  BottomSheet: ({ isOpen, onClose, title, children }: any) =>
+  BottomSheet: ({ isOpen, onClose, title, children }: MockBottomSheetProps) =>
     isOpen ? (
       <div data-testid="bottom-sheet" role="dialog">
         <h2>{title}</h2>

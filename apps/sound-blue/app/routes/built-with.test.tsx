@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
+import type { CnFunction, MetaDescriptor, MockBottomSheetProps } from '~/test/types';
+import { findMetaDescription, findMetaTitle } from '~/test/types';
 import BuiltWith, { meta } from './built-with';
 
 // Mock dependencies
@@ -13,7 +15,7 @@ vi.mock('@soundblue/shared-react', () => ({
     resolvedTheme: 'light',
     toggleTheme: vi.fn(),
   }),
-  cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
+  cn: ((...classes) => classes.filter(Boolean).join(' ')) as CnFunction,
 }));
 
 vi.mock('react-router', async () => {
@@ -51,7 +53,7 @@ vi.mock('~/lib/messages', () => ({
 vi.mock('~/components/ui', () => ({
   SearchBox: () => <div data-testid="search-box">SearchBox</div>,
   ThemeIcon: ({ theme }: { theme: string }) => <div data-testid="theme-icon">{theme}</div>,
-  BottomSheet: ({ isOpen, onClose, title, children }: any) =>
+  BottomSheet: ({ isOpen, onClose, title, children }: MockBottomSheetProps) =>
     isOpen ? (
       <div data-testid="bottom-sheet" role="dialog">
         <h2>{title}</h2>
@@ -90,14 +92,14 @@ describe('BuiltWith Route', () => {
 
   describe('Meta', () => {
     it('meta 함수가 올바른 title 반환', () => {
-      const metaResult = meta({} as any) as any[];
-      const titleMeta = metaResult?.find((m: any) => m.title) as any;
+      const metaResult = meta({} as Parameters<typeof meta>[0]) as MetaDescriptor[];
+      const titleMeta = findMetaTitle(metaResult);
       expect(titleMeta?.title).toBe('Built With | Sound Blue');
     });
 
     it('meta 함수가 올바른 description 반환', () => {
-      const metaResult = meta({} as any) as any[];
-      const descMeta = metaResult?.find((m: any) => m.name === 'description') as any;
+      const metaResult = meta({} as Parameters<typeof meta>[0]) as MetaDescriptor[];
+      const descMeta = findMetaDescription(metaResult);
       expect(descMeta?.content).toBe('Technologies used to build Sound Blue website.');
     });
   });

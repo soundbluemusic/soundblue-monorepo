@@ -11,6 +11,18 @@ import { expect, test } from '@playwright/test';
  * - 언어별 hreflang 태그
  */
 
+/** Type for JSON-LD structured data */
+interface JsonLdData {
+  '@context'?: string;
+  '@type'?: string;
+  name?: string;
+  url?: string;
+  description?: string;
+  logo?: string;
+  sameAs?: string[];
+  [key: string]: unknown;
+}
+
 test.describe('Advanced SEO - Open Graph', () => {
   const languages = ['', '/ko'];
 
@@ -135,9 +147,9 @@ test.describe('Advanced SEO - Schema.org JSON-LD', () => {
     for (const script of jsonLdScripts) {
       const content = await script.textContent();
 
-      let parsed: any;
+      let parsed: JsonLdData;
       try {
-        parsed = JSON.parse(content || '{}');
+        parsed = JSON.parse(content || '{}') as JsonLdData;
       } catch (e) {
         throw new Error(`Invalid JSON-LD: ${(e as Error).message}`);
       }

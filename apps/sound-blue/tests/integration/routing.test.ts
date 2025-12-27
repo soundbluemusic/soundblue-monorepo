@@ -1,6 +1,11 @@
 import type { Config } from '@react-router/dev/config';
 import { describe, expect, it } from 'vitest';
 
+/** Helper type for prerender result */
+interface PrerenderResult {
+  paths?: string[];
+}
+
 /**
  * Routing Integration Test - 라우트 구성 검증
  *
@@ -22,10 +27,10 @@ const getPrerenderRoutes = async (): Promise<string[]> => {
   if (typeof config.prerender !== 'function') {
     throw new Error('prerender is not a function');
   }
-  // @ts-expect-error - prerender signature varies, calling without args for static routes
-  const result = await config.prerender({});
+  // prerender can be called with empty args for static route discovery
+  const result = await (config.prerender as (args: Record<string, unknown>) => Promise<string[] | PrerenderResult>)({});
   // Handle both array and object return types
-  return Array.isArray(result) ? result : (result as any).paths;
+  return Array.isArray(result) ? result : (result.paths ?? []);
 };
 
 describe('React Router Configuration', () => {
