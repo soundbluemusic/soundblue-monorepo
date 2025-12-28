@@ -1,11 +1,70 @@
-// ========================================
-// Jamo Edit Distance - 자모 기반 편집 거리
-// 키보드 거리 가중치 적용
-// ========================================
+/**
+ * @fileoverview Jamo Edit Distance - Korean Keyboard-Aware Edit Distance Algorithm
+ * 자모 기반 편집 거리 - 한글 키보드 가중치 적용
+ *
+ * @description
+ * This module implements a modified Levenshtein distance algorithm optimized for
+ * Korean text by operating on the Jamo (자모) level rather than syllable level.
+ *
+ * ## Algorithm Overview (알고리즘 개요)
+ *
+ * Standard Levenshtein distance treats each Korean syllable (e.g., "가", "나") as a
+ * single character. This module decomposes syllables into their constituent Jamo
+ * (초성/중성/종성) before calculating distance, providing more accurate typo detection.
+ *
+ * **Example:**
+ * - "가" → ['ㄱ', 'ㅏ'] (초성 + 중성)
+ * - "강" → ['ㄱ', 'ㅏ', 'ㅇ'] (초성 + 중성 + 종성)
+ *
+ * ## Key Features (주요 기능)
+ *
+ * 1. **Jamo Decomposition**: Breaks Korean syllables into initial (초성),
+ *    medial (중성), and final (종성) consonants/vowels
+ *
+ * 2. **Keyboard Distance Weighting**: Reduces edit cost for keys that are
+ *    physically close on the Korean 2-beolsik (두벌식) keyboard layout
+ *
+ * 3. **Double Consonant Detection**: Recognizes ㄱ↔ㄲ, ㄷ↔ㄸ mistakes as
+ *    common typos with reduced cost (0.3)
+ *
+ * 4. **Adjacent Key Detection**: Uses pre-computed adjacency map for O(1)
+ *    lookup of neighboring keys (cost: 0.5)
+ *
+ * ## Cost Matrix (비용 표)
+ *
+ * | Operation                | Cost  | Example         |
+ * |--------------------------|-------|-----------------|
+ * | Exact match              | 0     | ㄱ = ㄱ         |
+ * | Double consonant mistake | 0.3   | ㄱ ↔ ㄲ         |
+ * | Adjacent key             | 0.5   | ㄱ ↔ ㅅ         |
+ * | Near key (dist < 1.5)    | 0.6   | ㅂ ↔ ㄷ         |
+ * | Medium key (dist < 2.5)  | 0.8   | ㅂ ↔ ㄱ         |
+ * | Far key / Insert / Delete| 1.0   | ㅂ ↔ ㅊ         |
+ *
+ * ## Use Cases (사용 사례)
+ *
+ * - **Typo Correction**: Detecting and suggesting corrections for misspelled words
+ * - **Fuzzy Search**: Finding matches despite minor spelling errors
+ * - **Input Validation**: Identifying likely typos in user input
+ *
+ * @module jamo-edit-distance
+ * @see {@link https://en.wikipedia.org/wiki/Levenshtein_distance} for base algorithm
+ * @see {@link https://en.wikipedia.org/wiki/Korean_language_and_computers#Hangul_in_Unicode} for Jamo encoding
+ */
 
 import { isHangul } from '../hangul/jamo';
 
-// 초성 목록
+/**
+ * Initial consonants (초성) - 19 consonants
+ *
+ * Unicode range: U+1100–U+1112 (Hangul Jamo block)
+ * These are the consonants that can appear at the beginning of a Korean syllable.
+ *
+ * The order matches the standard Korean syllable composition formula:
+ * syllable_code = 0xAC00 + (cho × 588) + (jung × 28) + jong
+ *
+ * @constant
+ */
 const CHOSEONG = [
   'ㄱ',
   'ㄲ',
@@ -28,7 +87,16 @@ const CHOSEONG = [
   'ㅎ',
 ];
 
-// 중성 목록
+/**
+ * Medial vowels (중성) - 21 vowels
+ *
+ * Unicode range: U+1161–U+1175 (Hangul Jamo block)
+ * These are the vowels that form the middle part of a Korean syllable.
+ *
+ * Includes both simple vowels (ㅏ, ㅓ, ㅗ, etc.) and compound vowels (ㅘ, ㅙ, ㅝ, etc.)
+ *
+ * @constant
+ */
 const JUNGSEONG = [
   'ㅏ',
   'ㅐ',
@@ -53,7 +121,17 @@ const JUNGSEONG = [
   'ㅣ',
 ];
 
-// 종성 목록 (빈 문자열 포함)
+/**
+ * Final consonants (종성) - 28 consonants (including empty)
+ *
+ * Unicode range: U+11A8–U+11C2 (Hangul Jamo block)
+ * These are the consonants that can appear at the end of a Korean syllable.
+ *
+ * Index 0 is empty string ('') representing no final consonant.
+ * Includes compound consonants (ㄳ, ㄵ, ㄶ, etc.) that only appear in 종성 position.
+ *
+ * @constant
+ */
 const JONGSEONG = [
   '',
   'ㄱ',
@@ -86,7 +164,22 @@ const JONGSEONG = [
 ];
 
 /**
- * 한글 두벌식 키보드 레이아웃
+ * Korean 2-beolsik (두벌식) keyboard layout position map
+ *
+ * Maps each Jamo to its physical position on a standard Korean keyboard.
+ * Used for calculating Euclidean distance between keys.
+ *
+ * ## Layout Visualization (키보드 레이아웃)
+ *
+ * ```
+ * Row 0: ㅂ(ㅃ) ㅈ(ㅉ) ㄷ(ㄸ) ㄱ(ㄲ) ㅅ(ㅆ) | ㅛ   ㅕ   ㅑ   ㅐ(ㅒ) ㅔ(ㅖ)
+ * Row 1: ㅁ    ㄴ    ㅇ    ㄹ    ㅎ    | ㅗ   ㅓ   ㅏ   ㅣ
+ * Row 2: ㅋ    ㅌ    ㅊ    ㅍ          | ㅠ   ㅜ   ㅡ
+ * ```
+ *
+ * Note: Shift variants (ㄲ, ㅆ, etc.) share positions with base characters.
+ *
+ * @constant
  */
 const KEYBOARD_LAYOUT: Record<string, { row: number; col: number }> = {
   // 1행 (자음)
@@ -133,7 +226,18 @@ const KEYBOARD_LAYOUT: Record<string, { row: number; col: number }> = {
 };
 
 /**
- * 인접 키 매핑 (빠른 조회용)
+ * Adjacent key mapping for O(1) neighbor lookup (인접 키 매핑)
+ *
+ * Pre-computed adjacency map based on the 2-beolsik keyboard layout.
+ * Two keys are considered adjacent if they share an edge on the keyboard.
+ *
+ * This enables fast typo detection: if two Jamo are adjacent, the substitution
+ * is likely a typo rather than intentional, so we reduce the edit cost.
+ *
+ * @constant
+ * @example
+ * // Check if ㄱ and ㅅ are adjacent
+ * ADJACENT_KEYS['ㄱ']?.has('ㅅ') // true - they're neighbors on row 0
  */
 const ADJACENT_KEYS: Record<string, Set<string>> = {
   // 자음
@@ -168,7 +272,15 @@ const ADJACENT_KEYS: Record<string, Set<string>> = {
 };
 
 /**
- * 쌍자음 쌍
+ * Double consonant pairs for typo detection (쌍자음 쌍)
+ *
+ * These pairs represent single consonants and their tensed (쌍) counterparts.
+ * Mistaking ㄱ for ㄲ (or vice versa) is extremely common since they share
+ * the same key position—only Shift is different.
+ *
+ * This has the lowest substitution cost (0.3) in our algorithm.
+ *
+ * @constant
  */
 const DOUBLE_CONSONANT_PAIRS: [string, string][] = [
   ['ㄱ', 'ㄲ'],
@@ -179,7 +291,27 @@ const DOUBLE_CONSONANT_PAIRS: [string, string][] = [
 ];
 
 /**
- * 키보드 거리 계산
+ * Calculates the Euclidean distance between two Jamo on the keyboard
+ * 두 자모 간의 키보드 유클리드 거리 계산
+ *
+ * Uses the 2-beolsik keyboard layout coordinates to compute physical distance.
+ * This helps identify typos where a user hit a nearby key.
+ *
+ * @param jamo1 - First Jamo character (e.g., 'ㄱ')
+ * @param jamo2 - Second Jamo character (e.g., 'ㅅ')
+ * @returns Euclidean distance between the two keys, or 2 if either Jamo is not in the layout
+ *
+ * @example
+ * // Adjacent keys (row 0, cols 3-4)
+ * keyboardDistance('ㄱ', 'ㅅ'); // 1.0
+ *
+ * @example
+ * // Same position (shift variant)
+ * keyboardDistance('ㄱ', 'ㄲ'); // 0.0
+ *
+ * @example
+ * // Distant keys
+ * keyboardDistance('ㅂ', 'ㅊ'); // ~2.83
  */
 export function keyboardDistance(jamo1: string, jamo2: string): number {
   const pos1 = KEYBOARD_LAYOUT[jamo1];
@@ -191,14 +323,41 @@ export function keyboardDistance(jamo1: string, jamo2: string): number {
 }
 
 /**
- * 인접 키 여부 확인
+ * Checks if two Jamo are adjacent keys on the keyboard
+ * 두 자모가 키보드에서 인접한 키인지 확인
+ *
+ * Uses the pre-computed ADJACENT_KEYS map for O(1) lookup.
+ * Adjacent keys indicate likely typos, warranting reduced edit cost.
+ *
+ * @param jamo1 - First Jamo character
+ * @param jamo2 - Second Jamo character
+ * @returns `true` if the keys are physically adjacent, `false` otherwise
+ *
+ * @example
+ * isAdjacentKey('ㄱ', 'ㅅ'); // true - neighbors on row 0
+ * isAdjacentKey('ㄱ', 'ㅊ'); // false - not adjacent
+ * isAdjacentKey('ㅏ', 'ㅣ'); // true - neighbors on row 1
  */
 export function isAdjacentKey(jamo1: string, jamo2: string): boolean {
   return ADJACENT_KEYS[jamo1]?.has(jamo2) || false;
 }
 
 /**
- * 쌍자음 실수 여부 확인
+ * Checks if two Jamo are a single/double consonant pair
+ * 두 자모가 단자음/쌍자음 쌍인지 확인
+ *
+ * Double consonant mistakes (e.g., typing ㄱ instead of ㄲ) are extremely common
+ * because they share the same key—only Shift differs. This warrants the lowest
+ * substitution cost (0.3) in our algorithm.
+ *
+ * @param jamo1 - First Jamo character
+ * @param jamo2 - Second Jamo character
+ * @returns `true` if jamo1 and jamo2 form a single/double pair
+ *
+ * @example
+ * isDoubleConsonantMistake('ㄱ', 'ㄲ'); // true
+ * isDoubleConsonantMistake('ㅅ', 'ㅆ'); // true
+ * isDoubleConsonantMistake('ㄱ', 'ㄴ'); // false
  */
 export function isDoubleConsonantMistake(jamo1: string, jamo2: string): boolean {
   return DOUBLE_CONSONANT_PAIRS.some(
@@ -207,8 +366,39 @@ export function isDoubleConsonantMistake(jamo1: string, jamo2: string): boolean 
 }
 
 /**
- * 한글을 자모 단위로 분해
- * "분석" → ['ㅂ','ㅜ','ㄴ','ㅅ','ㅓ','ㄱ']
+ * Decomposes Korean text into individual Jamo characters
+ * 한글 텍스트를 개별 자모로 분해
+ *
+ * Converts complete Korean syllables (가-힣) into their constituent Jamo
+ * (초성, 중성, 종성). Non-Hangul characters are passed through unchanged.
+ *
+ * ## Unicode Math (유니코드 계산)
+ *
+ * Korean syllables in Unicode follow a mathematical formula:
+ * ```
+ * syllable_code = 0xAC00 + (cho × 588) + (jung × 28) + jong
+ * ```
+ *
+ * This function reverses that formula to extract each component.
+ *
+ * @param text - Text to decompose (can contain Korean and non-Korean characters)
+ * @returns Array of Jamo characters and non-Korean characters
+ *
+ * @example
+ * // Complete syllables with 종성
+ * decomposeToJamos('강'); // ['ㄱ', 'ㅏ', 'ㅇ']
+ *
+ * @example
+ * // Syllable without 종성
+ * decomposeToJamos('가'); // ['ㄱ', 'ㅏ']
+ *
+ * @example
+ * // Mixed text
+ * decomposeToJamos('한글ABC'); // ['ㅎ', 'ㅏ', 'ㄴ', 'ㄱ', 'ㅡ', 'ㄹ', 'A', 'B', 'C']
+ *
+ * @example
+ * // Already decomposed Jamo (pass-through)
+ * decomposeToJamos('ㄱㅏ'); // ['ㄱ', 'ㅏ']
  */
 export function decomposeToJamos(text: string): string[] {
   const jamos: string[] = [];
@@ -246,7 +436,48 @@ export function decomposeToJamos(text: string): string[] {
 }
 
 /**
- * 자모 편집 거리 계산 (키보드 가중치 적용)
+ * Calculates keyboard-weighted Jamo edit distance between two Korean words
+ * 키보드 가중치가 적용된 자모 편집 거리 계산
+ *
+ * This is the main algorithm of this module. It computes a modified Levenshtein
+ * distance at the Jamo level, with reduced costs for common typos.
+ *
+ * ## Algorithm (알고리즘)
+ *
+ * 1. Decompose both words into Jamo arrays
+ * 2. Build a DP matrix for edit distance
+ * 3. For substitutions, apply keyboard-aware costs:
+ *    - Double consonant mistake (ㄱ↔ㄲ): 0.3
+ *    - Adjacent key: 0.5
+ *    - Near key (dist < 1.5): 0.6
+ *    - Medium key (dist < 2.5): 0.8
+ *    - Far key: 1.0
+ * 4. Insert/delete operations always cost 1.0
+ *
+ * ## Complexity (복잡도)
+ *
+ * - Time: O(m × n) where m, n are Jamo counts of the two words
+ * - Space: O(m × n) for the DP table
+ *
+ * @param word1 - First word (Korean or mixed)
+ * @param word2 - Second word (Korean or mixed)
+ * @returns Weighted edit distance (can be fractional due to weighted substitutions)
+ *
+ * @example
+ * // Identical words
+ * jamoEditDistance('안녕', '안녕'); // 0
+ *
+ * @example
+ * // Double consonant typo (very low cost)
+ * jamoEditDistance('사과', '싸과'); // 0.3
+ *
+ * @example
+ * // Adjacent key typo
+ * jamoEditDistance('사과', '다과'); // 0.5 (ㅅ→ㄷ adjacent)
+ *
+ * @example
+ * // Multiple differences
+ * jamoEditDistance('컴퓨터', '캄표타'); // ~1.9
  */
 export function jamoEditDistance(word1: string, word2: string): number {
   const jamos1 = decomposeToJamos(word1);
@@ -316,7 +547,45 @@ export function jamoEditDistance(word1: string, word2: string): number {
 }
 
 /**
- * 키보드 유사도 계산 (0~1)
+ * Calculates keyboard-aware similarity score between two Korean words
+ * 키보드 인식 유사도 점수 계산 (0~1)
+ *
+ * Converts the edit distance into a normalized similarity score between 0 and 1,
+ * where 1 means identical and 0 means completely different.
+ *
+ * ## Formula (공식)
+ *
+ * ```
+ * similarity = max(0, 1 - (distance / maxLength))
+ * ```
+ *
+ * Where `maxLength` is the Jamo count of the longer word.
+ *
+ * ## Use Cases (사용 사례)
+ *
+ * - Fuzzy search ranking (higher score = better match)
+ * - Typo tolerance thresholds (e.g., accept if similarity > 0.8)
+ * - Autocomplete suggestions (sort by similarity)
+ *
+ * @param word1 - First word (Korean or mixed)
+ * @param word2 - Second word (Korean or mixed)
+ * @returns Similarity score from 0.0 (no similarity) to 1.0 (identical)
+ *
+ * @example
+ * // Identical words
+ * calculateKeyboardSimilarity('안녕', '안녕'); // 1.0
+ *
+ * @example
+ * // Minor typo (high similarity)
+ * calculateKeyboardSimilarity('사과', '싸과'); // ~0.95
+ *
+ * @example
+ * // Different words (low similarity)
+ * calculateKeyboardSimilarity('사과', '바나나'); // ~0.2
+ *
+ * @example
+ * // Empty string handling
+ * calculateKeyboardSimilarity('', '안녕'); // 0
  */
 export function calculateKeyboardSimilarity(word1: string, word2: string): number {
   const jamos1 = decomposeToJamos(word1);
