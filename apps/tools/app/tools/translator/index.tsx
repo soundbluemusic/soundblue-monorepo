@@ -16,8 +16,9 @@ interface TranslatorProps {
 
 export function Translator({ settings: propSettings, onSettingsChange }: TranslatorProps) {
   const [internalSettings, setInternalSettings] = useState(defaultTranslatorSettings);
+  // Merge order: defaults → internal → props (props have highest priority)
   const settings = useMemo(
-    () => ({ ...defaultTranslatorSettings, ...propSettings, ...internalSettings }),
+    () => ({ ...defaultTranslatorSettings, ...internalSettings, ...propSettings }),
     [propSettings, internalSettings],
   );
 
@@ -37,6 +38,7 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevDirectionRef = useRef(settings.direction);
   const isInitializedRef = useRef(false);
+  const directionJustChangedRef = useRef(false);
 
   // Load shared translation from URL on mount
   useEffect(() => {
@@ -70,8 +72,14 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
     setOutputText(result);
   }, [inputText, settings.direction]);
 
-  // Auto-translate with debounce
+  // Auto-translate with debounce (only for inputText changes)
   useEffect(() => {
+    // Skip if direction just changed (handled by direction effect)
+    if (directionJustChangedRef.current) {
+      directionJustChangedRef.current = false;
+      return;
+    }
+
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
@@ -91,15 +99,18 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
     };
   }, [inputText, doTranslate]);
 
-  // Re-translate when direction changes (not on inputText change - that's handled by debounce)
+  // Re-translate immediately when direction changes
   useEffect(() => {
     if (prevDirectionRef.current !== settings.direction) {
       prevDirectionRef.current = settings.direction;
+      directionJustChangedRef.current = true; // Prevent debounce effect from double-translating
       if (inputText.trim()) {
-        doTranslate();
+        // Translate immediately with new direction
+        const result = translate(inputText.trim(), settings.direction);
+        setOutputText(result);
       }
     }
-  }, [settings.direction, doTranslate, inputText]);
+  }, [settings.direction, inputText]);
 
   // Toggle direction
   const toggleDirection = useCallback(() => {

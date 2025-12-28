@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from 'react-router';
 import m from '~/lib/messages';
 import { addToContext, analyzeInput, type ConversationTurn } from '~/lib/nlu';
 import { detectLanguageSwitch, getResponse, initializeQA } from '~/lib/response-handler';
-import { getLocale } from '~/paraglide/runtime';
 import { generateId, type Message, useChatStore } from '~/stores';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
@@ -17,6 +16,19 @@ export function ChatContainer() {
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
   const [qaInitialized, setQaInitialized] = useState(false);
   const [userMessageCount, setUserMessageCount] = useState(0);
+
+  // Refs for stable callback access (prevents unnecessary re-renders)
+  const userMessageCountRef = useRef(userMessageCount);
+  const localMessagesRef = useRef(localMessages);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    userMessageCountRef.current = userMessageCount;
+  }, [userMessageCount]);
+
+  useEffect(() => {
+    localMessagesRef.current = localMessages;
+  }, [localMessages]);
 
   const {
     isHydrated,
@@ -79,10 +91,14 @@ export function ChatContainer() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Extract locale from pathname to ensure it's tracked as dependency
+  const locale = location.pathname.startsWith('/ko') ? 'ko' : 'en';
+
   // Handle sending a message with advanced NLU
   const handleSend = useCallback(
     async (content: string) => {
-      const locale = typeof getLocale === 'function' ? getLocale() : 'en';
+      // Capture ghostMode at start to prevent race conditions during async operations
+      const isGhostMode = ghostMode;
 
       // Check for language switch request
       const languageSwitch = detectLanguageSwitch(content, locale);
@@ -102,7 +118,7 @@ export function ChatContainer() {
           timestamp: Date.now(),
         };
 
-        if (ghostMode) {
+        if (isGhostMode) {
           setLocalMessages((prev) => [...prev, userMessage, switchMessage]);
         } else {
           addMessage(userMessage);
@@ -135,7 +151,7 @@ export function ChatContainer() {
           timestamp: Date.now(),
         };
 
-        if (ghostMode) {
+        if (isGhostMode) {
           setLocalMessages((prev) => [...prev, userMessage, alreadyOnPageMessage]);
         } else {
           addMessage(userMessage);
@@ -152,40 +168,50 @@ export function ChatContainer() {
         timestamp: Date.now(),
       };
 
-      // Increment user message count
-      const newUserMessageCount = userMessageCount + 1;
+      // Increment user message count (use ref for stable access)
+      const currentCount = userMessageCountRef.current;
+      const newUserMessageCount = currentCount + 1;
       setUserMessageCount(newUserMessageCount);
 
+      // Get current local messages from ref for stable access
+      const currentLocalMessages = localMessagesRef.current;
+
       // Auto-save after 3 messages in ghost mode
-      if (ghostMode && newUserMessageCount >= 3 && localMessages.length > 0) {
-        // Convert to regular conversation
-        const welcomeMessage: Message = localMessages[0] || {
-          id: generateId(),
-          role: 'assistant',
-          content: m['app.welcome'](),
-          timestamp: Date.now(),
-        };
+      if (isGhostMode && newUserMessageCount >= 3 && currentLocalMessages.length > 0) {
+        // Convert to regular conversation with error handling
+        try {
+          const welcomeMessage: Message = currentLocalMessages[0] || {
+            id: generateId(),
+            role: 'assistant',
+            content: m['app.welcome'](),
+            timestamp: Date.now(),
+          };
 
-        // Create conversation with all existing messages
-        createConversation(welcomeMessage);
+          // Create conversation with all existing messages
+          createConversation(welcomeMessage);
 
-        // Add all previous messages
-        for (let i = 1; i < localMessages.length; i++) {
-          const msg = localMessages[i];
-          if (msg) {
-            addMessage(msg);
+          // Add all previous messages
+          for (let i = 1; i < currentLocalMessages.length; i++) {
+            const msg = currentLocalMessages[i];
+            if (msg) {
+              addMessage(msg);
+            }
           }
+
+          // Add current user message
+          addMessage(userMessage);
+
+          // Clear local messages and reset count only on success
+          setLocalMessages([]);
+          setUserMessageCount(0);
+        } catch (error) {
+          // On failure, keep messages in local state and continue in ghost mode
+          console.warn('Auto-save failed, keeping messages in ghost mode:', error);
+          setLocalMessages((prev) => [...prev, userMessage]);
         }
-
-        // Add current user message
-        addMessage(userMessage);
-
-        // Clear local messages and reset count
-        setLocalMessages([]);
-        setUserMessageCount(0);
       } else {
         // Normal ghost mode or regular conversation
-        if (ghostMode) {
+        if (isGhostMode) {
           setLocalMessages((prev) => [...prev, userMessage]);
         } else {
           addMessage(userMessage);
@@ -227,7 +253,7 @@ export function ChatContainer() {
       };
       addToContext(turn);
 
-      if (ghostMode && userMessageCount < 3) {
+      if (isGhostMode && userMessageCountRef.current < 3) {
         setLocalMessages((prev) => [...prev, assistantMessage]);
       } else {
         addMessage(assistantMessage);
@@ -235,15 +261,7 @@ export function ChatContainer() {
 
       setIsThinking(false);
     },
-    [
-      ghostMode,
-      addMessage,
-      userMessageCount,
-      localMessages,
-      createConversation,
-      location.pathname,
-      navigate,
-    ],
+    [ghostMode, addMessage, createConversation, locale, navigate],
   );
 
   // Handle new chat
