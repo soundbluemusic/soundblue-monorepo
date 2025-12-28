@@ -252,7 +252,8 @@ describe('SEO Files', () => {
 
       const headerNames = lines
         .filter((line) => line.includes(':') && !line.startsWith('#') && !line.startsWith('/'))
-        .map((line) => line.split(':')[0].trim());
+        .map((line) => line.split(':')[0]?.trim())
+        .filter((name): name is string => Boolean(name));
 
       // 섹션별로 중복 체크
       const sections = headers.split(/^\/.*$/m);
@@ -260,7 +261,8 @@ describe('SEO Files', () => {
         const sectionHeaders = section
           .split('\n')
           .filter((line) => line.includes(':') && !line.startsWith('#'))
-          .map((line) => line.split(':')[0].trim());
+          .map((line) => line.split(':')[0]?.trim())
+          .filter((name): name is string => Boolean(name));
 
         const unique = [...new Set(sectionHeaders)];
         expect(sectionHeaders.length).toBe(unique.length);

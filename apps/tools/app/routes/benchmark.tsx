@@ -1,5 +1,5 @@
 import { CheckCircle2, ChevronDown, ChevronRight, Play, XCircle } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
@@ -20,9 +20,7 @@ import {
   uniqueTests,
   wordOrderTests,
 } from '~/tools/translator/benchmark-data';
-import type { TranslateRequest, TranslateResponse } from '~/tools/translator/translator.worker';
-// Import Web Worker for off-main-thread translation
-import TranslatorWorker from '~/tools/translator/translator.worker?worker';
+import { translate } from '~/tools/translator/translator-service';
 
 export const meta: MetaFunction = () => [
   { title: 'Benchmark | Tools' },
@@ -51,6 +49,13 @@ interface LevelResult {
   categories: CategoryResult[];
 }
 
+// Helper to yield to main thread
+const yieldToMain = (): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });
+};
+
 export default function Benchmark() {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
@@ -68,39 +73,6 @@ export default function Benchmark() {
   const [antiHardcodingResults, setAntiHardcodingResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
-
-  // Web Worker ref for off-main-thread translation
-  const workerRef = useRef<Worker | null>(null);
-  const pendingRef = useRef<Map<string, (result: string) => void>>(new Map());
-
-  // Initialize Web Worker
-  useEffect(() => {
-    workerRef.current = new TranslatorWorker();
-    workerRef.current.onmessage = (event: MessageEvent<TranslateResponse>) => {
-      const { id, result } = event.data;
-      const resolve = pendingRef.current.get(id);
-      if (resolve) {
-        resolve(result);
-        pendingRef.current.delete(id);
-      }
-    };
-
-    return () => {
-      workerRef.current?.terminate();
-    };
-  }, []);
-
-  // Translate using Web Worker (async, non-blocking)
-  const translateAsync = useCallback(
-    (input: string, direction: 'ko-en' | 'en-ko'): Promise<string> => {
-      return new Promise((resolve) => {
-        const id = `${Date.now()}-${Math.random()}`;
-        pendingRef.current.set(id, resolve);
-        workerRef.current?.postMessage({ id, input, direction } as TranslateRequest);
-      });
-    },
-    [],
-  );
 
   /**
    * Normalize English (for comparison)
@@ -124,30 +96,27 @@ export default function Benchmark() {
       .trim();
   };
 
-  // Run single test using Web Worker (async)
-  const runTestAsync = useCallback(
-    async (test: TestCase): Promise<TestResult> => {
-      const actual = await translateAsync(test.input, test.direction);
+  // Run single test (sync translate, then yield)
+  const runTest = useCallback((test: TestCase): TestResult => {
+    const actual = translate(test.input, test.direction);
 
-      let passed: boolean;
-      if (test.direction === 'ko-en') {
-        passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
-      } else {
-        passed = normalizeKorean(actual) === normalizeKorean(test.expected);
-      }
+    let passed: boolean;
+    if (test.direction === 'ko-en') {
+      passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
+    } else {
+      passed = normalizeKorean(actual) === normalizeKorean(test.expected);
+    }
 
-      return {
-        id: test.id,
-        passed,
-        actual,
-        expected: test.expected,
-        input: test.input,
-      };
-    },
-    [translateAsync],
-  );
+    return {
+      id: test.id,
+      passed,
+      actual,
+      expected: test.expected,
+      input: test.input,
+    };
+  }, []);
 
-  // Async batch processing using Web Worker
+  // Async batch processing with yielding between tests
   const runLevelTestsAsync = useCallback(
     async (
       levels: TestLevel[],
@@ -163,8 +132,11 @@ export default function Benchmark() {
           const testResults: TestResult[] = [];
 
           for (const test of category.tests) {
-            // Run test in Web Worker (non-blocking)
-            const result = await runTestAsync(test);
+            // Yield to main thread BEFORE running test
+            await yieldToMain();
+
+            // Run test (sync)
+            const result = runTest(test);
             testResults.push(result);
             globalProgress.current++;
             setProgress({ ...globalProgress, phase: phaseName });
@@ -192,7 +164,7 @@ export default function Benchmark() {
 
       return results;
     },
-    [runTestAsync],
+    [runTest],
   );
 
   const runAllTests = useCallback(async () => {
