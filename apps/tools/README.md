@@ -163,9 +163,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 ```
 app/
 ├── root.tsx            # Root app component (Router, MetaProvider)
-├── entry.client.tsx    # Client entry point
-├── entry.server.tsx    # Server entry point
-├── globals.css         # Global styles (Tailwind base, design tokens)
+├── routes.ts           # Route definitions
+├── app.css             # Global styles (Tailwind base, design tokens)
 │
 ├── routes/             # File-based routing (React Router)
 │   ├── index.tsx       # Home (/) - Chat interface
@@ -180,10 +179,8 @@ app/
 │   ├── ui/             # UI components (button, slider, dialog, tabs, etc.)
 │   ├── layout/         # Layout components (Header, Footer, MainLayout)
 │   ├── sidebar/        # Tool sidebar (ToolSidebar, ToolCategory, ToolItem)
-│   ├── chat/           # Chat interface (ChatContainer, ChatInput, ChatMessage)
 │   ├── tools/          # Tool container components
-│   ├── canvas/         # Canvas 2D utilities
-│   ├── visualizations/ # VU meter, spectrum, waveform
+│   ├── widgets/        # Widget components
 │   └── providers/      # ThemeProvider
 │
 ├── tools/              # Tool definitions (도구 정의)
@@ -227,9 +224,10 @@ app/
     ├── context.tsx     # LanguageProvider (@inlang/paraglide-js)
     └── request.ts
 
-messages/               # Translation files (번역 파일)
-├── ko.json
-└── en.json
+project.inlang/         # Paraglide i18n configuration
+└── messages/           # Translation files (번역 파일)
+    ├── ko.json
+    └── en.json
 ```
 
 ---
@@ -334,12 +332,12 @@ await resumeAudioContext();              // Resume on user interaction (required
 ### i18n - Internationalization (국제화)
 
 ```typescript
-import * as m from '@/paraglide/messages';
-import { useLanguage } from '@/i18n';
+import * as m from '~/paraglide/messages';
+import { getLocale } from '~/paraglide/runtime';
 import type { FC } from 'react';
 
 const MyComponent: FC = () => {
-  const { locale, toggleLocale } = useLanguage();
+  const locale = getLocale();  // 'en' | 'ko'
   return <p>{m.common_title()}</p>;
 };
 ```
@@ -347,9 +345,9 @@ const MyComponent: FC = () => {
 ### Path Aliases (경로 별칭)
 
 ```typescript
-import { cn } from '@/lib/utils';
-import { audioStore } from '@/stores/audio-store';
-import { Button } from '@/components/ui/button';
+import { cn } from '~/lib/utils';
+import { useAudioStore } from '~/stores/audio-store';
+import { Button } from '~/components/ui/button';
 ```
 
 ---

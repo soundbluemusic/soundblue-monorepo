@@ -53,7 +53,7 @@ export function getMessage(key: MessageKey): string {
 /**
  * Get raw message data (can be string or array)
  */
-export function getRawMessage(key: MessageKey): MessageValue {
+export function getRawMessage(key: MessageKey): MessageValue | undefined {
   try {
     const locale = typeof getLocale === 'function' ? getLocale() : 'en';
     const keyStr = String(key);
@@ -67,13 +67,39 @@ export function getRawMessage(key: MessageKey): MessageValue {
 // Create message functions on-demand
 const createMessageFn = (key: MessageKey) => () => getMessage(key);
 
-// Export message object with Proxy for on-demand function creation
-const m = new Proxy({} as Record<string, () => string>, {
+// Convert underscore keys to dot notation for the type
+type UnderscoreToDot<S extends string> = S extends `${infer A}_${infer B}`
+  ? `${A}.${UnderscoreToDot<B>}`
+  : S;
+
+// Generate all possible dot-notation keys from the JSON keys
+type DotMessageKey = UnderscoreToDot<MessageKey>;
+
+// Type for the message accessor - maps each key to a function
+// Supports both underscore (original) and dot notation
+type MessageFunctionMap = {
+  [K in DotMessageKey | MessageKey]: () => string;
+};
+
+/**
+ * Message accessor - access via m['key']() or m('key')
+ * Type-safe with all keys from en.json
+ * Supports both dot notation (home.tagline) and underscore (home_tagline)
+ */
+interface MessageAccessor extends MessageFunctionMap {
+  (key: DotMessageKey | MessageKey): string;
+}
+
+// Create the proxy with proper typing
+const m = new Proxy((() => '') as unknown as MessageAccessor, {
+  apply(_target, _thisArg, args: [string]) {
+    const underscoreKey = args[0].replace(/\./g, '_');
+    return getMessage(underscoreKey as MessageKey);
+  },
   get(_target, prop: string) {
-    // Convert dotted notation back to underscore for lookup
     const underscoreKey = prop.replace(/\./g, '_');
     return createMessageFn(underscoreKey as MessageKey);
   },
-});
+}) as MessageAccessor;
 
 export default m;

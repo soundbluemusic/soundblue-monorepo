@@ -5,7 +5,6 @@
 // 문맥 기반 다중 번역 지원 (차 → tea/car/difference)
 // ========================================
 
-import { i18nEnToKo, i18nKoToEn } from './i18n-words';
 import {
   CATEGORY_KEYWORDS,
   MULTI_TRANSLATION_WORDS,
@@ -1991,7 +1990,6 @@ const manualKoToEnWords: Record<string, string> = {
 // ========================================
 
 export const koToEnWords: Record<string, string> = {
-  ...i18nKoToEn,
   ...manualKoToEnWords,
 };
 
@@ -2637,7 +2635,6 @@ const manualEnToKoWords: Record<string, string> = {
 
 // 역방향 사전 (영→한) 자동 생성 + 수동 사전 병합
 export const enToKoWords: Record<string, string> = {
-  ...i18nEnToKo,
   ...Object.fromEntries(
     Object.entries(manualKoToEnWords).map(([ko, en]) => [en.toLowerCase(), ko]),
   ),

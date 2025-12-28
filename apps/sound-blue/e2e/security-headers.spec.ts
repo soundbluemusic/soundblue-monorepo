@@ -257,7 +257,7 @@ test.describe('Security Headers', () => {
         expect(cacheControl).toBeDefined();
         expect(cacheControl).toContain('max-age=');
 
-        const maxAge = cacheControl.match(/max-age=(\d+)/)?.[1];
+        const maxAge = cacheControl?.match(/max-age=(\d+)/)?.[1];
         if (maxAge) {
           // 최소 1년 (31536000초)
           expect(Number.parseInt(maxAge, 10)).toBeGreaterThanOrEqual(31536000);

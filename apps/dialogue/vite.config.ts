@@ -1,8 +1,11 @@
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+
+const isAnalyze = process.env['ANALYZE'] === 'true';
 
 export default defineConfig({
   plugins: [
@@ -32,7 +35,15 @@ export default defineConfig({
         enabled: false,
       },
     }),
-  ],
+    isAnalyze &&
+      visualizer({
+        filename: 'stats.html',
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+        template: 'treemap',
+      }),
+  ].filter(Boolean),
   build: {
     target: 'esnext',
     minify: 'esbuild',
@@ -58,9 +69,13 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router'],
+  },
   resolve: {
     alias: {
       '~': '/app',
+      '@': '/app',
     },
   },
 });

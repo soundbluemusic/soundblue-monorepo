@@ -100,9 +100,8 @@ User: "라이선스 정보"
 sound-blue/
 ├── app/                    # React Router source (소스 코드)
 │   ├── root.tsx            # Root app component (루트 앱 컴포넌트)
-│   ├── entry.client.tsx    # Client entry (클라이언트 진입점)
-│   ├── entry.server.tsx    # Server entry (서버 진입점)
-│   ├── global.css          # Global styles (전역 스타일)
+│   ├── routes.ts           # Route definitions (라우트 정의)
+│   ├── app.css             # Global styles (전역 스타일)
 │   ├── components/         # React components (React 컴포넌트)
 │   │   ├── ui/             # UI components (SearchBox, ThemeIcon)
 │   │   ├── navigation/     # Sidebar, BottomNav
