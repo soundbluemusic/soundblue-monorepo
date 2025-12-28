@@ -131,9 +131,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 dialogue/
 ├── app/
 │   ├── root.tsx            # Root app component
-│   ├── entry.client.tsx    # Client entry point
-│   ├── entry.server.tsx    # Server entry point
-│   ├── global.css          # Global styles (Tailwind)
+│   ├── routes.ts           # Route definitions
+│   ├── app.css             # Global styles (Tailwind)
 │   │
 │   ├── routes/             # File-based routing (React Router)
 │   │   ├── home.tsx        # Home route (/)
@@ -226,7 +225,7 @@ import { cn } from '~/lib/utils';
 
 - Two modes: `light`, `dark` (두 가지 모드: 라이트, 다크)
 - System preference + manual override (시스템 설정 + 수동 전환)
-- CSS variables defined in `app/global.css`
+- CSS variables defined in `app/app.css`
 
 ---
 

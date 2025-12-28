@@ -34,7 +34,7 @@ Tools 프로젝트에 기여해 주셔서 감사합니다!
 
 ### 요구사항
 
-- **Node.js:** >=24.0.0
+- **Node.js:** >=20.0.0
 - **Package Manager:** pnpm
 - **Rust:** wasm-pack (WASM 빌드용)
 
@@ -154,7 +154,7 @@ export * from './my-tool';
 
 ### 3. 번역 추가
 
-`messages/ko.json` 및 `messages/en.json`에 번역 추가.
+`project.inlang/messages/ko.json` 및 `project.inlang/messages/en.json`에 번역 추가.
 
 ## Rust WASM 개발
 
