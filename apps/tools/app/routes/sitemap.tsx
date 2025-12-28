@@ -1,10 +1,23 @@
 import { useParaglideI18n } from '@soundblue/shared-react';
 import type { MetaFunction } from 'react-router';
-import { Link } from 'react-router';
+import { Link, useLoaderData } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
 import m from '~/lib/messages';
 import { ALL_TOOLS } from '~/lib/toolCategories';
+
+/**
+ * 빌드 타임에 날짜를 캡처하여 Hydration 불일치 방지
+ */
+export async function loader() {
+  const now = new Date();
+  return {
+    lastUpdated: {
+      en: now.toLocaleDateString('en-US'),
+      ko: now.toLocaleDateString('ko-KR'),
+    },
+  };
+}
 
 export const meta: MetaFunction = () => [
   { title: 'Sitemap | Tools' },
@@ -13,6 +26,7 @@ export const meta: MetaFunction = () => [
 
 export default function Sitemap() {
   const { locale, localizedPath } = useParaglideI18n();
+  const { lastUpdated } = useLoaderData<typeof loader>();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -99,8 +113,7 @@ export default function Sitemap() {
           </section>
 
           <p className="mt-8 text-sm text-(--muted-foreground)">
-            {m['sitemap_lastUpdated']?.()}:{' '}
-            {new Date().toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US')}
+            {m['sitemap_lastUpdated']?.()}: {locale === 'ko' ? lastUpdated.ko : lastUpdated.en}
           </p>
         </div>
       </main>
