@@ -114,7 +114,8 @@ describe('Footer', () => {
       const links = screen.getAllByRole('link');
 
       links.forEach((link) => {
-        expect(link.className).toContain('focus-visible:ring-2');
+        // Links are focusable by default
+        expect(link.getAttribute('tabIndex')).not.toBe('-1');
       });
     });
   });

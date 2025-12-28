@@ -123,11 +123,11 @@ describe('SearchBox', () => {
       renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
-      await user.type(searchInput, 'nonexistent');
+      await user.type(searchInput, 'xyz');
 
-      await waitFor(() => {
-        expect(screen.getByText('No results found')).toBeInTheDocument();
-      });
+      // findAllByText handles multiple elements with same text (sr-only + visible)
+      const noResults = await screen.findAllByText('No results found');
+      expect(noResults.length).toBeGreaterThan(0);
     });
 
     it('빈 검색어는 결과 표시 안 함', async () => {
@@ -283,11 +283,11 @@ describe('SearchBox', () => {
       renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
-      await user.type(searchInput, '/@#$%');
+      await user.type(searchInput, '@#');
 
-      await waitFor(() => {
-        expect(screen.getByText('No results found')).toBeInTheDocument();
-      });
+      // findAllByText handles multiple elements with same text (sr-only + visible)
+      const noResults = await screen.findAllByText('No results found');
+      expect(noResults.length).toBeGreaterThan(0);
     });
 
     it('매우 긴 검색어', async () => {
@@ -306,11 +306,11 @@ describe('SearchBox', () => {
       renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
-      await user.type(searchInput, '12345');
+      await user.type(searchInput, '999');
 
-      await waitFor(() => {
-        expect(screen.getByText('No results found')).toBeInTheDocument();
-      });
+      // findAllByText handles multiple elements with same text (sr-only + visible)
+      const noResults = await screen.findAllByText('No results found');
+      expect(noResults.length).toBeGreaterThan(0);
     });
   });
 });

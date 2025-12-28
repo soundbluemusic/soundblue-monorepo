@@ -264,7 +264,8 @@ describe('NavigationLayout', () => {
           <div>Test</div>
         </NavigationLayout>,
       );
-      const skipLink = container.querySelector('.skip-to-content');
+      // Skip link is positioned off-screen and has href="#main-content"
+      const skipLink = container.querySelector('a[href="#main-content"]');
       expect(skipLink).toBeInTheDocument();
     });
 

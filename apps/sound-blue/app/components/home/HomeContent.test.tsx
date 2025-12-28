@@ -120,7 +120,7 @@ describe('HomeContent Component', () => {
       render(<HomeContent />);
       const heading = screen.getByRole('heading', { level: 1 });
       expect(heading.className).toContain('text-3xl');
-      expect(heading.className).toContain('md:text-[3rem]');
+      expect(heading.className).toContain('md:text-5xl');
     });
 
     it('태그라인이 이탤릭', () => {

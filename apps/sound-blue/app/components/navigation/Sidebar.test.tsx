@@ -129,15 +129,15 @@ describe('Sidebar', () => {
     it('현재 경로와 일치하는 링크에 accent 색상', () => {
       renderWithRouter(<Sidebar isOpen={true} />);
       const homeLink = screen.getByText('Home').closest('a');
-      expect(homeLink?.className).toContain('text-accent');
-      expect(homeLink?.className).toContain('bg-accent/12');
+      expect(homeLink?.className).toContain('text-(--color-accent-primary)');
+      expect(homeLink?.className).toContain('bg-(--color-accent-light)');
     });
 
     it('비활성 링크는 muted 색상', () => {
       renderWithRouter(<Sidebar isOpen={true} />);
       const aboutLink = screen.getByText('About').closest('a');
-      expect(aboutLink?.className).toContain('text-content-muted');
-      expect(aboutLink?.className).not.toContain('text-accent');
+      expect(aboutLink?.className).toContain('text-(--color-text-secondary)');
+      expect(aboutLink?.className).not.toContain('text-(--color-accent-primary)');
     });
   });
 
@@ -197,8 +197,7 @@ describe('Sidebar', () => {
       renderWithRouter(<Sidebar isOpen={true} />);
       const links = screen.getAllByRole('link');
       links.forEach((link) => {
-        expect(link.className).toContain('focus-visible:outline-none');
-        expect(link.className).toContain('focus-visible:ring-2');
+        expect(link.className).toContain('focus-visible:outline-2');
       });
     });
 
@@ -232,7 +231,7 @@ describe('Sidebar', () => {
     it('z-index 설정', () => {
       renderWithRouter(<Sidebar isOpen={true} />);
       const aside = document.querySelector('aside');
-      expect(aside?.className).toContain('z-[200]');
+      expect(aside?.className).toContain('z-50');
     });
   });
 
