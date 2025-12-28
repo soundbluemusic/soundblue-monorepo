@@ -51,6 +51,7 @@ interface LevelResult {
 
 export default function Benchmark() {
   const [isRunning, setIsRunning] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
   const [contextResults, setContextResults] = useState<LevelResult[]>([]);
@@ -112,10 +113,13 @@ export default function Benchmark() {
     };
   }, []);
 
-  // Async batch processing - runs tests in small batches with yields to UI
+  // Async batch processing - runs tests one at a time with real UI yields
   const runLevelTestsAsync = useCallback(
-    async (levels: TestLevel[]): Promise<LevelResult[]> => {
-      const BATCH_SIZE = 10; // Process 10 tests per batch
+    async (
+      levels: TestLevel[],
+      phaseName: string,
+      globalProgress: { current: number; total: number },
+    ): Promise<LevelResult[]> => {
       const results: LevelResult[] = [];
 
       for (const level of levels) {
@@ -124,17 +128,14 @@ export default function Benchmark() {
         for (const category of level.categories) {
           const testResults: TestResult[] = [];
 
-          // Process tests in batches
-          for (let i = 0; i < category.tests.length; i += BATCH_SIZE) {
-            const batch = category.tests.slice(i, i + BATCH_SIZE);
+          // Process tests ONE AT A TIME with real UI yield
+          for (const test of category.tests) {
+            // Use requestAnimationFrame for real UI yield
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
-            // Yield to UI between batches
-            await new Promise<void>((resolve) => setTimeout(resolve, 0));
-
-            // Run batch
-            for (const test of batch) {
-              testResults.push(runTest(test));
-            }
+            testResults.push(runTest(test));
+            globalProgress.current++;
+            setProgress({ ...globalProgress, phase: phaseName });
           }
 
           const passed = testResults.filter((r) => r.passed).length;
@@ -167,45 +168,84 @@ export default function Benchmark() {
     setExpandedLevels(new Set());
     setExpandedCategories(new Set());
 
+    // Calculate total test count
+    const total =
+      countTests(levelTests) +
+      countTests(categoryTests) +
+      countTests(contextTests) +
+      countTests(typoTests) +
+      countTests(uniqueTests) +
+      countTests(polysemyTests) +
+      countTests(wordOrderTests) +
+      countTests(spacingErrorTests) +
+      countTests(finalTests) +
+      countTests(professionalTranslatorTests) +
+      countTests(localizationTests) +
+      countTests(antiHardcodingTests);
+
+    const globalProgress = { current: 0, total };
+    setProgress({ current: 0, total, phase: 'Starting...' });
+
     try {
-      // Run each test group with async batch processing to avoid blocking UI
-      const levelRes = await runLevelTestsAsync(levelTests);
+      // Run each test group with progress tracking
+      const levelRes = await runLevelTestsAsync(levelTests, 'Level Tests', globalProgress);
       setLevelResults(levelRes);
 
-      const catRes = await runLevelTestsAsync(categoryTests);
+      const catRes = await runLevelTestsAsync(categoryTests, 'Category Tests', globalProgress);
       setCategoryResults(catRes);
 
-      const ctxRes = await runLevelTestsAsync(contextTests);
+      const ctxRes = await runLevelTestsAsync(contextTests, 'Context Tests', globalProgress);
       setContextResults(ctxRes);
 
-      const typoRes = await runLevelTestsAsync(typoTests);
+      const typoRes = await runLevelTestsAsync(typoTests, 'Typo Tests', globalProgress);
       setTypoResults(typoRes);
 
-      const uniqueRes = await runLevelTestsAsync(uniqueTests);
+      const uniqueRes = await runLevelTestsAsync(uniqueTests, 'Unique Tests', globalProgress);
       setUniqueResults(uniqueRes);
 
-      const polysemyRes = await runLevelTestsAsync(polysemyTests);
+      const polysemyRes = await runLevelTestsAsync(polysemyTests, 'Polysemy Tests', globalProgress);
       setPolysemyResults(polysemyRes);
 
-      const wordOrderRes = await runLevelTestsAsync(wordOrderTests);
+      const wordOrderRes = await runLevelTestsAsync(
+        wordOrderTests,
+        'Word Order Tests',
+        globalProgress,
+      );
       setWordOrderResults(wordOrderRes);
 
-      const spacingRes = await runLevelTestsAsync(spacingErrorTests);
+      const spacingRes = await runLevelTestsAsync(
+        spacingErrorTests,
+        'Spacing Tests',
+        globalProgress,
+      );
       setSpacingResults(spacingRes);
 
-      const finalRes = await runLevelTestsAsync(finalTests);
+      const finalRes = await runLevelTestsAsync(finalTests, 'Final Tests', globalProgress);
       setFinalResults(finalRes);
 
-      const professionalRes = await runLevelTestsAsync(professionalTranslatorTests);
+      const professionalRes = await runLevelTestsAsync(
+        professionalTranslatorTests,
+        'Professional Tests',
+        globalProgress,
+      );
       setProfessionalResults(professionalRes);
 
-      const localizationRes = await runLevelTestsAsync(localizationTests);
+      const localizationRes = await runLevelTestsAsync(
+        localizationTests,
+        'Localization Tests',
+        globalProgress,
+      );
       setLocalizationResults(localizationRes);
 
-      const antiHardcodingRes = await runLevelTestsAsync(antiHardcodingTests);
+      const antiHardcodingRes = await runLevelTestsAsync(
+        antiHardcodingTests,
+        'Anti-Hardcoding Tests',
+        globalProgress,
+      );
       setAntiHardcodingResults(antiHardcodingRes);
     } finally {
       setIsRunning(false);
+      setProgress({ current: 0, total: 0, phase: '' });
     }
   }, [runLevelTestsAsync]);
 
@@ -481,11 +521,30 @@ export default function Benchmark() {
             type="button"
             onClick={runAllTests}
             disabled={isRunning}
-            className="mb-6 flex cursor-pointer items-center gap-2 rounded-lg border-none bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mb-4 flex cursor-pointer items-center gap-2 rounded-lg border-none bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Play className="size-4" />
             {isRunning ? 'Running...' : 'Run All Tests'}
           </button>
+
+          {/* Progress Bar */}
+          {isRunning && progress.total > 0 && (
+            <div className="mb-6">
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="text-(--muted-foreground)">{progress.phase}</span>
+                <span className="font-mono">
+                  {progress.current}/{progress.total} (
+                  {Math.round((progress.current / progress.total) * 100)}%)
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                <div
+                  className="h-full bg-blue-600 transition-all duration-150"
+                  style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Overall Stats */}
           {levelResults.length > 0 && (
