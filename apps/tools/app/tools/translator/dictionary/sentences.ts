@@ -3,8 +3,6 @@
 // i18n 사전 자동 통합 (사이트 성장 = 번역기 성장)
 // ========================================
 
-import { i18nEnToKoSentences, i18nKoToEnSentences } from './i18n-sentences';
-
 // 수동 정의 문장 사전
 const manualKoToEnSentences: Record<string, string> = {
   // === 인사 ===
@@ -80,13 +78,11 @@ const manualKoToEnSentences: Record<string, string> = {
 // ========================================
 
 export const koToEnSentences: Record<string, string> = {
-  ...i18nKoToEnSentences,
   ...manualKoToEnSentences,
 };
 
 // 역방향 사전 (영→한) 자동 생성
 export const enToKoSentences: Record<string, string> = {
-  ...i18nEnToKoSentences,
   ...Object.fromEntries(
     Object.entries(manualKoToEnSentences).map(([ko, en]) => [en.toLowerCase(), ko]),
   ),

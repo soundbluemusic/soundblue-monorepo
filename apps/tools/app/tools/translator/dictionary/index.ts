@@ -45,9 +45,6 @@ export {
   irregularVerbs,
   type VerbForms,
 } from './english-verbs';
-export { i18nEnToKoSentences, i18nKoToEnSentences } from './i18n-sentences';
-// i18n 자동 생성 사전
-export { i18nEnToKo, i18nKoToEn } from './i18n-words';
 // 관용어/숙어
 export {
   enToKoIdioms,
