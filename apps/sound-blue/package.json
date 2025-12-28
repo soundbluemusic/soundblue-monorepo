@@ -50,16 +50,20 @@
     "@react-router/node": "^7.6.1",
     "@react-router/serve": "^7.6.1",
     "@soundblue/shared-react": "workspace:*",
+    "@tailwindcss/typography": "^0.5.19",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "dexie": "^4.2.1",
+    "framer-motion": "^12.23.26",
+    "immer": "^11.1.0",
+    "isbot": "^5.1.27",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.6.1",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.2.0",
-    "zustand": "^5.0.6",
-    "isbot": "^5.1.27"
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.9",
