@@ -1,5 +1,5 @@
 import { CheckCircle2, ChevronDown, ChevronRight, Play, XCircle } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
@@ -20,7 +20,9 @@ import {
   uniqueTests,
   wordOrderTests,
 } from '~/tools/translator/benchmark-data';
-import { translate } from '~/tools/translator/translator-service';
+import type { TranslateRequest, TranslateResponse } from '~/tools/translator/translator.worker';
+// Import Web Worker for off-main-thread translation
+import TranslatorWorker from '~/tools/translator/translator.worker?worker';
 
 export const meta: MetaFunction = () => [
   { title: 'Benchmark | Tools' },
@@ -67,11 +69,41 @@ export default function Benchmark() {
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
+  // Web Worker ref for off-main-thread translation
+  const workerRef = useRef<Worker | null>(null);
+  const pendingRef = useRef<Map<string, (result: string) => void>>(new Map());
+
+  // Initialize Web Worker
+  useEffect(() => {
+    workerRef.current = new TranslatorWorker();
+    workerRef.current.onmessage = (event: MessageEvent<TranslateResponse>) => {
+      const { id, result } = event.data;
+      const resolve = pendingRef.current.get(id);
+      if (resolve) {
+        resolve(result);
+        pendingRef.current.delete(id);
+      }
+    };
+
+    return () => {
+      workerRef.current?.terminate();
+    };
+  }, []);
+
+  // Translate using Web Worker (async, non-blocking)
+  const translateAsync = useCallback(
+    (input: string, direction: 'ko-en' | 'en-ko'): Promise<string> => {
+      return new Promise((resolve) => {
+        const id = `${Date.now()}-${Math.random()}`;
+        pendingRef.current.set(id, resolve);
+        workerRef.current?.postMessage({ id, input, direction } as TranslateRequest);
+      });
+    },
+    [],
+  );
+
   /**
    * Normalize English (for comparison)
-   * - Lowercase
-   * - Remove articles (a, an, the)
-   * - Multiple spaces to single space
    */
   const normalizeEnglish = (text: string): string => {
     return text
@@ -83,7 +115,6 @@ export default function Benchmark() {
 
   /**
    * Normalize Korean (for comparison)
-   * - Unify particles (은/는/이/가 -> 가, 을/를 -> 를)
    */
   const normalizeKorean = (text: string): string => {
     return text
@@ -93,27 +124,30 @@ export default function Benchmark() {
       .trim();
   };
 
-  const runTest = useCallback((test: TestCase): TestResult => {
-    const actual = translate(test.input, test.direction);
+  // Run single test using Web Worker (async)
+  const runTestAsync = useCallback(
+    async (test: TestCase): Promise<TestResult> => {
+      const actual = await translateAsync(test.input, test.direction);
 
-    // Apply appropriate normalization based on direction
-    let passed: boolean;
-    if (test.direction === 'ko-en') {
-      passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
-    } else {
-      passed = normalizeKorean(actual) === normalizeKorean(test.expected);
-    }
+      let passed: boolean;
+      if (test.direction === 'ko-en') {
+        passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
+      } else {
+        passed = normalizeKorean(actual) === normalizeKorean(test.expected);
+      }
 
-    return {
-      id: test.id,
-      passed,
-      actual,
-      expected: test.expected,
-      input: test.input,
-    };
-  }, []);
+      return {
+        id: test.id,
+        passed,
+        actual,
+        expected: test.expected,
+        input: test.input,
+      };
+    },
+    [translateAsync],
+  );
 
-  // Async batch processing - runs tests one at a time with real UI yields
+  // Async batch processing using Web Worker
   const runLevelTestsAsync = useCallback(
     async (
       levels: TestLevel[],
@@ -128,12 +162,10 @@ export default function Benchmark() {
         for (const category of level.categories) {
           const testResults: TestResult[] = [];
 
-          // Process tests ONE AT A TIME with real UI yield
           for (const test of category.tests) {
-            // Use requestAnimationFrame for real UI yield
-            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-
-            testResults.push(runTest(test));
+            // Run test in Web Worker (non-blocking)
+            const result = await runTestAsync(test);
+            testResults.push(result);
             globalProgress.current++;
             setProgress({ ...globalProgress, phase: phaseName });
           }
@@ -160,7 +192,7 @@ export default function Benchmark() {
 
       return results;
     },
-    [runTest],
+    [runTestAsync],
   );
 
   const runAllTests = useCallback(async () => {
