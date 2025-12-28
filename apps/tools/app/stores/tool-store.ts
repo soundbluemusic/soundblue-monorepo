@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 
 export type ToolType = 'metronome' | 'qr' | 'drumMachine' | 'translator';
 
@@ -27,7 +28,7 @@ interface ToolState {
 
 export const useToolStore = create<ToolState>()(
   persist(
-    (set) => ({
+    immer((set) => ({
       currentTool: null,
       toolSettings: {
         metronome: {},
@@ -38,20 +39,35 @@ export const useToolStore = create<ToolState>()(
       sidebarOpen: true,
       sidebarCollapsed: false,
 
-      openTool: (tool) => set({ currentTool: tool }),
-      closeTool: () => set({ currentTool: null }),
+      openTool: (tool) =>
+        set((state) => {
+          state.currentTool = tool;
+        }),
+      closeTool: () =>
+        set((state) => {
+          state.currentTool = null;
+        }),
       updateToolSettings: (tool, settings) =>
-        set((state) => ({
-          toolSettings: {
-            ...state.toolSettings,
-            [tool]: { ...state.toolSettings[tool], ...settings },
-          },
-        })),
-      toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-      setSidebarOpen: (open) => set({ sidebarOpen: open }),
-      toggleSidebarCollapse: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
-      setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
-    }),
+        set((state) => {
+          Object.assign(state.toolSettings[tool], settings);
+        }),
+      toggleSidebar: () =>
+        set((state) => {
+          state.sidebarOpen = !state.sidebarOpen;
+        }),
+      setSidebarOpen: (open) =>
+        set((state) => {
+          state.sidebarOpen = open;
+        }),
+      toggleSidebarCollapse: () =>
+        set((state) => {
+          state.sidebarCollapsed = !state.sidebarCollapsed;
+        }),
+      setSidebarCollapsed: (collapsed) =>
+        set((state) => {
+          state.sidebarCollapsed = collapsed;
+        }),
+    })),
     {
       name: 'tool-store',
       partialize: (state) => ({

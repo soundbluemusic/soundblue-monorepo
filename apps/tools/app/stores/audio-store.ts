@@ -30,6 +30,7 @@
  */
 
 import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
 
 // ========================================
 // Interfaces
@@ -303,153 +304,132 @@ const initialMeter: MeterState = {
  * @see useBpm - Selector hook for current BPM
  * @see useIsInitialized - Selector hook for initialization status
  */
-export const useAudioStore = create<AudioEngineState & AudioActions>()((set, get) => ({
-  // Initial state
-  isInitialized: false,
-  isWasmLoaded: false,
-  isWorkletReady: false,
-  sampleRate: 48000,
-  bufferSize: 128,
-  latency: 0,
-  transport: initialTransport,
-  masterMeter: initialMeter,
+export const useAudioStore = create<AudioEngineState & AudioActions>()(
+  immer((set, get) => ({
+    // Initial state
+    isInitialized: false,
+    isWasmLoaded: false,
+    isWorkletReady: false,
+    sampleRate: 48000,
+    bufferSize: 128,
+    latency: 0,
+    transport: initialTransport,
+    masterMeter: initialMeter,
 
-  // Actions
-  initialize: async (): Promise<void> => {
-    if (get().isInitialized) return;
+    // Actions
+    initialize: async (): Promise<void> => {
+      if (get().isInitialized) return;
 
-    try {
-      // Create AudioContext with optimal settings for low latency
-      const AudioContextClass =
-        window.AudioContext ||
-        (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextClass) {
-        throw new Error('Web Audio API not supported');
+      try {
+        // Create AudioContext with optimal settings for low latency
+        const AudioContextClass =
+          window.AudioContext ||
+          (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (!AudioContextClass) {
+          throw new Error('Web Audio API not supported');
+        }
+
+        const audioContext = new AudioContextClass({
+          sampleRate: 48000,
+          latencyHint: 'interactive',
+        });
+
+        // Resume context if suspended (required for user gesture policy)
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
+
+        const actualSampleRate = audioContext.sampleRate;
+        const bufferSize = 128;
+        const latencyMs = (bufferSize / actualSampleRate) * 1000;
+
+        set((state) => {
+          state.isInitialized = true;
+          state.sampleRate = actualSampleRate;
+          state.bufferSize = bufferSize;
+          state.latency = latencyMs;
+        });
+
+        // Store audioContext reference for later use
+        (window as Window & { __audioContext?: AudioContext }).__audioContext = audioContext;
+      } catch (error: unknown) {
+        // Log error in development, report to monitoring in production
+        if (import.meta.env.DEV) {
+          console.error('Audio engine initialization failed:', error);
+        }
+        // Re-throw to allow caller to handle
+        throw error;
       }
+    },
 
-      const audioContext = new AudioContextClass({
-        sampleRate: 48000,
-        latencyHint: 'interactive',
+    // Transport controls - now with immer's direct mutation
+    play: (): void => {
+      set((state) => {
+        state.transport.isPlaying = true;
+        state.transport.isPaused = false;
       });
+    },
 
-      // Resume context if suspended (required for user gesture policy)
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-      }
-
-      const actualSampleRate = audioContext.sampleRate;
-      const bufferSize = 128;
-      const latencyMs = (bufferSize / actualSampleRate) * 1000;
-
-      set({
-        isInitialized: true,
-        sampleRate: actualSampleRate,
-        bufferSize: bufferSize,
-        latency: latencyMs,
+    pause: (): void => {
+      set((state) => {
+        state.transport.isPlaying = false;
+        state.transport.isPaused = true;
       });
+    },
 
-      // Store audioContext reference for later use
-      (window as Window & { __audioContext?: AudioContext }).__audioContext = audioContext;
-    } catch (error: unknown) {
-      // Log error in development, report to monitoring in production
-      if (import.meta.env.DEV) {
-        console.error('Audio engine initialization failed:', error);
-      }
-      // Re-throw to allow caller to handle
-      throw error;
-    }
-  },
+    stop: (): void => {
+      set((state) => {
+        state.transport.isPlaying = false;
+        state.transport.isPaused = false;
+        state.transport.currentTime = 0;
+        state.transport.currentBeat = 0;
+        state.transport.currentBar = 0;
+      });
+    },
 
-  // Transport controls
-  play: (): void => {
-    set((state) => ({
-      transport: {
-        ...state.transport,
-        isPlaying: true,
-        isPaused: false,
-      },
-    }));
-  },
+    setBpm: (bpm: number): void => {
+      set((state) => {
+        state.transport.bpm = Math.max(20, Math.min(300, bpm));
+      });
+    },
 
-  pause: (): void => {
-    set((state) => ({
-      transport: {
-        ...state.transport,
-        isPlaying: false,
-        isPaused: true,
-      },
-    }));
-  },
+    setCurrentTime: (time: number): void => {
+      const currentState = get();
+      const beatsPerSecond = currentState.transport.bpm / 60;
+      const currentBeat = (time * beatsPerSecond) % 4;
+      const currentBar = Math.floor((time * beatsPerSecond) / 4);
 
-  stop: (): void => {
-    set((state) => ({
-      transport: {
-        ...state.transport,
-        isPlaying: false,
-        isPaused: false,
-        currentTime: 0,
-        currentBeat: 0,
-        currentBar: 0,
-      },
-    }));
-  },
+      set((state) => {
+        state.transport.currentTime = time;
+        state.transport.currentBeat = currentBeat;
+        state.transport.currentBar = currentBar;
+      });
+    },
 
-  setBpm: (bpm: number): void => {
-    set((state) => ({
-      transport: {
-        ...state.transport,
-        bpm: Math.max(20, Math.min(300, bpm)),
-      },
-    }));
-  },
+    toggleLoop: (): void => {
+      set((state) => {
+        state.transport.isLooping = !state.transport.isLooping;
+      });
+    },
 
-  setCurrentTime: (time: number): void => {
-    const state = get();
-    const beatsPerSecond = state.transport.bpm / 60;
-    const currentBeat = (time * beatsPerSecond) % 4;
-    const currentBar = Math.floor((time * beatsPerSecond) / 4);
+    setLoopPoints: (start: number, end: number): void => {
+      set((state) => {
+        state.transport.loopStart = start;
+        state.transport.loopEnd = end;
+      });
+    },
 
-    set((state) => ({
-      transport: {
-        ...state.transport,
-        currentTime: time,
-        currentBeat,
-        currentBar,
-      },
-    }));
-  },
-
-  toggleLoop: (): void => {
-    set((state) => ({
-      transport: {
-        ...state.transport,
-        isLooping: !state.transport.isLooping,
-      },
-    }));
-  },
-
-  setLoopPoints: (start: number, end: number): void => {
-    set((state) => ({
-      transport: {
-        ...state.transport,
-        loopStart: start,
-        loopEnd: end,
-      },
-    }));
-  },
-
-  // Meter update (called from AudioWorklet via SharedArrayBuffer)
-  updateMeter: (left: number, right: number): void => {
-    set((state) => ({
-      masterMeter: {
-        leftLevel: left,
-        rightLevel: right,
-        leftPeak: Math.max(state.masterMeter.leftPeak * 0.99, left),
-        rightPeak: Math.max(state.masterMeter.rightPeak * 0.99, right),
-      },
-    }));
-  },
-}));
+    // Meter update (called from AudioWorklet via SharedArrayBuffer)
+    updateMeter: (left: number, right: number): void => {
+      set((state) => {
+        state.masterMeter.leftLevel = left;
+        state.masterMeter.rightLevel = right;
+        state.masterMeter.leftPeak = Math.max(state.masterMeter.leftPeak * 0.99, left);
+        state.masterMeter.rightPeak = Math.max(state.masterMeter.rightPeak * 0.99, right);
+      });
+    },
+  })),
+);
 
 // ========================================
 // Selector Hooks

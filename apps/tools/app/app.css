@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/forms';
 
 /* ========================================
    Tailwind v4 Dark Mode Configuration

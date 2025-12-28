@@ -1,18 +1,12 @@
 import { Pause, Play, RotateCcw } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Slider } from '~/components/ui/slider';
-import { getAudioContext, resumeAudioContext } from '~/lib/audio-context';
+import { useMetronome } from '~/hooks/useMetronome';
 import m from '~/lib/messages';
-import {
-  BPM_RANGE,
-  defaultMetronomeSettings,
-  FREQUENCIES,
-  type MetronomeSettings,
-  TIMING,
-} from './settings';
+import { BPM_RANGE, defaultMetronomeSettings, type MetronomeSettings } from './settings';
 
 // ========================================
-// Metronome Tool - React Version
+// Metronome Tool - Tone.js Version
 // ========================================
 
 interface MetronomeProps {
@@ -36,186 +30,63 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
     [onSettingsChange],
   );
 
-  // State
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentBeat, setCurrentBeat] = useState(0);
-  const [measureCount, setMeasureCount] = useState(0);
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const [countdownTime, setCountdownTime] = useState(0);
+  // Calculate timer duration in milliseconds
+  const timerDuration = useMemo(() => {
+    const minutes = Number.parseInt(settings.timerMinutes, 10) || 0;
+    const seconds = Number.parseInt(settings.timerSeconds, 10) || 0;
+    return (minutes * 60 + seconds) * 1000;
+  }, [settings.timerMinutes, settings.timerSeconds]);
 
-  // Refs for mutable values
-  const schedulerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const animationIdRef = useRef<number | null>(null);
-  const nextNoteTimeRef = useRef(0);
-  const schedulerBeatRef = useRef(0);
-  const startAudioTimeRef = useRef(0);
+  // Use Tone.js metronome hook
+  const metronome = useMetronome({
+    initialBpm: settings.bpm,
+    beatsPerMeasure: settings.beatsPerMeasure,
+    volume: -6 + (settings.volume / 100) * 12, // Convert 0-100 to dB range
+    accentFirst: true,
+    timerDuration,
+  });
 
   // Handle BPM change
   const handleBpmChange = useCallback(
     (newBpm: number) => {
       handleSettingsChange({ bpm: newBpm });
+      metronome.setBpm(newBpm);
     },
-    [handleSettingsChange],
+    [handleSettingsChange, metronome],
   );
 
-  // Play click sound with precise timing
-  const playClick = useCallback(
-    (time: number, beatNumber: number) => {
-      try {
-        const ctx = getAudioContext();
-
-        const isFirst = beatNumber === 0;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        const volumeMultiplier = settings.volume / 100;
-
-        if (isFirst) {
-          osc.frequency.value = FREQUENCIES.ACCENT;
-          gain.gain.setValueAtTime(0.8 * volumeMultiplier, time);
-        } else {
-          osc.frequency.value = FREQUENCIES.REGULAR;
-          gain.gain.setValueAtTime(0.4 * volumeMultiplier, time);
-        }
-
-        gain.gain.exponentialRampToValueAtTime(
-          Math.max(0.001, 0.01 * volumeMultiplier),
-          time + TIMING.CLICK_DURATION_SECONDS,
-        );
-
-        osc.start(time);
-        osc.stop(time + TIMING.CLICK_DURATION_SECONDS);
-      } catch (e) {
-        if (import.meta.env.DEV) console.error('[Metronome] Audio playback failed:', e);
-      }
+  // Handle beats per measure change
+  const handleBeatsChange = useCallback(
+    (beats: number) => {
+      handleSettingsChange({ beatsPerMeasure: beats });
+      metronome.setBeatsPerMeasure(beats);
     },
-    [settings.volume],
+    [handleSettingsChange, metronome],
   );
 
-  const handleStop = useCallback(() => {
-    setIsPlaying(false);
-    if (schedulerIntervalRef.current) {
-      clearInterval(schedulerIntervalRef.current);
-      schedulerIntervalRef.current = null;
-    }
-    if (animationIdRef.current) {
-      cancelAnimationFrame(animationIdRef.current);
-      animationIdRef.current = null;
-    }
-  }, []);
+  // Handle volume change
+  const handleVolumeChange = useCallback(
+    (volume: number) => {
+      handleSettingsChange({ volume });
+      metronome.setVolume(-6 + (volume / 100) * 12);
+    },
+    [handleSettingsChange, metronome],
+  );
 
-  // Toggle play/stop
-  const togglePlay = useCallback(async () => {
-    if (isPlaying) {
-      handleStop();
-    } else {
-      try {
-        await resumeAudioContext();
-        const ctx = getAudioContext();
-
-        // Set countdown if timer is set
-        const totalMinutes = Number.parseInt(settings.timerMinutes, 10) || 0;
-        const totalSeconds = Number.parseInt(settings.timerSeconds, 10) || 0;
-        const totalMs = (totalMinutes * 60 + totalSeconds) * 1000;
-        if (totalMs > 0) {
-          setCountdownTime(totalMs);
-        }
-
-        startAudioTimeRef.current = ctx.currentTime;
-        nextNoteTimeRef.current = ctx.currentTime;
-        schedulerBeatRef.current = 0;
-        setIsPlaying(true);
-      } catch (e) {
-        if (import.meta.env.DEV) console.error('[Metronome] Failed to start audio:', e);
-      }
-    }
-  }, [isPlaying, handleStop, settings.timerMinutes, settings.timerSeconds]);
-
-  // Animation loop effect
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const animate = () => {
-      try {
-        const ctx = getAudioContext();
-        if (startAudioTimeRef.current === 0) {
-          animationIdRef.current = requestAnimationFrame(animate);
-          return;
-        }
-
-        const currentTime = ctx.currentTime;
-        const secondsPerBeat = 60 / settings.bpm;
-        const elapsed = currentTime - startAudioTimeRef.current;
-        const totalBeats = elapsed / secondsPerBeat;
-        const currentBeatIndex = Math.floor(totalBeats) % settings.beatsPerMeasure;
-        const currentMeasure = Math.floor(totalBeats / settings.beatsPerMeasure) + 1;
-
-        setCurrentBeat(currentBeatIndex);
-        setMeasureCount(currentMeasure);
-
-        const elapsedMs = elapsed * 1000;
-        setElapsedTime(elapsedMs);
-
-        if (countdownTime > 0 && elapsedMs >= countdownTime) {
-          handleStop();
-          return;
-        }
-
-        animationIdRef.current = requestAnimationFrame(animate);
-      } catch (e) {
-        if (import.meta.env.DEV) console.error('[Metronome] Animation error:', e);
-        handleStop();
-      }
-    };
-
-    animationIdRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationIdRef.current) {
-        cancelAnimationFrame(animationIdRef.current);
-      }
-    };
-  }, [isPlaying, settings.bpm, settings.beatsPerMeasure, countdownTime, handleStop]);
-
-  // Scheduler effect
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const scheduleNotes = () => {
-      try {
-        const ctx = getAudioContext();
-        const secondsPerBeat = 60.0 / settings.bpm;
-
-        while (nextNoteTimeRef.current < ctx.currentTime + TIMING.LOOK_AHEAD_SECONDS) {
-          playClick(nextNoteTimeRef.current, schedulerBeatRef.current);
-          nextNoteTimeRef.current += secondsPerBeat;
-          schedulerBeatRef.current = (schedulerBeatRef.current + 1) % settings.beatsPerMeasure;
-        }
-      } catch (e) {
-        if (import.meta.env.DEV) console.error('[Metronome] Scheduler error:', e);
-      }
-    };
-
-    schedulerIntervalRef.current = setInterval(scheduleNotes, TIMING.SCHEDULER_INTERVAL_MS);
-
-    return () => {
-      if (schedulerIntervalRef.current) {
-        clearInterval(schedulerIntervalRef.current);
-      }
-    };
-  }, [isPlaying, settings.bpm, settings.beatsPerMeasure, playClick]);
+  // Handle timer change
+  const handleTimerChange = useCallback(
+    (minutes: string, seconds: string) => {
+      handleSettingsChange({ timerMinutes: minutes, timerSeconds: seconds });
+      const ms =
+        ((Number.parseInt(minutes, 10) || 0) * 60 + (Number.parseInt(seconds, 10) || 0)) * 1000;
+      metronome.setTimerDuration(ms);
+    },
+    [handleSettingsChange, metronome],
+  );
 
   const handleReset = useCallback(() => {
-    handleStop();
-    setCurrentBeat(0);
-    setMeasureCount(0);
-    setElapsedTime(0);
-    setCountdownTime(0);
-    startAudioTimeRef.current = 0;
-  }, [handleStop]);
+    metronome.reset();
+  }, [metronome]);
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -224,11 +95,6 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
     const centiseconds = Math.floor((ms % 1000) / 10);
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
   };
-
-  const remainingTime = useMemo(
-    () => (countdownTime > 0 ? Math.max(0, countdownTime - elapsedTime) : 0),
-    [countdownTime, elapsedTime],
-  );
 
   const beatIndicators = useMemo(
     () => Array.from({ length: settings.beatsPerMeasure }),
@@ -269,7 +135,7 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
             <div
               key={i}
               className={`h-4 w-4 rounded-full border-2 transition-all duration-100 sm:h-5 sm:w-5 ${
-                isPlaying && i === currentBeat
+                metronome.isPlaying && i === metronome.currentBeat
                   ? i === 0
                     ? 'scale-125 border-red-500 bg-red-500 shadow-lg shadow-red-500/50'
                     : 'scale-110 border-primary bg-primary shadow-lg shadow-primary/50'
@@ -286,22 +152,24 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
       <div className="rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-4">
         <div className="flex flex-wrap items-center justify-around gap-2 text-center">
           <div className="min-w-15">
-            <div className="text-xl font-semibold tabular-nums sm:text-2xl">{measureCount}</div>
+            <div className="text-xl font-semibold tabular-nums sm:text-2xl">
+              {metronome.measureCount}
+            </div>
             <div className="text-xs text-muted-foreground">{m['metronome.measure']?.()}</div>
           </div>
           <div className="h-8 w-px bg-border sm:h-10" />
           <div className="min-w-20">
             <div className="font-mono text-lg tabular-nums sm:text-2xl">
-              {formatTime(elapsedTime)}
+              {formatTime(metronome.elapsedTime)}
             </div>
             <div className="text-xs text-muted-foreground">{m['metronome.elapsedTime']?.()}</div>
           </div>
-          {countdownTime > 0 && (
+          {timerDuration > 0 && (
             <>
               <div className="h-8 w-px bg-border sm:h-10" />
               <div className="min-w-20">
                 <div className="font-mono text-lg tabular-nums text-primary sm:text-2xl">
-                  {formatTime(remainingTime)}
+                  {formatTime(metronome.remainingTime)}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {m['metronome.remainingTime']?.()}
@@ -319,13 +187,9 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
           <span className="text-xs font-medium sm:text-sm">{m['metronome.timeSignature']?.()}</span>
           <select
             value={settings.beatsPerMeasure}
-            onChange={(e) =>
-              handleSettingsChange({
-                beatsPerMeasure: Number.parseInt(e.currentTarget.value, 10),
-              })
-            }
+            onChange={(e) => handleBeatsChange(Number.parseInt(e.currentTarget.value, 10))}
             className="h-8 cursor-pointer rounded-lg border border-border bg-background px-2 text-sm transition-colors hover:bg-black/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50 dark:hover:bg-white/12 sm:h-9 sm:px-3"
-            disabled={isPlaying}
+            disabled={metronome.isPlaying}
           >
             {timeSignatureOptions.map((n) => (
               <option key={n} value={n}>
@@ -342,7 +206,7 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
             <div className="w-20 sm:w-28">
               <Slider
                 value={[settings.volume]}
-                onValueChange={(v) => handleSettingsChange({ volume: v[0] })}
+                onValueChange={(v) => handleVolumeChange(v[0] ?? 100)}
                 min={0}
                 max={100}
                 step={1}
@@ -363,10 +227,10 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
               min="0"
               max="99"
               value={settings.timerMinutes}
-              onChange={(e) => handleSettingsChange({ timerMinutes: e.currentTarget.value })}
+              onChange={(e) => handleTimerChange(e.currentTarget.value, settings.timerSeconds)}
               placeholder="0"
               className="h-8 w-10 rounded-lg border border-border bg-background px-1 text-center text-sm transition-colors hover:bg-black/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50 dark:hover:bg-white/12 sm:h-9 sm:w-12 sm:px-2"
-              disabled={isPlaying}
+              disabled={metronome.isPlaying}
             />
             <span className="font-medium text-muted-foreground">:</span>
             <input
@@ -374,10 +238,10 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
               min="0"
               max="59"
               value={settings.timerSeconds}
-              onChange={(e) => handleSettingsChange({ timerSeconds: e.currentTarget.value })}
+              onChange={(e) => handleTimerChange(settings.timerMinutes, e.currentTarget.value)}
               placeholder="00"
               className="h-8 w-10 rounded-lg border border-border bg-background px-1 text-center text-sm transition-colors hover:bg-black/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50 dark:hover:bg-white/12 sm:h-9 sm:w-12 sm:px-2"
-              disabled={isPlaying}
+              disabled={metronome.isPlaying}
             />
           </div>
         </div>
@@ -388,14 +252,14 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
         {/* Play/Pause Button - Main */}
         <button
           type="button"
-          onClick={togglePlay}
+          onClick={metronome.toggle}
           className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl border-2 text-white shadow-lg transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 sm:h-16 sm:w-16 ${
-            isPlaying
+            metronome.isPlaying
               ? 'border-red-600 bg-red-500 shadow-red-500/30 hover:bg-red-600'
               : 'border-primary/80 bg-primary shadow-primary/30 hover:bg-primary/90'
           }`}
         >
-          {isPlaying ? (
+          {metronome.isPlaying ? (
             <Pause className="h-6 w-6 sm:h-7 sm:w-7" />
           ) : (
             <Play className="ml-0.5 h-6 w-6 sm:ml-1 sm:h-7 sm:w-7" />

@@ -1,6 +1,7 @@
 import { ChevronDown, Music, Pause, Play, RotateCcw, Timer, Volume2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Slider } from '~/components/ui/slider';
+import { useAutoAnimate } from '~/hooks/useAutoAnimate';
 import { getAudioContext, resumeAudioContext } from '~/lib/audio-context';
 import m from '~/lib/messages';
 import { cn } from '~/lib/utils';
@@ -42,6 +43,10 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
   const [currentStep, setCurrentStep] = useState(-1);
   const [showSynth, setShowSynth] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
+
+  // Auto-animate for preset and synth panels
+  const [presetsRef] = useAutoAnimate<HTMLDivElement>({ duration: 200 });
+  const [synthRef] = useAutoAnimate<HTMLDivElement>({ duration: 200 });
 
   const schedulerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextStepTimeRef = useRef(0);
@@ -472,23 +477,25 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
       </button>
 
       {/* Preset Panel */}
-      {showPresets && (
-        <div className="flex flex-wrap gap-2 border-t bg-muted/30 p-3">
-          {(Object.keys(PRESET_PATTERNS) as PresetName[]).map((presetName) => {
-            const preset = PRESET_PATTERNS[presetName];
-            return (
-              <button
-                key={presetName}
-                type="button"
-                onClick={() => loadPreset(presetName)}
-                className="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {preset.name}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <div ref={presetsRef}>
+        {showPresets && (
+          <div className="flex flex-wrap gap-2 border-t bg-muted/30 p-3">
+            {(Object.keys(PRESET_PATTERNS) as PresetName[]).map((presetName) => {
+              const preset = PRESET_PATTERNS[presetName];
+              return (
+                <button
+                  key={presetName}
+                  type="button"
+                  onClick={() => loadPreset(presetName)}
+                  className="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {preset.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Synth Panel Toggle */}
       <button
@@ -505,111 +512,115 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
       </button>
 
       {/* Synth Panel */}
-      {showSynth && (
-        <div className="max-h-64 space-y-3 overflow-auto border-t bg-muted/30 p-3">
-          {DRUM_SOUNDS.map((drum) => {
-            const params = getSynthParams(drum.id);
-            return (
-              <div key={drum.id} className="rounded-lg border bg-background p-3">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{drum.icon}</span>
-                    <span className="text-sm font-medium">{drum.name}</span>
+      <div ref={synthRef}>
+        {showSynth && (
+          <div className="max-h-64 space-y-3 overflow-auto border-t bg-muted/30 p-3">
+            {DRUM_SOUNDS.map((drum) => {
+              const params = getSynthParams(drum.id);
+              return (
+                <div key={drum.id} className="rounded-lg border bg-background p-3">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{drum.icon}</span>
+                      <span className="text-sm font-medium">{drum.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => previewDrum(drum.id)}
+                        className="inline-flex h-7 items-center justify-center rounded-md px-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <Play className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => resetSynthParams(drum.id)}
+                        className="inline-flex h-7 items-center justify-center rounded-md px-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => previewDrum(drum.id)}
-                      className="inline-flex h-7 items-center justify-center rounded-md px-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <Play className="h-3 w-3" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => resetSynthParams(drum.id)}
-                      className="inline-flex h-7 items-center justify-center rounded-md px-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <RotateCcw className="h-3 w-3" />
-                    </button>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Pitch</span>
+                        <span className="font-mono text-xs">{params.pitch}Hz</span>
+                      </div>
+                      <Slider
+                        value={[params.pitch]}
+                        onValueChange={([v]) => updateSynthParam(drum.id, 'pitch', v ?? 80)}
+                        min={
+                          drum.id === 'kick'
+                            ? 20
+                            : drum.id === 'hihat' || drum.id === 'openhat'
+                              ? 4000
+                              : 80
+                        }
+                        max={
+                          drum.id === 'kick'
+                            ? 150
+                            : drum.id === 'hihat' || drum.id === 'openhat'
+                              ? 12000
+                              : 800
+                        }
+                        step={1}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Decay</span>
+                        <span className="font-mono text-xs">
+                          {(params.decay * 1000).toFixed(0)}ms
+                        </span>
+                      </div>
+                      <Slider
+                        value={[params.decay * 1000]}
+                        onValueChange={([v]) =>
+                          updateSynthParam(drum.id, 'decay', (v ?? 100) / 1000)
+                        }
+                        min={10}
+                        max={drum.id === 'kick' ? 1000 : 500}
+                        step={1}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Tone</span>
+                        <span className="font-mono text-xs">{params.tone}%</span>
+                      </div>
+                      <Slider
+                        value={[params.tone]}
+                        onValueChange={([v]) => updateSynthParam(drum.id, 'tone', v ?? 50)}
+                        min={0}
+                        max={100}
+                        step={1}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Punch</span>
+                        <span className="font-mono text-xs">{params.punch}%</span>
+                      </div>
+                      <Slider
+                        value={[params.punch]}
+                        onValueChange={([v]) => updateSynthParam(drum.id, 'punch', v ?? 50)}
+                        min={0}
+                        max={100}
+                        step={1}
+                      />
+                    </div>
                   </div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Pitch</span>
-                      <span className="font-mono text-xs">{params.pitch}Hz</span>
-                    </div>
-                    <Slider
-                      value={[params.pitch]}
-                      onValueChange={([v]) => updateSynthParam(drum.id, 'pitch', v ?? 80)}
-                      min={
-                        drum.id === 'kick'
-                          ? 20
-                          : drum.id === 'hihat' || drum.id === 'openhat'
-                            ? 4000
-                            : 80
-                      }
-                      max={
-                        drum.id === 'kick'
-                          ? 150
-                          : drum.id === 'hihat' || drum.id === 'openhat'
-                            ? 12000
-                            : 800
-                      }
-                      step={1}
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Decay</span>
-                      <span className="font-mono text-xs">
-                        {(params.decay * 1000).toFixed(0)}ms
-                      </span>
-                    </div>
-                    <Slider
-                      value={[params.decay * 1000]}
-                      onValueChange={([v]) => updateSynthParam(drum.id, 'decay', (v ?? 100) / 1000)}
-                      min={10}
-                      max={drum.id === 'kick' ? 1000 : 500}
-                      step={1}
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Tone</span>
-                      <span className="font-mono text-xs">{params.tone}%</span>
-                    </div>
-                    <Slider
-                      value={[params.tone]}
-                      onValueChange={([v]) => updateSynthParam(drum.id, 'tone', v ?? 50)}
-                      min={0}
-                      max={100}
-                      step={1}
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Punch</span>
-                      <span className="font-mono text-xs">{params.punch}%</span>
-                    </div>
-                    <Slider
-                      value={[params.punch]}
-                      onValueChange={([v]) => updateSynthParam(drum.id, 'punch', v ?? 50)}
-                      min={0}
-                      max={100}
-                      step={1}
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
