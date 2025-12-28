@@ -13,14 +13,6 @@
     "local_protocol": "http"
   },
 
-  // 빌드 환경 변수
-  "build": {
-    "environment": {
-      "NODE_VERSION": "24",
-      "PNPM_VERSION": "10.25.0"
-    }
-  },
-
   // 프로덕션 환경 변수
   "vars": {
     "ENVIRONMENT": "production"

@@ -128,6 +128,33 @@
 }
 
 /* ========================================
+   View Transitions API
+   Smooth page transitions for app-like UX
+   ======================================== */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: vt-fade-out 0.2s ease-out;
+}
+
+::view-transition-new(root) {
+  animation: vt-fade-in 0.3s ease-in;
+}
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ========================================
    Base Styles
    ======================================== */
 
@@ -141,6 +168,11 @@ html {
   font-family: var(--font-family-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Text wrap balance for headings - better visual layout */
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
 }
 
 body {
