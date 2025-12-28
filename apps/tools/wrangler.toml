@@ -15,4 +15,4 @@ local_protocol = "http"
 # 환경 변수
 [vars]
 ENVIRONMENT = "production"
-NODE_VERSION = "24"
+NODE_VERSION = "22"
