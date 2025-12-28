@@ -15,9 +15,11 @@ const FOOTER_LINKS: FooterLink[] = [
   { path: '/sitemap', labelKey: 'sitemap' },
 ];
 
+// 빌드 타임에 연도 고정 - Hydration 불일치 방지
+const BUILD_YEAR = 2025;
+
 export function Footer() {
   const { localizedPath } = useParaglideI18n();
-  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="flex flex-col items-center justify-center py-8 px-4 mt-auto border-t border-(--color-border-primary) bg-(--color-bg-secondary) relative z-10">
@@ -45,7 +47,7 @@ export function Footer() {
         </Link>
       </p>
       <p className="text-(--color-text-tertiary) text-xs text-center">
-        &copy; {currentYear} {BRAND.copyrightHolder}. All rights reserved.
+        &copy; {BUILD_YEAR} {BRAND.copyrightHolder}. All rights reserved.
       </p>
     </footer>
   );
