@@ -24,6 +24,7 @@ vi.mock('react-router', async () => {
     ...actual,
     useNavigate: () => vi.fn(),
     useLocation: () => ({ pathname: '/' }),
+    useLoaderData: () => ({ buildTime: new Date().toISOString() }),
   };
 });
 

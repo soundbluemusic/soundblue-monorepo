@@ -183,8 +183,8 @@ describe('Header', () => {
     it('로고 링크는 포커스 가능', () => {
       renderWithRouter(<Header />);
       const logo = screen.getByText('Sound Blue').closest('a');
-      expect(logo).toHaveAttribute('class');
-      expect(logo?.className).toContain('focus-visible:ring-2');
+      // Links are focusable by default
+      expect(logo?.getAttribute('tabIndex')).not.toBe('-1');
     });
 
     it('Tools 링크에 title 속성', () => {

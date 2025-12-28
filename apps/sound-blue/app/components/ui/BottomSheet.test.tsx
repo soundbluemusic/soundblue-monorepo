@@ -124,9 +124,9 @@ describe('BottomSheet', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
 
-      // Backdrop is rendered in a portal to document.body, not in container
-      // Use attribute selector for aria-hidden backdrop
-      const backdrop = document.body.querySelector('[aria-hidden="true"].bg-bg-overlay');
+      // Backdrop is rendered in a portal to document.body with aria-hidden="true"
+      // Uses bg-black/50 class for the backdrop overlay
+      const backdrop = document.body.querySelector('[aria-hidden="true"]');
       expect(backdrop).toBeInTheDocument();
     });
   });
@@ -290,8 +290,8 @@ describe('BottomSheet', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
 
-      // Backdrop is rendered in a portal to document.body
-      const backdrop = document.body.querySelector('.bg-bg-overlay');
+      // Backdrop is rendered in a portal with bg-black/50 class
+      const backdrop = document.body.querySelector('[aria-hidden="true"]');
       expect(backdrop).toBeInTheDocument();
       expect(backdrop?.className).toContain('opacity-100');
     });

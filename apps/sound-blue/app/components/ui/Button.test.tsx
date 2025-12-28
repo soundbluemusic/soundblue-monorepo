@@ -26,13 +26,13 @@ describe('Button', () => {
     it('primary variant 적용', () => {
       render(<Button variant="primary">Primary</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('bg-accent');
+      expect(button.className).toContain('bg-(--color-accent-primary)');
     });
 
     it('secondary variant 적용', () => {
       render(<Button variant="secondary">Secondary</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('bg-surface-dim');
+      expect(button.className).toContain('bg-(--color-bg-tertiary)');
     });
 
     it('ghost variant 적용', () => {
@@ -44,13 +44,13 @@ describe('Button', () => {
     it('youtube variant 적용', () => {
       render(<Button variant="youtube">YouTube</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('bg-red-600');
+      expect(button.className).toContain('bg-[#dc2626]');
     });
 
     it('기본 variant는 primary', () => {
       render(<Button>Default</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('bg-accent');
+      expect(button.className).toContain('bg-(--color-accent-primary)');
     });
   });
 
@@ -87,7 +87,7 @@ describe('Button', () => {
       render(<Button className="custom-class">Custom</Button>);
       const button = screen.getByRole('button');
       expect(button.className).toContain('custom-class');
-      expect(button.className).toContain('bg-accent'); // 기본 variant도 유지
+      expect(button.className).toContain('bg-(--color-accent-primary)'); // 기본 variant도 유지
     });
   });
 
@@ -193,7 +193,7 @@ describe('LinkButton', () => {
         </LinkButton>,
       );
       const link = screen.getByRole('link');
-      expect(link.className).toContain('bg-accent');
+      expect(link.className).toContain('bg-(--color-accent-primary)');
     });
 
     it('youtube variant 적용', () => {
@@ -203,7 +203,7 @@ describe('LinkButton', () => {
         </LinkButton>,
       );
       const link = screen.getByRole('link');
-      expect(link.className).toContain('bg-red-600');
+      expect(link.className).toContain('bg-[#dc2626]');
     });
   });
 
