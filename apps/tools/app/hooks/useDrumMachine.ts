@@ -9,8 +9,17 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
+import {
+  createEmptyPattern,
+  DRUM_DEFAULTS,
+  type DrumId,
+  type DrumSynthParams,
+  PRESET_PATTERNS,
+  type PresetName,
+} from '~/tools/drum-machine/settings';
 
-export type DrumSoundId = 'kick' | 'snare' | 'hihat' | 'openhat' | 'clap';
+// Re-export types for external use
+export type { DrumId as DrumSoundId, DrumSynthParams, PresetName };
 
 export interface DrumPattern {
   [key: string]: boolean[];
@@ -25,13 +34,10 @@ export interface UseDrumMachineOptions {
   volume?: number;
   /** Enable metronome click (default: false) */
   metronomeEnabled?: boolean;
-}
-
-export interface DrumSynthParams {
-  pitch: number;
-  decay: number;
-  tone: number;
-  punch: number;
+  /** Initial pattern */
+  initialPattern?: DrumPattern;
+  /** Initial synth params */
+  initialSynthParams?: Record<DrumId, DrumSynthParams>;
 }
 
 export interface UseDrumMachineReturn {
@@ -45,18 +51,22 @@ export interface UseDrumMachineReturn {
   steps: number;
   /** Current pattern */
   pattern: DrumPattern;
+  /** Current synth params */
+  synthParams: Record<DrumId, DrumSynthParams>;
   /** Set BPM */
   setBpm: (bpm: number) => void;
   /** Set volume (0-1) */
   setVolume: (volume: number) => void;
   /** Toggle a step in the pattern */
-  toggleStep: (drumId: DrumSoundId, step: number) => void;
+  toggleStep: (drumId: DrumId, step: number) => void;
   /** Set a step value */
-  setStep: (drumId: DrumSoundId, step: number, value: boolean) => void;
+  setStep: (drumId: DrumId, step: number, value: boolean) => void;
   /** Clear entire pattern */
   clearPattern: () => void;
   /** Load a pattern */
   loadPattern: (pattern: DrumPattern) => void;
+  /** Load a preset by name */
+  loadPreset: (presetName: PresetName) => void;
   /** Start playback */
   start: () => Promise<void>;
   /** Stop playback */
@@ -64,34 +74,19 @@ export interface UseDrumMachineReturn {
   /** Toggle playback */
   toggle: () => Promise<void>;
   /** Preview a drum sound */
-  previewSound: (drumId: DrumSoundId) => Promise<void>;
+  previewSound: (drumId: DrumId) => Promise<void>;
   /** Get synth params for a drum */
-  getSynthParams: (drumId: DrumSoundId) => DrumSynthParams;
+  getSynthParams: (drumId: DrumId) => DrumSynthParams;
   /** Update synth param */
-  updateSynthParam: (drumId: DrumSoundId, param: keyof DrumSynthParams, value: number) => void;
+  updateSynthParam: (drumId: DrumId, param: keyof DrumSynthParams, value: number) => void;
   /** Reset synth params to default */
-  resetSynthParams: (drumId: DrumSoundId) => void;
+  resetSynthParams: (drumId: DrumId) => void;
   /** Metronome enabled state */
   metronomeEnabled: boolean;
   /** Toggle metronome */
   setMetronomeEnabled: (enabled: boolean) => void;
-}
-
-const DRUM_DEFAULTS: Record<DrumSoundId, DrumSynthParams> = {
-  kick: { pitch: 60, decay: 0.5, tone: 50, punch: 70 },
-  snare: { pitch: 180, decay: 0.15, tone: 50, punch: 60 },
-  hihat: { pitch: 8000, decay: 0.08, tone: 50, punch: 50 },
-  openhat: { pitch: 8000, decay: 0.3, tone: 50, punch: 50 },
-  clap: { pitch: 1000, decay: 0.15, tone: 50, punch: 70 },
-};
-
-function createEmptyPattern(steps: number): DrumPattern {
-  const drums: DrumSoundId[] = ['kick', 'snare', 'hihat', 'openhat', 'clap'];
-  const pattern: DrumPattern = {};
-  for (const drum of drums) {
-    pattern[drum] = new Array(steps).fill(false);
-  }
-  return pattern;
+  /** Current volume */
+  volume: number;
 }
 
 export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMachineReturn {
@@ -100,23 +95,28 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
     steps = 16,
     volume: initialVolume = 0.8,
     metronomeEnabled: initialMetronome = false,
+    initialPattern,
+    initialSynthParams,
   } = options;
 
   // State
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [bpm, setBpmState] = useState(initialBpm);
-  const [pattern, setPattern] = useState<DrumPattern>(() => createEmptyPattern(steps));
-  const [synthParams, setSynthParams] = useState<Record<DrumSoundId, DrumSynthParams>>(() => ({
+  const [pattern, setPattern] = useState<DrumPattern>(
+    () => initialPattern ?? createEmptyPattern(steps),
+  );
+  const [synthParams, setSynthParams] = useState<Record<DrumId, DrumSynthParams>>(() => ({
     ...DRUM_DEFAULTS,
+    ...initialSynthParams,
   }));
   const [metronomeEnabled, setMetronomeEnabled] = useState(initialMetronome);
   const [volume, setVolumeState] = useState(initialVolume);
 
   // Refs
-  const synthsRef = useRef<
-    Map<DrumSoundId, Tone.MembraneSynth | Tone.NoiseSynth | Tone.MetalSynth>
-  >(new Map());
+  const synthsRef = useRef<Map<DrumId, Tone.MembraneSynth | Tone.NoiseSynth | Tone.MetalSynth>>(
+    new Map(),
+  );
   const metronomeRef = useRef<Tone.MembraneSynth | null>(null);
   const sequenceRef = useRef<Tone.Sequence | null>(null);
   const patternRef = useRef(pattern);
@@ -203,7 +203,7 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
   }, []);
 
   // Trigger a drum sound
-  const triggerDrum = useCallback((drumId: DrumSoundId, time?: number) => {
+  const triggerDrum = useCallback((drumId: DrumId, time?: number) => {
     const synth = synthsRef.current.get(drumId);
     if (!synth) return;
 
@@ -236,7 +236,7 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
 
   // Toggle step
   const toggleStep = useCallback(
-    (drumId: DrumSoundId, step: number) => {
+    (drumId: DrumId, step: number) => {
       setPattern((prev) => {
         const newPattern = { ...prev };
         newPattern[drumId] = [...(prev[drumId] || Array(steps).fill(false))];
@@ -249,7 +249,7 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
 
   // Set step
   const setStep = useCallback(
-    (drumId: DrumSoundId, step: number, value: boolean) => {
+    (drumId: DrumId, step: number, value: boolean) => {
       setPattern((prev) => {
         if (prev[drumId]?.[step] === value) return prev;
         const newPattern = { ...prev };
@@ -269,6 +269,22 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
   // Load pattern
   const loadPattern = useCallback((newPattern: DrumPattern) => {
     setPattern(newPattern);
+  }, []);
+
+  // Load preset
+  const loadPreset = useCallback((presetName: PresetName) => {
+    const preset = PRESET_PATTERNS[presetName];
+    if (preset) {
+      // Deep copy the pattern to avoid mutation
+      const patternCopy: DrumPattern = {
+        kick: [...preset.pattern.kick],
+        snare: [...preset.pattern.snare],
+        hihat: [...preset.pattern.hihat],
+        openhat: [...preset.pattern.openhat],
+        clap: [...preset.pattern.clap],
+      };
+      setPattern(patternCopy);
+    }
   }, []);
 
   // Stop
@@ -308,7 +324,7 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
         }
 
         // Play drum sounds
-        const drums: DrumSoundId[] = ['kick', 'snare', 'hihat', 'openhat', 'clap'];
+        const drums: DrumId[] = ['kick', 'snare', 'hihat', 'openhat', 'clap'];
         for (const drumId of drums) {
           if (currentPattern[drumId]?.[step]) {
             triggerDrum(drumId, time);
@@ -340,7 +356,7 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
 
   // Preview sound
   const previewSound = useCallback(
-    async (drumId: DrumSoundId) => {
+    async (drumId: DrumId) => {
       await Tone.start();
       triggerDrum(drumId);
     },
@@ -349,7 +365,7 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
 
   // Get synth params
   const getSynthParams = useCallback(
-    (drumId: DrumSoundId): DrumSynthParams => {
+    (drumId: DrumId): DrumSynthParams => {
       return synthParams[drumId] ?? DRUM_DEFAULTS[drumId];
     },
     [synthParams],
@@ -357,7 +373,7 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
 
   // Update synth param
   const updateSynthParam = useCallback(
-    (drumId: DrumSoundId, param: keyof DrumSynthParams, value: number) => {
+    (drumId: DrumId, param: keyof DrumSynthParams, value: number) => {
       setSynthParams((prev) => ({
         ...prev,
         [drumId]: {
@@ -370,7 +386,7 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
   );
 
   // Reset synth params
-  const resetSynthParams = useCallback((drumId: DrumSoundId) => {
+  const resetSynthParams = useCallback((drumId: DrumId) => {
     setSynthParams((prev) => ({
       ...prev,
       [drumId]: { ...DRUM_DEFAULTS[drumId] },
@@ -390,12 +406,15 @@ export function useDrumMachine(options: UseDrumMachineOptions = {}): UseDrumMach
     bpm,
     steps,
     pattern,
+    synthParams,
+    volume,
     setBpm,
     setVolume,
     toggleStep,
     setStep,
     clearPattern,
     loadPattern,
+    loadPreset,
     start,
     stop,
     toggle,

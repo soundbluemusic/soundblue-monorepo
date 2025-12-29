@@ -10,6 +10,7 @@ export {
   type DrumPattern,
   type DrumSoundId,
   type DrumSynthParams,
+  type PresetName,
   type UseDrumMachineOptions,
   type UseDrumMachineReturn,
   useDrumMachine,
