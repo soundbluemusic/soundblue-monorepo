@@ -76,7 +76,7 @@ class ToneEngine {
       this.beatLoop.dispose();
     }
 
-    this.beatLoop = new Tone.Loop((time) => {
+    this.beatLoop = new Tone.Loop((_time) => {
       this.beatCount = (this.beatCount + 1) % beatsPerBar;
       if (this.beatCount === 0) {
         this.barCount++;
