@@ -1,5 +1,5 @@
 /**
- * @fileoverview Type-safe IndexedDB wrapper with SSR safety and Zod validation.
+ * @fileoverview Type-safe IndexedDB wrapper with SSR safety and schema validation.
  *
  * This module provides a robust abstraction over IndexedDB (via Dexie.js) with:
  *
@@ -8,8 +8,8 @@
  *
  * - **Type Safety**: Uses TypeScript generics for type-safe storage operations.
  *
- * - **Runtime Validation**: `getValidatedStorageItem` uses Zod schemas to validate
- *   data at runtime, ensuring corrupted/tampered data doesn't break the app.
+ * - **Runtime Validation**: `getValidatedStorageItem` uses schema libraries (Valibot, Zod, etc.)
+ *   to validate data at runtime, ensuring corrupted/tampered data doesn't break the app.
  *
  * - **Silent Error Handling**: All IndexedDB operations are wrapped in try-catch
  *   blocks that fail silently. This handles edge cases like:
@@ -19,7 +19,7 @@
  *
  * ## Three API Styles
  *
- * 1. **Validated API** (`getValidatedStorageItem`): Uses Zod schemas to validate
+ * 1. **Validated API** (`getValidatedStorageItem`): Uses schema libraries to validate
  *    data at runtime. Recommended for complex data that needs guaranteed structure.
  *
  * 2. **Parsed API** (`getStorageItem`/`setStorageItem`): Automatically serializes
@@ -31,7 +31,7 @@
  *
  * @example
  * ```tsx
- * // Validated API - for data requiring runtime validation
+ * // Validated API - for data requiring runtime validation (works with Valibot, Zod, etc.)
  * const messages = await getValidatedStorageItem('chat-history', MessagesSchema, []);
  *
  * // Parsed API - for complex data
@@ -49,25 +49,25 @@
 import { getPreference, removePreference, setPreference } from '../storage';
 
 /**
- * Zod-compatible schema interface.
- * This allows using any Zod schema without requiring zod as a dependency.
+ * Standard Schema-compatible interface (works with Valibot, Zod, ArkType, etc.)
+ * This allows using any schema library that implements safeParse without direct dependency.
  */
-interface ZodLikeSchema<T> {
+interface StandardSchemaLike<T> {
   safeParse(data: unknown): { success: true; data: T } | { success: false; error: unknown };
 }
 
 /**
- * Retrieves and validates a value from IndexedDB using a Zod schema.
+ * Retrieves and validates a value from IndexedDB using a schema library.
  *
  * This is the safest way to retrieve complex data from IndexedDB as it:
  * - Handles SSR safely
  * - Parses JSON
- * - Validates the data structure with Zod
+ * - Validates the data structure with any Standard Schema-compatible library
  * - Returns default value if validation fails
  *
  * @template T - The expected type (inferred from schema)
  * @param key - The storage key to retrieve
- * @param schema - Zod schema to validate against
+ * @param schema - Schema to validate against (Valibot, Zod, ArkType, etc.)
  * @param defaultValue - Value to return if validation fails
  * @returns The validated value or defaultValue on any failure
  *
@@ -83,7 +83,7 @@ interface ZodLikeSchema<T> {
  */
 export async function getValidatedStorageItem<T>(
   key: string,
-  schema: ZodLikeSchema<T>,
+  schema: StandardSchemaLike<T>,
   defaultValue: T,
 ): Promise<T> {
   if (typeof window === 'undefined') return defaultValue;
