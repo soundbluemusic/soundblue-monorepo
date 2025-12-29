@@ -245,4 +245,4 @@ registerProcessor('my-processor', MyProcessor);
 - 건설적인 피드백을 제공합니다
 - 다양성을 존중합니다
 
-자세한 내용은 [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)를 참조하세요.
+자세한 내용은 [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)를 참조하세요. (같은 docs/ 폴더 내)

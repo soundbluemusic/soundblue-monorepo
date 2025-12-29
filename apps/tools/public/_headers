@@ -13,7 +13,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   # Permissions Policy - 마이크 허용 (Tuner), 나머지 제한
   Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=()
-  # Content Security Policy - XSS 공격 방지 (SolidStart 인라인 스크립트 허용)
+  # Content Security Policy - XSS 공격 방지
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:; upgrade-insecure-requests
   # SharedArrayBuffer support (required for AudioWorklet + WASM)
   Cross-Origin-Opener-Policy: same-origin
@@ -27,9 +27,9 @@
   Cache-Control: public, max-age=0, must-revalidate
 
 # =============================================================================
-# Next.js Static Export - 페이지별 캐싱
+# React Router Static Assets - 장기 캐싱
 # =============================================================================
-/_next/static/*
+/assets/*
   Cache-Control: public, max-age=31536000, immutable
 
 # =============================================================================

@@ -10,7 +10,7 @@ import { join } from 'node:path';
 
 const SITE_URL = 'https://tools.soundbluemusic.com';
 const PUBLIC_DIR = 'public';
-const OUT_DIR = '.output/public'; // SolidStart output directory
+const OUT_DIR = 'build/client'; // React Router output directory
 
 function getLastmodDate(): string {
   return new Date().toISOString().split('T')[0]; // YYYY-MM-DD format

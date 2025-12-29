@@ -17,8 +17,6 @@
       "!**/pnpm-lock.yaml",
       "!**/*.css",
       "!**/.react-router",
-      "!**/*-solid-backup",
-      "!**/packages/shared",
       "!**/apps/tools/src",
       "!**/apps/sound-blue/src",
       "!**/apps/dialogue/src"

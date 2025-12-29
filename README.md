@@ -88,7 +88,6 @@ soundblue-monorepo/
 │   └── dialogue/      → Learning tool (학습 도구)
 │
 └── 📦 packages/
-    ├── shared/        → [Legacy] For SolidJS backups (레거시 - SolidJS 백업용)
     └── shared-react/  → Shared code for all apps (모든 앱 공용 코드)
 ```
 

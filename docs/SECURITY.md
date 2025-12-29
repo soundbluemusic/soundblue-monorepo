@@ -4,11 +4,11 @@
 
 We release patches for security vulnerabilities in the following versions:
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 2.0.x   | :white_check_mark: |
-| 1.0.x   | :x:                |
-| 0.1.x   | :x:                |
+| App | Version | Supported          |
+| --- | ------- | ------------------ |
+| sound-blue | 3.0.x   | :white_check_mark: |
+| tools | 2.0.x   | :white_check_mark: |
+| dialogue | 1.0.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
@@ -37,9 +37,10 @@ Instead, please send an email to **soundbluemusic@gmail.com** with the following
 
 This security policy applies to:
 
-- The main Tools application (https://tools.soundbluemusic.com)
+- https://soundbluemusic.com
+- https://tools.soundbluemusic.com
+- https://dialogue.soundbluemusic.com
 - All packages and code in this repository
-- Dependencies that we directly control
 
 ### Out of Scope
 
@@ -67,4 +68,4 @@ Security updates will be released as patch versions and announced through:
 - GitHub Security Advisories
 - Release notes in CHANGELOG.md
 
-Thank you for helping keep Tools and its users safe!
+Thank you for helping keep SoundBlue and its users safe!

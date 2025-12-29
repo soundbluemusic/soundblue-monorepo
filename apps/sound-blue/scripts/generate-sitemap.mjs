@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Post-build script for SolidStart:
+ * Post-build script for React Router:
  * 1. Generate sitemap_index.xml (sitemap index)
  * 2. Generate sitemap-pages.xml (static pages)
  * 3. Generate robots.txt

@@ -12,16 +12,6 @@ build/
 # React Router generated types
 .react-router/
 
-# SolidJS legacy source (replaced by React Router v7)
-apps/tools/src/
-apps/sound-blue/src/
-apps/dialogue/src/
-
-# SolidJS backup folders
-*-solid-backup/
-
-# Legacy shared package (replaced by shared-react)
-packages/shared/
 
 # Generated service workers (PWA build output)
 **/public/sw.js

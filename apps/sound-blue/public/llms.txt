@@ -56,8 +56,8 @@ Sound recordings (field recordings) may only be used for creating original works
 
 ## Technical Information
 
-- **Framework**: SolidJS with SolidStart
-- **Styling**: Tailwind CSS
+- **Framework**: React 19 with React Router 7
+- **Styling**: Tailwind CSS v4
 - **Hosting**: Cloudflare Pages
 - **PWA**: Works offline after first visit
 
