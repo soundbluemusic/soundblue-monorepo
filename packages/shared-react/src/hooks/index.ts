@@ -17,3 +17,24 @@ export {
 } from './use-service-worker';
 
 export { type ShareData, type UseWebShareReturn, useWebShare } from './use-web-share';
+export {
+  formatShortcut,
+  getModifierSymbol,
+  type Shortcut,
+  type UseKeyboardShortcutsOptions,
+  useKeyboardShortcuts,
+} from './useKeyboardShortcuts';
+export {
+  type OnboardingStep,
+  type UseOnboardingOptions,
+  type UseOnboardingReturn,
+  useOnboarding,
+} from './useOnboarding';
+export {
+  type RecentItem,
+  type UseRecentItemsOptions,
+  type UseRecentItemsReturn,
+  useRecentItems,
+} from './useRecentItems';
+export { type UseToastReturn, useToast } from './useToast';
+export { type UseUndoOptions, type UseUndoReturn, useUndo } from './useUndo';

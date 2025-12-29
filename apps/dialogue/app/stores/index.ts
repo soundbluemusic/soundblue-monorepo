@@ -1,5 +1,6 @@
 export {
   type Conversation,
+  type DeletedConversation,
   generateId,
   type Message,
   useChatStore,

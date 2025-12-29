@@ -2,6 +2,7 @@ import {
   getLocaleFromPath,
   MusicGroupStructuredData,
   ThemeProvider,
+  ToastContainer,
   WebSiteStructuredData,
 } from '@soundblue/shared-react';
 import { useEffect } from 'react';
@@ -104,6 +105,7 @@ function AppContent() {
   return (
     <ThemeProvider storageKey="sound-blue-theme" defaultTheme="system">
       <Outlet />
+      <ToastContainer position="bottom-right" />
     </ThemeProvider>
   );
 }

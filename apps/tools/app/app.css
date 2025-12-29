@@ -3,9 +3,9 @@
 
 /* ========================================
    Tailwind v4 Dark Mode Configuration
-   Enable class-based dark mode (.dark class)
+   Enable data-theme based dark mode (unified across all apps)
    ======================================== */
-@variant dark (&:where(.dark, .dark *));
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ========================================
    Design Tokens - Eye-Friendly Aesthetic Palette
@@ -87,6 +87,15 @@
   --social-instagram: #e4405f;
   --social-github: #333333;
   --social-discord: #5865f2;
+
+  /* Transitions & Easing Functions */
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --transition-slow: 350ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ========================================
@@ -94,7 +103,6 @@
    Matching soundbluemusic.com dark theme
    Cool slate with warm accent colors
    ======================================== */
-.dark,
 [data-theme='dark'] {
   --background: 220 15% 13%; /* #1E2227 - Cool dark slate */
   --foreground: 38 20% 88%; /* #E6E2DB - Warm cream text */

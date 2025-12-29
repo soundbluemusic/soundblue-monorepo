@@ -2,9 +2,9 @@
 
 /* ========================================
    Tailwind v4 Dark Mode Configuration
-   Enable class-based dark mode (.dark class)
+   Enable data-theme based dark mode (unified across all apps)
    ======================================== */
-@variant dark (&:where(.dark, .dark *));
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ========================================
    Dialogue Design Tokens
@@ -59,10 +59,16 @@
   --transition-fast: 150ms;
   --transition-normal: 200ms;
   --transition-slow: 300ms;
+
+  /* Easing Functions */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ========== Dark Mode - Enhanced contrast ========== */
-.dark {
+[data-theme='dark'] {
   --color-bg-primary: #0d1117;     /* Darkest - main content */
   --color-bg-secondary: #1c2128;   /* Sidebar, cards (lighter) */
   --color-bg-tertiary: #2d333b;    /* Footer, dividers (lightest) */
@@ -204,11 +210,11 @@ body {
   background: #9ca3af;
 }
 
-.dark ::-webkit-scrollbar-thumb {
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
   background: #4b5563;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
 

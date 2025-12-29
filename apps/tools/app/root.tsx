@@ -2,6 +2,7 @@ import {
   getLocaleFromPath,
   SoftwareApplicationStructuredData,
   ThemeProvider,
+  ToastContainer,
   WebSiteStructuredData,
 } from '@soundblue/shared-react';
 import { useEffect } from 'react';
@@ -91,6 +92,7 @@ function AppContent() {
   return (
     <ThemeProvider storageKey="tools-theme" defaultTheme="system">
       <Outlet />
+      <ToastContainer position="bottom-right" />
     </ThemeProvider>
   );
 }

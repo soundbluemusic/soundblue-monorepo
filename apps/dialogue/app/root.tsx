@@ -1,4 +1,9 @@
-import { getLocaleFromPath, ThemeProvider, WebSiteStructuredData } from '@soundblue/shared-react';
+import {
+  getLocaleFromPath,
+  ThemeProvider,
+  ToastContainer,
+  WebSiteStructuredData,
+} from '@soundblue/shared-react';
 import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import {
@@ -99,6 +104,7 @@ function AppContent() {
   return (
     <ThemeProvider storageKey="dialogue-theme" defaultTheme="system">
       <Outlet />
+      <ToastContainer position="bottom-right" />
     </ThemeProvider>
   );
 }

@@ -21,8 +21,14 @@ export interface Conversation {
   updatedAt: number;
 }
 
+export interface DeletedConversation extends Conversation {
+  deletedAt: number;
+  expiresAt: number; // 30 days after deletion
+}
+
 interface ChatState {
   conversations: Conversation[];
+  deletedConversations: DeletedConversation[];
   activeConversationId: string | null;
   ghostMode: boolean;
   isHydrated: boolean;
@@ -36,6 +42,10 @@ interface ChatActions {
   addMessage: (message: Message) => void;
   loadConversation: (id: string) => Conversation | undefined;
   deleteConversation: (id: string) => void;
+  restoreConversation: (id: string) => void;
+  permanentDeleteConversation: (id: string) => void;
+  emptyTrash: () => void;
+  cleanupExpiredTrash: () => void;
   clearActive: () => void;
   getActiveConversation: () => Conversation | undefined;
 }
@@ -52,11 +62,14 @@ export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
 }
 
+const TRASH_EXPIRY_DAYS = 30;
+
 export const useChatStore = create<ChatState & ChatActions>()(
   persist(
     (set, get) => ({
       // Initial state
       conversations: [],
+      deletedConversations: [],
       activeConversationId: null,
       ghostMode: false,
       isHydrated: false,
@@ -141,13 +154,53 @@ export const useChatStore = create<ChatState & ChatActions>()(
 
       deleteConversation: (id) => {
         const state = get();
-        const newConversations = state.conversations.filter((c) => c.id !== id);
+        const conversationToDelete = state.conversations.find((c) => c.id === id);
+        if (!conversationToDelete) return;
+
+        const now = Date.now();
+        const deletedConversation: DeletedConversation = {
+          ...conversationToDelete,
+          deletedAt: now,
+          expiresAt: now + TRASH_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
+        };
 
         set({
-          conversations: newConversations,
+          conversations: state.conversations.filter((c) => c.id !== id),
+          deletedConversations: [deletedConversation, ...state.deletedConversations],
           activeConversationId:
             state.activeConversationId === id ? null : state.activeConversationId,
         });
+      },
+
+      restoreConversation: (id) => {
+        const state = get();
+        const conversationToRestore = state.deletedConversations.find((c) => c.id === id);
+        if (!conversationToRestore) return;
+
+        // Remove trash-specific fields
+        const { deletedAt: _, expiresAt: __, ...restoredConversation } = conversationToRestore;
+
+        set({
+          deletedConversations: state.deletedConversations.filter((c) => c.id !== id),
+          conversations: [restoredConversation, ...state.conversations],
+        });
+      },
+
+      permanentDeleteConversation: (id) => {
+        set((state) => ({
+          deletedConversations: state.deletedConversations.filter((c) => c.id !== id),
+        }));
+      },
+
+      emptyTrash: () => {
+        set({ deletedConversations: [] });
+      },
+
+      cleanupExpiredTrash: () => {
+        const now = Date.now();
+        set((state) => ({
+          deletedConversations: state.deletedConversations.filter((c) => c.expiresAt > now),
+        }));
       },
 
       clearActive: () => set({ activeConversationId: null }),
@@ -163,6 +216,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         conversations: state.conversations,
+        deletedConversations: state.deletedConversations,
         ghostMode: state.ghostMode,
       }),
       onRehydrateStorage: () => (state) => {

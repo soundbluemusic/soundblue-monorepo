@@ -1,3 +1,28 @@
+// Components - UI
+export {
+  Button,
+  type ButtonProps,
+  ConfirmDialog,
+  type ConfirmDialogProps,
+  type ConfirmDialogVariant,
+  KeyboardShortcutsModal,
+  type KeyboardShortcutsModalProps,
+  LoadingDots,
+  type LoadingDotsProps,
+  OnboardingTooltip,
+  type OnboardingTooltipProps,
+  type ShortcutGroup,
+  Skeleton,
+  type SkeletonProps,
+  Spinner,
+  type SpinnerProps,
+  Toast,
+  ToastContainer,
+  type ToastContainerProps,
+  type ToastPosition,
+  type ToastProps,
+} from './components/ui';
+
 // Components - Structured Data for SEO
 
 // Components - Share Button
@@ -22,19 +47,37 @@ export {
 // Hooks
 export {
   checkForUpdates,
+  formatShortcut,
+  getModifierSymbol,
   getOnlineStatus,
   getServiceWorkerState,
+  type OnboardingStep,
   type OnlineStatus,
   onOnlineStatusChange,
   onUpdateAvailable,
+  type RecentItem,
   type ServiceWorkerState,
   type ShareData,
+  type Shortcut,
   skipWaiting,
+  type UseKeyboardShortcutsOptions,
+  type UseOnboardingOptions,
+  type UseOnboardingReturn,
   type UseOnlineStatusReturn,
+  type UseRecentItemsOptions,
+  type UseRecentItemsReturn,
   type UseServiceWorkerReturn,
+  type UseToastReturn,
+  type UseUndoOptions,
+  type UseUndoReturn,
   type UseWebShareReturn,
+  useKeyboardShortcuts,
+  useOnboarding,
   useOnlineStatus,
+  useRecentItems,
   useServiceWorker,
+  useToast,
+  useUndo,
   useWebShare,
 } from './hooks';
 // Shared i18n types and constants (framework-independent)
@@ -82,6 +125,16 @@ export {
   useTheme,
 } from './providers';
 // Storage - import from '@soundblue/shared-react/storage' to avoid bundling Dexie
+// Stores
+export {
+  type Toast as ToastData,
+  type ToastStore,
+  type ToastType,
+  type UndoAction,
+  type UndoStore,
+  useToastStore,
+  useUndoStore,
+} from './stores';
 // Types
 export {
   createMessage,
