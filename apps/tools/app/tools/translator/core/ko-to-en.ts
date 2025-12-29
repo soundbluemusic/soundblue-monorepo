@@ -28,6 +28,130 @@ import { isAdjective, translateStemKoToEn } from '../dictionary/stems';
 import { koToEnWords } from '../dictionary/words';
 import { composeFromJaso, decomposeAll, removeEndingPattern } from '../jaso/hangul-jaso';
 
+// =====================================
+// 불규칙 동사 테이블 (모듈 레벨 - 성능 최적화)
+// =====================================
+
+/** 불규칙 과거형 동사 (54개) - 가장 자주 호출됨 */
+const IRREGULAR_PAST_VERBS: Record<string, string> = {
+  go: 'went',
+  eat: 'ate',
+  see: 'saw',
+  come: 'came',
+  take: 'took',
+  make: 'made',
+  get: 'got',
+  give: 'gave',
+  know: 'knew',
+  think: 'thought',
+  find: 'found',
+  say: 'said',
+  tell: 'told',
+  feel: 'felt',
+  leave: 'left',
+  meet: 'met',
+  sit: 'sat',
+  stand: 'stood',
+  hear: 'heard',
+  run: 'ran',
+  write: 'wrote',
+  read: 'read',
+  speak: 'spoke',
+  break: 'broke',
+  buy: 'bought',
+  bring: 'brought',
+  teach: 'taught',
+  catch: 'caught',
+  fight: 'fought',
+  sleep: 'slept',
+  win: 'won',
+  lose: 'lost',
+  send: 'sent',
+  spend: 'spent',
+  build: 'built',
+  lend: 'lent',
+  bend: 'bent',
+  throw: 'threw',
+  grow: 'grew',
+  blow: 'blew',
+  fly: 'flew',
+  draw: 'drew',
+  fall: 'fell',
+  sell: 'sold',
+  hold: 'held',
+  understand: 'understood',
+  forget: 'forgot',
+  begin: 'began',
+  drink: 'drank',
+  sing: 'sang',
+  swim: 'swam',
+  ring: 'rang',
+};
+
+/** 불규칙 과거분사 (43개) */
+const IRREGULAR_PAST_PARTICIPLES: Record<string, string> = {
+  open: 'opened',
+  make: 'made',
+  take: 'taken',
+  give: 'given',
+  write: 'written',
+  eat: 'eaten',
+  see: 'seen',
+  go: 'gone',
+  come: 'come',
+  do: 'done',
+  be: 'been',
+  have: 'had',
+  get: 'gotten',
+  buy: 'bought',
+  bring: 'brought',
+  build: 'built',
+  catch: 'caught',
+  find: 'found',
+  hear: 'heard',
+  hold: 'held',
+  keep: 'kept',
+  know: 'known',
+  leave: 'left',
+  lose: 'lost',
+  meet: 'met',
+  pay: 'paid',
+  put: 'put',
+  read: 'read',
+  run: 'run',
+  say: 'said',
+  sell: 'sold',
+  send: 'sent',
+  sit: 'sat',
+  sleep: 'slept',
+  speak: 'spoken',
+  spend: 'spent',
+  stand: 'stood',
+  teach: 'taught',
+  tell: 'told',
+  think: 'thought',
+  understand: 'understood',
+  win: 'won',
+};
+
+/** 형용사→부사 불규칙 변환 (15개) */
+const ADJECTIVE_TO_ADVERB_IRREGULARS: Record<string, string> = {
+  good: 'well',
+  fast: 'fast',
+  hard: 'hard',
+  late: 'late',
+  early: 'early',
+  high: 'high',
+  low: 'low',
+  near: 'near',
+  far: 'far',
+  happy: 'happily',
+  easy: 'easily',
+  angry: 'angrily',
+  lucky: 'luckily',
+  busy: 'busily',
+};
+
 export interface KoToEnResult {
   original: string; // 원본
   stem: string; // 어간
@@ -606,54 +730,8 @@ function analyzeAndTranslateToken(token: string): {
  * 과거분사 변환
  */
 function conjugatePastParticiple(verb: string): string {
-  // 불규칙 동사
-  const irregulars: Record<string, string> = {
-    open: 'opened',
-    make: 'made',
-    take: 'taken',
-    give: 'given',
-    write: 'written',
-    eat: 'eaten',
-    see: 'seen',
-    go: 'gone',
-    come: 'come',
-    do: 'done',
-    be: 'been',
-    have: 'had',
-    get: 'gotten',
-    buy: 'bought',
-    bring: 'brought',
-    build: 'built',
-    catch: 'caught',
-    find: 'found',
-    hear: 'heard',
-    hold: 'held',
-    keep: 'kept',
-    know: 'known',
-    leave: 'left',
-    lose: 'lost',
-    meet: 'met',
-    pay: 'paid',
-    put: 'put',
-    read: 'read',
-    run: 'run',
-    say: 'said',
-    sell: 'sold',
-    send: 'sent',
-    sit: 'sat',
-    sleep: 'slept',
-    speak: 'spoken',
-    spend: 'spent',
-    stand: 'stood',
-    teach: 'taught',
-    tell: 'told',
-    think: 'thought',
-    understand: 'understood',
-    win: 'won',
-  };
-
-  if (irregulars[verb]) {
-    return irregulars[verb];
+  if (IRREGULAR_PAST_PARTICIPLES[verb]) {
+    return IRREGULAR_PAST_PARTICIPLES[verb];
   }
 
   // 규칙 동사 - 과거형과 동일
@@ -664,26 +742,8 @@ function conjugatePastParticiple(verb: string): string {
  * 형용사 → 부사 변환
  */
 function convertToAdverb(adjective: string): string {
-  // 특수 케이스
-  const irregulars: Record<string, string> = {
-    good: 'well',
-    fast: 'fast',
-    hard: 'hard',
-    late: 'late',
-    early: 'early',
-    high: 'high',
-    low: 'low',
-    near: 'near',
-    far: 'far',
-    happy: 'happily',
-    easy: 'easily',
-    angry: 'angrily',
-    lucky: 'luckily',
-    busy: 'busily',
-  };
-
-  if (irregulars[adjective]) {
-    return irregulars[adjective];
+  if (ADJECTIVE_TO_ADVERB_IRREGULARS[adjective]) {
+    return ADJECTIVE_TO_ADVERB_IRREGULARS[adjective];
   }
 
   // 규칙: -ly 추가
@@ -1208,67 +1268,11 @@ function applyEnglishTense(
 }
 
 /**
- * 과거형 변환 (간단 버전, 나중에 불규칙 동사 추가)
+ * 과거형 변환
  */
 function conjugatePast(verb: string): string {
-  // 불규칙 동사 (하드코딩 - 나중에 dictionary/exceptions로 이동)
-  const irregulars: Record<string, string> = {
-    go: 'went',
-    eat: 'ate',
-    see: 'saw',
-    come: 'came',
-    take: 'took',
-    make: 'made',
-    get: 'got',
-    give: 'gave',
-    know: 'knew',
-    think: 'thought',
-    find: 'found',
-    say: 'said',
-    tell: 'told',
-    feel: 'felt',
-    leave: 'left',
-    meet: 'met',
-    sit: 'sat',
-    stand: 'stood',
-    hear: 'heard',
-    run: 'ran',
-    write: 'wrote',
-    read: 'read',
-    speak: 'spoke',
-    break: 'broke',
-    buy: 'bought',
-    bring: 'brought',
-    teach: 'taught',
-    catch: 'caught',
-    fight: 'fought',
-    sleep: 'slept',
-    win: 'won',
-    lose: 'lost',
-    send: 'sent',
-    spend: 'spent',
-    build: 'built',
-    lend: 'lent',
-    bend: 'bent',
-    throw: 'threw',
-    grow: 'grew',
-    blow: 'blew',
-    fly: 'flew',
-    draw: 'drew',
-    fall: 'fell',
-    sell: 'sold',
-    hold: 'held',
-    understand: 'understood',
-    forget: 'forgot',
-    begin: 'began',
-    drink: 'drank',
-    sing: 'sang',
-    swim: 'swam',
-    ring: 'rang',
-  };
-
-  if (irregulars[verb]) {
-    return irregulars[verb];
+  if (IRREGULAR_PAST_VERBS[verb]) {
+    return IRREGULAR_PAST_VERBS[verb];
   }
 
   // 규칙 동사

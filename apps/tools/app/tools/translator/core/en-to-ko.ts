@@ -28,6 +28,23 @@ import { translateSuffix } from '../dictionary/suffixes';
 import { enToKoWords, koToEnWords } from '../dictionary/words';
 import { decomposeEnglish, type EnglishMorpheme } from '../jaso/english-morpheme';
 
+// =====================================
+// 연결어미 패턴 (모듈 레벨 - 성능 최적화)
+// =====================================
+
+/** 종결어미→연결어미 변환 패턴 (8개 RegExp) */
+const CONNECTIVE_ENDING_PATTERNS: ReadonlyArray<{ from: RegExp; to: string }> = [
+  // 구체적인 동사 패턴 (우선)
+  { from: /봤$/, to: '보고' },
+  { from: /샀$/, to: '사고' },
+  { from: /먹었$/, to: '먹었고' },
+  { from: /방문했$/, to: '방문했고' },
+  // 일반 동사 패턴
+  { from: /했다$/, to: '했고' },
+  { from: /았다$/, to: '았고' },
+  { from: /었다$/, to: '었고' },
+];
+
 // 영어 동사의 3인칭 단수형/과거형에서 기본형 추출
 function getEnglishVerbBase(verb: string): { base: string; tense: 'present' | 'past' } {
   const lowerVerb = verb.toLowerCase();
@@ -612,27 +629,7 @@ function convertToInformalSpeech(text: string): string {
  * 봤 → 보고, 샀 → 사고, 먹었 → 먹었고, 했다 → 했고
  */
 function convertToConnectiveEnding(clause: string): string {
-  // 과거형 종결어미 패턴 (구체적인 것 우선)
-  const patterns: Array<{ from: RegExp; to: string }> = [
-    // 구체적인 동사 패턴 (우선)
-    // 봤 → 보고
-    { from: /봤$/, to: '보고' },
-    // 샀 → 사고
-    { from: /샀$/, to: '사고' },
-    // 먹었 → 먹었고 (연결어미)
-    { from: /먹었$/, to: '먹었고' },
-    // 방문했 → 방문했고
-    { from: /방문했$/, to: '방문했고' },
-    // 일반 동사 패턴
-    // V했다 → V했고
-    { from: /했다$/, to: '했고' },
-    // V았다 → V았고
-    { from: /았다$/, to: '았고' },
-    // V었다 → V었고
-    { from: /었다$/, to: '었고' },
-  ];
-
-  for (const pattern of patterns) {
+  for (const pattern of CONNECTIVE_ENDING_PATTERNS) {
     if (pattern.from.test(clause)) {
       return clause.replace(pattern.from, pattern.to);
     }
