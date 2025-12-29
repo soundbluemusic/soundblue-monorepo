@@ -1,5 +1,5 @@
 import { CheckCircle2, ChevronDown, ChevronRight, Play, XCircle } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
@@ -20,10 +20,7 @@ import {
   uniqueTests,
   wordOrderTests,
 } from '~/tools/translator/benchmark-data';
-import {
-  getTranslatorWorker,
-  type TranslatorWorkerApi,
-} from '~/tools/translator/translator-worker-api';
+import { translate } from '~/tools/translator/translator-service';
 
 export const meta: MetaFunction = () => [
   { title: 'Benchmark | Tools' },
@@ -52,20 +49,13 @@ interface LevelResult {
   categories: CategoryResult[];
 }
 
+// Batch size for processing tests - yields to main thread between batches
+const BATCH_SIZE = 10;
+
 export default function Benchmark() {
   const [isRunning, setIsRunning] = useState(false);
-  const workerRef = useRef<TranslatorWorkerApi | null>(null);
-
-  // Initialize worker on mount, cleanup on unmount
-  useEffect(() => {
-    workerRef.current = getTranslatorWorker();
-    workerRef.current.init();
-
-    return () => {
-      // Don't terminate - singleton is reused
-    };
-  }, []);
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
+  const abortRef = useRef(false);
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
   const [contextResults, setContextResults] = useState<LevelResult[]>([]);
@@ -103,14 +93,9 @@ export default function Benchmark() {
       .trim();
   };
 
-  // Run single test asynchronously using worker
-  const runTest = useCallback(async (test: TestCase): Promise<TestResult> => {
-    const worker = workerRef.current;
-    if (!worker) {
-      throw new Error('Worker not initialized');
-    }
-
-    const actual = await worker.translateAsync(test.input, test.direction);
+  // Run single test synchronously
+  const runTest = useCallback((test: TestCase): TestResult => {
+    const actual = translate(test.input, test.direction);
 
     let passed: boolean;
     if (test.direction === 'ko-en') {
@@ -128,7 +113,18 @@ export default function Benchmark() {
     };
   }, []);
 
-  // Async batch processing using worker
+  // Helper to yield to browser for rendering
+  const yieldToBrowser = (): Promise<void> => {
+    return new Promise((resolve) => {
+      // requestAnimationFrame ensures browser gets a chance to paint
+      requestAnimationFrame(() => {
+        // Small timeout after rAF to ensure React state updates are flushed
+        setTimeout(resolve, 0);
+      });
+    });
+  };
+
+  // Batch processing with requestAnimationFrame to yield to main thread
   const runLevelTestsAsync = useCallback(
     async (
       levels: TestLevel[],
@@ -136,19 +132,31 @@ export default function Benchmark() {
       globalProgress: { current: number; total: number },
     ): Promise<LevelResult[]> => {
       const results: LevelResult[] = [];
+      let batchCount = 0;
 
       for (const level of levels) {
+        if (abortRef.current) break;
         const categoryResults: CategoryResult[] = [];
 
         for (const category of level.categories) {
+          if (abortRef.current) break;
           const testResults: TestResult[] = [];
 
           for (const test of category.tests) {
-            // Run test asynchronously via worker (non-blocking)
-            const result = await runTest(test);
+            if (abortRef.current) break;
+            // Run test synchronously
+            const result = runTest(test);
             testResults.push(result);
             globalProgress.current++;
-            setProgress({ ...globalProgress, phase: phaseName });
+            batchCount++;
+
+            // Yield to main thread every BATCH_SIZE tests
+            if (batchCount >= BATCH_SIZE) {
+              batchCount = 0;
+              setProgress({ ...globalProgress, phase: phaseName });
+              // requestAnimationFrame + setTimeout ensures browser can paint
+              await yieldToBrowser();
+            }
           }
 
           const passed = testResults.filter((r) => r.passed).length;
@@ -171,6 +179,8 @@ export default function Benchmark() {
         });
       }
 
+      // Final progress update
+      setProgress({ ...globalProgress, phase: phaseName });
       return results;
     },
     [runTest],
@@ -178,6 +188,7 @@ export default function Benchmark() {
 
   const runAllTests = useCallback(async () => {
     setIsRunning(true);
+    abortRef.current = false;
     setExpandedLevels(new Set());
     setExpandedCategories(new Set());
 
