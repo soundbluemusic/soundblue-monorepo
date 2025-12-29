@@ -1,3 +1,4 @@
+import type { Message } from '@soundblue/shared-react';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -6,12 +7,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 // SSG 호환: 서버에서는 빈 상태, 클라이언트에서 hydration 후 로드
 // ========================================
 
-export interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: number;
-}
+// Message 타입은 @soundblue/shared-react에서 import
+export type { Message };
 
 export interface Conversation {
   id: string;

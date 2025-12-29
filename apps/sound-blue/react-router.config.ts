@@ -1,33 +1,19 @@
 import type { Config } from '@react-router/dev/config';
+import routes from './app/routes';
+
+// routes.ts에서 경로 추출하여 prerender 목록 자동 생성
+function extractPaths(routeConfigs: typeof routes): string[] {
+  return routeConfigs.map((r) => {
+    // index route는 '/'
+    if (!r.path) return '/';
+    // 일반 route는 '/path' 형태로
+    return `/${r.path}`;
+  });
+}
 
 export default {
   ssr: false,
   async prerender() {
-    return [
-      '/',
-      '/ko',
-      '/about',
-      '/ko/about',
-      '/privacy',
-      '/ko/privacy',
-      '/terms',
-      '/ko/terms',
-      '/license',
-      '/ko/license',
-      '/sitemap',
-      '/ko/sitemap',
-      '/sound-recording',
-      '/ko/sound-recording',
-      '/offline',
-      '/ko/offline',
-      '/blog',
-      '/ko/blog',
-      '/news',
-      '/ko/news',
-      '/chat',
-      '/ko/chat',
-      '/built-with',
-      '/ko/built-with',
-    ];
+    return extractPaths(routes);
   },
 } satisfies Config;
