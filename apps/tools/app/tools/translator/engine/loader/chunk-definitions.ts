@@ -56,7 +56,7 @@ export const connectiveEndingsChunk: ChunkDefinition = {
   estimatedSize: 30,
   required: true,
   loader: async () => {
-    const { connectiveEndings } = await import('../../dictionary/connective-endings');
+    const { connectiveEndings } = await import('../../dictionary/morphology/korean-connective');
     // ConnectiveEndingInfo를 Record<string, string>으로 변환
     const result: Record<string, string> = {};
     for (const [key, info] of Object.entries(connectiveEndings)) {

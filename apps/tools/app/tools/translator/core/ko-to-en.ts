@@ -22,9 +22,13 @@
 // ╚══════════════════════════════════════════════════════════════════╝
 //
 
-import { type EndingPattern, getEnglishTense, matchEnding } from '../dictionary/endings';
 import { conjugateEnglishVerb } from '../dictionary/english-verbs';
 import { KOREAN_IRREGULARS } from '../dictionary/exceptions/irregulars';
+import {
+  type EndingPattern,
+  getEnglishTense,
+  matchEnding,
+} from '../dictionary/morphology/korean-endings';
 import { isAdjective, translateStemKoToEn } from '../dictionary/stems';
 import { koToEnWords } from '../dictionary/words';
 import {

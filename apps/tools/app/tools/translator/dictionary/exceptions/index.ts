@@ -4,7 +4,7 @@
 // ========================================
 
 // 관용구/숙어 (5,000개)
-export * from './idioms';
+export * from './idiomatic-phrases';
 // 불규칙 활용 (500개)
 export * from './irregulars';
 // 외래어 (2,000개)

@@ -160,10 +160,10 @@ export async function createEngineFromLegacy(config?: EngineConfig): Promise<Tra
     { koToEnPatterns, enToKoPatterns },
   ] = await Promise.all([
     import('../../dictionary/words'),
-    import('../../dictionary/morphemes'),
-    import('../../dictionary/morphemes'),
-    import('../../dictionary/connective-endings'),
-    import('../../dictionary/patterns'),
+    import('../../dictionary/morphology/korean-morphemes'),
+    import('../../dictionary/morphology/korean-morphemes'),
+    import('../../dictionary/morphology/korean-connective'),
+    import('../../dictionary/morphology/patterns'),
   ]);
 
   // 사전 로드

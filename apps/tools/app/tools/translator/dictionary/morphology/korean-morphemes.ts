@@ -2,7 +2,7 @@
 // Morphemes Dictionary - 형태소 사전
 // ========================================
 
-import type { EndingInfo, ParticleInfo } from '../types';
+import type { EndingInfo, ParticleInfo } from '../../types';
 
 // 조사 (문장 내 역할 결정)
 export const particles: Record<string, ParticleInfo> = {

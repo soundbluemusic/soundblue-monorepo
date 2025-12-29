@@ -22,9 +22,9 @@
 // ╚══════════════════════════════════════════════════════════════════╝
 //
 
-import { translatePrefix } from '../dictionary/prefixes';
+import { translatePrefix } from '../dictionary/morphology/english-prefixes';
+import { translateSuffix } from '../dictionary/morphology/english-suffixes';
 import { translateStemEnToKo } from '../dictionary/stems';
-import { translateSuffix } from '../dictionary/suffixes';
 import { enToKoWords } from '../dictionary/words';
 import { decomposeEnglish, type EnglishMorpheme } from '../jaso/english-morpheme';
 import type { EnToKoResult } from './en-to-ko-constants';

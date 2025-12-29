@@ -7,13 +7,13 @@ import {
   getPrefixInfo,
   type PrefixInfo,
   translatePrefix,
-} from '../dictionary/prefixes';
+} from '../dictionary/morphology/english-prefixes';
 import {
   extractSuffix,
   restoreStem,
   type SuffixInfo,
   translateSuffix,
-} from '../dictionary/suffixes';
+} from '../dictionary/morphology/english-suffixes';
 
 export interface EnglishMorpheme {
   prefix: string; // un, re, pre...

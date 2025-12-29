@@ -2,7 +2,7 @@
 // Patterns Dictionary - 패턴 사전
 // ========================================
 
-import type { PatternEntry } from '../types';
+import type { PatternEntry } from '../../types';
 
 export const koToEnPatterns: PatternEntry[] = [
   // === 진행형 패턴 (V-고 있다) ===
