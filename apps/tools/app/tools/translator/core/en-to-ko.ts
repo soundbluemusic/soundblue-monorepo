@@ -27,23 +27,24 @@ import { translateStemEnToKo } from '../dictionary/stems';
 import { translateSuffix } from '../dictionary/suffixes';
 import { enToKoWords, koToEnWords } from '../dictionary/words';
 import { decomposeEnglish, type EnglishMorpheme } from '../jaso/english-morpheme';
+import {
+  CONNECTIVE_ENDING_PATTERNS,
+  ENGLISH_ADJECTIVES,
+  ENGLISH_ADVERBS,
+  ENGLISH_ARTICLES,
+  ENGLISH_BE_VERBS,
+  ENGLISH_CONJUNCTIONS,
+  ENGLISH_DEMONSTRATIVES,
+  ENGLISH_IRREGULAR_VERBS,
+  ENGLISH_PREPOSITIONS,
+  type EnToKoResult,
+  LOCATION_ADVERBS,
+  MOVEMENT_VERBS_EN,
+  PHRASAL_VERBS_WITH_TO,
+} from './en-to-ko-constants';
 
-// =====================================
-// 연결어미 패턴 (모듈 레벨 - 성능 최적화)
-// =====================================
-
-/** 종결어미→연결어미 변환 패턴 (8개 RegExp) */
-const CONNECTIVE_ENDING_PATTERNS: ReadonlyArray<{ from: RegExp; to: string }> = [
-  // 구체적인 동사 패턴 (우선)
-  { from: /봤$/, to: '보고' },
-  { from: /샀$/, to: '사고' },
-  { from: /먹었$/, to: '먹었고' },
-  { from: /방문했$/, to: '방문했고' },
-  // 일반 동사 패턴
-  { from: /했다$/, to: '했고' },
-  { from: /았다$/, to: '았고' },
-  { from: /었다$/, to: '었고' },
-];
+// Re-export for backwards compatibility
+export type { EnToKoResult };
 
 // 영어 동사의 3인칭 단수형/과거형에서 기본형 추출
 function getEnglishVerbBase(verb: string): { base: string; tense: 'present' | 'past' } {
@@ -250,27 +251,6 @@ function selectObjectParticle(word: string): string {
   return hasFinalConsonant(word) ? '을' : '를';
 }
 
-// 이동 동사 목록 (to + 장소 → 에)
-const MOVEMENT_VERBS_EN = new Set([
-  'go',
-  'come',
-  'return',
-  'travel',
-  'move',
-  'walk',
-  'run',
-  'fly',
-  'drive',
-]);
-
-// 구문동사 패턴 (to를 전치사로 취하지 않는 동사)
-// 이 동사들 뒤의 to는 무시한다
-const PHRASAL_VERBS_WITH_TO = new Set(['listen', 'look', 'belong', 'refer', 'relate']);
-
-// 장소 부사로 쓰이는 단어 (전치사 없이 사용)
-// "go home", "come home" 등에서 home은 부사로 사용됨
-const LOCATION_ADVERBS = new Set(['home', 'here', 'there', 'upstairs', 'downstairs', 'abroad']);
-
 // 역방향 사전 생성 (한→영에서 영→한 추출)
 function getKoreanFromEnglish(english: string): string | undefined {
   const lower = english.toLowerCase();
@@ -286,198 +266,6 @@ function getKoreanFromEnglish(english: string): string | undefined {
   }
   return undefined;
 }
-
-export interface EnToKoResult {
-  original: string; // 원본
-  morpheme: EnglishMorpheme; // 형태소 분해
-  koreanPrefix: string; // 한국어 접두사
-  koreanStem: string; // 한국어 어간
-  koreanSuffix: string; // 한국어 접미사
-  translated: string; // 최종 번역
-}
-
-// 영어 접속사 → 한국어 연결어미
-const ENGLISH_CONJUNCTIONS: Record<string, string> = {
-  and: '그리고',
-  but: '하지만',
-  or: '또는',
-  because: '왜냐하면',
-  so: '그래서',
-  // biome-ignore lint/suspicious/noThenProperty: dictionary key for translation
-  then: '그리고',
-  if: '만약',
-  when: '때',
-  while: '동안',
-  although: '비록',
-  however: '하지만',
-};
-
-// 영어 전치사 → 한국어 조사
-const ENGLISH_PREPOSITIONS: Record<string, string> = {
-  at: '에서',
-  in: '에',
-  on: '위에',
-  to: '에',
-  for: '위해',
-  with: '와 함께',
-  from: '에서부터',
-  by: '에 의해',
-  about: '에 대해',
-  of: '의',
-  during: '동안',
-  after: '후에',
-  before: '전에',
-  into: '안으로',
-  through: '통해',
-  between: '사이에',
-  among: '가운데',
-  under: '아래에',
-  over: '위에',
-  near: '근처에',
-  nearby: '근처',
-};
-
-// 영어 관사/한정사 (번역 시 생략)
-const ENGLISH_ARTICLES = new Set(['the', 'a', 'an']);
-
-// 지시형용사 (this, that - 다음 명사를 수식)
-const ENGLISH_DEMONSTRATIVES = new Set(['this', 'that', 'these', 'those']);
-
-// 영어 be 동사 (번역 시 특수 처리)
-const ENGLISH_BE_VERBS = new Set(['am', 'is', 'are', 'was', 'were', 'be', 'been', 'being']);
-
-// 영어 불규칙 동사 과거형
-const ENGLISH_IRREGULAR_VERBS: Record<string, { base: string; tense: 'past' }> = {
-  went: { base: 'go', tense: 'past' },
-  ate: { base: 'eat', tense: 'past' },
-  saw: { base: 'see', tense: 'past' },
-  came: { base: 'come', tense: 'past' },
-  took: { base: 'take', tense: 'past' },
-  made: { base: 'make', tense: 'past' },
-  got: { base: 'get', tense: 'past' },
-  gave: { base: 'give', tense: 'past' },
-  knew: { base: 'know', tense: 'past' },
-  thought: { base: 'think', tense: 'past' },
-  found: { base: 'find', tense: 'past' },
-  said: { base: 'say', tense: 'past' },
-  told: { base: 'tell', tense: 'past' },
-  felt: { base: 'feel', tense: 'past' },
-  left: { base: 'leave', tense: 'past' },
-  met: { base: 'meet', tense: 'past' },
-  sat: { base: 'sit', tense: 'past' },
-  stood: { base: 'stand', tense: 'past' },
-  heard: { base: 'hear', tense: 'past' },
-  ran: { base: 'run', tense: 'past' },
-  wrote: { base: 'write', tense: 'past' },
-  read: { base: 'read', tense: 'past' },
-  spoke: { base: 'speak', tense: 'past' },
-  broke: { base: 'break', tense: 'past' },
-  bought: { base: 'buy', tense: 'past' },
-  brought: { base: 'bring', tense: 'past' },
-  taught: { base: 'teach', tense: 'past' },
-  caught: { base: 'catch', tense: 'past' },
-  slept: { base: 'sleep', tense: 'past' },
-  won: { base: 'win', tense: 'past' },
-  lost: { base: 'lose', tense: 'past' },
-  sent: { base: 'send', tense: 'past' },
-  spent: { base: 'spend', tense: 'past' },
-  built: { base: 'build', tense: 'past' },
-  held: { base: 'hold', tense: 'past' },
-  sold: { base: 'sell', tense: 'past' },
-  returned: { base: 'return', tense: 'past' },
-  visited: { base: 'visit', tense: 'past' },
-  looked: { base: 'look', tense: 'past' },
-  opened: { base: 'open', tense: 'past' },
-};
-
-// 영어 형용사 목록 (수식어 판별용)
-const ENGLISH_ADJECTIVES = new Set([
-  'new',
-  'newly',
-  'old',
-  'young',
-  'good',
-  'bad',
-  'beautiful',
-  'ugly',
-  'big',
-  'small',
-  'large',
-  'little',
-  'long',
-  'short',
-  'tall',
-  'high',
-  'low',
-  'hot',
-  'cold',
-  'warm',
-  'cool',
-  'fast',
-  'slow',
-  'quick',
-  'hard',
-  'soft',
-  'happy',
-  'sad',
-  'angry',
-  'delicious',
-  'tasty',
-  'interesting',
-  'boring',
-  'important',
-  'urgent',
-  'famous',
-  'popular',
-  'expensive',
-  'cheap',
-  'nice',
-  'great',
-  'wonderful',
-  'amazing',
-  'terrible',
-  'horrible',
-  'opened',
-  'closed',
-  'nearby',
-  'italian',
-  'chinese',
-  'korean',
-  'japanese',
-]);
-
-// 영어 부사 목록
-const ENGLISH_ADVERBS = new Set([
-  'very',
-  'really',
-  'quite',
-  'too',
-  'so',
-  'already',
-  'still',
-  'just',
-  'always',
-  'never',
-  'often',
-  'sometimes',
-  'usually',
-  'rarely',
-  'happily',
-  'sadly',
-  'quickly',
-  'slowly',
-  'carefully',
-  'easily',
-  'early',
-  'late',
-  'soon',
-  'yesterday',
-  'today',
-  'tomorrow',
-  'well', // 잘
-  'badly', // 잘못
-  'hard', // 열심히
-]);
 
 /**
  * 영어 → 한국어 번역 (자소 기반)
