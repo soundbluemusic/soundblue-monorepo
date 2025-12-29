@@ -2,99 +2,25 @@
 // Hangul Jamo Engine - 한글 자소 분해/조합
 // ========================================
 
+// 상수는 hangul/constants.ts에서 단일 소스로 import
+import {
+  CHO_LIST,
+  type ChoType,
+  HANGUL_BASE,
+  HANGUL_END,
+  JONG_LIST,
+  JUNG_LIST,
+  type JungType,
+} from '../hangul/constants';
+
+// Re-export for backwards compatibility
+export { CHO_LIST, JONG_LIST, JUNG_LIST };
+
 export interface HangulJamo {
   cho: string; // 초성 ㄱㄴㄷ
   jung: string; // 중성 ㅏㅓㅗ
   jong: string; // 종성 (없으면 '')
 }
-
-// 유니코드 상수
-const HANGUL_START = 0xac00; // '가'
-const HANGUL_END = 0xd7a3; // '힣'
-
-// 초성 19자
-export const CHO_LIST = [
-  'ㄱ',
-  'ㄲ',
-  'ㄴ',
-  'ㄷ',
-  'ㄸ',
-  'ㄹ',
-  'ㅁ',
-  'ㅂ',
-  'ㅃ',
-  'ㅅ',
-  'ㅆ',
-  'ㅇ',
-  'ㅈ',
-  'ㅉ',
-  'ㅊ',
-  'ㅋ',
-  'ㅌ',
-  'ㅍ',
-  'ㅎ',
-] as const;
-
-// 중성 21자
-export const JUNG_LIST = [
-  'ㅏ',
-  'ㅐ',
-  'ㅑ',
-  'ㅒ',
-  'ㅓ',
-  'ㅔ',
-  'ㅕ',
-  'ㅖ',
-  'ㅗ',
-  'ㅘ',
-  'ㅙ',
-  'ㅚ',
-  'ㅛ',
-  'ㅜ',
-  'ㅝ',
-  'ㅞ',
-  'ㅟ',
-  'ㅠ',
-  'ㅡ',
-  'ㅢ',
-  'ㅣ',
-] as const;
-
-// 종성 28자 (첫 번째는 받침 없음)
-export const JONG_LIST = [
-  '',
-  'ㄱ',
-  'ㄲ',
-  'ㄳ',
-  'ㄴ',
-  'ㄵ',
-  'ㄶ',
-  'ㄷ',
-  'ㄹ',
-  'ㄺ',
-  'ㄻ',
-  'ㄼ',
-  'ㄽ',
-  'ㄾ',
-  'ㄿ',
-  'ㅀ',
-  'ㅁ',
-  'ㅂ',
-  'ㅄ',
-  'ㅅ',
-  'ㅆ',
-  'ㅇ',
-  'ㅈ',
-  'ㅊ',
-  'ㅋ',
-  'ㅌ',
-  'ㅍ',
-  'ㅎ',
-] as const;
-
-// 타입 안전한 포함 여부 확인 헬퍼 (as const 배열용)
-type ChoType = (typeof CHO_LIST)[number];
-type JungType = (typeof JUNG_LIST)[number];
 
 function isValidCho(char: string): char is ChoType {
   return (CHO_LIST as readonly string[]).includes(char);
@@ -112,11 +38,11 @@ export function decomposeHangul(char: string): HangulJamo {
   const code = char.charCodeAt(0);
 
   // 한글 범위 체크
-  if (code < HANGUL_START || code > HANGUL_END) {
+  if (code < HANGUL_BASE || code > HANGUL_END) {
     return { cho: '', jung: '', jong: '' };
   }
 
-  const offset = code - HANGUL_START;
+  const offset = code - HANGUL_BASE;
   const choIdx = Math.floor(offset / 588);
   const jungIdx = Math.floor((offset % 588) / 28);
   const jongIdx = offset % 28;
@@ -141,7 +67,7 @@ export function composeHangul(jamo: HangulJamo): string {
     return '';
   }
 
-  const code = HANGUL_START + choIdx * 588 + jungIdx * 28 + jongIdx;
+  const code = HANGUL_BASE + choIdx * 588 + jungIdx * 28 + jongIdx;
   return String.fromCharCode(code);
 }
 
@@ -208,7 +134,7 @@ export function composeFromJaso(jasoArr: string[]): string {
  */
 export function isHangul(char: string): boolean {
   const code = char.charCodeAt(0);
-  return code >= HANGUL_START && code <= HANGUL_END;
+  return code >= HANGUL_BASE && code <= HANGUL_END;
 }
 
 /**
