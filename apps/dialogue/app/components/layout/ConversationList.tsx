@@ -1,8 +1,37 @@
 import { useCallback, useState } from 'react';
 import { ConfirmDialog } from '~/components/ui/ConfirmDialog';
 import m from '~/lib/messages';
-import type { Conversation } from '~/stores';
-import { useChatStore } from '~/stores';
+import type { Conversation, Message } from '~/stores';
+import { generateId, useChatStore } from '~/stores';
+
+// Format conversation for export
+function formatConversationForExport(conv: Conversation): string {
+  const formatTimestamp = (ts: number) => {
+    const date = new Date(ts);
+    return date.toLocaleString();
+  };
+
+  const lines: string[] = [
+    '=== Dialogue Export ===',
+    `Title: ${conv.title || 'Untitled'}`,
+    `Date: ${formatTimestamp(conv.createdAt)}`,
+    '',
+    '---',
+    '',
+  ];
+
+  for (const msg of conv.messages) {
+    const role = msg.role === 'user' ? 'User' : 'Dialogue';
+    lines.push(`[${role}] ${formatTimestamp(msg.timestamp)}`);
+    lines.push(msg.content);
+    lines.push('');
+  }
+
+  lines.push('---');
+  lines.push('Exported from Dialogue');
+
+  return lines.join('\n');
+}
 
 // ========================================
 // ConversationList Component - 대화 내역 목록
@@ -26,6 +55,7 @@ export function ConversationList({
     isHydrated,
     loadConversation,
     deleteConversation,
+    createConversation,
     toggleGhostMode,
   } = useChatStore();
 
@@ -48,13 +78,41 @@ export function ConversationList({
 
   const handleConfirmDelete = useCallback(() => {
     if (deleteTargetId) {
+      const wasActive = activeConversationId === deleteTargetId;
       deleteConversation(deleteTargetId);
       setDeleteTargetId(null);
+
+      // 삭제한 대화가 현재 활성 대화였다면 새 대화 자동 시작
+      if (wasActive && !ghostMode) {
+        const welcomeMessage: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: m['app.welcome'](),
+          timestamp: Date.now(),
+        };
+        createConversation(welcomeMessage);
+      }
     }
-  }, [deleteTargetId, deleteConversation]);
+  }, [deleteTargetId, activeConversationId, ghostMode, deleteConversation, createConversation]);
 
   const handleCancelDelete = useCallback(() => {
     setDeleteTargetId(null);
+  }, []);
+
+  const handleExport = useCallback((e: React.MouseEvent, conv: Conversation) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const content = formatConversationForExport(conv);
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${conv.title || 'dialogue'}-${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }, []);
 
   const formatDate = (timestamp: number) => {
@@ -150,14 +208,24 @@ export function ConversationList({
                   {formatDate(conv.updatedAt)}
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={(e) => handleDeleteClick(e, conv.id)}
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center opacity-0 group-hover:opacity-100 p-2 rounded-md bg-none border-none cursor-pointer text-(--color-text-tertiary) transition-all duration-150 hover:bg-red-500/15 hover:text-(--color-error) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
-                title={m['app.deleteChat']()}
-              >
-                <TrashIcon />
-              </button>
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                <button
+                  type="button"
+                  onClick={(e) => handleExport(e, conv)}
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-md bg-none border-none cursor-pointer text-(--color-text-tertiary) transition-all duration-150 hover:bg-(--color-accent-light) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+                  title={m['app.export']()}
+                >
+                  <ExportIcon />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleDeleteClick(e, conv.id)}
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-md bg-none border-none cursor-pointer text-(--color-text-tertiary) transition-all duration-150 hover:bg-red-500/15 hover:text-(--color-error) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+                  title={m['app.deleteChat']()}
+                >
+                  <TrashIcon />
+                </button>
+              </div>
             </button>
           ))}
         </div>
@@ -233,6 +301,14 @@ function TrashIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
       <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+    </svg>
+  );
+}
+
+function ExportIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
     </svg>
   );
 }

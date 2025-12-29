@@ -73,5 +73,8 @@
   "app_deleteConfirmTitle": "Delete Conversation",
   "app_deleteConfirmMessage": "Saved conversations cannot be recovered. Are you sure you want to delete?",
   "app_cancel": "Cancel",
-  "app_confirm": "Delete"
+  "app_confirm": "Delete",
+  "app_export": "Export",
+  "app_copy": "Copy",
+  "app_copied": "Copied"
 }
