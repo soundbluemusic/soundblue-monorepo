@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import m from '~/lib/messages';
 import { addToContext, analyzeInput, type ConversationTurn } from '~/lib/nlu';
-import { detectLanguageSwitch, getResponse, initializeQA } from '~/lib/response-handler';
+import { detectLanguageSwitch, getResponse } from '~/lib/response-handler';
 import { generateId, type Message, useChatStore } from '~/stores';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
@@ -14,7 +14,6 @@ export function ChatContainer() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isThinking, setIsThinking] = useState(false);
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
-  const [qaInitialized, setQaInitialized] = useState(false);
   const [userMessageCount, setUserMessageCount] = useState(0);
 
   // Refs for stable callback access (prevents unnecessary re-renders)
@@ -39,20 +38,6 @@ export function ChatContainer() {
     addMessage,
     clearActive,
   } = useChatStore();
-
-  // Initialize Q&A database
-  useEffect(() => {
-    if (!qaInitialized) {
-      initializeQA()
-        .then(() => {
-          setQaInitialized(true);
-        })
-        .catch((error) => {
-          console.warn('Q&A initialization failed:', error);
-          setQaInitialized(true); // Continue anyway
-        });
-    }
-  }, [qaInitialized]);
 
   // Get messages from active conversation or local state (ghost mode)
   const activeConversation = getActiveConversation();

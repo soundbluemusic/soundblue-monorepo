@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
 import { HomeLayout } from '~/components/layout/HomeLayout';
-import { useToolStore } from '~/stores/tool-store';
 
 export const meta: MetaFunction = () => [
   { title: 'Tools - SoundBlueMusic' },
@@ -13,12 +11,5 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function Home() {
-  const { closeTool } = useToolStore();
-
-  // Close any open tool when navigating to home
-  useEffect(() => {
-    closeTool();
-  }, [closeTool]);
-
   return <HomeLayout />;
 }

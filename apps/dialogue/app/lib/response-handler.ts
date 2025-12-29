@@ -7,6 +7,9 @@
  */
 
 import { getLocale } from '~/paraglide/runtime';
+// 동기 import로 Q&A 데이터 번들에 포함 (런타임 async 로드 제거)
+import enData from '../data/qa-en.json';
+import koData from '../data/qa-ko.json';
 import { type FuzzyQAMatchOptions, fuzzySearchQA } from './fuzzy-qa-matcher';
 import {
   detectContextReference,
@@ -184,27 +187,18 @@ export interface QADatabase {
   items: QAItem[];
 }
 
+// Q&A 데이터 동기 로드 (빌드 타임에 번들링)
 const qaDatabase: Record<string, QADatabase> = {
-  en: { items: [] },
-  ko: { items: [] },
+  en: enData,
+  ko: koData,
 };
 
 /**
- * Initialize Q&A database
+ * Initialize Q&A database (no-op, 데이터는 이미 동기 import됨)
+ * 하위 호환성을 위해 유지
  */
-export async function initializeQA(): Promise<void> {
-  try {
-    const [enData, koData] = await Promise.all([
-      import('../data/qa-en.json'),
-      import('../data/qa-ko.json'),
-    ]);
-
-    qaDatabase.en = enData.default || enData;
-    qaDatabase.ko = koData.default || koData;
-  } catch (error) {
-    console.warn('Failed to load Q&A database:', error);
-    // Keep empty database as fallback
-  }
+export function initializeQA(): Promise<void> {
+  return Promise.resolve();
 }
 
 // ========================================

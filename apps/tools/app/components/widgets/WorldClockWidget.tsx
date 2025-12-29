@@ -70,10 +70,12 @@ const weekdayNames = {
 export function WorldClockWidget() {
   const { locale } = useParaglideI18n();
 
-  // 1초마다 업데이트되는 시간
-  const [now, setNow] = useState(() => new Date());
+  // 하이드레이션 후에만 시간 표시 (SSG 빌드 시간 불일치 방지)
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    // 클라이언트에서만 시간 초기화
+    setNow(new Date());
     const interval = setInterval(() => {
       setNow(new Date());
     }, 1000);
@@ -83,11 +85,13 @@ export function WorldClockWidget() {
 
   // 타임존별 시(hour)만 가져오기 - cached formatter 사용
   const getHour = (timezone: string) => {
+    if (!now) return '--';
     return getHourFormatter(timezone).format(now);
   };
 
   // 공통 분:초 (UTC 기준으로 모든 타임존 동일)
   const getMinuteSecond = () => {
+    if (!now) return '--:--';
     const min = now.getMinutes().toString().padStart(2, '0');
     const sec = now.getSeconds().toString().padStart(2, '0');
     return `${min}:${sec}`;
@@ -95,18 +99,19 @@ export function WorldClockWidget() {
 
   // 타임존별 날짜 (요일 포함) - cached formatter 사용
   const getDate = (timezone: string) => {
+    if (!now) return '---';
     return getDateFormatter(timezone, locale).format(now);
   };
 
   // 현재 로컬 날짜 (메인 캘린더용) - 날짜 변경시에만 재계산
   const currentDate = useMemo(
     () => ({
-      year: now.getFullYear(),
-      month: now.getMonth(),
-      day: now.getDate(),
-      weekday: now.getDay(),
+      year: now?.getFullYear() ?? new Date().getFullYear(),
+      month: now?.getMonth() ?? new Date().getMonth(),
+      day: now?.getDate() ?? 0,
+      weekday: now?.getDay() ?? 0,
     }),
-    [now.getFullYear(), now.getMonth(), now.getDate(), now.getDay()],
+    [now?.getFullYear(), now?.getMonth(), now?.getDate(), now?.getDay()],
   );
 
   // 미니 캘린더 데이터 생성 - 날짜 변경시에만 재계산
