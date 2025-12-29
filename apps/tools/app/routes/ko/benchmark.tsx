@@ -1,5 +1,5 @@
 import { CheckCircle2, ChevronDown, ChevronRight, Play, XCircle } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
@@ -20,7 +20,10 @@ import {
   uniqueTests,
   wordOrderTests,
 } from '~/tools/translator/benchmark-data';
-import { translate } from '~/tools/translator/translator-service';
+import {
+  getTranslatorWorker,
+  type TranslatorWorkerApi,
+} from '~/tools/translator/translator-worker-api';
 
 export const meta: MetaFunction = () => [
   { title: '벤치마크 | Tools' },
@@ -51,6 +54,7 @@ interface LevelResult {
 
 export default function Benchmark() {
   const [isRunning, setIsRunning] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
   const [contextResults, setContextResults] = useState<LevelResult[]>([]);
@@ -65,6 +69,13 @@ export default function Benchmark() {
   const [antiHardcodingResults, setAntiHardcodingResults] = useState<LevelResult[]>([]);
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const workerRef = useRef<TranslatorWorkerApi | null>(null);
+
+  // Initialize worker on mount
+  useEffect(() => {
+    workerRef.current = getTranslatorWorker();
+    workerRef.current.init();
+  }, []);
 
   /**
    * 영어 정규화 (비교용)
@@ -92,8 +103,14 @@ export default function Benchmark() {
       .trim();
   };
 
-  const runTest = useCallback((test: TestCase): TestResult => {
-    const actual = translate(test.input, test.direction);
+  // Run single test asynchronously using worker
+  const runTest = useCallback(async (test: TestCase): Promise<TestResult> => {
+    const worker = workerRef.current;
+    if (!worker) {
+      throw new Error('Worker not initialized');
+    }
+
+    const actual = await worker.translateAsync(test.input, test.direction);
 
     // 방향에 따라 적절한 정규화 적용
     let passed: boolean;
@@ -112,69 +129,142 @@ export default function Benchmark() {
     };
   }, []);
 
-  const runLevelTests = useCallback(
-    (levels: TestLevel[]): LevelResult[] => {
-      return levels.map((level) => {
-        const categoryResults: CategoryResult[] = level.categories.map((category) => {
-          const results = category.tests.map(runTest);
-          const passed = results.filter((r) => r.passed).length;
-          return {
+  // Async batch processing using worker
+  const runLevelTestsAsync = useCallback(
+    async (
+      levels: TestLevel[],
+      phaseName: string,
+      globalProgress: { current: number; total: number },
+    ): Promise<LevelResult[]> => {
+      const results: LevelResult[] = [];
+
+      for (const level of levels) {
+        const categoryResults: CategoryResult[] = [];
+
+        for (const category of level.categories) {
+          const testResults: TestResult[] = [];
+
+          for (const test of category.tests) {
+            // Run test asynchronously via worker (non-blocking)
+            const result = await runTest(test);
+            testResults.push(result);
+            globalProgress.current++;
+            setProgress({ ...globalProgress, phase: phaseName });
+          }
+
+          const passed = testResults.filter((r) => r.passed).length;
+          categoryResults.push({
             id: category.id,
             passed,
-            total: results.length,
-            results,
-          };
-        });
+            total: testResults.length,
+            results: testResults,
+          });
+        }
 
         const totalPassed = categoryResults.reduce((sum, c) => sum + c.passed, 0);
         const totalTests = categoryResults.reduce((sum, c) => sum + c.total, 0);
 
-        return {
+        results.push({
           id: level.id,
           passed: totalPassed,
           total: totalTests,
           categories: categoryResults,
-        };
-      });
+        });
+      }
+
+      return results;
     },
     [runTest],
   );
 
-  const runAllTests = useCallback(() => {
+  const runAllTests = useCallback(async () => {
     setIsRunning(true);
     setExpandedLevels(new Set());
     setExpandedCategories(new Set());
 
-    // Use setTimeout to allow UI to update
-    setTimeout(() => {
-      const levelRes = runLevelTests(levelTests);
-      const catRes = runLevelTests(categoryTests);
-      const ctxRes = runLevelTests(contextTests);
-      const typoRes = runLevelTests(typoTests);
-      const uniqueRes = runLevelTests(uniqueTests);
-      const polysemyRes = runLevelTests(polysemyTests);
-      const wordOrderRes = runLevelTests(wordOrderTests);
-      const spacingRes = runLevelTests(spacingErrorTests);
-      const finalRes = runLevelTests(finalTests);
-      const professionalRes = runLevelTests(professionalTranslatorTests);
-      const localizationRes = runLevelTests(localizationTests);
-      const antiHardcodingRes = runLevelTests(antiHardcodingTests);
+    // Calculate total test count
+    const total =
+      countTests(levelTests) +
+      countTests(categoryTests) +
+      countTests(contextTests) +
+      countTests(typoTests) +
+      countTests(uniqueTests) +
+      countTests(polysemyTests) +
+      countTests(wordOrderTests) +
+      countTests(spacingErrorTests) +
+      countTests(finalTests) +
+      countTests(professionalTranslatorTests) +
+      countTests(localizationTests) +
+      countTests(antiHardcodingTests);
 
+    const globalProgress = { current: 0, total };
+    setProgress({ current: 0, total, phase: '시작 중...' });
+
+    try {
+      const levelRes = await runLevelTestsAsync(levelTests, 'Level 테스트', globalProgress);
       setLevelResults(levelRes);
+
+      const catRes = await runLevelTestsAsync(categoryTests, 'Category 테스트', globalProgress);
       setCategoryResults(catRes);
+
+      const ctxRes = await runLevelTestsAsync(contextTests, 'Context 테스트', globalProgress);
       setContextResults(ctxRes);
+
+      const typoRes = await runLevelTestsAsync(typoTests, 'Typo 테스트', globalProgress);
       setTypoResults(typoRes);
+
+      const uniqueRes = await runLevelTestsAsync(uniqueTests, 'Unique 테스트', globalProgress);
       setUniqueResults(uniqueRes);
+
+      const polysemyRes = await runLevelTestsAsync(
+        polysemyTests,
+        'Polysemy 테스트',
+        globalProgress,
+      );
       setPolysemyResults(polysemyRes);
+
+      const wordOrderRes = await runLevelTestsAsync(
+        wordOrderTests,
+        'Word Order 테스트',
+        globalProgress,
+      );
       setWordOrderResults(wordOrderRes);
+
+      const spacingRes = await runLevelTestsAsync(
+        spacingErrorTests,
+        'Spacing 테스트',
+        globalProgress,
+      );
       setSpacingResults(spacingRes);
+
+      const finalRes = await runLevelTestsAsync(finalTests, 'Final 테스트', globalProgress);
       setFinalResults(finalRes);
+
+      const professionalRes = await runLevelTestsAsync(
+        professionalTranslatorTests,
+        'Professional 테스트',
+        globalProgress,
+      );
       setProfessionalResults(professionalRes);
+
+      const localizationRes = await runLevelTestsAsync(
+        localizationTests,
+        'Localization 테스트',
+        globalProgress,
+      );
       setLocalizationResults(localizationRes);
+
+      const antiHardcodingRes = await runLevelTestsAsync(
+        antiHardcodingTests,
+        'Anti-Hardcoding 테스트',
+        globalProgress,
+      );
       setAntiHardcodingResults(antiHardcodingRes);
+    } finally {
       setIsRunning(false);
-    }, 50);
-  }, [runLevelTests]);
+      setProgress({ current: 0, total: 0, phase: '' });
+    }
+  }, [runLevelTestsAsync]);
 
   const toggleLevel = (levelId: string) => {
     setExpandedLevels((prev) => {
@@ -448,11 +538,30 @@ export default function Benchmark() {
             type="button"
             onClick={runAllTests}
             disabled={isRunning}
-            className="mb-6 flex cursor-pointer items-center gap-2 rounded-lg border-none bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mb-4 flex cursor-pointer items-center gap-2 rounded-lg border-none bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Play className="size-4" />
             {isRunning ? '실행 중...' : '전체 테스트 실행'}
           </button>
+
+          {/* Progress Bar */}
+          {isRunning && progress.total > 0 && (
+            <div className="mb-6">
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="text-(--muted-foreground)">{progress.phase}</span>
+                <span className="font-mono">
+                  {progress.current}/{progress.total} (
+                  {Math.round((progress.current / progress.total) * 100)}%)
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                <div
+                  className="h-full bg-blue-600 transition-all duration-150"
+                  style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Overall Stats */}
           {levelResults.length > 0 && (
