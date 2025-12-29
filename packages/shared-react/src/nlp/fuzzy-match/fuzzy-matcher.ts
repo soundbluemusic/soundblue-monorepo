@@ -2,7 +2,7 @@
 // Fuzzy Matcher - 고수준 퍼지 매칭 API
 // ========================================
 
-import { isHangul } from '../hangul/jamo';
+import { isHangul } from '@soundblue/hangul';
 import type { FuzzyMatchOptions, FuzzyMatchResult } from '../types';
 import { calculateKeyboardSimilarity, jamoEditDistance } from './jamo-edit-distance';
 

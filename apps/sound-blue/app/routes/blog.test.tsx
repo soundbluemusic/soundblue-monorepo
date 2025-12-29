@@ -3,7 +3,7 @@ import { BrowserRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import type { CnFunction, MetaDescriptor, MockBottomSheetProps } from '~/test/types';
 import { findMetaDescription, findMetaTitle } from '~/test/types';
-import Blog, { meta } from './blog';
+import Blog, { meta } from './($locale)/blog';
 
 // Mock dependencies
 vi.mock('@soundblue/shared-react', () => ({

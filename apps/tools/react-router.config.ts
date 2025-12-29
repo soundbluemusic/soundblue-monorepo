@@ -1,14 +1,43 @@
 import type { Config } from '@react-router/dev/config';
-import routes from './app/routes';
 
-// routes.ts에서 경로 추출하여 prerender 목록 자동 생성
-function extractPaths(routeConfigs: typeof routes): string[] {
-  return routeConfigs.map((r) => {
-    // '/' 경로는 그대로
-    if (r.path === '/') return '/';
-    // 일반 route는 '/path' 형태로
-    return `/${r.path}`;
-  });
+// 지원 로케일
+const LOCALES = ['en', 'ko'] as const;
+const DEFAULT_LOCALE = 'en';
+
+// 기본 경로 목록 (로케일 prefix 없이)
+const BASE_PATHS = [
+  '/',
+  '/about',
+  '/built-with',
+  '/benchmark',
+  '/sitemap',
+  '/metronome',
+  '/drum-machine',
+  '/qr',
+  '/translator',
+];
+
+// 로케일별 경로 생성
+function generateLocalizedPaths(): string[] {
+  const paths: string[] = [];
+
+  for (const locale of LOCALES) {
+    for (const basePath of BASE_PATHS) {
+      if (locale === DEFAULT_LOCALE) {
+        // 기본 로케일은 prefix 없이
+        paths.push(basePath);
+      } else {
+        // 기타 로케일은 prefix 추가
+        if (basePath === '/') {
+          paths.push(`/${locale}`);
+        } else {
+          paths.push(`/${locale}${basePath}`);
+        }
+      }
+    }
+  }
+
+  return paths;
 }
 
 export default {
@@ -17,6 +46,6 @@ export default {
 
   // Pre-render all routes for static hosting
   async prerender() {
-    return extractPaths(routes);
+    return generateLocalizedPaths();
   },
 } satisfies Config;

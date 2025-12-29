@@ -1,0 +1,36 @@
+{
+  "name": "@soundblue/web-audio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Web Audio API adapters and instruments",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./context": {
+      "types": "./src/context/index.ts",
+      "import": "./src/context/index.ts"
+    },
+    "./instruments": {
+      "types": "./src/instruments/index.ts",
+      "import": "./src/instruments/index.ts"
+    }
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "tone": "^15.0.0"
+  },
+  "devDependencies": {
+    "tone": "^15.1.22",
+    "typescript": "^5.9.3"
+  }
+}

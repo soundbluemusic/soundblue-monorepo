@@ -42,6 +42,7 @@
     "src"
   ],
   "dependencies": {
+    "@soundblue/hangul": "workspace:*",
     "clsx": "^2.1.1",
     "dexie": "^4.2.1"
   },

@@ -1,0 +1,43 @@
+{
+  "name": "@soundblue/hangul",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Korean Hangul processing utilities - pure TypeScript",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./jamo": {
+      "types": "./src/jamo/index.ts",
+      "import": "./src/jamo/index.ts"
+    },
+    "./syllable": {
+      "types": "./src/syllable/index.ts",
+      "import": "./src/syllable/index.ts"
+    },
+    "./phonetics": {
+      "types": "./src/phonetics/index.ts",
+      "import": "./src/phonetics/index.ts"
+    },
+    "./distance": {
+      "types": "./src/distance/index.ts",
+      "import": "./src/distance/index.ts"
+    }
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  }
+}

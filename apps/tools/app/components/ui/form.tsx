@@ -93,6 +93,7 @@ const FormLabel = forwardRef<
   const { error, formItemId } = useFormField();
 
   return (
+    // biome-ignore lint/a11y/noLabelWithoutControl: htmlFor is dynamically provided via formItemId
     <label
       ref={ref}
       className={cn(

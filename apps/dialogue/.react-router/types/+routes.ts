@@ -36,38 +36,35 @@ type RouteFiles = {
     id: "root";
     page: "/" | "/about" | "/sitemap" | "/ko" | "/ko/about" | "/ko/sitemap";
   };
-  "routes/home.tsx": {
-    id: "routes/home";
+  "routes/($locale)/home.tsx": {
+    id: "home-en";
     page: "/";
-  };
-  "routes/about.tsx": {
-    id: "routes/about";
-    page: "/about";
-  };
-  "routes/sitemap.tsx": {
-    id: "routes/sitemap";
-    page: "/sitemap";
-  };
-  "routes/ko/home.tsx": {
-    id: "routes/ko/home";
+  } | {
+    id: "home-ko";
     page: "/ko";
   };
-  "routes/ko/about.tsx": {
-    id: "routes/ko/about";
+  "routes/($locale)/about.tsx": {
+    id: "about-en";
+    page: "/about";
+  } | {
+    id: "about-ko";
     page: "/ko/about";
   };
-  "routes/ko/sitemap.tsx": {
-    id: "routes/ko/sitemap";
+  "routes/($locale)/sitemap.tsx": {
+    id: "sitemap-en";
+    page: "/sitemap";
+  } | {
+    id: "sitemap-ko";
     page: "/ko/sitemap";
   };
 };
 
 type RouteModules = {
   "root": typeof import("./app/root.tsx");
-  "routes/home": typeof import("./app/routes/home.tsx");
-  "routes/about": typeof import("./app/routes/about.tsx");
-  "routes/sitemap": typeof import("./app/routes/sitemap.tsx");
-  "routes/ko/home": typeof import("./app/routes/ko/home.tsx");
-  "routes/ko/about": typeof import("./app/routes/ko/about.tsx");
-  "routes/ko/sitemap": typeof import("./app/routes/ko/sitemap.tsx");
+  "home-en": typeof import("./app/routes/($locale)/home.tsx");
+  "about-en": typeof import("./app/routes/($locale)/about.tsx");
+  "sitemap-en": typeof import("./app/routes/($locale)/sitemap.tsx");
+  "home-ko": typeof import("./app/routes/($locale)/home.tsx");
+  "about-ko": typeof import("./app/routes/($locale)/about.tsx");
+  "sitemap-ko": typeof import("./app/routes/($locale)/sitemap.tsx");
 };

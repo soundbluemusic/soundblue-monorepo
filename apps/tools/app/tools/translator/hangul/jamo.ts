@@ -1,9 +1,9 @@
 // ========================================
 // Jamo - 한글 자모 분해/조합
-// Re-export from shared-react for common functionality
+// Re-export from @soundblue/hangul
 // ========================================
 
-// Re-export all from shared-react
+// Re-export all from @soundblue/hangul
 export {
   CHO_LIST,
   changeBatchim,
@@ -24,4 +24,4 @@ export {
   JUNG_LIST,
   removeBatchim,
   splitDoubleJong,
-} from '@soundblue/shared-react';
+} from '@soundblue/hangul';

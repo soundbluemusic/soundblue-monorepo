@@ -52,7 +52,7 @@
  * @see {@link https://en.wikipedia.org/wiki/Korean_language_and_computers#Hangul_in_Unicode} for Jamo encoding
  */
 
-import { isHangul } from '../hangul/jamo';
+import { isHangul } from '@soundblue/hangul';
 
 /**
  * Initial consonants (초성) - 19 consonants

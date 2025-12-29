@@ -1,0 +1,31 @@
+{
+  "name": "@soundblue/translator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Korean-English bidirectional translation engine",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@soundblue/hangul": "workspace:*"
+  },
+  "devDependencies": {
+    "@soundblue/hangul": "workspace:*",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  }
+}
