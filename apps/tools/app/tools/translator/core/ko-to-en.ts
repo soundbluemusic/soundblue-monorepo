@@ -24,9 +24,19 @@
 
 import { type EndingPattern, getEnglishTense, matchEnding } from '../dictionary/endings';
 import { conjugateEnglishVerb } from '../dictionary/english-verbs';
+import { KOREAN_IRREGULARS } from '../dictionary/exceptions/irregulars';
 import { isAdjective, translateStemKoToEn } from '../dictionary/stems';
 import { koToEnWords } from '../dictionary/words';
+import {
+  type ConnectiveInfo,
+  isCompoundSentence,
+  reassembleWithConjunctions,
+  restructureConditional,
+  splitIntoClauses,
+} from '../grammar/clause-restructurer';
 import { composeFromJaso, decomposeAll, removeEndingPattern } from '../jaso/hangul-jaso';
+import { type ContextWindow, disambiguate, extractContext } from '../nlp/wsd/context-scorer';
+import { isPolysemous } from '../nlp/wsd/polysemy-dict';
 
 // =====================================
 // 불규칙 동사 테이블 (모듈 레벨 - 성능 최적화)
@@ -161,6 +171,37 @@ export interface KoToEnResult {
   translated: string; // 최종 번역
 }
 
+// =====================================
+// 불규칙 활용형 → 기본형 역 인덱스 (O(1) 조회)
+// 예: '아파요' → { base: '아프', tense: 'present' }
+// =====================================
+type ConjugationIndex = Map<string, { base: string; tense: string }>;
+
+function buildConjugationIndex(): ConjugationIndex {
+  const index = new Map<string, { base: string; tense: string }>();
+  for (const item of KOREAN_IRREGULARS) {
+    const { base, conjugations } = item;
+    if (conjugations.past) {
+      index.set(conjugations.past, { base, tense: 'past' });
+    }
+    if (conjugations.present) {
+      index.set(conjugations.present, { base, tense: 'present' });
+    }
+    if (conjugations.polite) {
+      index.set(conjugations.polite, { base, tense: 'present' });
+    }
+    if (conjugations.future) {
+      index.set(conjugations.future, { base, tense: 'future' });
+    }
+    if (conjugations.progressive) {
+      index.set(conjugations.progressive, { base, tense: 'progressive' });
+    }
+  }
+  return index;
+}
+
+const CONJUGATION_INDEX = buildConjugationIndex();
+
 // 한국어 조사 목록 (길이순 정렬 - 긴 것부터 매칭)
 const KOREAN_PARTICLES = [
   '에서는',
@@ -270,11 +311,21 @@ const KOREAN_ADVERBIAL_ENDINGS: Record<string, { en: string; type: string }> = {
 
 // 한국어 종결 어미 (시제/형태 추출, 길이순 정렬)
 const KOREAN_ENDINGS: Record<string, { tense: string; form: string }> = {
-  // 긴 어미부터 매칭
+  // 긴 어미부터 매칭 (4글자 이상)
+  았습니다: { tense: 'past', form: 'formal' },
+  었습니다: { tense: 'past', form: 'formal' },
+  였습니다: { tense: 'past', form: 'formal' },
+  했습니다: { tense: 'past', form: 'formal' },
+  습니다: { tense: 'present', form: 'formal' },
+  ㅂ니다: { tense: 'present', form: 'formal' },
   았으며: { tense: 'past', form: 'connective' },
   었으며: { tense: 'past', form: 'connective' },
   였으며: { tense: 'past', form: 'connective' },
-  // 3글자 어미
+  // 3글자 어미 (과거)
+  았어요: { tense: 'past', form: 'polite' },
+  었어요: { tense: 'past', form: 'polite' },
+  였어요: { tense: 'past', form: 'polite' },
+  했어요: { tense: 'past', form: 'polite' },
   았다: { tense: 'past', form: 'declarative' },
   었다: { tense: 'past', form: 'declarative' },
   였다: { tense: 'past', form: 'declarative' },
@@ -283,9 +334,26 @@ const KOREAN_ENDINGS: Record<string, { tense: string; form: string }> = {
   었고: { tense: 'past', form: 'connective' },
   였고: { tense: 'past', form: 'connective' },
   했고: { tense: 'past', form: 'connective' },
+  았어: { tense: 'past', form: 'casual' },
+  었어: { tense: 'past', form: 'casual' },
+  였어: { tense: 'past', form: 'casual' },
+  했어: { tense: 'past', form: 'casual' },
+  // 3글자 어미 (현재)
   는다: { tense: 'present', form: 'declarative' },
   ㄴ다: { tense: 'present', form: 'declarative' },
-  // 2글자 어미
+  네요: { tense: 'present', form: 'polite' },
+  // 2글자 어미 (존댓말 현재)
+  아요: { tense: 'present', form: 'polite' },
+  어요: { tense: 'present', form: 'polite' },
+  해요: { tense: 'present', form: 'polite' },
+  여요: { tense: 'present', form: 'polite' },
+  // 2글자 어미 (반말)
+  아: { tense: 'present', form: 'casual' },
+  어: { tense: 'present', form: 'casual' },
+  해: { tense: 'present', form: 'casual' },
+  여: { tense: 'present', form: 'casual' },
+  네: { tense: 'present', form: 'casual' },
+  // 1글자 어미
   다: { tense: 'present', form: 'declarative' },
 };
 
@@ -396,19 +464,29 @@ const KOREAN_IRREGULAR_VERBS: Record<string, { stem: string; tense: string }> = 
  * translateKoToEn('나는 밥을 먹었다') → 'I ate rice'
  */
 export function translateKoToEn(text: string): string {
-  // 0. 사전에서 직접 조회 (최우선)
-  const directTranslation = koToEnWords[text];
-  if (directTranslation) {
-    return directTranslation;
-  }
-
   // 문장인지 단어인지 판별
   const hasSpaces = text.includes(' ');
   const hasCommas = text.includes(',');
 
   if (hasSpaces || hasCommas) {
-    // 문장 수준 번역
+    // 문장 수준 번역 (WSD는 내부에서 처리)
     return translateSentenceKoToEn(text);
+  }
+
+  // 단일 단어: 다의어는 WSD 우선 (문맥 없이는 기본 의미 사용)
+  // 단일 단어인 경우 문맥이 없으므로 기본 가중치 기반으로 의미 선택
+  if (isPolysemous(text)) {
+    const emptyContext: ContextWindow = { before: [], after: [], full: text };
+    const wsdResult = disambiguate(text, emptyContext, null, text);
+    if (wsdResult) {
+      return wsdResult.sense.en;
+    }
+  }
+
+  // 0. 사전에서 직접 조회 (다의어가 아닌 경우)
+  const directTranslation = koToEnWords[text];
+  if (directTranslation) {
+    return directTranslation;
   }
 
   // 단어 수준 번역
@@ -418,9 +496,15 @@ export function translateKoToEn(text: string): string {
 
 /**
  * 문장 수준 한→영 번역
+ * 복합 문장 (연결어미로 연결된 절)을 처리
  */
 function translateSentenceKoToEn(text: string): string {
-  // 1. 쉼표로 절 분리
+  // 복합 문장인지 확인
+  if (isCompoundSentence(text)) {
+    return translateCompoundSentence(text);
+  }
+
+  // 단순 문장 (쉼표로만 분리)
   const clauses = text.split(/,\s*/);
   const translatedClauses: string[] = [];
 
@@ -432,6 +516,31 @@ function translateSentenceKoToEn(text: string): string {
 
   // 절들을 적절한 접속사로 연결
   return translatedClauses.join(', ');
+}
+
+/**
+ * 복합 문장 번역 (연결어미 처리)
+ */
+function translateCompoundSentence(text: string): string {
+  // 1. 절 분리 (연결어미 기반)
+  const clauses = splitIntoClauses(text);
+
+  // 2. 각 절 번역
+  const translatedClauses: Array<{ text: string; connective?: ConnectiveInfo }> = [];
+
+  for (const clause of clauses) {
+    const translated = translateClauseKoToEn(clause.text);
+    translatedClauses.push({
+      text: translated,
+      connective: clause.connective,
+    });
+  }
+
+  // 3. 조건문 재구성 (if 절 처리)
+  const restructured = restructureConditional(translatedClauses);
+
+  // 4. 영어 접속사로 재조립
+  return reassembleWithConjunctions(restructured);
 }
 
 /**
@@ -462,7 +571,7 @@ function translateClauseKoToEn(clause: string): string {
   // 토큰화
   const tokens = processedClause.split(/\s+/).filter((t) => t.trim());
 
-  // 각 토큰 분석 및 번역
+  // 각 토큰 분석 및 번역 (WSD를 위해 인덱스와 전체 토큰 배열 전달)
   const analyzed: Array<{
     original: string;
     translated: string;
@@ -471,8 +580,10 @@ function translateClauseKoToEn(clause: string): string {
     connective?: string;
   }> = [];
 
-  for (const token of tokens) {
-    const result = analyzeAndTranslateToken(token);
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (!token) continue;
+    const result = analyzeAndTranslateToken(token, tokens, i);
     analyzed.push(result);
   }
 
@@ -495,11 +606,20 @@ function translateClauseKoToEn(clause: string): string {
  * 토큰 분석 및 번역
  *
  * 핵심 원칙:
- * 1. 사전 우선 조회 (Longest Match First) - 전체 토큰을 먼저 사전에서 찾기
- * 2. 문맥 기반 역할 판단 - 조사로 역할 결정
- * 3. 형태소 분석은 사전에서 못 찾은 경우에만
+ * 1. 다의어는 WSD 우선 (문맥 기반 의미 선택)
+ * 2. 사전 우선 조회 (Longest Match First) - 전체 토큰을 먼저 사전에서 찾기
+ * 3. 문맥 기반 역할 판단 - 조사로 역할 결정
+ * 4. 형태소 분석은 사전에서 못 찾은 경우에만
+ *
+ * @param token 현재 토큰
+ * @param allTokens 전체 토큰 배열 (WSD 문맥용)
+ * @param tokenIndex 현재 토큰 인덱스 (WSD 문맥용)
  */
-function analyzeAndTranslateToken(token: string): {
+function analyzeAndTranslateToken(
+  token: string,
+  allTokens: string[] = [],
+  tokenIndex = -1,
+): {
   original: string;
   translated: string;
   role: 'subject' | 'object' | 'verb' | 'adverb' | 'modifier' | 'time' | 'location' | 'unknown';
@@ -511,6 +631,12 @@ function analyzeAndTranslateToken(token: string): {
   koreanStem?: string;
   tense?: string;
 } {
+  // WSD를 위한 문맥 윈도우 구성
+  const context: ContextWindow =
+    tokenIndex >= 0
+      ? extractContext(allTokens, tokenIndex)
+      : { before: [], after: [], full: token };
+
   let word = token;
   let particle: string | undefined;
   let connective: string | undefined;
@@ -526,6 +652,25 @@ function analyzeAndTranslateToken(token: string): {
     | 'time'
     | 'location'
     | 'unknown' = 'unknown';
+
+  // === 0-1. 불규칙 활용형 체크 (아파요, 기뻐요, 들어요 등) ===
+  // 예: '아파요' → base: '아프', tense: 'present'
+  const irregularMatch = CONJUGATION_INDEX.get(token);
+  if (irregularMatch) {
+    const stem = irregularMatch.base;
+    const verbTense = irregularMatch.tense;
+    // 어간 번역 (WSD 적용)
+    const translated = translateWord(stem, verbTense, 'verb', context, token);
+    return {
+      original: token,
+      translated,
+      role: 'verb',
+      particle: undefined,
+      connective: undefined,
+      tense: verbTense,
+      koreanStem: stem,
+    };
+  }
 
   // === 0. 사전 우선 조회 (Longest Match First) ===
   // 전체 토큰이 사전에 있으면 바로 반환 (예: 일찍, 오늘, 어제 등)
@@ -694,8 +839,8 @@ function analyzeAndTranslateToken(token: string): {
   // 7. 형용사인지 확인
   const isAdj = KOREAN_ADJECTIVE_STEMS.has(word);
 
-  // 8. 단어 번역
-  let translated = translateWord(word, tense, role);
+  // 8. 단어 번역 (WSD 문맥 전달)
+  let translated = translateWord(word, tense, role, context, token);
 
   // 9. 수식어인 경우 영어 형태 조정
   if (isModifier) {
@@ -761,10 +906,37 @@ function convertToAdverb(adjective: string): string {
 }
 
 /**
- * 단어 번역
+ * 단어 번역 (WSD 우선)
+ *
+ * 다의어(눈, 배, 말 등)는 WSD를 통해 문맥 기반으로 의미를 결정합니다.
+ * WSD 결과가 없으면 사전 조회 → 어간 번역 → 자소 기반 번역 순으로 시도합니다.
+ *
+ * @param word 한국어 어간
+ * @param tense 시제
+ * @param role 문장 역할
+ * @param context 문맥 윈도우 (WSD용)
+ * @param originalToken 원본 토큰 (조사 포함, 패턴 분석용)
  */
-function translateWord(word: string, tense: string, role: string): string {
-  // 1. 사전에서 직접 검색
+function translateWord(
+  word: string,
+  tense: string,
+  role: string,
+  context?: ContextWindow,
+  originalToken?: string,
+): string {
+  // 0. 다의어인 경우 WSD 우선 (눈, 배, 말 등)
+  if (isPolysemous(word) && context) {
+    const wsdResult = disambiguate(word, context, null, originalToken);
+    if (wsdResult) {
+      const englishWord = wsdResult.sense.en;
+      if (role === 'verb' && tense === 'past') {
+        return conjugatePast(englishWord);
+      }
+      return englishWord;
+    }
+  }
+
+  // 1. 사전에서 직접 검색 (다의어가 아닌 경우)
   const directTranslation = koToEnWords[word];
   if (directTranslation) {
     if (role === 'verb' && tense === 'past') {

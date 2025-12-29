@@ -4,9 +4,42 @@
 // ========================================
 
 import { koToEnWords } from '../dictionary';
+import { disambiguate, extractContext, isPolysemous } from '../nlp/wsd';
 import type { Tense, TokenAnalysis } from './morpheme-analyzer';
 import { PARTICLES } from './morpheme-analyzer';
 import type { Constituent, ParsedSentence } from './sentence-parser';
+
+// ========================================
+// WSD 기반 단어 조회 헬퍼
+// 다의어는 WSD로 문맥 기반 의미 선택, 그 외는 사전 직접 조회
+// ========================================
+
+/**
+ * WSD 우선 단어 조회
+ * @param stem 한국어 어간
+ * @param allTokens 전체 토큰 배열 (WSD 문맥용)
+ * @param tokenIndex 현재 토큰 인덱스
+ * @param originalToken 원본 토큰 (조사 포함)
+ * @returns 영어 번역 또는 원본 어간
+ */
+function lookupWithWsd(
+  stem: string,
+  allTokens: string[] = [],
+  tokenIndex = -1,
+  originalToken?: string,
+): string {
+  // 다의어인 경우 WSD 우선
+  if (isPolysemous(stem) && allTokens.length > 0 && tokenIndex >= 0) {
+    const context = extractContext(allTokens, tokenIndex);
+    const wsdResult = disambiguate(stem, context, null, originalToken);
+    if (wsdResult) {
+      return wsdResult.sense.en;
+    }
+  }
+
+  // 사전에서 직접 조회
+  return koToEnWords[stem] || stem;
+}
 
 // ========================================
 // 영어 동사 불규칙 변화표
@@ -531,11 +564,18 @@ const MANNER_ADVERBS = new Set([
 function translateToken(
   token: TokenAnalysis,
   verbInfo?: { stem: string; english: string },
+  wsdContext?: { allTokens: string[]; tokenIndex: number },
 ): string {
   const stem = token.stem;
 
-  // 사전에서 검색 (원본 먼저, 그 다음 어간)
-  const english = koToEnWords[token.original] || koToEnWords[stem] || stem;
+  // WSD 우선 조회 (다의어인 경우 문맥 기반 의미 선택)
+  let english: string;
+  if (wsdContext && isPolysemous(stem)) {
+    english = lookupWithWsd(stem, wsdContext.allTokens, wsdContext.tokenIndex, token.original);
+  } else {
+    // 사전에서 검색 (원본 먼저, 그 다음 어간)
+    english = koToEnWords[token.original] || koToEnWords[stem] || stem;
+  }
 
   // 시간 표현이면 전치사 없이 바로 반환
   if (TIME_EXPRESSIONS_NO_PREPOSITION.has(english.toLowerCase())) {
@@ -737,6 +777,7 @@ function translateConstituent(
   addArticle: boolean = false,
   isSubject: boolean = false,
   verbInfo?: { stem: string; english: string },
+  wsdContext?: { allTokens: string[]; tokenStartIndex: number },
 ): string {
   const parts: string[] = [];
 
@@ -761,7 +802,9 @@ function translateConstituent(
     return `${preposition} the ${placeText}`;
   }
 
-  for (const token of constituent.tokens) {
+  for (let i = 0; i < constituent.tokens.length; i++) {
+    const token = constituent.tokens[i];
+    if (!token) continue;
     // 부정 부사(안, 못)는 건너뛰기 - 동사 활용에서 처리됨
     if (
       token.stem === '안' ||
@@ -771,7 +814,11 @@ function translateConstituent(
     ) {
       continue;
     }
-    const translated = translateToken(token, verbInfo);
+    // WSD 컨텍스트 전달 (토큰 인덱스 계산)
+    const tokenWsdContext = wsdContext
+      ? { allTokens: wsdContext.allTokens, tokenIndex: wsdContext.tokenStartIndex + i }
+      : undefined;
+    const translated = translateToken(token, verbInfo, tokenWsdContext);
     parts.push(translated);
   }
 
@@ -1532,6 +1579,35 @@ export function generateEnglish(
   // 사용된 modifier 추적 (go shopping 등의 복합표현에서 사용된 것 제외)
   const usedModifierIndices = new Set<number>();
 
+  // WSD 문맥을 위한 토큰 배열 준비 (다의어 해소용)
+  const allTokenStems = parsed.tokens.map((t) => t.original);
+
+  // WSD 적용 단어 조회 헬퍼 (문맥 포함)
+  const _lookupWord = (stem: string, tokenIndex: number, original?: string) =>
+    lookupWithWsd(stem, allTokenStems, tokenIndex, original);
+  void _lookupWord; // Reserved for future use
+
+  // Constituent의 첫 토큰 인덱스 찾기 (WSD 컨텍스트용)
+  const findConstituentStartIndex = (constituent: Constituent): number => {
+    const firstToken = constituent.tokens[0];
+    if (!firstToken) return 0;
+    return parsed.tokens.findIndex((t) => t.original === firstToken.original);
+  };
+
+  // 주어/목적어 등 Constituent를 WSD 컨텍스트와 함께 번역
+  const translateConstituentWithWsd = (
+    constituent: Constituent,
+    addArticle: boolean = false,
+    isSubject: boolean = false,
+    verbInfo?: { stem: string; english: string },
+  ) => {
+    const startIndex = findConstituentStartIndex(constituent);
+    return translateConstituent(constituent, addArticle, isSubject, verbInfo, {
+      allTokens: allTokenStems,
+      tokenStartIndex: startIndex,
+    });
+  };
+
   // ========================================
   // 순수 감탄문 처리: predicate가 없는 문장
   // 예: "야 진짜 대박!" → "OMG!"
@@ -1636,7 +1712,7 @@ export function generateEnglish(
       subjectEn = inferSubject(parsed);
     }
   } else if (parsed.subject) {
-    subjectEn = translateConstituent(parsed.subject, false, true); // isSubject = true
+    subjectEn = translateConstituentWithWsd(parsed.subject, false, true); // isSubject = true, WSD 적용
     detectedSubject = subjectEn; // 명시된 주어 저장
     // 대명사가 아닌 경우 대문자로 시작
     if (!['I', 'you', 'he', 'she', 'it', 'we', 'they'].includes(subjectEn.toLowerCase())) {
@@ -1892,7 +1968,7 @@ export function generateEnglish(
 
       // 목적어 추가 (복합동사가 아닌 경우에만)
       if (parsed.object && !skipObject) {
-        const objectEn = translateConstituent(parsed.object, true);
+        const objectEn = translateConstituentWithWsd(parsed.object, true); // WSD 적용
         // 동사에 따른 목적어 전치사 추가
         const objPreposition = VERBS_WITH_OBJECT_PREPOSITION[finalVerbEn.toLowerCase()];
         if (objPreposition) {
@@ -2160,7 +2236,7 @@ export function generateEnglish(
 
     // 4. 목적어 추가 (SVO 어순)
     if (parsed.object) {
-      const objectEn = translateConstituent(parsed.object, true);
+      const objectEn = translateConstituentWithWsd(parsed.object, true);
 
       // 동사에 따른 목적어 전치사 추가 (listen to music, look at the picture 등)
       const predicateTokenForObj = parsed.predicate?.tokens[0];
@@ -2190,7 +2266,7 @@ export function generateEnglish(
   for (let advIdx = 0; advIdx < parsed.adverbials.length; advIdx++) {
     if (usedSvcAdverbialIndices.has(advIdx)) continue; // SVC에서 사용된 부사어 건너뛰기
     const adv = parsed.adverbials[advIdx];
-    const advEn = translateConstituent(adv, false, false, verbInfo);
+    const advEn = translateConstituentWithWsd(adv, false, false, verbInfo);
     const advType = classifyAdverb(advEn, adv);
     adverbTranslations.push({ text: advEn, type: advType });
   }

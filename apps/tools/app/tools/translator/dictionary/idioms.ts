@@ -639,10 +639,27 @@ export const enToKoIdioms: Record<string, string> = {
 };
 
 // ========================================
-// 유틸리티 함수
+// 유틸리티 함수 및 인덱스
 // ========================================
 
-// 길이로 정렬된 관용어 목록 (긴 것부터 매칭)
+// O(1) 조회를 위한 Map 기반 인덱스
+// key: 정규화된 관용어 문자열, value: IdiomEntry
+const idiomMap = new Map<string, IdiomEntry>();
+const variantToIdiomMap = new Map<string, IdiomEntry>();
+
+// 초기화: 모든 idiom과 variant를 Map에 등록
+for (const idiom of idioms) {
+  const normalizedKo = idiom.ko.replace(/\s+/g, ' ').trim();
+  idiomMap.set(normalizedKo, idiom);
+  if (idiom.variants) {
+    for (const v of idiom.variants) {
+      const normalizedV = v.replace(/\s+/g, ' ').trim();
+      variantToIdiomMap.set(normalizedV, idiom);
+    }
+  }
+}
+
+// 길이로 정렬된 관용어 목록 (긴 것부터 매칭) - 부분 매칭용
 // variants도 포함하여 모든 패턴을 길이순으로 정렬
 interface IdiomPattern {
   pattern: string;
@@ -659,7 +676,13 @@ for (const idiom of idioms) {
 }
 const sortedPatterns = allPatterns.sort((a, b) => b.pattern.length - a.pattern.length);
 
-// 영→한 관용어 정렬 캐시 (긴 것부터)
+// 영→한 관용어 Map (O(1) 조회)
+const enToKoIdiomMap = new Map<string, string>();
+for (const [en, ko] of Object.entries(enToKoIdioms)) {
+  enToKoIdiomMap.set(en.toLowerCase(), ko);
+}
+
+// 영→한 관용어 정렬 캐시 (긴 것부터) - 부분 매칭용
 const sortedEnIdiomsCached = Object.entries(enToKoIdioms).sort(([a], [b]) => b.length - a.length);
 
 // 정규화 함수 (공백 제거 등)
@@ -799,16 +822,35 @@ export function matchEnIdioms(text: string): {
 }
 
 /**
- * 단일 관용어 조회
+ * 단일 관용어 조회 - O(1) Map 기반
  */
 export function lookupKoIdiom(text: string): IdiomEntry | undefined {
   const normalized = normalizeForMatching(text);
-  return idioms.find((idiom) => idiom.ko === normalized || idiom.variants?.includes(normalized));
+  // Map에서 O(1) 조회 (이전: O(n) 선형 탐색)
+  return idiomMap.get(normalized) ?? variantToIdiomMap.get(normalized);
 }
 
 /**
- * 카테고리별 관용어 조회
+ * 영어 관용어 단일 조회 - O(1) Map 기반
+ */
+export function lookupEnIdiom(text: string): string | undefined {
+  return enToKoIdiomMap.get(text.toLowerCase());
+}
+
+// 카테고리별 인덱스 (O(1) 조회)
+const idiomsByCategory = new Map<IdiomCategory, IdiomEntry[]>();
+for (const idiom of idioms) {
+  const existing = idiomsByCategory.get(idiom.category) ?? [];
+  existing.push(idiom);
+  idiomsByCategory.set(idiom.category, existing);
+}
+
+/**
+ * 카테고리별 관용어 조회 - O(1) Map 기반
  */
 export function getIdiomsByCategory(category: IdiomCategory): IdiomEntry[] {
-  return idioms.filter((idiom) => idiom.category === category);
+  return idiomsByCategory.get(category) ?? [];
 }
+
+// Map 인덱스 export (외부에서 직접 접근 가능)
+export { idiomMap, variantToIdiomMap, enToKoIdiomMap, idiomsByCategory };

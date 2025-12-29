@@ -3,7 +3,40 @@
 // 어간/어미/조사 분리 + 불규칙 활용 처리
 // ========================================
 
+import { KOREAN_IRREGULARS } from '../dictionary/exceptions/irregulars';
 import { isHangul } from '../hangul';
+
+// =====================================
+// 불규칙 활용형 → 기본형 역 인덱스 (O(1) 조회)
+// 예: '아파요' → { base: '아프', tense: 'present' }
+// =====================================
+type ConjugationInfo = { base: string; tense: 'present' | 'past' | 'future' | 'progressive' };
+type ConjugationIndex = Map<string, ConjugationInfo>;
+
+function buildConjugationIndex(): ConjugationIndex {
+  const index = new Map<string, ConjugationInfo>();
+  for (const item of KOREAN_IRREGULARS) {
+    const { base, conjugations } = item;
+    if (conjugations.past) {
+      index.set(conjugations.past, { base, tense: 'past' });
+    }
+    if (conjugations.present) {
+      index.set(conjugations.present, { base, tense: 'present' });
+    }
+    if (conjugations.polite) {
+      index.set(conjugations.polite, { base, tense: 'present' });
+    }
+    if (conjugations.future) {
+      index.set(conjugations.future, { base, tense: 'future' });
+    }
+    if (conjugations.progressive) {
+      index.set(conjugations.progressive, { base, tense: 'progressive' });
+    }
+  }
+  return index;
+}
+
+const IRREGULAR_CONJUGATION_INDEX = buildConjugationIndex();
 
 // 품사 타입
 export type PartOfSpeech =
@@ -1226,7 +1259,19 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
     return result;
   }
 
-  // 1.5. 순수 부사 확인 (조사 없이 단독으로 부사어 역할)
+  // 1.5. 불규칙 활용형 체크 (아파요, 기뻐요, 들어요 등 ㅡ/ㄷ/ㅂ 불규칙)
+  // 예: '아파요' → base: '아프', tense: 'present'
+  const irregularMatch = IRREGULAR_CONJUGATION_INDEX.get(cleanWord);
+  if (irregularMatch) {
+    result.stem = irregularMatch.base;
+    result.pos = 'verb';
+    result.role = 'predicate';
+    result.tense = irregularMatch.tense;
+    result.formality = 'polite';
+    return result;
+  }
+
+  // 1.6. 순수 부사 확인 (조사 없이 단독으로 부사어 역할)
   if (PURE_ADVERBS.has(cleanWord)) {
     result.stem = cleanWord;
     result.pos = 'adverb';

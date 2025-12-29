@@ -1,7 +1,9 @@
 // ========================================
 // Dictionary Index - 고성능 사전 인덱스
-// Map 기반 O(1) 조회, 청크 로딩 지원
+// Map 기반 O(1) 조회, Trie 기반 O(k) prefix 검색, 청크 로딩 지원
 // ========================================
+
+import type { PrefixTrie } from '../trie/prefix-trie';
 
 /**
  * 사전 엔트리 타입
@@ -58,11 +60,20 @@ export class DictionaryIndex {
   /** 등록된 청크 */
   private chunks: Map<string, DictionaryChunk>;
 
-  constructor() {
+  /** Trie 인덱스 (O(k) prefix 검색용) */
+  private prefixTrie: PrefixTrie | null;
+
+  /** Trie 사용 여부 (큰 사전에서만 활성화) */
+  private useTrieThreshold: number;
+
+  constructor(options?: { useTrieThreshold?: number }) {
     this.entries = new Map();
     this.reverseEntries = new Map();
     this.loadedChunks = new Set();
     this.chunks = new Map();
+    this.prefixTrie = null;
+    // 1000개 이상이면 Trie 사용 (기본값)
+    this.useTrieThreshold = options?.useTrieThreshold ?? 1000;
   }
 
   /**
@@ -276,21 +287,113 @@ export class DictionaryIndex {
   }
 
   /**
-   * 접두사로 시작하는 단어 검색
+   * 접두사로 시작하는 단어 검색 (Trie 사용 시 O(k))
    * @param prefix 접두사
    * @param limit 최대 결과 수
    */
   searchByPrefix(prefix: string, limit = 10): string[] {
-    const results: string[] = [];
+    // Trie가 있으면 O(k) 검색
+    if (this.prefixTrie) {
+      return this.prefixTrie.searchPrefix(prefix, limit);
+    }
 
+    // Trie 없으면 O(n) fallback
+    const results: string[] = [];
     for (const word of this.entries.keys()) {
       if (word.startsWith(prefix)) {
         results.push(word);
         if (results.length >= limit) break;
       }
     }
-
     return results;
+  }
+
+  /**
+   * 문자열에서 가장 긴 매칭 접두사 찾기 (Trie 사용 시 O(k))
+   * @param text 검색할 문자열
+   * @returns 가장 긴 매칭 단어와 번역, 없으면 null
+   *
+   * @example
+   * dict.longestPrefixMatch('학교에서') // { word: '학교', translation: 'school' }
+   */
+  longestPrefixMatch(
+    text: string,
+  ): { word: string; translation: string; info: Record<string, unknown> | null } | null {
+    // Trie가 있으면 O(k) 검색
+    if (this.prefixTrie) {
+      return this.prefixTrie.longestPrefix(text);
+    }
+
+    // Trie 없으면 O(n) fallback - 가장 긴 매칭 찾기
+    let longest: {
+      word: string;
+      translation: string;
+      info: Record<string, unknown> | null;
+    } | null = null;
+    for (const [word, entries] of this.entries) {
+      if (text.startsWith(word)) {
+        if (!longest || word.length > longest.word.length) {
+          const entry = entries[0];
+          if (entry) {
+            longest = {
+              word,
+              translation: entry.translation,
+              info: entry.meta ?? null,
+            };
+          }
+        }
+      }
+    }
+    return longest;
+  }
+
+  /**
+   * Trie 인덱스 수동 빌드 (대용량 사전용)
+   * 사전에 많은 단어가 있을 때 prefix 검색 성능 향상
+   */
+  async buildPrefixTrie(): Promise<void> {
+    // 동적 import로 PrefixTrie 로드
+    const { PrefixTrie: TrieClass } = await import('../trie/prefix-trie');
+    this.prefixTrie = new TrieClass();
+
+    for (const [word, entries] of this.entries) {
+      const entry = entries[0];
+      if (entry) {
+        this.prefixTrie.insert(word, entry.translation, entry.meta);
+      }
+    }
+  }
+
+  /**
+   * Trie 인덱스 동기 빌드 (작은 사전용)
+   * 빌드 시점에 사용하거나 소규모 사전에서 사용
+   */
+  buildPrefixTrieSync(TrieClass: new () => PrefixTrie): void {
+    this.prefixTrie = new TrieClass();
+
+    for (const [word, entries] of this.entries) {
+      const entry = entries[0];
+      if (entry) {
+        this.prefixTrie.insert(word, entry.translation, entry.meta);
+      }
+    }
+  }
+
+  /**
+   * Trie 인덱스 존재 여부
+   */
+  hasTrieIndex(): boolean {
+    return this.prefixTrie !== null;
+  }
+
+  /**
+   * 자동 Trie 빌드 (threshold 초과 시)
+   * addEntry 후 size가 threshold를 넘으면 자동으로 Trie 빌드
+   */
+  async maybeAutoIndex(): Promise<void> {
+    if (this.prefixTrie === null && this.entries.size >= this.useTrieThreshold) {
+      await this.buildPrefixTrie();
+    }
   }
 
   /**

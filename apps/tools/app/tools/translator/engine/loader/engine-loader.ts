@@ -248,3 +248,250 @@ export async function initializeEngine(config?: EngineConfig): Promise<Translato
 export function getEngineSync(): TranslatorEngine | null {
   return engineInstance;
 }
+
+// ========================================
+// 런타임 스트리밍 청크 로더 (100K+ 확장용)
+// ========================================
+
+/**
+ * 청크 우선순위 레벨
+ */
+export type ChunkPriority = 'critical' | 'high' | 'medium' | 'low' | 'lazy';
+
+/**
+ * 스트리밍 청크 정의
+ */
+export interface StreamingChunkDef {
+  id: string;
+  priority: ChunkPriority;
+  /** 예상 크기 (KB) */
+  sizeKB: number;
+  /** 청크 URL 또는 동적 import 함수 */
+  loader: () => Promise<Record<string, string>>;
+  /** 청크에 포함된 단어 prefix 패턴 (Trie 빌드용) */
+  prefixes?: string[];
+}
+
+/**
+ * 스트리밍 로더 옵션
+ */
+interface StreamingLoaderOptions {
+  /** 동시 로딩 청크 수 (기본 3) */
+  concurrency?: number;
+  /** 청크 로딩 타임아웃 (ms, 기본 5000) */
+  timeout?: number;
+  /** 로딩 진행 콜백 */
+  onProgress?: (loaded: number, total: number, chunkId: string) => void;
+  /** 에러 콜백 */
+  onError?: (chunkId: string, error: Error) => void;
+}
+
+/**
+ * 스트리밍 청크 로더
+ * 100K+ 단어를 청크 단위로 점진적 로딩
+ *
+ * @example
+ * const loader = new StreamingChunkLoader(engine, { concurrency: 2 });
+ *
+ * // 필수 청크 등록 (즉시 로드)
+ * loader.registerChunk({ id: 'core', priority: 'critical', ... });
+ *
+ * // 선택 청크 등록 (지연 로드)
+ * loader.registerChunk({ id: 'idioms', priority: 'low', ... });
+ *
+ * // 필수 청크 로드
+ * await loader.loadCritical();
+ *
+ * // 백그라운드에서 나머지 로드
+ * loader.loadRemaining();
+ */
+export class StreamingChunkLoader {
+  private engine: TranslatorEngine;
+  private chunks: Map<string, StreamingChunkDef> = new Map();
+  private loadedChunks: Set<string> = new Set();
+  private loadingPromises: Map<string, Promise<boolean>> = new Map();
+  private options: Required<StreamingLoaderOptions>;
+
+  constructor(engine: TranslatorEngine, options: StreamingLoaderOptions = {}) {
+    this.engine = engine;
+    this.options = {
+      concurrency: options.concurrency ?? 3,
+      timeout: options.timeout ?? 5000,
+      onProgress: options.onProgress ?? (() => {}),
+      onError: options.onError ?? (() => {}),
+    };
+  }
+
+  /**
+   * 청크 등록
+   */
+  registerChunk(chunk: StreamingChunkDef): void {
+    this.chunks.set(chunk.id, chunk);
+  }
+
+  /**
+   * 여러 청크 등록
+   */
+  registerChunks(chunks: StreamingChunkDef[]): void {
+    for (const chunk of chunks) {
+      this.registerChunk(chunk);
+    }
+  }
+
+  /**
+   * 청크 로드 (중복 방지)
+   */
+  async loadChunk(chunkId: string): Promise<boolean> {
+    // 이미 로드됨
+    if (this.loadedChunks.has(chunkId)) {
+      return true;
+    }
+
+    // 이미 로딩 중
+    const existingPromise = this.loadingPromises.get(chunkId);
+    if (existingPromise) {
+      return existingPromise;
+    }
+
+    const chunk = this.chunks.get(chunkId);
+    if (!chunk) {
+      return false;
+    }
+
+    // 타임아웃 래핑
+    const loadPromise = this.loadWithTimeout(chunk);
+    this.loadingPromises.set(chunkId, loadPromise);
+
+    const result = await loadPromise;
+    this.loadingPromises.delete(chunkId);
+
+    if (result) {
+      this.loadedChunks.add(chunkId);
+      this.options.onProgress(this.loadedChunks.size, this.chunks.size, chunkId);
+    }
+
+    return result;
+  }
+
+  /**
+   * 타임아웃 포함 로딩
+   */
+  private async loadWithTimeout(chunk: StreamingChunkDef): Promise<boolean> {
+    return Promise.race([
+      this.doLoad(chunk),
+      new Promise<boolean>((_, reject) =>
+        setTimeout(() => reject(new Error(`Chunk ${chunk.id} timeout`)), this.options.timeout),
+      ),
+    ]).catch((error) => {
+      this.options.onError(chunk.id, error);
+      return false;
+    });
+  }
+
+  /**
+   * 실제 로딩 수행
+   */
+  private async doLoad(chunk: StreamingChunkDef): Promise<boolean> {
+    try {
+      const data = await chunk.loader();
+      this.engine.loadKoToEnDictionary(data);
+      return true;
+    } catch (error) {
+      this.options.onError(chunk.id, error as Error);
+      return false;
+    }
+  }
+
+  /**
+   * Critical 청크만 로드 (초기화 시 사용)
+   */
+  async loadCritical(): Promise<void> {
+    const critical = [...this.chunks.values()].filter((c) => c.priority === 'critical');
+    await Promise.all(critical.map((c) => this.loadChunk(c.id)));
+  }
+
+  /**
+   * 우선순위 순서로 모든 청크 로드
+   */
+  async loadAll(): Promise<void> {
+    const sorted = this.getSortedChunks();
+    await this.loadInBatches(sorted.map((c) => c.id));
+  }
+
+  /**
+   * 남은 청크 백그라운드 로드 (non-blocking)
+   */
+  loadRemaining(): void {
+    const remaining = [...this.chunks.values()].filter((c) => !this.loadedChunks.has(c.id));
+    const sorted = remaining.sort((a, b) => this.priorityScore(a) - this.priorityScore(b));
+
+    // Fire and forget
+    this.loadInBatches(sorted.map((c) => c.id)).catch(() => {});
+  }
+
+  /**
+   * 배치 로딩 (동시성 제어)
+   */
+  private async loadInBatches(chunkIds: string[]): Promise<void> {
+    const batches: string[][] = [];
+    for (let i = 0; i < chunkIds.length; i += this.options.concurrency) {
+      batches.push(chunkIds.slice(i, i + this.options.concurrency));
+    }
+
+    for (const batch of batches) {
+      await Promise.all(batch.map((id) => this.loadChunk(id)));
+    }
+  }
+
+  /**
+   * 청크 우선순위 정렬
+   */
+  private getSortedChunks(): StreamingChunkDef[] {
+    return [...this.chunks.values()].sort((a, b) => this.priorityScore(a) - this.priorityScore(b));
+  }
+
+  /**
+   * 우선순위 점수 (낮을수록 먼저 로드)
+   */
+  private priorityScore(chunk: StreamingChunkDef): number {
+    const scores: Record<ChunkPriority, number> = {
+      critical: 0,
+      high: 1,
+      medium: 2,
+      low: 3,
+      lazy: 4,
+    };
+    return scores[chunk.priority];
+  }
+
+  /**
+   * 로딩 상태
+   */
+  getStatus(): {
+    total: number;
+    loaded: number;
+    loading: number;
+    remaining: number;
+  } {
+    return {
+      total: this.chunks.size,
+      loaded: this.loadedChunks.size,
+      loading: this.loadingPromises.size,
+      remaining: this.chunks.size - this.loadedChunks.size,
+    };
+  }
+
+  /**
+   * 특정 prefix를 포함하는 청크 찾기 및 로드
+   */
+  async loadForPrefix(prefix: string): Promise<boolean> {
+    for (const [id, chunk] of this.chunks) {
+      if (this.loadedChunks.has(id)) continue;
+
+      if (chunk.prefixes?.some((p) => prefix.startsWith(p))) {
+        return this.loadChunk(id);
+      }
+    }
+    return false;
+  }
+}

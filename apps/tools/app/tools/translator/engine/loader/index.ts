@@ -15,9 +15,12 @@ export {
   requiredChunks,
 } from './chunk-definitions';
 export {
+  type ChunkPriority,
   createEngineFromLegacy,
   EngineLoader,
   getEngine,
   getEngineSync,
   initializeEngine,
+  type StreamingChunkDef,
+  StreamingChunkLoader,
 } from './engine-loader';

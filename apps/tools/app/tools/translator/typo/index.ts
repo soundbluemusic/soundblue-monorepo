@@ -27,8 +27,11 @@ export {
   correctDependencyNounSpacing,
   correctParticleSpacing,
   correctSpacing,
+  correctSpacingFull,
   dependencyNouns,
+  dpWordSplit,
   particles,
+  recoverSpacing,
 } from './spacing-rules';
 // 메인 교정기
 export {

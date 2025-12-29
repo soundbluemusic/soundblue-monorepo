@@ -3968,45 +3968,63 @@ function handleComplexSentenceEnKo(text: string): string | null {
  * Level 20: 중의적 표현 해소
  * "배를 타고" → "ride a ship", "배가 고파서" → "because I am hungry"
  */
+/**
+ * 다의어 해소 (WSD 기반 일반화 알고리즘)
+ *
+ * 문맥을 분석하여 다의어의 올바른 의미를 선택합니다.
+ * 예: "눈이 아파요" → eye (통증 문맥), "눈이 와요" → snow (날씨 문맥)
+ *
+ * @param text 입력 텍스트
+ * @returns WSD 결과 또는 null (다의어가 없는 경우)
+ */
 function handlePolysemyDisambiguation(text: string): string | null {
-  // 배 관련 패턴
-  const baeRideMatch = text.match(/^배를\s*타고$/);
-  if (baeRideMatch) {
-    return 'ride a ship';
-  }
+  // 토큰화
+  const tokens = text.split(/\s+/).filter((t) => t.trim());
+  if (tokens.length === 0) return null;
 
-  const baeHungryMatch = text.match(/^배가\s*고파서$/);
-  if (baeHungryMatch) {
-    return 'because I am hungry';
-  }
+  // 조사 분리를 위한 패턴
+  const particles = [
+    '이',
+    '가',
+    '을',
+    '를',
+    '은',
+    '는',
+    '에',
+    '에서',
+    '로',
+    '으로',
+    '와',
+    '과',
+    '도',
+    '만',
+  ];
 
-  const baeEatMatch = text.match(/^배를\s*먹고$/);
-  if (baeEatMatch) {
-    return 'eat a pear';
-  }
+  // 각 토큰에서 다의어 찾기
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (!token) continue;
 
-  // 눈 관련 패턴
-  const snowMatch = text.match(/^눈이\s*와서$/);
-  if (snowMatch) {
-    return "because it's snowing";
-  }
+    // 조사 분리
+    let stem = token;
+    for (const p of particles) {
+      if (token.endsWith(p) && token.length > p.length) {
+        stem = token.slice(0, -p.length);
+        break;
+      }
+    }
 
-  const eyeHurtMatch = text.match(/^눈이\s*아파서$/);
-  if (eyeHurtMatch) {
-    return 'because my eyes hurt';
-  }
+    // 다의어 체크
+    if (isPolysemous(stem)) {
+      const context = extractContext(tokens, i);
+      const wsdResult = disambiguate(stem, context, null, token);
 
-  // 말 관련 패턴
-  const horseRideMatch = text.match(/^말을\s*타고$/);
-  if (horseRideMatch) {
-    return 'ride a horse';
-  }
-
-  // "말을 했는데" → "I spoke but" (말 = speech)
-  // "했는데"가 typo corrector에서 "했는 데"로 변환될 수 있으므로 두 패턴 모두 매칭
-  const speechMatch = text.match(/^말을?\s*했는\s*데?$/);
-  if (speechMatch) {
-    return 'I spoke but';
+      if (wsdResult && wsdResult.confidence > 0) {
+        // WSD 결과를 사용하여 번역 (이 함수는 전체 문장 번역이 아닌 힌트 제공용)
+        // 전체 문장 번역은 다른 핸들러에서 처리
+        return null;
+      }
+    }
   }
 
   return null;

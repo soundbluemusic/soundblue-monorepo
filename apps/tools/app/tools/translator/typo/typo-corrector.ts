@@ -5,13 +5,7 @@
 
 import { correctAllCommonTypos, isCommonTypo } from './common-typos';
 import { calculateKeyboardSimilarity, jamoEditDistance } from './jamo-edit-distance';
-import {
-  correctAuxiliaryVerbSpacing,
-  correctDependencyNounSpacing,
-  correctNounVerbSpacing,
-  correctParticleSpacing,
-  correctSpacing,
-} from './spacing-rules';
+import { correctSpacing, correctSpacingFull } from './spacing-rules';
 
 /**
  * 교정 결과 인터페이스
@@ -216,24 +210,13 @@ export function extractTypoCandidates(
 }
 
 /**
- * 띄어쓰기만 교정
+ * 띄어쓰기만 교정 (DP + 규칙 기반)
+ * 붙어쓴 문장도 분리 가능
  */
 export function correctSpacingOnly(text: string): string {
-  let result = text;
-
-  // 명사-동사 경계 분리
-  result = correctNounVerbSpacing(result);
-
-  // 의존명사 띄어쓰기
-  result = correctDependencyNounSpacing(result);
-
-  // 보조용언 띄어쓰기
-  result = correctAuxiliaryVerbSpacing(result);
-
-  // 조사 붙여쓰기
-  result = correctParticleSpacing(result);
-
-  return result;
+  // DP 기반 분리 + 규칙 기반 교정 통합
+  const { corrected } = correctSpacingFull(text);
+  return corrected;
 }
 
 /**
