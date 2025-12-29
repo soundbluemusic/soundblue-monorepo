@@ -19,6 +19,17 @@ export function ChatContainer() {
   // Refs for stable callback access (prevents unnecessary re-renders)
   const userMessageCountRef = useRef(userMessageCount);
   const localMessagesRef = useRef(localMessages);
+  const isMountedRef = useRef(true);
+  const navigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Track mounted state and cleanup timeouts
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (navigateTimeoutRef.current) clearTimeout(navigateTimeoutRef.current);
+    };
+  }, []);
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -114,8 +125,9 @@ export function ChatContainer() {
         const currentPath = location.pathname.replace(/^\/(ko|en)/, '') || '/';
         const newPath = getLocalizedPath(currentPath, languageSwitch.targetLocale);
 
-        setTimeout(() => {
-          navigate(newPath);
+        if (navigateTimeoutRef.current) clearTimeout(navigateTimeoutRef.current);
+        navigateTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) navigate(newPath);
         }, 500);
         return;
       }
@@ -208,6 +220,9 @@ export function ChatContainer() {
       // LLM-like response time: 0.1s ~ 0.5s (100ms ~ 500ms)
       await new Promise((resolve) => setTimeout(resolve, 100 + Math.random() * 400));
 
+      // Check if component is still mounted after async delay
+      if (!isMountedRef.current) return;
+
       // Perform advanced NLU analysis
       const nluResult = analyzeInput(content, locale);
 
@@ -237,6 +252,9 @@ export function ChatContainer() {
         timestamp: Date.now(),
       };
       addToContext(turn);
+
+      // Final check before state updates
+      if (!isMountedRef.current) return;
 
       if (isGhostMode && userMessageCountRef.current < 3) {
         setLocalMessages((prev) => [...prev, assistantMessage]);

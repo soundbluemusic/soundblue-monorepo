@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import m from '~/lib/messages';
 import type { Message } from '~/stores';
 
@@ -9,12 +9,27 @@ interface ChatMessageProps {
 export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user';
   const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCopy = async () => {
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     try {
       await navigator.clipboard.writeText(message.content);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      timeoutRef.current = setTimeout(() => setCopied(false), 1500);
     } catch {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
@@ -24,7 +39,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       document.execCommand('copy');
       document.body.removeChild(textArea);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      timeoutRef.current = setTimeout(() => setCopied(false), 1500);
     }
   };
 

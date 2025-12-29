@@ -51,7 +51,13 @@ export function SearchBox() {
       e.preventDefault();
       inputRef.current?.focus();
     }
-    if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
+    // Safe tagName check - ensure e.target is an Element
+    const target = e.target;
+    if (
+      e.key === '/' &&
+      target instanceof Element &&
+      !['INPUT', 'TEXTAREA'].includes(target.tagName)
+    ) {
       e.preventDefault();
       inputRef.current?.focus();
     }

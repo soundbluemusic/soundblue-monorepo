@@ -116,9 +116,11 @@ export function ErrorBoundary() {
   const error = useRouteError();
   const location = useLocation();
 
-  // Sync Paraglide locale with URL
-  const locale = getLocaleFromPath(location.pathname);
-  safeSetLocale(locale);
+  // Sync Paraglide locale with URL (in effect to avoid render-time side effects)
+  useEffect(() => {
+    const locale = getLocaleFromPath(location.pathname);
+    safeSetLocale(locale);
+  }, [location.pathname]);
 
   let message = m['common.errorTitle']();
   let details = m['common.errorUnexpected']();

@@ -67,6 +67,14 @@ export function ToolContainer() {
 
   const [urlCopied, setUrlCopied] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const urlCopiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (urlCopiedTimeoutRef.current) clearTimeout(urlCopiedTimeoutRef.current);
+    };
+  }, []);
 
   // useBeforeUnload - 오디오 재생 중 페이지 이탈 경고
   useEffect(() => {
@@ -90,7 +98,16 @@ export function ToolContainer() {
     const params = URL_PARAMS[currentTool];
     let hasUrlSettings = false;
 
-    // Type-safe URL param parsing per tool type
+    // Parameter range constraints for validation
+    const paramRanges: Record<string, { min: number; max: number }> = {
+      bpm: { min: 20, max: 300 },
+      beatsPerMeasure: { min: 1, max: 16 },
+      volume: { min: 0, max: 1 },
+      swing: { min: 0, max: 100 },
+      size: { min: 64, max: 512 },
+    };
+
+    // Type-safe URL param parsing per tool type with range validation
     const parseUrlValue = (
       param: string,
       rawValue: string | null,
@@ -100,10 +117,15 @@ export function ToolContainer() {
       const numericParams = ['bpm', 'beatsPerMeasure', 'volume', 'swing', 'size'];
       if (numericParams.includes(param)) {
         const numValue = Number(rawValue);
-        if (Number.isFinite(numValue)) {
-          return { key: param, value: numValue };
+        if (!Number.isFinite(numValue)) return null;
+
+        // Apply range constraints
+        const range = paramRanges[param];
+        if (range) {
+          const clampedValue = Math.max(range.min, Math.min(range.max, numValue));
+          return { key: param, value: clampedValue };
         }
-        return null;
+        return { key: param, value: numValue };
       }
       return { key: param, value: rawValue };
     };
@@ -202,7 +224,8 @@ export function ToolContainer() {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setUrlCopied(true);
-      setTimeout(() => setUrlCopied(false), 2000);
+      if (urlCopiedTimeoutRef.current) clearTimeout(urlCopiedTimeoutRef.current);
+      urlCopiedTimeoutRef.current = setTimeout(() => setUrlCopied(false), 2000);
     } catch {
       // Clipboard API failed - silent fail in production
     }

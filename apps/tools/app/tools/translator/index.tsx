@@ -36,9 +36,20 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevDirectionRef = useRef(settings.direction);
   const isInitializedRef = useRef(false);
   const directionJustChangedRef = useRef(false);
+
+  // Cleanup all timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      if (shareTimeoutRef.current) clearTimeout(shareTimeoutRef.current);
+    };
+  }, []);
 
   // Load shared translation from URL on mount
   useEffect(() => {
@@ -132,7 +143,8 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
     try {
       await navigator.clipboard.writeText(text);
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => setIsCopied(false), 2000);
     } catch {
       // Clipboard failed
     }
@@ -160,17 +172,20 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
 
     if (result.error) {
       setShareStatus('error');
-      setTimeout(() => setShareStatus('idle'), 3000);
+      if (shareTimeoutRef.current) clearTimeout(shareTimeoutRef.current);
+      shareTimeoutRef.current = setTimeout(() => setShareStatus('idle'), 3000);
       return;
     }
 
     try {
       await navigator.clipboard.writeText(result.url!);
       setShareStatus('copied');
-      setTimeout(() => setShareStatus('idle'), 2000);
+      if (shareTimeoutRef.current) clearTimeout(shareTimeoutRef.current);
+      shareTimeoutRef.current = setTimeout(() => setShareStatus('idle'), 2000);
     } catch {
       setShareStatus('error');
-      setTimeout(() => setShareStatus('idle'), 3000);
+      if (shareTimeoutRef.current) clearTimeout(shareTimeoutRef.current);
+      shareTimeoutRef.current = setTimeout(() => setShareStatus('idle'), 3000);
     }
   }, [inputText, settings.direction]);
 
