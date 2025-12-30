@@ -1,6 +1,6 @@
 // ========================================
-// @soundblue/web-audio - Context
-// Public API
+// @soundblue/web-audio - Context (Noop)
+// Public API for SSR/build time
 // ========================================
 
 export {
@@ -13,4 +13,4 @@ export {
   getSampleRate,
   onAudioContextStateChange,
   resumeAudioContext,
-} from './manager';
+} from './manager.noop';

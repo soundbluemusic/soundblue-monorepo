@@ -1,4 +1,4 @@
-import { getLocaleFromPath, getLocalizedPath } from '@soundblue/shared-react';
+import { getLocaleFromPath, getLocalizedPath } from '@soundblue/i18n';
 import type { MetaFunction } from 'react-router';
 import { Link, useLoaderData, useLocation } from 'react-router';
 import m from '~/lib/messages';

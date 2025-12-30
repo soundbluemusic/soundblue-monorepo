@@ -9,8 +9,10 @@ export {
   decomposeToJamos,
   isAdjacentKey,
   isDoubleConsonantMistake,
+  isKoreanText,
   jamoEditDistance,
   keyboardDistance,
+  levenshteinDistance,
   similarity,
 } from './distance';
 // Irregulars (불규칙)

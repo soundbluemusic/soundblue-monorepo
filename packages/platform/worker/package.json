@@ -1,0 +1,32 @@
+{
+  "name": "@soundblue/worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Web Worker utilities with dual implementation for SSG safety",
+  "exports": {
+    ".": {
+      "types": "./src/types.ts",
+      "browser": "./src/index.browser.ts",
+      "default": "./src/index.noop.ts"
+    },
+    "./types": {
+      "types": "./src/types.ts",
+      "import": "./src/types.ts"
+    }
+  },
+  "main": "./src/index.browser.ts",
+  "types": "./src/types.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  }
+}

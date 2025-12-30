@@ -1,6 +1,6 @@
 'use client';
 
-import { useParaglideI18n } from '@soundblue/shared-react';
+import { useParaglideI18n } from '@soundblue/i18n';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import type { ToolCategory as ToolCategoryType } from '~/lib/toolCategories';

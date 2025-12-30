@@ -1,2 +1,2 @@
-// Re-export from shared package
-export { cn } from '@soundblue/shared-react';
+// Re-export from ui-primitives package
+export { cn } from '@soundblue/ui-primitives';

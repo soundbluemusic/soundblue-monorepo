@@ -1,4 +1,4 @@
-import { useParaglideI18n } from '@soundblue/shared-react';
+import { useParaglideI18n } from '@soundblue/i18n';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { BottomSheet } from '~/components/ui';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useParaglideI18n } from '@soundblue/shared-react';
+import { useParaglideI18n } from '@soundblue/i18n';
 import { Link2, Loader2, X } from 'lucide-react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';

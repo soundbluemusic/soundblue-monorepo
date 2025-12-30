@@ -1,4 +1,5 @@
-import { useParaglideI18n, useTheme } from '@soundblue/shared-react';
+import { useParaglideI18n } from '@soundblue/i18n';
+import { useTheme } from '@soundblue/ui-primitives';
 import { Link } from 'react-router';
 import { SearchBox, ThemeIcon } from '~/components/ui';
 import { ToolsIcon } from '~/constants/icons';

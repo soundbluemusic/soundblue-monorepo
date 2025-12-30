@@ -1,4 +1,4 @@
-import { useParaglideI18n } from '@soundblue/shared-react';
+import { useParaglideI18n } from '@soundblue/i18n';
 import { Link } from 'react-router';
 import { BRAND } from '~/constants';
 import m from '~/lib/messages';

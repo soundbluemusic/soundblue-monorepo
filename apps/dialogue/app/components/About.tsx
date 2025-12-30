@@ -1,4 +1,4 @@
-import { getLocaleFromPath } from '@soundblue/shared-react';
+import { getLocaleFromPath } from '@soundblue/i18n';
 import { Link, useLocation } from 'react-router';
 import m from '~/lib/messages';
 

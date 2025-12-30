@@ -1,4 +1,5 @@
-import { getLocaleFromPath, getLocalizedPath, useTheme } from '@soundblue/shared-react';
+import { getLocaleFromPath, getLocalizedPath } from '@soundblue/i18n';
+import { useTheme } from '@soundblue/ui-primitives';
 import { useCallback, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import m from '~/lib/messages';

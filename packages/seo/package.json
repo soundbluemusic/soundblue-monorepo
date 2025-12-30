@@ -1,0 +1,40 @@
+{
+  "name": "@soundblue/seo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "SEO utilities - meta tags, Open Graph, JSON-LD",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./meta": {
+      "types": "./src/meta/index.ts",
+      "import": "./src/meta/index.ts"
+    },
+    "./structured-data": {
+      "types": "./src/structured-data/index.ts",
+      "import": "./src/structured-data/index.ts"
+    }
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.7",
+    "react": "^19.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  }
+}

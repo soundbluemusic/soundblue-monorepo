@@ -1,3 +1,13 @@
+// ========================================
+// @soundblue/shared-react
+// MIGRATION NOTE: This package is being gradually migrated to:
+// - @soundblue/i18n (i18n utilities)
+// - @soundblue/storage (storage utilities)
+// - @soundblue/seo (SEO/structured data)
+// - @soundblue/pwa (PWA utilities)
+// Continue using this package - re-exports are set up for compatibility.
+// ========================================
+
 // Components - UI
 export {
   Button,

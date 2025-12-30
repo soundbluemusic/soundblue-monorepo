@@ -1,10 +1,6 @@
-import {
-  getLocaleFromPath,
-  SoftwareApplicationStructuredData,
-  ThemeProvider,
-  ToastContainer,
-  WebSiteStructuredData,
-} from '@soundblue/shared-react';
+import { getLocaleFromPath } from '@soundblue/i18n';
+import { SoftwareApplicationStructuredData, WebSiteStructuredData } from '@soundblue/seo';
+import { ThemeProvider, ToastContainer } from '@soundblue/ui-primitives';
 import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import {

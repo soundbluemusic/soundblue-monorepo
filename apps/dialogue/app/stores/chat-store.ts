@@ -1,4 +1,4 @@
-import type { Message } from '@soundblue/shared-react';
+import type { Message } from '@soundblue/ui-primitives';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 

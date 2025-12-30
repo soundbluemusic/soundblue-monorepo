@@ -7,7 +7,7 @@ import {
   isKoreanText,
   jamoEditDistance,
   levenshteinDistance,
-} from '@soundblue/shared-react';
+} from '@soundblue/hangul';
 import type { QAItem } from './response-handler';
 
 /**

@@ -1,4 +1,4 @@
-import { useParaglideI18n } from '@soundblue/shared-react';
+import { useParaglideI18n } from '@soundblue/i18n';
 import { Link, useLocation } from 'react-router';
 import { EXTERNAL_NAV_ITEMS, isNavActive, NAV_ITEMS } from '~/constants';
 import m from '~/lib/messages';

@@ -1,6 +1,9 @@
 // ========================================
-// Audio Context - Singleton AudioContext Management
+// Audio Context Manager - Browser Implementation
+// For runtime in browser environment
 // ========================================
+
+import type { AudioContextState } from '../types';
 
 let audioContext: AudioContext | null = null;
 const stateChangeCallbacks = new Set<(state: AudioContextState) => void>();

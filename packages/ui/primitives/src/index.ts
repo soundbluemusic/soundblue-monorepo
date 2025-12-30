@@ -1,6 +1,6 @@
 // ========================================
 // @soundblue/ui-primitives
-// Natural Language Understanding Engine
+// Shared UI primitive components
 // Public API
 // ========================================
 
@@ -10,6 +10,9 @@ export * from './components';
 export * from './hooks';
 // Providers
 export * from './providers';
-
 // Stores
 export * from './stores';
+// Types
+export * from './types';
+// Utils
+export * from './utils';

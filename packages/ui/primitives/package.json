@@ -24,6 +24,14 @@
     "./stores": {
       "types": "./src/stores/index.ts",
       "import": "./src/stores/index.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "import": "./src/types/index.ts"
+    },
+    "./utils": {
+      "types": "./src/utils/index.ts",
+      "import": "./src/utils/index.ts"
     }
   },
   "main": "./src/index.ts",

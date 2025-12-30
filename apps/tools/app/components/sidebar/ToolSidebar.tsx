@@ -1,6 +1,6 @@
 'use client';
 
-import { useParaglideI18n } from '@soundblue/shared-react';
+import { useParaglideI18n } from '@soundblue/i18n';
 import {
   Activity,
   FileText,

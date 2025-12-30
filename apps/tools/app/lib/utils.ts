@@ -1,1 +1,1 @@
-export { cn } from '@soundblue/shared-react';
+export { cn } from '@soundblue/ui-primitives';

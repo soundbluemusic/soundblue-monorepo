@@ -1,4 +1,4 @@
-import { useParaglideI18n } from '@soundblue/shared-react';
+import { useParaglideI18n } from '@soundblue/i18n';
 import type { MetaFunction } from 'react-router';
 import { Link } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
