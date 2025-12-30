@@ -50,7 +50,8 @@ interface LevelResult {
 }
 
 // Batch size for processing tests - yields to main thread between batches
-const BATCH_SIZE = 10;
+// translate() is heavy (morpheme analysis, NLP), so yield after EVERY test
+const BATCH_SIZE = 1;
 
 export default function Benchmark() {
   const [isRunning, setIsRunning] = useState(false);
@@ -116,11 +117,9 @@ export default function Benchmark() {
   // Helper to yield to browser for rendering
   const yieldToBrowser = (): Promise<void> => {
     return new Promise((resolve) => {
-      // requestAnimationFrame ensures browser gets a chance to paint
-      requestAnimationFrame(() => {
-        // Small timeout after rAF to ensure React state updates are flushed
-        setTimeout(resolve, 0);
-      });
+      // 4ms delay ensures browser has time to render and handle events
+      // translate() is CPU-heavy, so we need longer yield time
+      setTimeout(resolve, 4);
     });
   };
 
