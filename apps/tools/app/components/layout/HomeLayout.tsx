@@ -47,8 +47,12 @@ export function HomeLayout() {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isMac =
-    typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+  // isMac detection only on client side to avoid hydration mismatch
+  const [isMac, setIsMac] = useState(false);
+
+  useEffect(() => {
+    setIsMac(/Mac|iPhone|iPad|iPod/.test(navigator.userAgent));
+  }, []);
 
   // 페이지 타이틀/설명 가져오기
   const getPageTitle = (key: PageKey): string => {
