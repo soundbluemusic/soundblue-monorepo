@@ -18,7 +18,7 @@ export default function About() {
       <main className="flex flex-1 flex-col items-center justify-center p-6">
         <div className="max-w-md text-center">
           <blockquote className="mb-12 text-2xl font-light leading-relaxed tracking-tight text-(--foreground) sm:text-3xl">
-            "{m['about_missionText']?.()}"
+            {`"${m['about_missionText']?.()}"`}
           </blockquote>
           <div className="mx-auto mb-12 h-px w-16 bg-(--border)" />
           <p className="text-base text-(--muted-foreground) sm:text-lg">{m['about_intro']?.()}</p>

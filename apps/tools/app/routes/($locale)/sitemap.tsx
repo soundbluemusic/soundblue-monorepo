@@ -113,7 +113,7 @@ export default function Sitemap() {
           </section>
 
           <p className="mt-8 text-sm text-(--muted-foreground)">
-            {m['sitemap_lastUpdated']?.()}: {locale === 'ko' ? lastUpdated.ko : lastUpdated.en}
+            {`${m['sitemap_lastUpdated']?.()}: ${locale === 'ko' ? lastUpdated.ko : lastUpdated.en}`}
           </p>
         </div>
       </main>

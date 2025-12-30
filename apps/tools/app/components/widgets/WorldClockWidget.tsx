@@ -139,7 +139,9 @@ export function WorldClockWidget() {
         {CITIES.map((city) => (
           <div key={city.id} className="flex flex-col items-center gap-1">
             <span className="text-lg">{city.flag}</span>
-            <span className="text-4xl font-light tabular-nums">{getHour(city.timezone)}</span>
+            <span className="text-4xl font-light tabular-nums" suppressHydrationWarning>
+              {getHour(city.timezone)}
+            </span>
             <span className="text-xs text-muted-foreground">{city.city[locale]}</span>
           </div>
         ))}
@@ -147,16 +149,19 @@ export function WorldClockWidget() {
 
       {/* 공통 분:초 - 크게 표시 */}
       <div className="flex items-baseline gap-1">
-        <span className="text-6xl font-extralight tabular-nums tracking-tight text-primary">
-          :{getMinuteSecond()}
+        <span
+          className="text-6xl font-extralight tabular-nums tracking-tight text-primary"
+          suppressHydrationWarning
+        >
+          {`:${getMinuteSecond()}`}
         </span>
       </div>
 
       {/* 날짜 정보 */}
       <div className="flex gap-4 text-sm text-muted-foreground">
         {CITIES.map((city) => (
-          <span key={city.id}>
-            {city.flag} {getDate(city.timezone)}
+          <span key={city.id} suppressHydrationWarning>
+            {`${city.flag} ${getDate(city.timezone)}`}
           </span>
         ))}
       </div>

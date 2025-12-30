@@ -470,7 +470,7 @@ export function HomeLayout() {
       {/* Footer */}
       <footer className="border-t border-(--border) px-4 py-3">
         <p className="text-center text-xs text-(--muted-foreground)">
-          Tools by{' '}
+          {'Tools by '}
           <a
             href="https://soundbluemusic.com"
             target="_blank"
