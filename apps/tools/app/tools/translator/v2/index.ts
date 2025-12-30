@@ -34,16 +34,18 @@ export function translateWithInfo(text: string, direction: Direction): Translati
 
   for (const { sentence, punctuation } of sentences) {
     let translated: string;
+    // 파싱 시 구두점 정보 포함 (의문문 감지용)
+    const sentenceWithPunctuation = punctuation ? sentence + punctuation : sentence;
 
     if (direction === 'ko-en') {
-      const parsed = parseKorean(sentence);
+      const parsed = parseKorean(sentenceWithPunctuation);
       translated = generateEnglish(parsed);
     } else {
-      const parsed = parseEnglish(sentence);
+      const parsed = parseEnglish(sentenceWithPunctuation);
       translated = generateKorean(parsed);
     }
 
-    // 구두점 복원
+    // 구두점 복원 (이미 번역 결과에 포함된 경우 중복 방지)
     if (punctuation && !translated.endsWith(punctuation)) {
       translated += punctuation;
     }

@@ -152,50 +152,89 @@ export const VERB_BASE = new Map(
 );
 
 // ============================================
-// 5. 한국어 동사 활용 (불규칙 동사 어간 복원)
+// 5. 한국어 동사 어간 사전 (규칙 기반 활용)
 // ============================================
 
 /**
- * 한국어 동사 활용형 → 어간 + 영어 원형
- * [활용형, 어간, 영어원형, 시제]
+ * 동사 어간 → 영어 원형 매핑
+ *
+ * 이전: 활용형마다 하드코딩 (갔→go, 먹었→eat, ...)
+ * 현재: 어간만 등록, 활용은 모음조화 규칙으로 자동 처리
+ *
+ * 규칙:
+ * - 양성모음(ㅏ,ㅗ) + 았 → 과거
+ * - 음성모음(그 외) + 었 → 과거
+ * - 하다 → 했 (축약)
  */
-export const KO_VERB_CONJUGATIONS: Array<[string, string, string, string]> = [
-  // ㅏ/ㅓ 불규칙
-  ['갔', '가', 'go', 'past'], // 가다 → 갔다
-  ['왔', '오', 'come', 'past'], // 오다 → 왔다
-  ['먹었', '먹', 'eat', 'past'], // 먹다 → 먹었다
-  ['마셨', '마시', 'drink', 'past'], // 마시다 → 마셨다
-  ['봤', '보', 'see', 'past'], // 보다 → 봤다
-  ['들었', '듣', 'hear', 'past'], // 듣다 → 들었다
-  ['읽었', '읽', 'read', 'past'], // 읽다 → 읽었다
-  ['썼', '쓰', 'write', 'past'], // 쓰다 → 썼다
-  ['잤', '자', 'sleep', 'past'], // 자다 → 잤다
-  ['만들었', '만들', 'make', 'past'], // 만들다 → 만들었다
-  ['샀', '사', 'buy', 'past'], // 사다 → 샀다
-  ['팔았', '팔', 'sell', 'past'], // 팔다 → 팔았다
-  ['줬', '주', 'give', 'past'], // 주다 → 줬다
-  ['했', '하', 'do', 'past'], // 하다 → 했다
-  ['됐', '되', 'become', 'past'], // 되다 → 됐다
-  ['있었', '있', 'be/have', 'past'], // 있다 → 있었다
-  ['없었', '없', 'not have', 'past'], // 없다 → 없었다
+export const VERB_STEMS: Record<string, string> = {
+  // 기본 동사 (어간 → 영어)
+  가: 'go',
+  오: 'come',
+  먹: 'eat',
+  마시: 'drink',
+  보: 'see',
+  듣: 'listen',
+  읽: 'read',
+  쓰: 'write',
+  자: 'sleep',
+  만들: 'make',
+  사: 'buy',
+  팔: 'sell',
+  주: 'give',
+  하: 'do',
+  되: 'become',
+  있: 'have',
+  없: 'not have',
+  걷: 'walk',
+  뛰: 'run',
+  앉: 'sit',
+  서: 'stand',
+  놀: 'play',
+  배우: 'learn',
+  가르치: 'teach',
+  일하: 'work',
+};
 
-  // 현재 (진행/습관)
-  ['간다', '가', 'go', 'present'],
-  ['온다', '오', 'come', 'present'],
-  ['먹는다', '먹', 'eat', 'present'],
-  ['마신다', '마시', 'drink', 'present'],
-  ['본다', '보', 'see', 'present'],
-  ['듣는다', '듣', 'listen', 'present'],
-  ['읽는다', '읽', 'read', 'present'],
-  ['쓴다', '쓰', 'write', 'present'],
-  ['잔다', '자', 'sleep', 'present'],
-  ['한다', '하', 'do', 'present'],
+/**
+ * 불규칙 활용 동사 (ㄷ불규칙, ㅂ불규칙 등)
+ * 이들은 어간 변화가 있어 별도 처리 필요
+ */
+export const IRREGULAR_KO_VERBS: Record<string, { stem: string; en: string; type: string }> = {
+  // ㄷ불규칙: 듣다 → 들어
+  들었: { stem: '듣', en: 'hear', type: 'ㄷ' },
+  걸었: { stem: '걷', en: 'walk', type: 'ㄷ' },
+  // ㅂ불규칙: 돕다 → 도와
+  도왔: { stem: '돕', en: 'help', type: 'ㅂ' },
+  // ㅅ불규칙: 짓다 → 지어
+  지었: { stem: '짓', en: 'build', type: 'ㅅ' },
+  // 르불규칙: 모르다 → 몰라
+  몰랐: { stem: '모르', en: 'not know', type: '르' },
+};
+
+/**
+ * 축약형 활용 (모음 탈락/축약으로 규칙 적용 어려운 경우)
+ * 최소한으로 유지 - 규칙으로 처리 불가능한 것만
+ */
+export const KO_VERB_CONTRACTIONS: Array<[string, string, string, string]> = [
+  // 모음 축약 (ㅏ+ㅏ→ㅏ, ㅗ+ㅏ→ㅘ 등)
+  ['갔', '가', 'go', 'past'],
+  ['왔', '오', 'come', 'past'],
+  ['봤', '보', 'see', 'past'],
+  ['줬', '주', 'give', 'past'],
+  ['샀', '사', 'buy', 'past'],
+  ['잤', '자', 'sleep', 'past'],
+  ['썼', '쓰', 'write', 'past'],
+  ['됐', '되', 'become', 'past'],
+  ['했', '하', 'do', 'past'],
 ];
 
-/** 활용형 → [어간, 영어, 시제] 빠른 조회 */
-export const KO_VERB_MAP = new Map(
-  KO_VERB_CONJUGATIONS.map(([conj, stem, en, tense]) => [conj, { stem, en, tense }]),
-);
+/** 활용형 → [어간, 영어, 시제] 빠른 조회 (축약형 + 불규칙) */
+export const KO_VERB_MAP = new Map([
+  ...KO_VERB_CONTRACTIONS.map(([conj, stem, en, tense]) => [conj, { stem, en, tense }] as const),
+  ...Object.entries(IRREGULAR_KO_VERBS).map(
+    ([conj, info]) => [conj, { stem: info.stem, en: info.en, tense: 'past' }] as const,
+  ),
+]);
 
 // ============================================
 // 6. 숫자/분류사

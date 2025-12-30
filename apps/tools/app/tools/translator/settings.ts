@@ -1,10 +1,12 @@
-// Translator Settings
+/**
+ * 번역기 설정 (v2)
+ */
 
 export type TranslationDirection = 'ko-en' | 'en-ko';
 
 export interface TranslatorSettings {
   direction: TranslationDirection;
-  lastInput: string;
+  lastInput?: string;
 }
 
 export const defaultTranslatorSettings: TranslatorSettings = {

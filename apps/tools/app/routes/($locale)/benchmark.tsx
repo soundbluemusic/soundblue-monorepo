@@ -7,7 +7,7 @@ import {
   antiHardcodingTests,
   categoryTests,
   contextTests,
-  countTests,
+  countTests as counterTests,
   finalTests,
   levelTests,
   localizationTests,
@@ -15,6 +15,7 @@ import {
   professionalTranslatorTests,
   spacingErrorTests,
   type TestCase,
+  type TestCategory,
   type TestLevel,
   typoTests,
   uniqueTests,
@@ -52,6 +53,7 @@ interface LevelResult {
 // All test groups
 const ALL_TEST_GROUPS = [
   { name: 'Level Tests', data: levelTests },
+  { name: 'Counter Tests', data: counterTests },
   { name: 'Category Tests', data: categoryTests },
   { name: 'Context Tests', data: contextTests },
   { name: 'Typo Tests', data: typoTests },
@@ -64,6 +66,14 @@ const ALL_TEST_GROUPS = [
   { name: 'Localization Tests', data: localizationTests },
   { name: 'Anti-Hardcoding Tests', data: antiHardcodingTests },
 ];
+
+// Helper function to count tests in a level array
+function countTestsInLevels(levels: TestLevel[]): number {
+  return levels.reduce(
+    (sum, level) => sum + level.categories.reduce((catSum, cat) => catSum + cat.tests.length, 0),
+    0,
+  );
+}
 
 export default function Benchmark() {
   const [isRunning, setIsRunning] = useState(false);
@@ -146,7 +156,10 @@ export default function Benchmark() {
     setExpandedLevels(new Set());
     setExpandedCategories(new Set());
 
-    const totalTests = ALL_TEST_GROUPS.reduce((sum, group) => sum + countTests(group.data), 0);
+    const totalTests = ALL_TEST_GROUPS.reduce(
+      (sum, group) => sum + countTestsInLevels(group.data),
+      0,
+    );
     let currentCount = 0;
 
     const newResults = new Map<string, LevelResult[]>();
@@ -258,7 +271,10 @@ export default function Benchmark() {
     return 'text-red-600 dark:text-red-400';
   };
 
-  const totalTestCount = ALL_TEST_GROUPS.reduce((sum, group) => sum + countTests(group.data), 0);
+  const totalTestCount = ALL_TEST_GROUPS.reduce(
+    (sum, group) => sum + countTestsInLevels(group.data),
+    0,
+  );
 
   const renderResults = (levels: TestLevel[], levelResults: LevelResult[], prefix: string) => {
     if (levelResults.length === 0) return null;
@@ -302,7 +318,7 @@ export default function Benchmark() {
 
               {isLevelExpanded && (
                 <div className="border-t border-(--border) p-3 pt-2">
-                  {level.categories.map((category, catIdx) => {
+                  {level.categories.map((category: TestCategory, catIdx: number) => {
                     const catResult = levelResult.categories[catIdx];
                     if (!catResult) return null;
 
