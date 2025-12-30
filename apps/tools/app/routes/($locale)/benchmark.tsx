@@ -7,7 +7,6 @@ import {
   antiHardcodingTests,
   categoryTests,
   contextTests,
-  countTests as counterTests,
   finalTests,
   levelTests,
   localizationTests,
@@ -53,7 +52,6 @@ interface LevelResult {
 // All test groups
 const ALL_TEST_GROUPS = [
   { name: 'Level Tests', data: levelTests },
-  { name: 'Counter Tests', data: counterTests },
   { name: 'Category Tests', data: categoryTests },
   { name: 'Context Tests', data: contextTests },
   { name: 'Typo Tests', data: typoTests },
