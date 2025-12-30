@@ -1,6 +1,80 @@
 # Project Overview
 
 프로젝트 개요, 기술 스택, 구조, 명령어: @README.md
+상세 아키텍처 문서: @docs/ARCHITECTURE.md
+
+## Package Architecture (패키지 아키텍처)
+
+### Layer Rules (레이어 규칙)
+
+```
+┌─────────────────────────────────────────┐
+│              apps/                      │  ← 모든 하위 레이어 import 가능
+├─────────────────────────────────────────┤
+│   ui/   │  i18n/  │  seo/  │  pwa/     │  ← platform/, core/ import 가능
+├─────────────────────────────────────────┤
+│              platform/                  │  ← core/만 import 가능
+├─────────────────────────────────────────┤
+│               core/                     │  ← 외부 import 금지
+└─────────────────────────────────────────┘
+```
+
+### Package Categories (패키지 분류)
+
+| Layer | Packages | Rules |
+|-------|----------|-------|
+| `core/` | hangul, translator, nlu, audio-engine | 브라우저 API 금지, 순수 TypeScript |
+| `platform/` | web-audio, storage, worker | 이중 구현 필수 (.browser.ts + .noop.ts) |
+| `ui/` | primitives, patterns, icons | React 컴포넌트 |
+| Cross-cutting | i18n, seo, pwa, config | 공통 관심사 |
+
+### Dual Implementation Pattern (이중 구현 패턴)
+
+`platform/` 패키지는 SSG 호환을 위해 반드시 이중 구현 필요:
+
+```typescript
+// package.json exports
+{
+  "exports": {
+    ".": {
+      "browser": "./src/index.browser.ts",  // 브라우저 런타임
+      "default": "./src/index.noop.ts"      // SSG 빌드 시
+    }
+  }
+}
+```
+
+| File | Purpose | Environment |
+|------|---------|-------------|
+| `*.browser.ts` | 실제 구현 | 브라우저 런타임 |
+| `*.noop.ts` | 빈 구현 (throw 또는 기본값 반환) | SSG 빌드 시 |
+
+### Import Rules (Import 규칙)
+
+```typescript
+// ✅ 올바른 import
+import { decompose } from '@soundblue/hangul';           // core
+import { toneEngine } from '@soundblue/web-audio';       // platform
+import { Button, cn } from '@soundblue/ui-primitives';   // ui
+import { useLocale } from '@soundblue/i18n';             // cross-cutting
+
+// ❌ 금지된 import (shared-react 사용 금지)
+import { ThemeProvider } from '@soundblue/shared-react'; // DEPRECATED
+
+// ❌ 금지된 import (레이어 역방향)
+// core/에서 platform/ import 금지
+// platform/에서 ui/ import 금지
+```
+
+### Migration from shared-react (shared-react 마이그레이션)
+
+| Old | New |
+|-----|-----|
+| `@soundblue/shared-react` (ThemeProvider, useTheme) | `@soundblue/ui-primitives` |
+| `@soundblue/shared-react` (cn) | `@soundblue/ui-primitives` |
+| `@soundblue/shared-react` (Message) | `@soundblue/ui-primitives` |
+| `@soundblue/shared-react/storage` | `@soundblue/storage` |
+| `@soundblue/shared-react/i18n` | `@soundblue/i18n` |
 
 ## 📚 Official References (공식 참고 문서)
 
