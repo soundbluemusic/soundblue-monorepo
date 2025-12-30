@@ -357,6 +357,88 @@ export default function Benchmark() {
     return 'text-red-600 dark:text-red-400';
   };
 
+  // Render test structure before running (no results yet)
+  const renderTestStructure = (levels: TestLevel[], prefix: string) => {
+    return (
+      <div className="flex flex-col gap-2">
+        {levels.map((level) => {
+          const levelId = `${prefix}-${level.id}`;
+          const isLevelExpanded = expandedLevels.has(levelId);
+          const totalTests = level.categories.reduce((sum, cat) => sum + cat.tests.length, 0);
+
+          return (
+            <div key={level.id} className="overflow-hidden rounded-lg border border-(--border)">
+              <button
+                type="button"
+                onClick={() => toggleLevel(levelId)}
+                className="flex w-full items-center justify-between bg-transparent p-3 text-left transition-colors duration-200 hover:bg-black/5 dark:hover:bg-white/5"
+              >
+                <div className="flex items-center gap-2">
+                  {isLevelExpanded ? (
+                    <ChevronDown className="size-4" />
+                  ) : (
+                    <ChevronRight className="size-4" />
+                  )}
+                  <span className="font-medium">{level.name}</span>
+                </div>
+                <span className="text-sm text-(--muted-foreground)">{totalTests} tests</span>
+              </button>
+
+              {isLevelExpanded && (
+                <div className="border-t border-(--border) p-3 pt-2">
+                  {level.categories.map((category) => {
+                    const catId = `${levelId}-${category.id}`;
+                    const isCatExpanded = expandedCategories.has(catId);
+
+                    return (
+                      <div key={category.id} className="mb-2 last:mb-0">
+                        <button
+                          type="button"
+                          onClick={() => toggleCategory(catId)}
+                          className="flex w-full items-center justify-between rounded-md bg-transparent p-2 text-left transition-colors duration-200 hover:bg-black/5 dark:hover:bg-white/5"
+                        >
+                          <div className="flex items-center gap-2">
+                            {isCatExpanded ? (
+                              <ChevronDown className="size-3" />
+                            ) : (
+                              <ChevronRight className="size-3" />
+                            )}
+                            <span className="text-sm">{category.name}</span>
+                          </div>
+                          <span className="text-xs text-(--muted-foreground)">
+                            {category.tests.length} tests
+                          </span>
+                        </button>
+
+                        {isCatExpanded && (
+                          <div className="ml-5 mt-1 flex flex-col gap-1">
+                            {category.tests.map((test) => (
+                              <div
+                                key={test.id}
+                                className="rounded-md bg-gray-50 p-2 text-xs dark:bg-gray-800/50"
+                              >
+                                <div className="font-mono text-(--muted-foreground)">
+                                  {test.input}
+                                </div>
+                                <div className="mt-1 text-blue-600 dark:text-blue-400">
+                                  → {test.expected}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const renderResults = (levels: TestLevel[], results: LevelResult[], prefix: string) => {
     if (results.length === 0) return null;
 
@@ -693,11 +775,70 @@ export default function Benchmark() {
             </div>
           )}
 
-          {/* Initial State */}
+          {/* Show test structure before running */}
           {levelResults.length === 0 && !isRunning && (
-            <div className="rounded-lg border border-dashed border-(--border) p-8 text-center text-(--muted-foreground)">
-              Click "Run All Tests" to start the benchmark
-            </div>
+            <>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">Level Tests</h2>
+                {renderTestStructure(levelTests, 'level')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">Category Tests</h2>
+                {renderTestStructure(categoryTests, 'category')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">Context Tests</h2>
+                {renderTestStructure(contextTests, 'context')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">Typo Tests (오타 테스트)</h2>
+                {renderTestStructure(typoTests, 'typo')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">
+                  Unique Tests (유니크 테스트 - 100% 알고리즘 기반)
+                </h2>
+                {renderTestStructure(uniqueTests, 'unique')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">Polysemy Tests (다의어 테스트)</h2>
+                {renderTestStructure(polysemyTests, 'polysemy')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">
+                  Word Order Tests (SVO↔SOV 어순 변환 테스트)
+                </h2>
+                {renderTestStructure(wordOrderTests, 'wordorder')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">
+                  Spacing Error Tests (띄어쓰기 오류 테스트)
+                </h2>
+                {renderTestStructure(spacingErrorTests, 'spacing')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">Final Tests (최종 파이널 테스트)</h2>
+                {renderTestStructure(finalTests, 'final')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">
+                  Professional Translator Tests (전문 번역가 테스트)
+                </h2>
+                {renderTestStructure(professionalTranslatorTests, 'professional')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">
+                  Localization Tests (의역/문화적 번역 테스트)
+                </h2>
+                {renderTestStructure(localizationTests, 'localization')}
+              </div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-lg font-semibold">
+                  Anti-Hardcoding Tests (안티하드코딩 알고리즘 테스트)
+                </h2>
+                {renderTestStructure(antiHardcodingTests, 'antihardcoding')}
+              </div>
+            </>
           )}
         </div>
       </main>
