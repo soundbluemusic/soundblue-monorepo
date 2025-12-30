@@ -609,18 +609,21 @@ export default function Benchmark() {
           <div className="mb-6 rounded-lg border border-blue-500/50 bg-blue-50 p-4 dark:bg-blue-900/20">
             <p className="mb-3 text-sm text-blue-700 last:mb-0 dark:text-blue-300">
               <strong className="font-bold text-blue-800 dark:text-blue-200">
-                🔬 번역 알고리즘:
+                {'🔬 번역 알고리즘: '}
               </strong>
               <span>
-                형태소 분석 → 문장 구조 파싱 (주어/목적어/서술어) → 어순 변환 (SOV↔SVO) → 목표 언어
-                생성
+                {
+                  '형태소 분석 → 문장 구조 파싱 (주어/목적어/서술어) → 어순 변환 (SOV↔SVO) → 목표 언어 생성'
+                }
               </span>
             </p>
             <p className="mb-3 text-sm text-blue-700 last:mb-0 dark:text-blue-300">
               <strong className="font-bold text-blue-800 dark:text-blue-200">
-                📋 테스트 방식:
+                {'📋 테스트 방식: '}
               </strong>
-              <span>문장 사전 없음, 하드코딩 없음, 패턴 매칭 없음 — 100% 알고리즘 기반 번역</span>
+              <span>
+                {'문장 사전 없음, 하드코딩 없음, 패턴 매칭 없음 — 100% 알고리즘 기반 번역'}
+              </span>
             </p>
           </div>
 
@@ -641,8 +644,7 @@ export default function Benchmark() {
               <div className="mb-2 flex items-center justify-between text-sm">
                 <span className="text-(--muted-foreground)">{progress.phase}</span>
                 <span className="font-mono">
-                  {progress.current}/{progress.total} (
-                  {Math.round((progress.current / progress.total) * 100)}%)
+                  {`${progress.current}/${progress.total} (${Math.round((progress.current / progress.total) * 100)}%)`}
                 </span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">

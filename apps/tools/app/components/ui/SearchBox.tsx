@@ -31,8 +31,12 @@ export function SearchBox() {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isMac =
-    typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+  // isMac detection only on client side to avoid hydration mismatch
+  const [isMac, setIsMac] = useState(false);
+
+  useEffect(() => {
+    setIsMac(/Mac|iPhone|iPad|iPod/.test(navigator.userAgent));
+  }, []);
 
   const getPageTitle = (key: PageKey): string => {
     const titles: Record<PageKey, () => string | undefined> = {
