@@ -100,7 +100,7 @@ export const levelTests: TestLevel[] = [
             input:
               'Amazing! I visited the new art museum with my family, and wow, it was beautiful! We looked at paintings, bought souvenirs, ate pasta, and yes, the weather was perfect!',
             expected:
-              '놀라워! 나는 가족과 함께 새 미술관을 방문했고, 와우, 정말 아름다웠어! 우리는 그림들을 보고, 기념품을 사고, 파스타를 먹었고, 그래, 날씨는 완벽했어!',
+              '대박! 가족이랑 새로 생긴 미술관 갔는데, 진짜 너무 예뻤어! 그림도 보고, 기념품도 사고, 파스타도 먹었는데, 날씨까지 완벽했어!',
             direction: 'en-ko',
           },
           {
@@ -108,7 +108,7 @@ export const levelTests: TestLevel[] = [
             input:
               "I didn't visit the museum yesterday. I stayed home instead. I didn't see any paintings, didn't buy souvenirs, and didn't eat out. But it was okay, because I needed rest.",
             expected:
-              '나는 어제 박물관에 가지 않았어. 대신 집에 있었어. 그림도 보지 않았고, 기념품도 사지 않았으며, 외식도 하지 않았어. 하지만 괜찮았어, 왜냐하면 나는 휴식이 필요했거든.',
+              '어제 박물관 안 갔어. 그냥 집에 있었어. 그림도 안 보고, 기념품도 안 사고, 외식도 안 했어. 근데 괜찮아, 좀 쉬어야 했거든.',
             direction: 'en-ko',
           },
         ],
@@ -161,7 +161,7 @@ export const levelTests: TestLevel[] = [
             input:
               "Had she really been studying English for five years? Was it really that difficult when she arrived? Why couldn't she communicate well? Was it because textbooks are different from real conversations? How did she improve? Did native speakers really help her that much?",
             expected:
-              '그녀는 정말 5년 동안 영어를 공부했을까? 도착했을 때 정말 그렇게 어려웠을까? 왜 잘 소통할 수 없었을까? 교과서가 실제 대화와 다르기 때문일까? 그녀는 어떻게 향상했을까? 원어민들이 정말 그렇게 많이 도와줬을까?',
+              '진짜 영어 공부한 지 5년이나 됐을까? 처음 갔을 때 진짜 그렇게 힘들었을까? 왜 말이 안 통했을까? 교과서랑 실제 대화가 달라서 그랬을까? 어떻게 늘었을까? 원어민들이 진짜 그렇게 많이 도와줬을까?',
             direction: 'en-ko',
           },
           {
@@ -169,7 +169,7 @@ export const levelTests: TestLevel[] = [
             input:
               'Wow! She had studied English for five whole years! But oh my, real conversations were so much harder! However, amazing! She practiced every single day! Her pronunciation improved! Her vocabulary expanded! And finally, after six months, she could speak naturally!',
             expected:
-              '와! 그녀는 무려 5년 동안 영어를 공부했어! 그런데 세상에, 실제 대화는 훨씬 더 어려웠어! 하지만 놀랍게도! 그녀는 매일 매일 연습했어! 발음이 향상됐어! 어휘가 늘어났어! 그리고 마침내, 6개월 후에, 그녀는 자연스럽게 말할 수 있었어!',
+              '와! 영어 공부한 지 무려 5년이나 됐대! 근데 세상에, 실제로 대화하는 건 훨씬 어렵더라! 근데 대박! 매일매일 연습했대! 발음도 좋아지고! 어휘도 늘고! 결국 6개월 뒤에는 자연스럽게 말할 수 있게 됐대!',
             direction: 'en-ko',
           },
           {
@@ -177,7 +177,7 @@ export const levelTests: TestLevel[] = [
             input:
               "She hadn't studied English for just one or two years, but for five years. However, real conversations weren't as easy as textbook exercises. She didn't give up. She didn't practice just once or twice, but every single day. She didn't see results immediately, but after six months, finally, she could communicate naturally.",
             expected:
-              '그녀는 단지 1년이나 2년 동안 영어를 공부한 것이 아니라, 5년 동안 공부했어. 하지만, 실제 대화는 교과서 연습만큼 쉽지 않았어. 그녀는 포기하지 않았어. 한두 번만 연습한 게 아니라, 매일 매일 연습했어. 즉시 결과를 보지는 못했지만, 6개월 후에, 마침내, 그녀는 자연스럽게 소통할 수 있었어.',
+              '1~2년 공부한 게 아니라 5년이나 했어. 근데 실제 대화는 교과서처럼 쉽지 않더라. 그래도 포기 안 했어. 한두 번 연습한 게 아니라 매일매일 했어. 바로 결과가 나온 건 아니지만, 6개월 후에 드디어 자연스럽게 대화할 수 있게 됐어.',
             direction: 'en-ko',
           },
         ],
@@ -230,7 +230,7 @@ export const levelTests: TestLevel[] = [
             input:
               'Is climate change really the most pressing issue? Are countries actually reluctant to act? Is it because of economic concerns? Do scientists really warn of catastrophic consequences? Is international cooperation truly crucial? Should developed nations really take the lead? Must they provide support to developing countries?',
             expected:
-              '기후 변화가 정말 가장 시급한 문제일까? 국가들이 실제로 행동을 꺼리고 있을까? 경제적 우려 때문일까? 과학자들이 정말 재앙적인 결과를 경고하고 있을까? 국제 협력이 진정 중요할까? 선진국들이 정말 앞장서야 할까? 그들은 개발도상국에 지원을 제공해야만 할까?',
+              '기후변화가 진짜 제일 급한 문제일까? 각 나라들이 정말 행동을 꺼리는 걸까? 경제 걱정 때문일까? 과학자들이 진짜 대재앙이 온다고 경고하는 걸까? 국제 협력이 정말 그렇게 중요할까? 선진국들이 진짜 앞장서야 할까? 개도국한테 지원도 해줘야 하는 걸까?',
             direction: 'en-ko',
           },
           {
@@ -238,7 +238,7 @@ export const levelTests: TestLevel[] = [
             input:
               "Climate change! Yes, it's become THE most pressing issue! But look! Many countries are still reluctant! Why? Economic growth! Scientists are warning us! Listen! The consequences will be catastrophic! Irreversible! Therefore, international cooperation! More crucial than ever! Developed nations! Take the lead! Provide support! Financial! Technological! Do it now!",
             expected:
-              '기후 변화! 그래, 가장 시급한 문제가 됐어! 하지만 봐! 많은 국가들이 여전히 꺼리고 있어! 왜? 경제 성장! 과학자들이 경고하고 있어! 들어봐! 결과는 재앙적일 거야! 돌이킬 수 없어! 따라서, 국제 협력! 그 어느 때보다 중요해! 선진국들! 앞장서! 지원을 제공해! 재정적! 기술적! 지금 당장!',
+              '기후변화! 맞아, 이게 지금 제일 급한 문제야! 근데 봐봐! 아직도 많은 나라들이 머뭇거려! 왜? 경제 성장 때문에! 과학자들이 경고하잖아! 들어봐! 결과는 재앙이야! 돌이킬 수 없다고! 그러니까 국제 협력! 그 어느 때보다 중요해! 선진국들! 앞장서! 지원해! 돈으로! 기술로! 지금 당장!',
             direction: 'en-ko',
           },
           {
@@ -246,7 +246,7 @@ export const levelTests: TestLevel[] = [
             input:
               "Climate change isn't just another issue, but THE most pressing one. However, many countries aren't taking action. Not because they don't know, but because they fear economic harm. Scientists aren't suggesting, they're warning. We can't wait, we can't delay. International cooperation isn't optional, it's crucial. Developed nations can't just talk, they must act, they must lead, they must support.",
             expected:
-              '기후 변화는 단지 또 다른 문제가 아니라, 가장 시급한 문제야. 하지만, 많은 국가들이 행동하고 있지 않아. 모르기 때문이 아니라, 경제적 피해를 두려워하기 때문이야. 과학자들은 제안하는 게 아니라, 경고하고 있어. 우리는 기다릴 수 없어, 미룰 수 없어. 국제 협력은 선택이 아니라, 필수야. 선진국들은 그저 말만 할 수 없어, 행동해야 해, 이끌어야 해, 지원해야 해.',
+              '기후변화는 그냥 문제가 아니라, 지금 가장 급한 문제야. 근데 많은 나라들이 움직이지 않아. 몰라서가 아니라 경제 타격이 두려워서야. 과학자들은 제안하는 게 아니야, 경고하는 거야. 기다릴 시간 없어, 미룰 수도 없어. 국제 협력은 선택이 아니야, 필수야. 선진국들, 말만 하면 안 돼, 행동해야 해, 이끌어야 해, 지원해야 해.',
             direction: 'en-ko',
           },
         ],
@@ -299,7 +299,7 @@ export const levelTests: TestLevel[] = [
             input:
               'Did she really burn the midnight oil every night? Did she go the extra mile on assignments? Did she leave no stone unturned? Did she bend over backwards for professors? But she barely made the cut? Was it a wake-up call? Did she stop getting lost in the weeds? Did she focus on the big picture instead?',
             expected:
-              '그녀는 정말 매일 밤 밤새워 공부했을까? 과제에서 최선을 다했을까? 모든 가능성을 탐구했을까? 교수들을 위해 온갖 노력을 다했을까? 그런데 겨우 합격선을 넘었다고? 경종이었을까? 세부사항에 빠지는 걸 그만뒀을까? 대신 큰 그림에 집중했을까?',
+              '진짜 매일 밤새워 공부했을까? 과제도 최선을 다했을까? 안 해본 게 없을 정도였을까? 교수님들한테 잘 보이려고 엄청 노력했을까? 근데 겨우 턱걸이로 붙었다고? 그게 정신 차리는 계기가 됐을까? 쓸데없는 데 시간 쓰는 거 그만뒀을까? 중요한 것만 집중하게 됐을까?',
             direction: 'en-ko',
           },
           {
@@ -307,7 +307,7 @@ export const levelTests: TestLevel[] = [
             input:
               "Listen! She didn't just study! She burned the midnight oil! Every! Single! Night! She went the extra mile! Always! She left absolutely no stone unturned! None! She bent over backwards! But wow! She barely made the cut! Talk about a wake-up call! She completely changed! No more getting lost in the weeds! Big picture! That's what matters!",
             expected:
-              '들어봐! 그녀는 단순히 공부한 게 아니야! 밤을 새웠어! 매일! 밤마다! 최선을 다했어! 항상! 절대 모든 가능성을 빠짐없이 탐구했어! 하나도 빠짐없이! 온갖 노력을 다했어! 그런데 와! 겨우 합격선을 넘었어! 완전 경종이었지! 그녀는 완전히 바뀌었어! 더 이상 세부사항에 빠지지 않아! 큰 그림! 그게 중요한 거야!',
+              '들어봐! 그냥 공부한 게 아니야! 밤을 새웠어! 매일! 밤마다! 최선을 다했어! 항상! 안 해본 게 없어! 진짜 하나도! 죽어라 노력했어! 근데 와! 겨우 턱걸이로 붙었어! 완전 정신 번쩍 들었지! 완전 달라졌어! 쓸데없는 데 시간 안 써! 중요한 것만 봐! 그게 핵심이야!',
             direction: 'en-ko',
           },
           {
@@ -315,7 +315,7 @@ export const levelTests: TestLevel[] = [
             input:
               "She didn't just work hard, she burned the midnight oil. She didn't do the minimum, she went the extra mile. She didn't leave any stone unturned, not a single one. She didn't half-heartedly try, she bent over backwards. But she didn't pass with flying colors, she barely made the cut. It wasn't discouraging though, it was a wake-up call. She didn't keep getting lost in the weeds, she focused on the big picture instead.",
             expected:
-              '그녀는 단지 열심히 일한 게 아니라, 밤을 새웠어. 최소한만 한 게 아니라, 최선을 다했어. 어떤 가능성도 놓치지 않았어, 단 하나도. 건성으로 시도한 게 아니라, 온갖 노력을 다했어. 하지만 우수한 성적으로 합격한 게 아니라, 겨우 합격선을 넘었어. 하지만 낙담스럽지 않았어, 경종이었어. 계속 세부사항에 빠지지 않았어, 대신 큰 그림에 집중했어.',
+              '그냥 열심히 한 게 아니야, 밤새웠어. 대충 한 게 아니야, 최선을 다했어. 안 해본 게 없어, 진짜 하나도. 건성으로 한 게 아니야, 죽도록 노력했어. 근데 우등으로 붙은 게 아니야, 겨우 턱걸이야. 근데 좌절한 게 아니야, 정신 차리는 계기가 됐어. 쓸데없는 데 시간 안 썼어, 중요한 것만 집중했어.',
             direction: 'en-ko',
           },
         ],
@@ -368,7 +368,7 @@ export const levelTests: TestLevel[] = [
             input:
               "Does love really conquer all? What does it truly mean to love? Is it the initial butterflies? Or the choice to stay? Is it grand gestures? Or quiet moments? Does love conquer? Or does it endure? Is it passion? Or is it a lifetime of choosing each other? Even when it's easier to leave? Especially then?",
             expected:
-              '사랑이 정말 모든 것을 이길까? 진정으로 사랑한다는 것은 무엇을 의미할까? 처음의 설렘일까? 아니면 머무르기로 하는 선택일까? 거창한 제스처일까? 아니면 조용한 순간들일까? 사랑은 이기는 것일까? 아니면 견디는 것일까? 열정일까? 아니면 평생 서로를 선택하는 것일까? 떠나는 게 더 쉬울 때조차도? 특히 그럴 때?',
+              '사랑이 진짜 다 이길까? 진짜 사랑한다는 건 뭘까? 처음 설레는 그 감정? 아니면 곁에 남겠다는 선택? 거창한 이벤트? 아니면 소소한 순간들? 사랑은 이기는 걸까? 아니면 견디는 걸까? 열정일까? 아니면 평생 서로를 선택하는 걸까? 떠나는 게 더 쉬울 때도? 특히 그럴 때?',
             direction: 'en-ko',
           },
           {
@@ -376,7 +376,7 @@ export const levelTests: TestLevel[] = [
             input:
               "Love! They say it conquers all! But wait! What is love? Is it butterflies? Beautiful! But temporary! Or is it staying? After butterflies fly away? Is it grand romance? Breathtaking! But fleeting! Or is it quiet moments? Simple! Yet profound! Love doesn't conquer! No! It endures! Not a moment! But a lifetime! Choosing each other! Again and again! Even when! Especially when! Walking away seems easier!",
             expected:
-              '사랑! 모든 것을 이긴다고들 하지! 하지만 잠깐! 사랑이 뭘까? 설렘일까? 아름다워! 하지만 일시적이야! 아니면 머무르는 것일까? 설렘이 날아간 후에도? 거창한 로맨스일까? 숨막혀! 하지만 덧없어! 아니면 조용한 순간들일까? 단순해! 하지만 깊어! 사랑은 이기지 않아! 아니야! 견디는 거야! 한 순간이 아니야! 평생이야! 서로를 선택하는 것! 계속해서! 떠나는 게! 특히 그럴 때! 더 쉬워 보일 때조차도!',
+              '사랑! 다 이긴다고들 하잖아! 근데 잠깐! 사랑이 뭔데? 설렘? 예쁘지! 근데 잠깐이야! 아니면 곁에 남는 것? 설렘이 식은 다음에도? 화려한 로맨스? 심장 떨려! 근데 금방 사라져! 아니면 소소한 순간들? 단순해! 근데 깊어! 사랑은 이기는 게 아니야! 아니! 견디는 거야! 한순간이 아니야! 평생이야! 서로를 선택하는 것! 계속! 떠나고 싶을 때도! 특히 그럴 때! 떠나는 게 더 쉬워 보일 때!',
             direction: 'en-ko',
           },
           {
@@ -384,7 +384,7 @@ export const levelTests: TestLevel[] = [
             input:
               "Love doesn't just conquer, it endures. It's not the butterflies, but staying after they've flown. It's not grand gestures, but quiet moments. It's not a single moment, but a lifetime. It's not passion alone, but choosing each other. Not once, but again and again. Not when it's easy, but when it's hard. Not despite difficulty, but because of it. That's not just love, that's true love.",
             expected:
-              '사랑은 단지 이기는 게 아니라, 견디는 거야. 설렘이 아니라, 설렘이 사라진 후에도 머무르는 거야. 거창한 제스처가 아니라, 조용한 순간들이야. 한 순간이 아니라, 평생이야. 열정만이 아니라, 서로를 선택하는 거야. 한 번이 아니라, 계속해서. 쉬울 때가 아니라, 어려울 때. 어려움에도 불구하고가 아니라, 어려움 때문에. 그것은 단지 사랑이 아니라, 진정한 사랑이야.',
+              '사랑은 이기는 게 아니라 견디는 거야. 설렘이 아니라, 설렘이 식은 뒤에도 곁에 있는 거야. 거창한 게 아니라 소소한 순간들이야. 한순간이 아니라 평생이야. 열정만이 아니라 서로를 선택하는 거야. 한 번이 아니라 계속. 쉬울 때가 아니라 어려울 때. 힘들어도가 아니라, 힘들기 때문에. 그게 그냥 사랑이 아니야, 진짜 사랑이야.',
             direction: 'en-ko',
           },
         ],
@@ -421,7 +421,7 @@ export const categoryTests: TestLevel[] = [
             input:
               "I'm over the moon! I can't stop smiling! This is the best day ever! My heart is bursting with joy! I feel like I'm on top of the world! Everything is just perfect!",
             expected:
-              '정말 기뻐서 어쩔 줄 모르겠어! 웃음이 멈추지 않아! 오늘이 최고의 날이야! 가슴이 기쁨으로 터질 것 같아! 세상 꼭대기에 있는 것 같아! 모든 게 완벽해!',
+              '진짜 너무 행복해서 미치겠어! 계속 웃음이 나와! 인생 최고의 날이야! 기뻐서 가슴이 터질 것 같아! 세상 다 가진 기분이야! 모든 게 완벽해!',
             direction: 'en-ko',
           },
         ],
@@ -444,7 +444,7 @@ export const categoryTests: TestLevel[] = [
             input:
               "I feel so down... I can't shake this feeling. Everything seems pointless. I'm drowning in sorrow. There's a void in my heart. I can't see the light at the end of the tunnel.",
             expected:
-              '너무 우울해... 이 기분을 떨쳐낼 수가 없어. 모든 게 무의미해 보여. 슬픔에 빠져 허우적대고 있어. 가슴에 공허함이 있어. 터널 끝의 빛이 보이지 않아.',
+              '너무 우울해... 이 기분이 안 떨쳐져. 다 무의미해 보여. 슬픔에 빠져서 허우적대고 있어. 마음 한구석이 텅 비어 있어. 끝이 안 보여.',
             direction: 'en-ko',
           },
         ],
@@ -467,7 +467,7 @@ export const categoryTests: TestLevel[] = [
             input:
               "This is infuriating! I'm absolutely livid! How dare you! I'm at my wit's end! I've had it up to here! You're pushing my buttons! I'm about to explode!",
             expected:
-              '이거 정말 열받아! 완전 분노했어! 감히 어떻게! 더 이상 견딜 수가 없어! 이제 한계야! 내 신경을 건드리는 거야! 폭발하기 직전이야!',
+              '진짜 빡쳐! 완전 열받았어! 감히?! 더 못 참겠어! 이제 한계야! 자꾸 건드리네! 터지기 직전이야!',
             direction: 'en-ko',
           },
         ],
@@ -490,7 +490,7 @@ export const categoryTests: TestLevel[] = [
             input:
               "No way! Are you serious?! I'm speechless! I'm blown away! This is mind-blowing! I'm in complete shock! I never saw this coming! My jaw just dropped!",
             expected:
-              '말도 안 돼! 진심이야?! 할 말을 잃었어! 완전 놀랐어! 이거 정말 충격적이야! 완전히 충격 받았어! 전혀 예상 못 했어! 입이 떡 벌어졌어!',
+              '헐 말도 안 돼! 진심이야?! 할 말이 없어! 완전 대박! 이거 진짜 미쳤다! 충격이야! 진짜 예상도 못 했어! 입이 떡 벌어졌어!',
             direction: 'en-ko',
           },
         ],
@@ -513,7 +513,7 @@ export const categoryTests: TestLevel[] = [
             input:
               "I'm terrified... I can't breathe properly. My mind is racing with worst-case scenarios. I'm paralyzed with fear. I'm on edge. This anxiety is overwhelming me.",
             expected:
-              '너무 무서워... 제대로 숨을 쉴 수가 없어. 머릿속에 최악의 시나리오가 계속 떠올라. 두려움에 얼어붙었어. 신경이 곤두서 있어. 이 불안감이 나를 압도하고 있어.',
+              '진짜 무서워... 숨이 제대로 안 쉬어져. 자꾸 최악의 상황만 생각나. 무서워서 꼼짝을 못 하겠어. 신경이 곤두서 있어. 불안해서 견딜 수가 없어.',
             direction: 'en-ko',
           },
         ],
@@ -543,7 +543,7 @@ export const categoryTests: TestLevel[] = [
             input:
               'The patient presents with acute abdominal pain. Vital signs are stable. We need to run some blood tests and imaging. Based on the results, we may need to schedule surgery. Please monitor the patient closely.',
             expected:
-              '환자가 급성 복통을 호소하고 있습니다. 활력 징후는 안정적입니다. 혈액 검사와 영상 검사를 해야 합니다. 결과에 따라 수술을 예약해야 할 수도 있습니다. 환자를 면밀히 모니터링해 주세요.',
+              '환자분 급성 복통이에요. 바이탈은 안정적입니다. 피검사랑 영상 촬영 해야 돼요. 결과 보고 수술 잡을 수도 있어요. 환자 상태 잘 지켜봐 주세요.',
             direction: 'en-ko',
           },
         ],
@@ -566,7 +566,7 @@ export const categoryTests: TestLevel[] = [
             input:
               'The defendant pleads not guilty. The prosecution must prove guilt beyond a reasonable doubt. Evidence submitted includes witness testimony and physical evidence. The court will now hear opening statements. The jury must deliberate and reach a unanimous verdict.',
             expected:
-              '피고인은 무죄를 주장합니다. 검찰은 합리적 의심을 넘어 유죄를 입증해야 합니다. 제출된 증거에는 증인 진술과 물적 증거가 포함됩니다. 법정은 이제 모두 진술을 듣겠습니다. 배심원단은 심의하여 만장일치 평결에 도달해야 합니다.',
+              '피고인은 무죄를 주장합니다. 검찰이 합리적 의심의 여지가 없도록 유죄를 입증해야 합니다. 제출된 증거로는 증인 진술과 물증이 있습니다. 이제 모두진술을 듣겠습니다. 배심원단은 심의 후 만장일치로 평결해야 합니다.',
             direction: 'en-ko',
           },
         ],
@@ -589,7 +589,7 @@ export const categoryTests: TestLevel[] = [
             input:
               "We need to implement a cloud-based solution. The current infrastructure is not scalable. Migration will take approximately three months. We'll use microservices architecture. Security protocols must be upgraded. Let's schedule a sprint planning meeting.",
             expected:
-              '클라우드 기반 솔루션을 구현해야 합니다. 현재 인프라는 확장 가능하지 않습니다. 마이그레이션에는 약 3개월이 걸릴 것입니다. 마이크로서비스 아키텍처를 사용하겠습니다. 보안 프로토콜을 업그레이드해야 합니다. 스프린트 계획 회의를 잡읍시다.',
+              '클라우드 기반으로 가야 돼요. 지금 인프라는 확장이 안 돼요. 마이그레이션은 한 3개월 걸릴 거예요. 마이크로서비스 아키텍처 쓸 거고요. 보안 프로토콜 업그레이드해야 해요. 스프린트 계획 미팅 잡읍시다.',
             direction: 'en-ko',
           },
         ],
@@ -612,7 +612,7 @@ export const categoryTests: TestLevel[] = [
             input:
               "We need to diversify our portfolio. The market analysis shows promising trends. Our ROI has improved by 15%. Let's schedule a board meeting to discuss expansion. We should consider strategic partnerships.",
             expected:
-              '우리는 포트폴리오를 다각화해야 합니다. 시장 분석은 유망한 추세를 보여줍니다. 우리의 ROI가 15% 향상되었습니다. 확장을 논의하기 위해 이사회 회의를 잡읍시다. 전략적 파트너십을 고려해야 합니다.',
+              '포트폴리오 다각화가 필요해요. 시장 분석 결과 전망이 좋습니다. ROI가 15% 올랐어요. 확장 논의하려면 이사회 잡아야죠. 전략적 파트너십도 고려해 봐야 해요.',
             direction: 'en-ko',
           },
         ],
@@ -635,7 +635,7 @@ export const categoryTests: TestLevel[] = [
             input:
               'The hypothesis was tested through controlled experiments. Data analysis revealed a strong correlation. The findings support previous literature. Limitations include sample size constraints. Future studies should address these variables.',
             expected:
-              '가설은 통제된 실험을 통해 검증되었습니다. 데이터 분석은 강한 상관관계를 드러냈습니다. 발견 사항은 이전 문헌을 뒷받침합니다. 한계점으로는 표본 크기 제약이 있습니다. 향후 연구는 이러한 변수들을 다루어야 합니다.',
+              '가설은 통제 실험으로 검증했습니다. 데이터 분석 결과 강한 상관관계가 나타났습니다. 이번 결과는 기존 연구를 뒷받침합니다. 표본 크기의 한계가 있습니다. 후속 연구에서 이 변수들을 다뤄야 합니다.',
             direction: 'en-ko',
           },
         ],
@@ -735,7 +735,7 @@ export const contextTests: TestLevel[] = [
           {
             id: 'ctx-pronoun-en',
             input: 'John called Mary. She was happy to hear from him.',
-            expected: '존이 메리에게 전화했다. 그녀는 그에게서 소식을 듣고 기뻤다.',
+            expected: '존이 메리한테 전화했다. 메리는 연락 받고 기뻤다.',
             direction: 'en-ko',
           },
         ],
@@ -754,7 +754,7 @@ export const contextTests: TestLevel[] = [
           {
             id: 'ctx-omit-en',
             input: 'Got up early. Made breakfast. Went to work.',
-            expected: '일찍 일어났다. 아침을 만들었다. 출근했다.',
+            expected: '일찍 일어났다. 아침을 준비했다. 출근했다.',
             direction: 'en-ko',
           },
         ],
@@ -792,7 +792,7 @@ export const contextTests: TestLevel[] = [
           {
             id: 'ctx-temp-en',
             input: 'I arrived late. Traffic was terrible earlier.',
-            expected: '나는 늦게 도착했다. 그 전에 교통이 끔찍했다.',
+            expected: '늦게 도착했다. 아까 길이 너무 막혔다.',
             direction: 'en-ko',
           },
         ],
@@ -822,7 +822,7 @@ export const contextTests: TestLevel[] = [
             input:
               "Tom and his brother went fishing. Tom caught a big fish, but his brother didn't catch anything. He was disappointed, but he was happy for him. They decided to share it.",
             expected:
-              '톰과 그의 형이 낚시를 갔다. 톰은 큰 물고기를 잡았지만, 그의 형은 아무것도 잡지 못했다. 형은 실망했지만, 톰을 위해 기뻐했다. 그들은 그것을 나누기로 결정했다.',
+              '톰이랑 형이 낚시 갔다. 톰은 큰 물고기를 잡았는데 형은 아무것도 못 잡았다. 형은 아쉬웠지만 톰 덕에 기뻤다. 둘이 나눠 먹기로 했다.',
             direction: 'en-ko',
           },
         ],
@@ -845,7 +845,7 @@ export const contextTests: TestLevel[] = [
             input:
               "The alarm didn't go off. I woke up late. I skipped breakfast. I rushed to the office. I was still late for the meeting.",
             expected:
-              '알람이 울리지 않았다. 늦게 일어났다. 아침을 거른채 회사로 서둘렀다. 그래도 회의에 늦었다.',
+              '알람이 안 울렸다. 늦게 일어났다. 아침도 못 먹고 뛰어갔다. 그래도 회의에 늦었다.',
             direction: 'en-ko',
           },
         ],
@@ -868,7 +868,7 @@ export const contextTests: TestLevel[] = [
             input:
               'Went to the new restaurant. Ordered the special. Waited forever. Tasted amazing. Worth the wait.',
             expected:
-              '새 식당에 갔다. 스페셜 메뉴를 주문했다. 정말 오래 기다렸다. 맛은 놀라웠다. 기다릴 만한 가치가 있었다.',
+              '새 식당 갔다. 스페셜 시켰다. 한참 기다렸다. 근데 맛이 끝내줬다. 기다린 보람 있었다.',
             direction: 'en-ko',
           },
         ],
@@ -891,7 +891,7 @@ export const contextTests: TestLevel[] = [
             input:
               '"I\'m hungry," she said. "Let\'s order pizza," I suggested. "Great idea!" she exclaimed. "Should we get the usual?" I asked. "Yes, please!" she responded.',
             expected:
-              '"배고파." 그녀가 말했다. "피자 시키자." 내가 제안했다. "좋은 생각이야!" 그녀가 외쳤다. "평소에 먹던 걸로 시킬까?" 내가 물었다. "응, 그래!" 그녀가 대답했다.',
+              '"배고파." 그녀가 말했다. "피자 시키자." 내가 말했다. "좋아!" 그녀가 말했다. "맨날 먹던 거로 시킬까?" 내가 물었다. "응!" 그녀가 대답했다.',
             direction: 'en-ko',
           },
         ],
@@ -921,7 +921,7 @@ export const contextTests: TestLevel[] = [
             input:
               "Sarah worked at a marketing firm. She had a project deadline approaching. Her manager, David, was very demanding. David's boss, the CEO, was even more strict. Sarah asked her colleague Mike for help. Mike agreed but he was also overwhelmed with his own work. Sarah decided to work overtime. She completed the project just in time. David was impressed and praised her. The CEO recognized her dedication and gave her a bonus.",
             expected:
-              '사라는 마케팅 회사에서 일했다. 그녀는 프로젝트 마감일이 다가오고 있었다. 그녀의 매니저인 데이비드는 매우 까다로웠다. 데이비드의 상사인 CEO는 더욱 엄격했다. 사라는 동료 마이크에게 도움을 요청했다. 마이크는 동의했지만 그 역시 자신의 일로 압도되어 있었다. 사라는 야근하기로 결정했다. 그녀는 제시간에 프로젝트를 완성했다. 데이비드는 감동받아 그녀를 칭찬했다. CEO는 그녀의 헌신을 인정하고 보너스를 주었다.',
+              '사라는 마케팅 회사에 다녔다. 프로젝트 마감이 다가오고 있었다. 매니저 데이비드는 까다로운 사람이었다. 데이비드 위의 대표는 더 까다로웠다. 사라가 동료 마이크한테 도움을 요청했다. 마이크도 자기 일이 밀려 있었지만 그래도 도와주겠다고 했다. 사라는 야근하기로 했다. 간신히 제시간에 끝냈다. 데이비드가 감동받아서 칭찬해줬다. 대표도 노력을 인정해서 보너스를 줬다.',
             direction: 'en-ko',
           },
         ],
@@ -944,7 +944,7 @@ export const contextTests: TestLevel[] = [
             input:
               "Yesterday I found an old photo. It was taken five years ago at my graduation. I remembered that day clearly. The morning had been chaotic because I woke up late. I had stayed up the night before celebrating with friends. But I made it to the ceremony on time. My parents were so proud. After the ceremony, we had dinner at a fancy restaurant. Now, looking at the photo, I realize how much has changed. Tomorrow, I'll attend my sister's graduation and the cycle continues.",
             expected:
-              '어제 오래된 사진을 발견했다. 그것은 5년 전 내 졸업식 때 찍은 것이었다. 나는 그날을 명확히 기억했다. 아침은 혼란스러웠는데 늦게 일어났기 때문이다. 나는 전날 밤 친구들과 축하하느라 늦게까지 깨어 있었다. 하지만 제시간에 행사에 도착했다. 부모님은 정말 자랑스러워하셨다. 행사 후에 우리는 고급 식당에서 저녁을 먹었다. 지금, 사진을 보면서, 얼마나 많이 변했는지 깨닫는다. 내일, 나는 여동생의 졸업식에 참석할 것이고 순환은 계속된다.',
+              '어제 오래된 사진을 발견했다. 5년 전 졸업식 때 찍은 거였다. 그날이 또렷이 기억났다. 늦게 일어나서 아침이 정신없었다. 전날 밤 친구들이랑 축하하느라 늦게까지 안 잤었다. 근데 식에는 제시간에 도착했다. 부모님이 엄청 뿌듯해하셨다. 식 끝나고 좋은 식당에서 저녁 먹었다. 지금 사진 보니까 정말 많이 변했구나 싶다. 내일은 여동생 졸업식이다. 이렇게 반복되는구나.',
             direction: 'en-ko',
           },
         ],
@@ -967,7 +967,7 @@ export const contextTests: TestLevel[] = [
             input:
               'The doctor walked in slowly. She looked at the chart. Then she looked at me. She pulled up a chair. "Let\'s talk about your results," she said gently. Her tone was soft. Too soft. I felt my heart sink. "Is it bad?" I asked. She reached for my hand. That\'s when I knew.',
             expected:
-              '의사가 천천히 들어왔다. 그녀는 차트를 봤다. 그리고 나를 봤다. 그녀는 의자를 당겼다. "검사 결과에 대해 얘기합시다." 그녀가 부드럽게 말했다. 그녀의 어조는 부드러웠다. 너무 부드러웠다. 나는 가슴이 철렁했다. "안 좋은가요?" 내가 물었다. 그녀는 내 손을 잡았다. 그때 나는 알았다.',
+              '의사 선생님이 천천히 들어왔다. 차트를 보더니 나를 봤다. 의자를 끌어당겨 앉았다. "검사 결과 얘기 좀 하죠." 부드럽게 말했다. 목소리가 너무 부드러웠다. 가슴이 철렁 내려앉았다. "안 좋은 건가요?" 물었다. 선생님이 내 손을 잡았다. 그 순간 알았다.',
             direction: 'en-ko',
           },
         ],
@@ -997,7 +997,7 @@ export const contextTests: TestLevel[] = [
             input:
               "On Thanksgiving, we gathered at my parents' house. We carved the turkey. Everyone shared what they were grateful for. Then we watched football together.",
             expected:
-              '추수감사절에 우리는 부모님 댁에 모였다. 우리는 칠면조를 잘랐다. 모두가 감사한 것을 나눴다. 그런 다음 함께 풋볼을 봤다.',
+              '추수감사절에 부모님 댁에 모였다. 칠면조를 잘라 나눴다. 다들 감사한 것들 얘기했다. 그러고 나서 다 같이 미식축구 봤다.',
             direction: 'en-ko',
           },
         ],
@@ -1020,7 +1020,7 @@ export const contextTests: TestLevel[] = [
             input:
               'She was a ray of sunshine in my dark days. Her smile could light up a room. When she left, winter came to my heart.',
             expected:
-              '그녀는 내 어두운 날들의 한줄기 햇살이었다. 그녀의 미소는 방을 밝힐 수 있었다. 그녀가 떠났을 때, 내 마음에 겨울이 왔다.',
+              '힘들 때 그녀는 한 줄기 빛이었다. 그녀가 웃으면 분위기가 확 밝아졌다. 그녀가 떠나고 마음이 꽁꽁 얼어붙었다.',
             direction: 'en-ko',
           },
         ],
@@ -1054,7 +1054,7 @@ export const typoTests: TestLevel[] = [
           {
             id: 'typo-spell-en',
             input: 'I realy liek this moive. It was awsome and the actors were grate.',
-            expected: '나는 이 영화가 정말 좋아요. 훌륭했고 배우들이 대단했어요.',
+            expected: '이 영화 진짜 좋아. 완전 대박이었고 배우들 연기 짱이었어.',
             direction: 'en-ko',
           },
         ],
@@ -1073,7 +1073,7 @@ export const typoTests: TestLevel[] = [
           {
             id: 'typo-space-en',
             input: 'Iwentto thestoreyesterday andbot somegroceries.',
-            expected: '나는 어제 가게에 갔고 식료품을 샀어요.',
+            expected: '어제 마트 가서 장 봤어.',
             direction: 'en-ko',
           },
         ],
@@ -1092,7 +1092,7 @@ export const typoTests: TestLevel[] = [
           {
             id: 'typo-dup-en',
             input: 'I amm soo happpy todayy. Wee had a greatt timee.',
-            expected: '나는 오늘 너무 행복해요. 우리는 좋은 시간을 보냈어요.',
+            expected: '오늘 너무 행복해. 완전 재밌었어.',
             direction: 'en-ko',
           },
         ],
@@ -1111,7 +1111,7 @@ export const typoTests: TestLevel[] = [
           {
             id: 'typo-adj-en',
             input: 'Hwllo! Hoe are yoi today? I hope ypu are doing wrll.',
-            expected: '안녕하세요! 오늘 어떻게 지내세요? 잘 지내시길 바래요.',
+            expected: '안녕하세요! 잘 지내시죠? 좋은 하루 보내세요.',
             direction: 'en-ko',
           },
         ],
@@ -1138,7 +1138,7 @@ export const typoTests: TestLevel[] = [
             id: 'typo-homo-en',
             input:
               'Their going too the store too buy some meet for dinner. Its going to be delicious.',
-            expected: '그들은 저녁을 위해 고기를 사러 가게에 가고 있어요. 맛있을 거예요.',
+            expected: '저녁 먹으려고 고기 사러 마트 가는 중이야. 맛있겠다.',
             direction: 'en-ko',
           },
         ],
@@ -1157,8 +1157,7 @@ export const typoTests: TestLevel[] = [
           {
             id: 'typo-part-en',
             input: 'I goes to school everyday. She like ice cream. They was playing soccer.',
-            expected:
-              '나는 매일 학교에 가요. 그녀는 아이스크림을 좋아해요. 그들은 축구를 하고 있었어요.',
+            expected: '나 매일 학교 가. 걔는 아이스크림 좋아해. 걔네 축구하고 있었어.',
             direction: 'en-ko',
           },
         ],
@@ -1177,7 +1176,7 @@ export const typoTests: TestLevel[] = [
           {
             id: 'typo-comb-en',
             input: 'Yeserday I whent too thee movies wiht my frend. Wee had an amzing tiem.',
-            expected: '어제 나는 친구와 영화를 보러 갔어요. 우리는 놀라운 시간을 보냈어요.',
+            expected: '어제 친구랑 영화 봤어. 완전 재밌었어.',
             direction: 'en-ko',
           },
         ],
@@ -1196,7 +1195,7 @@ export const typoTests: TestLevel[] = [
           {
             id: 'typo-punct-en',
             input: 'Hello,how are you.Im doing great,thank you.What about you,',
-            expected: '안녕하세요, 어떻게 지내세요? 잘 지내요, 감사합니다. 당신은요?',
+            expected: '안녕, 잘 지내? 나 잘 지내, 고마워. 넌?',
             direction: 'en-ko',
           },
         ],
@@ -1225,8 +1224,7 @@ export const typoTests: TestLevel[] = [
             id: 'typo-sev-en',
             input:
               'I yesterday go to store and buyed some thing. It very expensive was but I really need it so I bought.',
-            expected:
-              '나는 어제 가게에 갔고 무언가를 샀다. 그것은 매우 비쌌지만 정말 필요했기 때문에 샀다.',
+            expected: '어제 가게 가서 뭐 샀어. 엄청 비쌌는데 진짜 필요해서 샀어.',
             direction: 'en-ko',
           },
         ],
@@ -1247,8 +1245,7 @@ export const typoTests: TestLevel[] = [
             id: 'typo-diff-en',
             input:
               'Wen I was yung, I use to beleive in fairy tails. Now I no that there not reel, but I stil enjoy reeding them.',
-            expected:
-              '내가 어렸을 때, 나는 동화를 믿곤 했다. 이제 나는 그것들이 진짜가 아니라는 것을 알지만, 여전히 읽는 것을 즐긴다.',
+            expected: '어렸을 때 동화를 믿었어. 이제 진짜가 아닌 거 알지만 아직도 읽는 건 좋아해.',
             direction: 'en-ko',
           },
         ],
@@ -1269,8 +1266,7 @@ export const typoTests: TestLevel[] = [
             id: 'typo-ext-en',
             input:
               'IwenttothebeachyesterdaybutitwasveryhotsoididntstaylongandwenthomeearlybecauseIwasfeelingtired',
-            expected:
-              '나는 어제 해변에 갔지만 매우 더워서 오래 머물지 않았고 피곤함을 느껴서 일찍 집에 갔다.',
+            expected: '어제 해변 갔는데 너무 더워서 오래 안 있고 피곤해서 일찍 집에 왔어.',
             direction: 'en-ko',
           },
         ],
@@ -1291,8 +1287,7 @@ export const typoTests: TestLevel[] = [
             id: 'typo-int-en',
             input:
               'tmrw gonna meet frnd. we r going 2 the mall. gonna buy stuff. prob gonna eat 2. cant w8!',
-            expected:
-              '내일 친구를 만날 거야. 우리는 쇼핑몰에 갈 거야. 물건을 살 거야. 아마 먹기도 할 거야. 기다릴 수 없어!',
+            expected: '내일 친구 만나. 쇼핑몰 갈 거야. 뭐 좀 사고. 아마 밥도 먹을 듯. 기대돼!',
             direction: 'en-ko',
           },
         ],
@@ -1319,7 +1314,7 @@ export const typoTests: TestLevel[] = [
           {
             id: 'typo-rush-en',
             input: 'omg running late!!! traffic is crazyyy!!! b there in 5 mins!!! srry!!!',
-            expected: '세상에, 늦고 있어! 교통이 미쳤어! 5분 안에 갈게! 미안!',
+            expected: '헐 늦었어!!! 길 완전 막혀!!! 5분 안에 갈게!!! 미안!!!',
             direction: 'en-ko',
           },
         ],
@@ -1339,7 +1334,7 @@ export const typoTests: TestLevel[] = [
           {
             id: 'typo-emo-en',
             input: 'NOOOOO WAYYYYY!!!!!!! THIS IS AMAZINGGGGG!!!!! BEST DAY EVERRRRRR!!!!!!!',
-            expected: '말도 안 돼! 이거 놀라워! 최고의 날이야!',
+            expected: '헐 진짜!!!!!!! 미쳤다!!!!! 인생 최고의 날!!!!!!!',
             direction: 'en-ko',
           },
         ],
@@ -1401,14 +1396,13 @@ export const uniqueTests: TestLevel[] = [
           {
             id: 'neo-en-1',
             input: "I'm just doomscrolling through social media again. Can't stop.",
-            expected:
-              '나는 또 소셜 미디어를 끝없이 스크롤하면서 부정적인 뉴스만 보고 있어. 멈출 수가 없어.',
+            expected: '또 SNS 보면서 우울한 뉴스만 쭉 훑어보고 있어. 멈출 수가 없어.',
             direction: 'en-ko',
           },
           {
             id: 'neo-en-2',
             input: "I'm experiencing major FOMO. Everyone's at the party except me.",
-            expected: '나는 지금 심각한 소외감을 느끼고 있어. 나 빼고 다들 파티에 있어.',
+            expected: '완전 뒤처지는 기분이야. 나만 빼고 다 파티 가 있어.',
             direction: 'en-ko',
           },
         ],
@@ -1435,13 +1429,13 @@ export const uniqueTests: TestLevel[] = [
           {
             id: 'comp-en-1',
             input: "I'm such a binge-watcher. Watched entire season in one weekend.",
-            expected: '나는 정말 몰아보기 중독자야. 한 주말에 전체 시즌을 다 봤어.',
+            expected: '완전 정주행 중독이야. 주말에 시즌 전편 다 봤어.',
             direction: 'en-ko',
           },
           {
             id: 'comp-en-2',
             input: "I'm a plant parent now. I have 30 houseplants and talk to them daily.",
-            expected: '나는 이제 완전 식물 부모야. 실내 식물이 30개 있고 매일 그들에게 말을 걸어.',
+            expected: '이제 완전 식집사야. 화분이 30개나 있고 매일 말 걸어줘.',
             direction: 'en-ko',
           },
         ],
@@ -1467,7 +1461,7 @@ export const uniqueTests: TestLevel[] = [
           {
             id: 'cult-en-1',
             input: 'I need my privacy. Personal space is important.',
-            expected: '나는 나만의 사생활이 필요해. 개인적인 공간이 중요해.',
+            expected: '사생활이 필요해. 혼자만의 공간이 중요하거든.',
             direction: 'en-ko',
           },
           {
@@ -1499,13 +1493,13 @@ export const uniqueTests: TestLevel[] = [
           {
             id: 'struct-en-1',
             input: 'The book that she gave me last week was very interesting.',
-            expected: '그녀가 지난주에 나에게 준 그 책은 정말 재미있었다.',
+            expected: '지난주에 걔가 준 그 책 진짜 재밌었어.',
             direction: 'en-ko',
           },
           {
             id: 'struct-en-2',
             input: 'I met the person who works at the company that my friend started.',
-            expected: '나는 내 친구가 시작한 회사에서 일하는 사람을 만났다.',
+            expected: '친구가 차린 회사에서 일하는 사람 만났어.',
             direction: 'en-ko',
           },
         ],
@@ -1592,7 +1586,7 @@ export const uniqueTests: TestLevel[] = [
           {
             id: 'irony-en-1',
             input: 'Oh wonderful! Just what I needed!',
-            expected: '아주 좋아! 정말 딱 필요한 거였어!',
+            expected: '아 정말 좋다! 딱 필요했던 거야!',
             direction: 'en-ko',
           },
           {
@@ -1660,7 +1654,7 @@ export const uniqueTests: TestLevel[] = [
           {
             id: 'infer-en-2',
             input: "He didn't respond. His phone is off. Something must have happened.",
-            expected: '그가 응답하지 않았어. 폰이 꺼져 있어. 무슨 일이 생긴 게 틀림없어.',
+            expected: '답이 없어. 폰도 꺼져 있어. 무슨 일 생긴 거 틀림없어.',
             direction: 'en-ko',
           },
         ],
@@ -1716,13 +1710,13 @@ export const uniqueTests: TestLevel[] = [
           {
             id: 'len-ko-1',
             input: '정',
-            expected: 'A deep emotional bond formed through shared experiences and time together',
+            expected: 'Affection',
             direction: 'ko-en',
           },
           {
             id: 'len-ko-2',
             input: '밥 먹었어?',
-            expected: 'How are you doing?',
+            expected: 'Have you eaten?',
             direction: 'ko-en',
           },
           {
@@ -1985,7 +1979,7 @@ export const polysemyTests: TestLevel[] = [
           {
             id: 'poly-beg-6c',
             input: 'I like eating dates.',
-            expected: '나는 대추야자 먹는 것을 좋아해요.',
+            expected: '대추야자 먹는 거 좋아해요.',
             direction: 'en-ko',
           },
           // Light (빛 / 가볍다 / 밝은)
@@ -2004,7 +1998,7 @@ export const polysemyTests: TestLevel[] = [
           {
             id: 'poly-beg-7c',
             input: 'I like light colors.',
-            expected: '나는 밝은 색을 좋아해요.',
+            expected: '밝은 색 좋아해요.',
             direction: 'en-ko',
           },
         ],
@@ -2119,7 +2113,7 @@ export const polysemyTests: TestLevel[] = [
           {
             id: 'poly-int-4a',
             input: 'I run 5km every morning.',
-            expected: '나는 매일 아침 5km를 달려요.',
+            expected: '매일 아침 5km를 달려요.',
             direction: 'en-ko',
           },
           {
@@ -2137,26 +2131,26 @@ export const polysemyTests: TestLevel[] = [
           {
             id: 'poly-int-4d',
             input: "He's running for president.",
-            expected: '그는 대통령에 출마하고 있어요.',
+            expected: '그는 대통령 선거에 출마 중이에요.',
             direction: 'en-ko',
           },
           // Bank (은행 / 강둑 / 비축)
           {
             id: 'poly-int-5a',
             input: 'I need to go to the bank to withdraw money.',
-            expected: '돈을 인출하러 은행에 가야 해요.',
+            expected: '돈 찾으러 은행에 가야 해요.',
             direction: 'en-ko',
           },
           {
             id: 'poly-int-5b',
             input: 'We sat on the bank of the river.',
-            expected: '우리는 강둑에 앉았어요.',
+            expected: '강둑에 앉았어요.',
             direction: 'en-ko',
           },
           {
             id: 'poly-int-5c',
             input: 'I need to build up a bank of vacation days.',
-            expected: '휴가 일수를 비축해야 해요.',
+            expected: '휴가를 좀 모아둬야 해요.',
             direction: 'en-ko',
           },
         ],
@@ -2290,19 +2284,19 @@ export const polysemyTests: TestLevel[] = [
           {
             id: 'poly-adv-5a',
             input: 'Spring is my favorite season.',
-            expected: '봄은 내가 가장 좋아하는 계절이에요.',
+            expected: '봄이 제일 좋아하는 계절이에요.',
             direction: 'en-ko',
           },
           {
             id: 'poly-adv-5b',
             input: 'The spring in my mattress is broken.',
-            expected: '내 매트리스의 스프링이 망가졌어요.',
+            expected: '매트리스 스프링이 망가졌어요.',
             direction: 'en-ko',
           },
           {
             id: 'poly-adv-5c',
             input: 'We visited a natural hot spring.',
-            expected: '우리는 천연 온천을 방문했어요.',
+            expected: '천연 온천에 다녀왔어요.',
             direction: 'en-ko',
           },
           {
@@ -2508,7 +2502,7 @@ export const wordOrderTests: TestLevel[] = [
             input:
               'Last Saturday morning, I woke up early, made fresh coffee, read the newspaper on the balcony, called my parents, and then went to the gym for two hours.',
             expected:
-              '나는 지난 토요일 아침에 일찍 일어나서 신선한 커피를 만들고 발코니에서 신문을 읽고 부모님께 전화하고 그 다음에 두 시간 동안 헬스장에 갔어.',
+              '지난 토요일 아침에 일찍 일어나서 커피 내리고, 발코니에서 신문 읽고, 부모님께 전화하고, 그러고 나서 두 시간 동안 헬스장에 다녀왔어.',
             direction: 'en-ko',
           },
           {
@@ -2516,7 +2510,7 @@ export const wordOrderTests: TestLevel[] = [
             input:
               'Because I failed my driving test three times, I decided to take professional lessons from next month, practice every weekend, and try again before summer vacation starts.',
             expected:
-              '운전 시험에 세 번이나 떨어져서 나는 다음 달부터 전문 레슨을 받고 매주 주말마다 연습하고 여름 방학이 시작하기 전에 다시 시도하기로 결정했어.',
+              '운전 시험에 세 번이나 떨어져서 다음 달부터 전문 학원 다니고, 매주 주말마다 연습하고, 여름 방학 전에 다시 도전하기로 했어.',
             direction: 'en-ko',
           },
           {
@@ -2524,7 +2518,7 @@ export const wordOrderTests: TestLevel[] = [
             input:
               'My younger sister graduated from university last year, found a great job at a tech company, moved to her own apartment downtown, and seems much happier than when she lived with our parents.',
             expected:
-              '내 여동생은 작년에 대학을 졸업하고 테크 회사에서 좋은 직장을 찾고 도심에 있는 자기 아파트로 이사했고 부모님과 살 때보다 훨씬 더 행복해 보여.',
+              '여동생이 작년에 대학 졸업하고 IT 회사에 취직해서 도심에 자기 집 마련했는데, 부모님이랑 살 때보다 훨씬 행복해 보여.',
             direction: 'en-ko',
           },
         ],
@@ -2561,7 +2555,7 @@ export const wordOrderTests: TestLevel[] = [
             input:
               'During my three-month backpacking trip through Southeast Asia last summer, I visited twelve different countries, tried countless street foods, learned basic phrases in six languages, made friends from all over the world, got lost in unfamiliar cities multiple times, experienced both amazing kindness and unfortunate scams, ran out of money twice and had to work at hostels, missed my flight once, got food poisoning three times, but looking back now, I realize it was the most valuable and life-changing experience that taught me independence, resilience, and how to appreciate different cultures and perspectives.',
             expected:
-              '나는 작년 여름에 3개월 동안 동남아시아를 배낭여행하면서 12개의 다른 나라들을 방문했고 수많은 길거리 음식을 먹어봤고 6개 언어로 기본적인 문구를 배웠고 전 세계에서 온 친구들을 사귀었고 낯선 도시에서 여러 번 길을 잃었고 놀라운 친절과 불행한 사기를 모두 경험했고 두 번이나 돈이 떨어져서 호스텔에서 일해야 했고 한 번은 비행기를 놓쳤고 세 번이나 식중독에 걸렸지만 지금 돌이켜보면 그것이 내게 독립심과 회복력과 다양한 문화와 관점을 감상하는 방법을 가르쳐준 가장 가치 있고 인생을 바꾼 경험이었다는 것을 깨달았어.',
+              '작년 여름 3개월 동안 동남아 배낭여행하면서 12개국 돌아다녔고, 길거리 음식도 엄청 먹어봤고, 6개 국어로 기본 인사 배웠고, 전 세계에서 온 친구들 사귀었고, 낯선 도시에서 여러 번 길 잃었고, 엄청 친절한 사람도 만났지만 사기도 당했고, 돈 두 번이나 떨어져서 호스텔에서 일했고, 비행기 한 번 놓쳤고, 식중독 세 번 걸렸는데, 지금 돌이켜보면 그게 독립심이랑 회복력, 다양한 문화를 존중하는 법을 가르쳐준 인생 최고의 경험이었어.',
             direction: 'en-ko',
           },
         ],
@@ -2620,19 +2614,19 @@ export const spacingErrorTests: TestLevel[] = [
           {
             id: 'sp-l1-5',
             input: 'Iwatchedthemoviewhileeating.',
-            expected: '나는 먹으면서 영화를 봤어.',
+            expected: '밥 먹으면서 영화 봤어.',
             direction: 'en-ko',
           },
           {
             id: 'sp-l1-6',
             input: 'Heworksatthebankbytheriver.',
-            expected: '그는 강가에 있는 은행에서 일해.',
+            expected: '걔는 강가 은행에서 일해.',
             direction: 'en-ko',
           },
           {
             id: 'sp-l1-7',
             input: 'Shesangasongaboutlove.',
-            expected: '그녀는 사랑에 관한 노래를 불렀어.',
+            expected: '사랑 노래를 불렀어.',
             direction: 'en-ko',
           },
         ],
@@ -2685,19 +2679,19 @@ export const spacingErrorTests: TestLevel[] = [
           {
             id: 'sp-l2-5',
             input: 'Iwenttothegymthismorningandranonthetreadmillfor30minutes.',
-            expected: '나는 오늘 아침 헬스장에 가서 러닝머신에서 30분 동안 달렸어.',
+            expected: '오늘 아침 헬스장 가서 러닝머신으로 30분 뛰었어.',
             direction: 'en-ko',
           },
           {
             id: 'sp-l2-6',
             input: 'Myfriendissadandcryingbecauseshefailedtheexam.',
-            expected: '내 친구는 시험에 떨어져서 슬퍼하고 울고 있어.',
+            expected: '친구가 시험 떨어져서 울고 있어.',
             direction: 'en-ko',
           },
           {
             id: 'sp-l2-7',
             input: 'TheprogrammerisfixingbugsandwritingcodefortheAIproject.',
-            expected: '그 프로그래머는 AI 프로젝트를 위해 버그를 고치고 코드를 작성하고 있어.',
+            expected: '그 프로그래머가 AI 프로젝트 버그 잡고 코드 짜고 있어.',
             direction: 'en-ko',
           },
           {
@@ -2764,7 +2758,7 @@ export const spacingErrorTests: TestLevel[] = [
             input:
               'LastnightIwassostressedaboutworksoIwenttothebarwithmycolleaguesanddrankbeerandtalkedaboutourproblemsandfeelsomuchbetternow.',
             expected:
-              '어젯밤 나는 일 때문에 너무 스트레스 받아서 동료들과 바에 가서 맥주를 마시고 우리 문제들에 대해 얘기했고 지금은 훨씬 나아진 기분이야.',
+              '어젯밤에 일 때문에 너무 스트레스받아서 동료들이랑 술집 가서 맥주 마시면서 고민 얘기했더니 지금은 훨씬 나아.',
             direction: 'en-ko',
           },
           {
@@ -2772,7 +2766,7 @@ export const spacingErrorTests: TestLevel[] = [
             input:
               'ThesoftwaredeveloperisfrustratedcausethebugkeepsappearingandthecodeisntworkingproperlysohedecidestorefactortheentiremoduleusingPython.',
             expected:
-              '그 소프트웨어 개발자는 버그가 계속 나타나고 코드가 제대로 작동하지 않아서 좌절했고 Python을 사용해서 전체 모듈을 리팩토링하기로 결정했어.',
+              '그 개발자가 버그가 자꾸 나오고 코드가 안 돌아가서 빡쳐서 Python으로 모듈 전체를 리팩토링하기로 했어.',
             direction: 'en-ko',
           },
           {
@@ -2780,7 +2774,7 @@ export const spacingErrorTests: TestLevel[] = [
             input:
               'Iwatchedamovieaboutalighthousekeeperwhogotlostinthedarkandusedamatchtolight afirebutthelightwasntenoughandhefeltsadandlonely.',
             expected:
-              '나는 어둠 속에서 길을 잃은 등대지기가 성냥으로 불을 켰지만 빛이 충분하지 않아서 슬프고 외로워하는 영화를 봤어.',
+              '어둠 속에서 길 잃은 등대지기가 성냥으로 불 피웠는데 빛이 부족해서 슬프고 외로워하는 영화 봤어.',
             direction: 'en-ko',
           },
         ],
@@ -2825,7 +2819,7 @@ export const spacingErrorTests: TestLevel[] = [
             input:
               'IvebeenanAIdeveloperforthreeyearsandworkingondeeplearnignprojectsisprettyexcitingbutalsoverystressfulcausewhenyoutrainneuralnetworksthebugscanbeveryconfusingandsometimesIfeelfrustartedandsadwhenthemodeldoesntconvergebutwhenitsfinallworkingandtheaccuracyishighIfeelamazingandhappyandproudofmyselfandmyteamandnowwerelookingintotransformermodelsandlargelanguagemodelswhicharesocoolandIcantwaittostartbuildingthem.',
             expected:
-              '나는 3년 동안 AI 개발자로 일하고 있고 딥러닝 프로젝트를 하는 건 꽤 신나지만 또 아주 스트레스 받는데 왜냐하면 신경망을 학습시킬 때 버그가 정말 헷갈릴 수 있고 때때로 모델이 수렴하지 않을 때 좌절되고 슬프지만 마침내 작동하고 정확도가 높을 때는 놀랍고 행복하고 나 자신과 우리 팀이 자랑스럽고 이제 우리는 트랜스포머 모델과 대규모 언어 모델을 살펴보고 있는데 정말 멋있어서 그것들을 만들기 시작하는 게 기다려져.',
+              'AI 개발자로 3년째 일하는데, 딥러닝 프로젝트는 진짜 재밌긴 한데 스트레스도 심해. 신경망 학습시킬 때 버그 잡기가 너무 헷갈리거든. 모델이 수렴 안 되면 좌절하고 우울해지는데, 결국 잘 돌아가고 정확도 높으면 뿌듯하고 우리 팀이 자랑스러워. 요즘 트랜스포머랑 LLM 보고 있는데 진짜 멋있어서 빨리 만들어보고 싶어.',
             direction: 'en-ko',
           },
           {
@@ -2833,7 +2827,7 @@ export const spacingErrorTests: TestLevel[] = [
             input:
               'WhenIwasworkingatthetechstartuplastyearIhadtodealwithmultipleproblemslikeservercrashesdatabaseerrorsAPIfailuresandteamconflictswhichmademeanxiousanddepressedbutIlearnedtodebugmoreeffieicntlywritecleanercodeandcommunicatebetterwithmycolleaguessometimesIhadtoworkovernightfixingcriticalbugsandIfeltsotiredandlonelybutwhenwefinallylaunchedtheproductandgotreallypositivefeedbackfromusersIwassohappyandrelievedthatallthehardworkpaidoffandnowIfeelmuchmorecondidentandreadyforthenextchallenge.',
             expected:
-              '작년에 테크 스타트업에서 일할 때 서버 충돌이나 데이터베이스 오류나 API 실패 그리고 팀 갈등 같은 여러 문제들을 처리해야 했고 이게 나를 불안하고 우울하게 만들었지만 더 효율적으로 디버그하고 더 깨끗한 코드를 작성하고 동료들과 더 잘 소통하는 법을 배웠고 때때로 밤새워 중요한 버그를 고쳐야 했고 너무 피곤하고 외로웠지만 마침내 제품을 출시하고 사용자들로부터 정말 긍정적인 피드백을 받았을 때 모든 노력이 보람 있었다는 게 너무 행복하고 안도됐고 이제 훨씬 더 자신감 있고 다음 도전을 할 준비가 됐어.',
+              '작년에 스타트업 다닐 때 서버 터지고, DB 에러 나고, API 뻗고, 팀원끼리 갈등 생기고, 진짜 많이 힘들었어. 불안하고 우울했는데, 그래도 디버깅 실력이랑 코딩 스킬, 커뮤니케이션 능력이 많이 늘었어. 야근하면서 치명적인 버그 고친 적도 있고, 너무 힘들고 외로웠는데, 출시하고 유저들 반응 좋았을 때 진짜 뿌듯하고 안도됐어. 이제 자신감 붙어서 다음 도전도 할 준비됐어.',
             direction: 'en-ko',
           },
         ],
@@ -2898,7 +2892,7 @@ export const finalTests: TestLevel[] = [
           {
             id: 'final-l1-6',
             input: "I didn't go to school.",
-            expected: '나는 학교에 안 갔어.',
+            expected: '학교 안 갔어.',
             direction: 'en-ko',
           },
           {
@@ -2910,7 +2904,7 @@ export const finalTests: TestLevel[] = [
           {
             id: 'final-l1-8',
             input: 'I met my friends.',
-            expected: '나는 친구들을 만났어.',
+            expected: '친구들 만났어.',
             direction: 'en-ko',
           },
         ],
@@ -2961,7 +2955,7 @@ export const finalTests: TestLevel[] = [
           {
             id: 'final-l2-5',
             input: 'I watched a movie yesterday and it was fun.',
-            expected: '나는 어제 영화를 봤는데 재밌었어.',
+            expected: '어제 영화 봤는데 재밌었어.',
             direction: 'en-ko',
           },
           {
