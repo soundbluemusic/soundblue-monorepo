@@ -1,5 +1,5 @@
-import { CheckCircle2, ChevronDown, ChevronRight, Play, XCircle } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { CheckCircle2, ChevronDown, ChevronRight, Pause, Play, XCircle } from 'lucide-react';
+import { useCallback, useRef, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
@@ -20,7 +20,7 @@ import {
   uniqueTests,
   wordOrderTests,
 } from '~/tools/translator/benchmark-data';
-import { useTranslatorWorker } from '~/tools/translator/useTranslatorWorker';
+import { translate } from '~/tools/translator/translator-service';
 
 export const meta: MetaFunction = () => [
   { title: 'Benchmark | Tools' },
@@ -49,28 +49,38 @@ interface LevelResult {
   categories: CategoryResult[];
 }
 
+// All test groups
+const ALL_TEST_GROUPS = [
+  { name: 'Level Tests', data: levelTests },
+  { name: 'Category Tests', data: categoryTests },
+  { name: 'Context Tests', data: contextTests },
+  { name: 'Typo Tests', data: typoTests },
+  { name: 'Unique Tests', data: uniqueTests },
+  { name: 'Polysemy Tests', data: polysemyTests },
+  { name: 'Word Order Tests', data: wordOrderTests },
+  { name: 'Spacing Tests', data: spacingErrorTests },
+  { name: 'Final Tests', data: finalTests },
+  { name: 'Professional Tests', data: professionalTranslatorTests },
+  { name: 'Localization Tests', data: localizationTests },
+  { name: 'Anti-Hardcoding Tests', data: antiHardcodingTests },
+];
+
 export default function Benchmark() {
-  const { state: workerState, translateBatch } = useTranslatorWorker();
   const [isRunning, setIsRunning] = useState(false);
+  const [currentTest, setCurrentTest] = useState<{
+    input: string;
+    output: string;
+    expected: string;
+    testId: string;
+  } | null>(null);
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
-  const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
-  const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
-  const [contextResults, setContextResults] = useState<LevelResult[]>([]);
-  const [typoResults, setTypoResults] = useState<LevelResult[]>([]);
-  const [uniqueResults, setUniqueResults] = useState<LevelResult[]>([]);
-  const [polysemyResults, setPolysemyResults] = useState<LevelResult[]>([]);
-  const [wordOrderResults, setWordOrderResults] = useState<LevelResult[]>([]);
-  const [spacingResults, setSpacingResults] = useState<LevelResult[]>([]);
-  const [finalResults, setFinalResults] = useState<LevelResult[]>([]);
-  const [professionalResults, setProfessionalResults] = useState<LevelResult[]>([]);
-  const [localizationResults, setLocalizationResults] = useState<LevelResult[]>([]);
-  const [antiHardcodingResults, setAntiHardcodingResults] = useState<LevelResult[]>([]);
+  const abortRef = useRef(false);
+
+  // Results state for each group
+  const [results, setResults] = useState<Map<string, LevelResult[]>>(new Map());
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
-  /**
-   * Normalize English (for comparison)
-   */
   const normalizeEnglish = (text: string): string => {
     return text
       .toLowerCase()
@@ -79,9 +89,6 @@ export default function Benchmark() {
       .trim();
   };
 
-  /**
-   * Normalize Korean (for comparison)
-   */
   const normalizeKorean = (text: string): string => {
     return text
       .replace(/은|는|이|가/g, '가')
@@ -90,189 +97,118 @@ export default function Benchmark() {
       .trim();
   };
 
-  // Run tests for a group of levels using Worker
-  const runLevelTestsAsync = useCallback(
-    async (
-      levels: TestLevel[],
-      phaseName: string,
-      globalProgress: { current: number; total: number },
-    ): Promise<LevelResult[]> => {
-      // Flatten all tests from all levels
-      const allTests: Array<{
-        levelIdx: number;
-        categoryIdx: number;
-        test: TestCase;
-      }> = [];
+  // Run single test and update UI
+  const runSingleTest = useCallback(async (test: TestCase): Promise<TestResult> => {
+    // Show current test in UI
+    setCurrentTest({
+      input: test.input,
+      output: '번역 중...',
+      expected: test.expected,
+      testId: test.id,
+    });
 
-      for (let levelIdx = 0; levelIdx < levels.length; levelIdx++) {
-        const level = levels[levelIdx];
-        for (let categoryIdx = 0; categoryIdx < level.categories.length; categoryIdx++) {
-          const category = level.categories[categoryIdx];
-          for (const test of category.tests) {
-            allTests.push({ levelIdx, categoryIdx, test });
-          }
-        }
-      }
+    // Small delay to let UI update
+    await new Promise((r) => setTimeout(r, 50));
 
-      // Create batch input for Worker
-      const batchInput = allTests.map(({ test }) => ({
-        id: test.id,
-        input: test.input,
-        direction: test.direction,
-      }));
+    // Run translation
+    const actual = translate(test.input, test.direction);
 
-      // Run batch translation in Worker
-      const batchResults = await translateBatch(batchInput, phaseName, (current, total) => {
-        setProgress({
-          current: globalProgress.current + current,
-          total: globalProgress.total,
-          phase: phaseName,
-        });
-      });
+    // Update UI with result
+    setCurrentTest({
+      input: test.input,
+      output: actual,
+      expected: test.expected,
+      testId: test.id,
+    });
 
-      // Build result map for quick lookup
-      const resultMap = new Map(batchResults.map((r) => [r.id, r.result]));
-
-      // Reconstruct LevelResult structure
-      const results: LevelResult[] = levels.map((level) => ({
-        id: level.id,
-        passed: 0,
-        total: 0,
-        categories: level.categories.map((category) => ({
-          id: category.id,
-          passed: 0,
-          total: 0,
-          results: [] as TestResult[],
-        })),
-      }));
-
-      // Fill in results
-      for (const { levelIdx, categoryIdx, test } of allTests) {
-        const actual = resultMap.get(test.id) || '';
-        let passed: boolean;
-
-        if (test.direction === 'ko-en') {
-          passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
-        } else {
-          passed = normalizeKorean(actual) === normalizeKorean(test.expected);
-        }
-
-        const testResult: TestResult = {
-          id: test.id,
-          passed,
-          actual,
-          expected: test.expected,
-          input: test.input,
-        };
-
-        results[levelIdx].categories[categoryIdx].results.push(testResult);
-        results[levelIdx].categories[categoryIdx].total++;
-        results[levelIdx].total++;
-
-        if (passed) {
-          results[levelIdx].categories[categoryIdx].passed++;
-          results[levelIdx].passed++;
-        }
-      }
-
-      // Update global progress
-      globalProgress.current += allTests.length;
-
-      return results;
-    },
-    [translateBatch],
-  );
-
-  const runAllTests = useCallback(async () => {
-    if (!workerState.isReady) {
-      console.error('Worker not ready');
-      return;
+    // Compare results
+    let passed: boolean;
+    if (test.direction === 'ko-en') {
+      passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
+    } else {
+      passed = normalizeKorean(actual) === normalizeKorean(test.expected);
     }
 
+    return {
+      id: test.id,
+      passed,
+      actual,
+      expected: test.expected,
+      input: test.input,
+    };
+  }, []);
+
+  // Run all tests sequentially
+  const runAllTests = useCallback(async () => {
     setIsRunning(true);
+    abortRef.current = false;
+    setResults(new Map());
     setExpandedLevels(new Set());
     setExpandedCategories(new Set());
 
-    // Calculate total test count
-    const total =
-      countTests(levelTests) +
-      countTests(categoryTests) +
-      countTests(contextTests) +
-      countTests(typoTests) +
-      countTests(uniqueTests) +
-      countTests(polysemyTests) +
-      countTests(wordOrderTests) +
-      countTests(spacingErrorTests) +
-      countTests(finalTests) +
-      countTests(professionalTranslatorTests) +
-      countTests(localizationTests) +
-      countTests(antiHardcodingTests);
+    const totalTests = ALL_TEST_GROUPS.reduce((sum, group) => sum + countTests(group.data), 0);
+    let currentCount = 0;
 
-    const globalProgress = { current: 0, total };
-    setProgress({ current: 0, total, phase: 'Starting...' });
+    const newResults = new Map<string, LevelResult[]>();
 
-    try {
-      // Run each test group with progress tracking
-      const levelRes = await runLevelTestsAsync(levelTests, 'Level Tests', globalProgress);
-      setLevelResults(levelRes);
+    for (const group of ALL_TEST_GROUPS) {
+      if (abortRef.current) break;
 
-      const catRes = await runLevelTestsAsync(categoryTests, 'Category Tests', globalProgress);
-      setCategoryResults(catRes);
+      setProgress({ current: currentCount, total: totalTests, phase: group.name });
 
-      const ctxRes = await runLevelTestsAsync(contextTests, 'Context Tests', globalProgress);
-      setContextResults(ctxRes);
+      const groupResults: LevelResult[] = [];
 
-      const typoRes = await runLevelTestsAsync(typoTests, 'Typo Tests', globalProgress);
-      setTypoResults(typoRes);
+      for (const level of group.data) {
+        if (abortRef.current) break;
 
-      const uniqueRes = await runLevelTestsAsync(uniqueTests, 'Unique Tests', globalProgress);
-      setUniqueResults(uniqueRes);
+        const categoryResults: CategoryResult[] = [];
 
-      const polysemyRes = await runLevelTestsAsync(polysemyTests, 'Polysemy Tests', globalProgress);
-      setPolysemyResults(polysemyRes);
+        for (const category of level.categories) {
+          if (abortRef.current) break;
 
-      const wordOrderRes = await runLevelTestsAsync(
-        wordOrderTests,
-        'Word Order Tests',
-        globalProgress,
-      );
-      setWordOrderResults(wordOrderRes);
+          const testResults: TestResult[] = [];
 
-      const spacingRes = await runLevelTestsAsync(
-        spacingErrorTests,
-        'Spacing Tests',
-        globalProgress,
-      );
-      setSpacingResults(spacingRes);
+          for (const test of category.tests) {
+            if (abortRef.current) break;
 
-      const finalRes = await runLevelTestsAsync(finalTests, 'Final Tests', globalProgress);
-      setFinalResults(finalRes);
+            const result = await runSingleTest(test);
+            testResults.push(result);
+            currentCount++;
+            setProgress({ current: currentCount, total: totalTests, phase: group.name });
+          }
 
-      const professionalRes = await runLevelTestsAsync(
-        professionalTranslatorTests,
-        'Professional Tests',
-        globalProgress,
-      );
-      setProfessionalResults(professionalRes);
+          const passed = testResults.filter((r) => r.passed).length;
+          categoryResults.push({
+            id: category.id,
+            passed,
+            total: testResults.length,
+            results: testResults,
+          });
+        }
 
-      const localizationRes = await runLevelTestsAsync(
-        localizationTests,
-        'Localization Tests',
-        globalProgress,
-      );
-      setLocalizationResults(localizationRes);
+        const totalPassed = categoryResults.reduce((sum, c) => sum + c.passed, 0);
+        const totalInLevel = categoryResults.reduce((sum, c) => sum + c.total, 0);
 
-      const antiHardcodingRes = await runLevelTestsAsync(
-        antiHardcodingTests,
-        'Anti-Hardcoding Tests',
-        globalProgress,
-      );
-      setAntiHardcodingResults(antiHardcodingRes);
-    } finally {
-      setIsRunning(false);
-      setProgress({ current: 0, total: 0, phase: '' });
+        groupResults.push({
+          id: level.id,
+          passed: totalPassed,
+          total: totalInLevel,
+          categories: categoryResults,
+        });
+      }
+
+      newResults.set(group.name, groupResults);
+      setResults(new Map(newResults));
     }
-  }, [runLevelTestsAsync, workerState.isReady]);
+
+    setIsRunning(false);
+    setCurrentTest(null);
+    setProgress({ current: 0, total: 0, phase: '' });
+  }, [runSingleTest]);
+
+  const stopTests = useCallback(() => {
+    abortRef.current = true;
+  }, []);
 
   const toggleLevel = (levelId: string) => {
     setExpandedLevels((prev) => {
@@ -298,51 +234,15 @@ export default function Benchmark() {
     });
   };
 
-  const calcTotalStats = (results: LevelResult[]) => {
-    const total = results.reduce((sum, r) => sum + r.total, 0);
-    const passed = results.reduce((sum, r) => sum + r.passed, 0);
+  const calcTotalStats = (levelResults: LevelResult[]) => {
+    const total = levelResults.reduce((sum, r) => sum + r.total, 0);
+    const passed = levelResults.reduce((sum, r) => sum + r.passed, 0);
     return { total, passed, percentage: total > 0 ? Math.round((passed / total) * 100) : 0 };
   };
 
-  const levelStats = calcTotalStats(levelResults);
-  const categoryStats = calcTotalStats(categoryResults);
-  const contextStats = calcTotalStats(contextResults);
-  const typoStats = calcTotalStats(typoResults);
-  const uniqueStats = calcTotalStats(uniqueResults);
-  const polysemyStats = calcTotalStats(polysemyResults);
-  const wordOrderStats = calcTotalStats(wordOrderResults);
-  const spacingStats = calcTotalStats(spacingResults);
-  const finalStats = calcTotalStats(finalResults);
-  const professionalStats = calcTotalStats(professionalResults);
-  const localizationStats = calcTotalStats(localizationResults);
-  const antiHardcodingStats = calcTotalStats(antiHardcodingResults);
-
-  const allStats = [
-    levelStats,
-    categoryStats,
-    contextStats,
-    typoStats,
-    uniqueStats,
-    polysemyStats,
-    wordOrderStats,
-    spacingStats,
-    finalStats,
-    professionalStats,
-    localizationStats,
-    antiHardcodingStats,
-  ];
-  const totalStats = {
-    total: allStats.reduce((sum, s) => sum + s.total, 0),
-    passed: allStats.reduce((sum, s) => sum + s.passed, 0),
-    percentage:
-      allStats.reduce((sum, s) => sum + s.total, 0) > 0
-        ? Math.round(
-            (allStats.reduce((sum, s) => sum + s.passed, 0) /
-              allStats.reduce((sum, s) => sum + s.total, 0)) *
-              100,
-          )
-        : 0,
-  };
+  // Calculate overall stats
+  const allResults = Array.from(results.values()).flat();
+  const overallStats = calcTotalStats(allResults);
 
   const getBadgeClass = (percentage: number) => {
     if (percentage === 100)
@@ -358,95 +258,15 @@ export default function Benchmark() {
     return 'text-red-600 dark:text-red-400';
   };
 
-  // Render test structure before running (no results yet)
-  const renderTestStructure = (levels: TestLevel[], prefix: string) => {
-    return (
-      <div className="flex flex-col gap-2">
-        {levels.map((level) => {
-          const levelId = `${prefix}-${level.id}`;
-          const isLevelExpanded = expandedLevels.has(levelId);
-          const totalTests = level.categories.reduce((sum, cat) => sum + cat.tests.length, 0);
+  const totalTestCount = ALL_TEST_GROUPS.reduce((sum, group) => sum + countTests(group.data), 0);
 
-          return (
-            <div key={level.id} className="overflow-hidden rounded-lg border border-(--border)">
-              <button
-                type="button"
-                onClick={() => toggleLevel(levelId)}
-                className="flex w-full items-center justify-between bg-transparent p-3 text-left transition-colors duration-200 hover:bg-black/5 dark:hover:bg-white/5"
-              >
-                <div className="flex items-center gap-2">
-                  {isLevelExpanded ? (
-                    <ChevronDown className="size-4" />
-                  ) : (
-                    <ChevronRight className="size-4" />
-                  )}
-                  <span className="font-medium">{level.name}</span>
-                </div>
-                <span className="text-sm text-(--muted-foreground)">{`${totalTests} tests`}</span>
-              </button>
-
-              {isLevelExpanded && (
-                <div className="border-t border-(--border) p-3 pt-2">
-                  {level.categories.map((category) => {
-                    const catId = `${levelId}-${category.id}`;
-                    const isCatExpanded = expandedCategories.has(catId);
-
-                    return (
-                      <div key={category.id} className="mb-2 last:mb-0">
-                        <button
-                          type="button"
-                          onClick={() => toggleCategory(catId)}
-                          className="flex w-full items-center justify-between rounded-md bg-transparent p-2 text-left transition-colors duration-200 hover:bg-black/5 dark:hover:bg-white/5"
-                        >
-                          <div className="flex items-center gap-2">
-                            {isCatExpanded ? (
-                              <ChevronDown className="size-3" />
-                            ) : (
-                              <ChevronRight className="size-3" />
-                            )}
-                            <span className="text-sm">{category.name}</span>
-                          </div>
-                          <span className="text-xs text-(--muted-foreground)">
-                            {`${category.tests.length} tests`}
-                          </span>
-                        </button>
-
-                        {isCatExpanded && (
-                          <div className="ml-5 mt-1 flex flex-col gap-1">
-                            {category.tests.map((test) => (
-                              <div
-                                key={test.id}
-                                className="rounded-md bg-gray-50 p-2 text-xs dark:bg-gray-800/50"
-                              >
-                                <div className="font-mono text-(--muted-foreground)">
-                                  {test.input}
-                                </div>
-                                <div className="mt-1 text-blue-600 dark:text-blue-400">
-                                  → {test.expected}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const renderResults = (levels: TestLevel[], results: LevelResult[], prefix: string) => {
-    if (results.length === 0) return null;
+  const renderResults = (levels: TestLevel[], levelResults: LevelResult[], prefix: string) => {
+    if (levelResults.length === 0) return null;
 
     return (
       <div className="flex flex-col gap-2">
         {levels.map((level, levelIdx) => {
-          const levelResult = results[levelIdx];
+          const levelResult = levelResults[levelIdx];
           if (!levelResult) return null;
 
           const levelId = `${prefix}-${level.id}`;
@@ -566,36 +386,6 @@ export default function Benchmark() {
     );
   };
 
-  const totalTestCount =
-    countTests(levelTests) +
-    countTests(categoryTests) +
-    countTests(contextTests) +
-    countTests(typoTests) +
-    countTests(uniqueTests) +
-    countTests(polysemyTests) +
-    countTests(wordOrderTests) +
-    countTests(spacingErrorTests) +
-    countTests(finalTests) +
-    countTests(professionalTranslatorTests) +
-    countTests(localizationTests) +
-    countTests(antiHardcodingTests);
-
-  const statsData = [
-    { label: 'Overall', stats: totalStats },
-    { label: 'Level', stats: levelStats },
-    { label: 'Category', stats: categoryStats },
-    { label: 'Context', stats: contextStats },
-    { label: 'Typo', stats: typoStats },
-    { label: 'Unique', stats: uniqueStats },
-    { label: 'Polysemy', stats: polysemyStats },
-    { label: 'SVO↔SOV', stats: wordOrderStats },
-    { label: 'Spacing', stats: spacingStats },
-    { label: 'Final', stats: finalStats },
-    { label: 'Professional', stats: professionalStats },
-    { label: 'Localization', stats: localizationStats },
-    { label: 'Anti-Hardcode', stats: antiHardcodingStats },
-  ];
-
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -628,16 +418,53 @@ export default function Benchmark() {
             </p>
           </div>
 
-          {/* Run Button */}
-          <button
-            type="button"
-            onClick={runAllTests}
-            disabled={isRunning || !workerState.isReady}
-            className="mb-4 flex cursor-pointer items-center gap-2 rounded-lg border-none bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Play className="size-4" />
-            {!workerState.isReady ? 'Loading...' : isRunning ? 'Running...' : 'Run All Tests'}
-          </button>
+          {/* Run/Stop Button */}
+          <div className="mb-4 flex gap-2">
+            {!isRunning ? (
+              <button
+                type="button"
+                onClick={runAllTests}
+                className="flex cursor-pointer items-center gap-2 rounded-lg border-none bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700"
+              >
+                <Play className="size-4" />
+                Run All Tests
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={stopTests}
+                className="flex cursor-pointer items-center gap-2 rounded-lg border-none bg-red-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-red-700"
+              >
+                <Pause className="size-4" />
+                Stop
+              </button>
+            )}
+          </div>
+
+          {/* Current Test Display */}
+          {currentTest && (
+            <div className="mb-6 rounded-lg border border-(--border) bg-gray-50 p-4 dark:bg-gray-800/50">
+              <div className="mb-2 text-sm font-medium text-(--muted-foreground)">
+                현재 테스트 중...
+              </div>
+              <div className="mb-3 rounded-md bg-white p-3 dark:bg-gray-900">
+                <div className="mb-1 text-xs text-(--muted-foreground)">입력</div>
+                <div className="font-mono text-sm">{currentTest.input}</div>
+              </div>
+              <div className="mb-3 rounded-md bg-white p-3 dark:bg-gray-900">
+                <div className="mb-1 text-xs text-(--muted-foreground)">번역 결과</div>
+                <div className="font-mono text-sm text-blue-600 dark:text-blue-400">
+                  {currentTest.output}
+                </div>
+              </div>
+              <div className="rounded-md bg-white p-3 dark:bg-gray-900">
+                <div className="mb-1 text-xs text-(--muted-foreground)">예상 결과</div>
+                <div className="font-mono text-sm text-green-600 dark:text-green-400">
+                  {currentTest.expected}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Progress Bar */}
           {isRunning && progress.total > 0 && (
@@ -658,192 +485,50 @@ export default function Benchmark() {
           )}
 
           {/* Overall Stats */}
-          {levelResults.length > 0 && (
-            <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-              {statsData.map(({ label, stats }) => (
-                <div key={label} className="rounded-lg border border-(--border) p-4 text-center">
-                  <div className="text-2xl font-bold">{stats.percentage}%</div>
-                  <div className="text-sm text-(--muted-foreground)">{label}</div>
-                  <div className="text-xs text-(--muted-foreground)">
-                    {`${stats.passed}/${stats.total}`}
-                  </div>
+          {results.size > 0 && (
+            <div className="mb-6 rounded-lg border border-(--border) bg-white p-4 dark:bg-gray-900">
+              <div className="text-center">
+                <div className="text-4xl font-bold">{overallStats.percentage}%</div>
+                <div className="text-sm text-(--muted-foreground)">Overall</div>
+                <div className="text-xs text-(--muted-foreground)">
+                  {`${overallStats.passed}/${overallStats.total}`}
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Level Tests */}
-          {levelResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">Level Tests</h2>
-              {renderResults(levelTests, levelResults, 'level')}
-            </div>
-          )}
-
-          {/* Category Tests */}
-          {categoryResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">Category Tests</h2>
-              {renderResults(categoryTests, categoryResults, 'category')}
-            </div>
-          )}
-
-          {/* Context Tests */}
-          {contextResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">Context Tests</h2>
-              {renderResults(contextTests, contextResults, 'context')}
-            </div>
-          )}
-
-          {/* Typo Tests */}
-          {typoResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">Typo Tests (오타 테스트)</h2>
-              {renderResults(typoTests, typoResults, 'typo')}
-            </div>
-          )}
-
-          {/* Unique Tests */}
-          {uniqueResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">
-                Unique Tests (유니크 테스트 - 100% 알고리즘 기반)
-              </h2>
-              {renderResults(uniqueTests, uniqueResults, 'unique')}
-            </div>
-          )}
-
-          {/* Polysemy Tests */}
-          {polysemyResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">Polysemy Tests (다의어 테스트)</h2>
-              {renderResults(polysemyTests, polysemyResults, 'polysemy')}
-            </div>
-          )}
-
-          {/* Word Order Tests */}
-          {wordOrderResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">
-                Word Order Tests (SVO↔SOV 어순 변환 테스트)
-              </h2>
-              {renderResults(wordOrderTests, wordOrderResults, 'wordorder')}
-            </div>
-          )}
-
-          {/* Spacing Error Tests */}
-          {spacingResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">
-                Spacing Error Tests (띄어쓰기 오류 테스트)
-              </h2>
-              {renderResults(spacingErrorTests, spacingResults, 'spacing')}
-            </div>
-          )}
-
-          {/* Final Tests */}
-          {finalResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">Final Tests (최종 파이널 테스트)</h2>
-              {renderResults(finalTests, finalResults, 'final')}
-            </div>
-          )}
-
-          {/* Professional Translator Tests */}
-          {professionalResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">
-                Professional Translator Tests (전문 번역가 테스트)
-              </h2>
-              {renderResults(professionalTranslatorTests, professionalResults, 'professional')}
-            </div>
-          )}
-
-          {/* Localization Tests */}
-          {localizationResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">
-                Localization Tests (의역/문화적 번역 테스트)
-              </h2>
-              {renderResults(localizationTests, localizationResults, 'localization')}
-            </div>
-          )}
-
-          {/* Anti-Hardcoding Tests */}
-          {antiHardcodingResults.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold">
-                Anti-Hardcoding Tests (안티하드코딩 알고리즘 테스트)
-              </h2>
-              {renderResults(antiHardcodingTests, antiHardcodingResults, 'antihardcoding')}
-            </div>
-          )}
-
-          {/* Show test structure before running */}
-          {levelResults.length === 0 && !isRunning && (
-            <>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">Level Tests</h2>
-                {renderTestStructure(levelTests, 'level')}
               </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">Category Tests</h2>
-                {renderTestStructure(categoryTests, 'category')}
+            </div>
+          )}
+
+          {/* Results by Group */}
+          {ALL_TEST_GROUPS.map((group) => {
+            const groupResults = results.get(group.name);
+            if (!groupResults || groupResults.length === 0) return null;
+
+            const stats = calcTotalStats(groupResults);
+
+            return (
+              <div key={group.name} className="mb-6">
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">{group.name}</h2>
+                  <span className={`text-sm font-medium ${getPercentageClass(stats.percentage)}`}>
+                    {stats.percentage}% ({stats.passed}/{stats.total})
+                  </span>
+                </div>
+                {renderResults(
+                  group.data,
+                  groupResults,
+                  group.name.toLowerCase().replace(/\s+/g, '-'),
+                )}
               </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">Context Tests</h2>
-                {renderTestStructure(contextTests, 'context')}
-              </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">Typo Tests (오타 테스트)</h2>
-                {renderTestStructure(typoTests, 'typo')}
-              </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">
-                  Unique Tests (유니크 테스트 - 100% 알고리즘 기반)
-                </h2>
-                {renderTestStructure(uniqueTests, 'unique')}
-              </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">Polysemy Tests (다의어 테스트)</h2>
-                {renderTestStructure(polysemyTests, 'polysemy')}
-              </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">
-                  Word Order Tests (SVO↔SOV 어순 변환 테스트)
-                </h2>
-                {renderTestStructure(wordOrderTests, 'wordorder')}
-              </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">
-                  Spacing Error Tests (띄어쓰기 오류 테스트)
-                </h2>
-                {renderTestStructure(spacingErrorTests, 'spacing')}
-              </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">Final Tests (최종 파이널 테스트)</h2>
-                {renderTestStructure(finalTests, 'final')}
-              </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">
-                  Professional Translator Tests (전문 번역가 테스트)
-                </h2>
-                {renderTestStructure(professionalTranslatorTests, 'professional')}
-              </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">
-                  Localization Tests (의역/문화적 번역 테스트)
-                </h2>
-                {renderTestStructure(localizationTests, 'localization')}
-              </div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-lg font-semibold">
-                  Anti-Hardcoding Tests (안티하드코딩 알고리즘 테스트)
-                </h2>
-                {renderTestStructure(antiHardcodingTests, 'antihardcoding')}
-              </div>
-            </>
+            );
+          })}
+
+          {/* Empty State */}
+          {results.size === 0 && !isRunning && (
+            <div className="rounded-lg border border-dashed border-(--border) p-8 text-center text-(--muted-foreground)">
+              <p>Run All Tests 버튼을 클릭하여 벤치마크를 시작하세요.</p>
+              <p className="mt-2 text-sm">
+                각 테스트가 순차적으로 실행되며 결과를 실시간으로 확인할 수 있습니다.
+              </p>
+            </div>
           )}
         </div>
       </main>
