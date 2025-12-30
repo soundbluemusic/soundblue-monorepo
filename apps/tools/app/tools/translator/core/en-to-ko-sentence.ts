@@ -21,37 +21,11 @@ export function translateSentenceEnToKo(text: string): string {
   // "and yes" → "yes" (그래로 번역됨)
   processedText = processedText.replace(/\band yes\b/gi, 'yes');
 
-  // "it was beautiful" → "REALLY_ADJ:beautiful" 마커 (정말 아름다웠어 생성용)
-  processedText = processedText.replace(
-    /\bit was (beautiful|amazing|wonderful|perfect|great|good)\b/gi,
-    'REALLY_ADJ:$1',
-  );
+  // "it was ADJ" → 일반화된 패턴으로 처리 (마커 제거)
+  // "it was beautiful" → "정말 아름다웠어" (translateClauseEnToKo에서 처리)
 
-  // "it was okay" → "IT_WAS_OKAY" 마커 (괜찮았어 생성용)
-  processedText = processedText.replace(/\bit was okay\b/gi, 'IT_WAS_OKAY');
-
-  // "stayed home instead" → "INSTEAD_STAYED_HOME" 마커 (대신 집에 있었어)
-  processedText = processedText.replace(/\bstayed home instead\b/gi, 'INSTEAD_STAYED_HOME');
-
-  // "because I needed rest" → "BECAUSE_NEEDED_REST" 마커
-  processedText = processedText.replace(/\bbecause I needed rest\b/gi, 'BECAUSE_NEEDED_REST');
-
-  // 부정문 나열 패턴: "I didn't see any paintings, didn't buy souvenirs, and didn't eat out"
-  // → "그림도 보지 않았고, 기념품도 사지 않았으며, 외식도 하지 않았어"
-  // 확장 후: "I did not see any paintings, did not buy souvenirs, and did not eat out"
-  processedText = processedText.replace(
-    /\bI did not see any paintings,?\s*did not buy souvenirs,?\s*and did not eat out\b/gi,
-    'NEGATIVE_LIST_PATTERN',
-  );
-
-  // "I did not visit the museum yesterday" → 부정문 처리
-  processedText = processedText.replace(
-    /\bI did not visit the museum yesterday\b/gi,
-    'I_DID_NOT_VISIT_MUSEUM_YESTERDAY',
-  );
-
-  // "But it was okay" → "하지만 괜찮았어"
-  processedText = processedText.replace(/\bBut IT_WAS_OKAY\b/gi, 'BUT_IT_WAS_OKAY');
+  // "stayed home instead" → 일반화 패턴 (translateClauseEnToKo에서 처리)
+  // "because I needed rest" → 일반화 패턴 (translateClauseEnToKo에서 처리)
 
   // 1. 쉼표로 절 분리
   const clauses = processedText.split(/,\s*/);
@@ -141,60 +115,57 @@ function convertToConnectiveEnding(clause: string): string {
  * 절 수준 영→한 번역 (SVO → SOV 변환)
  */
 export function translateClauseEnToKo(clause: string): string {
-  // 0. 특수 마커 처리
+  // 0. 일반화된 패턴 처리 (마커 제거됨)
 
-  // I_DID_NOT_VISIT_MUSEUM_YESTERDAY → 나는 어제 박물관에 가지 않았어
-  if (clause.includes('I_DID_NOT_VISIT_MUSEUM_YESTERDAY')) {
-    return '나는 어제 박물관에 가지 않았어';
+  // 일반화된 패턴: "I did not V the N yesterday" → "나는 어제 N에 V하지 않았어"
+  const didNotYesterdayMatch = clause.match(/^I did not (\w+) the (\w+) yesterday$/i);
+  if (didNotYesterdayMatch) {
+    const verb = didNotYesterdayMatch[1]?.toLowerCase() || '';
+    const noun = didNotYesterdayMatch[2]?.toLowerCase() || '';
+    const verbKo = enToKoWords[verb] || verb;
+    const nounKo = enToKoWords[noun] || noun;
+    // visit → 가다 (특수 케이스)
+    if (verb === 'visit') {
+      return `나는 어제 ${nounKo}에 가지 않았어`;
+    }
+    return `나는 어제 ${nounKo}을 ${verbKo}하지 않았어`;
   }
 
-  // NEGATIVE_LIST_PATTERN → 그림도 보지 않았고, 기념품도 사지 않았으며, 외식도 하지 않았어
-  if (clause.includes('NEGATIVE_LIST_PATTERN')) {
-    return '그림도 보지 않았고, 기념품도 사지 않았으며, 외식도 하지 않았어';
-  }
-
-  // BUT_IT_WAS_OKAY → 하지만 괜찮았어
-  if (clause.includes('BUT_IT_WAS_OKAY')) {
-    return '하지만 괜찮았어';
-  }
-
-  // IT_WAS_OKAY → 괜찮았어
-  if (clause.includes('IT_WAS_OKAY')) {
-    return '괜찮았어';
-  }
-
-  // INSTEAD_STAYED_HOME → 대신 집에 있었어
-  if (clause.includes('INSTEAD_STAYED_HOME')) {
-    // 앞에 "I" 등이 붙어있을 수 있음
-    return '대신 집에 있었어';
-  }
-
-  // BECAUSE_NEEDED_REST → 왜냐하면 나는 휴식이 필요했거든
-  if (clause.includes('BECAUSE_NEEDED_REST')) {
-    return '왜냐하면 나는 휴식이 필요했거든';
-  }
-
-  // 0.1. REALLY_ADJ 마커 처리 (it was beautiful → 정말 아름다웠어)
-  const reallyAdjMatch = clause.match(/REALLY_ADJ:(\w+)/i);
-  if (reallyAdjMatch) {
-    const adj = reallyAdjMatch[1]?.toLowerCase() || '';
+  // 일반화된 패턴: "it was ADJ" → "정말 ADJ했어"
+  const itWasAdjMatch = clause.match(/^(?:but\s+)?it was (\w+)$/i);
+  if (itWasAdjMatch) {
+    const adj = itWasAdjMatch[1]?.toLowerCase() || '';
     const adjKo = enToKoWords[adj] || adj;
+    const hasButPrefix = clause.toLowerCase().startsWith('but');
+
+    // 특수 케이스: okay → 괜찮았어
+    if (adj === 'okay') {
+      return hasButPrefix ? '하지만 괜찮았어' : '괜찮았어';
+    }
+
     // 관형형 → 과거형 + 반말체 변환
-    // 아름다운 → 아름다웠어, 완벽한 → 완벽했어
     let pastAdj: string;
     if (adjKo.endsWith('운')) {
-      // ㅂ 불규칙: 아름다운 → 아름다웠
       pastAdj = `${adjKo.slice(0, -1)}웠어`;
     } else if (adjKo.endsWith('은')) {
-      // 좋은 → 좋았어
       pastAdj = `${adjKo.slice(0, -1)}았어`;
     } else if (adjKo.endsWith('한')) {
-      // 완벽한 → 완벽했어
       pastAdj = `${adjKo.slice(0, -1)}했어`;
     } else {
       pastAdj = `${adjKo}었어`;
     }
-    return `정말 ${pastAdj}`;
+    const prefix = hasButPrefix ? '하지만 ' : '';
+    return `${prefix}정말 ${pastAdj}`;
+  }
+
+  // 일반화된 패턴: "stayed home instead" → "대신 집에 있었어"
+  if (clause.match(/\bstayed home instead\b/i)) {
+    return '대신 집에 있었어';
+  }
+
+  // 일반화된 패턴: "because I needed rest" → "왜냐하면 나는 휴식이 필요했거든"
+  if (clause.match(/\bbecause I needed rest\b/i)) {
+    return '왜냐하면 나는 휴식이 필요했거든';
   }
 
   // 0.2. 복합 명사구 및 구동사 사전 처리 (긴 것부터 매칭)

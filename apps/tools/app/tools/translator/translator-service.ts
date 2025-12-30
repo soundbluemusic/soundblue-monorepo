@@ -3391,23 +3391,34 @@ function handleSubjectRecoveryKoEn(text: string, isQuestion: boolean): string | 
     return `I watched ${article} ${objEn} yesterday`;
   }
 
-  // 패턴 2: "밥 먹었어?" → "Did you eat?"
-  if (text === '밥 먹었어' && isQuestion) {
-    return 'Did you eat';
+  // 패턴 2: "X 먹었어?" → "Did you eat X?" (의문문, 생략 주어 you)
+  if (isQuestion) {
+    const atePattern = text.match(/^(.+?)\s*먹었어$/);
+    if (atePattern) {
+      const objKo = atePattern[1]?.trim() || '';
+      // 밥은 생략 (일반적인 식사)
+      if (objKo === '밥') {
+        return 'Did you eat';
+      }
+      const objEn = koToEnWords[objKo] || objKo;
+      return `Did you eat ${objEn}`;
+    }
   }
 
-  // 패턴 3: "피곤해" → "I'm tired"
-  if (text === '피곤해') {
-    return "I'm tired";
+  // 패턴 3: "어디 가?" → "Where are you going?" (의문사 + 가다)
+  if (isQuestion) {
+    const wherePattern = text.match(/^어디\s*(.+)$/);
+    if (wherePattern) {
+      const verbPart = wherePattern[1]?.trim() || '';
+      if (verbPart === '가') {
+        return 'Where are you going';
+      }
+    }
   }
 
-  // 패턴 4: "어디 가?" → "Where are you going?"
-  if (text === '어디 가' && isQuestion) {
-    return 'Where are you going';
-  }
-
-  // 패턴 5: 상태/감정 표현 (생략 주어 I)
+  // 패턴 4: 상태/감정 표현 (생략 주어 I)
   const statePatterns: Record<string, string> = {
+    피곤해: "I'm tired",
     배고파: "I'm hungry",
     목말라: "I'm thirsty",
     졸려: "I'm sleepy",
@@ -4804,32 +4815,6 @@ function translateKoToEnAdvanced(
         detectedSubject: 'I',
       };
     }
-  }
-
-  // === 0.065. 말장난/다의어 유희 패턴 (Wordplay/Pun) ===
-  // 한국어 말장난을 영어로 창의적 의역
-  // "감" 말장난: 감이 좋다(직감) + 감 먹다(과일)
-  // → "lucky charms" (행운의 부적) 말장난으로 번역
-  const gamPunPattern = text.match(/^너\s+요즘\s+왜\s+이렇게\s+감이\s+좋아$/);
-  if (gamPunPattern) {
-    return { translation: 'Your instincts are on point lately', detectedSubject: '' };
-  }
-
-  // "감 많이 먹었구나" → "Did you eat lucky charms for breakfast or something"
-  // 과일 감 → lucky charms로 말장난 번역
-  const eatGamPunPattern = text.match(/^아,?\s*진짜\s+'?감'?\s+많이\s+먹었구나$/);
-  if (eatGamPunPattern) {
-    return {
-      translation: 'Did you eat lucky charms for breakfast or something',
-      detectedSubject: '',
-    };
-  }
-
-  // "육감이 발달한 거야" → (위 문장과 합쳐서 처리)
-  const sixthSensePattern = text.match(/^아니면\s+육감이\s+발달한\s+거야$/);
-  if (sixthSensePattern) {
-    // 이 문장은 앞의 말장난과 이어지므로 생략 처리 (빈 문자열 반환하지 않음)
-    return { translation: '', detectedSubject: '' };
   }
 
   // === 0.07. 화난 상사/분노 표현 패턴 ===
