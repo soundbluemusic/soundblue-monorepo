@@ -1,5 +1,5 @@
 import { CheckCircle2, ChevronDown, ChevronRight, Play, XCircle } from 'lucide-react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
@@ -20,7 +20,7 @@ import {
   uniqueTests,
   wordOrderTests,
 } from '~/tools/translator/benchmark-data';
-import { translate } from '~/tools/translator/translator-service';
+import { useTranslatorWorker } from '~/tools/translator/useTranslatorWorker';
 
 export const meta: MetaFunction = () => [
   { title: 'Benchmark | Tools' },
@@ -49,14 +49,10 @@ interface LevelResult {
   categories: CategoryResult[];
 }
 
-// Batch size for processing tests - yields to main thread between batches
-// translate() is heavy (morpheme analysis, NLP), so yield after EVERY test
-const BATCH_SIZE = 1;
-
 export default function Benchmark() {
+  const { state: workerState, translateBatch } = useTranslatorWorker();
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
-  const abortRef = useRef(false);
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [categoryResults, setCategoryResults] = useState<LevelResult[]>([]);
   const [contextResults, setContextResults] = useState<LevelResult[]>([]);
@@ -94,100 +90,106 @@ export default function Benchmark() {
       .trim();
   };
 
-  // Run single test synchronously
-  const runTest = useCallback((test: TestCase): TestResult => {
-    const actual = translate(test.input, test.direction);
-
-    let passed: boolean;
-    if (test.direction === 'ko-en') {
-      passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
-    } else {
-      passed = normalizeKorean(actual) === normalizeKorean(test.expected);
-    }
-
-    return {
-      id: test.id,
-      passed,
-      actual,
-      expected: test.expected,
-      input: test.input,
-    };
-  }, []);
-
-  // Helper to yield to browser for rendering
-  const yieldToBrowser = (): Promise<void> => {
-    return new Promise((resolve) => {
-      // 4ms delay ensures browser has time to render and handle events
-      // translate() is CPU-heavy, so we need longer yield time
-      setTimeout(resolve, 4);
-    });
-  };
-
-  // Batch processing with requestAnimationFrame to yield to main thread
+  // Run tests for a group of levels using Worker
   const runLevelTestsAsync = useCallback(
     async (
       levels: TestLevel[],
       phaseName: string,
       globalProgress: { current: number; total: number },
     ): Promise<LevelResult[]> => {
-      const results: LevelResult[] = [];
-      let batchCount = 0;
+      // Flatten all tests from all levels
+      const allTests: Array<{
+        levelIdx: number;
+        categoryIdx: number;
+        test: TestCase;
+      }> = [];
 
-      for (const level of levels) {
-        if (abortRef.current) break;
-        const categoryResults: CategoryResult[] = [];
-
-        for (const category of level.categories) {
-          if (abortRef.current) break;
-          const testResults: TestResult[] = [];
-
+      for (let levelIdx = 0; levelIdx < levels.length; levelIdx++) {
+        const level = levels[levelIdx];
+        for (let categoryIdx = 0; categoryIdx < level.categories.length; categoryIdx++) {
+          const category = level.categories[categoryIdx];
           for (const test of category.tests) {
-            if (abortRef.current) break;
-            // Run test synchronously
-            const result = runTest(test);
-            testResults.push(result);
-            globalProgress.current++;
-            batchCount++;
-
-            // Yield to main thread every BATCH_SIZE tests
-            if (batchCount >= BATCH_SIZE) {
-              batchCount = 0;
-              setProgress({ ...globalProgress, phase: phaseName });
-              // requestAnimationFrame + setTimeout ensures browser can paint
-              await yieldToBrowser();
-            }
+            allTests.push({ levelIdx, categoryIdx, test });
           }
-
-          const passed = testResults.filter((r) => r.passed).length;
-          categoryResults.push({
-            id: category.id,
-            passed,
-            total: testResults.length,
-            results: testResults,
-          });
         }
-
-        const totalPassed = categoryResults.reduce((sum, c) => sum + c.passed, 0);
-        const totalTests = categoryResults.reduce((sum, c) => sum + c.total, 0);
-
-        results.push({
-          id: level.id,
-          passed: totalPassed,
-          total: totalTests,
-          categories: categoryResults,
-        });
       }
 
-      // Final progress update
-      setProgress({ ...globalProgress, phase: phaseName });
+      // Create batch input for Worker
+      const batchInput = allTests.map(({ test }) => ({
+        id: test.id,
+        input: test.input,
+        direction: test.direction,
+      }));
+
+      // Run batch translation in Worker
+      const batchResults = await translateBatch(batchInput, phaseName, (current, total) => {
+        setProgress({
+          current: globalProgress.current + current,
+          total: globalProgress.total,
+          phase: phaseName,
+        });
+      });
+
+      // Build result map for quick lookup
+      const resultMap = new Map(batchResults.map((r) => [r.id, r.result]));
+
+      // Reconstruct LevelResult structure
+      const results: LevelResult[] = levels.map((level) => ({
+        id: level.id,
+        passed: 0,
+        total: 0,
+        categories: level.categories.map((category) => ({
+          id: category.id,
+          passed: 0,
+          total: 0,
+          results: [] as TestResult[],
+        })),
+      }));
+
+      // Fill in results
+      for (const { levelIdx, categoryIdx, test } of allTests) {
+        const actual = resultMap.get(test.id) || '';
+        let passed: boolean;
+
+        if (test.direction === 'ko-en') {
+          passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
+        } else {
+          passed = normalizeKorean(actual) === normalizeKorean(test.expected);
+        }
+
+        const testResult: TestResult = {
+          id: test.id,
+          passed,
+          actual,
+          expected: test.expected,
+          input: test.input,
+        };
+
+        results[levelIdx].categories[categoryIdx].results.push(testResult);
+        results[levelIdx].categories[categoryIdx].total++;
+        results[levelIdx].total++;
+
+        if (passed) {
+          results[levelIdx].categories[categoryIdx].passed++;
+          results[levelIdx].passed++;
+        }
+      }
+
+      // Update global progress
+      globalProgress.current += allTests.length;
+
       return results;
     },
-    [runTest],
+    [translateBatch],
   );
 
   const runAllTests = useCallback(async () => {
+    if (!workerState.isReady) {
+      console.error('Worker not ready');
+      return;
+    }
+
     setIsRunning(true);
-    abortRef.current = false;
     setExpandedLevels(new Set());
     setExpandedCategories(new Set());
 
@@ -270,7 +272,7 @@ export default function Benchmark() {
       setIsRunning(false);
       setProgress({ current: 0, total: 0, phase: '' });
     }
-  }, [runLevelTestsAsync]);
+  }, [runLevelTestsAsync, workerState.isReady]);
 
   const toggleLevel = (levelId: string) => {
     setExpandedLevels((prev) => {
@@ -630,11 +632,11 @@ export default function Benchmark() {
           <button
             type="button"
             onClick={runAllTests}
-            disabled={isRunning}
+            disabled={isRunning || !workerState.isReady}
             className="mb-4 flex cursor-pointer items-center gap-2 rounded-lg border-none bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Play className="size-4" />
-            {isRunning ? 'Running...' : 'Run All Tests'}
+            {!workerState.isReady ? 'Loading...' : isRunning ? 'Running...' : 'Run All Tests'}
           </button>
 
           {/* Progress Bar */}
