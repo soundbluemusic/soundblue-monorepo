@@ -64,8 +64,7 @@ export function Header() {
           )}
           {isAboutPage && (
             <span className="text-(--muted-foreground) font-normal">
-              {' '}
-              - {m['navigation_about']?.()}
+              {` - ${m['navigation_about']?.()}`}
             </span>
           )}
         </Link>
