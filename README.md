@@ -83,13 +83,134 @@
 soundblue-monorepo/
 │
 ├── 📱 apps/
-│   ├── sound-blue/    → Artist website (아티스트 웹사이트)
-│   ├── tools/         → Music tools (음악 도구)
-│   └── dialogue/      → Learning tool (학습 도구)
+│   ├── sound-blue/         → Artist website (아티스트 웹사이트)
+│   ├── tools/              → Music tools (음악 도구)
+│   └── dialogue/           → Learning tool (학습 도구)
 │
-└── 📦 packages/
-    └── shared-react/  → Shared code for all apps (모든 앱 공용 코드)
+├── 📦 packages/
+│   │
+│   ├── 🧠 core/            → Pure logic, no browser APIs (순수 로직, 브라우저 API 없음)
+│   │   ├── hangul/         → Korean text processing (한글 처리)
+│   │   ├── translator/     → Translation engine (번역 엔진)
+│   │   ├── nlu/            → Natural language understanding (자연어 이해)
+│   │   └── audio-engine/   → Audio timing & sequencing (오디오 타이밍 & 시퀀싱)
+│   │
+│   ├── 🖥️ platform/        → Browser API adapters with dual implementation (브라우저 API 어댑터)
+│   │   ├── web-audio/      → Web Audio API (웹 오디오 API)
+│   │   ├── storage/        → IndexedDB & localStorage (스토리지)
+│   │   └── worker/         → Web Worker RPC (웹 워커 RPC)
+│   │
+│   ├── 🎨 ui/              → React components (리액트 컴포넌트)
+│   │   ├── primitives/     → Base components: Button, Input, etc. (기본 컴포넌트)
+│   │   ├── patterns/       → Composite patterns: Chat, Tool layouts (복합 패턴)
+│   │   └── icons/          → Icon components (아이콘 컴포넌트)
+│   │
+│   ├── 🌐 i18n/            → Internationalization (국제화)
+│   ├── 🔍 seo/             → SEO utilities & structured data (SEO 유틸리티)
+│   ├── 📱 pwa/             → PWA configuration & hooks (PWA 설정 & 훅)
+│   ├── ⚙️ config/          → Shared configs: TypeScript, Tailwind, Biome (공유 설정)
+│   │
+│   └── 🗄️ shared-react/    → [DEPRECATED] Legacy shared code (레거시 공용 코드)
+│
+└── 📜 scripts/             → Build & automation scripts (빌드 & 자동화 스크립트)
 ```
+
+### Package Layer Rules (패키지 레이어 규칙)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                           apps/                                 │
+│                    (sound-blue, tools, dialogue)                │
+├─────────────────────────────────────────────────────────────────┤
+│         ui/          │    i18n/    │    seo/    │    pwa/       │
+│  (primitives, patterns, icons)                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                        platform/                                │
+│              (web-audio, storage, worker)                       │
+│           .browser.ts (실제) / .noop.ts (빈 구현)                │
+├─────────────────────────────────────────────────────────────────┤
+│                          core/                                  │
+│            (hangul, translator, nlu, audio-engine)              │
+│                 No browser APIs allowed!                        │
+└─────────────────────────────────────────────────────────────────┘
+
+↑ Upper layers can import from lower layers (상위 → 하위 import 가능)
+↓ Lower layers CANNOT import from upper layers (하위 → 상위 import 금지)
+```
+
+### Dual Implementation Pattern (이중 구현 패턴)
+
+All `platform/` packages use dual implementation for SSG compatibility:
+(모든 `platform/` 패키지는 SSG 호환을 위해 이중 구현 사용)
+
+| File | Purpose (용도) | Environment (환경) |
+|------|---------------|-------------------|
+| `*.browser.ts` | Real implementation (실제 구현) | Browser runtime (브라우저 런타임) |
+| `*.noop.ts` | Empty/stub implementation (빈 구현) | SSG build time (SSG 빌드 시) |
+
+```typescript
+// package.json exports 예시
+{
+  "exports": {
+    ".": {
+      "browser": "./src/index.browser.ts",  // 브라우저에서 사용
+      "default": "./src/index.noop.ts"      // SSG 빌드에서 사용
+    }
+  }
+}
+```
+
+---
+
+## 📦 Package Reference (패키지 참조)
+
+### Core Layer (코어 레이어)
+
+> Pure TypeScript logic. No browser APIs, no React.
+> (순수 TypeScript 로직. 브라우저 API 없음, React 없음)
+
+| Package | Description | Key Exports |
+|---------|-------------|-------------|
+| `@soundblue/hangul` | Korean text processing (한글 처리) | `decompose`, `compose`, `isKoreanText`, `jamoEditDistance` |
+| `@soundblue/translator` | Ko↔En translation engine (번역 엔진) | `translate`, `TranslatorEngine` |
+| `@soundblue/nlu` | Intent & entity recognition (의도/엔티티 인식) | `parseIntent`, `extractEntities` |
+| `@soundblue/audio-engine` | Audio timing & sequencing (오디오 타이밍) | `Clock`, `Scheduler`, `Pattern` |
+
+### Platform Layer (플랫폼 레이어)
+
+> Browser API adapters. All have `.browser.ts` + `.noop.ts` dual implementation.
+> (브라우저 API 어댑터. 모두 `.browser.ts` + `.noop.ts` 이중 구현)
+
+| Package | Description | Key Exports |
+|---------|-------------|-------------|
+| `@soundblue/web-audio` | Web Audio API wrapper (웹 오디오 래퍼) | `toneEngine`, `DrumMachine`, `Metronome` |
+| `@soundblue/storage` | IndexedDB & localStorage (스토리지) | `db`, `createStore` |
+| `@soundblue/worker` | Web Worker RPC (웹 워커 RPC) | `WorkerRPC`, `createWorkerRPC` |
+
+### UI Layer (UI 레이어)
+
+> React components and hooks.
+> (리액트 컴포넌트 및 훅)
+
+| Package | Description | Key Exports |
+|---------|-------------|-------------|
+| `@soundblue/ui-primitives` | Base components (기본 컴포넌트) | `Button`, `Input`, `ThemeProvider`, `useTheme`, `cn` |
+| `@soundblue/ui-patterns` | Composite layouts (복합 레이아웃) | `ChatContainer`, `ChatMessage`, `ToolSidebar` |
+| `@soundblue/icons` | Icon components (아이콘) | `PlayIcon`, `PauseIcon`, etc. |
+
+### Cross-Cutting Layer (횡단 관심사 레이어)
+
+> Shared concerns across all apps.
+> (모든 앱에서 공유되는 관심사)
+
+| Package | Description | Key Exports |
+|---------|-------------|-------------|
+| `@soundblue/i18n` | Internationalization (국제화) | `LocaleProvider`, `useLocale`, `getLocaleFromPath` |
+| `@soundblue/seo` | SEO & meta tags (SEO & 메타태그) | `StructuredData`, `createMeta` |
+| `@soundblue/pwa` | PWA configuration (PWA 설정) | `usePWA`, `pwaConfig` |
+| `@soundblue/config` | Shared configs (공유 설정) | TypeScript, Tailwind, Biome presets |
+
+> **Full Architecture Documentation:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ---
 
