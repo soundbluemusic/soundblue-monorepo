@@ -30,7 +30,7 @@ export function Footer({
 
       {/* App name and brand */}
       <p className="text-center text-xs text-(--muted-foreground)">
-        {appName} by{' '}
+        {`${appName} by `}
         <a
           href={brandUrl}
           target="_blank"

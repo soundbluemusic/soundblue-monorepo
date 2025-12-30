@@ -381,7 +381,7 @@ export default function Benchmark() {
                   )}
                   <span className="font-medium">{level.name}</span>
                 </div>
-                <span className="text-sm text-(--muted-foreground)">{totalTests} tests</span>
+                <span className="text-sm text-(--muted-foreground)">{`${totalTests} tests`}</span>
               </button>
 
               {isLevelExpanded && (
@@ -406,7 +406,7 @@ export default function Benchmark() {
                             <span className="text-sm">{category.name}</span>
                           </div>
                           <span className="text-xs text-(--muted-foreground)">
-                            {category.tests.length} tests
+                            {`${category.tests.length} tests`}
                           </span>
                         </button>
 
@@ -469,7 +469,7 @@ export default function Benchmark() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-(--muted-foreground)">
-                    {levelResult.passed}/{levelResult.total}
+                    {`${levelResult.passed}/${levelResult.total}`}
                   </span>
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeClass(levelPercentage)}`}
@@ -506,7 +506,7 @@ export default function Benchmark() {
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-(--muted-foreground)">
-                              {catResult.passed}/{catResult.total}
+                              {`${catResult.passed}/${catResult.total}`}
                             </span>
                             <span className={`text-xs ${getPercentageClass(catPercentage)}`}>
                               {catPercentage}%
@@ -602,7 +602,7 @@ export default function Benchmark() {
         <div className="mx-auto max-w-4xl">
           <h1 className="mb-2 text-2xl font-bold sm:text-3xl">Translator Benchmark</h1>
           <p className="mb-4 text-(--muted-foreground)">
-            Test translation accuracy across {totalTestCount} test cases
+            {`Test translation accuracy across ${totalTestCount} test cases`}
           </p>
 
           {/* Algorithm Description */}
@@ -610,15 +610,17 @@ export default function Benchmark() {
             <p className="mb-3 text-sm text-blue-700 last:mb-0 dark:text-blue-300">
               <strong className="font-bold text-blue-800 dark:text-blue-200">
                 🔬 번역 알고리즘:
-              </strong>{' '}
-              형태소 분석 → 문장 구조 파싱 (주어/목적어/서술어) → 어순 변환 (SOV↔SVO) → 목표 언어
-              생성
+              </strong>
+              <span>
+                형태소 분석 → 문장 구조 파싱 (주어/목적어/서술어) → 어순 변환 (SOV↔SVO) → 목표 언어
+                생성
+              </span>
             </p>
             <p className="mb-3 text-sm text-blue-700 last:mb-0 dark:text-blue-300">
               <strong className="font-bold text-blue-800 dark:text-blue-200">
                 📋 테스트 방식:
-              </strong>{' '}
-              문장 사전 없음, 하드코딩 없음, 패턴 매칭 없음 — 100% 알고리즘 기반 번역
+              </strong>
+              <span>문장 사전 없음, 하드코딩 없음, 패턴 매칭 없음 — 100% 알고리즘 기반 번역</span>
             </p>
           </div>
 
@@ -660,7 +662,7 @@ export default function Benchmark() {
                   <div className="text-2xl font-bold">{stats.percentage}%</div>
                   <div className="text-sm text-(--muted-foreground)">{label}</div>
                   <div className="text-xs text-(--muted-foreground)">
-                    {stats.passed}/{stats.total}
+                    {`${stats.passed}/${stats.total}`}
                   </div>
                 </div>
               ))}
