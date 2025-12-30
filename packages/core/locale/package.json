@@ -1,0 +1,22 @@
+{
+  "name": "@soundblue/locale",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure locale utilities for SoundBlue (no browser APIs)",
+  "exports": {
+    ".": "./src/index.ts",
+    "./path": "./src/path.ts",
+    "./display": "./src/display.ts",
+    "./types": "./src/types.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

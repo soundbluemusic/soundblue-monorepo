@@ -1,7 +1,7 @@
 'use client';
 
 import { useParaglideI18n } from '@soundblue/i18n';
-import { useTheme } from '@soundblue/ui-primitives';
+import { useTheme } from '@soundblue/ui-components/base';
 import { Code2, FileText, Globe, Info, Menu, Moon, Sun, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';

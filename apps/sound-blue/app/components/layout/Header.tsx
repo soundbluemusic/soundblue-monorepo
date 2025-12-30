@@ -1,5 +1,5 @@
 import { useParaglideI18n } from '@soundblue/i18n';
-import { useTheme } from '@soundblue/ui-primitives';
+import { useTheme } from '@soundblue/ui-components/base';
 import { Link } from 'react-router';
 import { SearchBox, ThemeIcon } from '~/components/ui';
 import { ToolsIcon } from '~/constants/icons';

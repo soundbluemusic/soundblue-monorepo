@@ -1,4 +1,4 @@
-import { useToast } from '@soundblue/ui-primitives';
+import { useToast } from '@soundblue/ui-components/base';
 import { useCallback, useEffect, useState } from 'react';
 import { ConfirmDialog } from '~/components/ui/ConfirmDialog';
 import m from '~/lib/messages';

@@ -93,22 +93,27 @@ soundblue-monorepo/
 │   │   ├── hangul/         → Korean text processing (한글 처리)
 │   │   ├── translator/     → Translation engine (번역 엔진)
 │   │   ├── nlu/            → Natural language understanding (자연어 이해)
-│   │   └── audio-engine/   → Audio timing & sequencing (오디오 타이밍 & 시퀀싱)
+│   │   ├── audio-engine/   → Audio timing & sequencing (오디오 타이밍 & 시퀀싱)
+│   │   └── locale/         → Pure locale utilities (순수 로케일 유틸)
 │   │
 │   ├── 🖥️ platform/        → Browser API adapters with dual implementation (브라우저 API 어댑터)
 │   │   ├── web-audio/      → Web Audio API (웹 오디오 API)
 │   │   ├── storage/        → IndexedDB & localStorage (스토리지)
-│   │   └── worker/         → Web Worker RPC (웹 워커 RPC)
+│   │   ├── worker/         → Web Worker RPC (웹 워커 RPC)
+│   │   ├── i18n/           → Internationalization (국제화)
+│   │   ├── seo/            → SEO utilities (SEO 유틸리티)
+│   │   └── pwa/            → PWA configuration (PWA 설정)
 │   │
-│   ├── 🎨 ui/              → React components (리액트 컴포넌트)
-│   │   ├── primitives/     → Base components: Button, Input, etc. (기본 컴포넌트)
-│   │   ├── patterns/       → Composite patterns: Chat, Tool layouts (복합 패턴)
-│   │   └── icons/          → Icon components (아이콘 컴포넌트)
-│   │
-│   ├── 🌐 i18n/            → Internationalization (국제화)
-│   ├── 🔍 seo/             → SEO utilities & structured data (SEO 유틸리티)
-│   ├── 📱 pwa/             → PWA configuration & hooks (PWA 설정 & 훅)
-│   └── ⚙️ config/          → Shared configs: TypeScript, Tailwind, Biome (공유 설정)
+│   └── 🎨 ui/              → React components (리액트 컴포넌트)
+│       └── components/     → Unified UI library (통합 UI 라이브러리)
+│           ├── base/       → Base components: Button, Input (기본 컴포넌트)
+│           ├── composite/  → Composite patterns: Chat, Tool (복합 패턴)
+│           └── icons/      → Icon components (아이콘)
+│
+├── 🔧 tooling/             → Shared configs (공유 설정)
+│   ├── tsconfig/           → TypeScript config
+│   ├── tailwind/           → Tailwind preset
+│   └── biome/              → Biome config
 │
 └── 📜 scripts/             → Build & automation scripts (빌드 & 자동화 스크립트)
 ```
@@ -120,15 +125,15 @@ soundblue-monorepo/
 │                           apps/                                 │
 │                    (sound-blue, tools, dialogue)                │
 ├─────────────────────────────────────────────────────────────────┤
-│         ui/          │    i18n/    │    seo/    │    pwa/       │
-│  (primitives, patterns, icons)                                  │
+│                            ui/                                  │
+│                       (components)                              │
 ├─────────────────────────────────────────────────────────────────┤
 │                        platform/                                │
-│              (web-audio, storage, worker)                       │
+│        (web-audio, storage, worker, i18n, seo, pwa)             │
 │           .browser.ts (실제) / .noop.ts (빈 구현)                │
 ├─────────────────────────────────────────────────────────────────┤
 │                          core/                                  │
-│            (hangul, translator, nlu, audio-engine)              │
+│         (hangul, translator, nlu, audio-engine, locale)         │
 │                 No browser APIs allowed!                        │
 └─────────────────────────────────────────────────────────────────┘
 
@@ -173,6 +178,7 @@ All `platform/` packages use dual implementation for SSG compatibility:
 | `@soundblue/translator` | Ko↔En translation engine (번역 엔진) | `translate`, `TranslatorEngine` |
 | `@soundblue/nlu` | Intent & entity recognition (의도/엔티티 인식) | `parseIntent`, `extractEntities` |
 | `@soundblue/audio-engine` | Audio timing & sequencing (오디오 타이밍) | `Clock`, `Scheduler`, `Pattern` |
+| `@soundblue/locale` | Pure locale utilities (순수 로케일 유틸) | `getLocaleFromPath`, `isValidLocale`, `Locale` |
 
 ### Platform Layer (플랫폼 레이어)
 
@@ -184,6 +190,9 @@ All `platform/` packages use dual implementation for SSG compatibility:
 | `@soundblue/web-audio` | Web Audio API wrapper (웹 오디오 래퍼) | `toneEngine`, `DrumMachine`, `Metronome` |
 | `@soundblue/storage` | IndexedDB & localStorage (스토리지) | `db`, `createStore` |
 | `@soundblue/worker` | Web Worker RPC (웹 워커 RPC) | `WorkerRPC`, `createWorkerRPC` |
+| `@soundblue/i18n` | Internationalization (국제화) | `LocaleProvider`, `useLocale`, `getBrowserLocale` |
+| `@soundblue/seo` | SEO & meta tags (SEO & 메타태그) | `StructuredData`, `createMeta` |
+| `@soundblue/pwa` | PWA configuration (PWA 설정) | `usePWA`, `pwaConfig` |
 
 ### UI Layer (UI 레이어)
 
@@ -192,21 +201,9 @@ All `platform/` packages use dual implementation for SSG compatibility:
 
 | Package | Description | Key Exports |
 |---------|-------------|-------------|
-| `@soundblue/ui-primitives` | Base components (기본 컴포넌트) | `Button`, `Input`, `ThemeProvider`, `useTheme`, `cn` |
-| `@soundblue/ui-patterns` | Composite layouts (복합 레이아웃) | `ChatContainer`, `ChatMessage`, `ToolSidebar` |
-| `@soundblue/icons` | Icon components (아이콘) | `PlayIcon`, `PauseIcon`, etc. |
-
-### Cross-Cutting Layer (횡단 관심사 레이어)
-
-> Shared concerns across all apps.
-> (모든 앱에서 공유되는 관심사)
-
-| Package | Description | Key Exports |
-|---------|-------------|-------------|
-| `@soundblue/i18n` | Internationalization (국제화) | `LocaleProvider`, `useLocale`, `getLocaleFromPath` |
-| `@soundblue/seo` | SEO & meta tags (SEO & 메타태그) | `StructuredData`, `createMeta` |
-| `@soundblue/pwa` | PWA configuration (PWA 설정) | `usePWA`, `pwaConfig` |
-| `@soundblue/config` | Shared configs (공유 설정) | TypeScript, Tailwind, Biome presets |
+| `@soundblue/ui-components/base` | Base components (기본 컴포넌트) | `Button`, `Input`, `ThemeProvider`, `useTheme`, `cn` |
+| `@soundblue/ui-components/composite` | Composite layouts (복합 레이아웃) | `ChatContainer`, `ChatMessage`, `ToolSidebar` |
+| `@soundblue/ui-components/icons` | Icon components (아이콘) | `PlayIcon`, `PauseIcon`, etc. |
 
 > **Full Architecture Documentation:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 

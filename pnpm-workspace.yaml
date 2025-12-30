@@ -1,8 +1,6 @@
 packages:
   - 'apps/*'
-  - 'packages/*'
   - 'packages/core/*'
   - 'packages/platform/*'
   - 'packages/ui/*'
   - '!apps/*-solid-backup'
-  - '!packages/shared'

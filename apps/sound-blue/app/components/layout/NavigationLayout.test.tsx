@@ -6,7 +6,7 @@ import type { CnFunction, MockBottomSheetProps } from '~/test/types';
 import { NavigationLayout } from './NavigationLayout';
 
 // Mock dependencies
-vi.mock('@soundblue/ui-primitives', () => ({
+vi.mock('@soundblue/ui-components/base', () => ({
   useParaglideI18n: () => ({
     localizedPath: (path: string) => path,
     toggleLanguage: vi.fn(),

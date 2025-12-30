@@ -11,11 +11,11 @@
 ┌─────────────────────────────────────────┐
 │              apps/                      │  ← 모든 하위 레이어 import 가능
 ├─────────────────────────────────────────┤
-│   ui/   │  i18n/  │  seo/  │  pwa/     │  ← platform/, core/ import 가능
+│               ui/                       │  ← platform/, core/ import 가능
 ├─────────────────────────────────────────┤
-│              platform/                  │  ← core/만 import 가능
+│            platform/                    │  ← core/만 import 가능
 ├─────────────────────────────────────────┤
-│               core/                     │  ← 외부 import 금지
+│              core/                      │  ← 외부 import 금지
 └─────────────────────────────────────────┘
 ```
 
@@ -23,10 +23,10 @@
 
 | Layer | Packages | Rules |
 |-------|----------|-------|
-| `core/` | hangul, translator, nlu, audio-engine | 브라우저 API 금지, 순수 TypeScript |
-| `platform/` | web-audio, storage, worker | 이중 구현 필수 (.browser.ts + .noop.ts) |
-| `ui/` | primitives, patterns, icons | React 컴포넌트 |
-| Cross-cutting | i18n, seo, pwa, config | 공통 관심사 |
+| `core/` | hangul, translator, nlu, audio-engine, locale | 브라우저 API 금지, 순수 TypeScript |
+| `platform/` | web-audio, storage, worker, i18n, seo, pwa | 이중 구현 필수 (.browser.ts + .noop.ts) |
+| `ui/` | components (base, composite, icons) | React 컴포넌트 |
+| `tooling/` | tsconfig, tailwind, biome | 공유 설정 (패키지 외부) |
 
 ### Dual Implementation Pattern (이중 구현 패턴)
 
@@ -53,10 +53,11 @@
 
 ```typescript
 // ✅ 올바른 import
-import { decompose } from '@soundblue/hangul';           // core
-import { toneEngine } from '@soundblue/web-audio';       // platform
-import { Button, cn } from '@soundblue/ui-primitives';   // ui
-import { useLocale } from '@soundblue/i18n';             // cross-cutting
+import { decompose } from '@soundblue/hangul';              // core
+import { getLocaleFromPath } from '@soundblue/locale';      // core
+import { toneEngine } from '@soundblue/web-audio';          // platform
+import { useLocale } from '@soundblue/i18n';                // platform
+import { Button, cn } from '@soundblue/ui-components/base'; // ui
 
 // ❌ 금지된 import (레이어 역방향)
 // core/에서 platform/ import 금지

@@ -6,7 +6,7 @@ import { findMetaDescription, findMetaTitle } from '~/test/types';
 import Chat, { meta } from './($locale)/chat';
 
 // Mock dependencies
-vi.mock('@soundblue/ui-primitives', () => ({
+vi.mock('@soundblue/ui-components/base', () => ({
   useParaglideI18n: () => ({
     localizedPath: (path: string) => path,
     toggleLanguage: vi.fn(),

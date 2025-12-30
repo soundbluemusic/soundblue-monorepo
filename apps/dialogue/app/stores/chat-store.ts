@@ -1,4 +1,4 @@
-import type { Message } from '@soundblue/ui-primitives';
+import type { Message } from '@soundblue/ui-components/base';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -7,7 +7,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 // SSG 호환: 서버에서는 빈 상태, 클라이언트에서 hydration 후 로드
 // ========================================
 
-// Message 타입은 @soundblue/ui-primitives에서 import
+// Message 타입은 @soundblue/ui-components/base에서 import
 export type { Message };
 
 export interface Conversation {

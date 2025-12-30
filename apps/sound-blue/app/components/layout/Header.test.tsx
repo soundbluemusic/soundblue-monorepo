@@ -8,7 +8,7 @@ import { Header } from './Header';
 const mockToggleLanguage = vi.fn();
 const mockToggleTheme = vi.fn();
 
-vi.mock('@soundblue/ui-primitives', () => ({
+vi.mock('@soundblue/ui-components/base', () => ({
   useParaglideI18n: () => ({
     toggleLanguage: mockToggleLanguage,
     localizedPath: (path: string) => path,

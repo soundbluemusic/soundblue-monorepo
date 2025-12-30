@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { Sidebar } from './Sidebar';
 
 // Mock dependencies
-vi.mock('@soundblue/ui-primitives', () => ({
+vi.mock('@soundblue/ui-components/base', () => ({
   useParaglideI18n: () => ({
     localizedPath: (path: string) => path,
   }),

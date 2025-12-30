@@ -16,7 +16,7 @@ vi.mock('react-router', async () => {
   };
 });
 
-vi.mock('@soundblue/ui-primitives', () => ({
+vi.mock('@soundblue/ui-components/base', () => ({
   useParaglideI18n: () => ({
     localizedPath: (path: string) => path,
   }),

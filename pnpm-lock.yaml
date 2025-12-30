@@ -82,28 +82,25 @@ importers:
         version: link:../../packages/core/hangul
       '@soundblue/i18n':
         specifier: workspace:*
-        version: link:../../packages/i18n
-      '@soundblue/icons':
+        version: link:../../packages/platform/i18n
+      '@soundblue/locale':
         specifier: workspace:*
-        version: link:../../packages/ui/icons
+        version: link:../../packages/core/locale
       '@soundblue/nlu':
         specifier: workspace:*
         version: link:../../packages/core/nlu
       '@soundblue/pwa':
         specifier: workspace:*
-        version: link:../../packages/pwa
+        version: link:../../packages/platform/pwa
       '@soundblue/seo':
         specifier: workspace:*
-        version: link:../../packages/seo
+        version: link:../../packages/platform/seo
       '@soundblue/storage':
         specifier: workspace:*
         version: link:../../packages/platform/storage
-      '@soundblue/ui-patterns':
+      '@soundblue/ui-components':
         specifier: workspace:*
-        version: link:../../packages/ui/patterns
-      '@soundblue/ui-primitives':
-        specifier: workspace:*
-        version: link:../../packages/ui/primitives
+        version: link:../../packages/ui/components
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -185,25 +182,22 @@ importers:
         version: 7.11.0(react-router@7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
       '@soundblue/i18n':
         specifier: workspace:*
-        version: link:../../packages/i18n
-      '@soundblue/icons':
+        version: link:../../packages/platform/i18n
+      '@soundblue/locale':
         specifier: workspace:*
-        version: link:../../packages/ui/icons
+        version: link:../../packages/core/locale
       '@soundblue/pwa':
         specifier: workspace:*
-        version: link:../../packages/pwa
+        version: link:../../packages/platform/pwa
       '@soundblue/seo':
         specifier: workspace:*
-        version: link:../../packages/seo
+        version: link:../../packages/platform/seo
       '@soundblue/storage':
         specifier: workspace:*
         version: link:../../packages/platform/storage
-      '@soundblue/ui-patterns':
+      '@soundblue/ui-components':
         specifier: workspace:*
-        version: link:../../packages/ui/patterns
-      '@soundblue/ui-primitives':
-        specifier: workspace:*
-        version: link:../../packages/ui/primitives
+        version: link:../../packages/ui/components
       '@tailwindcss/typography':
         specifier: ^0.5.19
         version: 0.5.19(tailwindcss@4.1.18)
@@ -351,28 +345,25 @@ importers:
         version: link:../../packages/core/hangul
       '@soundblue/i18n':
         specifier: workspace:*
-        version: link:../../packages/i18n
-      '@soundblue/icons':
+        version: link:../../packages/platform/i18n
+      '@soundblue/locale':
         specifier: workspace:*
-        version: link:../../packages/ui/icons
+        version: link:../../packages/core/locale
       '@soundblue/pwa':
         specifier: workspace:*
-        version: link:../../packages/pwa
+        version: link:../../packages/platform/pwa
       '@soundblue/seo':
         specifier: workspace:*
-        version: link:../../packages/seo
+        version: link:../../packages/platform/seo
       '@soundblue/storage':
         specifier: workspace:*
         version: link:../../packages/platform/storage
       '@soundblue/translator':
         specifier: workspace:*
         version: link:../../packages/core/translator
-      '@soundblue/ui-patterns':
+      '@soundblue/ui-components':
         specifier: workspace:*
-        version: link:../../packages/ui/patterns
-      '@soundblue/ui-primitives':
-        specifier: workspace:*
-        version: link:../../packages/ui/primitives
+        version: link:../../packages/ui/components
       '@soundblue/web-audio':
         specifier: workspace:*
         version: link:../../packages/platform/web-audio
@@ -513,8 +504,6 @@ importers:
         specifier: ^4.0.15
         version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/config: {}
-
   packages/core/audio-engine:
     devDependencies:
       typescript:
@@ -532,6 +521,12 @@ importers:
       vitest:
         specifier: ^4.0.15
         version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+
+  packages/core/locale:
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
 
   packages/core/nlu:
     devDependencies:
@@ -554,7 +549,11 @@ importers:
         specifier: ^4.0.15
         version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/i18n:
+  packages/platform/i18n:
+    dependencies:
+      '@soundblue/locale':
+        specifier: workspace:*
+        version: link:../../core/locale
     devDependencies:
       '@types/react':
         specifier: ^19.0.7
@@ -565,6 +564,36 @@ importers:
       react-router:
         specifier: ^7.6.1
         version: 7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.15
+        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+
+  packages/platform/pwa:
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.7
+        version: 19.2.7
+      react:
+        specifier: ^19.0.0
+        version: 19.2.3
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.15
+        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+
+  packages/platform/seo:
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.7
+        version: 19.2.7
+      react:
+        specifier: ^19.0.0
+        version: 19.2.3
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -603,67 +632,7 @@ importers:
         specifier: ^4.0.15
         version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/pwa:
-    devDependencies:
-      '@types/react':
-        specifier: ^19.0.7
-        version: 19.2.7
-      react:
-        specifier: ^19.0.0
-        version: 19.2.3
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.15
-        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
-
-  packages/seo:
-    devDependencies:
-      '@types/react':
-        specifier: ^19.0.7
-        version: 19.2.7
-      react:
-        specifier: ^19.0.0
-        version: 19.2.3
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.15
-        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
-
-  packages/ui/icons:
-    devDependencies:
-      '@types/react':
-        specifier: ^19.0.7
-        version: 19.2.7
-      react:
-        specifier: ^19.0.0
-        version: 19.2.3
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.15
-        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
-
-  packages/ui/patterns:
-    devDependencies:
-      '@types/react':
-        specifier: ^19.0.7
-        version: 19.2.7
-      react:
-        specifier: ^19.0.0
-        version: 19.2.3
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.15
-        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
-
-  packages/ui/primitives:
+  packages/ui/components:
     dependencies:
       '@radix-ui/react-dialog':
         specifier: ^1.1.4
@@ -705,6 +674,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      vitest:
+        specifier: ^4.0.15
+        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
 packages:
 
