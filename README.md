@@ -108,9 +108,7 @@ soundblue-monorepo/
 │   ├── 🌐 i18n/            → Internationalization (국제화)
 │   ├── 🔍 seo/             → SEO utilities & structured data (SEO 유틸리티)
 │   ├── 📱 pwa/             → PWA configuration & hooks (PWA 설정 & 훅)
-│   ├── ⚙️ config/          → Shared configs: TypeScript, Tailwind, Biome (공유 설정)
-│   │
-│   └── 🗄️ shared-react/    → [DEPRECATED] Legacy shared code (레거시 공용 코드)
+│   └── ⚙️ config/          → Shared configs: TypeScript, Tailwind, Biome (공유 설정)
 │
 └── 📜 scripts/             → Build & automation scripts (빌드 & 자동화 스크립트)
 ```

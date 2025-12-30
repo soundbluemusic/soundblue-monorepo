@@ -27,7 +27,7 @@ vi.mock('~/lib/messages', () => ({
 }));
 
 // Mock useParaglideI18n
-vi.mock('@soundblue/shared-react', () => ({
+vi.mock('@soundblue/ui-primitives', () => ({
   useParaglideI18n: () => ({
     localizedPath: (path: string) => path,
   }),

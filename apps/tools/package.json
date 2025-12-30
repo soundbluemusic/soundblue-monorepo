@@ -62,7 +62,6 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "@react-router/node": "^7.6.1",
     "@react-router/serve": "^7.6.1",
-    "@soundblue/shared-react": "workspace:*",
     "@tanstack/react-virtual": "^3.13.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -6,7 +6,7 @@ import { findMetaTitle } from '~/test/types';
 import Offline, { meta } from './($locale)/offline';
 
 // Mock dependencies
-vi.mock('@soundblue/shared-react', () => ({
+vi.mock('@soundblue/ui-primitives', () => ({
   useParaglideI18n: () => ({
     localizedPath: (path: string) => path,
     toggleLanguage: vi.fn(),

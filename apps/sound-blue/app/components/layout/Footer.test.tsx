@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { Footer } from './Footer';
 
 // Mock dependencies
-vi.mock('@soundblue/shared-react', () => ({
+vi.mock('@soundblue/ui-primitives', () => ({
   useParaglideI18n: () => ({
     localizedPath: (path: string) => path,
   }),

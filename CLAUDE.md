@@ -58,23 +58,10 @@ import { toneEngine } from '@soundblue/web-audio';       // platform
 import { Button, cn } from '@soundblue/ui-primitives';   // ui
 import { useLocale } from '@soundblue/i18n';             // cross-cutting
 
-// ❌ 금지된 import (shared-react 사용 금지)
-import { ThemeProvider } from '@soundblue/shared-react'; // DEPRECATED
-
 // ❌ 금지된 import (레이어 역방향)
 // core/에서 platform/ import 금지
 // platform/에서 ui/ import 금지
 ```
-
-### Migration from shared-react (shared-react 마이그레이션)
-
-| Old | New |
-|-----|-----|
-| `@soundblue/shared-react` (ThemeProvider, useTheme) | `@soundblue/ui-primitives` |
-| `@soundblue/shared-react` (cn) | `@soundblue/ui-primitives` |
-| `@soundblue/shared-react` (Message) | `@soundblue/ui-primitives` |
-| `@soundblue/shared-react/storage` | `@soundblue/storage` |
-| `@soundblue/shared-react/i18n` | `@soundblue/i18n` |
 
 ## 📚 Official References (공식 참고 문서)
 

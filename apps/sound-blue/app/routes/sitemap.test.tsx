@@ -6,7 +6,7 @@ import { findMetaDescription, findMetaTitle } from '~/test/types';
 import Sitemap, { meta } from './($locale)/sitemap';
 
 // Mock dependencies
-vi.mock('@soundblue/shared-react', () => ({
+vi.mock('@soundblue/ui-primitives', () => ({
   useParaglideI18n: () => ({
     locale: 'en',
     localizedPath: (path: string) => path,

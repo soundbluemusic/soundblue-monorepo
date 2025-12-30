@@ -95,9 +95,6 @@ importers:
       '@soundblue/seo':
         specifier: workspace:*
         version: link:../../packages/seo
-      '@soundblue/shared-react':
-        specifier: workspace:*
-        version: link:../../packages/shared-react
       '@soundblue/storage':
         specifier: workspace:*
         version: link:../../packages/platform/storage
@@ -198,9 +195,6 @@ importers:
       '@soundblue/seo':
         specifier: workspace:*
         version: link:../../packages/seo
-      '@soundblue/shared-react':
-        specifier: workspace:*
-        version: link:../../packages/shared-react
       '@soundblue/storage':
         specifier: workspace:*
         version: link:../../packages/platform/storage
@@ -367,9 +361,6 @@ importers:
       '@soundblue/seo':
         specifier: workspace:*
         version: link:../../packages/seo
-      '@soundblue/shared-react':
-        specifier: workspace:*
-        version: link:../../packages/shared-react
       '@soundblue/storage':
         specifier: workspace:*
         version: link:../../packages/platform/storage
@@ -641,49 +632,6 @@ importers:
       vitest:
         specifier: ^4.0.15
         version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
-
-  packages/shared-react:
-    dependencies:
-      '@soundblue/hangul':
-        specifier: workspace:*
-        version: link:../core/hangul
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      dexie:
-        specifier: ^4.2.1
-        version: 4.2.1
-    devDependencies:
-      '@testing-library/jest-dom':
-        specifier: ^6.9.1
-        version: 6.9.1
-      '@testing-library/react':
-        specifier: ^16.3.1
-        version: 16.3.1(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@types/react':
-        specifier: ^19.1.8
-        version: 19.2.7
-      '@types/react-dom':
-        specifier: ^19.1.6
-        version: 19.2.3(@types/react@19.2.7)
-      react:
-        specifier: ^19.1.0
-        version: 19.2.3
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.2.3(react@19.2.3)
-      react-router:
-        specifier: ^7.6.1
-        version: 7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.15
-        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
-      zustand:
-        specifier: ^5.0.6
-        version: 5.0.9(@types/react@19.2.7)(immer@11.1.0)(react@19.2.3)
 
   packages/ui/icons:
     devDependencies:

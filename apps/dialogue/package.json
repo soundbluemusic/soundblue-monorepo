@@ -26,7 +26,6 @@
     "@soundblue/nlu": "workspace:*",
     "@soundblue/pwa": "workspace:*",
     "@soundblue/seo": "workspace:*",
-    "@soundblue/shared-react": "workspace:*",
     "@soundblue/storage": "workspace:*",
     "@soundblue/ui-patterns": "workspace:*",
     "@soundblue/ui-primitives": "workspace:*",

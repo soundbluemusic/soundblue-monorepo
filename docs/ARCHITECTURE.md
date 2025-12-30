@@ -111,9 +111,7 @@ packages/
 ├── i18n/                  # Internationalization (국제화)
 ├── seo/                   # SEO utilities (SEO 유틸리티)
 ├── pwa/                   # PWA configuration (PWA 설정)
-├── config/                # Shared configs (공유 설정)
-│
-└── shared-react/          # [DEPRECATED] Legacy (레거시)
+└── config/                # Shared configs (공유 설정)
 ```
 
 ---
@@ -339,35 +337,6 @@ function InstallButton() {
 
 ---
 
-## Migration Guide (마이그레이션 가이드)
-
-### From @soundblue/shared-react
-
-| Old Import | New Import |
-|------------|------------|
-| `@soundblue/shared-react` (ThemeProvider) | `@soundblue/ui-primitives` |
-| `@soundblue/shared-react` (useTheme) | `@soundblue/ui-primitives` |
-| `@soundblue/shared-react` (cn) | `@soundblue/ui-primitives` |
-| `@soundblue/shared-react` (Message) | `@soundblue/ui-primitives` |
-| `@soundblue/shared-react/storage` | `@soundblue/storage` |
-| `@soundblue/shared-react/i18n` | `@soundblue/i18n` |
-
-### Example Migration
-
-```typescript
-// Before
-import { ThemeProvider, useTheme, cn } from '@soundblue/shared-react';
-import { db } from '@soundblue/shared-react/storage';
-import { useLocale } from '@soundblue/shared-react/i18n';
-
-// After
-import { ThemeProvider, useTheme, cn } from '@soundblue/ui-primitives';
-import { db } from '@soundblue/storage';
-import { useLocale } from '@soundblue/i18n';
-```
-
----
-
 ## SSG Build Safety Checklist (SSG 빌드 안전 체크리스트)
 
 Before deploying, verify:
@@ -386,23 +355,20 @@ Before deploying, verify:
 ### v2.0.0 - SSG Edition (2024-12)
 
 **Breaking Changes:**
-- Removed `@soundblue/shared-react` as primary import source
+- Removed `@soundblue/shared-react` package (completely deleted)
 - All browser APIs now behind dual implementation
 
 **New Packages:**
-- `@soundblue/storage` - Extracted from shared-react
-- `@soundblue/worker` - Extracted from apps/tools
-- `@soundblue/audio-engine` - New pure logic package
-- `@soundblue/ui-patterns` - Extracted from apps
-- `@soundblue/icons` - Extracted from apps
-- `@soundblue/i18n` - Extracted from shared-react
-- `@soundblue/seo` - New package
-- `@soundblue/pwa` - New package
-- `@soundblue/config` - New package
+- `@soundblue/storage` - IndexedDB & localStorage abstraction
+- `@soundblue/worker` - Web Worker RPC
+- `@soundblue/audio-engine` - Pure audio timing logic
+- `@soundblue/ui-patterns` - Composite UI patterns
+- `@soundblue/icons` - Icon components
+- `@soundblue/i18n` - Internationalization
+- `@soundblue/seo` - SEO utilities
+- `@soundblue/pwa` - PWA configuration
+- `@soundblue/config` - Shared configs
 
 **Refactored Packages:**
 - `@soundblue/web-audio` - Added dual implementation
 - `@soundblue/ui-primitives` - Added Message type, cn utility
-
-**Deprecated:**
-- `@soundblue/shared-react` - Use specific packages instead
