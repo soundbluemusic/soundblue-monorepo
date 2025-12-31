@@ -2,13 +2,13 @@
 
 import { useParaglideI18n } from '@soundblue/i18n';
 import { Link2, Loader2, X } from 'lucide-react';
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 // Widget for default view
 import { WorldClockWidget } from '~/components/widgets';
 import m from '~/lib/messages';
-import { getToolInfo } from '~/lib/toolCategories';
+import { getToolComponent, getToolInfo } from '~/lib/toolCategories';
 import { useAudioStore } from '~/stores/audio-store';
 import { useToolStore } from '~/stores/tool-store';
 // Import tool types and default settings only (not components)
@@ -19,20 +19,6 @@ import {
 import { defaultMetronomeSettings, type MetronomeSettings } from '~/tools/metronome/settings';
 import { defaultQRSettings, type QRSettings } from '~/tools/qr-generator/settings';
 import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator/settings';
-
-// Lazy load tool components for code splitting
-const LazyMetronome = lazy(() =>
-  import('~/tools/metronome').then((m) => ({ default: m.Metronome })),
-);
-const LazyDrumMachine = lazy(() =>
-  import('~/tools/drum-machine').then((m) => ({ default: m.DrumMachine })),
-);
-const LazyQRGenerator = lazy(() =>
-  import('~/tools/qr-generator').then((m) => ({ default: m.QRGenerator })),
-);
-const LazyTranslator = lazy(() =>
-  import('~/tools/translator').then((m) => ({ default: m.Translator })),
-);
 
 // Loading fallback component
 function ToolLoading() {
@@ -310,35 +296,41 @@ export function ToolContainer() {
     [toolSettings.translator],
   );
 
-  // Render tool content based on current tool
+  // Settings registry for each tool type
+  const toolSettingsRegistry = useMemo(
+    () => ({
+      metronome: { settings: metronomeSettings, onSettingsChange: handleMetronomeSettingsChange },
+      drumMachine: {
+        settings: drumMachineSettings,
+        onSettingsChange: handleDrumMachineSettingsChange,
+      },
+      qr: { settings: qrSettings, onSettingsChange: handleQRSettingsChange },
+      translator: {
+        settings: translatorSettings,
+        onSettingsChange: handleTranslatorSettingsChange,
+      },
+    }),
+    [
+      metronomeSettings,
+      handleMetronomeSettingsChange,
+      drumMachineSettings,
+      handleDrumMachineSettingsChange,
+      qrSettings,
+      handleQRSettingsChange,
+      translatorSettings,
+      handleTranslatorSettingsChange,
+    ],
+  );
+
+  // Render tool content using registry pattern (no switch statement)
   const renderToolContent = () => {
-    switch (currentTool) {
-      case 'metronome':
-        return (
-          <LazyMetronome
-            settings={metronomeSettings}
-            onSettingsChange={handleMetronomeSettingsChange}
-          />
-        );
-      case 'qr':
-        return <LazyQRGenerator settings={qrSettings} onSettingsChange={handleQRSettingsChange} />;
-      case 'drumMachine':
-        return (
-          <LazyDrumMachine
-            settings={drumMachineSettings}
-            onSettingsChange={handleDrumMachineSettingsChange}
-          />
-        );
-      case 'translator':
-        return (
-          <LazyTranslator
-            settings={translatorSettings}
-            onSettingsChange={handleTranslatorSettingsChange}
-          />
-        );
-      default:
-        return null;
-    }
+    if (!currentTool) return null;
+
+    const LazyComponent = getToolComponent(currentTool);
+    if (!LazyComponent) return null;
+
+    const config = toolSettingsRegistry[currentTool];
+    return <LazyComponent settings={config.settings} onSettingsChange={config.onSettingsChange} />;
   };
 
   return (

@@ -1,26 +1,68 @@
 import { index, type RouteConfig, route } from '@react-router/dev/routes';
 
-// Routes without locale prefix
-// Locale detection handled at component level via URL pathname
+// ========================================
+// Route Manifest - Centralized Route Configuration
+// ========================================
+
+// Type for individual route entries
+type RouteEntry = ReturnType<typeof route>;
+
+// Static pages (non-tool routes)
+const STATIC_PAGES = [
+  { slug: 'about', file: 'about.tsx' },
+  { slug: 'built-with', file: 'built-with.tsx' },
+  { slug: 'benchmark', file: 'benchmark.tsx' },
+  { slug: 'sitemap', file: 'sitemap.tsx' },
+] as const;
+
+// Tool pages - matches toolCategories.ts slugs
+// Adding a new tool? Just add its slug here!
+const TOOL_PAGES = ['metronome', 'drum-machine', 'qr', 'translator'] as const;
+
+// ========================================
+// Route Generation Functions
+// ========================================
+
+function generateStaticRoutes(): RouteEntry[] {
+  const routes: RouteEntry[] = [];
+
+  for (const page of STATIC_PAGES) {
+    // English (default, no prefix)
+    routes.push(route(page.slug, `routes/($locale)/${page.file}`, { id: `${page.slug}-en` }));
+    // Korean (/ko prefix)
+    routes.push(
+      route(`ko/${page.slug}`, `routes/($locale)/${page.file}`, { id: `${page.slug}-ko` }),
+    );
+  }
+
+  return routes;
+}
+
+function generateToolRoutes(): RouteEntry[] {
+  const routes: RouteEntry[] = [];
+
+  for (const slug of TOOL_PAGES) {
+    // English (default, no prefix)
+    routes.push(route(slug, `routes/($locale)/${slug}.tsx`, { id: `${slug}-en` }));
+    // Korean (/ko prefix)
+    routes.push(route(`ko/${slug}`, `routes/($locale)/${slug}.tsx`, { id: `${slug}-ko` }));
+  }
+
+  return routes;
+}
+
+// ========================================
+// Exported Route Configuration
+// ========================================
+
 export default [
-  // English (default, no prefix)
+  // Home routes
   index('routes/($locale)/home.tsx', { id: 'home-en' }),
-  route('about', 'routes/($locale)/about.tsx', { id: 'about-en' }),
-  route('built-with', 'routes/($locale)/built-with.tsx', { id: 'built-with-en' }),
-  route('benchmark', 'routes/($locale)/benchmark.tsx', { id: 'benchmark-en' }),
-  route('sitemap', 'routes/($locale)/sitemap.tsx', { id: 'sitemap-en' }),
-  route('metronome', 'routes/($locale)/metronome.tsx', { id: 'metronome-en' }),
-  route('drum-machine', 'routes/($locale)/drum-machine.tsx', { id: 'drum-machine-en' }),
-  route('qr', 'routes/($locale)/qr.tsx', { id: 'qr-en' }),
-  route('translator', 'routes/($locale)/translator.tsx', { id: 'translator-en' }),
-  // Korean (/ko prefix)
   route('ko', 'routes/($locale)/home.tsx', { id: 'home-ko' }),
-  route('ko/about', 'routes/($locale)/about.tsx', { id: 'about-ko' }),
-  route('ko/built-with', 'routes/($locale)/built-with.tsx', { id: 'built-with-ko' }),
-  route('ko/benchmark', 'routes/($locale)/benchmark.tsx', { id: 'benchmark-ko' }),
-  route('ko/sitemap', 'routes/($locale)/sitemap.tsx', { id: 'sitemap-ko' }),
-  route('ko/metronome', 'routes/($locale)/metronome.tsx', { id: 'metronome-ko' }),
-  route('ko/drum-machine', 'routes/($locale)/drum-machine.tsx', { id: 'drum-machine-ko' }),
-  route('ko/qr', 'routes/($locale)/qr.tsx', { id: 'qr-ko' }),
-  route('ko/translator', 'routes/($locale)/translator.tsx', { id: 'translator-ko' }),
+
+  // Static pages
+  ...generateStaticRoutes(),
+
+  // Tool pages (auto-generated from TOOL_PAGES manifest)
+  ...generateToolRoutes(),
 ] satisfies RouteConfig;

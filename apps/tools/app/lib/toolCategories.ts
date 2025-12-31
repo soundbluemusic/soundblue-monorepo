@@ -9,6 +9,7 @@
  * - Available tools and their metadata
  * - Tool categories for navigation/grouping
  * - Localized names and descriptions (Korean/English)
+ * - Lazy-loaded component loaders for code splitting
  *
  * @module lib/toolCategories
  *
@@ -36,7 +37,12 @@
  * ```
  */
 
+import { type ComponentType, lazy } from 'react';
 import type { ToolType } from '~/stores/tool-store';
+
+// biome-ignore lint/suspicious/noExplicitAny: Dynamic tool components have varying props that cannot be unified
+type AnyToolComponent = ComponentType<any>;
+type LazyToolComponent = React.LazyExoticComponent<AnyToolComponent>;
 
 /**
  * Metadata for an individual tool.
@@ -283,4 +289,51 @@ export const getToolBySlug = (slug: string): ToolInfo | undefined => {
 export const getToolName = (id: ToolType, locale: 'ko' | 'en' = 'ko'): string => {
   const tool = toolById.get(id);
   return tool?.name[locale] ?? id;
+};
+
+// ========================================
+// Tool Component Registry (Lazy Loading)
+// ========================================
+
+/**
+ * Registry of lazy-loaded tool components.
+ *
+ * Each tool is loaded on-demand when first accessed, enabling
+ * optimal code splitting. Adding a new tool only requires:
+ * 1. Adding the tool to TOOL_CATEGORIES
+ * 2. Adding the lazy component loader here
+ *
+ * @constant
+ * @type {Record<ToolType, LazyToolComponent>}
+ *
+ * @example
+ * ```tsx
+ * // In ToolContainer
+ * const LazyComponent = TOOL_COMPONENTS[currentTool];
+ * return <LazyComponent settings={settings} onSettingsChange={onChange} />;
+ * ```
+ */
+export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
+  metronome: lazy(() => import('~/tools/metronome').then((m) => ({ default: m.Metronome }))),
+  drumMachine: lazy(() => import('~/tools/drum-machine').then((m) => ({ default: m.DrumMachine }))),
+  qr: lazy(() => import('~/tools/qr-generator').then((m) => ({ default: m.QRGenerator }))),
+  translator: lazy(() => import('~/tools/translator').then((m) => ({ default: m.Translator }))),
+};
+
+/**
+ * Get a lazy-loaded tool component by its ID.
+ *
+ * @param {ToolType} id - The tool's unique identifier
+ * @returns {LazyToolComponent | undefined} Lazy component, or undefined if not found
+ *
+ * @example
+ * ```tsx
+ * const Component = getToolComponent('metronome');
+ * if (Component) {
+ *   return <Component settings={settings} onSettingsChange={onChange} />;
+ * }
+ * ```
+ */
+export const getToolComponent = (id: ToolType): LazyToolComponent | undefined => {
+  return TOOL_COMPONENTS[id];
 };

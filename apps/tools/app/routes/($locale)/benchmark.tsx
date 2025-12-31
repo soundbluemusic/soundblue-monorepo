@@ -1,26 +1,21 @@
-import { CheckCircle2, ChevronDown, ChevronRight, Pause, Play, XCircle } from 'lucide-react';
-import { useCallback, useRef, useState } from 'react';
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Loader2,
+  Pause,
+  Play,
+  XCircle,
+} from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
-import {
-  antiHardcodingTests,
-  categoryTests,
-  contextTests,
-  finalTests,
-  levelTests,
-  localizationTests,
-  polysemyTests,
-  professionalTranslatorTests,
-  spacingErrorTests,
-  type TestCase,
-  type TestCategory,
-  type TestLevel,
-  typoTests,
-  uniqueTests,
-  wordOrderTests,
-} from '~/tools/translator/benchmark-data';
-import { translate } from '~/tools/translator/translator-service';
+import type { TestCase, TestCategory, TestLevel } from '~/tools/translator/benchmark-data';
+
+// Dynamic import types for lazy loading
+type TranslateFn = (input: string, direction: 'ko-en' | 'en-ko') => string;
+type TestGroup = { name: string; data: TestLevel[] };
 
 export const meta: MetaFunction = () => [
   { title: 'Benchmark | Tools' },
@@ -49,21 +44,38 @@ interface LevelResult {
   categories: CategoryResult[];
 }
 
-// All test groups
-const ALL_TEST_GROUPS = [
-  { name: 'Level Tests', data: levelTests },
-  { name: 'Category Tests', data: categoryTests },
-  { name: 'Context Tests', data: contextTests },
-  { name: 'Typo Tests', data: typoTests },
-  { name: 'Unique Tests', data: uniqueTests },
-  { name: 'Polysemy Tests', data: polysemyTests },
-  { name: 'Word Order Tests', data: wordOrderTests },
-  { name: 'Spacing Tests', data: spacingErrorTests },
-  { name: 'Final Tests', data: finalTests },
-  { name: 'Professional Tests', data: professionalTranslatorTests },
-  { name: 'Localization Tests', data: localizationTests },
-  { name: 'Anti-Hardcoding Tests', data: antiHardcodingTests },
-];
+// Lazy-loaded test groups and translate function (loaded on demand)
+let cachedTestGroups: TestGroup[] | null = null;
+let cachedTranslateFn: TranslateFn | null = null;
+
+async function loadBenchmarkData(): Promise<TestGroup[]> {
+  if (cachedTestGroups) return cachedTestGroups;
+
+  const benchmarkModule = await import('~/tools/translator/benchmark-data');
+  cachedTestGroups = [
+    { name: 'Level Tests', data: benchmarkModule.levelTests },
+    { name: 'Category Tests', data: benchmarkModule.categoryTests },
+    { name: 'Context Tests', data: benchmarkModule.contextTests },
+    { name: 'Typo Tests', data: benchmarkModule.typoTests },
+    { name: 'Unique Tests', data: benchmarkModule.uniqueTests },
+    { name: 'Polysemy Tests', data: benchmarkModule.polysemyTests },
+    { name: 'Word Order Tests', data: benchmarkModule.wordOrderTests },
+    { name: 'Spacing Tests', data: benchmarkModule.spacingErrorTests },
+    { name: 'Final Tests', data: benchmarkModule.finalTests },
+    { name: 'Professional Tests', data: benchmarkModule.professionalTranslatorTests },
+    { name: 'Localization Tests', data: benchmarkModule.localizationTests },
+    { name: 'Anti-Hardcoding Tests', data: benchmarkModule.antiHardcodingTests },
+  ];
+  return cachedTestGroups;
+}
+
+async function loadTranslate(): Promise<TranslateFn> {
+  if (cachedTranslateFn) return cachedTranslateFn;
+
+  const translatorModule = await import('~/tools/translator/translator-service');
+  cachedTranslateFn = translatorModule.translate;
+  return cachedTranslateFn;
+}
 
 // Helper function to count tests in a level array
 function countTestsInLevels(levels: TestLevel[]): number {
@@ -75,6 +87,8 @@ function countTestsInLevels(levels: TestLevel[]): number {
 
 export default function Benchmark() {
   const [isRunning, setIsRunning] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [testGroups, setTestGroups] = useState<TestGroup[]>([]);
   const [currentTest, setCurrentTest] = useState<{
     input: string;
     output: string;
@@ -83,11 +97,34 @@ export default function Benchmark() {
   } | null>(null);
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
   const abortRef = useRef(false);
+  const translateFnRef = useRef<TranslateFn | null>(null);
 
   // Results state for each group
   const [results, setResults] = useState<Map<string, LevelResult[]>>(new Map());
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+
+  // Load test data and translate function on mount
+  useEffect(() => {
+    let mounted = true;
+    setIsLoading(true);
+
+    Promise.all([loadBenchmarkData(), loadTranslate()])
+      .then(([groups, translateFn]) => {
+        if (mounted) {
+          setTestGroups(groups);
+          translateFnRef.current = translateFn;
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (mounted) setIsLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const normalizeEnglish = (text: string): string => {
     return text
@@ -118,8 +155,12 @@ export default function Benchmark() {
     // Small delay to let UI update
     await new Promise((r) => setTimeout(r, 50));
 
-    // Run translation
-    const actual = translate(test.input, test.direction);
+    // Run translation using dynamically loaded translate function
+    const translateFn = translateFnRef.current;
+    if (!translateFn) {
+      throw new Error('Translate function not loaded');
+    }
+    const actual = translateFn(test.input, test.direction);
 
     // Update UI with result
     setCurrentTest({
@@ -148,21 +189,20 @@ export default function Benchmark() {
 
   // Run all tests sequentially
   const runAllTests = useCallback(async () => {
+    if (testGroups.length === 0 || !translateFnRef.current) return;
+
     setIsRunning(true);
     abortRef.current = false;
     setResults(new Map());
     setExpandedLevels(new Set());
     setExpandedCategories(new Set());
 
-    const totalTests = ALL_TEST_GROUPS.reduce(
-      (sum, group) => sum + countTestsInLevels(group.data),
-      0,
-    );
+    const totalTests = testGroups.reduce((sum, group) => sum + countTestsInLevels(group.data), 0);
     let currentCount = 0;
 
     const newResults = new Map<string, LevelResult[]>();
 
-    for (const group of ALL_TEST_GROUPS) {
+    for (const group of testGroups) {
       if (abortRef.current) break;
 
       setProgress({ current: currentCount, total: totalTests, phase: group.name });
@@ -215,7 +255,7 @@ export default function Benchmark() {
     setIsRunning(false);
     setCurrentTest(null);
     setProgress({ current: 0, total: 0, phase: '' });
-  }, [runSingleTest]);
+  }, [runSingleTest, testGroups]);
 
   const stopTests = useCallback(() => {
     abortRef.current = true;
@@ -269,10 +309,7 @@ export default function Benchmark() {
     return 'text-red-600 dark:text-red-400';
   };
 
-  const totalTestCount = ALL_TEST_GROUPS.reduce(
-    (sum, group) => sum + countTestsInLevels(group.data),
-    0,
-  );
+  const totalTestCount = testGroups.reduce((sum, group) => sum + countTestsInLevels(group.data), 0);
 
   const renderResults = (levels: TestLevel[], levelResults: LevelResult[], prefix: string) => {
     if (levelResults.length === 0) return null;
@@ -434,7 +471,16 @@ export default function Benchmark() {
 
           {/* Run/Stop Button */}
           <div className="mb-4 flex gap-2">
-            {!isRunning ? (
+            {isLoading ? (
+              <button
+                type="button"
+                disabled
+                className="flex cursor-not-allowed items-center gap-2 rounded-lg border-none bg-gray-400 px-4 py-2 font-medium text-white"
+              >
+                <Loader2 className="size-4 animate-spin" />
+                Loading...
+              </button>
+            ) : !isRunning ? (
               <button
                 type="button"
                 onClick={runAllTests}
@@ -512,7 +558,7 @@ export default function Benchmark() {
           )}
 
           {/* Results by Group */}
-          {ALL_TEST_GROUPS.map((group) => {
+          {testGroups.map((group) => {
             const groupResults = results.get(group.name);
             if (!groupResults || groupResults.length === 0) return null;
 
@@ -536,12 +582,21 @@ export default function Benchmark() {
           })}
 
           {/* Empty State */}
-          {results.size === 0 && !isRunning && (
+          {results.size === 0 && !isRunning && !isLoading && (
             <div className="rounded-lg border border-dashed border-(--border) p-8 text-center text-(--muted-foreground)">
               <p>Run All Tests 버튼을 클릭하여 벤치마크를 시작하세요.</p>
               <p className="mt-2 text-sm">
                 각 테스트가 순차적으로 실행되며 결과를 실시간으로 확인할 수 있습니다.
               </p>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="rounded-lg border border-dashed border-(--border) p-8 text-center text-(--muted-foreground)">
+              <Loader2 className="mx-auto mb-4 size-8 animate-spin" />
+              <p>벤치마크 데이터 로딩 중...</p>
+              <p className="mt-2 text-sm">번역기와 테스트 데이터를 불러오고 있습니다.</p>
             </div>
           )}
         </div>
