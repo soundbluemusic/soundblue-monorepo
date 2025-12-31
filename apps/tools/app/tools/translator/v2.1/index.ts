@@ -112,19 +112,24 @@ function splitSentences(text: string): Array<{ sentence: string; punctuation: st
 /**
  * 번역 결과에서 명사를 역번역 검증
  *
- * 검증 실패한 명사가 있으면 원본 단어를 유지하거나
- * 신뢰도가 낮음을 표시할 수 있음 (현재는 로깅만)
+ * 검증 실패한 명사가 있으면 번역된 단어를 원본으로 교체
+ *
+ * 예시:
+ * - "유튜브" → "your tube" (검증 실패) → "유튜브"로 교체
+ * - "아이폰" → "eye phone" (검증 실패) → "아이폰"으로 교체
  *
  * @param parsed 파싱된 문장
  * @param translated 번역된 문장
  * @param direction 번역 방향
- * @returns 검증된 번역 결과 (현재는 동일)
+ * @returns 검증된 번역 결과
  */
 function validateTranslation(
   parsed: ParsedSentence,
   translated: string,
   direction: Direction,
 ): string {
+  let result = translated;
+
   // 명사 토큰만 추출하여 검증
   const nounTokens = parsed.tokens.filter(
     (t) => t.role === 'object' || t.role === 'subject' || t.role === 'unknown',
@@ -135,16 +140,18 @@ function validateTranslation(
 
     const validation = validateWordTranslation(token.stem, token.translated, direction);
 
-    // 검증 실패 시 토큰의 confidence 조정
-    if (!validation.valid && token.confidence !== undefined) {
-      // 신뢰도를 검증 결과로 조정 (0.3)
-      token.confidence = Math.min(token.confidence, validation.confidence);
+    if (!validation.valid) {
+      // 검증 실패 → 번역된 단어를 원본으로 교체
+      result = result.replace(token.translated, token.stem);
+
+      // confidence 조정
+      if (token.confidence !== undefined) {
+        token.confidence = Math.min(token.confidence, validation.confidence);
+      }
     }
   }
 
-  // 현재는 번역 결과를 그대로 반환
-  // 향후: 검증 실패한 단어를 원본으로 대체하거나 표시 가능
-  return translated;
+  return result;
 }
 
 // ============================================
