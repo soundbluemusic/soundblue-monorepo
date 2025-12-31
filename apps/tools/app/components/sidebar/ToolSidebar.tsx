@@ -100,7 +100,7 @@ export function ToolSidebar() {
       <div ref={moreMenuRef} className="relative border-t border-(--border) p-2">
         {moreMenuOpen && (
           <div
-            className={`absolute bottom-full z-50 mb-1 rounded-xl border border-(--border) bg-(--popover) p-1 shadow-lg ${
+            className={`absolute bottom-full z-60 mb-1 rounded-xl border border-(--border) bg-(--popover) p-1 shadow-lg ${
               sidebarCollapsed ? 'left-0 right-auto w-48' : 'left-2 right-2'
             }`}
           >

@@ -214,7 +214,7 @@ export function HomeLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-(--background)">
       {/* Header */}
-      <header className="relative z-30 flex h-14 items-center justify-between border-b border-(--border) px-4">
+      <header className="relative z-50 flex h-14 items-center justify-between border-b border-(--border) px-4">
         <Link
           to={localizedPath('/')}
           className="text-lg font-semibold tracking-tight text-(--brand) no-underline"
@@ -265,7 +265,7 @@ export function HomeLayout() {
 
             {/* Dropdown Menu */}
             {menuOpen && (
-              <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-2xl border border-(--border) bg-(--card) p-1 shadow-lg animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 top-full z-60 mt-2 w-48 rounded-2xl border border-(--border) bg-(--card) p-1 shadow-lg animate-in fade-in zoom-in-95 duration-150">
                 <Link
                   to={localizedPath('/built-with')}
                   onClick={() => setMenuOpen(false)}
@@ -298,7 +298,7 @@ export function HomeLayout() {
 
       {/* Click outside to close menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(false)} aria-hidden="true" />
+        <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} aria-hidden="true" />
       )}
 
       {/* Main Content */}
@@ -370,7 +370,7 @@ export function HomeLayout() {
               {/* 드롭다운 결과 목록 */}
               {isDropdownOpen && searchResults.length > 0 && (
                 <div
-                  className="absolute top-[calc(100%+8px)] left-0 right-0 z-[600] max-h-80 overflow-y-auto bg-(--card) border border-(--border) rounded-2xl shadow-lg p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--border) [&::-webkit-scrollbar-thumb]:rounded-full"
+                  className="absolute top-[calc(100%+8px)] left-0 right-0 z-60 max-h-80 overflow-y-auto bg-(--card) border border-(--border) rounded-2xl shadow-lg p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--border) [&::-webkit-scrollbar-thumb]:rounded-full"
                   role="listbox"
                 >
                   {searchResults.map((result, index) => {
@@ -426,7 +426,7 @@ export function HomeLayout() {
 
               {/* 검색 결과 없음 */}
               {isDropdownOpen && searchQuery.trim() && searchResults.length === 0 && (
-                <div className="absolute top-[calc(100%+8px)] left-0 right-0 z-[600] bg-(--card) border border-(--border) rounded-2xl shadow-lg p-6 text-center text-sm text-(--muted-foreground)">
+                <div className="absolute top-[calc(100%+8px)] left-0 right-0 z-60 bg-(--card) border border-(--border) rounded-2xl shadow-lg p-6 text-center text-sm text-(--muted-foreground)">
                   {m['search_noResults']?.() ?? 'No results found'}
                 </div>
               )}

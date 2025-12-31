@@ -51,7 +51,7 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, title, message }: C
       ref={dialogRef}
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 m-auto p-0 bg-transparent backdrop:bg-black/50 border-none max-w-[90vw] w-[360px]"
+      className="fixed inset-0 z-70 m-auto p-0 bg-transparent backdrop:bg-black/50 border-none max-w-[90vw] w-[360px]"
     >
       <div className="bg-(--color-bg-secondary) rounded-xl shadow-xl border border-(--color-border-primary) overflow-hidden">
         {/* Header */}

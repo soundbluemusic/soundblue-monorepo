@@ -37,7 +37,7 @@ export function Header() {
   };
 
   return (
-    <header className="relative z-30 flex h-14 items-center gap-4 border-b border-(--border) bg-(--background) px-4 pt-[env(safe-area-inset-top)]">
+    <header className="relative z-50 flex h-14 items-center gap-4 border-b border-(--border) bg-(--background) px-4 pt-[env(safe-area-inset-top)]">
       {/* Left: Mobile menu + Logo */}
       <div className="flex items-center gap-3 shrink-0">
         {/* Mobile menu toggle - only show on main pages */}

@@ -287,7 +287,7 @@ export function SearchBox() {
 
       {isOpen && results.length > 0 && (
         <div
-          className="absolute top-[calc(100%+4px)] left-0 right-0 z-[600] max-h-80 overflow-y-auto bg-(--background) border border-(--border) rounded-xl shadow-lg m-0 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--border) [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-(--muted-foreground)"
+          className="absolute top-[calc(100%+4px)] left-0 right-0 z-60 max-h-80 overflow-y-auto bg-(--background) border border-(--border) rounded-xl shadow-lg m-0 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--border) [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-(--muted-foreground)"
           role="listbox"
         >
           {results.map((result, index) => renderResult(result, index))}
@@ -295,7 +295,7 @@ export function SearchBox() {
       )}
 
       {isOpen && query.trim() && results.length === 0 && (
-        <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-[600] bg-(--background) border border-(--border) rounded-xl shadow-lg p-4 text-center text-sm text-(--muted-foreground)">
+        <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-60 bg-(--background) border border-(--border) rounded-xl shadow-lg p-4 text-center text-sm text-(--muted-foreground)">
           {m['search_noResults']?.() ?? 'No results found'}
         </div>
       )}
