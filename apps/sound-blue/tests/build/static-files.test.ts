@@ -20,16 +20,23 @@ import {
  * - 빌드 파일 구조가 올바른지 확인
  */
 
+/**
+ * Prerender result type - can be string[] or object with paths property
+ */
+interface PrerenderResult {
+  paths: string[];
+}
+
 // react-router.config.ts에서 라우트 목록 가져오기
 const getExpectedRoutes = async (): Promise<string[]> => {
   const config = await import('../../react-router.config');
   if (typeof config.default.prerender !== 'function') {
     throw new Error('prerender is not a function');
   }
-  // @ts-expect-error - prerender signature varies, calling without args for static routes
-  const result = await config.default.prerender({});
+  // prerender can be called without args for static routes
+  const result = (await config.default.prerender()) as string[] | PrerenderResult;
   // Handle both array and object return types
-  return Array.isArray(result) ? result : (result as any).paths;
+  return Array.isArray(result) ? result : result.paths;
 };
 
 describe('Static Files Generation', () => {

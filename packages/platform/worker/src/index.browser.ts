@@ -3,11 +3,21 @@
 // For runtime in browser environment
 // ========================================
 
-import type { IWorkerRPC, RPCHandler, RPCRequest, RPCResponse } from './types';
+import type { IWorkerRPC, RPCHandler, RPCRequest, RPCResponse, WorkerMessagePort } from './types';
 
 export * from './types';
 
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
+
+/**
+ * Get the worker global scope as a message port.
+ * Used when running inside a Web Worker to communicate with main thread.
+ */
+function getWorkerSelf(): WorkerMessagePort {
+  // In worker context, self is DedicatedWorkerGlobalScope which has postMessage
+  const workerSelf = self as unknown as WorkerMessagePort;
+  return workerSelf;
+}
 
 /**
  * Worker RPC implementation for browser environment.
@@ -15,6 +25,7 @@ const DEFAULT_TIMEOUT = 30000; // 30 seconds
  */
 export class WorkerRPC implements IWorkerRPC {
   private worker: Worker;
+  private messagePort: WorkerMessagePort | null;
   private pending = new Map<
     string,
     {
@@ -28,19 +39,24 @@ export class WorkerRPC implements IWorkerRPC {
 
   /**
    * Create a new WorkerRPC instance
-   * @param workerOrUrl - Worker instance or URL to worker script
+   * @param workerOrUrl - Worker instance, URL to worker script, or null for worker-side
    * @param isWorkerSide - Set to true when running inside a worker
    */
-  constructor(workerOrUrl: Worker | URL | string, isWorkerSide = false) {
+  constructor(workerOrUrl: Worker | URL | string | null, isWorkerSide = false) {
     this.isWorkerSide = isWorkerSide;
+    this.messagePort = null;
 
     if (isWorkerSide) {
-      // Running inside worker - use self
-      this.worker = self as unknown as Worker;
+      // Running inside worker - use self via message port abstraction
+      this.messagePort = getWorkerSelf();
+      // Assign to worker for unified handling (worker will be used for event binding)
+      this.worker = this.messagePort as unknown as Worker;
     } else if (workerOrUrl instanceof Worker) {
       this.worker = workerOrUrl;
-    } else {
+    } else if (workerOrUrl !== null) {
       this.worker = new Worker(workerOrUrl, { type: 'module' });
+    } else {
+      throw new Error('Worker URL required when not in worker context');
     }
 
     this.worker.onmessage = this.handleMessage.bind(this);
@@ -75,8 +91,8 @@ export class WorkerRPC implements IWorkerRPC {
       // Detect transferable objects
       const transfer = this.detectTransferable(payload);
 
-      if (this.isWorkerSide) {
-        (self as unknown as Worker).postMessage(message, transfer);
+      if (this.isWorkerSide && this.messagePort) {
+        this.messagePort.postMessage(message, transfer);
       } else {
         this.worker.postMessage(message, transfer);
       }
@@ -135,22 +151,14 @@ export class WorkerRPC implements IWorkerRPC {
       handler(request.payload)
         .then((result) => {
           const response: RPCResponse = { id: request.id, result };
-          if (this.isWorkerSide) {
-            (self as unknown as Worker).postMessage(response);
-          } else {
-            this.worker.postMessage(response);
-          }
+          this.sendResponse(response);
         })
         .catch((error: Error) => {
           const response: RPCResponse = {
             id: request.id,
             error: error.message || 'Unknown error',
           };
-          if (this.isWorkerSide) {
-            (self as unknown as Worker).postMessage(response);
-          } else {
-            this.worker.postMessage(response);
-          }
+          this.sendResponse(response);
         });
     } else {
       // Unknown method
@@ -158,16 +166,20 @@ export class WorkerRPC implements IWorkerRPC {
         id: request.id,
         error: `Unknown method: ${request.method}`,
       };
-      if (this.isWorkerSide) {
-        (self as unknown as Worker).postMessage(response);
-      } else {
-        this.worker.postMessage(response);
-      }
+      this.sendResponse(response);
     }
   }
 
   private handleError(error: ErrorEvent): void {
     console.error('Worker error:', error.message);
+  }
+
+  private sendResponse(response: RPCResponse): void {
+    if (this.isWorkerSide && this.messagePort) {
+      this.messagePort.postMessage(response);
+    } else {
+      this.worker.postMessage(response);
+    }
   }
 
   private detectTransferable(payload: unknown): Transferable[] {
@@ -198,5 +210,5 @@ export function createWorkerRPC(workerUrl: string | URL): WorkerRPC {
  * Create a WorkerRPC instance for inside the worker
  */
 export function createWorkerRPCSelf(): WorkerRPC {
-  return new WorkerRPC(null as unknown as Worker, true);
+  return new WorkerRPC(null, true);
 }

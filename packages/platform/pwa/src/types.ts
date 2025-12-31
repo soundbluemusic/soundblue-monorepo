@@ -4,6 +4,14 @@
 // ========================================
 
 /**
+ * Extended Navigator interface for iOS Safari
+ * navigator.standalone is iOS-specific, not in standard typings
+ */
+export interface NavigatorWithStandalone extends Navigator {
+  standalone?: boolean;
+}
+
+/**
  * PWA install state
  */
 export interface PWAInstallState {

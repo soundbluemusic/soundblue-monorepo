@@ -4,7 +4,12 @@
 // ========================================
 
 import { useCallback, useEffect, useState } from 'react';
-import type { BeforeInstallPromptEvent, PWAInstallState, PWAUpdateState } from '../types';
+import type {
+  BeforeInstallPromptEvent,
+  NavigatorWithStandalone,
+  PWAInstallState,
+  PWAUpdateState,
+} from '../types';
 
 /**
  * usePWA hook return type
@@ -53,8 +58,7 @@ export function usePWA(): UsePWAResult {
     const checkInstalled = () => {
       const isStandalone =
         window.matchMedia('(display-mode: standalone)').matches ||
-        // biome-ignore lint/suspicious/noExplicitAny: navigator.standalone is iOS-specific
-        (navigator as any).standalone === true;
+        (navigator as NavigatorWithStandalone).standalone === true;
 
       setInstallState((prev) => ({
         ...prev,

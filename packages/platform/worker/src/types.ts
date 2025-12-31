@@ -4,6 +4,17 @@
 // ========================================
 
 /**
+ * Worker-like interface for postMessage communication.
+ * Used to abstract Worker (main thread) and DedicatedWorkerGlobalScope (worker thread).
+ */
+export interface WorkerMessagePort {
+  postMessage(message: unknown, transfer?: Transferable[]): void;
+  onmessage: ((event: MessageEvent) => void) | null;
+  onerror: ((event: ErrorEvent) => void) | null;
+  terminate?: () => void;
+}
+
+/**
  * RPC message sent to worker
  */
 export interface RPCRequest<T = unknown> {
