@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, test } from 'vitest';
-import { translate } from '../index';
+import { detectFormality, translate } from '../index';
 
 describe('번역기 v2 기본 테스트', () => {
   describe('Ko→En 기본', () => {
@@ -164,6 +164,68 @@ describe('성능 분석: 현재 부족한 기능', () => {
         console.log(`${f}: ${result}`);
       }
       expect(true).toBe(true);
+    });
+  });
+
+  // 어투 자동 감지 테스트
+  describe('detectFormality (어투 자동 감지)', () => {
+    describe('한국어 어투 감지 (ko-en)', () => {
+      test('literal (번역체): 합니다/습니다', () => {
+        expect(detectFormality('커피를 좋아합니다', 'ko-en')).toBe('literal');
+        expect(detectFormality('학교에 갑니다', 'ko-en')).toBe('literal');
+        expect(detectFormality('무엇을 드십니까', 'ko-en')).toBe('literal');
+      });
+
+      test('formal (존댓말): 해요/세요', () => {
+        expect(detectFormality('커피 좋아하세요?', 'ko-en')).toBe('formal');
+        expect(detectFormality('학교에 가요', 'ko-en')).toBe('formal');
+        expect(detectFormality('뭐 드시겠어요?', 'ko-en')).toBe('formal');
+      });
+
+      test('casual (반말): 해/어/아', () => {
+        expect(detectFormality('커피 좋아해?', 'ko-en')).toBe('casual');
+        expect(detectFormality('학교에 가', 'ko-en')).toBe('casual');
+        expect(detectFormality('밥 먹어', 'ko-en')).toBe('casual');
+      });
+
+      test('friendly (친근체): ~가 포함', () => {
+        expect(detectFormality('커피 좋아해~?', 'ko-en')).toBe('friendly');
+        expect(detectFormality('안녕~', 'ko-en')).toBe('friendly');
+      });
+
+      test('neutral (서술체): 한다/는다', () => {
+        expect(detectFormality('그는 커피를 좋아한다', 'ko-en')).toBe('neutral');
+        expect(detectFormality('학교에 간다', 'ko-en')).toBe('neutral');
+      });
+
+      test('단일 단어는 null', () => {
+        expect(detectFormality('커피', 'ko-en')).toBeNull();
+        expect(detectFormality('사과', 'ko-en')).toBeNull();
+      });
+    });
+
+    describe('영어 어투 감지 (en-ko)', () => {
+      test('formal: Would you / Please', () => {
+        expect(detectFormality('Would you like some coffee?', 'en-ko')).toBe('formal');
+        expect(detectFormality('Could you help me please?', 'en-ko')).toBe('formal');
+        expect(detectFormality('Please sit down', 'en-ko')).toBe('formal');
+      });
+
+      test('casual: Hey / gonna / wanna', () => {
+        expect(detectFormality('Hey, what are you doing?', 'en-ko')).toBe('casual');
+        expect(detectFormality('I gonna go home', 'en-ko')).toBe('casual');
+        expect(detectFormality('Yo dude, what up?', 'en-ko')).toBe('casual');
+      });
+
+      test('neutral: 일반 문장', () => {
+        expect(detectFormality('Do you like coffee?', 'en-ko')).toBe('neutral');
+        expect(detectFormality('I went to school', 'en-ko')).toBe('neutral');
+      });
+
+      test('단일 단어는 null', () => {
+        expect(detectFormality('coffee', 'en-ko')).toBeNull();
+        expect(detectFormality('apple', 'en-ko')).toBeNull();
+      });
     });
   });
 

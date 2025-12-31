@@ -7,7 +7,7 @@ import {
   type TranslationDirection,
   type TranslatorSettings,
 } from './settings';
-import { translate } from './translator-service';
+import { detectFormality, translate } from './translator-service';
 import { createShareUrl, getSharedDataFromCurrentUrl, getTextLengthWarning } from './url-sharing';
 
 interface TranslatorProps {
@@ -42,6 +42,8 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
   const prevDirectionRef = useRef(settings.direction);
   const isInitializedRef = useRef(false);
   const directionJustChangedRef = useRef(false);
+  const [isAutoFormality, setIsAutoFormality] = useState(true); // 자동 어투 감지 모드
+  const prevDetectedFormality = useRef(settings.formality); // 이전 감지된 어투
 
   // Cleanup all timeouts on unmount
   useEffect(() => {
@@ -84,7 +86,7 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
     setOutputText(result);
   }, [inputText, settings.direction, settings.formality]);
 
-  // Auto-translate with debounce (only for inputText changes)
+  // Auto-detect formality and translate with debounce
   useEffect(() => {
     // Skip if direction just changed (handled by direction effect)
     if (directionJustChangedRef.current) {
@@ -98,6 +100,14 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
 
     if (inputText.trim()) {
       debounceTimerRef.current = setTimeout(() => {
+        // 자동 어투 감지 모드일 때만 감지
+        if (isAutoFormality) {
+          const detected = detectFormality(inputText, settings.direction);
+          if (detected && detected !== prevDetectedFormality.current) {
+            prevDetectedFormality.current = detected;
+            handleSettingsChange({ formality: detected });
+          }
+        }
         doTranslate();
       }, 300);
     } else {
@@ -109,7 +119,7 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [inputText, doTranslate]);
+  }, [inputText, doTranslate, isAutoFormality, settings.direction, handleSettingsChange]);
 
   // Re-translate immediately when direction or formality changes
   useEffect(() => {
@@ -157,7 +167,9 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
   const clearAll = useCallback(() => {
     setInputText('');
     setOutputText('');
-    handleSettingsChange({ lastInput: '' });
+    setIsAutoFormality(true); // 자동 모드 복원
+    prevDetectedFormality.current = 'neutral';
+    handleSettingsChange({ lastInput: '', formality: 'neutral' });
   }, [handleSettingsChange]);
 
   // Share translation via URL
@@ -234,7 +246,12 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
           <button
             key={option.value}
             type="button"
-            onClick={() => handleSettingsChange({ formality: option.value })}
+            onClick={() => {
+              // 수동 선택 시 자동 모드 해제
+              setIsAutoFormality(false);
+              prevDetectedFormality.current = option.value;
+              handleSettingsChange({ formality: option.value });
+            }}
             className={`inline-flex h-7 items-center justify-center rounded-full px-3 text-xs transition-colors duration-200 ${
               settings.formality === option.value
                 ? 'bg-blue-500 text-white'

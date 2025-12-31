@@ -3,7 +3,7 @@
  */
 
 import type { Formality, TranslationDirection } from './settings';
-import { translate as translateV2 } from './v2';
+import { detectFormality as detectFormalityV2, translate as translateV2 } from './v2';
 
 export interface TranslateOptions {
   formality?: Formality;
@@ -18,4 +18,15 @@ export function translate(
   options?: TranslateOptions,
 ): string {
   return translateV2(text, direction, options);
+}
+
+/**
+ * 입력 텍스트의 어투를 자동 감지
+ *
+ * @param text 입력 텍스트
+ * @param direction 번역 방향
+ * @returns 감지된 어투 (감지 실패 시 null)
+ */
+export function detectFormality(text: string, direction: TranslationDirection): Formality | null {
+  return detectFormalityV2(text, direction);
 }
