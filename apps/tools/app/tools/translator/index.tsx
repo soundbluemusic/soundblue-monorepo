@@ -81,6 +81,7 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevDirectionRef = useRef(settings.direction);
+  const prevFormalityRef = useRef(settings.formality);
   const isInitializedRef = useRef(false);
   const directionJustChangedRef = useRef(false);
   const [isAutoFormality, setIsAutoFormality] = useState(true); // 자동 어투 감지 모드
@@ -164,11 +165,19 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
 
   // Re-translate immediately when direction or formality changes
   useEffect(() => {
-    if (prevDirectionRef.current !== settings.direction) {
+    const directionChanged = prevDirectionRef.current !== settings.direction;
+    const formalityChanged = prevFormalityRef.current !== settings.formality;
+
+    if (directionChanged || formalityChanged) {
       prevDirectionRef.current = settings.direction;
-      directionJustChangedRef.current = true; // Prevent debounce effect from double-translating
+      prevFormalityRef.current = settings.formality;
+
+      if (directionChanged) {
+        directionJustChangedRef.current = true; // Prevent debounce effect from double-translating
+      }
+
       if (inputText.trim()) {
-        // Translate immediately with new direction
+        // Translate immediately with new direction or formality
         const result = translate(inputText.trim(), settings.direction, {
           formality: settings.formality,
         });
