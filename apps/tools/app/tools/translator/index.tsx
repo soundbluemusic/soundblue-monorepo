@@ -1,14 +1,55 @@
-import { ArrowLeftRight, Check, Copy, Share2, Trash2, X } from 'lucide-react';
+import { ArrowLeftRight, Check, Copy, Info, Share2, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import m from '~/lib/messages';
 import {
   defaultTranslatorSettings,
   FORMALITY_OPTIONS,
+  type Formality,
   type TranslationDirection,
   type TranslatorSettings,
 } from './settings';
 import { detectFormality, translate } from './translator-service';
 import { createShareUrl, getSharedDataFromCurrentUrl, getTextLengthWarning } from './url-sharing';
+
+/** 입력 타입 분석 결과 */
+type InputType = 'word' | 'sentence' | 'mixed';
+
+/** 입력 분석 결과 */
+interface InputAnalysis {
+  type: InputType;
+  detectedFormality: Formality | null;
+}
+
+/** 입력 분석 함수 */
+function analyzeInput(text: string, direction: TranslationDirection): InputAnalysis {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return { type: 'word', detectedFormality: null };
+  }
+
+  // 단어 vs 문장 판별
+  const hasSpace = trimmed.includes(' ');
+  const hasPunctuation = /[.!?？！。]/.test(trimmed);
+  const isShort = trimmed.length < 10;
+
+  let type: InputType = 'sentence';
+  if (!hasSpace && isShort && !hasPunctuation) {
+    type = 'word';
+  } else if (hasSpace && !hasPunctuation && isShort) {
+    type = 'mixed'; // 짧은 구 (short phrase)
+  }
+
+  const detectedFormality = detectFormality(trimmed, direction);
+
+  return { type, detectedFormality };
+}
+
+/** 어투 라벨 가져오기 */
+function getFormalityLabel(formality: Formality, direction: TranslationDirection): string {
+  const option = FORMALITY_OPTIONS.find((o) => o.value === formality);
+  if (!option) return '';
+  return direction === 'ko-en' ? option.labelKo : option.labelEn;
+}
 
 interface TranslatorProps {
   settings?: TranslatorSettings;
@@ -206,6 +247,12 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
 
   const textWarning = useMemo(() => getTextLengthWarning(inputText), [inputText]);
 
+  // 입력 분석 (단어/문장, 감지된 어투)
+  const inputAnalysis = useMemo(
+    () => analyzeInput(inputText, settings.direction),
+    [inputText, settings.direction],
+  );
+
   // Save input on change
   useEffect(() => {
     if (inputText !== settings.lastInput) {
@@ -215,6 +262,20 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
 
   const sourceLabel = settings.direction === 'ko-en' ? '한국어' : 'English';
   const targetLabel = settings.direction === 'ko-en' ? 'English' : '한국어';
+
+  // 입력 타입 라벨
+  const getInputTypeLabel = (): string => {
+    if (!inputText.trim()) return '';
+    const isKo = settings.direction === 'ko-en';
+    switch (inputAnalysis.type) {
+      case 'word':
+        return isKo ? '단어' : 'Word';
+      case 'mixed':
+        return isKo ? '구/표현' : 'Phrase';
+      case 'sentence':
+        return isKo ? '문장' : 'Sentence';
+    }
+  };
 
   const getShareButtonClass = () => {
     const base =
@@ -240,27 +301,74 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
         <span className="min-w-[3.75rem] text-sm font-medium">{targetLabel}</span>
       </div>
 
-      {/* Formality selector */}
-      <div className="flex flex-wrap items-center justify-center gap-1.5">
-        {FORMALITY_OPTIONS.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            onClick={() => {
-              // 수동 선택 시 자동 모드 해제
-              setIsAutoFormality(false);
-              prevDetectedFormality.current = option.value;
-              handleSettingsChange({ formality: option.value });
-            }}
-            className={`inline-flex h-7 items-center justify-center rounded-full px-3 text-xs transition-colors duration-200 ${
-              settings.formality === option.value
-                ? 'bg-blue-500 text-white'
-                : 'bg-black/[0.05] text-(--muted-foreground) hover:bg-black/[0.1] dark:bg-white/[0.08] dark:hover:bg-white/[0.12]'
+      {/* Input analysis indicator + Formality hint */}
+      {inputText.trim() && (
+        <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
+          {/* 입력 타입 표시 */}
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/[0.05] px-2 py-0.5 dark:bg-white/[0.08]">
+            <span className="text-(--muted-foreground)">{getInputTypeLabel()}</span>
+          </span>
+
+          {/* 감지된 어투 표시 */}
+          {inputAnalysis.detectedFormality && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+              <span>
+                {settings.direction === 'ko-en' ? '감지된 어투:' : 'Detected:'}{' '}
+                {getFormalityLabel(inputAnalysis.detectedFormality, settings.direction)}
+              </span>
+            </span>
+          )}
+
+          {/* 자동/수동 모드 표시 */}
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 ${
+              isAutoFormality
+                ? 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                : 'bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
             }`}
           >
-            {settings.direction === 'ko-en' ? option.labelKo : option.labelEn}
-          </button>
-        ))}
+            {isAutoFormality
+              ? settings.direction === 'ko-en'
+                ? '자동 선택'
+                : 'Auto'
+              : settings.direction === 'ko-en'
+                ? '수동 선택'
+                : 'Manual'}
+          </span>
+        </div>
+      )}
+
+      {/* Formality selector - 출력 어투 선택 */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-center gap-1 text-xs text-(--muted-foreground)">
+          <Info className="size-3" />
+          <span>
+            {settings.direction === 'ko-en'
+              ? '번역 결과의 어투를 선택하세요'
+              : 'Choose output tone'}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
+          {FORMALITY_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => {
+                // 수동 선택 시 자동 모드 해제
+                setIsAutoFormality(false);
+                prevDetectedFormality.current = option.value;
+                handleSettingsChange({ formality: option.value });
+              }}
+              className={`inline-flex h-7 items-center justify-center rounded-full px-3 text-xs transition-colors duration-200 ${
+                settings.formality === option.value
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-black/[0.05] text-(--muted-foreground) hover:bg-black/[0.1] dark:bg-white/[0.08] dark:hover:bg-white/[0.12]'
+              }`}
+            >
+              {settings.direction === 'ko-en' ? option.labelKo : option.labelEn}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Input area */}
