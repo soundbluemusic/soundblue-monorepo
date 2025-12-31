@@ -176,16 +176,10 @@ function checkTimeQuery(question: string, locale: string): string | null {
 // Q&A Database Handler
 // ========================================
 
-export interface QAItem {
-  keywords: string[];
-  patterns?: string[];
-  answer: string;
-  category?: string;
-}
+import type { QADatabase } from './types';
 
-export interface QADatabase {
-  items: QAItem[];
-}
+// Re-export types from shared types file
+export type { QADatabase, QAItem } from './types';
 
 // Q&A 데이터 동기 로드 (빌드 타임에 번들링)
 const qaDatabase: Record<string, QADatabase> = {

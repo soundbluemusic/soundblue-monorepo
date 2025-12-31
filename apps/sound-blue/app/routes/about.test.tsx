@@ -39,6 +39,10 @@ vi.mock('~/lib/messages', () => ({
     'about.sections.music.content': () => 'Creating original soundtracks and instrumental music.',
     'about.sections.vision.title': () => 'The Vision',
     'about.sections.vision.content': () => 'Making music accessible to everyone.',
+    'about.sections.projects.title': () => 'Projects',
+    'about.sections.connect.title': () => 'Connect',
+    'about.sections.connect.youtube': () => 'YouTube Channel',
+    'about.sections.connect.github': () => 'GitHub',
     'accessibility.skipToContent': () => 'Skip to content',
     'accessibility.mainContent': () => 'Main content',
     'header.themeDark': () => 'Switch to dark mode',
@@ -54,6 +58,12 @@ vi.mock('~/lib/messages', () => ({
     'footer.tagline': () => 'Made with love',
     'footer.builtWith': () => 'Built With',
     'nav.more': () => 'More',
+  },
+  getRawMessage: (key: string) => {
+    if (key === 'about_sections_projects_items') {
+      return ['Project 1', 'Project 2'];
+    }
+    return undefined;
   },
 }));
 

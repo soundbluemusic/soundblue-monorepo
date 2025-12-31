@@ -5,7 +5,7 @@
  * Example: "x...x...x...x..." = four-on-the-floor kick
  */
 
-import type { DrumId } from './settings';
+import type { DrumId } from './types';
 
 export type PresetName = 'empty' | 'techno' | 'house' | 'trap' | 'breakbeat' | 'minimal';
 

@@ -21,7 +21,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@soundblue/hangul": "workspace:*"
+    "@soundblue/hangul": "1.0.0"
   },
   "devDependencies": {
     "@soundblue/hangul": "workspace:*",

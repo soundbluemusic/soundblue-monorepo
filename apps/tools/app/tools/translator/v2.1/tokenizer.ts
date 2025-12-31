@@ -32,7 +32,7 @@ const CONFIDENCE_RULE = 0.85;
 /** 유사도 기반 추론 신뢰도 (거리에 따라 조정) */
 const CONFIDENCE_SIMILARITY_BASE = 0.7;
 /** 불규칙 동사 처리 신뢰도 */
-const CONFIDENCE_IRREGULAR = 0.9;
+const _CONFIDENCE_IRREGULAR = 0.9;
 /** 미인식 신뢰도 */
 const CONFIDENCE_UNKNOWN = 0.3;
 

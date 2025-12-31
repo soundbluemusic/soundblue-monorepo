@@ -30,8 +30,9 @@ vi.mock('react-router', async () => {
 vi.mock('~/lib/messages', () => ({
   default: {
     'builtWith.title': () => 'Built With',
-    'builtWith.sections.frameworks': () => 'Frameworks & Libraries',
-    'builtWith.sections.deployment': () => 'Deployment & Hosting',
+    'builtWith.sections.framework': () => 'Framework & Language',
+    'builtWith.sections.ui': () => 'UI Components',
+    'builtWith.sections.deployment': () => 'Deployment',
     'accessibility.skipToContent': () => 'Skip to content',
     'accessibility.mainContent': () => 'Main content',
     'header.themeDark': () => 'Switch to dark mode',
@@ -118,22 +119,23 @@ describe('BuiltWith Route', () => {
 
     it('섹션 타이틀 렌더링', () => {
       renderWithRouter(<BuiltWith />);
-      expect(screen.getByText('Frameworks & Libraries')).toBeInTheDocument();
-      expect(screen.getByText('Deployment & Hosting')).toBeInTheDocument();
+      // Note: sectionTitles are hardcoded in component, not from messages
+      expect(screen.getByText('Framework & Language')).toBeInTheDocument();
+      expect(screen.getByText('Deployment')).toBeInTheDocument();
     });
 
     it('프레임워크 목록 렌더링', () => {
       renderWithRouter(<BuiltWith />);
-      expect(screen.getByText('React 19')).toBeInTheDocument();
-      expect(screen.getByText('React Router v7')).toBeInTheDocument();
+      expect(screen.getByText('React')).toBeInTheDocument();
+      expect(screen.getByText('React Router')).toBeInTheDocument();
       expect(screen.getByText('TypeScript')).toBeInTheDocument();
-      expect(screen.getByText('Tailwind CSS v4')).toBeInTheDocument();
+      expect(screen.getByText('Tailwind CSS')).toBeInTheDocument();
     });
 
     it('배포 정보 렌더링', () => {
       renderWithRouter(<BuiltWith />);
       expect(screen.getByText('Cloudflare Pages')).toBeInTheDocument();
-      expect(screen.getByText('100% SSG (Static Site Generation)')).toBeInTheDocument();
+      expect(screen.getByText('100% SSG')).toBeInTheDocument();
     });
   });
 
@@ -154,7 +156,7 @@ describe('BuiltWith Route', () => {
 
     it('섹션 타이틀 스타일', () => {
       renderWithRouter(<BuiltWith />);
-      const sectionTitle = screen.getByText('Frameworks & Libraries');
+      const sectionTitle = screen.getByText('Framework & Language');
       expect(sectionTitle.className).toContain('text-xl');
       expect(sectionTitle.className).toContain('font-semibold');
     });
@@ -168,7 +170,7 @@ describe('BuiltWith Route', () => {
     it('모든 필수 요소 렌더링', () => {
       renderWithRouter(<BuiltWith />);
       expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-      expect(screen.getByText('React 19')).toBeInTheDocument();
+      expect(screen.getByText('React')).toBeInTheDocument();
       expect(screen.getByText('Cloudflare Pages')).toBeInTheDocument();
     });
   });

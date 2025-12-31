@@ -34,7 +34,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "tone": "^15.0.0"
+    "tone": "^15.1.22"
   },
   "devDependencies": {
     "tone": "^15.1.22",

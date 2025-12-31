@@ -1,13 +1,9 @@
 // Drum Machine Settings
 
-export type DrumId = 'kick' | 'snare' | 'hihat' | 'openhat' | 'clap';
+import type { DrumId, DrumSynthParams } from './types';
 
-export interface DrumSynthParams {
-  pitch: number;
-  decay: number;
-  tone: number;
-  punch: number;
-}
+// Re-export shared types
+export type { DrumId, DrumSynthParams } from './types';
 
 export const DRUM_DEFAULTS: Record<DrumId, DrumSynthParams> = {
   kick: { pitch: 60, decay: 0.5, tone: 30, punch: 80 },

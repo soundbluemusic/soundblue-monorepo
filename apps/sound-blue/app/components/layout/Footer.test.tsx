@@ -81,19 +81,20 @@ describe('Footer', () => {
   });
 
   describe('Copyright', () => {
+    // BUILD_YEAR는 SSG hydration 문제 방지를 위해 2025로 하드코딩됨
+    const BUILD_YEAR = 2025;
+
     it('Copyright 텍스트 렌더링', () => {
       renderWithRouter(<Footer />);
-      const currentYear = new Date().getFullYear();
       expect(
-        screen.getByText(`© ${currentYear} Sound Blue Music. All rights reserved.`),
+        screen.getByText(`© ${BUILD_YEAR} Sound Blue Music. All rights reserved.`),
       ).toBeInTheDocument();
     });
 
-    it('현재 연도가 동적으로 표시됨', () => {
+    it('빌드 연도가 표시됨', () => {
       renderWithRouter(<Footer />);
-      const currentYear = new Date().getFullYear();
       const copyrightText = screen.getByText(/©/);
-      expect(copyrightText.textContent).toContain(currentYear.toString());
+      expect(copyrightText.textContent).toContain(BUILD_YEAR.toString());
     });
   });
 

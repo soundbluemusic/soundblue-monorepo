@@ -141,10 +141,10 @@ importers:
         specifier: ^5.1.27
         version: 5.1.32
       react:
-        specifier: ^19.1.0
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.1.0
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-router:
         specifier: ^7.6.1
@@ -250,10 +250,10 @@ importers:
         specifier: ^5.1.27
         version: 5.1.32
       react:
-        specifier: ^19.1.0
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.1.0
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-router:
         specifier: ^7.6.1
@@ -431,10 +431,10 @@ importers:
         specifier: ^1.5.4
         version: 1.5.4
       react:
-        specifier: ^19.1.0
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.1.0
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-hook-form:
         specifier: ^7.69.0
@@ -552,7 +552,7 @@ importers:
   packages/core/locale:
     devDependencies:
       typescript:
-        specifier: ^5.8.3
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/core/nlu:
@@ -583,10 +583,10 @@ importers:
         version: link:../../core/locale
     devDependencies:
       '@types/react':
-        specifier: ^19.0.7
+        specifier: ^19.1.8
         version: 19.2.7
       react:
-        specifier: ^19.0.0
+        specifier: ^19.2.3
         version: 19.2.3
       react-router:
         specifier: ^7.6.1
@@ -601,10 +601,10 @@ importers:
   packages/platform/pwa:
     devDependencies:
       '@types/react':
-        specifier: ^19.0.7
+        specifier: ^19.1.8
         version: 19.2.7
       react:
-        specifier: ^19.0.0
+        specifier: ^19.2.3
         version: 19.2.3
       typescript:
         specifier: ^5.9.3
@@ -616,10 +616,10 @@ importers:
   packages/platform/seo:
     devDependencies:
       '@types/react':
-        specifier: ^19.0.7
+        specifier: ^19.1.8
         version: 19.2.7
       react:
-        specifier: ^19.0.0
+        specifier: ^19.2.3
         version: 19.2.3
       typescript:
         specifier: ^5.9.3
@@ -631,7 +631,7 @@ importers:
   packages/platform/storage:
     dependencies:
       dexie:
-        specifier: ^4.0.11
+        specifier: ^4.2.1
         version: 4.2.1
     devDependencies:
       typescript:
@@ -680,10 +680,10 @@ importers:
         specifier: ^12.23.26
         version: 12.23.26(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react:
-        specifier: ^19.0.0
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.0.0
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       tailwind-merge:
         specifier: ^3.4.0

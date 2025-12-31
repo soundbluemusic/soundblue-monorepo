@@ -8,7 +8,7 @@ import {
   jamoEditDistance,
   levenshteinDistance,
 } from '@soundblue/hangul';
-import type { QAItem } from './response-handler';
+import type { QAItem } from './types';
 
 /**
  * 퍼지 Q&A 매칭 결과
