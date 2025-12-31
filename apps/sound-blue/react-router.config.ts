@@ -8,6 +8,7 @@ const DEFAULT_LOCALE = 'en';
 const BASE_PATHS = [
   '/',
   '/about',
+  '/music',
   '/privacy',
   '/terms',
   '/license',

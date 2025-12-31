@@ -30,7 +30,7 @@ vi.mock('react-router', async () => {
 vi.mock('~/lib/messages', () => ({
   default: {
     'blog.title': () => 'Blog',
-    'blog.comingSoon': () => 'Coming soon!',
+    'blog.comingSoon': () => 'No blog posts yet.',
     'accessibility.skipToContent': () => 'Skip to content',
     'accessibility.mainContent': () => 'Main content',
     'header.themeDark': () => 'Switch to dark mode',
@@ -113,7 +113,7 @@ describe('Blog Route', () => {
 
     it('Coming Soon 메시지 렌더링', () => {
       renderWithRouter(<Blog />);
-      expect(screen.getByText('Coming soon!')).toBeInTheDocument();
+      expect(screen.getByText('No blog posts yet.')).toBeInTheDocument();
     });
   });
 
@@ -134,7 +134,7 @@ describe('Blog Route', () => {
 
     it('Coming Soon 텍스트 스타일', () => {
       renderWithRouter(<Blog />);
-      const comingSoon = screen.getByText('Coming soon!');
+      const comingSoon = screen.getByText('No blog posts yet.');
       expect(comingSoon.className).toContain('text-content-muted');
     });
   });
@@ -147,7 +147,7 @@ describe('Blog Route', () => {
     it('모든 필수 요소 렌더링', () => {
       renderWithRouter(<Blog />);
       expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-      expect(screen.getByText('Coming soon!')).toBeInTheDocument();
+      expect(screen.getByText('No blog posts yet.')).toBeInTheDocument();
     });
   });
 });

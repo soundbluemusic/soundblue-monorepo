@@ -9,6 +9,7 @@ import {
   BuiltWithIcon,
   ChatIcon,
   HomeIcon,
+  MusicIcon,
   NewsIcon,
   SitemapIcon,
   SoundRecordingIcon,
@@ -19,6 +20,7 @@ import {
 export type NavLabelKey =
   | 'home'
   | 'about'
+  | 'music'
   | 'sitemap'
   | 'soundRecording'
   | 'news'
@@ -56,6 +58,11 @@ export const NAV_ITEMS: NavItem[] = [
     icon: () => <AboutIcon />,
   },
   {
+    path: '/music',
+    labelKey: 'music',
+    icon: () => <MusicIcon />,
+  },
+  {
     path: '/news',
     labelKey: 'news',
     icon: () => <NewsIcon />,
@@ -88,7 +95,7 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 /** Label keys for primary navigation (mobile bottom nav, 4 items max) */
-const PRIMARY_NAV_KEYS: NavLabelKey[] = ['home', 'about', 'news', 'chat'];
+const PRIMARY_NAV_KEYS: NavLabelKey[] = ['home', 'music', 'about', 'chat'];
 
 /** Primary navigation items for mobile bottom nav (derived from NAV_ITEMS) */
 export const PRIMARY_NAV_ITEMS: NavItem[] = NAV_ITEMS.filter((item) =>

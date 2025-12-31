@@ -16,6 +16,7 @@ export default [
   route('chat', 'routes/($locale)/chat.tsx', { id: 'chat-en' }),
   route('built-with', 'routes/($locale)/built-with.tsx', { id: 'built-with-en' }),
   route('offline', 'routes/($locale)/offline.tsx', { id: 'offline-en' }),
+  route('music', 'routes/($locale)/music.tsx', { id: 'music-en' }),
   // Korean (/ko prefix)
   route('ko', 'routes/($locale)/home.tsx', { id: 'home-ko' }),
   route('ko/about', 'routes/($locale)/about.tsx', { id: 'about-ko' }),
@@ -29,4 +30,5 @@ export default [
   route('ko/chat', 'routes/($locale)/chat.tsx', { id: 'chat-ko' }),
   route('ko/built-with', 'routes/($locale)/built-with.tsx', { id: 'built-with-ko' }),
   route('ko/offline', 'routes/($locale)/offline.tsx', { id: 'offline-ko' }),
+  route('ko/music', 'routes/($locale)/music.tsx', { id: 'music-ko' }),
 ] satisfies RouteConfig;
