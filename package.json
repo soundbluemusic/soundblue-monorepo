@@ -23,6 +23,8 @@
     "check:env": "pnpm exec dotenv-linter apps/*/.env* || true",
     "lighthouse": "pnpm exec lhci autorun",
     "validate": "pnpm typecheck && pnpm check && pnpm test",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "prepare": "husky",
     "sync:context": "tsx scripts/sync-context.ts"
   },
@@ -36,6 +38,9 @@
     "@inlang/plugin-message-format": "^4.0.0",
     "@lhci/cli": "^0.15.1",
     "@size-limit/preset-app": "^12.0.0",
+    "@storybook/addon-a11y": "^10.1.11",
+    "@storybook/react": "^10.1.11",
+    "@storybook/react-vite": "^10.1.11",
     "broken-link-checker": "^0.7.8",
     "dotenv-linter": "^0.2.0",
     "husky": "^9.1.7",
@@ -44,6 +49,7 @@
     "sharp": "^0.34.5",
     "size-limit": "^12.0.0",
     "skott": "^0.35.6",
+    "storybook": "^10.1.11",
     "syncpack": "^13.0.4",
     "turbo": "^2.6.3"
   },
