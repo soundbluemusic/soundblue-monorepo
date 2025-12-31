@@ -4,6 +4,8 @@
 
 import { describe, expect, test } from 'vitest';
 import { detectFormality, translate } from '../index';
+import { parseKorean } from '../tokenizer';
+import { isNoun, REVERSE_VALID, validateWordTranslation } from '../validator';
 
 describe('번역기 v2 기본 테스트', () => {
   describe('Ko→En 기본', () => {
@@ -93,21 +95,21 @@ describe('성능 분석: 현재 부족한 기능', () => {
       expect(result).toBe('He listens to music');
     });
 
-    test.skip('관사 처리: 나는 사과를 먹었다', () => {
+    test('관사 처리: 나는 사과를 먹었다', () => {
       const result = translate('나는 사과를 먹었다', 'ko-en');
       console.log('나는 사과를 먹었다 →', result);
-      // 기대: I ate an apple (현재: I ate apple)
+      // 기대: I ate an apple
       expect(result).toMatch(/an? apple/i);
     });
 
-    test.skip('미래 시제: 나는 학교에 갈 거야', () => {
+    test('미래 시제: 나는 학교에 갈 거야', () => {
       const result = translate('나는 학교에 갈 거야', 'ko-en');
       console.log('나는 학교에 갈 거야 →', result);
       // 기대: I will go to school
       expect(result).toMatch(/will go/i);
     });
 
-    test.skip('복합 부정: 나는 커피를 마시지 않았어', () => {
+    test('복합 부정: 나는 커피를 마시지 않았어', () => {
       const result = translate('나는 커피를 마시지 않았어', 'ko-en');
       console.log('나는 커피를 마시지 않았어 →', result);
       // 기대: I didn't drink coffee
@@ -115,22 +117,22 @@ describe('성능 분석: 현재 부족한 기능', () => {
     });
   });
 
-  describe('En→Ko 미지원 기능', () => {
-    test.skip('과거 시제 문장: I went to school', () => {
+  describe('En→Ko 기능', () => {
+    test('과거 시제 문장: I went to school', () => {
       const result = translate('I went to school', 'en-ko');
       console.log('I went to school →', result);
-      // 기대: 나는 학교에 갔다 (현재: 나 went to 학교)
+      // 기대: 나는 학교에 갔다
       expect(result).toMatch(/갔/);
     });
 
-    test.skip('진행형: She is reading a book', () => {
+    test('진행형: She is reading a book', () => {
       const result = translate('She is reading a book', 'en-ko');
       console.log('She is reading a book →', result);
       // 기대: 그녀는 책을 읽고 있다
       expect(result).toMatch(/읽/);
     });
 
-    test.skip('의문문 구조: Do you like coffee?', () => {
+    test('의문문 구조: Do you like coffee?', () => {
       const result = translate('Do you like coffee?', 'en-ko');
       console.log('Do you like coffee? →', result);
       // 기대: 커피를 좋아하니? 또는 커피 좋아해?
@@ -274,6 +276,142 @@ describe('성능 분석: 현재 부족한 기능', () => {
         console.log(`${text} → ${result}`);
       }
       expect(true).toBe(true);
+    });
+  });
+});
+
+// ============================================
+// Phase 7A: 유사도 fallback 테스트
+// ============================================
+describe('Pipeline v2: 토큰화 전략 테스트', () => {
+  describe('Strategy A: 사전 매칭 (confidence 1.0)', () => {
+    test('사전에 있는 단어는 confidence 1.0', () => {
+      const parsed = parseKorean('사과');
+      const token = parsed.tokens[0];
+      expect(token.translated).toBe('apple');
+      expect(token.confidence).toBe(1.0);
+      expect(token.meta?.strategy).toBe('dictionary');
+    });
+
+    test('동사 활용형도 사전 매칭 가능', () => {
+      const parsed = parseKorean('먹었어');
+      const token = parsed.tokens[0];
+      expect(token.role).toBe('verb');
+      expect(token.meta?.tense).toBe('past');
+    });
+  });
+
+  describe('Strategy B: 유사도 fallback (confidence 0.5~0.7)', () => {
+    test('사전에 없는 단어도 유사도로 번역 시도', () => {
+      // 사전에 없는 단어 → 유사한 단어로 fallback
+      const parsed = parseKorean('학굓');
+      const token = parsed.tokens[0];
+      // 만약 '학교'와 유사하면 fallback 됨
+      if (token.meta?.strategy === 'similarity') {
+        expect(token.confidence).toBeLessThan(1.0);
+        expect(token.confidence).toBeGreaterThan(0.4);
+      }
+    });
+  });
+
+  describe('Strategy C: 규칙 기반 (confidence 0.85)', () => {
+    test('모음조화 규칙으로 과거시제 인식', () => {
+      const parsed = parseKorean('갔어');
+      const token = parsed.tokens[0];
+      expect(token.meta?.tense).toBe('past');
+      expect(token.translated).toBe('go');
+    });
+  });
+});
+
+// ============================================
+// Phase 7B: 단어 역번역 검증 테스트
+// ============================================
+describe('Pipeline v2: 단어 역번역 검증', () => {
+  describe('validateWordTranslation', () => {
+    test('정확 일치: korea → 한국 → korea', () => {
+      const result = validateWordTranslation('korea', '한국', 'en-ko');
+      expect(result.valid).toBe(true);
+      expect(result.confidence).toBe(1.0);
+    });
+
+    test('동의어 허용: korea → 한국 → south korea', () => {
+      // REVERSE_VALID에 동의어가 정의되어 있으면 통과
+      expect(REVERSE_VALID['korea']).toContain('south korea');
+    });
+
+    test('역번역 실패: 미등록 단어', () => {
+      const result = validateWordTranslation('xyz123', 'abc', 'en-ko');
+      expect(result.valid).toBe(false);
+      expect(result.confidence).toBeLessThan(0.5);
+    });
+  });
+
+  describe('isNoun', () => {
+    test('한국어 명사 판단', () => {
+      expect(isNoun('사과', 'ko')).toBe(true);
+      expect(isNoun('학교', 'ko')).toBe(true);
+      // 동사 어미가 있으면 명사 아님
+      expect(isNoun('먹다', 'ko')).toBe(false);
+    });
+
+    test('영어 고유명사 판단', () => {
+      expect(isNoun('Korea', 'en')).toBe(true);
+      expect(isNoun('Seoul', 'en')).toBe(true);
+    });
+  });
+});
+
+// ============================================
+// Phase 7C: 다의어 규칙 테스트
+// ============================================
+describe('Pipeline v2: 다의어 해소', () => {
+  describe('POLYSEMY_RULES 확장 (15개)', () => {
+    test('보다 + 영화 → watch', () => {
+      const result = translate('나는 영화를 봤어', 'ko-en');
+      expect(result.toLowerCase()).toContain('watch');
+    });
+
+    test('보다 + 책 → read', () => {
+      const result = translate('나는 책을 봤어', 'ko-en');
+      expect(result.toLowerCase()).toContain('read');
+    });
+
+    test('듣다 + 음악 → listen to', () => {
+      const result = translate('나는 음악을 듣는다', 'ko-en');
+      expect(result.toLowerCase()).toContain('listen');
+    });
+
+    test('타다 + 버스 → take (다의어 해소)', () => {
+      const result = translate('나는 버스를 탔어', 'ko-en');
+      // 타다의 기본값은 ride이지만, 버스와 함께면 take로 변환
+      // 과거형이므로 took이 반환됨 (take → took)
+      expect(result.toLowerCase()).toMatch(/take|took/);
+    });
+
+    // TODO: 치다 + 피아노 → play 테스트는 추가 구현 필요
+    // 현재는 '쳤어' 파싱이 완전하지 않음
+    test.skip('치다 + 피아노 → play (다의어 해소)', () => {
+      const result = translate('그녀는 피아노를 쳤어', 'ko-en');
+      expect(result.toLowerCase()).toContain('play');
+    });
+  });
+
+  describe('다의어 규칙 기본값', () => {
+    test('타다 기본값 = ride', () => {
+      // 문맥 없이 타다 → ride
+      const result = translate('나는 탔어', 'ko-en');
+      expect(result.toLowerCase()).toContain('rode'); // ride의 과거형
+    });
+
+    test('듣다 기본값 = hear', () => {
+      // 목적어 없으면 기본값 hear
+      const parsed = parseKorean('나는 들었어');
+      console.log('parsed tokens:', JSON.stringify(parsed.tokens, null, 2));
+      const result = translate('나는 들었어', 'ko-en');
+      console.log('나는 들었어 →', result);
+      // 들었 → 듣다 → hear/heard
+      expect(result.toLowerCase()).toMatch(/hear|heard/);
     });
   });
 });

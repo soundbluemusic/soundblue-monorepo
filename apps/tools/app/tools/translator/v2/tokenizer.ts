@@ -1,11 +1,100 @@
 /**
  * 번역기 v2 토크나이저
  * 입력 텍스트를 토큰으로 분리하고 역할 부여
+ *
+ * 파이프라인 v2 개선사항:
+ * - 다중 전략 토큰화 (사전, 규칙, 유사도, 불규칙)
+ * - 각 토큰에 confidence 점수 부여
+ * - jamoEditDistance 기반 유사도 fallback
  */
 
-import { decompose } from '@soundblue/hangul';
-import { COUNTERS, ENDINGS, KO_EN, KO_NUMBERS, KO_VERB_MAP, PARTICLES, VERB_STEMS } from './data';
-import type { ParsedSentence, Role, SentenceType, Tense, Token } from './types';
+import { decompose, jamoEditDistance } from '@soundblue/hangul';
+import {
+  COUNTERS,
+  ENDINGS,
+  IRREGULAR_KO_VERBS,
+  KO_EN,
+  KO_NUMBERS,
+  KO_VERB_MAP,
+  PARTICLES,
+  VERB_STEMS,
+} from './data';
+import type { ParsedSentence, Role, SentenceType, Tense, Token, TokenStrategy } from './types';
+
+// ============================================
+// 신뢰도 상수 정의
+// ============================================
+
+/** 사전 정확 매칭 신뢰도 */
+const CONFIDENCE_DICTIONARY = 1.0;
+/** 규칙 기반 추론 신뢰도 */
+const CONFIDENCE_RULE = 0.85;
+/** 유사도 기반 추론 신뢰도 (거리에 따라 조정) */
+const CONFIDENCE_SIMILARITY_BASE = 0.7;
+/** 불규칙 동사 처리 신뢰도 */
+const CONFIDENCE_IRREGULAR = 0.9;
+/** 미인식 신뢰도 */
+const CONFIDENCE_UNKNOWN = 0.3;
+
+/** 유사도 검색 임계값 (이 거리 이하만 후보로 인정) */
+const SIMILARITY_THRESHOLD = 1.5;
+
+// ============================================
+// 유사도 기반 단어 검색 (Strategy B)
+// ============================================
+
+interface SimilarWordResult {
+  word: string;
+  translation: string;
+  distance: number;
+  confidence: number;
+}
+
+/**
+ * jamoEditDistance를 사용하여 사전에서 가장 유사한 단어 찾기
+ *
+ * @param unknown 미인식 단어
+ * @returns 유사 단어 정보 또는 null
+ */
+function findSimilarWord(unknown: string): SimilarWordResult | null {
+  let best: SimilarWordResult | null = null;
+
+  // KO_EN 사전에서 유사 단어 검색
+  for (const [korean, english] of Object.entries(KO_EN)) {
+    // 길이 차이가 너무 크면 스킵 (최적화)
+    if (Math.abs(korean.length - unknown.length) > 2) continue;
+
+    const distance = jamoEditDistance(unknown, korean);
+
+    if (distance <= SIMILARITY_THRESHOLD) {
+      // 신뢰도 계산: 거리가 가까울수록 높음
+      // distance 0 → confidence 0.7
+      // distance 1.5 → confidence 0.5
+      const confidence = CONFIDENCE_SIMILARITY_BASE - (distance / SIMILARITY_THRESHOLD) * 0.2;
+
+      if (!best || distance < best.distance) {
+        best = { word: korean, translation: english, distance, confidence };
+      }
+    }
+  }
+
+  // VERB_STEMS에서도 검색
+  for (const [korean, english] of Object.entries(VERB_STEMS)) {
+    if (Math.abs(korean.length - unknown.length) > 2) continue;
+
+    const distance = jamoEditDistance(unknown, korean);
+
+    if (distance <= SIMILARITY_THRESHOLD) {
+      const confidence = CONFIDENCE_SIMILARITY_BASE - (distance / SIMILARITY_THRESHOLD) * 0.2;
+
+      if (!best || distance < best.distance) {
+        best = { word: korean, translation: english, distance, confidence };
+      }
+    }
+  }
+
+  return best;
+}
 
 // ============================================
 // 모음조화 규칙 기반 동사 어간 추출
@@ -54,6 +143,14 @@ function _selectPastSuffix(stem: string): '았' | '었' {
 function extractVerbStemByRule(
   word: string,
 ): { stem: string; tense: Tense; en?: string; negated?: boolean } | null {
+  // 0. 불규칙 동사 활용형 먼저 체크 (ㄷ불규칙: 듣다→들었, 걷다→걸었 등)
+  // IRREGULAR_KO_VERBS에 정의된 활용형이 word에 포함되어 있으면 우선 적용
+  for (const [conjugated, info] of Object.entries(IRREGULAR_KO_VERBS)) {
+    if (word.startsWith(conjugated)) {
+      return { stem: info.stem, tense: 'past', en: info.en };
+    }
+  }
+
   // 1. 하다 계열 (했, 했어, 했다)
   if (word.includes('했')) {
     const idx = word.indexOf('했');
@@ -405,22 +502,46 @@ function detectSentenceType(text: string): SentenceType {
 
 /**
  * 한국어 단어 토큰화
+ *
+ * Pipeline v2: confidence 점수 포함
+ * - Strategy A: 사전 정확 매칭 (1.0)
+ * - Strategy B: 유사도 기반 fallback (0.5~0.7)
+ * - Strategy C: 규칙 기반 추론 (0.85)
+ * - Strategy D: 불규칙 동사 (0.9)
  */
 function tokenizeKoreanWord(word: string): Token {
   // 1. 숫자 체크
   if (/^\d+$/.test(word)) {
-    return { text: word, stem: word, role: 'number' };
+    return {
+      text: word,
+      stem: word,
+      role: 'number',
+      confidence: CONFIDENCE_DICTIONARY,
+      meta: { strategy: 'dictionary' },
+    };
   }
 
   // 2. 한국어 숫자 체크
   if (KO_NUMBERS[word] !== undefined) {
-    return { text: word, stem: String(KO_NUMBERS[word]), role: 'number' };
+    return {
+      text: word,
+      stem: String(KO_NUMBERS[word]),
+      role: 'number',
+      confidence: CONFIDENCE_DICTIONARY,
+      meta: { strategy: 'dictionary' },
+    };
   }
 
   // 3. 분류사 체크
   for (const [counter] of COUNTERS) {
     if (word === counter) {
-      return { text: word, stem: word, role: 'counter' };
+      return {
+        text: word,
+        stem: word,
+        role: 'counter',
+        confidence: CONFIDENCE_DICTIONARY,
+        meta: { strategy: 'dictionary' },
+      };
     }
   }
 
@@ -429,13 +550,22 @@ function tokenizeKoreanWord(word: string): Token {
     const en = KO_EN[word];
     // 감탄사는 대문자로 시작
     const role: Role = /^[A-Z]/.test(en) ? 'adverb' : 'unknown';
-    return { text: word, stem: word, role, translated: en };
+    return {
+      text: word,
+      stem: word,
+      role,
+      translated: en,
+      confidence: CONFIDENCE_DICTIONARY,
+      meta: { strategy: 'dictionary' },
+    };
   }
 
   // 5. 조사 분리 시도
   let stem = word;
   let particle: string | undefined;
   let role: Role = 'unknown';
+  let strategy: TokenStrategy = 'unknown';
+  let confidence: number = CONFIDENCE_UNKNOWN;
 
   for (const [p, r] of SORTED_PARTICLES) {
     if (word.endsWith(p) && word.length > p.length) {
@@ -458,6 +588,8 @@ function tokenizeKoreanWord(word: string): Token {
     translated = ruleResult.en;
     tense = ruleResult.tense;
     role = 'verb';
+    strategy = 'rule';
+    confidence = CONFIDENCE_RULE;
     // Phase 4: 부정문 처리
     if (ruleResult.negated) {
       negated = true;
@@ -477,6 +609,8 @@ function tokenizeKoreanWord(word: string): Token {
             translated = verbInfo.en;
             tense = verbInfo.tense as Tense;
             role = 'verb';
+            strategy = 'dictionary';
+            confidence = CONFIDENCE_DICTIONARY;
             break;
           }
           // VERB_STEMS에서 어간 찾기
@@ -486,6 +620,8 @@ function tokenizeKoreanWord(word: string): Token {
             translated = verbEn;
             tense = t as Tense;
             role = 'verb';
+            strategy = 'dictionary';
+            confidence = CONFIDENCE_DICTIONARY;
             break;
           }
           // 기본 사전에서 어간 찾기
@@ -494,6 +630,8 @@ function tokenizeKoreanWord(word: string): Token {
             translated = KO_EN[verbPart];
             tense = t as Tense;
             role = 'verb';
+            strategy = 'dictionary';
+            confidence = CONFIDENCE_DICTIONARY;
             break;
           }
         }
@@ -509,6 +647,8 @@ function tokenizeKoreanWord(word: string): Token {
       tense = verbInfo.tense as Tense;
       role = 'verb';
       stem = verbInfo.stem;
+      strategy = 'dictionary';
+      confidence = CONFIDENCE_DICTIONARY;
     }
   }
 
@@ -516,6 +656,8 @@ function tokenizeKoreanWord(word: string): Token {
   if (!translated && VERB_STEMS[stem]) {
     translated = VERB_STEMS[stem];
     role = 'verb';
+    strategy = 'dictionary';
+    confidence = CONFIDENCE_DICTIONARY;
   }
 
   // 8. 부정 체크 (어미에 포함된 경우)
@@ -535,6 +677,21 @@ function tokenizeKoreanWord(word: string): Token {
   // 10. 사전에서 번역 찾기 (아직 없으면)
   if (!translated) {
     translated = KO_EN[stem];
+    if (translated) {
+      strategy = 'dictionary';
+      confidence = CONFIDENCE_DICTIONARY;
+    }
+  }
+
+  // 11. Strategy B: 유사도 기반 fallback (사전에서 못 찾은 경우)
+  if (!translated) {
+    const similar = findSimilarWord(stem);
+    if (similar) {
+      translated = similar.translation;
+      stem = similar.word; // 가장 유사한 단어로 교체
+      strategy = 'similarity';
+      confidence = similar.confidence;
+    }
   }
 
   return {
@@ -542,10 +699,12 @@ function tokenizeKoreanWord(word: string): Token {
     stem,
     role,
     translated,
+    confidence,
     meta: {
       tense,
       negated: negated || undefined,
       particle,
+      strategy,
     },
   };
 }

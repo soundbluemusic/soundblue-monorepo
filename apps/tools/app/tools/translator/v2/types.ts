@@ -46,14 +46,34 @@ export interface Token {
   role: Role;
   /** 번역된 텍스트 */
   translated?: string;
+  /**
+   * 신뢰도 (0.0 ~ 1.0)
+   * - 1.0: 사전 정확 매칭
+   * - 0.8~0.9: 규칙 기반 추론
+   * - 0.5~0.7: 유사도 기반 추론
+   * - 0.0~0.4: 낮은 신뢰도 (fallback)
+   */
+  confidence?: number;
   /** 추가 정보 */
   meta?: {
     tense?: Tense;
     negated?: boolean;
     plural?: boolean;
     particle?: string; // 분리된 조사
+    /** 토큰화 전략 (디버깅용) */
+    strategy?: TokenStrategy;
   };
 }
+
+/**
+ * 토큰화 전략 (어떤 방법으로 토큰을 인식했는지)
+ */
+export type TokenStrategy =
+  | 'dictionary' // 사전 정확 매칭
+  | 'rule' // 규칙 기반 (모음조화 등)
+  | 'similarity' // 유사도 기반 (jamoEditDistance)
+  | 'irregular' // 불규칙 동사 처리
+  | 'unknown'; // 미인식
 
 /** 분석된 문장 */
 export interface ParsedSentence {
@@ -77,4 +97,60 @@ export interface TranslationResult {
   original: string;
   /** 분석 정보 (디버깅용) */
   debug?: ParsedSentence;
+}
+
+// ============================================
+// 파이프라인 v2 확장 타입
+// ============================================
+
+/**
+ * 번역 후보 (다중 후보 생성용)
+ */
+export interface TranslationCandidate {
+  /** 번역 결과 */
+  text: string;
+  /** 종합 신뢰도 (0.0 ~ 1.0) */
+  confidence: number;
+  /** 각 단어별 신뢰도 */
+  wordConfidences: WordConfidence[];
+  /** 사용된 전략 */
+  strategy: string;
+}
+
+/**
+ * 단어별 신뢰도 정보
+ */
+export interface WordConfidence {
+  /** 원본 단어 */
+  original: string;
+  /** 번역된 단어 */
+  translated: string;
+  /** 신뢰도 */
+  confidence: number;
+  /** 역번역 검증 결과 */
+  validation?: WordValidation;
+}
+
+/**
+ * 단어 역번역 검증 결과
+ */
+export interface WordValidation {
+  /** 검증 통과 여부 */
+  valid: boolean;
+  /** 역번역 결과 */
+  reverseTranslation: string;
+  /** 검증 신뢰도 */
+  confidence: number;
+  /** 허용된 동의어 목록 (매칭된 경우) */
+  matchedSynonym?: string;
+}
+
+/**
+ * 분석된 문장 (확장 - 다중 후보 지원)
+ */
+export interface ParsedSentenceWithCandidates extends ParsedSentence {
+  /** 번역 후보 목록 (신뢰도 순) */
+  candidates?: TranslationCandidate[];
+  /** 평균 토큰 신뢰도 */
+  avgConfidence?: number;
 }

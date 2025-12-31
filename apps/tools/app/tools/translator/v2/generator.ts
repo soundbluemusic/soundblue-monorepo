@@ -160,7 +160,15 @@ function fillTemplate(
     // 기본 치환 (동사의 경우 3인칭 단수 처리)
     if (key === 'V' && is3ps && tense === 'present') {
       // Phase 1: 3인칭 단수 현재형 → 동사에 -s/-es 추가
-      result = result.replace(`{${key}}`, applyThirdPersonSingular(value));
+      // 동사-전치사 결합 (e.g., "listen to")인 경우 동사만 활용
+      const verbWithPrep = value.split(' ');
+      if (verbWithPrep.length > 1) {
+        // "listen to" → "listens to"
+        const conjugatedVerb = applyThirdPersonSingular(verbWithPrep[0]);
+        result = result.replace(`{${key}}`, `${conjugatedVerb} ${verbWithPrep.slice(1).join(' ')}`);
+      } else {
+        result = result.replace(`{${key}}`, applyThirdPersonSingular(value));
+      }
     } else {
       result = result.replace(`{${key}}`, value);
     }
@@ -213,8 +221,19 @@ interface PolysemyRule {
   withLocation?: string;
 }
 
+/**
+ * 다의어 규칙 (15개)
+ *
+ * 키는 어간 형태로 정의 (보다→보, 타다→타 등)
+ * tokenizer에서 활용형을 어간으로 변환하므로 어간 기준 매칭
+ *
+ * 예: '봤어' → stem: '보' → POLYSEMY_RULES['보']
+ */
 const POLYSEMY_RULES: Record<string, PolysemyRule> = {
-  보다: {
+  // ============================================
+  // 기존 4개 규칙 (키: 어간)
+  // ============================================
+  보: {
     default: 'see',
     withObject: {
       영화: 'watch',
@@ -222,33 +241,173 @@ const POLYSEMY_RULES: Record<string, PolysemyRule> = {
       TV: 'watch',
       책: 'read',
       신문: 'read',
+      뉴스: 'watch',
+      시험: 'take',
     },
     withLocation: 'visit',
   },
-  타다: {
+  타: {
     default: 'ride',
     withObject: {
       버스: 'take',
       택시: 'take',
       지하철: 'take',
+      비행기: 'take',
+      기차: 'take',
       기타: 'play',
       피아노: 'play',
     },
   },
-  치다: {
+  치: {
     default: 'hit',
     withObject: {
       피아노: 'play',
       기타: 'play',
       테니스: 'play',
       골프: 'play',
+      배드민턴: 'play',
+      탁구: 'play',
+      드럼: 'play',
     },
   },
-  걸다: {
+  걸: {
     default: 'hang',
     withObject: {
       전화: 'make',
       말: 'start',
+      내기: 'make',
+    },
+  },
+
+  // ============================================
+  // Phase 2A: 확장 11개 규칙 (키: 어간)
+  // ============================================
+
+  // 5. 듣다 (hear vs listen) - 어간: 듣
+  듣: {
+    default: 'hear',
+    withObject: {
+      음악: 'listen to',
+      노래: 'listen to',
+      라디오: 'listen to',
+      팟캐스트: 'listen to',
+      강의: 'attend',
+      수업: 'attend',
+    },
+  },
+
+  // 6. 잡다 (catch, hold, grab, get) - 어간: 잡
+  잡: {
+    default: 'catch',
+    withObject: {
+      손: 'hold',
+      택시: 'get',
+      버스: 'catch',
+      기회: 'seize',
+      범인: 'catch',
+    },
+  },
+
+  // 7. 쓰다 (write, use, wear, spend) - 어간: 쓰
+  쓰: {
+    default: 'write',
+    withObject: {
+      글: 'write',
+      편지: 'write',
+      돈: 'spend',
+      시간: 'spend',
+      안경: 'wear',
+      모자: 'wear',
+      마스크: 'wear',
+      도구: 'use',
+    },
+  },
+
+  // 8. 들다 (hold, raise, cost, enter) - 어간: 들
+  들: {
+    default: 'hold',
+    withObject: {
+      손: 'raise',
+      돈: 'cost',
+      시간: 'take',
+      예: 'give',
+    },
+  },
+
+  // 9. 맞다 (be correct, fit, receive) - 어간: 맞
+  맞: {
+    default: 'be correct',
+    withObject: {
+      비: 'get rained on',
+      벌: 'receive',
+      맛: 'suit',
+      사이즈: 'fit',
+    },
+  },
+
+  // 10. 빠지다 (fall, be addicted, be missing) - 어간: 빠지
+  빠지: {
+    default: 'fall',
+    withObject: {
+      게임: 'be addicted to',
+      사랑: 'fall in love',
+      물: 'fall into',
+    },
+  },
+
+  // 11. 나오다 (come out, appear, be released) - 어간: 나오
+  나오: {
+    default: 'come out',
+    withObject: {
+      영화: 'be released',
+      책: 'be published',
+      뉴스: 'appear on',
+    },
+  },
+
+  // 12. 오르다 (go up, rise, climb) - 어간: 오르
+  오르: {
+    default: 'go up',
+    withObject: {
+      산: 'climb',
+      계단: 'go up',
+      가격: 'rise',
+      물가: 'rise',
+    },
+  },
+
+  // 13. 내리다 (go down, get off, fall) - 어간: 내리
+  내리: {
+    default: 'go down',
+    withObject: {
+      버스: 'get off',
+      택시: 'get out of',
+      비: 'fall',
+      눈: 'fall',
+      결정: 'make',
+    },
+  },
+
+  // 14. 풀다 (solve, untie, relax) - 어간: 풀
+  풀: {
+    default: 'solve',
+    withObject: {
+      문제: 'solve',
+      매듭: 'untie',
+      스트레스: 'relieve',
+      화: 'calm down',
+      오해: 'clear up',
+    },
+  },
+
+  // 15. 찍다 (take, stamp, dip) - 어간: 찍
+  찍: {
+    default: 'take',
+    withObject: {
+      사진: 'take',
+      동영상: 'record',
+      도장: 'stamp',
+      소스: 'dip in',
     },
   },
 };

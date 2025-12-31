@@ -141,6 +141,12 @@ export const IRREGULAR_VERBS: Array<[string, string, string]> = [
   ['do', 'did', 'done'],
   ['be', 'was/were', 'been'],
   ['get', 'got', 'gotten'],
+  // Phase 2A: 다의어 동사 추가
+  ['ride', 'rode', 'ridden'],
+  ['hit', 'hit', 'hit'],
+  ['catch', 'caught', 'caught'],
+  ['hold', 'held', 'held'],
+  ['fall', 'fell', 'fallen'],
 ];
 
 /** 불규칙 동사 빠른 조회용 맵 */
@@ -193,22 +199,42 @@ export const VERB_STEMS: Record<string, string> = {
   배우: 'learn',
   가르치: 'teach',
   일하: 'work',
+
+  // Phase 2A: 다의어 동사 추가
+  타: 'ride', // 기본값 ride, POLYSEMY_RULES에서 문맥에 따라 take/play 등으로 변경
+  치: 'hit', // 기본값 hit, POLYSEMY_RULES에서 문맥에 따라 play 등으로 변경
+  잡: 'catch',
+  들: 'hold',
+  맞: 'be correct',
+  빠지: 'fall',
+  나오: 'come out',
+  오르: 'go up',
+  내리: 'go down',
+  풀: 'solve',
+  찍: 'take',
 };
 
 /**
  * 불규칙 활용 동사 (ㄷ불규칙, ㅂ불규칙 등)
  * 이들은 어간 변화가 있어 별도 처리 필요
+ *
+ * 주의: KO_VERB_CONTRACTIONS보다 먼저 체크되어야 함 (들었 → 듣다 vs 들다 충돌 방지)
  */
 export const IRREGULAR_KO_VERBS: Record<string, { stem: string; en: string; type: string }> = {
-  // ㄷ불규칙: 듣다 → 들어
+  // ㄷ불규칙: 듣다 → 들어/들었
   들었: { stem: '듣', en: 'hear', type: 'ㄷ' },
+  들어: { stem: '듣', en: 'hear', type: 'ㄷ' },
   걸었: { stem: '걷', en: 'walk', type: 'ㄷ' },
+  걸어: { stem: '걷', en: 'walk', type: 'ㄷ' },
   // ㅂ불규칙: 돕다 → 도와
   도왔: { stem: '돕', en: 'help', type: 'ㅂ' },
+  도와: { stem: '돕', en: 'help', type: 'ㅂ' },
   // ㅅ불규칙: 짓다 → 지어
   지었: { stem: '짓', en: 'build', type: 'ㅅ' },
+  지어: { stem: '짓', en: 'build', type: 'ㅅ' },
   // 르불규칙: 모르다 → 몰라
   몰랐: { stem: '모르', en: 'not know', type: '르' },
+  몰라: { stem: '모르', en: 'not know', type: '르' },
 };
 
 /**
@@ -226,6 +252,19 @@ export const KO_VERB_CONTRACTIONS: Array<[string, string, string, string]> = [
   ['썼', '쓰', 'write', 'past'],
   ['됐', '되', 'become', 'past'],
   ['했', '하', 'do', 'past'],
+  // Phase 2A: 다의어 동사 축약형
+  ['탔', '타', 'ride', 'past'], // 타다 과거
+  ['쳤', '치', 'hit', 'past'], // 치다 과거
+  ['잡았', '잡', 'catch', 'past'],
+  // 주의: '들었'은 IRREGULAR_KO_VERBS에서 듣다(hear)로 매핑 (ㄷ불규칙)
+  // '들다(hold)'의 과거형은 '들었'이 아닌 별도 활용 필요
+  ['맞았', '맞', 'be correct', 'past'],
+  ['빠졌', '빠지', 'fall', 'past'],
+  ['나왔', '나오', 'come out', 'past'],
+  ['올랐', '오르', 'go up', 'past'],
+  ['내렸', '내리', 'go down', 'past'],
+  ['풀었', '풀', 'solve', 'past'],
+  ['찍었', '찍', 'take', 'past'],
 ];
 
 /** 활용형 → [어간, 영어, 시제] 빠른 조회 (축약형 + 불규칙) */
