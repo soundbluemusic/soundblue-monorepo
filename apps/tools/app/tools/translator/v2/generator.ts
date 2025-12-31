@@ -331,6 +331,16 @@ export function generateEnglish(parsed: ParsedSentence): string {
     return counterPattern;
   }
 
+  // 2.5. 단일 단어 처리 (인사말, 감탄사 등)
+  // 토큰이 1개이고 이미 번역된 값이 있으면 바로 반환
+  if (parsed.tokens.length === 1) {
+    const token = parsed.tokens[0];
+    const translated = token.translated || KO_EN[token.stem] || KO_EN[token.text];
+    if (translated) {
+      return translated;
+    }
+  }
+
   // 3. 역할별 토큰 분류
   const subjects: Token[] = [];
   const objects: Token[] = [];

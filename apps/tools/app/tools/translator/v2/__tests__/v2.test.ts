@@ -45,6 +45,20 @@ describe('번역기 v2 기본 테스트', () => {
     });
   });
 
+  describe('Ko→En 인사말', () => {
+    test('안녕하세요 → Hello', () => {
+      const result = translate('안녕하세요', 'ko-en');
+      console.log('안녕하세요 →', result);
+      expect(result).toBe('Hello');
+    });
+
+    test('안녕 → Hello', () => {
+      const result = translate('안녕', 'ko-en');
+      console.log('안녕 →', result);
+      expect(result).toBe('Hello');
+    });
+  });
+
   describe('En→Ko 기본', () => {
     test('단순 단어: apple', () => {
       const result = translate('apple', 'en-ko');
