@@ -347,7 +347,7 @@ const MyComponent: FC = () => {
 ```typescript
 import { cn } from '~/lib/utils';
 import { useAudioStore } from '~/stores/audio-store';
-import { Button } from '~/components/ui/button';
+import { Button } from '@soundblue/ui-components/base';
 ```
 
 ---

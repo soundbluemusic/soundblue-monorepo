@@ -2,7 +2,8 @@
 // UI Components Export
 // ========================================
 
-export { Button, type ButtonProps } from './button';
+// Button is now exported from @soundblue/ui-components/base
+export { Button, type ButtonProps } from '@soundblue/ui-components/base';
 export {
   Dialog,
   DialogClose,

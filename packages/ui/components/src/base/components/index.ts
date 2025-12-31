@@ -3,7 +3,13 @@
 // Public API
 // ========================================
 
-export { Button, type ButtonProps } from './Button';
+export {
+  Button,
+  type ButtonProps,
+  buttonVariants,
+  LinkButton,
+  type LinkButtonProps,
+} from './Button';
 export { ConfirmDialog, type ConfirmDialogProps, type ConfirmDialogVariant } from './ConfirmDialog';
 export {
   KeyboardShortcutsModal,

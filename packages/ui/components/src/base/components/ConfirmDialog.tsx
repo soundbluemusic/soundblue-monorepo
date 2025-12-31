@@ -42,7 +42,7 @@ export interface ConfirmDialogProps {
 
 const variantStyles: Record<
   ConfirmDialogVariant,
-  { icon: ReactNode; buttonVariant: 'destructive' | 'primary' | 'secondary' }
+  { icon: ReactNode; buttonVariant: 'destructive' | 'default' | 'secondary' }
 > = {
   danger: {
     icon: (
@@ -68,7 +68,7 @@ const variantStyles: Record<
         />
       </svg>
     ),
-    buttonVariant: 'primary',
+    buttonVariant: 'default',
   },
   info: {
     icon: (
@@ -81,7 +81,7 @@ const variantStyles: Record<
         />
       </svg>
     ),
-    buttonVariant: 'primary',
+    buttonVariant: 'default',
   },
 };
 
@@ -187,8 +187,8 @@ export function ConfirmDialog({
           <Button ref={cancelButtonRef} variant="secondary" onClick={onCancel} disabled={isLoading}>
             {cancelLabel}
           </Button>
-          <Button variant={buttonVariant} onClick={onConfirm} isLoading={isLoading}>
-            {confirmLabel}
+          <Button variant={buttonVariant} onClick={onConfirm} disabled={isLoading}>
+            {isLoading ? 'Loading...' : confirmLabel}
           </Button>
         </div>
       </div>

@@ -159,7 +159,7 @@ export function OnboardingTooltip({
           <Button variant="ghost" size="sm" onClick={onPrev} disabled={isFirstStep}>
             {prevLabel}
           </Button>
-          <Button variant="primary" size="sm" onClick={onNext}>
+          <Button variant="default" size="sm" onClick={onNext}>
             {isLastStep ? finishLabel : nextLabel}
           </Button>
         </div>
