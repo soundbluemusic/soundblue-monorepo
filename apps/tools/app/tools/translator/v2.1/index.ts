@@ -1,15 +1,21 @@
 /**
- * 번역기 v2 메인 엔트리
+ * 번역기 v2.1 메인 엔트리
+ *
+ * 파이프라인:
+ * 1. tokenizer: 토큰화 + confidence 점수
+ * 2. generator: 문장 생성
+ * 3. validator: 명사 역번역 검증
  *
  * 설계 원칙:
- * 1. 단순함: 토큰화 → 역할부여 → 어순변환 → 출력
+ * 1. 단순함: 토큰화 → 역할부여 → 어순변환 → 검증 → 출력
  * 2. 데이터 분리: 모든 사전/규칙은 data.ts에
  * 3. 확장성: 새 규칙 추가는 data.ts만 수정
  */
 
 import { generateEnglish, generateKorean } from './generator';
 import { parseEnglish, parseKorean } from './tokenizer';
-import type { Direction, Formality, TranslationResult } from './types';
+import type { Direction, Formality, ParsedSentence, TranslationResult } from './types';
+import { validateWordTranslation } from './validator';
 
 export interface TranslateOptions {
   formality?: Formality;
@@ -44,16 +50,20 @@ export function translateWithInfo(
 
   for (const { sentence, punctuation } of sentences) {
     let translated: string;
+    let parsed: ParsedSentence;
     // 파싱 시 구두점 정보 포함 (의문문 감지용)
     const sentenceWithPunctuation = punctuation ? sentence + punctuation : sentence;
 
     if (direction === 'ko-en') {
-      const parsed = parseKorean(sentenceWithPunctuation);
+      parsed = parseKorean(sentenceWithPunctuation);
       translated = generateEnglish(parsed);
     } else {
-      const parsed = parseEnglish(sentenceWithPunctuation);
+      parsed = parseEnglish(sentenceWithPunctuation);
       translated = generateKorean(parsed, formality);
     }
+
+    // 3. validator: 명사 역번역 검증
+    translated = validateTranslation(parsed, translated, direction);
 
     // 구두점 복원 (이미 번역 결과에 포함된 경우 중복 방지)
     if (punctuation && !translated.endsWith(punctuation)) {
@@ -93,6 +103,48 @@ function splitSentences(text: string): Array<{ sentence: string; punctuation: st
   }
 
   return results;
+}
+
+// ============================================
+// 명사 역번역 검증
+// ============================================
+
+/**
+ * 번역 결과에서 명사를 역번역 검증
+ *
+ * 검증 실패한 명사가 있으면 원본 단어를 유지하거나
+ * 신뢰도가 낮음을 표시할 수 있음 (현재는 로깅만)
+ *
+ * @param parsed 파싱된 문장
+ * @param translated 번역된 문장
+ * @param direction 번역 방향
+ * @returns 검증된 번역 결과 (현재는 동일)
+ */
+function validateTranslation(
+  parsed: ParsedSentence,
+  translated: string,
+  direction: Direction,
+): string {
+  // 명사 토큰만 추출하여 검증
+  const nounTokens = parsed.tokens.filter(
+    (t) => t.role === 'object' || t.role === 'subject' || t.role === 'unknown',
+  );
+
+  for (const token of nounTokens) {
+    if (!token.translated || !token.stem) continue;
+
+    const validation = validateWordTranslation(token.stem, token.translated, direction);
+
+    // 검증 실패 시 토큰의 confidence 조정
+    if (!validation.valid && token.confidence !== undefined) {
+      // 신뢰도를 검증 결과로 조정 (0.3)
+      token.confidence = Math.min(token.confidence, validation.confidence);
+    }
+  }
+
+  // 현재는 번역 결과를 그대로 반환
+  // 향후: 검증 실패한 단어를 원본으로 대체하거나 표시 가능
+  return translated;
 }
 
 // ============================================
