@@ -1422,13 +1422,15 @@ function _toQuestionKoreanPolite(verb: string, level: PolitenessLevel): string {
  * Phase 9: 조사 자동 선택 (을/를, 은/는)
  */
 export function generateKorean(parsed: ParsedSentence, formality: Formality = 'neutral'): string {
-  // 1. 관용구 체크
+  // 1. 관용구 체크 (formality별 결과 반환)
   const normalized = parsed.original
     .toLowerCase()
     .replace(/[.!?]+$/, '')
     .trim();
-  const idiom = IDIOMS_EN_KO[normalized];
-  if (idiom) return idiom;
+  const idiomEntry = IDIOMS_EN_KO[normalized];
+  if (idiomEntry) {
+    return idiomEntry[formality];
+  }
 
   // 2. 품사 태깅
   const tagged = tagEnglishWords(parsed);

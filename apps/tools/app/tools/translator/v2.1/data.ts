@@ -5,6 +5,14 @@
 
 // v1 사전 재사용
 import { enToKoWords, koToEnWords } from '../dictionary';
+import type { Formality } from '../settings';
+
+// ============================================
+// 0. Formality별 매핑 타입
+// ============================================
+
+/** Formality별 번역 결과 매핑 */
+export type FormalityMap = Record<Formality, string>;
 
 // ============================================
 // 1. 기본 단어 사전 (v1에서 가져옴)
@@ -320,10 +328,250 @@ export const IDIOMS_KO_EN: Record<string, string> = {
   '야 진짜 대박': 'OMG',
 };
 
-export const IDIOMS_EN_KO: Record<string, string> = {
-  'every little bit counts': '티끌 모아 태산',
-  'let it slide': '눈 감아주다',
-  'sleep in peace': '발 뻗고 자다',
+/**
+ * 영→한 관용구 사전 (Formality별)
+ *
+ * 각 관용구는 5가지 formality에 맞는 번역을 제공
+ * - casual: 반말
+ * - formal: 존댓말
+ * - neutral: 기본 (상관없음)
+ * - friendly: 친근체
+ * - literal: 번역체
+ */
+export const IDIOMS_EN_KO: Record<string, FormalityMap> = {
+  // === 인사 ===
+  hello: {
+    casual: '안녕',
+    formal: '안녕하세요',
+    neutral: '안녕하세요',
+    friendly: '안녕~',
+    literal: '인사드립니다',
+  },
+  hi: {
+    casual: '안녕',
+    formal: '안녕하세요',
+    neutral: '안녕',
+    friendly: '안녕~',
+    literal: '인사드립니다',
+  },
+  'good morning': {
+    casual: '좋은 아침',
+    formal: '좋은 아침이에요',
+    neutral: '좋은 아침이에요',
+    friendly: '좋은 아침~',
+    literal: '좋은 아침입니다',
+  },
+  'good afternoon': {
+    casual: '안녕',
+    formal: '안녕하세요',
+    neutral: '안녕하세요',
+    friendly: '안녕~',
+    literal: '좋은 오후입니다',
+  },
+  'good evening': {
+    casual: '안녕',
+    formal: '안녕하세요',
+    neutral: '안녕하세요',
+    friendly: '안녕~',
+    literal: '좋은 저녁입니다',
+  },
+  goodbye: {
+    casual: '잘 가',
+    formal: '안녕히 가세요',
+    neutral: '안녕히 가세요',
+    friendly: '잘 가~',
+    literal: '작별 인사드립니다',
+  },
+  bye: {
+    casual: '잘 가',
+    formal: '안녕히 가세요',
+    neutral: '잘 가요',
+    friendly: '잘 가~',
+    literal: '작별 인사드립니다',
+  },
+  'nice to meet you': {
+    casual: '반가워',
+    formal: '만나서 반갑습니다',
+    neutral: '반가워요',
+    friendly: '반가워~',
+    literal: '만나 뵙게 되어 영광입니다',
+  },
+  'how are you': {
+    casual: '잘 지내',
+    formal: '어떻게 지내세요',
+    neutral: '잘 지내요',
+    friendly: '잘 지내~?',
+    literal: '안녕하십니까',
+  },
+
+  // === 감사/사과 ===
+  'thank you': {
+    casual: '고마워',
+    formal: '감사합니다',
+    neutral: '고마워요',
+    friendly: '고마워~',
+    literal: '감사드립니다',
+  },
+  thanks: {
+    casual: '고마워',
+    formal: '감사합니다',
+    neutral: '고마워요',
+    friendly: '고마워~',
+    literal: '감사드립니다',
+  },
+  'thank you very much': {
+    casual: '정말 고마워',
+    formal: '정말 감사합니다',
+    neutral: '정말 고마워요',
+    friendly: '정말 고마워~',
+    literal: '대단히 감사드립니다',
+  },
+  "you're welcome": {
+    casual: '별말을',
+    formal: '천만에요',
+    neutral: '천만에요',
+    friendly: '별말을~',
+    literal: '천만의 말씀입니다',
+  },
+  "i'm sorry": {
+    casual: '미안해',
+    formal: '죄송합니다',
+    neutral: '미안해요',
+    friendly: '미안~',
+    literal: '사과드립니다',
+  },
+  sorry: {
+    casual: '미안해',
+    formal: '죄송합니다',
+    neutral: '미안해요',
+    friendly: '미안~',
+    literal: '사과드립니다',
+  },
+  'excuse me': {
+    casual: '잠깐',
+    formal: '실례합니다',
+    neutral: '실례해요',
+    friendly: '잠깐~',
+    literal: '실례를 무릅쓰고 말씀드립니다',
+  },
+
+  // === 응답 ===
+  yes: {
+    casual: '응',
+    formal: '네',
+    neutral: '네',
+    friendly: '응~',
+    literal: '예',
+  },
+  no: {
+    casual: '아니',
+    formal: '아니요',
+    neutral: '아니요',
+    friendly: '아니~',
+    literal: '아닙니다',
+  },
+  okay: {
+    casual: '알았어',
+    formal: '알겠습니다',
+    neutral: '알겠어요',
+    friendly: '알았어~',
+    literal: '알겠습니다',
+  },
+  ok: {
+    casual: '알았어',
+    formal: '알겠습니다',
+    neutral: '알겠어요',
+    friendly: '알았어~',
+    literal: '알겠습니다',
+  },
+  'of course': {
+    casual: '당연하지',
+    formal: '물론이죠',
+    neutral: '물론이에요',
+    friendly: '당연하지~',
+    literal: '물론입니다',
+  },
+  maybe: {
+    casual: '아마',
+    formal: '아마도요',
+    neutral: '아마도요',
+    friendly: '아마~',
+    literal: '아마도 그럴 것입니다',
+  },
+  "i don't know": {
+    casual: '몰라',
+    formal: '모르겠습니다',
+    neutral: '모르겠어요',
+    friendly: '몰라~',
+    literal: '알지 못합니다',
+  },
+  'i understand': {
+    casual: '알았어',
+    formal: '알겠습니다',
+    neutral: '알겠어요',
+    friendly: '알았어~',
+    literal: '이해했습니다',
+  },
+
+  // === 일상 표현 ===
+  'i love you': {
+    casual: '사랑해',
+    formal: '사랑합니다',
+    neutral: '사랑해요',
+    friendly: '사랑해~',
+    literal: '사랑합니다',
+  },
+  'please help me': {
+    casual: '도와줘',
+    formal: '도와주세요',
+    neutral: '도와주세요',
+    friendly: '도와줘~',
+    literal: '도움을 요청드립니다',
+  },
+  congratulations: {
+    casual: '축하해',
+    formal: '축하드립니다',
+    neutral: '축하해요',
+    friendly: '축하해~',
+    literal: '축하드립니다',
+  },
+  'happy birthday': {
+    casual: '생일 축하해',
+    formal: '생일 축하드립니다',
+    neutral: '생일 축하해요',
+    friendly: '생일 축하해~',
+    literal: '생신을 축하드립니다',
+  },
+  'happy new year': {
+    casual: '새해 복 많이 받아',
+    formal: '새해 복 많이 받으세요',
+    neutral: '새해 복 많이 받으세요',
+    friendly: '새해 복 많이 받아~',
+    literal: '새해에 복을 많이 받으시길 바랍니다',
+  },
+
+  // === 숙어/관용구 ===
+  'every little bit counts': {
+    casual: '티끌 모아 태산',
+    formal: '티끌 모아 태산이에요',
+    neutral: '티끌 모아 태산',
+    friendly: '티끌 모아 태산~',
+    literal: '작은 것이 모여 큰 것이 됩니다',
+  },
+  'let it slide': {
+    casual: '눈 감아줘',
+    formal: '눈 감아주세요',
+    neutral: '눈 감아줘요',
+    friendly: '눈 감아줘~',
+    literal: '넘어가 주세요',
+  },
+  'sleep in peace': {
+    casual: '발 뻗고 자',
+    formal: '편히 주무세요',
+    neutral: '편히 자요',
+    friendly: '발 뻗고 자~',
+    literal: '평안히 주무시기 바랍니다',
+  },
 };
 
 // ============================================
