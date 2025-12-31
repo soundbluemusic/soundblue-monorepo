@@ -286,3 +286,39 @@ export const IDIOMS_EN_KO: Record<string, string> = {
   'let it slide': '눈 감아주다',
   'sleep in peace': '발 뻗고 자다',
 };
+
+// ============================================
+// 7. 동사-전치사 결합 (Verb + Preposition)
+// ============================================
+
+/**
+ * 특정 동사가 목적어와 함께 쓰일 때 필요한 전치사
+ *
+ * 일반화된 규칙:
+ * - listen + O → listen to O (듣다 + 목적어)
+ * - look + O → look at O (보다 + 목적어, 주시할 때)
+ * - wait + O → wait for O (기다리다 + 목적어)
+ *
+ * 이 패턴은 모든 해당 동사+목적어 조합에 적용됨
+ */
+export const VERB_PREPOSITIONS: Record<string, string> = {
+  listen: 'to',
+  look: 'at',
+  wait: 'for',
+  search: 'for',
+  ask: 'for',
+  care: 'about',
+  think: 'about',
+  talk: 'about',
+  dream: 'about',
+  worry: 'about',
+  belong: 'to',
+  refer: 'to',
+  apologize: 'for',
+  apply: 'for',
+  depend: 'on',
+  rely: 'on',
+  insist: 'on',
+  agree: 'with',
+  deal: 'with',
+};

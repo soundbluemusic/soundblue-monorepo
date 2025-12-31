@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import m from '~/lib/messages';
 import {
   defaultTranslatorSettings,
+  FORMALITY_OPTIONS,
   type TranslationDirection,
   type TranslatorSettings,
 } from './settings';
@@ -79,9 +80,9 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
       return;
     }
 
-    const result = translate(text, settings.direction);
+    const result = translate(text, settings.direction, { formality: settings.formality });
     setOutputText(result);
-  }, [inputText, settings.direction]);
+  }, [inputText, settings.direction, settings.formality]);
 
   // Auto-translate with debounce (only for inputText changes)
   useEffect(() => {
@@ -110,18 +111,20 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
     };
   }, [inputText, doTranslate]);
 
-  // Re-translate immediately when direction changes
+  // Re-translate immediately when direction or formality changes
   useEffect(() => {
     if (prevDirectionRef.current !== settings.direction) {
       prevDirectionRef.current = settings.direction;
       directionJustChangedRef.current = true; // Prevent debounce effect from double-translating
       if (inputText.trim()) {
         // Translate immediately with new direction
-        const result = translate(inputText.trim(), settings.direction);
+        const result = translate(inputText.trim(), settings.direction, {
+          formality: settings.formality,
+        });
         setOutputText(result);
       }
     }
-  }, [settings.direction, inputText]);
+  }, [settings.direction, settings.formality, inputText]);
 
   // Toggle direction
   const toggleDirection = useCallback(() => {
@@ -223,6 +226,24 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
           <ArrowLeftRight className="size-4" />
         </button>
         <span className="min-w-[3.75rem] text-sm font-medium">{targetLabel}</span>
+      </div>
+
+      {/* Formality selector */}
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
+        {FORMALITY_OPTIONS.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => handleSettingsChange({ formality: option.value })}
+            className={`inline-flex h-7 items-center justify-center rounded-full px-3 text-xs transition-colors duration-200 ${
+              settings.formality === option.value
+                ? 'bg-blue-500 text-white'
+                : 'bg-black/[0.05] text-(--muted-foreground) hover:bg-black/[0.1] dark:bg-white/[0.08] dark:hover:bg-white/[0.12]'
+            }`}
+          >
+            {settings.direction === 'ko-en' ? option.labelKo : option.labelEn}
+          </button>
+        ))}
       </div>
 
       {/* Input area */}

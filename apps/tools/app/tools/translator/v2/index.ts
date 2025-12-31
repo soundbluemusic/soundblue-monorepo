@@ -9,24 +9,34 @@
 
 import { generateEnglish, generateKorean } from './generator';
 import { parseEnglish, parseKorean } from './tokenizer';
-import type { Direction, TranslationResult } from './types';
+import type { Direction, Formality, TranslationResult } from './types';
+
+export interface TranslateOptions {
+  formality?: Formality;
+}
 
 /**
  * 메인 번역 함수
  */
-export function translate(text: string, direction: Direction): string {
-  const result = translateWithInfo(text, direction);
+export function translate(text: string, direction: Direction, options?: TranslateOptions): string {
+  const result = translateWithInfo(text, direction, options);
   return result.translated;
 }
 
 /**
  * 디버그 정보 포함 번역
  */
-export function translateWithInfo(text: string, direction: Direction): TranslationResult {
+export function translateWithInfo(
+  text: string,
+  direction: Direction,
+  options?: TranslateOptions,
+): TranslationResult {
   const trimmed = text.trim();
   if (!trimmed) {
     return { translated: '', original: text };
   }
+
+  const formality = options?.formality || 'neutral';
 
   // 문장 분리 (?, !, . 기준)
   const sentences = splitSentences(trimmed);
@@ -42,7 +52,7 @@ export function translateWithInfo(text: string, direction: Direction): Translati
       translated = generateEnglish(parsed);
     } else {
       const parsed = parseEnglish(sentenceWithPunctuation);
-      translated = generateKorean(parsed);
+      translated = generateKorean(parsed, formality);
     }
 
     // 구두점 복원 (이미 번역 결과에 포함된 경우 중복 방지)

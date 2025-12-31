@@ -72,11 +72,11 @@ describe('v2 코드 복잡도 비교', () => {
 // 현재 번역기 성능 분석 테스트 (실패 허용)
 describe('성능 분석: 현재 부족한 기능', () => {
   describe('Ko→En 미지원 기능', () => {
-    test.skip('3인칭 단수 동사 활용: 그는 음악을 듣는다', () => {
+    test('3인칭 단수 동사 활용: 그는 음악을 듣는다', () => {
       const result = translate('그는 음악을 듣는다', 'ko-en');
       console.log('그는 음악을 듣는다 →', result);
-      // 기대: He listens to music (현재: He listen music)
-      expect(result).toMatch(/listens?/i);
+      // 기대: He listens to music (3인칭 단수 -s + 동사-전치사 결합)
+      expect(result).toBe('He listens to music');
     });
 
     test.skip('관사 처리: 나는 사과를 먹었다', () => {
@@ -121,6 +121,49 @@ describe('성능 분석: 현재 부족한 기능', () => {
       console.log('Do you like coffee? →', result);
       // 기대: 커피를 좋아하니? 또는 커피 좋아해?
       expect(result).toMatch(/좋아/);
+    });
+  });
+
+  // 어조/격식 테스트 (formality)
+  describe('Formality (어조/격식) 테스트', () => {
+    test('casual (반말): Do you like coffee?', () => {
+      const result = translate('Do you like coffee?', 'en-ko', { formality: 'casual' });
+      console.log('casual →', result);
+      expect(result).toMatch(/좋아해/);
+    });
+
+    test('formal (존댓말): Do you like coffee?', () => {
+      const result = translate('Do you like coffee?', 'en-ko', { formality: 'formal' });
+      console.log('formal →', result);
+      expect(result).toMatch(/세요/);
+    });
+
+    test('neutral (상관없음): Do you like coffee?', () => {
+      const result = translate('Do you like coffee?', 'en-ko', { formality: 'neutral' });
+      console.log('neutral →', result);
+      expect(result).toMatch(/니\?/);
+    });
+
+    test('friendly (친근체): Do you like coffee?', () => {
+      const result = translate('Do you like coffee?', 'en-ko', { formality: 'friendly' });
+      console.log('friendly →', result);
+      expect(result).toMatch(/~\?/);
+    });
+
+    test('literal (번역체): Do you like coffee?', () => {
+      const result = translate('Do you like coffee?', 'en-ko', { formality: 'literal' });
+      console.log('literal →', result);
+      expect(result).toMatch(/합니까/);
+    });
+
+    test('어조별 전체 출력 확인', () => {
+      const formalities = ['casual', 'formal', 'neutral', 'friendly', 'literal'] as const;
+      console.log('\n=== Do you like coffee? 어조별 번역 ===');
+      for (const f of formalities) {
+        const result = translate('Do you like coffee?', 'en-ko', { formality: f });
+        console.log(`${f}: ${result}`);
+      }
+      expect(true).toBe(true);
     });
   });
 

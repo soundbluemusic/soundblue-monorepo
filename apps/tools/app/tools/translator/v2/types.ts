@@ -6,6 +6,17 @@
 /** 번역 방향 */
 export type Direction = 'ko-en' | 'en-ko';
 
+/**
+ * 어조/격식 설정
+ *
+ * - casual: 반말 (커피 좋아해?)
+ * - formal: 존댓말 (커피 좋아하세요?)
+ * - neutral: 상관없음 - 기본값 (커피 좋아하니?)
+ * - friendly: 친근체 (커피 좋아해~?)
+ * - literal: 번역체 (당신은 커피를 좋아합니까?)
+ */
+export type Formality = 'casual' | 'formal' | 'neutral' | 'friendly' | 'literal';
+
 /** 토큰 역할 */
 export type Role =
   | 'subject' // 주어

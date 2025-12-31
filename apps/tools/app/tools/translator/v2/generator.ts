@@ -3,8 +3,16 @@
  * 분석된 토큰을 목표 언어로 재조립
  */
 
-import { COUNTERS, EN_KO, IDIOMS_EN_KO, IDIOMS_KO_EN, KO_EN, VERB_PAST } from './data';
-import type { ParsedSentence, SentenceType, Tense, Token } from './types';
+import {
+  COUNTERS,
+  EN_KO,
+  IDIOMS_EN_KO,
+  IDIOMS_KO_EN,
+  KO_EN,
+  VERB_PAST,
+  VERB_PREPOSITIONS,
+} from './data';
+import type { Formality, ParsedSentence, SentenceType, Tense, Token } from './types';
 
 // ============================================
 // 문장 템플릿 시스템
@@ -120,6 +128,9 @@ function fillTemplate(
 ): string {
   let result = template;
 
+  // 동사 원형 추출 (전치사 결합용)
+  const verbBase = values.V?.toLowerCase() || '';
+
   // 각 변수 치환
   for (const [key, value] of Object.entries(values)) {
     if (!value) {
@@ -134,6 +145,16 @@ function fillTemplate(
     // :past 수식자 처리
     if (key === 'V') {
       result = result.replace(`{${key}:past}`, applyTense(value, 'past'));
+    }
+
+    // 목적어 치환 시 동사-전치사 결합 처리
+    if (key === 'O' && values.O) {
+      const preposition = VERB_PREPOSITIONS[verbBase];
+      if (preposition) {
+        // 동사에 전치사가 필요하면 목적어 앞에 삽입
+        result = result.replace(`{${key}}`, `${preposition} ${value}`);
+        continue;
+      }
     }
 
     // 기본 치환 (동사의 경우 3인칭 단수 처리)
@@ -1231,7 +1252,7 @@ function _toQuestionKoreanPolite(verb: string, level: PolitenessLevel): string {
  * Phase 6: 진행형 (is -ing) → -고 있다
  * Phase 9: 조사 자동 선택 (을/를, 은/는)
  */
-export function generateKorean(parsed: ParsedSentence): string {
+export function generateKorean(parsed: ParsedSentence, formality: Formality = 'neutral'): string {
   // 1. 관용구 체크
   const normalized = parsed.original
     .toLowerCase()
@@ -1297,22 +1318,26 @@ export function generateKorean(parsed: ParsedSentence): string {
     parts.push(loc);
   }
 
-  // 동사 (Phase 6: 진행형, Phase 7: 의문형 처리)
+  // 동사 (Phase 6: 진행형, Phase 7: 의문형 처리, Phase 10: 어조 적용)
   if (verb) {
     if (isProgressive) {
       // 진행형 + 의문문
       if (parsed.type === 'question') {
         const progressive = toProgressiveKorean(verb);
-        // -고 있다 → -고 있어?
-        parts.push(progressive.replace(/있다$/, '있어'));
+        // -고 있다 → 어조별 변환
+        const baseProgressive = progressive.replace(/있다$/, '');
+        parts.push(baseProgressive + applyFormality('있다', formality, 'question'));
       } else {
-        parts.push(toProgressiveKorean(verb));
+        const progressive = toProgressiveKorean(verb);
+        const baseProgressive = progressive.replace(/있다$/, '');
+        parts.push(baseProgressive + applyFormality('있다', formality, 'statement'));
       }
     } else if (parsed.type === 'question') {
-      // Phase 7: 의문형 어미 변환
-      parts.push(toQuestionKorean(verb));
+      // Phase 7: 의문형 어미 변환 + 어조 적용
+      parts.push(applyFormality(verb, formality, 'question'));
     } else {
-      parts.push(verb);
+      // Phase 10: 평서문 어조 적용
+      parts.push(applyFormality(verb, formality, 'statement'));
     }
   }
 
@@ -1322,4 +1347,131 @@ export function generateKorean(parsed: ParsedSentence): string {
   }
 
   return parts.join(' ');
+}
+
+// ============================================
+// Phase 10: 어조/격식 변환 시스템
+// ============================================
+
+/**
+ * 어조별 어미 매핑
+ *
+ * 동사 기본형(-다)을 어조에 맞게 변환
+ */
+const FORMALITY_ENDINGS: Record<
+  Formality,
+  { statement: string; question: string; suffix?: string }
+> = {
+  casual: { statement: '해', question: '해' }, // 반말
+  formal: { statement: '해요', question: '하세요' }, // 존댓말
+  neutral: { statement: '한다', question: '하니' }, // 상관없음 (기본)
+  friendly: { statement: '해', question: '해', suffix: '~' }, // 친근체
+  literal: { statement: '합니다', question: '합니까' }, // 번역체
+};
+
+/**
+ * 동사에 어조 적용
+ *
+ * @param verb 동사 기본형 (예: 좋아하다, 먹다, 가다)
+ * @param formality 어조
+ * @param sentenceType 문장 유형
+ */
+function applyFormality(
+  verb: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  const endings = FORMALITY_ENDINGS[formality];
+
+  // 동사 어간 추출 (다 제거)
+  let stem = verb;
+  if (verb.endsWith('다')) {
+    stem = verb.slice(0, -1);
+  }
+
+  // 하다 동사 처리
+  if (verb.endsWith('하다') || verb === '하다') {
+    const prefix = verb === '하다' ? '' : verb.slice(0, -2);
+    const ending = sentenceType === 'question' ? endings.question : endings.statement;
+    const suffix = endings.suffix || '';
+    return prefix + ending + suffix;
+  }
+
+  // 있다/없다 처리
+  if (verb === '있다' || verb === '없다') {
+    const base = verb.slice(0, -1); // 있 or 없
+    return applyVerbEnding(base, formality, sentenceType);
+  }
+
+  // 일반 동사 처리
+  return applyVerbEnding(stem, formality, sentenceType);
+}
+
+/**
+ * 일반 동사에 어미 적용
+ */
+function applyVerbEnding(
+  stem: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  const suffix = FORMALITY_ENDINGS[formality].suffix || '';
+
+  switch (formality) {
+    case 'casual':
+      // 반말: 어간 + 아/어
+      return `${stem}${getInformalEnding(stem)}${suffix}`;
+    case 'formal':
+      // 존댓말: 어간 + 아요/어요 (의문문: 으세요)
+      if (sentenceType === 'question') {
+        return `${stem}으세요${suffix}`;
+      }
+      return `${stem}${getInformalEnding(stem)}요${suffix}`;
+    case 'neutral':
+      // 상관없음: 어간 + ㄴ다/는다 (의문문: 니)
+      if (sentenceType === 'question') {
+        return `${stem}니${suffix}`;
+      }
+      return `${stem}는다${suffix}`;
+    case 'friendly':
+      // 친근체: 반말 + ~
+      return `${stem}${getInformalEnding(stem)}${suffix}`;
+    case 'literal':
+      // 번역체: 어간 + ㅂ니다/습니다 (의문문: ㅂ니까/습니까)
+      if (sentenceType === 'question') {
+        return `${stem}습니까${suffix}`;
+      }
+      return `${stem}습니다${suffix}`;
+    default:
+      return `${stem}다`;
+  }
+}
+
+/**
+ * 비격식 어미 (아/어) 선택
+ * 모음조화 규칙 적용
+ */
+function getInformalEnding(stem: string): string {
+  if (!stem) return '어';
+
+  // 마지막 글자의 모음 확인
+  const lastChar = stem[stem.length - 1];
+  const code = lastChar.charCodeAt(0);
+
+  // 한글 범위 체크
+  if (code < 0xac00 || code > 0xd7a3) {
+    return '어';
+  }
+
+  // 받침 + 모음 분석
+  const syllableIndex = code - 0xac00;
+  const vowelIndex = Math.floor((syllableIndex % 588) / 28);
+
+  // 양성모음 (ㅏ, ㅗ) → 아
+  // vowelIndex: 0=ㅏ, 8=ㅗ
+  if (vowelIndex === 0 || vowelIndex === 8) {
+    return '아';
+  }
+
+  return '어';
 }
