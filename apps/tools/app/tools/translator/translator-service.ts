@@ -1,9 +1,9 @@
 /**
- * 번역 서비스 (v2 래퍼)
+ * 번역 서비스 (v2.1 래퍼)
  */
 
 import type { Formality, TranslationDirection } from './settings';
-import { detectFormality as detectFormalityV2, translate as translateV2 } from './v2';
+import { detectFormality as detectFormalityV2, translate as translateV2 } from './v2.1';
 
 export interface TranslateOptions {
   formality?: Formality;
