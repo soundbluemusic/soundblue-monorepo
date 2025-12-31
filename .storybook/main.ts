@@ -1,4 +1,6 @@
 import type { StorybookConfig } from '@storybook/react-vite';
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
 
 const config: StorybookConfig = {
   stories: [
@@ -11,6 +13,10 @@ const config: StorybookConfig = {
     options: {},
   },
   viteFinal: async (config) => {
+    // React 19 + ESM + Tailwind CSS v4 호환성
+    config.plugins = config.plugins || [];
+    config.plugins.push(react());
+    config.plugins.push(tailwindcss());
     return config;
   },
 };
