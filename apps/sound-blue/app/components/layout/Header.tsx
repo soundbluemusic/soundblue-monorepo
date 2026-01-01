@@ -100,7 +100,7 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
             onClick={toggleLanguage}
             className="inline-flex items-center justify-center gap-1 min-w-11 min-h-11 h-10 px-3 rounded-xl text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-interactive-hover) active:bg-(--color-interactive-active) transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 max-md:h-9 max-md:px-2"
             title={m['header.langSwitch']()}
-            aria-label={m['header.langSwitch']()}
+            aria-label={`${m['header.langSwitch']()} (${m['header.langCode']()})`}
           >
             <svg
               className="w-4 h-4 shrink-0"
@@ -108,11 +108,14 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
+              aria-hidden="true"
             >
               <circle cx="12" cy="12" r="10" />
               <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
             </svg>
-            <span className="text-xs font-semibold tracking-wide">{m['header.langCode']()}</span>
+            <span className="text-xs font-semibold tracking-wide" aria-hidden="true">
+              {m['header.langCode']()}
+            </span>
           </button>
         </div>
       </div>
