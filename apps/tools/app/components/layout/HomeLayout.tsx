@@ -369,7 +369,7 @@ export function HomeLayout() {
               {/* 드롭다운 결과 목록 */}
               {isDropdownOpen && searchResults.length > 0 && (
                 <div
-                  className="absolute top-[calc(100%+8px)] left-0 right-0 z-60 max-h-80 overflow-y-auto bg-(--card) border border-(--border) rounded-2xl shadow-lg p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--border) [&::-webkit-scrollbar-thumb]:rounded-full"
+                  className="absolute top-[calc(100%+8px)] left-0 right-0 z-70 max-h-80 overflow-y-auto bg-(--card) border border-(--border) rounded-2xl shadow-lg p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--border) [&::-webkit-scrollbar-thumb]:rounded-full"
                   role="listbox"
                 >
                   {searchResults.map((result, index) => {
@@ -425,7 +425,7 @@ export function HomeLayout() {
 
               {/* 검색 결과 없음 */}
               {isDropdownOpen && searchQuery.trim() && searchResults.length === 0 && (
-                <div className="absolute top-[calc(100%+8px)] left-0 right-0 z-60 bg-(--card) border border-(--border) rounded-2xl shadow-lg p-6 text-center text-sm text-(--muted-foreground)">
+                <div className="absolute top-[calc(100%+8px)] left-0 right-0 z-70 bg-(--card) border border-(--border) rounded-2xl shadow-lg p-6 text-center text-sm text-(--muted-foreground)">
                   {m['search_noResults']?.() ?? 'No results found'}
                 </div>
               )}
