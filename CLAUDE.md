@@ -144,14 +144,39 @@ export default defineConfig({
 | 번들 크기 vs 기능 유지 | 기능 유지 우선 → lazy loading으로 번들 분리 |
 
 1. **100% SSG Only** - 모든 앱은 정적 사이트 생성만 사용. SSR/서버 로직 절대 금지.
+
+   ```
+   ╔══════════════════════════════════════════════════════════════════════════════╗
+   ║                    ⚠️ SSG ONLY - 절대 규칙 ⚠️                                  ║
+   ╠══════════════════════════════════════════════════════════════════════════════╣
+   ║                                                                              ║
+   ║  이 프로젝트는 100% SSG (Static Site Generation) 모드만 사용합니다.            ║
+   ║  다른 모드는 절대 활성화하지 마세요.                                            ║
+   ║                                                                              ║
+   ║  ❌ 절대 금지 (NEVER):                                                        ║
+   ║  • SPA 모드 활성화 (ssr: true 또는 prerender 제거)                            ║
+   ║  • SSR 모드 활성화                                                           ║
+   ║  • 서버 사이드 로직 추가                                                      ║
+   ║  • API 라우트 추가                                                           ║
+   ║  • 서버 컴포넌트 사용                                                         ║
+   ║  • prerender() 함수 제거 또는 빈 배열 반환                                    ║
+   ║                                                                              ║
+   ║  ✅ 필수 설정 (REQUIRED):                                                     ║
+   ║  • ssr: false (항상)                                                         ║
+   ║  • prerender() 함수에 모든 라우트 명시                                        ║
+   ║  • 브라우저 API는 platform/ 레이어의 이중 구현 사용                            ║
+   ║                                                                              ║
+   ╚══════════════════════════════════════════════════════════════════════════════╝
+   ```
+
    ```typescript
    // react-router.config.ts 필수 설정
    import type { Config } from '@react-router/dev/config';
 
    export default {
-     ssr: false,  // SSR 비활성화
+     ssr: false,  // SSR 비활성화 - 절대 true로 변경 금지!
      async prerender() {
-       return [/* routes */];  // 사전 렌더링할 라우트 목록
+       return [/* routes */];  // 사전 렌더링할 라우트 목록 - 절대 제거 금지!
      },
    } satisfies Config;
    ```

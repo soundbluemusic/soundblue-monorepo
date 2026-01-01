@@ -338,6 +338,42 @@ The translator at `apps/tools/app/tools/translator/` follows **algorithm-based g
 
 ---
 
+## ⚠️ SSG Only Policy (SSG 전용 정책)
+
+> **This project uses 100% SSG (Static Site Generation) mode ONLY.**
+> **(이 프로젝트는 100% SSG 모드만 사용합니다.)**
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         ⚠️ SSG ONLY - CRITICAL RULE ⚠️                        ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ❌ NEVER enable these modes:                                                ║
+║     • SPA mode (removing prerender)                                          ║
+║     • SSR mode (ssr: true)                                                   ║
+║     • Server-side logic / API routes                                         ║
+║     • Server components                                                      ║
+║                                                                              ║
+║  ✅ ALWAYS keep these settings:                                              ║
+║     • ssr: false                                                             ║
+║     • prerender() with all routes listed                                     ║
+║     • Dual implementation for browser APIs                                   ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+```typescript
+// react-router.config.ts - Required configuration
+export default {
+  ssr: false,           // NEVER change to true!
+  async prerender() {   // NEVER remove this function!
+    return [/* all routes */];
+  },
+} satisfies Config;
+```
+
+---
+
 ## ✨ Features (특징)
 
 - 🌐 **Bilingual** - English & Korean (영어 & 한국어 지원)

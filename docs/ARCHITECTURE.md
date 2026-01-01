@@ -20,6 +20,28 @@ This document describes the architectural redesign of the SoundBlue monorepo, tr
 All packages must support Static Site Generation build without errors.
 
 ```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         ⚠️ SSG ONLY - CRITICAL RULE ⚠️                        ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  이 프로젝트는 100% SSG (Static Site Generation) 모드만 사용합니다.            ║
+║  This project uses 100% SSG mode ONLY.                                       ║
+║                                                                              ║
+║  ❌ 절대 금지 (NEVER):                                                        ║
+║  • SPA 모드 활성화 (SPA mode - removing prerender)                           ║
+║  • SSR 모드 활성화 (SSR mode - ssr: true)                                    ║
+║  • 서버 사이드 로직 (Server-side logic / API routes)                          ║
+║  • 서버 컴포넌트 (Server components)                                          ║
+║                                                                              ║
+║  ✅ 필수 설정 (REQUIRED):                                                     ║
+║  • ssr: false (항상 / always)                                                ║
+║  • prerender() 함수에 모든 라우트 명시 (all routes listed)                    ║
+║  • 브라우저 API는 이중 구현 사용 (dual implementation)                         ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+```
 빌드 시 (Build Time)     →  .noop.ts (빈 구현)
 브라우저 런타임 (Runtime) →  .browser.ts (실제 구현)
 ```
@@ -345,8 +367,11 @@ Before deploying, verify:
 - [ ] All `platform/` packages have `.noop.ts` implementations
 - [ ] `package.json` exports use `browser` + `default` conditions
 - [ ] No `window`, `document`, `navigator` in non-platform code
-- [ ] `react-router.config.ts` has `ssr: false`
-- [ ] All routes are listed in `prerender()`
+- [ ] `react-router.config.ts` has `ssr: false` **(NEVER change to true!)**
+- [ ] All routes are listed in `prerender()` **(NEVER remove this function!)**
+- [ ] **NO SPA mode enabled** (prerender must exist and return routes)
+- [ ] **NO SSR mode enabled** (ssr must be false)
+- [ ] **NO API routes or server-side logic**
 
 ---
 
