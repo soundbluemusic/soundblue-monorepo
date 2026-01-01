@@ -74,6 +74,22 @@ import { Button, cn } from '@soundblue/ui-components/base'; // ui
 | **React Router v7** | [Official Docs](https://reactrouter.com/start/framework/deploying) | [remix-run/react-router](https://github.com/remix-run/react-router) |
 | **TypeScript** | [Official Docs](https://www.typescriptlang.org/docs/) | [microsoft/TypeScript](https://github.com/microsoft/TypeScript) |
 
+### 참조 우선순위 (Reference Priority)
+
+> **정보를 찾을 때 반드시 이 순서를 따를 것**
+
+```
+1️⃣ 공식 문서 (Official Docs)     ← 항상 최우선
+2️⃣ GitHub Issues/Discussions    ← 최신 이슈 및 해결책
+3️⃣ Stack Overflow               ← 검증된 답변만
+4️⃣ 블로그/튜토리얼               ← 최후의 수단
+```
+
+**필수 확인 사항:**
+- Breaking changes → 반드시 공식 마이그레이션 가이드 참조
+- 버전 호환성 → package.json 버전과 문서 버전 일치 확인
+- 새 API 사용 시 → 공식 예제 먼저 확인
+
 ### 참고 시점 (When to Reference)
 - 새로운 기능 구현 시 최신 API 확인
 - 빌드/설정 문제 해결 시 공식 가이드 참조
@@ -125,27 +141,128 @@ export default defineConfig({
 
 ## Code Quality Rules (코드 품질 규칙)
 
-### Absolute Prohibitions (절대 금지)
-- Never delete/comment out code to hide errors (에러 숨기려고 코드 삭제/주석 처리 금지)
-- Never hardcode values or mock data to pass tests (테스트 통과용 하드코딩/목 데이터 금지)
-- Never disable tests, validation, or security checks (테스트/검증/보안 체크 비활성화 금지)
-- Never use `// ... existing code ...` - always provide complete code (항상 완전한 코드 제공)
+### Absolute Prohibitions (절대 금지) ⛔
+
+> **이 규칙들을 위반하면 즉시 중단하고 근본 원인을 파악할 것**
+
+#### 1. 하드코딩 규칙 (HARDCODING RULES)
+
+> **기본 원칙: 하드코딩은 금지. 단, 우수한 설계 목적일 경우에만 예외 허용.**
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    하드코딩 허용/금지 기준 (전체 프로젝트 적용)                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ❌ 절대 금지 (NEVER ALLOWED):                                               ║
+║                                                                              ║
+║  • 테스트 통과를 위한 하드코딩된 값                                             ║
+║  • 빌드 에러 회피를 위한 임시 상수                                              ║
+║  • "일단 동작하게" 하려는 매직 넘버                                             ║
+║  • 특정 환경에서만 작동하는 고정값                                              ║
+║  • 에러 메시지를 숨기기 위한 기본값                                             ║
+║  • 특정 테스트 케이스만 통과하는 조건문                                          ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ✅ 허용되는 하드코딩 (ALLOWED - 우수한 설계 목적):                              ║
+║                                                                              ║
+║  • 명확한 이름의 상수 정의 (LIMITS.ID_LENGTH = 100)                            ║
+║  • 타입 안전성을 위한 enum/literal 값                                          ║
+║  • 수학/물리 상수 (Math.PI, Euler's number)                                   ║
+║  • CSS 변수로 노출된 디자인 토큰 (--header-height: 56px)                       ║
+║  • 프로토콜/표준 명세 기반 값 (HTTP status codes)                               ║
+║  • 일반화된 패턴 (모든 유사 케이스에 적용 가능)                                   ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ⚠️ 허용 조건 (Required for Allowed Hardcoding):                              ║
+║                                                                              ║
+║  1. 명확하고 서술적인 이름 사용                                                 ║
+║  2. 왜 이 값인지 주석으로 설명                                                  ║
+║  3. 단일 출처(Single Source of Truth)에서 정의                                 ║
+║  4. @soundblue/core에서 export하여 재사용                                      ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+**하드코딩 검토 질문 (코드 작성 전 자가 검증):**
+
+| # | 질문 | ✅ 허용 | ❌ 금지 |
+|---|------|--------|--------|
+| 1 | 이것이 우수한 설계의 일부인가, 아니면 지름길인가? | 설계 | 지름길 |
+| 2 | 이 값이 변경되면 한 곳에서만 수정하면 되는가? | Yes | No |
+| 3 | 이 값의 의미가 이름과 주석으로 명확한가? | Yes | No |
+| 4 | 비슷한 다른 케이스도 이 로직으로 처리되는가? | Yes | No |
+
+#### 2. 에러 숨기기 절대 금지 (NO ERROR HIDING)
+
+```
+❌ 금지 행위:
+• 에러 숨기려고 코드 삭제/주석 처리
+• 빈 catch 블록 사용
+• 설명 없이 @ts-ignore 사용
+• 타입 체크 우회용 any 타입 사용
+• console.error만 하고 에러 무시
+• try-catch로 감싸고 아무것도 안 함
+```
+
+#### 3. 테스트/검증 비활성화 절대 금지 (NO DISABLING)
+
+```
+❌ 금지 행위:
+• 테스트/검증/보안 체크 비활성화
+• pre-commit hooks 스킵
+• --no-verify 플래그 사용
+• eslint-disable 남용 (정당한 사유 없이)
+• vitest.skip 남용
+```
+
+#### 4. 불완전한 코드 절대 금지 (NO INCOMPLETE CODE)
+
+```
+❌ 금지 행위:
+• `// ... existing code ...` 사용 - 항상 완전한 코드 제공
+• 추적 이슈 없이 TODO 주석 남기기
+• 플레이스홀더 구현 커밋
+• 임시 해결책 커밋 (나중에 고칠게요)
+```
 
 ### Required Process (필수 프로세스)
+
 Before any fix (수정 전 반드시):
-1. Identify root cause (WHY, not just WHAT) - 근본 원인 파악
-2. Explain why naive fixes (delete/hardcode/disable) are wrong - 단순 수정이 왜 잘못인지 설명
-3. Verify existing functionality is preserved - 기존 기능 유지 확인
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. Identify root cause (WHY, not just WHAT)                   │
+│     → 근본 원인 파악 (무엇이 아니라 왜)                            │
+├─────────────────────────────────────────────────────────────────┤
+│  2. Explain why naive fixes are wrong                          │
+│     → 단순 수정(삭제/하드코딩/비활성화)이 왜 잘못인지 설명           │
+├─────────────────────────────────────────────────────────────────┤
+│  3. Verify existing functionality is preserved                 │
+│     → 기존 기능 유지 확인                                        │
+├─────────────────────────────────────────────────────────────────┤
+│  4. Check for hardcoded values                                 │
+│     → 하드코딩된 값이 있는지 확인 (검토 질문 4개 적용)              │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### Quality Standards (품질 기준)
+
+- **Single Source of Truth** - 모든 데이터는 하나의 출처에서만 정의
 - Structural solutions over superficial patches (표면적 패치보다 구조적 해결)
 - Handle edge cases explicitly (엣지 케이스 명시적 처리)
 - Follow project conventions (프로젝트 컨벤션 준수)
 - Add comments explaining WHY (WHY를 설명하는 주석)
 
 ### When Uncertain (불확실할 때)
-Ask before: removing code, changing core logic, breaking changes.
-(다음 작업 전 질문: 코드 제거, 핵심 로직 변경, 브레이킹 체인지)
+
+Ask before (다음 작업 전 질문):
+- Removing code (코드 제거)
+- Changing core logic (핵심 로직 변경)
+- Breaking changes (브레이킹 체인지)
+- **Adding hardcoded values (하드코딩 추가)**
 
 ## Response Rules (응답 규칙)
 
@@ -153,12 +270,88 @@ Ask before: removing code, changing core logic, breaking changes.
 - 추측은 추측이라고 표시한다 (Mark assumptions as assumptions)
 - 출처를 명시한다 (Cite sources)
 
+## The Perfect Dodecagon (12 Quality Metrics / 12가지 품질 지표)
+
+> All code must satisfy the 12 metrics below. (모든 코드는 아래 12가지 지표를 만족해야 한다.)
+
+### I. Stability & Maintainability (안정성 & 유지보수성)
+| # | Metric (지표) | Tools (도구) | When (검증 시점) |
+|---|---------------|--------------|------------------|
+| 1 | Test Coverage (테스트 커버리지) | Vitest + coverage-v8 (≥80%) | CI |
+| 2 | Visual Coverage (시각적 커버리지) | Playwright + pixelmatch | CI |
+| 3 | Code Health (코드 건강) | size-limit, TypeScript strict | CI |
+| 4 | Monorepo Integrity (모노레포 무결성) | skott (circular deps / 순환 의존성), syncpack (version sync / 버전 통일) | CI |
+
+### II. Performance & Reach (성능 & 도달)
+| # | Metric (지표) | Tools (도구) | When (검증 시점) |
+|---|---------------|--------------|------------------|
+| 5 | Lighthouse Score (라이트하우스 점수) | @lhci/cli (≥90, target 98 / 목표 98) | CI |
+| 6 | SEO Health (SEO 건강) | Build script (meta tag validation / 메타태그 검증) | Build |
+| 7 | Static Integrity (정적 무결성) | broken-link-checker | Post-build (빌드 후) |
+
+### III. User Experience & Adaptation (사용자 경험 & 적응)
+| # | Metric (지표) | Tools (도구) | When (검증 시점) |
+|---|---------------|--------------|------------------|
+| 8 | PWA Readiness (PWA 준비) | vite-plugin-pwa | Build |
+| 9 | Mobile Optimality (모바일 최적화) | Playwright (touch target ≥44px / 터치 타겟 ≥44px) | CI |
+| 10 | Responsive (반응형) | Playwright (320px~4K screenshots / 스크린샷) | CI |
+| 11 | Accessibility (접근성) | axe-core + Playwright | CI |
+
+### IV. Security & Privacy (보안 & 개인정보)
+| # | Metric (지표) | Tools (도구) | When (검증 시점) |
+|---|---------------|--------------|------------------|
+| 12 | Client Security (클라이언트 보안) | CSP headers (Cloudflare) + dotenv-linter | Build + Deploy (배포) |
+
+### CI 구현 현황 (Implementation Status)
+
+> **마지막 업데이트: 2026-01-01**
+
+| # | 지표 | CI 구현 | 명령어 |
+|---|------|:-------:|--------|
+| 1 | Test Coverage | ⬜ | `pnpm test:coverage` |
+| 2 | Visual Coverage | ⬜ | Playwright + pixelmatch |
+| 3 | Code Health | ⬜ | `pnpm check:size`, `pnpm typecheck` |
+| 4 | Monorepo Integrity | ⬜ | `pnpm check:circular`, `pnpm check:versions` |
+| 5 | Lighthouse Score | ⬜ | `pnpm lhci autorun` |
+| 6 | SEO Health | ⬜ | `pnpm verify:ssg` |
+| 7 | Static Integrity | ⬜ | `pnpm check:links` |
+| 8 | PWA Readiness | ⬜ | vite-plugin-pwa |
+| 9 | Mobile Optimality | ⬜ | Playwright (touch targets) |
+| 10 | Responsive | ⬜ | Playwright (screenshots) |
+| 11 | Accessibility | ⬜ | axe-core + Playwright |
+| 12 | Client Security | ⬜ | CSP headers check |
+
+> ⬜ = 미구현, ✅ = 구현 완료
+
+### Validation Separation (검증 분리)
+
+```
+pre-commit:
+  └── Biome (lint, format) + tsc --noEmit
+
+CI (병렬 실행):
+  ├── Job 1: Vitest, skott, syncpack
+  ├── Job 2: Playwright (visual, a11y, mobile, responsive)
+  ├── Job 3: Lighthouse CI
+  └── Job 4: broken-link-checker, size-limit
+```
+
+### Action Rule (행동 규칙)
+When writing code, if any of the 12 metrics is compromised (코드 작성 시 12가지 지표 중 하나라도 저해되면):
+1. Warn immediately (즉시 경고)
+2. Suggest alternatives (대안 제시)
+3. Do not proceed without user confirmation (사용자 확인 없이 진행 금지)
+
+---
+
 ## Translator Development Rules (번역기 개발 규칙)
 
 > **Location**: `apps/tools/app/tools/translator/`
 > **Full docs**: `apps/tools/app/tools/translator/README.md`
 
-### 🎯 하드코딩 정책 (Hardcoding Policy)
+### 🎯 하드코딩 정책 (Hardcoding Policy) - 번역기 전용
+
+> 위의 일반 하드코딩 규칙에 추가로, 번역기에는 더 엄격한 규칙이 적용됩니다.
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -327,45 +520,3 @@ Ask before: removing code, changing core logic, breaking changes.
 | 12 | `antiHardcodingTests` | 하드코딩 방지 테스트 **(22개 레벨)** |
 
 > **12번 antiHardcodingTests** = 22가지 핵심 알고리즘 규칙 (암기/하드코딩 절대 불가)
-
-## The Perfect Dodecagon (12 Quality Metrics / 12가지 품질 지표)
-
-> All code must satisfy the 12 metrics below. (모든 코드는 아래 12가지 지표를 만족해야 한다.)
-
-### I. Stability & Maintainability (안정성 & 유지보수성)
-| # | Metric (지표) | Tools (도구) | When (검증 시점) |
-|---|---------------|--------------|------------------|
-| 1 | Test Coverage (테스트 커버리지) | Vitest + coverage-v8 (≥80%) | CI |
-| 2 | Visual Coverage (시각적 커버리지) | Playwright + pixelmatch | CI |
-| 3 | Code Health (코드 건강) | size-limit, TypeScript strict | CI |
-| 4 | Monorepo Integrity (모노레포 무결성) | skott (circular deps / 순환 의존성), syncpack (version sync / 버전 통일) | CI |
-
-### II. Performance & Reach (성능 & 도달)
-| # | Metric (지표) | Tools (도구) | When (검증 시점) |
-|---|---------------|--------------|------------------|
-| 5 | Lighthouse Score (라이트하우스 점수) | @lhci/cli (≥90, target 98 / 목표 98) | CI |
-| 6 | SEO Health (SEO 건강) | Build script (meta tag validation / 메타태그 검증) | Build |
-| 7 | Static Integrity (정적 무결성) | broken-link-checker | Post-build (빌드 후) |
-
-### III. User Experience & Adaptation (사용자 경험 & 적응)
-| # | Metric (지표) | Tools (도구) | When (검증 시점) |
-|---|---------------|--------------|------------------|
-| 8 | PWA Readiness (PWA 준비) | vite-plugin-pwa | Build |
-| 9 | Mobile Optimality (모바일 최적화) | Playwright (touch target ≥44px / 터치 타겟 ≥44px) | CI |
-| 10 | Responsive (반응형) | Playwright (320px~4K screenshots / 스크린샷) | CI |
-| 11 | Accessibility (접근성) | axe-core + Playwright | CI |
-
-### IV. Security & Privacy (보안 & 개인정보)
-| # | Metric (지표) | Tools (도구) | When (검증 시점) |
-|---|---------------|--------------|------------------|
-| 12 | Client Security (클라이언트 보안) | CSP headers (Cloudflare) + dotenv-linter | Build + Deploy (배포) |
-
-### Validation Separation (검증 분리)
-- **pre-commit**: Biome (lint, format) + tsc --noEmit
-- **CI**: Everything else in parallel (나머지 전부 병렬 실행)
-
-### Action Rule (행동 규칙)
-When writing code, if any of the 12 metrics is compromised (코드 작성 시 12가지 지표 중 하나라도 저해되면):
-1. Warn immediately (즉시 경고)
-2. Suggest alternatives (대안 제시)
-3. Do not proceed without user confirmation (사용자 확인 없이 진행 금지)
