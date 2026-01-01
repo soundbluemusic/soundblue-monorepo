@@ -66,20 +66,24 @@ export function usePWA(): UsePWAResult {
       }));
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', () => {
+    const handleAppInstalled = () => {
       setInstallState((prev) => ({
         ...prev,
         isInstalled: true,
         canInstall: false,
         deferredPrompt: null,
       }));
-    });
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     checkInstalled();
 
+    // 성능: 메모리 누수 방지를 위한 모든 리스너 cleanup
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 

@@ -423,12 +423,15 @@ export function applyCollocationTranslation(tokens: string[]): CollocationTransl
     });
   }
 
+  // 성능: find() O(n) → Map O(1)
+  const translationMap = new Map(translations.map((t) => [t.index, t.en]));
+
   // 결과 문자열 생성 (연어 위치에 영어 삽입)
   const resultParts: string[] = [];
   for (let i = 0; i < tokens.length; i++) {
-    const trans = translations.find((t) => t.index === i);
-    if (trans) {
-      resultParts.push(trans.en);
+    const en = translationMap.get(i);
+    if (en) {
+      resultParts.push(en);
     } else if (!processedIndices.has(i)) {
       const token = tokens[i];
       if (token) resultParts.push(token);

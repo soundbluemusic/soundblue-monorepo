@@ -171,6 +171,13 @@ class DrumMachine {
   start(): void {
     if (!this.initialized) return;
 
+    // 성능: 기존 sequence가 있으면 dispose하여 메모리 누수 방지
+    if (this.sequence) {
+      this.sequence.stop();
+      this.sequence.dispose();
+      this.sequence = null;
+    }
+
     this.currentStep = 0;
 
     const stepIndices = Array.from({ length: this.steps }, (_, i) => i);

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import m from '~/lib/messages';
 import type { Message } from '~/stores';
 
@@ -6,7 +6,10 @@ interface ChatMessageProps {
   message: Message;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+/**
+ * 성능: React.memo로 불필요한 리렌더링 방지
+ */
+export const ChatMessage = memo(function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user';
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -84,7 +87,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       </button>
     </div>
   );
-}
+});
 
 function CopyIcon() {
   return (

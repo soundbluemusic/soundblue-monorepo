@@ -14,6 +14,12 @@ import {
 } from './constants';
 
 /**
+ * 메모이제이션 캐시 (11,172개 한글 음절만 캐싱 가능)
+ * 성능: 반복 호출 시 O(1) 조회
+ */
+const decomposeCache = new Map<string, Jamo>();
+
+/**
  * 한글 문자인지 확인 (internal)
  */
 function isHangulChar(char: string): boolean {
@@ -25,9 +31,15 @@ function isHangulChar(char: string): boolean {
 /**
  * 한글 음절을 자모로 분해
  * '한' → { cho: 'ㅎ', jung: 'ㅏ', jong: 'ㄴ' }
+ *
+ * 성능: 메모이제이션으로 반복 호출 시 O(1)
  */
 export function decompose(char: string): Jamo | null {
   if (!isHangulChar(char)) return null;
+
+  // 캐시 확인
+  const cached = decomposeCache.get(char);
+  if (cached) return cached;
 
   const code = char.charCodeAt(0) - HANGUL_BASE;
   const choIndex = Math.floor(code / SYLLABLE_PER_CHO);
@@ -42,7 +54,9 @@ export function decompose(char: string): Jamo | null {
     return null;
   }
 
-  return { cho, jung, jong };
+  const result: Jamo = { cho, jung, jong };
+  decomposeCache.set(char, result);
+  return result;
 }
 
 /**

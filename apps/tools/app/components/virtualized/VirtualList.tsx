@@ -8,7 +8,7 @@
 'use client';
 
 import { useVirtualizer, type VirtualItem } from '@tanstack/react-virtual';
-import { type CSSProperties, type ReactNode, useRef } from 'react';
+import { type CSSProperties, type ReactNode, useMemo, useRef } from 'react';
 import { cn } from '~/lib/utils';
 
 export interface VirtualListProps<T> {
@@ -182,6 +182,20 @@ export function VirtualPianoRoll({
 }: VirtualPianoRollProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
+  // 성능: notes를 pitch별로 미리 인덱싱하여 O(n*k) → O(n+k) 개선
+  const notesByPitch = useMemo(() => {
+    const map = new Map<number, PianoRollNote[]>();
+    for (const note of notes) {
+      const existing = map.get(note.pitch);
+      if (existing) {
+        existing.push(note);
+      } else {
+        map.set(note.pitch, [note]);
+      }
+    }
+    return map;
+  }, [notes]);
+
   const virtualizer = useVirtualizer({
     count: totalKeys,
     getScrollElement: () => parentRef.current,
@@ -202,7 +216,7 @@ export function VirtualPianoRoll({
       >
         {virtualRows.map((virtualRow) => {
           const pitch = totalKeys - 1 - virtualRow.index;
-          const rowNotes = notes.filter((note) => note.pitch === pitch);
+          const rowNotes = notesByPitch.get(pitch) ?? [];
 
           return (
             <div

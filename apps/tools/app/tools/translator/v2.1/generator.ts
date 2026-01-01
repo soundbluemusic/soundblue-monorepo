@@ -822,17 +822,24 @@ const UNCOUNTABLE_NOUNS = new Set([
  * - hour → 모음 (h 묵음)
  * - university → 자음 (ju- 발음)
  * - European → 자음 (ju- 발음)
+ *
+ * 성능: 배열 some() → 접두사 패턴 미리 계산
  */
+const SILENT_H_PREFIXES = ['hour', 'honest', 'honor', 'heir'];
+const CONSONANT_U_PREFIXES = ['uni', 'use', 'usual', 'europe', 'euro'];
+
 function startsWithVowelSound(word: string): boolean {
   const lower = word.toLowerCase();
 
   // 예외: h 묵음 → 모음 취급
-  const silentH = ['hour', 'honest', 'honor', 'heir'];
-  if (silentH.some((h) => lower.startsWith(h))) return true;
+  for (const prefix of SILENT_H_PREFIXES) {
+    if (lower.startsWith(prefix)) return true;
+  }
 
   // 예외: u로 시작하지만 자음 발음 (ju-)
-  const consonantU = ['uni', 'use', 'usual', 'europe', 'euro'];
-  if (consonantU.some((u) => lower.startsWith(u))) return false;
+  for (const prefix of CONSONANT_U_PREFIXES) {
+    if (lower.startsWith(prefix)) return false;
+  }
 
   // 일반 규칙: a, e, i, o, u로 시작
   return /^[aeiou]/i.test(lower);

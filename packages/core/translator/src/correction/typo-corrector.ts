@@ -85,10 +85,12 @@ export function correctTypos(text: string, dictionary?: string[]): CorrectionRes
   if (dictionary && dictionary.length > 0) {
     const words = result.split(/\s+/);
     const correctedWords: string[] = [];
+    // 성능: Array.includes() O(n) → Set.has() O(1)
+    const dictSet = new Set(dictionary);
 
     for (const word of words) {
       // 이미 사전에 있는 단어는 그대로
-      if (dictionary.includes(word)) {
+      if (dictSet.has(word)) {
         correctedWords.push(word);
         continue;
       }
@@ -162,13 +164,17 @@ export function findSimilarWords(
 
 /**
  * 빠른 오타 체크 (사전 기반)
+ * 성능: Set으로 O(1) 검색
  */
 export function isTypo(word: string, dictionary: string[]): boolean {
   // 빈번한 오타인지 확인
   if (isCommonTypo(word)) return true;
 
+  // 성능: Array.includes() O(n) → Set.has() O(1)
+  const dictSet = new Set(dictionary);
+
   // 사전에 없는 단어인지 확인
-  if (!dictionary.includes(word)) {
+  if (!dictSet.has(word)) {
     // 유사 단어가 있는지 확인
     const similar = findSimilarWords(word, dictionary, 1, 0.7);
     return similar.length > 0;
@@ -179,6 +185,7 @@ export function isTypo(word: string, dictionary: string[]): boolean {
 
 /**
  * 텍스트에서 오타 후보 추출
+ * 성능: Set으로 O(1) 검색
  */
 export function extractTypoCandidates(
   text: string,
@@ -192,11 +199,13 @@ export function extractTypoCandidates(
 
   const words = text.split(/\s+/);
   let position = 0;
+  // 성능: Array.includes() O(n) → Set.has() O(1)
+  const dictSet = new Set(dictionary);
 
   for (const word of words) {
     if (word.length > 0) {
       // 사전에 없고 빈번한 오타도 아닌 경우
-      if (!dictionary.includes(word) && !isCommonTypo(word)) {
+      if (!dictSet.has(word) && !isCommonTypo(word)) {
         const suggestions = findSimilarWords(word, dictionary, 3, 0.5);
         if (suggestions.length > 0) {
           candidates.push({ word, position, suggestions });

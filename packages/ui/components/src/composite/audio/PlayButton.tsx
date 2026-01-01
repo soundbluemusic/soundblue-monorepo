@@ -3,6 +3,26 @@
 // Play/pause button for audio controls
 // ========================================
 
+import { memo } from 'react';
+
+// 성능: 아이콘을 별도 컴포넌트로 분리하여 props 변경 시 불필요한 리렌더링 방지
+const PlayIcon = memo(function PlayIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z" />
+    </svg>
+  );
+});
+
+const PauseIcon = memo(function PauseIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+    </svg>
+  );
+});
+
 export interface PlayButtonProps {
   isPlaying: boolean;
   onToggle: () => void;
@@ -26,8 +46,9 @@ const iconSizes = {
 
 /**
  * Play/pause toggle button
+ * 성능: React.memo로 불필요한 리렌더링 방지
  */
-export function PlayButton({
+export const PlayButton = memo(function PlayButton({
   isPlaying,
   onToggle,
   size = 'md',
@@ -54,18 +75,7 @@ export function PlayButton({
       aria-label={ariaLabel || (isPlaying ? 'Pause' : 'Play')}
       aria-pressed={isPlaying}
     >
-      {isPlaying ? (
-        // Pause icon
-        <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="currentColor">
-          <rect x="6" y="4" width="4" height="16" rx="1" />
-          <rect x="14" y="4" width="4" height="16" rx="1" />
-        </svg>
-      ) : (
-        // Play icon
-        <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="currentColor">
-          <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z" />
-        </svg>
-      )}
+      {isPlaying ? <PauseIcon size={iconSize} /> : <PlayIcon size={iconSize} />}
     </button>
   );
-}
+});

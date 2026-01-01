@@ -4,6 +4,7 @@
 // ========================================
 
 import type { ReactNode } from 'react';
+import { memo } from 'react';
 
 export type ChatMessageRole = 'user' | 'assistant' | 'system';
 
@@ -16,8 +17,14 @@ export interface ChatMessageProps {
 
 /**
  * Individual chat message
+ * 성능: React.memo로 불필요한 리렌더링 방지
  */
-export function ChatMessage({ role, content, timestamp, className = '' }: ChatMessageProps) {
+export const ChatMessage = memo(function ChatMessage({
+  role,
+  content,
+  timestamp,
+  className = '',
+}: ChatMessageProps) {
   const isUser = role === 'user';
   const isSystem = role === 'system';
 
@@ -53,4 +60,4 @@ export function ChatMessage({ role, content, timestamp, className = '' }: ChatMe
       </div>
     </li>
   );
-}
+});

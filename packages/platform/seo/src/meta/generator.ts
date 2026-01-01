@@ -169,12 +169,17 @@ export function generateMetaTags(meta: PageMeta): string {
 
 /**
  * Escape HTML special characters
+ * 성능: 정규식 미리 컴파일 + 단일 replace로 한 번의 순회
  */
+const HTML_ESCAPE_REGEX = /[&<>"']/g;
+const HTML_ESCAPE_MAP: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
 function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return str.replace(HTML_ESCAPE_REGEX, (char) => HTML_ESCAPE_MAP[char] ?? char);
 }

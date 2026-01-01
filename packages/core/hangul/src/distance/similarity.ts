@@ -6,16 +6,39 @@ import { isHangul } from '../jamo';
 import { decomposeToJamos, jamoEditDistance } from './jamo-distance';
 
 /**
+ * 자모 분해 길이 캐시
+ * 성능: 중복 decomposeToJamos 호출 제거
+ */
+const jamoLengthCache = new Map<string, number>();
+
+/**
+ * 자모 분해 길이 계산 (캐시 활용)
+ */
+function getJamoLength(text: string): number {
+  const cached = jamoLengthCache.get(text);
+  if (cached !== undefined) return cached;
+
+  const length = decomposeToJamos(text).length;
+  // 캐시 크기 제한 (메모리 관리)
+  if (jamoLengthCache.size > 10000) {
+    jamoLengthCache.clear();
+  }
+  jamoLengthCache.set(text, length);
+  return length;
+}
+
+/**
  * 두 문자열의 유사도 계산 (0~1)
+ * 성능: jamoEditDistance 내부에서 이미 자모 분해하므로 길이만 캐시 조회
  */
 export function similarity(a: string, b: string): number {
-  const jamos1 = decomposeToJamos(a);
-  const jamos2 = decomposeToJamos(b);
+  const len1 = getJamoLength(a);
+  const len2 = getJamoLength(b);
 
-  if (jamos1.length === 0 || jamos2.length === 0) return 0;
+  if (len1 === 0 || len2 === 0) return 0;
 
   const distance = jamoEditDistance(a, b);
-  const maxLen = Math.max(jamos1.length, jamos2.length);
+  const maxLen = Math.max(len1, len2);
   return Math.max(0, 1 - distance / maxLen);
 }
 

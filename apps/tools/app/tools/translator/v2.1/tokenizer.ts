@@ -366,57 +366,60 @@ function extractVerbStemByRule(
 /**
  * 받침 없이 초성+중성만으로 한글 조합
  * Phase 3: 미래 시제 어간 추출용
+ *
+ * 성능: indexOf() O(n) → Map.get() O(1)
  */
+const CHO_INDEX_MAP_LOCAL = new Map<string, number>([
+  ['ㄱ', 0],
+  ['ㄲ', 1],
+  ['ㄴ', 2],
+  ['ㄷ', 3],
+  ['ㄸ', 4],
+  ['ㄹ', 5],
+  ['ㅁ', 6],
+  ['ㅂ', 7],
+  ['ㅃ', 8],
+  ['ㅅ', 9],
+  ['ㅆ', 10],
+  ['ㅇ', 11],
+  ['ㅈ', 12],
+  ['ㅉ', 13],
+  ['ㅊ', 14],
+  ['ㅋ', 15],
+  ['ㅌ', 16],
+  ['ㅍ', 17],
+  ['ㅎ', 18],
+]);
+
+const JUNG_INDEX_MAP_LOCAL = new Map<string, number>([
+  ['ㅏ', 0],
+  ['ㅐ', 1],
+  ['ㅑ', 2],
+  ['ㅒ', 3],
+  ['ㅓ', 4],
+  ['ㅔ', 5],
+  ['ㅕ', 6],
+  ['ㅖ', 7],
+  ['ㅗ', 8],
+  ['ㅘ', 9],
+  ['ㅙ', 10],
+  ['ㅚ', 11],
+  ['ㅛ', 12],
+  ['ㅜ', 13],
+  ['ㅝ', 14],
+  ['ㅞ', 15],
+  ['ㅟ', 16],
+  ['ㅠ', 17],
+  ['ㅡ', 18],
+  ['ㅢ', 19],
+  ['ㅣ', 20],
+]);
+
 function composeWithoutJong(cho: string, jung: string): string {
-  const CHO = [
-    'ㄱ',
-    'ㄲ',
-    'ㄴ',
-    'ㄷ',
-    'ㄸ',
-    'ㄹ',
-    'ㅁ',
-    'ㅂ',
-    'ㅃ',
-    'ㅅ',
-    'ㅆ',
-    'ㅇ',
-    'ㅈ',
-    'ㅉ',
-    'ㅊ',
-    'ㅋ',
-    'ㅌ',
-    'ㅍ',
-    'ㅎ',
-  ];
-  const JUNG = [
-    'ㅏ',
-    'ㅐ',
-    'ㅑ',
-    'ㅒ',
-    'ㅓ',
-    'ㅔ',
-    'ㅕ',
-    'ㅖ',
-    'ㅗ',
-    'ㅘ',
-    'ㅙ',
-    'ㅚ',
-    'ㅛ',
-    'ㅜ',
-    'ㅝ',
-    'ㅞ',
-    'ㅟ',
-    'ㅠ',
-    'ㅡ',
-    'ㅢ',
-    'ㅣ',
-  ];
+  const choIndex = CHO_INDEX_MAP_LOCAL.get(cho);
+  const jungIndex = JUNG_INDEX_MAP_LOCAL.get(jung);
 
-  const choIndex = CHO.indexOf(cho);
-  const jungIndex = JUNG.indexOf(jung);
-
-  if (choIndex === -1 || jungIndex === -1) return '';
+  if (choIndex === undefined || jungIndex === undefined) return '';
 
   // 한글 유니코드 계산: 0xAC00 + (초성 * 21 * 28) + (중성 * 28) + 종성
   // 종성 없음 = 0

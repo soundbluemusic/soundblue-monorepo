@@ -4,6 +4,7 @@
 // ========================================
 
 import type { ReactNode } from 'react';
+import { memo } from 'react';
 
 export interface ToolCardProps {
   title: string;
@@ -16,8 +17,9 @@ export interface ToolCardProps {
 
 /**
  * Tool card component
+ * 성능: React.memo로 불필요한 리렌더링 방지
  */
-export function ToolCard({
+export const ToolCard = memo(function ToolCard({
   title,
   description,
   icon,
@@ -47,4 +49,4 @@ export function ToolCard({
       )}
     </Component>
   );
-}
+});

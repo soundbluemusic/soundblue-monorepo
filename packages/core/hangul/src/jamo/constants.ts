@@ -208,3 +208,11 @@ export type DoubleConsonantType = (typeof DOUBLE_CONSONANTS)[number];
 export type ComplexConsonantType = (typeof COMPLEX_CONSONANTS)[number];
 export type SimpleVowelType = (typeof SIMPLE_VOWELS)[number];
 export type ComplexVowelType = (typeof COMPLEX_VOWELS)[number];
+
+// ========================================
+// 역방향 조회 Map (O(1) 성능 최적화)
+// indexOf() O(n) → Map.get() O(1)
+// ========================================
+export const CHO_INDEX_MAP = new Map<string, number>(CHO.map((c, i) => [c, i]));
+export const JUNG_INDEX_MAP = new Map<string, number>(JUNG.map((c, i) => [c, i]));
+export const JONG_INDEX_MAP = new Map<string, number>(JONG.map((c, i) => [c, i]));

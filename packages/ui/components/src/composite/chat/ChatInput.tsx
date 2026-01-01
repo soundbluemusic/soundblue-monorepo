@@ -3,7 +3,7 @@
 // Chat input component with send button
 // ========================================
 
-import { type FormEvent, type KeyboardEvent, useCallback, useState } from 'react';
+import { type FormEvent, type KeyboardEvent, memo, useCallback, useRef, useState } from 'react';
 
 export interface ChatInputProps {
   onSend: (message: string) => void;
@@ -14,39 +14,43 @@ export interface ChatInputProps {
 
 /**
  * Chat input with send button
+ * 성능: React.memo + useRef로 value 의존성 제거하여 콜백 안정화
  */
-export function ChatInput({
+export const ChatInput = memo(function ChatInput({
   onSend,
   placeholder = 'Type a message...',
   disabled = false,
   className = '',
 }: ChatInputProps) {
   const [value, setValue] = useState('');
+  // 성능: useRef로 현재 값을 참조하여 콜백 의존성에서 value 제거
+  const valueRef = useRef(value);
+  valueRef.current = value;
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
-      const trimmed = value.trim();
+      const trimmed = valueRef.current.trim();
       if (trimmed && !disabled) {
         onSend(trimmed);
         setValue('');
       }
     },
-    [value, disabled, onSend],
+    [disabled, onSend],
   );
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        const trimmed = value.trim();
+        const trimmed = valueRef.current.trim();
         if (trimmed && !disabled) {
           onSend(trimmed);
           setValue('');
         }
       }
     },
-    [value, disabled, onSend],
+    [disabled, onSend],
   );
 
   return (
@@ -81,4 +85,4 @@ export function ChatInput({
       </button>
     </form>
   );
-}
+});

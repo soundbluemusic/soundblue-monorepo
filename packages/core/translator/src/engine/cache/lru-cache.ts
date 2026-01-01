@@ -240,18 +240,43 @@ export class LRUCache<V> {
 
   /**
    * 가장 많이 사용된 항목 조회
+   * 성능: 전체 정렬 대신 부분 선택으로 O(n*count)에서 O(n) 수준으로 개선
    */
   getMostUsed(count = 10): Array<{ key: string; value: V; hitCount: number }> {
-    const entries = [...this.cache.entries()]
-      .map(([key, entry]) => ({
-        key,
-        value: entry.value,
-        hitCount: entry.hitCount,
-      }))
-      .sort((a, b) => b.hitCount - a.hitCount)
-      .slice(0, count);
+    // 작은 캐시나 전체 조회 시에는 기존 방식 사용
+    if (this.cache.size <= count * 2) {
+      return [...this.cache.entries()]
+        .map(([key, entry]) => ({
+          key,
+          value: entry.value,
+          hitCount: entry.hitCount,
+        }))
+        .sort((a, b) => b.hitCount - a.hitCount)
+        .slice(0, count);
+    }
 
-    return entries;
+    // 큰 캐시에서는 min-heap 방식으로 상위 N개만 추적
+    type Entry = { key: string; value: V; hitCount: number };
+    const topN: Entry[] = [];
+
+    for (const [key, entry] of this.cache) {
+      const item = { key, value: entry.value, hitCount: entry.hitCount };
+
+      if (topN.length < count) {
+        topN.push(item);
+        // min 정렬 유지
+        if (topN.length === count) {
+          topN.sort((a, b) => a.hitCount - b.hitCount);
+        }
+      } else if (item.hitCount > topN[0]!.hitCount) {
+        topN[0] = item;
+        // 재정렬 (최솟값을 맨 앞으로)
+        topN.sort((a, b) => a.hitCount - b.hitCount);
+      }
+    }
+
+    // 최종 결과는 내림차순
+    return topN.sort((a, b) => b.hitCount - a.hitCount);
   }
 
   /**

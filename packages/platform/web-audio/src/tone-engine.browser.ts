@@ -102,8 +102,10 @@ class ToneEngine {
     this.callbacks = callbacks;
   }
 
+  // 성능: callback이 없으면 상태 객체 생성 생략
   private notifyStateChange(): void {
-    this.callbacks.onStateChange?.({
+    if (!this.callbacks.onStateChange) return;
+    this.callbacks.onStateChange({
       isInitialized: this.initialized,
       isPlaying: this.isPlaying(),
       bpm: this.getBpm(),

@@ -50,86 +50,114 @@ export function extractContext(
 }
 
 /**
+ * 어간 추출 메모이제이션 캐시
+ * 성능: 동일 단어 반복 추출 방지
+ */
+const stemCache = new Map<string, string>();
+
+/**
+ * 어간 추출에 사용되는 조사/어미 상수 (미리 길이순 정렬)
+ */
+const PARTICLES_SORTED = [
+  '에서',
+  '으로',
+  '에게', // 긴 것 먼저
+  '을',
+  '를',
+  '이',
+  '가',
+  '은',
+  '는',
+  '에',
+  '로',
+  '와',
+  '과',
+  '도',
+  '만',
+  '의',
+];
+
+const ENDINGS_SORTED = [
+  // 복합 어미 (긴 것부터)
+  '았습니다',
+  '었습니다',
+  '였습니다',
+  '으셨다',
+  '습니다',
+  '입니다',
+  '셨어요',
+  '았어요',
+  '었어요',
+  '였어요',
+  '았었다',
+  '었었다',
+  '았다',
+  '었다',
+  '였다',
+  '으며',
+  '면서',
+  '세요',
+  '어요',
+  '아요',
+  '는다',
+  'ㄴ다',
+  '니다',
+  '려고',
+  '니까',
+  '으니',
+  '아서',
+  '어서',
+  '면',
+  '요',
+  '다',
+  '았',
+  '었',
+  '겠',
+  // 단일 연결어미 (짧은 것 마지막에)
+  '서',
+  '며',
+  '고',
+  '니',
+  '게',
+  '지',
+];
+
+/**
  * 어간 추출 (간단 버전 - 조사/어미 제거)
+ * 성능: 메모이제이션 캐시 적용
  */
 function extractStem(word: string): string {
+  // 캐시 확인
+  const cached = stemCache.get(word);
+  if (cached !== undefined) return cached;
+
+  let result = word;
+
   // 조사 제거
-  const particles = [
-    '을',
-    '를',
-    '이',
-    '가',
-    '은',
-    '는',
-    '에',
-    '에서',
-    '로',
-    '으로',
-    '와',
-    '과',
-    '도',
-    '만',
-    '의',
-    '에게',
-  ];
-  for (const p of particles) {
+  for (const p of PARTICLES_SORTED) {
     if (word.endsWith(p) && word.length > p.length) {
-      return word.slice(0, -p.length);
+      result = word.slice(0, -p.length);
+      break;
     }
   }
 
-  // 어미 제거 (복합 어미부터, 긴 것부터 체크)
-  const endings = [
-    // 복합 어미 (긴 것부터)
-    '았습니다',
-    '었습니다',
-    '였습니다',
-    '으셨다',
-    '습니다',
-    '입니다',
-    '셨어요',
-    '았어요',
-    '었어요',
-    '였어요',
-    '았었다',
-    '었었다',
-    '았다',
-    '었다',
-    '였다',
-    '으며',
-    '면서',
-    '세요',
-    '어요',
-    '아요',
-    '는다',
-    'ㄴ다',
-    '니다',
-    '려고',
-    '니까',
-    '으니',
-    '아서',
-    '어서',
-    '면',
-    '요',
-    '다',
-    '았',
-    '었',
-    '겠',
-    // 단일 연결어미 (짧은 것 마지막에)
-    '서',
-    '며',
-    '고',
-    '니',
-    '게',
-    '지',
-  ];
-  for (const e of endings) {
-    if (word.endsWith(e) && word.length > e.length) {
-      return word.slice(0, -e.length);
+  // 조사가 제거되지 않았으면 어미 확인
+  if (result === word) {
+    for (const e of ENDINGS_SORTED) {
+      if (word.endsWith(e) && word.length > e.length) {
+        result = word.slice(0, -e.length);
+        break;
+      }
     }
   }
 
-  return word;
+  // 캐시 저장 (크기 제한)
+  if (stemCache.size > 5000) {
+    stemCache.clear();
+  }
+  stemCache.set(word, result);
+
+  return result;
 }
 
 /**
