@@ -86,6 +86,7 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
   const directionJustChangedRef = useRef(false);
   const [isAutoFormality, setIsAutoFormality] = useState(true); // 자동 어투 감지 모드
   const prevDetectedFormality = useRef(settings.formality); // 이전 감지된 어투
+  const [isMounted, setIsMounted] = useState(false); // hydration 불일치 방지
 
   // Cleanup all timeouts on unmount
   useEffect(() => {
@@ -94,6 +95,11 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
       if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
       if (shareTimeoutRef.current) clearTimeout(shareTimeoutRef.current);
     };
+  }, []);
+
+  // Hydration 완료 후 마운트 상태 설정
+  useEffect(() => {
+    setIsMounted(true);
   }, []);
 
   // Load shared translation from URL on mount
@@ -348,7 +354,8 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
       )}
 
       {/* Formality selector - 출력 어투 선택 (en→ko only, 영어에는 존댓말/반말 없음) */}
-      {settings.direction === 'en-ko' && (
+      {/* isMounted 체크로 hydration 불일치 방지 (SSG prerender vs client state) */}
+      {isMounted && settings.direction === 'en-ko' && (
         <div className="space-y-1.5">
           <div className="flex items-center justify-center gap-1 text-xs text-(--muted-foreground)">
             <Info className="size-3" />
