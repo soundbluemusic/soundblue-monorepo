@@ -16,6 +16,7 @@ import {
   KO_EN,
   KO_NUMBERS,
   KO_VERB_MAP,
+  NOUN_TO_VERB,
   PARTICLES,
   VERB_STEMS,
 } from './data';
@@ -153,25 +154,100 @@ function extractVerbStemByRule(
 ): { stem: string; tense: Tense; en?: string; negated?: boolean } | null {
   // 0. 불규칙 동사 활용형 먼저 체크 (ㄷ불규칙: 듣다→들었, 걷다→걸었 등)
   // IRREGULAR_KO_VERBS에 정의된 활용형이 word에 포함되어 있으면 우선 적용
-  for (const [conjugated, info] of Object.entries(IRREGULAR_KO_VERBS)) {
-    if (word.startsWith(conjugated)) {
-      return { stem: info.stem, tense: 'past', en: info.en };
+  //
+  // 주의: [명사]+하다 패턴과 충돌 방지
+  // - 노래했어 → "노래"가 ㅎ불규칙(노랗→노래)으로 잡히면 안 됨
+  // - 노래한다 → "노래"가 ㅎ불규칙으로 잡히면 안 됨
+  // - 하다 계열 패턴이 있으면 불규칙 체크 건너뛰고 하다 계열로 처리
+  const isHadaPattern =
+    word.includes('했') ||
+    word.endsWith('한다') ||
+    word.endsWith('해') ||
+    word.endsWith('해요') ||
+    word.endsWith('합니다');
+
+  if (!isHadaPattern) {
+    for (const [conjugated, info] of Object.entries(IRREGULAR_KO_VERBS)) {
+      if (word.startsWith(conjugated)) {
+        return { stem: info.stem, tense: 'past', en: info.en };
+      }
     }
   }
 
-  // 1. 하다 계열 (했, 했어, 했다)
+  // 1. 하다 계열 (했, 했어, 했다) - [명사]+하다 패턴 알고리즘 처리
+  // ============================================
+  // 일반화 규칙:
+  // - [명사]+했 → 명사를 동사화하여 과거 시제로 변환
+  // - NOUN_TO_VERB에 정의된 경우: 특별 동사 사용 (노래→sing)
+  // - 그 외: KO_EN[명사]를 그대로 동사로 사용 (운동→exercise)
+  // ============================================
   if (word.includes('했')) {
     const idx = word.indexOf('했');
     const prefix = word.slice(0, idx);
-    // "공부했어" → 어간 "공부하", 복합어 처리
+    // "공부했어" → prefix "공부", 어간 "공부하"
     const stem = prefix ? `${prefix}하` : '하';
-    const en = prefix ? KO_EN[prefix] || KO_EN[stem] : 'do';
-    return { stem, tense: 'past', en: en || 'do' };
+
+    // 영어 동사 결정 (우선순위):
+    // 1. NOUN_TO_VERB[prefix] - 명사→동사 특별 변환 (노래→sing)
+    // 2. KO_EN[prefix] - 명사 번역을 그대로 동사로 사용 (운동→exercise)
+    // 3. VERB_STEMS[stem] - 동사 어간 사전 (일하→work)
+    // 4. 'do' - fallback
+    let en: string;
+    if (prefix) {
+      en = NOUN_TO_VERB[prefix] || KO_EN[prefix] || VERB_STEMS[stem] || 'do';
+    } else {
+      en = 'do';
+    }
+
+    return { stem, tense: 'past', en };
+  }
+
+  // 1-2. 하다 계열 현재형 (해, 해요, 합니다, 한다)
+  // ============================================
+  // 일반화 규칙:
+  // - [명사]+해/해요/합니다/한다 → 명사를 동사화하여 현재 시제로 변환
+  // ============================================
+  const hadaPresentPatterns = [
+    { pattern: /^(.+)합니다$/, ending: '합니다' },
+    { pattern: /^(.+)해요$/, ending: '해요' },
+    { pattern: /^(.+)한다$/, ending: '한다' },
+    { pattern: /^(.+)해$/, ending: '해' },
+  ];
+
+  for (const { pattern } of hadaPresentPatterns) {
+    const match = word.match(pattern);
+    if (match?.[1]) {
+      const prefix = match[1];
+      const stem = `${prefix}하`;
+
+      // 영어 동사 결정 (과거형과 동일한 우선순위)
+      const en = NOUN_TO_VERB[prefix] || KO_EN[prefix] || VERB_STEMS[stem] || 'do';
+
+      return { stem, tense: 'present', en };
+    }
   }
 
   // 2. 았/었 패턴 찾기 (모음조화 역추적)
+  // 다양한 어미 포함: -았어, -았다, -았니, -았어요, -았습니다 등
   const pastPatterns = [
-    // 축약형: ㅏ+ㅏ→ㅏ (가+았→갔), ㅗ+ㅏ→ㅘ (오+았→왔)
+    // 과거 평서형
+    { pattern: /^(.+)았어$/, vowel: 'ㅏ' },
+    { pattern: /^(.+)었어$/, vowel: 'ㅓ' },
+    { pattern: /^(.+)였어$/, vowel: 'ㅕ' },
+    { pattern: /^(.+)았다$/, vowel: 'ㅏ' },
+    { pattern: /^(.+)었다$/, vowel: 'ㅓ' },
+    { pattern: /^(.+)였다$/, vowel: 'ㅕ' },
+    // 과거 의문형
+    { pattern: /^(.+)았니$/, vowel: 'ㅏ' },
+    { pattern: /^(.+)었니$/, vowel: 'ㅓ' },
+    { pattern: /^(.+)였니$/, vowel: 'ㅕ' },
+    { pattern: /^(.+)았어요$/, vowel: 'ㅏ' },
+    { pattern: /^(.+)었어요$/, vowel: 'ㅓ' },
+    { pattern: /^(.+)였어요$/, vowel: 'ㅕ' },
+    { pattern: /^(.+)았습니다$/, vowel: 'ㅏ' },
+    { pattern: /^(.+)었습니다$/, vowel: 'ㅓ' },
+    { pattern: /^(.+)였습니다$/, vowel: 'ㅕ' },
+    // 기본 패턴 (어미 없이 과거 활용만)
     { pattern: /^(.+)았/, vowel: 'ㅏ' },
     { pattern: /^(.+)었/, vowel: 'ㅓ' },
     { pattern: /^(.+)였/, vowel: 'ㅕ' },
@@ -193,6 +269,7 @@ function extractVerbStemByRule(
   // ㅏ+ㅏ→ㅏ (가+았→갔), ㅗ+ㅏ→ㅘ (오+았→왔)
   // ㅜ+ㅓ→ㅝ (주+었→줬), ㅣ+ㅓ→ㅕ (마시+었→마셨)
   const contractions: Record<string, { stem: string; en: string }> = {
+    // 기본 축약형
     갔: { stem: '가', en: 'go' },
     왔: { stem: '오', en: 'come' },
     봤: { stem: '보', en: 'see' },
@@ -201,10 +278,32 @@ function extractVerbStemByRule(
     잤: { stem: '자', en: 'sleep' },
     썼: { stem: '쓰', en: 'write' },
     됐: { stem: '되', en: 'become' },
+
+    // 복합 동사 축약형
+    일어났: { stem: '일어나', en: 'wake up' },
+    돌아왔: { stem: '돌아오', en: 'come back' },
+    돌아갔: { stem: '돌아가', en: 'go back' },
+    나갔: { stem: '나가', en: 'go out' },
+    들어왔: { stem: '들어오', en: 'come in' },
+    들어갔: { stem: '들어가', en: 'go in' },
+    올라갔: { stem: '올라가', en: 'go up' },
+    내려갔: { stem: '내려가', en: 'go down' },
+    떠났: { stem: '떠나', en: 'leave' },
+    도착했: { stem: '도착하', en: 'arrive' },
+    출발했: { stem: '출발하', en: 'leave' },
+    만났: { stem: '만나', en: 'meet' },
+    헤어졌: { stem: '헤어지', en: 'part' },
+    시작했: { stem: '시작하', en: 'start' },
+    끝났: { stem: '끝나', en: 'end' },
+
     // ㅣ+ㅓ→ㅕ 축약
     마셨: { stem: '마시', en: 'drink' },
     보셨: { stem: '보시', en: 'see' }, // 높임
     드셨: { stem: '드시', en: 'eat' }, // 높임
+
+    // 참고: [명사]+했 형태 (운동했, 공부했 등)는
+    // 하다 계열 처리 (섹션 1)에서 알고리즘으로 처리됨
+    // 하드코딩 금지
   };
 
   for (const [contracted, info] of Object.entries(contractions)) {
@@ -811,7 +910,11 @@ export function parseEnglish(text: string): ParsedSentence {
     tokens,
     type,
     tense: detectEnglishTense(words),
-    negated: words.some((w) => /^(not|n't|don't|doesn't|didn't|won't|can't)$/i.test(w)),
+    negated: words.some((w) =>
+      /^(not|n't|don't|doesn't|didn't|won't|can't|cannot|couldn't|wouldn't|shouldn't|mustn't|mightn't)$/i.test(
+        w,
+      ),
+    ),
   };
 }
 

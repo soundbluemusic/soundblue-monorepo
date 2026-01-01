@@ -2,16 +2,18 @@
  * 번역기 v2.1 메인 엔트리
  *
  * 파이프라인:
- * 1. tokenizer: 토큰화 + confidence 점수
- * 2. generator: 문장 생성
- * 3. validator: 명사 역번역 검증
+ * 1. clause-parser: 복문을 단순절로 분리 (Phase 7)
+ * 2. tokenizer: 토큰화 + confidence 점수
+ * 3. generator: 문장 생성
+ * 4. validator: 명사 역번역 검증
  *
  * 설계 원칙:
- * 1. 단순함: 토큰화 → 역할부여 → 어순변환 → 검증 → 출력
+ * 1. 단순함: 절분리 → 토큰화 → 역할부여 → 어순변환 → 검증 → 출력
  * 2. 데이터 분리: 모든 사전/규칙은 data.ts에
  * 3. 확장성: 새 규칙 추가는 data.ts만 수정
  */
 
+import { type ParsedClauses, parseEnglishClauses, parseKoreanClauses } from './clause-parser';
 import { generateEnglish, generateKorean } from './generator';
 import { parseEnglish, parseKorean } from './tokenizer';
 import type { Direction, Formality, ParsedSentence, TranslationResult } from './types';
@@ -50,20 +52,15 @@ export function translateWithInfo(
 
   for (const { sentence, punctuation } of sentences) {
     let translated: string;
-    let parsed: ParsedSentence;
     // 파싱 시 구두점 정보 포함 (의문문 감지용)
     const sentenceWithPunctuation = punctuation ? sentence + punctuation : sentence;
 
+    // Phase 7: 절 분리 시스템
     if (direction === 'ko-en') {
-      parsed = parseKorean(sentenceWithPunctuation);
-      translated = generateEnglish(parsed);
+      translated = translateKoreanSentence(sentenceWithPunctuation, formality);
     } else {
-      parsed = parseEnglish(sentenceWithPunctuation);
-      translated = generateKorean(parsed, formality);
+      translated = translateEnglishSentence(sentenceWithPunctuation, formality);
     }
-
-    // 3. validator: 명사 역번역 검증
-    translated = validateTranslation(parsed, translated, direction);
 
     // 구두점 복원 (이미 번역 결과에 포함된 경우 중복 방지)
     if (punctuation && !translated.endsWith(punctuation)) {
@@ -77,6 +74,165 @@ export function translateWithInfo(
     translated: results.join(' '),
     original: text,
   };
+}
+
+// ============================================
+// Phase 7: 절 기반 번역 시스템
+// ============================================
+
+/**
+ * 한국어 문장을 절 단위로 분리하여 영어로 번역
+ */
+function translateKoreanSentence(sentence: string, _formality: Formality): string {
+  // 1. 절 분리
+  const clauseInfo = parseKoreanClauses(sentence);
+
+  // 단문인 경우 기존 방식 사용
+  if (clauseInfo.structure === 'simple') {
+    const parsed = parseKorean(sentence);
+    let translated = generateEnglish(parsed);
+    translated = validateTranslation(parsed, translated, 'ko-en');
+    return translated;
+  }
+
+  // 2. 복문인 경우 절별로 번역
+  const translatedClauses: string[] = [];
+
+  for (const clause of clauseInfo.clauses) {
+    const parsed = parseKorean(clause.text);
+    let translated = generateEnglish(parsed);
+    translated = validateTranslation(parsed, translated, 'ko-en');
+
+    // 연결사 추가 (영어)
+    if (clause.connector && clause.isSubordinate) {
+      translated = `${clause.connector} ${translated.toLowerCase()}`;
+    }
+
+    translatedClauses.push(translated);
+  }
+
+  // 3. 절 조합
+  return combineEnglishClauses(translatedClauses, clauseInfo);
+}
+
+/**
+ * 영어 문장을 절 단위로 분리하여 한국어로 번역
+ */
+function translateEnglishSentence(sentence: string, formality: Formality): string {
+  // 1. 절 분리
+  const clauseInfo = parseEnglishClauses(sentence);
+
+  // 단문인 경우 기존 방식 사용
+  if (clauseInfo.structure === 'simple') {
+    const parsed = parseEnglish(sentence);
+    let translated = generateKorean(parsed, formality);
+    translated = validateTranslation(parsed, translated, 'en-ko');
+    return translated;
+  }
+
+  // 2. 복문인 경우 절별로 번역
+  const translatedClauses: string[] = [];
+
+  for (const clause of clauseInfo.clauses) {
+    const parsed = parseEnglish(clause.text);
+    let translated = generateKorean(parsed, formality);
+    translated = validateTranslation(parsed, translated, 'en-ko');
+
+    // 연결어미 추가 (한국어)
+    if (clause.connectorKo && clause.isSubordinate) {
+      // 동사 어미를 연결어미로 교체
+      translated = applyKoreanConnector(translated, clause.connectorKo);
+    }
+
+    translatedClauses.push(translated);
+  }
+
+  // 3. 절 조합
+  return combineKoreanClauses(translatedClauses, clauseInfo);
+}
+
+/**
+ * 영어 절들을 조합
+ */
+function combineEnglishClauses(clauses: string[], info: ParsedClauses): string {
+  if (clauses.length === 0) return '';
+  if (clauses.length === 1) return clauses[0];
+
+  // 주절과 종속절 구분
+  const mainClauses: string[] = [];
+  const subordinateClauses: string[] = [];
+
+  for (let i = 0; i < clauses.length; i++) {
+    const clause = info.clauses[i];
+    if (clause?.isSubordinate) {
+      subordinateClauses.push(clauses[i]);
+    } else {
+      mainClauses.push(clauses[i]);
+    }
+  }
+
+  // 종속절이 앞에, 주절이 뒤에 오는 경우가 많음
+  // 하지만 원래 순서를 존중
+  let result = clauses[0];
+  for (let i = 1; i < clauses.length; i++) {
+    const prevClause = info.clauses[i - 1];
+    const currClause = info.clauses[i];
+
+    // 등위접속이면 ", and/but" 사용
+    if (!currClause?.isSubordinate && !prevClause?.isSubordinate) {
+      result += `, ${clauses[i]}`;
+    } else {
+      result += ` ${clauses[i]}`;
+    }
+  }
+
+  // 첫 글자 대문자
+  if (result.length > 0) {
+    result = result.charAt(0).toUpperCase() + result.slice(1);
+  }
+
+  return result;
+}
+
+/**
+ * 한국어 절들을 조합
+ */
+function combineKoreanClauses(clauses: string[], _info: ParsedClauses): string {
+  if (clauses.length === 0) return '';
+  if (clauses.length === 1) return clauses[0];
+
+  // 한국어는 종속절이 앞, 주절이 뒤
+  // 순서대로 조합
+  return clauses.join(' ');
+}
+
+/**
+ * 한국어 문장에 연결어미 적용
+ */
+function applyKoreanConnector(sentence: string, connector: string): string {
+  // 마지막 어절의 종결어미를 연결어미로 교체
+  // 예: "간다" + "-면" → "가면"
+
+  // 종결어미 패턴
+  const endingPatterns = [
+    /다\.?$/, // -다
+    /어\.?$/, // -어
+    /아\.?$/, // -아
+    /요\.?$/, // -요
+    /니\?$/, // -니?
+    /까\?$/, // -까?
+  ];
+
+  for (const pattern of endingPatterns) {
+    if (pattern.test(sentence)) {
+      // 어미 제거하고 연결어미 추가
+      const stem = sentence.replace(pattern, '');
+      return stem + connector;
+    }
+  }
+
+  // 매칭 안 되면 그냥 연결
+  return `${sentence} ${connector}`;
 }
 
 /**

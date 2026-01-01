@@ -181,7 +181,9 @@ export const VERB_BASE = new Map(
  * - 하다 → 했 (축약)
  */
 export const VERB_STEMS: Record<string, string> = {
+  // ============================================
   // 기본 동사 (어간 → 영어)
+  // ============================================
   가: 'go',
   오: 'come',
   먹: 'eat',
@@ -208,6 +210,61 @@ export const VERB_STEMS: Record<string, string> = {
   가르치: 'teach',
   일하: 'work',
 
+  // ============================================
+  // 일상 동사 확장 (순수 동사 어간만)
+  // 참고: [명사]+하다 형태는 알고리즘으로 처리
+  // ============================================
+  일어나: 'wake up',
+  일어서: 'stand up',
+  눕: 'lie down',
+  깨: 'wake',
+  씻: 'wash',
+  돌아오: 'come back',
+  돌아가: 'go back',
+
+  // 감정/상태 동사 (형용사적 동사)
+  기쁘: 'be happy',
+  슬프: 'be sad',
+  화나: 'be angry',
+  무섭: 'be scared',
+  피곤하: 'be tired',
+  배고프: 'be hungry',
+  목마르: 'be thirsty',
+  아프: 'be sick',
+
+  // 인지/사고 동사
+  알: 'know',
+  모르: 'not know',
+  잊: 'forget',
+  믿: 'believe',
+
+  // 의사소통 동사
+  묻: 'ask',
+  부르: 'call',
+
+  // 이동 동사 확장
+  걸어가: 'walk to',
+  뛰어가: 'run to',
+  날아가: 'fly',
+  떨어지: 'fall',
+  올라가: 'go up',
+  내려가: 'go down',
+  들어가: 'go in',
+  나가: 'go out',
+
+  // 생활 동작 동사
+  입: 'wear',
+  벗: 'take off',
+  신: 'put on (shoes)',
+  열: 'open',
+  닫: 'close',
+  켜: 'turn on',
+  끄: 'turn off',
+  찾: 'find',
+  잃어버리: 'lose',
+  만나: 'meet',
+  헤어지: 'part',
+
   // Phase 2A: 다의어 동사 추가
   타: 'ride', // 기본값 ride, POLYSEMY_RULES에서 문맥에 따라 take/play 등으로 변경
   치: 'hit', // 기본값 hit, POLYSEMY_RULES에서 문맥에 따라 play 등으로 변경
@@ -220,6 +277,23 @@ export const VERB_STEMS: Record<string, string> = {
   내리: 'go down',
   풀: 'solve',
   찍: 'take',
+
+  // 기타 빈번히 사용되는 동사
+  도와주: 'help',
+  기다리: 'wait',
+  보내: 'send',
+  받: 'receive',
+  바꾸: 'change',
+  고치: 'fix',
+  끝나: 'end',
+  시작하: 'start',
+  계속하: 'continue',
+  멈추: 'stop',
+  포기하: 'give up',
+  도전하: 'challenge',
+  성공하: 'succeed',
+  실패하: 'fail',
+  적응하: 'adapt',
 };
 
 /**
@@ -654,7 +728,66 @@ export const IDIOMS_EN_KO: Record<string, FormalityMap> = {
 };
 
 // ============================================
-// 7. 동사-전치사 결합 (Verb + Preposition)
+// 7. [명사]+하다 동사화 매핑 (Noun-to-Verb for 하다 pattern)
+// ============================================
+
+/**
+ * 명사 + 하다 → 영어 동사 변환
+ *
+ * 대부분의 [명사]+하다는 명사 번역을 그대로 동사로 사용 가능
+ * (exercise하다 → exercise, study하다 → study)
+ *
+ * 이 사전은 명사 번역과 동사 번역이 다른 특별한 경우만 정의
+ * 예: 노래하다 → sing (not "song")
+ *
+ * 일반화된 패턴:
+ * 1. NOUN_TO_VERB[명사]가 있으면 사용
+ * 2. 없으면 KO_EN[명사]를 동사로 그대로 사용
+ */
+export const NOUN_TO_VERB: Record<string, string> = {
+  // 명사 번역과 동사 번역이 다른 경우만 정의
+  노래: 'sing', // song → sing
+  전화: 'call', // phone → call
+  춤: 'dance', // dance → dance (같지만 명시)
+  요리: 'cook', // cooking/dish → cook
+  청소: 'clean', // cleaning → clean
+  빨래: 'do laundry', // laundry → do laundry
+  설거지: 'do the dishes', // dishes → do the dishes
+  운전: 'drive', // driving → drive
+  수영: 'swim', // swimming → swim
+  등산: 'hike', // hiking → hike
+  쇼핑: 'shop', // shopping → shop
+  말: 'speak', // word → speak
+  인사: 'greet', // greeting → greet
+  사인: 'sign', // signature → sign
+  사랑: 'love', // love → love (같지만 명시)
+  결혼: 'marry', // marriage → marry
+  이혼: 'divorce', // divorce → divorce
+  졸업: 'graduate', // graduation → graduate
+  입학: 'enroll', // enrollment → enroll
+  출발: 'depart', // departure → depart
+  도착: 'arrive', // arrival → arrive
+  시작: 'start', // start → start
+  끝: 'end', // end → end
+  질문: 'ask', // question → ask
+  대답: 'answer', // answer → answer
+  선택: 'choose', // choice → choose
+  결정: 'decide', // decision → decide
+  발표: 'present', // presentation → present
+  연습: 'practice', // practice → practice
+  준비: 'prepare', // preparation → prepare
+  계획: 'plan', // plan → plan
+  약속: 'promise', // promise → promise
+  희망: 'hope', // hope → hope
+  걱정: 'worry', // worry → worry
+  기대: 'expect', // expectation → expect
+  실망: 'disappoint', // disappointment → disappoint
+  성공: 'succeed', // success → succeed
+  실패: 'fail', // failure → fail
+};
+
+// ============================================
+// 8. 동사-전치사 결합 (Verb + Preposition)
 // ============================================
 
 /**
@@ -687,4 +820,207 @@ export const VERB_PREPOSITIONS: Record<string, string> = {
   insist: 'on',
   agree: 'with',
   deal: 'with',
+};
+
+// ============================================
+// 9. 명사 문맥 힌트 매핑 (Noun Context Mapping)
+// ============================================
+
+/**
+ * 명사의 문맥 기반 다의어 분기
+ *
+ * 일반화 규칙:
+ * - 같은 한국어 명사도 주변 단어(동사, 형용사, 장소)에 따라 다른 영어로 번역
+ * - default: 기본 번역 (힌트가 없을 때)
+ * - hints: 주변 단어 → 번역 매핑
+ *
+ * 예시:
+ * - "운동" + "헬스장" → "workout" (vs default "exercise")
+ * - "운동" + "축구" → "sports" (vs default "exercise")
+ *
+ * 사용법:
+ * 1. 문장의 모든 토큰 어간 수집
+ * 2. NOUN_CONTEXT[명사]의 hints 키와 매칭
+ * 3. 매칭되면 해당 번역 사용, 없으면 default 사용
+ *
+ * 이 패턴은 일반화된 알고리즘으로, 모든 유사 문장에 적용됨
+ */
+export interface NounContextRule {
+  /** 기본 번역 (힌트 없을 때) */
+  default: string;
+  /** 문맥 힌트 → 번역 매핑 */
+  hints: Record<string, string>;
+}
+
+export const NOUN_CONTEXT: Record<string, NounContextRule> = {
+  // ============================================
+  // 신체 활동 관련
+  // ============================================
+  운동: {
+    default: 'exercise',
+    hints: {
+      // 장소 힌트
+      헬스장: 'workout',
+      체육관: 'workout',
+      피트니스: 'workout',
+      짐: 'workout',
+      // 스포츠 힌트
+      축구: 'sports',
+      야구: 'sports',
+      농구: 'sports',
+      경기: 'sports',
+      시합: 'sports',
+      대회: 'sports',
+      선수: 'sports',
+      팀: 'sports',
+      // 훈련 힌트
+      훈련: 'training',
+      코치: 'training',
+      연습: 'training',
+      강화: 'training',
+      // 일반 건강
+      건강: 'physical activity',
+      다이어트: 'exercise',
+    },
+  },
+
+  // ============================================
+  // 학습/교육 관련
+  // ============================================
+  공부: {
+    default: 'study',
+    hints: {
+      // 시험 관련
+      시험: 'study',
+      수능: 'study',
+      고시: 'study',
+      // 연구 관련
+      연구: 'research',
+      논문: 'research',
+      박사: 'research',
+      // 학습
+      학교: 'study',
+      학원: 'study',
+      과목: 'study',
+    },
+  },
+
+  수업: {
+    default: 'class',
+    hints: {
+      // 학교 수업
+      학교: 'class',
+      학생: 'class',
+      선생님: 'class',
+      // 강의
+      대학: 'lecture',
+      교수: 'lecture',
+      강의실: 'lecture',
+      // 레슨
+      피아노: 'lesson',
+      기타: 'lesson',
+      영어: 'lesson',
+      개인: 'lesson',
+    },
+  },
+
+  // ============================================
+  // 음식/요리 관련
+  // ============================================
+  음식: {
+    default: 'food',
+    hints: {
+      // 요리
+      요리: 'dish',
+      레시피: 'dish',
+      맛있: 'dish',
+      // 식사
+      아침: 'meal',
+      점심: 'meal',
+      저녁: 'meal',
+      식사: 'meal',
+      // 음식 일반
+      배고프: 'food',
+      먹: 'food',
+    },
+  },
+
+  // ============================================
+  // 기타 다의어 명사
+  // ============================================
+  장소: {
+    default: 'place',
+    hints: {
+      여행: 'destination',
+      관광: 'destination',
+      방문: 'location',
+      위치: 'location',
+      건물: 'site',
+      공사: 'site',
+    },
+  },
+
+  사람: {
+    default: 'person',
+    hints: {
+      많: 'people',
+      여러: 'people',
+      모든: 'people',
+      인간: 'human',
+      인류: 'human',
+    },
+  },
+
+  시간: {
+    default: 'time',
+    hints: {
+      몇: 'hour',
+      오래: 'time',
+      순간: 'moment',
+      찰나: 'moment',
+      기간: 'period',
+      동안: 'period',
+    },
+  },
+
+  이야기: {
+    default: 'story',
+    hints: {
+      책: 'story',
+      소설: 'story',
+      동화: 'story',
+      대화: 'talk',
+      상담: 'talk',
+      논의: 'discussion',
+      회의: 'discussion',
+    },
+  },
+
+  문제: {
+    default: 'problem',
+    hints: {
+      시험: 'question',
+      문제집: 'question',
+      풀: 'question',
+      수학: 'question',
+      사회: 'issue',
+      환경: 'issue',
+      정치: 'issue',
+    },
+  },
+
+  일: {
+    default: 'work',
+    hints: {
+      회사: 'work',
+      직장: 'work',
+      업무: 'work',
+      사건: 'matter',
+      어려운: 'matter',
+      중요한: 'matter',
+      하루: 'day',
+      매일: 'day',
+      오늘: 'day',
+    },
+  },
 };
