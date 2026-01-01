@@ -62,6 +62,10 @@ export interface Token {
     particle?: string; // 분리된 조사
     /** 토큰화 전략 (디버깅용) */
     strategy?: TokenStrategy;
+    /** 계사(이다/입니다) 정보 */
+    copula?: string;
+    /** 계사 여부 */
+    isCopula?: boolean;
   };
 }
 

@@ -36,8 +36,16 @@ const _CONFIDENCE_IRREGULAR = 0.9;
 /** 미인식 신뢰도 */
 const CONFIDENCE_UNKNOWN = 0.3;
 
-/** 유사도 검색 임계값 (이 거리 이하만 후보로 인정) */
-const SIMILARITY_THRESHOLD = 1.5;
+/** 유사도 검색 임계값 (이 거리 이하만 후보로 인정)
+ *
+ * 값이 너무 높으면 관련 없는 단어도 매칭됨 (예: 간→판다)
+ * 값이 너무 낮으면 유사어 검색 효과 없음
+ *
+ * 0.5 = 자모 1개 다른 경우까지만 허용 (매우 엄격)
+ * 1.0 = 자모 2개까지 허용 (엄격)
+ * 1.5 = 자모 3개까지 허용 (느슨)
+ */
+const SIMILARITY_THRESHOLD = 0.8;
 
 // ============================================
 // 유사도 기반 단어 검색 (Strategy B)
@@ -206,18 +214,38 @@ function extractVerbStemByRule(
   }
 
   // 4. 현재형 패턴 (는다, ㄴ다)
-  const presentPatterns = [
-    /^(.+)는다$/, // 먹는다, 듣는다
-    /^(.+)ㄴ다$/, // 간다, 본다 (받침 없는 어간)
-  ];
+  // ============================================
+  // 일반화 규칙:
+  // - 받침 있는 어간 + 는다 → 먹는다, 듣는다
+  // - 받침 없는 어간 + ㄴ다 → 간다(가+ㄴ다), 본다(보+ㄴ다)
+  // ============================================
 
-  for (const pattern of presentPatterns) {
-    const match = word.match(pattern);
-    if (match?.[1]) {
-      const possibleStem = match[1];
-      const en = KO_EN[possibleStem] || VERB_STEMS[possibleStem];
-      if (en) {
-        return { stem: possibleStem, tense: 'present', en };
+  // 4-1. "는다" 패턴 (받침 있는 어간)
+  const neundaMatch = word.match(/^(.+)는다$/);
+  if (neundaMatch?.[1]) {
+    const possibleStem = neundaMatch[1];
+    const en = KO_EN[possibleStem] || VERB_STEMS[possibleStem];
+    if (en) {
+      return { stem: possibleStem, tense: 'present', en };
+    }
+  }
+
+  // 4-2. "Xㄴ다" 패턴 (받침 없는 어간 + ㄴ 받침 + 다)
+  // 예: 간다 = 가(어간) + ㄴ(받침) + 다
+  // 알고리즘: 마지막에서 두번째 글자의 ㄴ 받침 제거 → 어간 추출
+  if (word.endsWith('다') && word.length >= 2) {
+    const beforeDa = word.slice(0, -1); // '간' from '간다'
+    const lastChar = beforeDa[beforeDa.length - 1];
+    if (lastChar) {
+      const jamo = decompose(lastChar);
+      // 받침이 ㄴ인 경우 → 받침 제거하여 어간 추출
+      if (jamo && jamo.jong === 'ㄴ') {
+        const stemChar = composeWithoutJong(jamo.cho, jamo.jung);
+        const stem = beforeDa.slice(0, -1) + stemChar;
+        const en = KO_EN[stem] || VERB_STEMS[stem];
+        if (en) {
+          return { stem, tense: 'present', en };
+        }
       }
     }
   }
@@ -454,6 +482,21 @@ export function parseKorean(text: string): ParsedSentence {
   // "가지 못했어" → "가지못했어"
   cleaned = cleaned.replace(/(\S+지)\s+(않|못)/g, '$1$2');
 
+  // Phase 5: "안" 전치 부정 감지
+  // "안 먹어" → 부정 + "먹어"
+  // "안 가" → 부정 + "가"
+  let prefixNegation = false;
+  if (/^안\s+/.test(cleaned)) {
+    prefixNegation = true;
+    cleaned = cleaned.replace(/^안\s+/, '');
+  }
+  // 문장 중간의 "안" 처리: "나는 안 먹어" → "나는" + 부정 + "먹어"
+  // "안"이 동사 바로 앞에 오는 경우
+  cleaned = cleaned.replace(/\s+안\s+(\S+)$/, (_, verb) => {
+    prefixNegation = true;
+    return ` ${verb}`;
+  });
+
   // 3. 공백으로 분리 + 숫자+분류사 분리
   const rawWords = cleaned.split(/\s+/).filter(Boolean);
   const words: string[] = [];
@@ -472,7 +515,7 @@ export function parseKorean(text: string): ParsedSentence {
   // 4. 각 단어를 토큰으로 변환
   const tokens: Token[] = [];
   let sentenceTense: Tense = 'present';
-  let negated = false;
+  let negated = prefixNegation; // Phase 5: "안" 전치 부정 반영
 
   for (const word of words) {
     const token = tokenizeKoreanWord(word);
@@ -576,6 +619,41 @@ function tokenizeKoreanWord(word: string): Token {
       particle = p;
       role = r === 'subject' || r === 'topic' ? 'subject' : r === 'object' ? 'object' : 'unknown';
       break;
+    }
+  }
+
+  // 5.5. 서술격 조사 (-이다/-입니다) 처리
+  // ============================================
+  // 일반화 규칙:
+  // 명사 + 이다/입니다/이에요/예요/야/이야 → "is + 명사"
+  // 받침 있는 명사 + 이다 (사람이다)
+  // 받침 없는 명사 + 다 (학생이다 → 의미적으로 이다 포함)
+  // ============================================
+  const copulaPatterns = [
+    { pattern: /^(.+)입니다$/, copula: '입니다' },
+    { pattern: /^(.+)이에요$/, copula: '이에요' },
+    { pattern: /^(.+)예요$/, copula: '예요' },
+    { pattern: /^(.+)이야$/, copula: '이야' },
+    { pattern: /^(.+)야$/, copula: '야' },
+    { pattern: /^(.+)이다$/, copula: '이다' },
+  ];
+
+  for (const { pattern, copula } of copulaPatterns) {
+    const match = word.match(pattern);
+    if (match?.[1]) {
+      const noun = match[1];
+      const nounTranslation = KO_EN[noun];
+      if (nounTranslation) {
+        return {
+          text: word,
+          stem: noun,
+          role: 'verb', // 서술어 역할
+          // be 동사는 generator에서 주어에 맞게 활용 (I am, he is, they are)
+          translated: nounTranslation,
+          confidence: CONFIDENCE_RULE,
+          meta: { strategy: 'rule', copula, isCopula: true },
+        };
+      }
     }
   }
 
@@ -738,11 +816,108 @@ export function parseEnglish(text: string): ParsedSentence {
 }
 
 /**
+ * 영어 불규칙 과거형 동사
+ *
+ * 규칙 동사는 -ed로 끝나므로 정규식으로 감지
+ * 불규칙 동사는 개별 매핑 필요
+ */
+const IRREGULAR_PAST_VERBS = new Set([
+  // be동사
+  'was',
+  'were',
+  // have
+  'had',
+  // do
+  'did',
+  // 일반 불규칙 동사
+  'ate', // eat
+  'went', // go
+  'came', // come
+  'saw', // see
+  'took', // take
+  'gave', // give
+  'made', // make
+  'got', // get
+  'found', // find
+  'thought', // think
+  'told', // tell
+  'became', // become
+  'left', // leave
+  'felt', // feel
+  'put', // put
+  'brought', // bring
+  'began', // begin
+  'kept', // keep
+  'held', // hold
+  'wrote', // write
+  'stood', // stand
+  'heard', // hear
+  'let', // let
+  'meant', // mean
+  'set', // set
+  'met', // meet
+  'ran', // run
+  'paid', // pay
+  'sat', // sit
+  'spoke', // speak
+  'lay', // lie
+  'led', // lead
+  'read', // read (발음은 다르지만 철자 같음)
+  'grew', // grow
+  'lost', // lose
+  'knew', // know
+  'drank', // drink
+  'slept', // sleep
+  'bought', // buy
+  'sold', // sell
+  'taught', // teach
+  'caught', // catch
+  'fought', // fight
+  'threw', // throw
+  'broke', // break
+  'chose', // choose
+  'wore', // wear
+  'sang', // sing
+  'drove', // drive
+  'woke', // wake
+  'forgot', // forget
+  'flew', // fly
+  'drew', // draw
+  'swam', // swim
+  'hung', // hang
+  'built', // build
+  'sent', // send
+  'spent', // spend
+  'understood', // understand
+  'won', // win
+  'shook', // shake
+  'rose', // rise
+  'fell', // fall
+]);
+
+/**
  * 영어 시제 감지
+ *
+ * 규칙:
+ * - 불규칙 과거형 동사 → 과거
+ * - -ed로 끝나는 단어 → 과거
+ * - will, going to, 'll → 미래
+ * - 그 외 → 현재
  */
 function detectEnglishTense(words: string[]): Tense {
-  const text = words.join(' ').toLowerCase();
-  if (/\b(did|was|were|had|\w+ed)\b/.test(text)) return 'past';
+  const lowerWords = words.map((w) => w.toLowerCase());
+  const text = lowerWords.join(' ');
+
+  // 불규칙 과거형 동사 체크
+  for (const word of lowerWords) {
+    if (IRREGULAR_PAST_VERBS.has(word)) return 'past';
+  }
+
+  // 규칙 동사 과거형 (-ed)
+  if (/\b\w+ed\b/.test(text)) return 'past';
+
+  // 미래형
   if (/\b(will|going to|'ll)\b/.test(text)) return 'future';
+
   return 'present';
 }

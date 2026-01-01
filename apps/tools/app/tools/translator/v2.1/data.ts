@@ -229,20 +229,99 @@ export const VERB_STEMS: Record<string, string> = {
  * 주의: KO_VERB_CONTRACTIONS보다 먼저 체크되어야 함 (들었 → 듣다 vs 들다 충돌 방지)
  */
 export const IRREGULAR_KO_VERBS: Record<string, { stem: string; en: string; type: string }> = {
-  // ㄷ불규칙: 듣다 → 들어/들었
+  // ============================================
+  // ㄷ불규칙: ㄷ → ㄹ (모음 어미 앞)
+  // 듣다→들어, 걷다→걸어, 묻다→물어, 싣다→실어
+  // ============================================
   들었: { stem: '듣', en: 'hear', type: 'ㄷ' },
   들어: { stem: '듣', en: 'hear', type: 'ㄷ' },
+  들으: { stem: '듣', en: 'hear', type: 'ㄷ' },
   걸었: { stem: '걷', en: 'walk', type: 'ㄷ' },
   걸어: { stem: '걷', en: 'walk', type: 'ㄷ' },
-  // ㅂ불규칙: 돕다 → 도와
+  걸으: { stem: '걷', en: 'walk', type: 'ㄷ' },
+  물었: { stem: '묻', en: 'ask', type: 'ㄷ' },
+  물어: { stem: '묻', en: 'ask', type: 'ㄷ' },
+  물으: { stem: '묻', en: 'ask', type: 'ㄷ' },
+  실었: { stem: '싣', en: 'load', type: 'ㄷ' },
+  실어: { stem: '싣', en: 'load', type: 'ㄷ' },
+  깨달았: { stem: '깨닫', en: 'realize', type: 'ㄷ' },
+  깨달아: { stem: '깨닫', en: 'realize', type: 'ㄷ' },
+
+  // ============================================
+  // ㅂ불규칙: ㅂ → 우 (모음 어미 앞)
+  // 돕다→도와, 춥다→추워, 덥다→더워, 아름답다→아름다워
+  // ============================================
   도왔: { stem: '돕', en: 'help', type: 'ㅂ' },
   도와: { stem: '돕', en: 'help', type: 'ㅂ' },
-  // ㅅ불규칙: 짓다 → 지어
+  추웠: { stem: '춥', en: 'be cold', type: 'ㅂ' },
+  추워: { stem: '춥', en: 'be cold', type: 'ㅂ' },
+  더웠: { stem: '덥', en: 'be hot', type: 'ㅂ' },
+  더워: { stem: '덥', en: 'be hot', type: 'ㅂ' },
+  아름다웠: { stem: '아름답', en: 'be beautiful', type: 'ㅂ' },
+  아름다워: { stem: '아름답', en: 'be beautiful', type: 'ㅂ' },
+  가까웠: { stem: '가깝', en: 'be close', type: 'ㅂ' },
+  가까워: { stem: '가깝', en: 'be close', type: 'ㅂ' },
+  무거웠: { stem: '무겁', en: 'be heavy', type: 'ㅂ' },
+  무거워: { stem: '무겁', en: 'be heavy', type: 'ㅂ' },
+  가벼웠: { stem: '가볍', en: 'be light', type: 'ㅂ' },
+  가벼워: { stem: '가볍', en: 'be light', type: 'ㅂ' },
+  쉬웠: { stem: '쉽', en: 'be easy', type: 'ㅂ' },
+  쉬워: { stem: '쉽', en: 'be easy', type: 'ㅂ' },
+  어려웠: { stem: '어렵', en: 'be difficult', type: 'ㅂ' },
+  어려워: { stem: '어렵', en: 'be difficult', type: 'ㅂ' },
+
+  // ============================================
+  // ㅅ불규칙: ㅅ 탈락 (모음 어미 앞)
+  // 짓다→지어, 낫다→나아, 잇다→이어, 긋다→그어
+  // ============================================
   지었: { stem: '짓', en: 'build', type: 'ㅅ' },
   지어: { stem: '짓', en: 'build', type: 'ㅅ' },
-  // 르불규칙: 모르다 → 몰라
+  나았: { stem: '낫', en: 'recover', type: 'ㅅ' },
+  나아: { stem: '낫', en: 'recover', type: 'ㅅ' },
+  이었: { stem: '잇', en: 'connect', type: 'ㅅ' },
+  이어: { stem: '잇', en: 'connect', type: 'ㅅ' },
+  그었: { stem: '긋', en: 'draw', type: 'ㅅ' },
+  그어: { stem: '긋', en: 'draw', type: 'ㅅ' },
+
+  // ============================================
+  // ㅎ불규칙: ㅎ 탈락 (모음 어미 앞)
+  // 하얗다→하얘, 노랗다→노래, 파랗다→파래
+  // ============================================
+  하얬: { stem: '하얗', en: 'be white', type: 'ㅎ' },
+  하얘: { stem: '하얗', en: 'be white', type: 'ㅎ' },
+  노랬: { stem: '노랗', en: 'be yellow', type: 'ㅎ' },
+  노래: { stem: '노랗', en: 'be yellow', type: 'ㅎ' },
+  파랬: { stem: '파랗', en: 'be blue', type: 'ㅎ' },
+  파래: { stem: '파랗', en: 'be blue', type: 'ㅎ' },
+  빨갰: { stem: '빨갛', en: 'be red', type: 'ㅎ' },
+  빨개: { stem: '빨갛', en: 'be red', type: 'ㅎ' },
+  까맸: { stem: '까맣', en: 'be black', type: 'ㅎ' },
+  까매: { stem: '까맣', en: 'be black', type: 'ㅎ' },
+
+  // ============================================
+  // 르불규칙: 르 → ㄹ라/ㄹ러 (아/어 어미 앞)
+  // 모르다→몰라, 부르다→불러, 자르다→잘라
+  // ============================================
   몰랐: { stem: '모르', en: 'not know', type: '르' },
   몰라: { stem: '모르', en: 'not know', type: '르' },
+  불렀: { stem: '부르', en: 'call', type: '르' },
+  불러: { stem: '부르', en: 'call', type: '르' },
+  잘랐: { stem: '자르', en: 'cut', type: '르' },
+  잘라: { stem: '자르', en: 'cut', type: '르' },
+  골랐: { stem: '고르', en: 'choose', type: '르' },
+  골라: { stem: '고르', en: 'choose', type: '르' },
+  빨랐: { stem: '빠르', en: 'be fast', type: '르' },
+  빨라: { stem: '빠르', en: 'be fast', type: '르' },
+  흘렀: { stem: '흐르', en: 'flow', type: '르' },
+  흘러: { stem: '흐르', en: 'flow', type: '르' },
+  올랐: { stem: '오르', en: 'climb', type: '르' },
+  올라: { stem: '오르', en: 'climb', type: '르' },
+
+  // ============================================
+  // ㄹ탈락: ㄹ 탈락 (ㄴ,ㅂ,ㅅ 어미 앞)
+  // 살다→사니/삽니다, 알다→아니/압니다
+  // 참고: 활용형이 아닌 어간 변화이므로 tokenizer에서 규칙으로 처리
+  // ============================================
 };
 
 /**
