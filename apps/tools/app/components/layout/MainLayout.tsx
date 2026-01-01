@@ -33,7 +33,7 @@ export function MainLayout() {
 
         {/* Sidebar - 모바일: 슬라이드, 데스크톱: 고정 */}
         <div
-          className={`z-40 md:relative md:inset-auto fixed top-14 bottom-0 left-0 w-fit transition-transform duration-200 md:translate-x-0 ${
+          className={`z-40 bg-(--card) md:relative md:inset-auto fixed top-14 bottom-0 left-0 w-fit transition-transform duration-200 md:translate-x-0 ${
             !sidebarOpen ? '-translate-x-full md:translate-x-0' : ''
           }`}
         >
