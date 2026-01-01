@@ -347,38 +347,36 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
         </div>
       )}
 
-      {/* Formality selector - 출력 어투 선택 */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-center gap-1 text-xs text-(--muted-foreground)">
-          <Info className="size-3" />
-          <span>
-            {settings.direction === 'ko-en'
-              ? '번역 결과의 어투를 선택하세요'
-              : 'Choose output tone'}
-          </span>
+      {/* Formality selector - 출력 어투 선택 (en→ko only, 영어에는 존댓말/반말 없음) */}
+      {settings.direction === 'en-ko' && (
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-center gap-1 text-xs text-(--muted-foreground)">
+            <Info className="size-3" />
+            <span>Choose output tone</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            {FORMALITY_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  // 수동 선택 시 자동 모드 해제
+                  setIsAutoFormality(false);
+                  prevDetectedFormality.current = option.value;
+                  handleSettingsChange({ formality: option.value });
+                }}
+                className={`inline-flex h-7 items-center justify-center rounded-full px-3 text-xs transition-colors duration-200 ${
+                  settings.formality === option.value
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-black/[0.05] text-(--muted-foreground) hover:bg-black/[0.1] dark:bg-white/[0.08] dark:hover:bg-white/[0.12]'
+                }`}
+              >
+                {option.labelEn}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
-          {FORMALITY_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                // 수동 선택 시 자동 모드 해제
-                setIsAutoFormality(false);
-                prevDetectedFormality.current = option.value;
-                handleSettingsChange({ formality: option.value });
-              }}
-              className={`inline-flex h-7 items-center justify-center rounded-full px-3 text-xs transition-colors duration-200 ${
-                settings.formality === option.value
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-black/[0.05] text-(--muted-foreground) hover:bg-black/[0.1] dark:bg-white/[0.08] dark:hover:bg-white/[0.12]'
-              }`}
-            >
-              {settings.direction === 'ko-en' ? option.labelKo : option.labelEn}
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Input area */}
       <div className="min-h-[7.5rem] flex-1">
