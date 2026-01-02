@@ -1,14 +1,14 @@
 /**
- * 번역기 v2 토크나이저
+ * 번역기 v3 토크나이저
  * 입력 텍스트를 토큰으로 분리하고 역할 부여
  *
- * 파이프라인 v2 개선사항:
- * - 다중 전략 토큰화 (사전, 규칙, 유사도, 불규칙)
- * - 각 토큰에 confidence 점수 부여
- * - jamoEditDistance 기반 유사도 fallback
+ * 파이프라인 v3 개선사항:
+ * - 유사도 검색 제거 (할루시네이션 방지)
+ * - 규칙 기반 형태소 분석 강화
+ * - 미인식 단어는 원문 유지 (추측하지 않음)
  */
 
-import { decompose, jamoEditDistance } from '@soundblue/hangul';
+import { decompose } from '@soundblue/hangul';
 import {
   COUNTERS,
   ENDINGS,
@@ -82,84 +82,24 @@ function detectAuxiliaryPattern(
 const CONFIDENCE_DICTIONARY = 1.0;
 /** 규칙 기반 추론 신뢰도 */
 const CONFIDENCE_RULE = 0.85;
-/** 유사도 기반 추론 신뢰도 (거리에 따라 조정) */
-const CONFIDENCE_SIMILARITY_BASE = 0.7;
-/** 불규칙 동사 처리 신뢰도 */
-const _CONFIDENCE_IRREGULAR = 0.9;
-/** 미인식 신뢰도 */
+/** 미인식 신뢰도 (v3: 원문 유지) */
 const CONFIDENCE_UNKNOWN = 0.3;
 
-/** 유사도 검색 임계값 (이 거리 이하만 후보로 인정)
- *
- * Phase 0: 0.8 → 0.3으로 강화 (긴급 수정)
- * - "하고"→"하구" 오매칭 방지 (거리 0.5였음)
- * - 도메인 사전의 전문 용어가 일반 단어를 오염시키는 것 방지
- *
- * 값이 너무 높으면 관련 없는 단어도 매칭됨 (예: 하고→하구)
- * 값이 너무 낮으면 유사어 검색 효과 없음
- *
- * 0.3 = 자모 1개 미만 차이만 허용 (매우 엄격, Phase 0 설정)
- * 0.5 = 자모 1개 다른 경우까지만 허용 (엄격)
- * 1.0 = 자모 2개까지 허용 (느슨)
- */
-const SIMILARITY_THRESHOLD = 0.3;
-
 // ============================================
-// 유사도 기반 단어 검색 (Strategy B)
+// 유사도 검색 제거됨 (v3.0)
 // ============================================
-
-interface SimilarWordResult {
-  word: string;
-  translation: string;
-  distance: number;
-  confidence: number;
-}
-
-/**
- * jamoEditDistance를 사용하여 사전에서 가장 유사한 단어 찾기
- *
- * @param unknown 미인식 단어
- * @returns 유사 단어 정보 또는 null
- */
-function findSimilarWord(unknown: string): SimilarWordResult | null {
-  let best: SimilarWordResult | null = null;
-
-  // KO_EN 사전에서 유사 단어 검색
-  for (const [korean, english] of Object.entries(KO_EN)) {
-    // 길이 차이가 너무 크면 스킵 (최적화)
-    if (Math.abs(korean.length - unknown.length) > 2) continue;
-
-    const distance = jamoEditDistance(unknown, korean);
-
-    if (distance <= SIMILARITY_THRESHOLD) {
-      // 신뢰도 계산: 거리가 가까울수록 높음
-      // distance 0 → confidence 0.7
-      // distance 1.5 → confidence 0.5
-      const confidence = CONFIDENCE_SIMILARITY_BASE - (distance / SIMILARITY_THRESHOLD) * 0.2;
-
-      if (!best || distance < best.distance) {
-        best = { word: korean, translation: english, distance, confidence };
-      }
-    }
-  }
-
-  // VERB_STEMS에서도 검색
-  for (const [korean, english] of Object.entries(VERB_STEMS)) {
-    if (Math.abs(korean.length - unknown.length) > 2) continue;
-
-    const distance = jamoEditDistance(unknown, korean);
-
-    if (distance <= SIMILARITY_THRESHOLD) {
-      const confidence = CONFIDENCE_SIMILARITY_BASE - (distance / SIMILARITY_THRESHOLD) * 0.2;
-
-      if (!best || distance < best.distance) {
-        best = { word: korean, translation: english, distance, confidence };
-      }
-    }
-  }
-
-  return best;
-}
+//
+// 이유: "모르면 추측" → "모르면 원문 유지"
+//
+// 문제점:
+// - 사전이 커질수록 오매칭 증가 (예: "하고" → "하구")
+// - O(n) 전체 순회로 성능 저하
+// - 할루시네이션 발생 원인
+//
+// 해결책:
+// - 미인식 단어는 원문 그대로 유지
+// - 규칙 기반 형태소 분석으로 대체
+// ============================================
 
 // ============================================
 // 모음조화 규칙 기반 동사 어간 추출
@@ -842,11 +782,11 @@ function detectSentenceType(text: string): SentenceType {
 /**
  * 한국어 단어 토큰화
  *
- * Pipeline v2: confidence 점수 포함
+ * Pipeline v3: 유사도 검색 제거, 규칙 기반 강화
  * - Strategy A: 사전 정확 매칭 (1.0)
- * - Strategy B: 유사도 기반 fallback (0.5~0.7)
- * - Strategy C: 규칙 기반 추론 (0.85)
- * - Strategy D: 불규칙 동사 (0.9)
+ * - Strategy B: 규칙 기반 추론 (0.85) - 어미 분리, 조사 분리
+ * - Strategy C: 불규칙 동사 (0.9)
+ * - Strategy D: 미인식 → 원문 유지 (0.3) - 추측하지 않음
  */
 function tokenizeKoreanWord(word: string): Token {
   // 1. 숫자 체크
@@ -1091,15 +1031,14 @@ function tokenizeKoreanWord(word: string): Token {
     }
   }
 
-  // 11. Strategy B: 유사도 기반 fallback (사전에서 못 찾은 경우)
+  // 11. 미인식 단어 처리 (v3.0: 유사도 검색 제거)
+  // "모르면 추측"이 아닌 "모르면 원문 유지"
+  // → 할루시네이션 방지
   if (!translated) {
-    const similar = findSimilarWord(stem);
-    if (similar) {
-      translated = similar.translation;
-      stem = similar.word; // 가장 유사한 단어로 교체
-      strategy = 'similarity';
-      confidence = similar.confidence;
-    }
+    // 원문 그대로 유지 (번역하지 않음)
+    translated = undefined;
+    strategy = 'unknown';
+    confidence = CONFIDENCE_UNKNOWN;
   }
 
   return {
