@@ -100,6 +100,8 @@ const KO_CONNECTIVE_ENDINGS: Record<string, { en: string; type: ClauseType }> = 
   ㄹ때: { en: 'when', type: 'adverbial' },
   을때: { en: 'when', type: 'adverbial' },
   는동안: { en: 'while', type: 'adverbial' },
+  면서: { en: 'while', type: 'adverbial' },
+  으면서: { en: 'while', type: 'adverbial' },
   기전에: { en: 'before', type: 'adverbial' },
   ㄴ후에: { en: 'after', type: 'adverbial' },
   은후에: { en: 'after', type: 'adverbial' },

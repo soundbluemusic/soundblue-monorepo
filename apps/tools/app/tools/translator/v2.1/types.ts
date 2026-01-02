@@ -33,13 +33,21 @@ export type Role =
   | 'unknown'; // 미분류
 
 /** 보조용언 패턴 유형 */
-export type AuxiliaryMeaning = 'progressive' | 'desiderative' | 'attemptive' | 'completive';
+export type AuxiliaryMeaning =
+  | 'progressive'
+  | 'desiderative'
+  | 'attemptive'
+  | 'completive'
+  | 'benefactive';
 
 /** 시제 */
 export type Tense = 'past' | 'present' | 'future' | 'present-perfect' | 'past-perfect';
 
 /** 문장 유형 */
-export type SentenceType = 'statement' | 'question' | 'exclamation' | 'imperative';
+export type SentenceType = 'statement' | 'question' | 'exclamation' | 'imperative' | 'suggestion';
+
+/** 격식 수준 (종결어미에서 추출) */
+export type PolitenessLevel = 'formal-polite' | 'polite' | 'plain' | 'informal';
 
 /** 토큰 */
 export interface Token {
@@ -115,6 +123,8 @@ export interface ParsedSentence {
   auxiliaryPattern?: AuxiliaryMeaning;
   /** 비교급/최상급 마커 (Phase 3) - "더"=comparative, "가장"=superlative */
   comparativeType?: 'comparative' | 'superlative';
+  /** 격식 수준 (Phase 1: 종결어미) */
+  politenessLevel?: PolitenessLevel;
 }
 
 /** 번역 결과 */

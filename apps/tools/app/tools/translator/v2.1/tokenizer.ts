@@ -79,9 +79,9 @@ interface AuxiliaryPattern {
   /** 매칭 패턴 */
   pattern: RegExp;
   /** 문법적 의미 */
-  meaning: 'progressive' | 'desiderative' | 'attemptive' | 'completive';
+  meaning: 'progressive' | 'desiderative' | 'attemptive' | 'completive' | 'benefactive';
   /** 영어 표현 형식 */
-  englishForm: 'be + Ving' | 'want to V' | 'try Ving' | 'end up Ving';
+  englishForm: 'be + Ving' | 'want to V' | 'try Ving' | 'end up Ving' | 'V for someone';
 }
 
 /**
@@ -93,6 +93,8 @@ const AUXILIARY_PATTERNS: AuxiliaryPattern[] = [
   { pattern: /(.+)고\s*있/, meaning: 'progressive', englishForm: 'be + Ving' },
   // -고 싶다 (희망): 먹고 싶다, 가고 싶어
   { pattern: /(.+)고\s*싶/, meaning: 'desiderative', englishForm: 'want to V' },
+  // -아/어 주다 (수혜): 도와 주다, 알려 줘
+  { pattern: /(.+)[아어]\s*주/, meaning: 'benefactive', englishForm: 'V for someone' },
   // -아/어 보다 (시도): 먹어 봤다, 해 봐
   { pattern: /(.+)[아어]\s*보/, meaning: 'attemptive', englishForm: 'try Ving' },
   // -아/어 버리다 (완료): 먹어 버렸다, 가 버렸어

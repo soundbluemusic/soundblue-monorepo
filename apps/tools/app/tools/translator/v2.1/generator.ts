@@ -11,8 +11,10 @@ import {
   translatePronoun,
 } from '../dictionary/declension';
 import {
+  analyzeKoreanEnding,
   COUNTERS,
   EN_KO,
+  endingToEnglish,
   IDIOMS_EN_KO,
   IDIOMS_KO_EN,
   KO_EN,
@@ -110,6 +112,20 @@ const SENTENCE_TEMPLATES: Partial<Record<AllTemplateKeys, string>> & Record<Temp
   'imperative-future-negated': "Don't {V} {O} {L} {A}",
   'imperative-present-perfect-negated': "Don't {V} {O} {L} {A}",
   'imperative-past-perfect-negated': "Don't {V} {O} {L} {A}",
+
+  // Phase 1: 청유문 (suggestion)
+  'suggestion-present': "Let's {V} {O} {L} {A}",
+  'suggestion-past': "Let's {V} {O} {L} {A}",
+  'suggestion-future': "Let's {V} {O} {L} {A}",
+  'suggestion-present-perfect': "Let's {V} {O} {L} {A}",
+  'suggestion-past-perfect': "Let's {V} {O} {L} {A}",
+
+  // 청유문 부정
+  'suggestion-present-negated': "Let's not {V} {O} {L} {A}",
+  'suggestion-past-negated': "Let's not {V} {O} {L} {A}",
+  'suggestion-future-negated': "Let's not {V} {O} {L} {A}",
+  'suggestion-present-perfect-negated': "Let's not {V} {O} {L} {A}",
+  'suggestion-past-perfect-negated': "Let's not {V} {O} {L} {A}",
 };
 
 /**
@@ -555,6 +571,13 @@ function generateWithAuxiliaryPattern(parsed: ParsedSentence): string {
       parts.push(`${subject} ended up ${gerund}`);
       break;
     }
+    case 'benefactive': {
+      // -아/어 주다 → V for (someone)
+      // "도와 주다" → "help (someone)"
+      // "알려 주다" → "let (someone) know"
+      parts.push(`${subject} ${verb}s for`);
+      break;
+    }
     default:
       // fallback
       parts.push(`${subject} ${verb}`);
@@ -612,6 +635,82 @@ function isPlural(subject: string): boolean {
 }
 
 /**
+ * 한국어 조사 → 영어 전치사 변환 (문맥 기반)
+ *
+ * Phase 4: 조사 매핑
+ * - 에: 목적지/시간/장소 (to/at/in/on)
+ * - 에서: 행동 장소 (at/in/from)
+ * - 로/으로: 방향/수단 (to/by/with)
+ * - 와/과/하고: 동반 (with/and)
+ * - 의: 소유격 (of/'s)
+ */
+function mapParticleToPreposition(particle?: string, verb?: string): string {
+  if (!particle) return 'at';
+
+  const verbLower = verb?.toLowerCase() || '';
+
+  // 이동 동사 목록 (to를 사용)
+  const motionVerbs = [
+    'go',
+    'come',
+    'move',
+    'travel',
+    'walk',
+    'run',
+    'drive',
+    'fly',
+    'return',
+    'arrive',
+  ];
+  const isMotionVerb = motionVerbs.some((v) => verbLower.includes(v));
+
+  switch (particle) {
+    case '에':
+      // 이동 동사 + 에 → to
+      if (isMotionVerb) return 'to';
+      // 존재/위치 동사 → at/in
+      if (verbLower.includes('stay') || verbLower.includes('live') || verbLower.includes('be')) {
+        return 'in';
+      }
+      // 기본값: at (시간, 장소)
+      return 'at';
+
+    case '에서':
+      // 출발점 의미 (from) - come, leave 등
+      if (
+        verbLower.includes('come') ||
+        verbLower.includes('leave') ||
+        verbLower.includes('depart')
+      ) {
+        return 'from';
+      }
+      // 행동 장소: at/in
+      return 'at';
+
+    case '로':
+    case '으로':
+      // 이동 방향 → to
+      if (isMotionVerb) return 'to';
+      // 수단/방법 → by/with
+      if (verbLower.includes('make') || verbLower.includes('write') || verbLower.includes('cut')) {
+        return 'with';
+      }
+      return 'by';
+
+    case '와':
+    case '과':
+    case '하고':
+      return 'with';
+
+    case '의':
+      return 'of';
+
+    default:
+      return 'at';
+  }
+}
+
+/**
  * 한→영 생성
  */
 export function generateEnglish(parsed: ParsedSentence): string {
@@ -633,6 +732,42 @@ export function generateEnglish(parsed: ParsedSentence): string {
   // 1. 관용구 체크 (통문장)
   const idiom = IDIOMS_KO_EN[parsed.original.replace(/[.!?？！。]+$/, '').trim()];
   if (idiom) return idiom;
+
+  // 1.2. Phase 1: 단일 동사+종결어미 분석 (갑니다, 먹었어 등)
+  // 토큰이 1개이고 동사/형용사 역할인 경우 종결어미 분석
+  if (parsed.tokens.length === 1) {
+    const token = parsed.tokens[0];
+    const word = token.text;
+
+    // 종결어미 분석 시도
+    const endingAnalysis = analyzeKoreanEnding(word);
+    if (endingAnalysis) {
+      // 어간에서 영어 동사 찾기
+      const stemWithDa = `${endingAnalysis.stem}다`;
+      const enVerb =
+        KO_EN[endingAnalysis.stem] || KO_EN[stemWithDa] || token.translated || endingAnalysis.stem;
+
+      // 종결어미에 따른 영어 문장 생성
+      const englishResult = endingToEnglish(endingAnalysis, enVerb);
+      if (englishResult) {
+        // 과거 시제인 경우 동사 활용
+        let verbForm = englishResult.text;
+        if (endingAnalysis.tense === 'past' && !endingAnalysis.negated) {
+          verbForm = applyTense(enVerb, 'past');
+        }
+
+        // 조합
+        const parts: string[] = [];
+        if (englishResult.prefix) parts.push(englishResult.prefix);
+        parts.push(verbForm);
+        if (englishResult.suffix) {
+          // 마침표/물음표/느낌표를 마지막에 붙임
+          return parts.join(' ').trim() + englishResult.suffix;
+        }
+        return parts.join(' ').trim();
+      }
+    }
+  }
 
   // 1.5. Phase 3: 비교급/최상급 패턴 우선 처리
   // "더 크다" → "bigger", "가장 좋다" → "best"
@@ -782,7 +917,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
               const contextHints = new Set(allContextTokens.map((t) => t.stem));
               const contextTranslation = resolveNounContext(loc.stem, contextHints);
               const noun = contextTranslation || loc.translated || KO_EN[loc.stem] || loc.stem;
-              const prep = loc.meta?.particle === '에서' ? 'at' : 'to';
+              const prep = mapParticleToPreposition(loc.meta?.particle, verbText);
               return `${prep} ${noun}`;
             })
             .join(' ')
