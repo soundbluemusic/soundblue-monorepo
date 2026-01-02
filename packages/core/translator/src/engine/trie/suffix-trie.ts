@@ -4,19 +4,42 @@
 // ========================================
 
 /**
+ * 기본 접미사 정보 타입
+ * 역할, 시제 등의 메타데이터
+ */
+export interface SuffixInfo {
+  /** 접미사 유형 (particle: 조사, ending: 어미, connective: 연결어미) */
+  type?: 'particle' | 'ending' | 'connective';
+  /** 문법적 역할 */
+  role?: string;
+  /** 시제 */
+  tense?: 'past' | 'present' | 'future' | string;
+  /** 어조/화법 */
+  mood?: 'declarative' | 'interrogative' | 'imperative' | 'propositive';
+  /** 존댓말 여부 */
+  honorific?: boolean;
+  /** 영어 번역 */
+  en?: string;
+  /** 추가 메타데이터 */
+  [key: string]: unknown;
+}
+
+/**
  * Trie 노드
  */
-interface TrieNode {
-  children: Map<string, TrieNode>;
+interface TrieNode<TInfo = SuffixInfo> {
+  children: Map<string, TrieNode<TInfo>>;
   /** 이 노드에서 끝나는 접미사 (있으면 매칭 성공) */
   value: string | null;
   /** 추가 정보 (역할, 시제 등) */
-  info: Record<string, unknown> | null;
+  info: TInfo | null;
 }
 
 /**
  * 역방향 접미사 Trie
  * 문자열 끝에서부터 매칭하여 가장 긴 접미사를 찾음
+ *
+ * @typeParam TInfo - 노드에 저장할 추가 정보의 타입 (기본: SuffixInfo)
  *
  * @example
  * const trie = new SuffixTrie();
@@ -26,14 +49,14 @@ interface TrieNode {
  * trie.findLongestSuffix('학교에서') // { suffix: '에서', info: { role: 'location' } }
  * trie.findLongestSuffix('학교에')   // { suffix: '에', info: { role: 'location' } }
  */
-export class SuffixTrie {
-  private root: TrieNode;
+export class SuffixTrie<TInfo = SuffixInfo> {
+  private root: TrieNode<TInfo>;
 
   constructor() {
     this.root = this.createNode();
   }
 
-  private createNode(): TrieNode {
+  private createNode(): TrieNode<TInfo> {
     return {
       children: new Map(),
       value: null,
@@ -46,7 +69,7 @@ export class SuffixTrie {
    * @param suffix 접미사 (예: '에서', '았어요')
    * @param info 추가 정보 (예: { role: 'location', tense: 'past' })
    */
-  insert(suffix: string, info?: Record<string, unknown>): void {
+  insert(suffix: string, info?: TInfo): void {
     let node = this.root;
 
     // 역방향으로 순회 (끝 → 시작)
@@ -67,7 +90,7 @@ export class SuffixTrie {
   /**
    * 여러 접미사 일괄 삽입
    */
-  insertMany(entries: Array<{ suffix: string; info?: Record<string, unknown> }>): void {
+  insertMany(entries: Array<{ suffix: string; info?: TInfo }>): void {
     for (const entry of entries) {
       this.insert(entry.suffix, entry.info);
     }
@@ -78,9 +101,9 @@ export class SuffixTrie {
    * @param text 검색할 문자열
    * @returns 매칭된 접미사와 정보, 없으면 null
    */
-  findLongestSuffix(text: string): { suffix: string; info: Record<string, unknown> | null } | null {
+  findLongestSuffix(text: string): { suffix: string; info: TInfo | null } | null {
     let node = this.root;
-    let lastMatch: { suffix: string; info: Record<string, unknown> | null } | null = null;
+    let lastMatch: { suffix: string; info: TInfo | null } | null = null;
 
     // 역방향으로 순회 (끝 → 시작)
     for (let i = text.length - 1; i >= 0; i--) {
@@ -106,9 +129,7 @@ export class SuffixTrie {
    * @param text 검색할 문자열
    * @returns { stem: 어간, suffix: 접미사, info: 정보 } 또는 null
    */
-  splitSuffix(
-    text: string,
-  ): { stem: string; suffix: string; info: Record<string, unknown> | null } | null {
+  splitSuffix(text: string): { stem: string; suffix: string; info: TInfo | null } | null {
     const result = this.findLongestSuffix(text);
 
     if (!result) {
@@ -134,8 +155,8 @@ export class SuffixTrie {
    * @param text 검색할 문자열
    * @returns 모든 매칭된 접미사 배열
    */
-  findAllSuffixes(text: string): Array<{ suffix: string; info: Record<string, unknown> | null }> {
-    const results: Array<{ suffix: string; info: Record<string, unknown> | null }> = [];
+  findAllSuffixes(text: string): Array<{ suffix: string; info: TInfo | null }> {
+    const results: Array<{ suffix: string; info: TInfo | null }> = [];
     let node = this.root;
 
     // 역방향으로 순회 (끝 → 시작)
@@ -181,7 +202,7 @@ export class SuffixTrie {
   get size(): number {
     let count = 0;
 
-    const traverse = (node: TrieNode): void => {
+    const traverse = (node: TrieNode<TInfo>): void => {
       if (node.value !== null) {
         count++;
       }
@@ -199,7 +220,7 @@ export class SuffixTrie {
    * Trie를 JSON으로 변환하여 정적 파일로 저장 가능
    */
   serialize(): string {
-    const serializeNode = (node: TrieNode): object => {
+    const serializeNode = (node: TrieNode<TInfo>): object => {
       const children: Record<string, object> = {};
 
       for (const [char, child] of node.children) {
@@ -219,21 +240,21 @@ export class SuffixTrie {
   /**
    * 역직렬화 (SSG 런타임용)
    * JSON에서 Trie 복원
+   * @typeParam T - 노드 정보 타입 (기본: SuffixInfo)
    */
-  static deserialize(json: string): SuffixTrie {
-    const trie = new SuffixTrie();
-    const data = JSON.parse(json);
+  static deserialize<T = SuffixInfo>(json: string): SuffixTrie<T> {
+    const trie = new SuffixTrie<T>();
+    const data = JSON.parse(json) as SerializedSuffixNode<T>;
 
-    const deserializeNode = (obj: Record<string, unknown>, node: TrieNode): void => {
+    const deserializeNode = (obj: SerializedSuffixNode<T>, node: TrieNode<T>): void => {
       if (obj.v) {
-        node.value = obj.v as string;
+        node.value = obj.v;
       }
       if (obj.i) {
-        node.info = obj.i as Record<string, unknown>;
+        node.info = obj.i;
       }
       if (obj.c) {
-        const children = obj.c as Record<string, Record<string, unknown>>;
-        for (const [char, childObj] of Object.entries(children)) {
+        for (const [char, childObj] of Object.entries(obj.c)) {
           const childNode = trie.createNode();
           node.children.set(char, childNode);
           deserializeNode(childObj, childNode);
@@ -244,4 +265,16 @@ export class SuffixTrie {
     deserializeNode(data, trie.root);
     return trie;
   }
+}
+
+/**
+ * 직렬화된 접미사 노드 형식 (JSON용)
+ */
+interface SerializedSuffixNode<TInfo> {
+  /** children */
+  c?: Record<string, SerializedSuffixNode<TInfo>>;
+  /** value */
+  v?: string;
+  /** info */
+  i?: TInfo;
 }
