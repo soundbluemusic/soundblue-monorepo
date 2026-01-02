@@ -1439,5 +1439,15 @@ function detectEnglishTense(words: string[]): Tense {
   // 미래형
   if (/\b(will|going to|'ll)\b/.test(text)) return 'future';
 
+  // 과거 부정형: didn't + 동사원형 → past
+  if (/\bdidn't\b/i.test(text) || /\bdid\s+not\b/i.test(text)) {
+    return 'past';
+  }
+
+  // won't → 미래 부정이므로 future로 처리
+  if (/\bwon't\b/i.test(text)) {
+    return 'future';
+  }
+
   return 'present';
 }

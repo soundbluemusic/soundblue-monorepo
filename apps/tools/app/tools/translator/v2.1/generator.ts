@@ -1394,6 +1394,15 @@ const EN_VERBS: Record<string, string> = {
   play: '놀다',
   run: '뛰다',
   walk: '걷다',
+  swim: '수영하다',
+  study: '공부하다',
+  sing: '노래하다',
+  dance: '춤추다',
+  cook: '요리하다',
+  clean: '청소하다',
+  wash: '씻다',
+  drive: '운전하다',
+  fly: '날다',
   learn: '배우다',
   teach: '가르치다',
   stay: '머무르다',
@@ -1904,6 +1913,214 @@ function extractEnglishVerbBase(verb: string): string {
   }
 
   return lower;
+}
+
+/**
+ * 영어 동사가 과거형인지 판단
+ * - 규칙 동사: -ed로 끝남 (walked, talked, played)
+ * - 불규칙 동사: 별도 목록으로 관리 (went, saw, ate 등)
+ */
+const IRREGULAR_PAST_TENSE = new Set([
+  // be 동사
+  'was',
+  'were',
+  // 일반 불규칙 동사
+  'went',
+  'had',
+  'did',
+  'saw',
+  'came',
+  'took',
+  'got',
+  'made',
+  'said',
+  'knew',
+  'thought',
+  'gave',
+  'found',
+  'told',
+  'felt',
+  'became',
+  'left',
+  'put',
+  'meant',
+  'kept',
+  'let',
+  'began',
+  'seemed',
+  'helped',
+  'showed',
+  'heard',
+  'played',
+  'ran',
+  'moved',
+  'lived',
+  'believed',
+  'brought',
+  'happened',
+  'wrote',
+  'sat',
+  'stood',
+  'lost',
+  'paid',
+  'met',
+  'included',
+  'continued',
+  'set',
+  'learned',
+  'changed',
+  'led',
+  'understood',
+  'watched',
+  'followed',
+  'stopped',
+  'created',
+  'spoke',
+  'read', // 과거형 read는 발음만 다름
+  'spent',
+  'grew',
+  'opened',
+  'walked',
+  'won',
+  'taught',
+  'offered',
+  'remembered',
+  'considered',
+  'appeared',
+  'bought',
+  'waited',
+  'served',
+  'died',
+  'sent',
+  'built',
+  'stayed',
+  'fell',
+  'cut',
+  'reached',
+  'killed',
+  'raised',
+  'passed',
+  'sold',
+  'decided',
+  'returned',
+  'explained',
+  'hoped',
+  'developed',
+  'carried',
+  'broke',
+  'received',
+  'agreed',
+  'supported',
+  'hit',
+  'produced',
+  'ate',
+  'covered',
+  'caught',
+  'drew',
+  'chose',
+  'sang',
+  'drank',
+  'flew',
+  'drove',
+  'rode',
+  'swam',
+  'threw',
+  'wore',
+  'woke',
+  'slept',
+  'fought',
+  'held',
+  'hung',
+  'shook',
+  'spread',
+  'arose',
+  'awoke',
+  'beat',
+  'bent',
+  'bet',
+  'bit',
+  'bled',
+  'blew',
+  'bound',
+  'bred',
+  'burst',
+  'cast',
+  'clung',
+  'cost',
+  'crept',
+  'dealt',
+  'dug',
+  'dove',
+  'fed',
+  'fled',
+  'flung',
+  'forbade',
+  'forgave',
+  'forgot',
+  'froze',
+  'hid',
+  'hurt',
+  'knelt',
+  'laid',
+  'leapt',
+  'lent',
+  'lit',
+  'quit',
+  'rang',
+  'rose',
+  'sank',
+  'sought',
+  'shone',
+  'shot',
+  'shrank',
+  'shut',
+  'slid',
+  'slit',
+  'slung',
+  'slunk',
+  'smelt',
+  'snuck',
+  'sowed',
+  'spat',
+  'sped',
+  'spelt',
+  'spilt',
+  'sprang',
+  'stank',
+  'stole',
+  'strode',
+  'struck',
+  'strung',
+  'stuck',
+  'stung',
+  'sunk',
+  'swept',
+  'swore',
+  'swung',
+  'tore',
+  'thrust',
+  'underwent',
+  'upset',
+  'withdrew',
+  'wove',
+  'wound',
+  'wrung',
+]);
+
+function isPastTenseVerb(word: string): boolean {
+  const lower = word.toLowerCase().replace(/[.,!?]/g, '');
+
+  // 불규칙 과거형 체크
+  if (IRREGULAR_PAST_TENSE.has(lower)) {
+    return true;
+  }
+
+  // 규칙 과거형 체크: -ed로 끝남
+  if (lower.endsWith('ed') && lower.length > 3) {
+    return true;
+  }
+
+  return false;
 }
 
 /** 조동사 및 부정 축약형 */
@@ -3471,17 +3688,45 @@ function processRelativeClause(parsed: ParsedSentence, _formality: Formality): s
   const relativeClauseWords = words.slice(relPronounIndex + 1);
   if (relativeClauseWords.length === 0) return null;
 
-  // 4. 관계절 동사 찾기 및 관형형 변환
+  // 4. 관계절 동사 찾기 및 시제 감지
   let relVerb = '';
+  let relVerbTense: 'present' | 'past' | 'future' | 'retrospective' = 'present';
   const relObjects: string[] = [];
+  let hasWill = false;
+  let hasUsedTo = false;
 
   for (let i = 0; i < relativeClauseWords.length; i++) {
     const word = relativeClauseWords[i].replace(/[.,!?]/g, '');
+    const nextWord = relativeClauseWords[i + 1]?.replace(/[.,!?]/g, '');
+
+    // 미래 시제 감지 (will)
+    if (word === 'will') {
+      hasWill = true;
+      continue;
+    }
+
+    // 회상 시제 감지 (used to)
+    if (word === 'used' && nextWord === 'to') {
+      hasUsedTo = true;
+      continue;
+    }
+    if (word === 'to' && hasUsedTo) {
+      continue;
+    }
 
     // 동사 찾기
     if (EN_VERBS[word] || EN_KO[word]?.endsWith('다')) {
       const verbBase = extractEnglishVerbBase(word) || word;
       relVerb = EN_KO[verbBase] || EN_VERBS[verbBase] || word;
+
+      // 시제 판단
+      if (hasWill) {
+        relVerbTense = 'future';
+      } else if (hasUsedTo) {
+        relVerbTense = 'retrospective';
+      } else if (isPastTenseVerb(word)) {
+        relVerbTense = 'past';
+      }
     } else {
       const ko = EN_KO[word];
       if (ko && !['the', 'a', 'an', 'i', 'you', 'he', 'she', 'it', 'we', 'they'].includes(word)) {
@@ -3492,10 +3737,8 @@ function processRelativeClause(parsed: ParsedSentence, _formality: Formality): s
 
   if (!relVerb) return null;
 
-  // 5. 관형형 어미 적용 (-는, -은/ㄴ)
-  // 현재: -는 (달리는)
-  // 과거: -은/ㄴ (달린)
-  const attributiveVerb = applyAttributiveEnding(relVerb, 'present');
+  // 5. 관형형 어미 적용 (-는, -은/ㄴ, -ㄹ/을, -던)
+  const attributiveVerb = applyAttributiveEnding(relVerb, relVerbTense);
 
   // 6. 결과 조립: 관형절 + 선행사
   // "who runs" → "달리는" + "남자" → "달리는 남자"
@@ -3675,25 +3918,46 @@ function processAdverbialClause(parsed: ParsedSentence, _formality: Formality): 
  *
  * 현재: -는 (가다 → 가는, 먹다 → 먹는)
  * 과거: -은/ㄴ (가다 → 간, 먹다 → 먹은)
+ * 미래: -ㄹ/을 (가다 → 갈, 먹다 → 먹을)
+ * 회상: -던 (가다 → 가던, 먹다 → 먹던)
  */
-function applyAttributiveEnding(verb: string, tense: 'present' | 'past'): string {
+function applyAttributiveEnding(
+  verb: string,
+  tense: 'present' | 'past' | 'future' | 'retrospective',
+): string {
   if (!verb) return '';
 
   // 동사 어간 추출
   const stem = verb.endsWith('다') ? verb.slice(0, -1) : verb;
-
-  if (tense === 'present') {
-    // 현재 관형형: -는
-    return `${stem}는`;
-  }
-  // 과거 관형형: -은/ㄴ
   const lastChar = stem[stem.length - 1];
   const hasJong = hasJongseong(lastChar);
 
-  if (hasJong) {
-    return `${stem}은`;
+  switch (tense) {
+    case 'present':
+      // 현재 관형형: -는
+      return `${stem}는`;
+
+    case 'past':
+      // 과거 관형형: -은/ㄴ
+      if (hasJong) {
+        return `${stem}은`;
+      }
+      return `${addJongseong(stem, 'ㄴ')}`;
+
+    case 'future':
+      // 미래 관형형: -ㄹ/을
+      if (hasJong) {
+        return `${stem}을`;
+      }
+      return `${addJongseong(stem, 'ㄹ')}`;
+
+    case 'retrospective':
+      // 회상 관형형: -던
+      return `${stem}던`;
+
+    default:
+      return `${stem}는`;
   }
-  return `${addJongseong(stem, 'ㄴ')}`;
 }
 
 /**
@@ -4092,9 +4356,15 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
       const baseProgressive = progressive.replace(/있다$/, '');
       // 진행형의 "있다"는 특별 처리 (있다 → 있어/있어요/있다)
       parts.push(baseProgressive + applyProgressiveEnding(formality, sentenceType));
+    } else if (parsed.tense === 'past' && parsed.negated) {
+      // Phase 12: 과거 부정 → -지 않았다 (didn't + verb)
+      parts.push(applyPastNegation(verb, formality, sentenceType));
     } else if (parsed.tense === 'past') {
       // Phase 12: 과거 시제 → -었다/-았다
       parts.push(applyPastTense(verb, formality, sentenceType));
+    } else if (parsed.tense === 'future' && parsed.negated) {
+      // Phase 12: 미래 부정 → -지 않을 것이다 (won't + verb)
+      parts.push(applyFutureNegation(verb, formality, sentenceType));
     } else if (parsed.tense === 'future') {
       // Phase 12: 미래 시제 → -ㄹ 것이다
       parts.push(applyFutureTense(verb, formality, sentenceType));
@@ -4994,6 +5264,102 @@ function applyNegationEnding(
   }
 }
 
+/**
+ * 과거 부정문 적용 (-지 않았다)
+ * "I didn't eat" → "나는 먹지 않았다"
+ */
+function applyPastNegation(
+  verb: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  // 어간 추출
+  let stem = verb;
+  if (verb.endsWith('다')) {
+    stem = verb.slice(0, -1);
+  }
+
+  // 하다 동사 처리
+  if (verb.endsWith('하다')) {
+    const prefix = verb.slice(0, -2);
+    return applyPastNegationEnding(`${prefix}하지`, formality, sentenceType);
+  }
+
+  return applyPastNegationEnding(`${stem}지`, formality, sentenceType);
+}
+
+/**
+ * 과거 부정 어간에 어미 적용
+ */
+function applyPastNegationEnding(
+  negStem: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  switch (formality) {
+    case 'casual':
+      return sentenceType === 'question' ? `${negStem} 않았어` : `${negStem} 않았어`;
+    case 'formal':
+      return sentenceType === 'question' ? `${negStem} 않았어요` : `${negStem} 않았어요`;
+    case 'neutral':
+      return sentenceType === 'question' ? `${negStem} 않았니` : `${negStem} 않았다`;
+    case 'friendly':
+      return sentenceType === 'question' ? `${negStem} 않았어` : `${negStem} 않았어~`;
+    case 'literal':
+      return sentenceType === 'question' ? `${negStem} 않았습니까` : `${negStem} 않았습니다`;
+    default:
+      return `${negStem} 않았다`;
+  }
+}
+
+/**
+ * 미래 부정문 적용 (-지 않을 것이다)
+ * "I won't go" → "나는 가지 않을 것이다"
+ */
+function applyFutureNegation(
+  verb: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  // 어간 추출
+  let stem = verb;
+  if (verb.endsWith('다')) {
+    stem = verb.slice(0, -1);
+  }
+
+  // 하다 동사 처리
+  if (verb.endsWith('하다')) {
+    const prefix = verb.slice(0, -2);
+    return applyFutureNegationEnding(`${prefix}하지`, formality, sentenceType);
+  }
+
+  return applyFutureNegationEnding(`${stem}지`, formality, sentenceType);
+}
+
+/**
+ * 미래 부정 어간에 어미 적용
+ */
+function applyFutureNegationEnding(
+  negStem: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  switch (formality) {
+    case 'casual':
+      return sentenceType === 'question' ? `${negStem} 않을 거야` : `${negStem} 않을 거야`;
+    case 'formal':
+      return sentenceType === 'question' ? `${negStem} 않을 거예요` : `${negStem} 않을 거예요`;
+    case 'neutral':
+      return sentenceType === 'question' ? `${negStem} 않을 거니` : `${negStem} 않을 것이다`;
+    case 'friendly':
+      return sentenceType === 'question' ? `${negStem} 않을 거야` : `${negStem} 않을 거야~`;
+    case 'literal':
+      return sentenceType === 'question' ? `${negStem} 않을 것입니까` : `${negStem} 않을 것입니다`;
+    default:
+      return `${negStem} 않을 것이다`;
+  }
+}
+
 // ============================================
 // Phase 1.1: Perfect Tense (완료형) 변환
 // ============================================
@@ -5159,9 +5525,9 @@ function applyModalVerb(
       if (isHadaVerb) {
         return applyModalEnding(`${hadaPrefix}해야`, 'obligation', formality, sentenceType);
       }
-      // 모음조화
-      const vowelEnding = getVowelHarmonyEnding(stem);
-      return applyModalEnding(`${stem}${vowelEnding}야`, 'obligation', formality, sentenceType);
+      // 모음조화 + 모음축약
+      const obligationStem = applyVowelContraction(stem);
+      return applyModalEnding(`${obligationStem}야`, 'obligation', formality, sentenceType);
     }
 
     case 'had to': {
@@ -5169,10 +5535,10 @@ function applyModalVerb(
       if (isHadaVerb) {
         return applyModalEnding(`${hadaPrefix}해야`, 'past-obligation', formality, sentenceType);
       }
-      // 모음조화
-      const vowelEnding = getVowelHarmonyEnding(stem);
+      // 모음조화 + 모음축약
+      const pastObligationStem = applyVowelContraction(stem);
       return applyModalEnding(
-        `${stem}${vowelEnding}야`,
+        `${pastObligationStem}야`,
         'past-obligation',
         formality,
         sentenceType,
@@ -5184,8 +5550,9 @@ function applyModalVerb(
       if (isHadaVerb) {
         return applyModalEnding(`${hadaPrefix}해도`, 'permission', formality, sentenceType);
       }
-      const mayEnding = getVowelHarmonyEnding(stem);
-      return applyModalEnding(`${stem}${mayEnding}도`, 'permission', formality, sentenceType);
+      // 모음조화 + 모음축약
+      const permissionStem = applyVowelContraction(stem);
+      return applyModalEnding(`${permissionStem}도`, 'permission', formality, sentenceType);
     }
 
     case 'might':
@@ -5585,6 +5952,90 @@ function getVowelHarmonyEnding(stem: string): string {
     return '아';
   }
   return '어';
+}
+
+/**
+ * 모음축약 적용
+ * 어간 마지막 모음 + 아/어 연결어미 → 축약형
+ *
+ * 규칙:
+ * - 가 (ㅏ) + 아 → 가 (아 생략)
+ * - 서 (ㅓ) + 어 → 서 (어 생략)
+ * - 오 (ㅗ) + 아 → 와 (ㅗ+ㅏ→ㅘ 축약)
+ * - 오다 → 와 (특수)
+ * - 주다 → 줘 (특수)
+ * - 두다 → 둬 (특수)
+ * - 보다 → 봐 (특수)
+ *
+ * @param stem 동사 어간 (ex: 가, 먹, 오)
+ * @returns 축약된 어간+모음 (ex: 가, 먹어, 와)
+ */
+function applyVowelContraction(stem: string): string {
+  if (!stem) return '어';
+
+  const lastChar = stem[stem.length - 1];
+  const code = lastChar.charCodeAt(0);
+
+  // 한글이 아니면 기본값 반환
+  if (code < 0xac00 || code > 0xd7a3) return stem + '어';
+
+  const syllableIndex = code - 0xac00;
+  const initialIndex = Math.floor(syllableIndex / 588); // 초성
+  const vowelIndex = Math.floor((syllableIndex % 588) / 28); // 중성
+  const finalIndex = syllableIndex % 28; // 종성
+
+  // 종성이 있으면 축약 없음 (먹 + 어 → 먹어)
+  if (finalIndex !== 0) {
+    const vowelEnding = vowelIndex === 0 || vowelIndex === 8 ? '아' : '어';
+    return stem + vowelEnding;
+  }
+
+  // 모음 인덱스별 축약 처리
+  switch (vowelIndex) {
+    case 0: // ㅏ: 가 + 아 → 가
+      return stem;
+
+    case 4: // ㅓ: 서 + 어 → 서
+      return stem;
+
+    case 8: {
+      // ㅗ: 오 + 아 → 와
+      // 새로운 글자 생성: 초성 + ㅘ(vowel 9) + 종성 없음
+      const waCode = 0xac00 + initialIndex * 588 + 9 * 28;
+      const prefix = stem.length > 1 ? stem.slice(0, -1) : '';
+      return prefix + String.fromCharCode(waCode);
+    }
+
+    case 13: {
+      // ㅜ: 주 + 어 → 줘
+      // 새로운 글자 생성: 초성 + ㅝ(vowel 14) + 종성 없음
+      const woCode = 0xac00 + initialIndex * 588 + 14 * 28;
+      const prefix = stem.length > 1 ? stem.slice(0, -1) : '';
+      return prefix + String.fromCharCode(woCode);
+    }
+
+    case 20: {
+      // ㅡ: 쓰 + 어 → 써
+      // 새로운 글자 생성: 초성 + ㅓ(vowel 4) + 종성 없음
+      const eoCode = 0xac00 + initialIndex * 588 + 4 * 28;
+      const prefix = stem.length > 1 ? stem.slice(0, -1) : '';
+      return prefix + String.fromCharCode(eoCode);
+    }
+
+    case 18: {
+      // ㅣ: 기 + 어 → 겨 (축약형 사용)
+      // 새로운 글자 생성: 초성 + ㅕ(vowel 6) + 종성 없음
+      const yeoCode = 0xac00 + initialIndex * 588 + 6 * 28;
+      const prefix = stem.length > 1 ? stem.slice(0, -1) : '';
+      return prefix + String.fromCharCode(yeoCode);
+    }
+
+    default: {
+      // 기타: 모음조화에 따라 아/어 추가
+      const vowelEnding = vowelIndex === 0 || vowelIndex === 8 ? '아' : '어';
+      return stem + vowelEnding;
+    }
+  }
 }
 
 /**
