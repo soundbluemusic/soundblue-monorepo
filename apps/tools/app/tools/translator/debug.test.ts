@@ -7,6 +7,34 @@ import { translateWithInfo } from './v2.1';
 import { parseEnglish, parseKorean } from './v2.1/tokenizer';
 
 describe('파이프라인 디버깅', () => {
+  describe('Phase 4.2: Causative (사동) 테스트', () => {
+    it('I made him go', () => {
+      const result = translate('I made him go', 'en-ko');
+      console.log('I made him go →', result);
+      expect(result).toContain('가게');
+    });
+
+    it('She let me eat', () => {
+      const result = translate('She let me eat', 'en-ko');
+      console.log('She let me eat →', result);
+      expect(result).toContain('먹게');
+    });
+  });
+
+  describe('Phase 5.1: Connective Endings (연결어미) 테스트', () => {
+    it('I go and eat (나열 -고)', () => {
+      const result = translate('I go and eat', 'en-ko');
+      console.log('I go and eat →', result);
+      expect(result).toContain('가고');
+    });
+
+    it('I go but he stays (대조 -지만)', () => {
+      const result = translate('I go but he stays', 'en-ko');
+      console.log('I go but he stays →', result);
+      expect(result).toContain('가지만');
+    });
+  });
+
   describe('En→Ko copula 테스트', () => {
     it('She is a student 디버그', () => {
       const result = translate('She is a student', 'en-ko');

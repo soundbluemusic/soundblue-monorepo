@@ -44,11 +44,15 @@ const SENTENCE_TEMPLATES: Partial<Record<AllTemplateKeys, string>> & Record<Temp
   'statement-present': '{S} {V} {O} {L} {A}',
   'statement-past': '{S} {V:past} {O} {L} {A}',
   'statement-future': '{S} will {V} {O} {L} {A}',
+  'statement-present-perfect': '{S} have {V:pp} {O} {L} {A}',
+  'statement-past-perfect': '{S} had {V:pp} {O} {L} {A}',
 
   // 평서문 부정
   'statement-present-negated': "{S} don't {V} {O} {L} {A}",
   'statement-past-negated': "{S} didn't {V} {O} {L} {A}",
   'statement-future-negated': "{S} won't {V} {O} {L} {A}",
+  'statement-present-perfect-negated': "{S} haven't {V:pp} {O} {L} {A}",
+  'statement-past-perfect-negated': "{S} hadn't {V:pp} {O} {L} {A}",
 
   // Phase 1: 3인칭 단수 평서문 부정
   'statement-present-3ps-negated': "{S} doesn't {V} {O} {L} {A}",
@@ -57,6 +61,8 @@ const SENTENCE_TEMPLATES: Partial<Record<AllTemplateKeys, string>> & Record<Temp
   'question-present': 'Do {S:lower} {V} {O} {L} {A}',
   'question-past': 'Did {S:lower} {V} {O} {L} {A}',
   'question-future': 'Will {S:lower} {V} {O} {L} {A}',
+  'question-present-perfect': 'Have {S:lower} {V:pp} {O} {L} {A}',
+  'question-past-perfect': 'Had {S:lower} {V:pp} {O} {L} {A}',
 
   // Phase 1: 3인칭 단수 의문문
   'question-present-3ps': 'Does {S:lower} {V} {O} {L} {A}',
@@ -66,26 +72,36 @@ const SENTENCE_TEMPLATES: Partial<Record<AllTemplateKeys, string>> & Record<Temp
   'question-present-negated': "Don't {S:lower} {V} {O} {L} {A}",
   'question-past-negated': "Didn't {S:lower} {V} {O} {L} {A}",
   'question-future-negated': "Won't {S:lower} {V} {O} {L} {A}",
+  'question-present-perfect-negated': "Haven't {S:lower} {V:pp} {O} {L} {A}",
+  'question-past-perfect-negated': "Hadn't {S:lower} {V:pp} {O} {L} {A}",
 
   // 감탄문
   'exclamation-present': '{S} {V} {O} {L} {A}',
   'exclamation-past': '{S} {V:past} {O} {L} {A}',
   'exclamation-future': '{S} will {V} {O} {L} {A}',
+  'exclamation-present-perfect': '{S} have {V:pp} {O} {L} {A}',
+  'exclamation-past-perfect': '{S} had {V:pp} {O} {L} {A}',
 
   // 감탄문 부정
   'exclamation-present-negated': "{S} don't {V} {O} {L} {A}",
   'exclamation-past-negated': "{S} didn't {V} {O} {L} {A}",
   'exclamation-future-negated': "{S} won't {V} {O} {L} {A}",
+  'exclamation-present-perfect-negated': "{S} haven't {V:pp} {O} {L} {A}",
+  'exclamation-past-perfect-negated': "{S} hadn't {V:pp} {O} {L} {A}",
 
   // 명령문
   'imperative-present': '{V} {O} {L} {A}',
   'imperative-past': '{V} {O} {L} {A}',
   'imperative-future': '{V} {O} {L} {A}',
+  'imperative-present-perfect': '{V} {O} {L} {A}',
+  'imperative-past-perfect': '{V} {O} {L} {A}',
 
   // 명령문 부정
   'imperative-present-negated': "Don't {V} {O} {L} {A}",
   'imperative-past-negated': "Don't {V} {O} {L} {A}",
   'imperative-future-negated': "Don't {V} {O} {L} {A}",
+  'imperative-present-perfect-negated': "Don't {V} {O} {L} {A}",
+  'imperative-past-perfect-negated': "Don't {V} {O} {L} {A}",
 };
 
 /**
@@ -561,6 +577,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
   // 5-2. 다의어 해소 (동사 번역 결정)
   let verbText: string | undefined;
   let isCopulaVerb = false; // 서술격 조사 여부
+  let isLightVerbPattern = false; // 경동사 패턴 여부 (목적어를 동사로 변환)
 
   if (verbs.length > 0) {
     const verb = verbs[0];
@@ -570,6 +587,17 @@ export function generateEnglish(parsed: ParsedSentence): string {
       isCopulaVerb = true;
       // 주어에 따른 be 동사 선택은 별도 처리
       verbText = verb.translated || KO_EN[verb.stem] || verb.stem;
+    }
+    // 경동사 패턴: "[명사]를 하다" → 목적어를 동사로 변환
+    // 예: "운동을 했다" → "exercised", "샤워를 했다" → "showered"
+    else if (verb.meta?.isLightVerb && objects.length > 0) {
+      isLightVerbPattern = true;
+      const obj = objects[0];
+      // 목적어 명사의 동사형 찾기 (exercise → exercise, shower → shower)
+      const nounStem = obj.stem;
+      const nounTranslation = obj.translated || KO_EN[nounStem] || nounStem;
+      // 영어에서 명사 = 동사인 경우가 많음 (exercise, shower, study 등)
+      verbText = nounTranslation;
     } else {
       // 먼저 다의어 규칙 확인
       const polysemyResult = resolvePolysemy(verb.stem, objects);
@@ -583,7 +611,11 @@ export function generateEnglish(parsed: ParsedSentence): string {
 
   // 6. 템플릿 기반 문장 생성
   // Phase 2: 목적어에 관사 추가
-  const objectText = objects.length > 0 ? translateTokens(objects, allContextTokens) : undefined;
+  // 경동사 패턴에서는 목적어가 동사로 변환되므로 목적어를 비움
+  const objectText =
+    isLightVerbPattern || objects.length === 0
+      ? undefined
+      : translateTokens(objects, allContextTokens);
   const objectWithArticle = objectText ? addArticle(objectText) : undefined;
 
   const templateValues = {
@@ -1077,6 +1109,9 @@ const EN_VERBS: Record<string, string> = {
   walk: '걷다',
   learn: '배우다',
   teach: '가르치다',
+  stay: '머무르다',
+  stays: '머무르다',
+  stayed: '머무르다',
 
   // 과거형/활용형 → 기본형으로 매핑 (시제는 parsed.tense로 별도 처리)
   went: '가다',
@@ -1155,37 +1190,142 @@ const CLAUSE_MARKERS = new Set([
   // 'when', 'while' 등은 추후 추가 (부사절)
 ]);
 
+/**
+ * Phase 3.1: 절을 취하는 동사 (Clause-taking verbs)
+ * that-clause와 함께 사용되는 동사들
+ */
+const CLAUSE_TAKING_VERBS = new Set([
+  'think',
+  'thinks',
+  'thought',
+  'know',
+  'knows',
+  'knew',
+  'believe',
+  'believes',
+  'believed',
+  'say',
+  'says',
+  'said',
+  'tell',
+  'tells',
+  'told',
+  'ask',
+  'asks',
+  'asked',
+  'hope',
+  'hopes',
+  'hoped',
+  'wish',
+  'wishes',
+  'wished',
+  'feel',
+  'feels',
+  'felt',
+  'understand',
+  'understands',
+  'understood',
+  'hear',
+  'hears',
+  'heard',
+  'see',
+  'sees',
+  'saw',
+]);
+
 // ============================================
 // Phase 5.1: Connective Endings (연결어미)
 // ============================================
 
 /**
- * 영어 접속사 → 한국어 연결어미 매핑
+ * 영어 접속사 → 한국어 연결어미 매핑 (32개 패턴)
  *
- * 규칙:
- * - and: -고 (나열)
- * - but: -지만 (대조)
- * - so: -아서/-어서 (결과)
- * - because: -기 때문에 (원인)
- * - although/though: -지만 (양보)
- * - if: -(으)면 (조건) - 이미 Phase 2.1에서 처리
- * - when: -ㄹ 때 (시간)
- * - while: -는 동안 (시간)
- * - before: -기 전에 (시간)
- * - after: -ㄴ 후에 (시간)
+ * 카테고리별 연결어미:
+ *
+ * 1. 나열/순서 (Listing/Sequence)
+ *    - and: -고 (나열)
+ *    - then: -고서, -고 나서 (순서)
+ *    - and then: -고 나서 (순서)
+ *
+ * 2. 대조/양보 (Contrast/Concession)
+ *    - but: -지만 (대조)
+ *    - however: -지만, -는데 (대조)
+ *    - although/though/even though: -(으)ㄴ데도, -지만 (양보)
+ *    - while (대조): -는 반면 (대조)
+ *    - whereas: -는 반면에 (대조)
+ *    - yet: -지만 (대조)
+ *
+ * 3. 원인/이유 (Cause/Reason)
+ *    - because: -기 때문에, -아서/-어서 (원인)
+ *    - since: -기 때문에 (원인)
+ *    - as (이유): -기 때문에 (이유)
+ *    - for: -기 때문에 (이유)
+ *
+ * 4. 결과/목적 (Result/Purpose)
+ *    - so: -아서/-어서 (결과)
+ *    - therefore: -므로 (결론)
+ *    - thus: -므로 (결론)
+ *    - so that: -도록, -기 위해 (목적)
+ *    - in order to: -기 위해 (목적)
+ *
+ * 5. 시간 (Time)
+ *    - when: -ㄹ 때 (시간)
+ *    - while: -는 동안 (시간)
+ *    - before: -기 전에 (시간)
+ *    - after: -ㄴ 후에 (시간)
+ *    - until: -ㄹ 때까지 (시간)
+ *    - as soon as: -자마자 (즉시)
+ *    - once: -하면 (조건/시간)
+ *
+ * 6. 조건 (Condition)
+ *    - if: -(으)면 (조건) - Phase 2.1에서 처리
+ *    - unless: -지 않으면 (부정 조건)
+ *    - provided/providing: -(으)면 (조건)
+ *    - as long as: -는 한 (조건)
+ *
+ * 7. 선택 (Choice)
+ *    - or: -거나 (선택)
+ *    - either...or: -거나 (선택)
+ *    - whether...or: -든지 (선택)
  */
 const CONNECTIVE_CONJUNCTIONS: Record<string, { ending: string; type: string }> = {
+  // 1. 나열/순서
   and: { ending: '-고', type: 'listing' },
+  // biome-ignore lint/suspicious/noThenProperty: 'then'은 영어 접속사, Promise.then과 무관
+  then: { ending: '-고 나서', type: 'sequence' },
+
+  // 2. 대조/양보
   but: { ending: '-지만', type: 'contrast' },
-  so: { ending: '-아서', type: 'result' },
-  because: { ending: '-기 때문에', type: 'cause' },
-  since: { ending: '-기 때문에', type: 'cause' },
+  however: { ending: '-지만', type: 'contrast' },
   although: { ending: '-지만', type: 'concession' },
   though: { ending: '-지만', type: 'concession' },
+  whereas: { ending: '-는 반면에', type: 'contrast' },
+  yet: { ending: '-지만', type: 'contrast' },
+
+  // 3. 원인/이유
+  because: { ending: '-기 때문에', type: 'cause' },
+  since: { ending: '-기 때문에', type: 'cause' },
+  as: { ending: '-기 때문에', type: 'cause' }, // 이유로 사용될 때
+  for: { ending: '-기 때문에', type: 'cause' }, // 접속사로 사용될 때
+
+  // 4. 결과/목적
+  so: { ending: '-아서', type: 'result' },
+  therefore: { ending: '-므로', type: 'conclusion' },
+  thus: { ending: '-므로', type: 'conclusion' },
+
+  // 5. 시간
   when: { ending: '-ㄹ 때', type: 'time' },
   while: { ending: '-는 동안', type: 'time' },
   before: { ending: '-기 전에', type: 'time' },
   after: { ending: '-ㄴ 후에', type: 'time' },
+  until: { ending: '-ㄹ 때까지', type: 'time' },
+
+  // 6. 조건 (if/unless는 Phase 2.1에서 처리)
+  provided: { ending: '-(으)면', type: 'condition' },
+  providing: { ending: '-(으)면', type: 'condition' },
+
+  // 7. 선택
+  or: { ending: '-거나', type: 'choice' },
 };
 
 /**
@@ -1201,6 +1341,123 @@ function isConnectiveConjunction(word: string): boolean {
 function getConnectiveEnding(conjunction: string): string {
   const info = CONNECTIVE_CONJUNCTIONS[conjunction.toLowerCase()];
   return info?.ending || '';
+}
+
+/**
+ * 동사에 연결어미 적용
+ *
+ * @param verb 한국어 동사 (기본형, 예: 가다, 먹다)
+ * @param ending 연결어미 패턴 (예: -고, -지만, -아서)
+ * @returns 연결어미가 적용된 동사
+ *
+ * 규칙:
+ * - -고: 어간 + 고 (가다 → 가고, 먹다 → 먹고)
+ * - -지만: 어간 + 지만 (가다 → 가지만, 먹다 → 먹지만)
+ * - -아서/-어서: 모음조화 적용 (가다 → 가서, 먹다 → 먹어서)
+ * - -기 때문에: 어간 + 기 때문에 (가다 → 가기 때문에)
+ * - -ㄹ 때: 어간 + ㄹ 때 (가다 → 갈 때, 먹다 → 먹을 때)
+ * - -는 동안: 어간 + 는 동안 (가다 → 가는 동안)
+ * - -기 전에: 어간 + 기 전에 (가다 → 가기 전에)
+ * - -ㄴ 후에: 어간 + ㄴ 후에 (가다 → 간 후에, 먹다 → 먹은 후에)
+ * - -므로: 어간 + 므로 (가다 → 가므로)
+ * - -거나: 어간 + 거나 (가다 → 가거나)
+ * - -(으)면: 어간 + (으)면 (가다 → 가면, 먹다 → 먹으면)
+ * - -ㄹ 때까지: 어간 + ㄹ 때까지 (가다 → 갈 때까지)
+ * - -고 나서: 어간 + 고 나서 (가다 → 가고 나서)
+ * - -는 반면에: 어간 + 는 반면에 (가다 → 가는 반면에)
+ */
+function applyConnectiveEnding(verb: string, ending: string): string {
+  if (!verb || !ending) return verb;
+
+  // 어간 추출 (다 제거)
+  let stem = verb;
+  if (verb.endsWith('다')) {
+    stem = verb.slice(0, -1);
+  }
+
+  // 어간의 마지막 글자
+  const lastChar = stem[stem.length - 1];
+  const hasJong = hasJongseong(lastChar);
+
+  // 연결어미 패턴별 처리
+  switch (ending) {
+    case '-고':
+      return `${stem}고`;
+
+    case '-지만':
+      return `${stem}지만`;
+
+    case '-아서':
+    case '-어서': {
+      // 모음조화: ㅏ, ㅗ → 아서, 나머지 → 어서
+      const vowel = getLastVowel(lastChar);
+      if (vowel === 'ㅏ' || vowel === 'ㅗ') {
+        // 하다 → 해서 특수 처리
+        if (stem.endsWith('하')) {
+          return `${stem.slice(0, -1)}해서`;
+        }
+        // 가다 → 가서 (ㅏ + 아 → 축약)
+        if (vowel === 'ㅏ' && !hasJong) {
+          return `${stem}서`;
+        }
+        return `${stem}아서`;
+      }
+      return `${stem}어서`;
+    }
+
+    case '-기 때문에':
+      return `${stem}기 때문에`;
+
+    case '-ㄹ 때': {
+      if (hasJong) {
+        return `${stem}을 때`;
+      }
+      return `${addJongseong(stem, 'ㄹ')} 때`;
+    }
+
+    case '-는 동안':
+      return `${stem}는 동안`;
+
+    case '-기 전에':
+      return `${stem}기 전에`;
+
+    case '-ㄴ 후에': {
+      if (hasJong) {
+        return `${stem}은 후에`;
+      }
+      return `${addJongseong(stem, 'ㄴ')} 후에`;
+    }
+
+    case '-므로':
+      return `${stem}므로`;
+
+    case '-거나':
+      return `${stem}거나`;
+
+    case '-(으)면': {
+      if (hasJong) {
+        return `${stem}으면`;
+      }
+      return `${stem}면`;
+    }
+
+    case '-ㄹ 때까지': {
+      if (hasJong) {
+        return `${stem}을 때까지`;
+      }
+      return `${addJongseong(stem, 'ㄹ')} 때까지`;
+    }
+
+    case '-고 나서':
+      return `${stem}고 나서`;
+
+    case '-는 반면에':
+      return `${stem}는 반면에`;
+
+    default:
+      // 알 수 없는 패턴은 그대로 반환
+      return verb;
+  }
 }
 
 /**
@@ -2023,6 +2280,37 @@ function selectSubjectParticle(noun: string, type: 'topic' | 'subject' = 'topic'
   return hasJong ? '이' : '가';
 }
 
+/**
+ * 주어에 조사 붙이기 (특수 규칙 처리)
+ *
+ * 한국어 특수 규칙:
+ * - 나 + 가 → 내가 (NOT 나가)
+ * - 너 + 가 → 네가 (NOT 너가)
+ * - 저 + 가 → 제가 (NOT 저가)
+ * - 나 + 는 → 나는 (일반)
+ * - 너 + 는 → 너는 (일반)
+ * - 저 + 는 → 저는 (일반)
+ *
+ * @param subject 주어 (나, 너, 저 등)
+ * @param particleType 'topic' (는/은) or 'subject' (가/이)
+ * @returns 주어 + 조사 조합 (예: 내가, 나는)
+ */
+function applySubjectParticle(subject: string, particleType: 'topic' | 'subject'): string {
+  if (!subject) return '';
+
+  // 특수 규칙: 주격조사 "가"와 결합 시 변형
+  if (particleType === 'subject') {
+    if (subject === '나') return '내가';
+    if (subject === '너') return '네가';
+    if (subject === '저') return '제가';
+    if (subject === '누구') return '누가'; // 누구 + 가 → 누가
+  }
+
+  // 일반 규칙
+  const particle = selectSubjectParticle(subject, particleType);
+  return `${subject}${particle}`;
+}
+
 /** be동사 (진행형 판별용) */
 const EN_BE_VERBS = new Set(['am', 'is', 'are', 'was', 'were']);
 
@@ -2221,7 +2509,14 @@ function tagEnglishWords(parsed: ParsedSentence): TaggedWord[] {
     // 5.6. Phase 4.2: 수동태 체크 (be동사 뒤의 과거분사)
     // "The book was read" → "책이 읽혔다"
     // 주의: 비교급/최상급 형용사(better, best, worse, worst, fastest 등)는 제외
-    else if (foundBeVerb && !foundVerb && !foundHaveAux && !getComparativeInfo(lower)) {
+    // 주의: -ing 형태는 수동태가 아니라 진행형이므로 제외
+    else if (
+      foundBeVerb &&
+      !foundVerb &&
+      !foundHaveAux &&
+      !getComparativeInfo(lower) &&
+      !lower.endsWith('ing')
+    ) {
       const passiveBase = getPassiveVerbBase(lower);
       if (passiveBase) {
         pos = 'verb';
@@ -2624,6 +2919,592 @@ function _toQuestionKoreanPolite(verb: string, level: PolitenessLevel): string {
   return verb;
 }
 
+// ============================================
+// Phase 3.1: That-clause Processing (명사절 처리)
+// ============================================
+
+/**
+ * Phase 3.1: that-clause 처리
+ *
+ * "I think that he goes" → "나는 그가 간다고 생각한다"
+ *
+ * 구조:
+ * 1. 주절: I think → 나는 ... 생각한다
+ * 2. 종속절: that he goes → 그가 간다고
+ *
+ * @returns 번역된 문장 (that-clause가 있는 경우) 또는 null
+ */
+function processThatClause(parsed: ParsedSentence, formality: Formality): string | null {
+  const words = parsed.original.toLowerCase().split(/\s+/);
+
+  // 1. 'that' 위치 찾기
+  const thatIndex = words.findIndex((w) => w === 'that');
+  if (thatIndex === -1) return null;
+
+  // 2. that 앞에 절을 취하는 동사가 있는지 확인
+  let mainVerbIndex = -1;
+  let mainVerb = '';
+  for (let i = 0; i < thatIndex; i++) {
+    const word = words[i].replace(/[.,!?]/g, '');
+    if (CLAUSE_TAKING_VERBS.has(word)) {
+      mainVerbIndex = i;
+      mainVerb = word;
+      break;
+    }
+  }
+
+  if (mainVerbIndex === -1) return null;
+
+  // 3. 주절과 종속절 분리
+  const mainClauseWords = words.slice(0, thatIndex);
+  const subClauseWords = words.slice(thatIndex + 1); // 'that' 제외
+
+  if (subClauseWords.length === 0) return null;
+
+  // 4. 주절 주어 추출 (주동사 앞의 단어들)
+  const mainSubjectWords = mainClauseWords.slice(0, mainVerbIndex);
+  const mainSubject =
+    mainSubjectWords.length > 0
+      ? mainSubjectWords.map((w) => EN_KO[w.replace(/[.,!?]/g, '')] || w).join(' ')
+      : '';
+
+  // 5. 주동사 번역
+  const mainVerbBase = extractEnglishVerbBase(mainVerb) || mainVerb;
+  const mainVerbKo = EN_KO[mainVerbBase] || EN_VERBS[mainVerbBase] || mainVerb;
+
+  // 6. 종속절 처리: 간단한 SVO 파싱
+  // 첫 단어 = 주어, 마지막 단어 = 동사 (단순화)
+  let subSubject = '';
+  let subVerb = '';
+  const subObjects: string[] = [];
+
+  for (let i = 0; i < subClauseWords.length; i++) {
+    const word = subClauseWords[i].replace(/[.,!?]/g, '');
+    const ko = EN_KO[word] || '';
+
+    if (i === 0) {
+      // 첫 단어는 주어
+      subSubject = ko || word;
+    } else if (EN_VERBS[word] || EN_KO[word]?.endsWith('다')) {
+      // 동사 찾기
+      const verbBase = extractEnglishVerbBase(word) || word;
+      subVerb = EN_KO[verbBase] || EN_VERBS[verbBase] || word;
+    } else if (ko) {
+      subObjects.push(ko);
+    }
+  }
+
+  // 7. 종속절 동사에 -다고 어미 적용
+  const subVerbWithQuote = applyQuotativeEnding(subVerb);
+
+  // 8. 종속절 조립: 주어가 + 목적어를 + 동사다고
+  const subClauseParts: string[] = [];
+  if (subSubject) {
+    subClauseParts.push(applySubjectParticle(subSubject, 'subject'));
+  }
+  for (const obj of subObjects) {
+    const particle = selectObjectParticle(obj);
+    subClauseParts.push(`${obj}${particle}`);
+  }
+  if (subVerbWithQuote) {
+    subClauseParts.push(subVerbWithQuote);
+  }
+
+  // 9. 주동사 활용 (formality 적용)
+  const sentenceType = parsed.type === 'question' ? 'question' : 'statement';
+  const mainVerbConjugated = applyFormality(mainVerbKo, formality, sentenceType);
+
+  // 10. 전체 조립: 주절주어는 + 종속절 + 주동사
+  const result: string[] = [];
+  if (mainSubject) {
+    result.push(applySubjectParticle(mainSubject, 'topic'));
+  }
+  result.push(subClauseParts.join(' '));
+  result.push(mainVerbConjugated);
+
+  return result.join(' ');
+}
+
+// ============================================
+// Phase 3.2: Relative Clause Processing (관계절 처리)
+// ============================================
+
+/**
+ * Phase 3.2: 관계절 처리
+ *
+ * "The man who runs" → "달리는 남자"
+ * "The book which I read" → "내가 읽은 책"
+ *
+ * 한국어에서 관계절은 명사 앞에 위치 (관형형)
+ *
+ * @returns 번역된 문장 (관계절이 있는 경우) 또는 null
+ */
+function processRelativeClause(parsed: ParsedSentence, _formality: Formality): string | null {
+  const words = parsed.original.toLowerCase().split(/\s+/);
+
+  // 1. 관계대명사 위치 찾기 (who, which, that)
+  const relativePronouns = ['who', 'whom', 'which', 'that'];
+  let relPronounIndex = -1;
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i].replace(/[.,!?]/g, '');
+    if (relativePronouns.includes(word)) {
+      // 'that'은 관계대명사로만 사용되는지 확인 (앞에 명사가 있어야 함)
+      if (word === 'that') {
+        // that 앞에 명사가 있는지 확인
+        if (i > 0) {
+          const prevWord = words[i - 1].replace(/[.,!?]/g, '');
+          // 관사나 명사가 아닌 동사 뒤의 that은 명사절 접속사
+          if (CLAUSE_TAKING_VERBS.has(prevWord)) {
+            continue; // 명사절 that, 건너뜀
+          }
+        }
+      }
+      relPronounIndex = i;
+      break;
+    }
+  }
+
+  if (relPronounIndex === -1) return null;
+
+  // 2. 선행사(antecedent) 추출: 관계대명사 바로 앞의 명사
+  // "The man who" → "man"이 선행사
+  let antecedent = '';
+  for (let i = relPronounIndex - 1; i >= 0; i--) {
+    const word = words[i].replace(/[.,!?]/g, '');
+    // 관사는 건너뛰기
+    if (word === 'the' || word === 'a' || word === 'an') continue;
+    // 첫 번째 비관사 단어가 선행사
+    antecedent = EN_KO[word] || word;
+    break;
+  }
+
+  if (!antecedent) return null;
+
+  // 3. 관계절 추출 (관계대명사 이후의 단어들)
+  const relativeClauseWords = words.slice(relPronounIndex + 1);
+  if (relativeClauseWords.length === 0) return null;
+
+  // 4. 관계절 동사 찾기 및 관형형 변환
+  let relVerb = '';
+  const relObjects: string[] = [];
+
+  for (let i = 0; i < relativeClauseWords.length; i++) {
+    const word = relativeClauseWords[i].replace(/[.,!?]/g, '');
+
+    // 동사 찾기
+    if (EN_VERBS[word] || EN_KO[word]?.endsWith('다')) {
+      const verbBase = extractEnglishVerbBase(word) || word;
+      relVerb = EN_KO[verbBase] || EN_VERBS[verbBase] || word;
+    } else {
+      const ko = EN_KO[word];
+      if (ko && !['the', 'a', 'an', 'i', 'you', 'he', 'she', 'it', 'we', 'they'].includes(word)) {
+        relObjects.push(ko);
+      }
+    }
+  }
+
+  if (!relVerb) return null;
+
+  // 5. 관형형 어미 적용 (-는, -은/ㄴ)
+  // 현재: -는 (달리는)
+  // 과거: -은/ㄴ (달린)
+  const attributiveVerb = applyAttributiveEnding(relVerb, 'present');
+
+  // 6. 결과 조립: 관형절 + 선행사
+  // "who runs" → "달리는" + "남자" → "달리는 남자"
+  const parts: string[] = [];
+
+  // 관계절 내 목적어 (있는 경우)
+  for (const obj of relObjects) {
+    const particle = selectObjectParticle(obj);
+    parts.push(`${obj}${particle}`);
+  }
+
+  parts.push(attributiveVerb);
+  parts.push(antecedent);
+
+  return parts.join(' ');
+}
+
+// ============================================
+// Phase 3.3: Adverbial Clause Processing (부사절 처리)
+// ============================================
+
+/**
+ * 부사절 접속사 → 한국어 어미/표현 매핑
+ */
+const ADVERBIAL_CONJUNCTIONS: Record<
+  string,
+  { ending: string; type: 'time' | 'reason' | 'contrast' | 'condition' }
+> = {
+  when: { ending: '때', type: 'time' },
+  while: { ending: '동안', type: 'time' },
+  before: { ending: '전에', type: 'time' },
+  after: { ending: '후에', type: 'time' },
+  because: { ending: '때문에', type: 'reason' },
+  since: { ending: '때문에', type: 'reason' },
+  although: { ending: '지만', type: 'contrast' },
+  though: { ending: '지만', type: 'contrast' },
+};
+
+/**
+ * Phase 3.3: 부사절 처리
+ *
+ * "When I go" → "내가 갈 때"
+ * "Because I am tired" → "내가 피곤하기 때문에"
+ * "Before I eat" → "내가 먹기 전에"
+ *
+ * @returns 번역된 문장 (부사절이 있는 경우) 또는 null
+ */
+function processAdverbialClause(parsed: ParsedSentence, _formality: Formality): string | null {
+  const words = parsed.original.toLowerCase().split(/\s+/);
+
+  // 1. 부사절 접속사 찾기
+  let conjIndex = -1;
+  let conjunction = '';
+  let conjInfo: (typeof ADVERBIAL_CONJUNCTIONS)[string] | null = null;
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i].replace(/[.,!?]/g, '');
+    if (ADVERBIAL_CONJUNCTIONS[word]) {
+      conjIndex = i;
+      conjunction = word;
+      conjInfo = ADVERBIAL_CONJUNCTIONS[word];
+      break;
+    }
+  }
+
+  if (conjIndex === -1 || !conjInfo) return null;
+
+  // 2. 부사절 추출 (접속사 이후의 단어들)
+  const clauseWords = words.slice(conjIndex + 1);
+  if (clauseWords.length === 0) return null;
+
+  // 3. 절 파싱: 주어, 동사, 목적어 추출
+  let subject = '';
+  let verb = '';
+  let isCopula = false;
+  let copulaNoun = '';
+  const objects: string[] = [];
+
+  let foundBeVerb = false;
+
+  for (let i = 0; i < clauseWords.length; i++) {
+    const word = clauseWords[i].replace(/[.,!?]/g, '');
+    const ko = EN_KO[word] || '';
+
+    // 주어 (첫 번째 대명사/명사)
+    if (i === 0 && ko) {
+      subject = ko;
+      continue;
+    }
+
+    // be 동사
+    if (['am', 'is', 'are', 'was', 'were'].includes(word)) {
+      foundBeVerb = true;
+      continue;
+    }
+
+    // be 동사 뒤의 형용사/명사 (copula)
+    if (foundBeVerb && ko && !verb) {
+      isCopula = true;
+      copulaNoun = ko;
+      continue;
+    }
+
+    // 동사 찾기
+    if (EN_VERBS[word] || ko?.endsWith('다')) {
+      const verbBase = extractEnglishVerbBase(word) || word;
+      verb = EN_KO[verbBase] || EN_VERBS[verbBase] || word;
+    } else if (ko) {
+      objects.push(ko);
+    }
+  }
+
+  // 4. 한국어 부사절 생성
+  const parts: string[] = [];
+
+  // 주어 + 가/이
+  if (subject) {
+    parts.push(applySubjectParticle(subject, 'subject'));
+  }
+
+  // 목적어 + 을/를
+  for (const obj of objects) {
+    const particle = selectObjectParticle(obj);
+    parts.push(`${obj}${particle}`);
+  }
+
+  // 동사/형용사 + 부사절 어미
+  if (isCopula && copulaNoun) {
+    // be + 형용사: "I am tired" → "내가 피곤하기"
+    const stem = copulaNoun.endsWith('다') ? copulaNoun.slice(0, -1) : copulaNoun;
+
+    if (conjInfo.type === 'reason') {
+      // 피곤하기 때문에
+      parts.push(`${stem}기 ${conjInfo.ending}`);
+    } else if (conjInfo.type === 'contrast') {
+      // 피곤하지만
+      parts.push(`${stem}${conjInfo.ending}`);
+    } else {
+      // 피곤할 때
+      parts.push(`${addJongseong(stem, 'ㄹ')} ${conjInfo.ending}`);
+    }
+  } else if (verb) {
+    const stem = verb.endsWith('다') ? verb.slice(0, -1) : verb;
+
+    if (conjInfo.type === 'time') {
+      if (conjunction === 'before') {
+        // 먹기 전에
+        parts.push(`${stem}기 ${conjInfo.ending}`);
+      } else if (conjunction === 'after') {
+        // 먹은 후에
+        const lastChar = stem[stem.length - 1];
+        const hasJong = hasJongseong(lastChar);
+        const pastAttr = hasJong ? `${stem}은` : addJongseong(stem, 'ㄴ');
+        parts.push(`${pastAttr} ${conjInfo.ending}`);
+      } else {
+        // when/while: 갈 때, 가는 동안
+        if (conjunction === 'while') {
+          parts.push(`${stem}는 ${conjInfo.ending}`);
+        } else {
+          parts.push(`${addJongseong(stem, 'ㄹ')} ${conjInfo.ending}`);
+        }
+      }
+    } else if (conjInfo.type === 'reason') {
+      // 가기 때문에
+      parts.push(`${stem}기 ${conjInfo.ending}`);
+    } else if (conjInfo.type === 'contrast') {
+      // 가지만
+      parts.push(`${stem}${conjInfo.ending}`);
+    }
+  }
+
+  return parts.join(' ');
+}
+
+/**
+ * 동사에 관형형 어미 적용
+ *
+ * 현재: -는 (가다 → 가는, 먹다 → 먹는)
+ * 과거: -은/ㄴ (가다 → 간, 먹다 → 먹은)
+ */
+function applyAttributiveEnding(verb: string, tense: 'present' | 'past'): string {
+  if (!verb) return '';
+
+  // 동사 어간 추출
+  const stem = verb.endsWith('다') ? verb.slice(0, -1) : verb;
+
+  if (tense === 'present') {
+    // 현재 관형형: -는
+    return `${stem}는`;
+  }
+  // 과거 관형형: -은/ㄴ
+  const lastChar = stem[stem.length - 1];
+  const hasJong = hasJongseong(lastChar);
+
+  if (hasJong) {
+    return `${stem}은`;
+  }
+  return `${addJongseong(stem, 'ㄴ')}`;
+}
+
+/**
+ * 동사에 인용형 어미 -다고 적용
+ *
+ * "가다" → "간다고" (받침 없음: ㄴ 받침 추가 + 다고)
+ * "먹다" → "먹는다고" (받침 있음: 는다고)
+ */
+function applyQuotativeEnding(verb: string): string {
+  if (!verb) return '';
+
+  // 동사 어간 추출
+  const stem = verb.endsWith('다') ? verb.slice(0, -1) : verb;
+
+  // -ㄴ다고 / -는다고 적용 (현재 시제 인용)
+  const lastChar = stem[stem.length - 1];
+  const hasJong = hasJongseong(lastChar);
+
+  if (hasJong) {
+    // 받침 있음: 먹 + 는다고 → 먹는다고
+    return `${stem}는다고`;
+  }
+  // 받침 없음: 가 + ㄴ받침 + 다고 → 간다고
+  return `${addJongseong(stem, 'ㄴ')}다고`;
+}
+
+// ============================================
+// Phase 5.1: Compound Sentence Processing (복합문 처리)
+// ============================================
+
+/**
+ * 복합문 접속사 목록 (문장 분리용)
+ *
+ * Phase 3.3의 부사절 접속사(when, because 등)와 달리,
+ * 이 접속사들은 두 개의 독립절을 연결합니다.
+ */
+const COMPOUND_CONJUNCTIONS = new Set([
+  'and',
+  'but',
+  'or',
+  'so',
+  'yet',
+  'however',
+  'therefore',
+  'thus',
+]);
+
+/**
+ * Phase 5.1: 복합문 처리
+ *
+ * "I go and eat" → "나는 가고 먹는다"
+ * "I go but he stays" → "나는 가지만 그는 머문다"
+ * "I work so I am tired" → "나는 일해서 피곤하다"
+ *
+ * @returns 번역된 문장 (복합문인 경우) 또는 null
+ */
+function processCompoundSentence(parsed: ParsedSentence, formality: Formality): string | null {
+  const text = parsed.original.toLowerCase();
+  const words = text.split(/\s+/);
+
+  // 1. 복합문 접속사 찾기 (문장 중간에 있어야 함)
+  let conjIndex = -1;
+  let conjunction = '';
+
+  for (let i = 1; i < words.length - 1; i++) {
+    const word = words[i].replace(/[.,!?]/g, '');
+    if (COMPOUND_CONJUNCTIONS.has(word)) {
+      conjIndex = i;
+      conjunction = word;
+      break;
+    }
+  }
+
+  if (conjIndex === -1) return null;
+
+  // 2. 첫 번째 절과 두 번째 절 분리
+  const firstClauseWords = words.slice(0, conjIndex);
+  const secondClauseWords = words.slice(conjIndex + 1);
+
+  if (firstClauseWords.length === 0 || secondClauseWords.length === 0) return null;
+
+  // 3. 연결어미 정보 가져오기
+  const connInfo = CONNECTIVE_CONJUNCTIONS[conjunction];
+  if (!connInfo) return null;
+
+  // 4. 첫 번째 절 처리 (연결어미 적용)
+  const firstClauseText = firstClauseWords.join(' ');
+  const firstParsed: ParsedSentence = {
+    original: firstClauseText,
+    tokens: [],
+    type: 'statement',
+    tense: parsed.tense,
+    negated: parsed.negated,
+  };
+
+  // 첫 번째 절 품사 태깅
+  const firstTagged = tagEnglishWords(firstParsed);
+
+  // 첫 번째 절에서 주어, 동사, 목적어 추출
+  let firstSubject = '';
+  let firstVerb = '';
+  const firstObjects: string[] = [];
+
+  for (const word of firstTagged) {
+    if (word.pos === 'subject' && !firstSubject) {
+      firstSubject = word.ko;
+    } else if (word.pos === 'verb' && !firstVerb) {
+      firstVerb = word.ko;
+    } else if (word.pos === 'object' && word.ko) {
+      firstObjects.push(word.ko);
+    }
+  }
+
+  // 5. 두 번째 절 처리 (일반 번역)
+  const secondClauseText = secondClauseWords.join(' ');
+  const secondParsed: ParsedSentence = {
+    original: secondClauseText,
+    tokens: [],
+    type: parsed.type,
+    tense: parsed.tense,
+    negated: parsed.negated,
+  };
+
+  // 두 번째 절 재귀 번역 (복합문 처리 스킵)
+  const secondTranslation = generateKoreanSimple(secondParsed, formality);
+
+  // 6. 결과 조합
+  const parts: string[] = [];
+
+  // 첫 번째 절: 주어 + 목적어 + 연결어미 적용된 동사
+  if (firstSubject) {
+    const subjectParticle = selectSubjectParticle(firstSubject);
+    parts.push(`${firstSubject}${subjectParticle}`);
+  }
+
+  for (const obj of firstObjects) {
+    const objParticle = selectObjectParticle(obj);
+    parts.push(`${obj}${objParticle}`);
+  }
+
+  if (firstVerb) {
+    const connectedVerb = applyConnectiveEnding(firstVerb, connInfo.ending);
+    parts.push(connectedVerb);
+  }
+
+  // 두 번째 절 추가
+  parts.push(secondTranslation);
+
+  return parts.join(' ');
+}
+
+/**
+ * 복합문 처리를 위한 단순 생성 함수
+ *
+ * 재귀 호출 시 복합문 처리를 스킵하여 무한 루프 방지
+ */
+function generateKoreanSimple(parsed: ParsedSentence, formality: Formality): string {
+  // 품사 태깅
+  const tagged = tagEnglishWords(parsed);
+
+  // 역할별 분류
+  let subject = '';
+  let verb = '';
+  const objects: string[] = [];
+
+  for (const word of tagged) {
+    if (word.pos === 'subject' && !subject) {
+      subject = word.ko;
+    } else if (word.pos === 'verb' && !verb) {
+      verb = word.ko;
+    } else if (word.pos === 'object' && word.ko) {
+      objects.push(word.ko);
+    }
+  }
+
+  // SOV 어순으로 조합
+  const parts: string[] = [];
+
+  if (subject) {
+    const subjectParticle = selectSubjectParticle(subject);
+    parts.push(`${subject}${subjectParticle}`);
+  }
+
+  for (const obj of objects) {
+    const objParticle = selectObjectParticle(obj);
+    parts.push(`${obj}${objParticle}`);
+  }
+
+  if (verb) {
+    const sentenceType = parsed.type === 'question' ? 'question' : 'statement';
+    const finalVerb = applyFormality(verb, formality, sentenceType);
+    parts.push(finalVerb);
+  }
+
+  return parts.join(' ');
+}
+
 /**
  * 영→한 생성
  *
@@ -2634,6 +3515,14 @@ function _toQuestionKoreanPolite(verb: string, level: PolitenessLevel): string {
  * Phase 1.2: Modal Verbs (can, must, should 등) → -ㄹ 수 있다, -아/어야 하다
  */
 export function generateKorean(parsed: ParsedSentence, formality: Formality = 'neutral'): string {
+  // Phase 5.1: 복합문 처리 (접속사로 연결된 문장)
+  // "I go and eat" → "나는 가고 먹는다"
+  // "I go but he stays" → "나는 가지만 그는 머문다"
+  const compoundResult = processCompoundSentence(parsed, formality);
+  if (compoundResult) {
+    return compoundResult;
+  }
+
   // 1. 관용구 체크 (formality별 결과 반환)
   const normalized = parsed.original
     .toLowerCase()
@@ -2642,6 +3531,28 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
   const idiomEntry = IDIOMS_EN_KO[normalized];
   if (idiomEntry) {
     return idiomEntry[formality];
+  }
+
+  // Phase 3.1: that-clause 감지 및 처리
+  // "I think that he goes" → "나는 그가 간다고 생각한다"
+  const thatClauseResult = processThatClause(parsed, formality);
+  if (thatClauseResult) {
+    return thatClauseResult;
+  }
+
+  // Phase 3.2: Relative clause 감지 및 처리
+  // "The man who runs" → "달리는 남자"
+  const relativeClauseResult = processRelativeClause(parsed, formality);
+  if (relativeClauseResult) {
+    return relativeClauseResult;
+  }
+
+  // Phase 3.3: Adverbial clause 감지 및 처리
+  // "When I go" → "내가 갈 때"
+  // "Because I am tired" → "내가 피곤해서"
+  const adverbialClauseResult = processAdverbialClause(parsed, formality);
+  if (adverbialClauseResult) {
+    return adverbialClauseResult;
   }
 
   // 2. 품사 태깅
@@ -2719,8 +3630,7 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
 
     // 주어 + 는/은
     if (subject) {
-      const particle = selectSubjectParticle(subject, 'topic');
-      parts.push(`${subject}${particle}`);
+      parts.push(applySubjectParticle(subject, 'topic'));
     }
 
     // Phase 2.2: 비교급/최상급 형용사 처리
@@ -2754,8 +3664,7 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
   // Phase 2.1: 조건문에서는 가/이 사용, 일반 문장에서는 는/은 사용
   if (subject) {
     const particleType = isConditional ? 'subject' : 'topic';
-    const particle = selectSubjectParticle(subject, particleType);
-    parts.push(`${subject}${particle}`);
+    parts.push(applySubjectParticle(subject, particleType));
   }
 
   // 목적어 + 을/를 (받침에 따라 선택)

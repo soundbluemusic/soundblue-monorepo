@@ -31,7 +31,7 @@ export type Role =
   | 'unknown'; // 미분류
 
 /** 시제 */
-export type Tense = 'past' | 'present' | 'future';
+export type Tense = 'past' | 'present' | 'future' | 'present-perfect' | 'past-perfect';
 
 /** 문장 유형 */
 export type SentenceType = 'statement' | 'question' | 'exclamation' | 'imperative';
@@ -66,6 +66,8 @@ export interface Token {
     copula?: string;
     /** 계사 여부 */
     isCopula?: boolean;
+    /** 경동사 여부 (했다, 한다 등 - 목적어를 동사로 변환) */
+    isLightVerb?: boolean;
   };
 }
 

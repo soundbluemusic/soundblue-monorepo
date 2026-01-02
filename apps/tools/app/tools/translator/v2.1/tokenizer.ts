@@ -690,22 +690,8 @@ function tokenizeKoreanWord(word: string): Token {
     }
   }
 
-  // 4. 단어가 사전에 있으면 그대로 사용 (조사 분리 불필요)
-  if (KO_EN[word]) {
-    const en = KO_EN[word];
-    // 감탄사는 대문자로 시작
-    const role: Role = /^[A-Z]/.test(en) ? 'adverb' : 'unknown';
-    return {
-      text: word,
-      stem: word,
-      role,
-      translated: en,
-      confidence: CONFIDENCE_DICTIONARY,
-      meta: { strategy: 'dictionary' },
-    };
-  }
-
-  // 5. 조사 분리 시도
+  // 4. 조사 분리 시도 (기본형 우선)
+  // 조사 붙은 단어(운동을)보다 기본형(운동)을 우선하여 역번역 검증 통과율 향상
   let stem = word;
   let particle: string | undefined;
   let role: Role = 'unknown';
@@ -714,11 +700,59 @@ function tokenizeKoreanWord(word: string): Token {
 
   for (const [p, r] of SORTED_PARTICLES) {
     if (word.endsWith(p) && word.length > p.length) {
-      stem = word.slice(0, -p.length);
+      const possibleStem = word.slice(0, -p.length);
+      // 분리된 기본형이 사전에 있으면 조사 분리 확정
+      if (KO_EN[possibleStem]) {
+        stem = possibleStem;
+        particle = p;
+        role = r === 'subject' || r === 'topic' ? 'subject' : r === 'object' ? 'object' : 'unknown';
+        // 기본형을 사전에서 찾아 반환
+        return {
+          text: word,
+          stem,
+          role,
+          translated: KO_EN[stem],
+          confidence: CONFIDENCE_DICTIONARY,
+          meta: { strategy: 'dictionary', particle },
+        };
+      }
+      // 기본형이 사전에 없어도 조사 분리는 저장 (후속 처리용)
+      stem = possibleStem;
       particle = p;
       role = r === 'subject' || r === 'topic' ? 'subject' : r === 'object' ? 'object' : 'unknown';
       break;
     }
+  }
+
+  // 5. 조사 분리 안 된 단어가 사전에 있으면 그대로 사용
+  if (!particle && KO_EN[word]) {
+    const en = KO_EN[word];
+
+    // 경동사(light verb) 패턴: 했다, 했어, 한다, 해 등
+    // "[명사]를 하다" 패턴에서 하다 부분 - verb 역할 부여
+    const lightVerbPattern = /^(했다|했어|했어요|했습니다|한다|해|해요|합니다|하다)$/;
+    if (lightVerbPattern.test(word)) {
+      const tenseInfo: Tense = word.startsWith('했') ? 'past' : 'present';
+      return {
+        text: word,
+        stem: '하',
+        role: 'verb',
+        translated: 'do',
+        confidence: CONFIDENCE_DICTIONARY,
+        meta: { strategy: 'dictionary', tense: tenseInfo, isLightVerb: true },
+      };
+    }
+
+    // 감탄사는 대문자로 시작
+    const wordRole: Role = /^[A-Z]/.test(en) ? 'adverb' : 'unknown';
+    return {
+      text: word,
+      stem: word,
+      role: wordRole,
+      translated: en,
+      confidence: CONFIDENCE_DICTIONARY,
+      meta: { strategy: 'dictionary' },
+    };
   }
 
   // 5.5. 서술격 조사 (-이다/-입니다) 처리
@@ -999,9 +1033,84 @@ const IRREGULAR_PAST_VERBS = new Set([
 ]);
 
 /**
+ * 영어 과거분사 불규칙 동사
+ */
+const IRREGULAR_PAST_PARTICIPLES = new Set([
+  'been', // be
+  'had', // have
+  'done', // do
+  'eaten', // eat
+  'gone', // go
+  'come', // come
+  'seen', // see
+  'taken', // take
+  'given', // give
+  'made', // make
+  'gotten', // get (미국 영어)
+  'got', // get (영국 영어)
+  'found', // find
+  'thought', // think
+  'told', // tell
+  'become', // become
+  'left', // leave
+  'felt', // feel
+  'put', // put
+  'brought', // bring
+  'begun', // begin
+  'kept', // keep
+  'held', // hold
+  'written', // write
+  'stood', // stand
+  'heard', // hear
+  'let', // let
+  'meant', // mean
+  'set', // set
+  'met', // meet
+  'run', // run
+  'paid', // pay
+  'sat', // sit
+  'spoken', // speak
+  'lain', // lie
+  'led', // lead
+  'read', // read
+  'grown', // grow
+  'lost', // lose
+  'known', // know
+  'drunk', // drink
+  'slept', // sleep
+  'bought', // buy
+  'sold', // sell
+  'taught', // teach
+  'caught', // catch
+  'fought', // fight
+  'thrown', // throw
+  'broken', // break
+  'chosen', // choose
+  'worn', // wear
+  'sung', // sing
+  'driven', // drive
+  'woken', // wake
+  'forgotten', // forget
+  'flown', // fly
+  'drawn', // draw
+  'swum', // swim
+  'hung', // hang
+  'built', // build
+  'sent', // send
+  'spent', // spend
+  'understood', // understand
+  'won', // win
+  'shaken', // shake
+  'risen', // rise
+  'fallen', // fall
+]);
+
+/**
  * 영어 시제 감지
  *
  * 규칙:
+ * - have/has + pp → 현재완료 (present-perfect)
+ * - had + pp → 과거완료 (past-perfect)
  * - 불규칙 과거형 동사 → 과거
  * - -ed로 끝나는 단어 → 과거
  * - will, going to, 'll → 미래
@@ -1011,13 +1120,37 @@ function detectEnglishTense(words: string[]): Tense {
   const lowerWords = words.map((w) => w.toLowerCase());
   const text = lowerWords.join(' ');
 
-  // 불규칙 과거형 동사 체크
-  for (const word of lowerWords) {
-    if (IRREGULAR_PAST_VERBS.has(word)) return 'past';
+  // Perfect Tense 감지: have/has/had + 과거분사
+  for (let i = 0; i < lowerWords.length - 1; i++) {
+    const word = lowerWords[i];
+    const nextWord = lowerWords[i + 1];
+
+    // have/has + pp → 현재완료
+    if ((word === 'have' || word === 'has') && nextWord) {
+      // 과거분사 확인: 불규칙 과거분사 또는 -ed/-en으로 끝남
+      if (IRREGULAR_PAST_PARTICIPLES.has(nextWord) || /ed$|en$/.test(nextWord)) {
+        return 'present-perfect';
+      }
+    }
+
+    // had + pp → 과거완료
+    if (word === 'had' && nextWord) {
+      if (IRREGULAR_PAST_PARTICIPLES.has(nextWord) || /ed$|en$/.test(nextWord)) {
+        return 'past-perfect';
+      }
+    }
   }
 
-  // 규칙 동사 과거형 (-ed)
-  if (/\b\w+ed\b/.test(text)) return 'past';
+  // 불규칙 과거형 동사 체크 (have/has/had 제외 - Perfect에서 이미 처리)
+  for (const word of lowerWords) {
+    if (word !== 'had' && IRREGULAR_PAST_VERBS.has(word)) return 'past';
+  }
+
+  // 규칙 동사 과거형 (-ed) - Perfect가 아닌 경우만
+  // 주의: have/has/had 뒤에 오지 않는 -ed만 과거로 처리
+  if (/\b\w+ed\b/.test(text) && !/\b(have|has|had)\s+\w+ed\b/.test(text)) {
+    return 'past';
+  }
 
   // 미래형
   if (/\b(will|going to|'ll)\b/.test(text)) return 'future';

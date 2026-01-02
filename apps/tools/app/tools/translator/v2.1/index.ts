@@ -116,6 +116,17 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
 }
 
 /**
+ * 등위접속사 → 한국어 연결어미 매핑
+ */
+const COORDINATING_CONNECTOR_MAP: Record<string, string> = {
+  and: '-고',
+  but: '-지만',
+  or: '-거나',
+  so: '-아서',
+  yet: '-지만',
+};
+
+/**
  * 영어 문장을 절 단위로 분리하여 한국어로 번역
  */
 function translateEnglishSentence(sentence: string, formality: Formality): string {
@@ -133,15 +144,26 @@ function translateEnglishSentence(sentence: string, formality: Formality): strin
   // 2. 복문인 경우 절별로 번역
   const translatedClauses: string[] = [];
 
-  for (const clause of clauseInfo.clauses) {
+  for (let i = 0; i < clauseInfo.clauses.length; i++) {
+    const clause = clauseInfo.clauses[i];
     const parsed = parseEnglish(clause.text);
     let translated = generateKorean(parsed, formality);
     translated = validateTranslation(parsed, translated, 'en-ko');
 
     // 연결어미 추가 (한국어)
     if (clause.connectorKo && clause.isSubordinate) {
-      // 동사 어미를 연결어미로 교체
+      // 종속절: 동사 어미를 연결어미로 교체
       translated = applyKoreanConnector(translated, clause.connectorKo);
+    }
+
+    // Phase 5.1: 등위접속사 처리 (compound sentence)
+    // 마지막 절이 아니고, 다음 절에 등위접속사가 있으면 현재 절에 연결어미 적용
+    if (i < clauseInfo.clauses.length - 1) {
+      const nextClause = clauseInfo.clauses[i + 1];
+      if (nextClause.connector && COORDINATING_CONNECTOR_MAP[nextClause.connector]) {
+        const connectorKo = COORDINATING_CONNECTOR_MAP[nextClause.connector];
+        translated = applyKoreanConnector(translated, connectorKo);
+      }
     }
 
     translatedClauses.push(translated);
@@ -208,31 +230,95 @@ function combineKoreanClauses(clauses: string[], _info: ParsedClauses): string {
 
 /**
  * 한국어 문장에 연결어미 적용
+ *
+ * 연결어미 형식: "-고", "-지만", "-아서" 등 (하이픈 포함)
+ *
+ * 규칙:
+ * - "간다" + "-고" → "가고" (ㄴ다 제거 + 받침 제거)
+ * - "먹는다" + "-고" → "먹고" (는다 제거)
+ * - "먹다" + "-고" → "먹고" (다 제거)
  */
 function applyKoreanConnector(sentence: string, connector: string): string {
-  // 마지막 어절의 종결어미를 연결어미로 교체
-  // 예: "간다" + "-면" → "가면"
+  // 연결어미에서 하이픈 제거
+  const cleanConnector = connector.startsWith('-') ? connector.slice(1) : connector;
 
-  // 종결어미 패턴
-  const endingPatterns = [
-    /다\.?$/, // -다
-    /어\.?$/, // -어
-    /아\.?$/, // -아
-    /요\.?$/, // -요
-    /니\?$/, // -니?
-    /까\?$/, // -까?
-  ];
+  // 문장을 어절로 분리
+  const words = sentence.split(' ');
+  if (words.length === 0) return sentence;
 
-  for (const pattern of endingPatterns) {
-    if (pattern.test(sentence)) {
-      // 어미 제거하고 연결어미 추가
-      const stem = sentence.replace(pattern, '');
-      return stem + connector;
+  // 마지막 어절에서 종결어미 제거하고 연결어미 추가
+  const lastWord = words[words.length - 1];
+
+  // 종결어미 패턴별 처리
+  let stem = lastWord;
+  let matched = false;
+
+  // 1. -ㄴ다 패턴 (간다, 온다 등) - 받침 있는 어간 + ㄴ다
+  // 간다 = 가 + ㄴ받침 + 다 → 어간 = 가
+  if (/[가-힣]다$/.test(lastWord)) {
+    const beforeDa = lastWord.slice(0, -1); // '다' 제거
+    const lastChar = beforeDa[beforeDa.length - 1];
+
+    if (lastChar) {
+      const code = lastChar.charCodeAt(0);
+      // 한글 음절 범위 체크
+      if (code >= 0xac00 && code <= 0xd7a3) {
+        const jong = (code - 0xac00) % 28;
+
+        // ㄴ받침(4) 또는 ㄹ받침(8)이면 종성 제거
+        if (jong === 4 || jong === 8) {
+          // 종성 제거
+          const withoutJong = String.fromCharCode(code - jong);
+          stem = beforeDa.slice(0, -1) + withoutJong;
+          matched = true;
+        } else if (jong === 0) {
+          // 받침 없으면 그대로
+          stem = beforeDa;
+          matched = true;
+        }
+      }
     }
   }
 
+  // 2. -는다 패턴 (먹는다 등)
+  if (!matched && /는다$/.test(lastWord)) {
+    stem = lastWord.slice(0, -2); // '는다' 제거
+    matched = true;
+  }
+
+  // 3. 일반 -다 패턴 (받침 있는 어간)
+  if (!matched && /다$/.test(lastWord)) {
+    stem = lastWord.slice(0, -1);
+    matched = true;
+  }
+
+  // 4. 기타 어미 패턴
+  if (!matched) {
+    const otherPatterns = [
+      /어$/, // -어
+      /아$/, // -아
+      /요$/, // -요
+      /니\?$/, // -니?
+      /까\?$/, // -까?
+    ];
+
+    for (const pattern of otherPatterns) {
+      if (pattern.test(lastWord)) {
+        stem = lastWord.replace(pattern, '');
+        matched = true;
+        break;
+      }
+    }
+  }
+
+  // 어간 + 연결어미
+  if (matched) {
+    words[words.length - 1] = stem + cleanConnector;
+    return words.join(' ');
+  }
+
   // 매칭 안 되면 그냥 연결
-  return `${sentence} ${connector}`;
+  return `${sentence} ${cleanConnector}`;
 }
 
 /**

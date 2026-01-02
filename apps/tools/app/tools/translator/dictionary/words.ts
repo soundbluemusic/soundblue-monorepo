@@ -2402,6 +2402,10 @@ const manualEnToKoWords: Record<string, string> = {
   'my family': '가족',
   // === 부정문 지원 ===
   'eat out': '외식하다',
+  // === 역방향 매핑 필수 단어 ===
+  park: '공원', // koToEn에 '공원: park'이 있으나, '뜨: park' 등 다른 매핑이 우선될 수 있음
+  open: '열다', // koToEn에 '뜨: open', '떠: open', '열다: open' 중 기본형 우선
+  opened: '열린', // 수동태용
 };
 
 // 역방향 사전 (영→한) 자동 생성 + 수동 사전 + 국가명 + 색상 + 도메인 병합

@@ -3,6 +3,7 @@
 // ========================================
 
 import { ARTS_EN_KO, ARTS_KO_EN } from './arts';
+import { ALL_BODY_EN_KO, ALL_BODY_KO_EN, BODY_STATS } from './body';
 import { BODY_MOVEMENTS_EN_KO, BODY_MOVEMENTS_KO_EN } from './body-movements';
 import { EDUCATION_EN_KO, EDUCATION_KO_EN } from './education';
 import { EMOTIONS_EN_KO, EMOTIONS_KO_EN } from './emotions';
@@ -11,9 +12,11 @@ import { LEGAL_EN_KO, LEGAL_KO_EN } from './legal';
 import { MEDICAL_EN_KO, MEDICAL_KO_EN } from './medical';
 import { SHOPPING_EN_KO, SHOPPING_KO_EN } from './shopping';
 import { SPORTS_EN_KO, SPORTS_KO_EN } from './sports';
+import { TECHNOLOGY_EN_KO, TECHNOLOGY_KO_EN } from './technology';
 
 // 개별 도메인 export
 export { ARTS_EN_KO, ARTS_KO_EN } from './arts';
+export * from './body';
 export { BODY_MOVEMENTS_EN_KO, BODY_MOVEMENTS_KO_EN } from './body-movements';
 export { EDUCATION_EN_KO, EDUCATION_KO_EN } from './education';
 export { EMOTIONS_EN_KO, EMOTIONS_KO_EN } from './emotions';
@@ -22,6 +25,7 @@ export { LEGAL_EN_KO, LEGAL_KO_EN } from './legal';
 export { MEDICAL_EN_KO, MEDICAL_KO_EN } from './medical';
 export { SHOPPING_EN_KO, SHOPPING_KO_EN } from './shopping';
 export { SPORTS_EN_KO, SPORTS_KO_EN } from './sports';
+export * from './technology';
 
 /**
  * 모든 도메인 사전 통합 (한→영)
@@ -42,6 +46,8 @@ export const ALL_DOMAINS_KO_EN: Record<string, string> = {
   ...SHOPPING_KO_EN,
   ...EMOTIONS_KO_EN,
   ...BODY_MOVEMENTS_KO_EN,
+  ...ALL_BODY_KO_EN,
+  ...TECHNOLOGY_KO_EN,
 };
 
 /**
@@ -57,6 +63,8 @@ export const ALL_DOMAINS_EN_KO: Record<string, string> = {
   ...SHOPPING_EN_KO,
   ...EMOTIONS_EN_KO,
   ...BODY_MOVEMENTS_EN_KO,
+  ...ALL_BODY_EN_KO,
+  ...TECHNOLOGY_EN_KO,
 };
 
 /**
@@ -72,6 +80,8 @@ export const DOMAIN_STATS = {
   shopping: Object.keys(SHOPPING_KO_EN).length,
   emotions: Object.keys(EMOTIONS_KO_EN).length,
   bodyMovements: Object.keys(BODY_MOVEMENTS_KO_EN).length,
+  body: BODY_STATS,
+  technology: Object.keys(TECHNOLOGY_KO_EN).length,
   get total() {
     return Object.keys(ALL_DOMAINS_KO_EN).length;
   },

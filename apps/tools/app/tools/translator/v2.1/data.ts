@@ -21,10 +21,51 @@ export type FormalityMap = Record<Formality, string>;
 /** 한→영 단어 사전 */
 export const KO_EN: Record<string, string> = koToEnWords;
 
-/** 영→한 단어 사전 (v1 사전 + KO_EN 역변환 + 추가 매핑) */
+/**
+ * 한국어 조사 패턴
+ * 역변환 시 조사가 붙은 단어는 제외하여 기본형 우선
+ */
+const KOREAN_PARTICLES = /[을를이가은는도만에서로으로와과하고의]$/;
+
+/**
+ * KO_EN 역변환 시 기본형 우선 처리
+ *
+ * 문제: KO_EN에 '운동: exercise'와 '운동을: exercise'가 둘 다 있으면
+ *       역변환 시 나중 것(운동을)이 앞것(운동)을 덮어씀
+ *
+ * 해결: 조사 없는 기본형을 우선하고, 같은 영어에 여러 한국어가 매핑되면
+ *       더 짧은 것(조사 없는 기본형)을 선택
+ */
+function buildEnToKoFromKoEn(): Record<string, string> {
+  const result: Record<string, string> = {};
+
+  for (const [ko, en] of Object.entries(KO_EN)) {
+    const enLower = en.toLowerCase();
+
+    // 조사가 붙은 단어는 건너뛰기 (기본형 우선)
+    if (KOREAN_PARTICLES.test(ko)) {
+      // 이미 매핑된 것이 있으면 덮어쓰지 않음
+      if (result[enLower]) continue;
+    }
+
+    // 기존 매핑이 있으면 더 짧은 것 선택 (기본형이 대체로 더 짧음)
+    const existing = result[enLower];
+    if (existing && existing.length <= ko.length) {
+      continue;
+    }
+
+    result[enLower] = ko;
+  }
+
+  return result;
+}
+
+/** 영→한 단어 사전 (KO_EN 역변환 + v1 사전 + 추가 매핑) */
+// 우선순위: 추가 매핑 > enToKoWords > buildEnToKoFromKoEn (역변환)
+// enToKoWords가 역변환보다 우선되어야 올바른 매핑 유지 (park→공원, open→열다)
 export const EN_KO: Record<string, string> = {
+  ...buildEnToKoFromKoEn(),
   ...enToKoWords,
-  ...Object.fromEntries(Object.entries(KO_EN).map(([k, v]) => [v.toLowerCase(), k])),
   // 추가 매핑 (관사, be동사 등)
   the: '',
   a: '',
