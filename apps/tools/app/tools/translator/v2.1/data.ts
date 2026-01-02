@@ -3,6 +3,8 @@
  * v1의 사전 데이터 재사용 + 핵심 규칙 정의
  */
 
+// 한글 처리 유틸리티
+import { getBatchim, removeBatchim } from '@soundblue/hangul';
 // v1 사전 재사용
 import { enToKoWords, koToEnWords } from '../dictionary';
 import type { Formality } from '../settings';
@@ -119,57 +121,409 @@ export const PARTICLES: Array<[string, string, string]> = [
 // 3. 어미 (한국어 활용)
 // ============================================
 
-/** 종결어미: [어미, 시제, 문장유형, 공손도] */
+/**
+ * 종결어미 패턴: [어미, 시제, 문장유형, 격식]
+ *
+ * Phase 1: Ko→En 종결어미 분석
+ * 긴 어미부터 매칭하도록 정렬 필요
+ */
 export const ENDINGS: Array<[string, string, string, string]> = [
-  // 과거
-  ['았어', 'past', 'statement', 'casual'],
-  ['었어', 'past', 'statement', 'casual'],
-  ['였어', 'past', 'statement', 'casual'],
-  ['했어', 'past', 'statement', 'casual'],
-  ['았다', 'past', 'statement', 'neutral'],
-  ['었다', 'past', 'statement', 'neutral'],
-  ['였다', 'past', 'statement', 'neutral'],
-  ['했다', 'past', 'statement', 'neutral'],
-  ['았니', 'past', 'question', 'casual'],
-  ['었니', 'past', 'question', 'casual'],
-  ['였니', 'past', 'question', 'casual'],
-  ['했니', 'past', 'question', 'casual'],
-  ['았어요', 'past', 'statement', 'polite'],
-  ['었어요', 'past', 'statement', 'polite'],
+  // ============================================
+  // 1. 격식체 평서문 (formal-polite)
+  // ============================================
+  ['습니다', 'present', 'statement', 'formal-polite'],
+  ['ㅂ니다', 'present', 'statement', 'formal-polite'],
+  ['았습니다', 'past', 'statement', 'formal-polite'],
+  ['었습니다', 'past', 'statement', 'formal-polite'],
+  ['였습니다', 'past', 'statement', 'formal-polite'],
+  ['했습니다', 'past', 'statement', 'formal-polite'],
+  ['겠습니다', 'future', 'statement', 'formal-polite'],
 
-  // 현재
-  ['아', 'present', 'statement', 'casual'],
-  ['어', 'present', 'statement', 'casual'],
-  ['야', 'present', 'statement', 'casual'],
-  ['다', 'present', 'statement', 'neutral'],
-  ['는다', 'present', 'statement', 'neutral'],
-  ['ㄴ다', 'present', 'statement', 'neutral'],
+  // ============================================
+  // 2. 격식체 의문문 (formal-polite)
+  // ============================================
+  ['습니까', 'present', 'question', 'formal-polite'],
+  ['ㅂ니까', 'present', 'question', 'formal-polite'],
+  ['았습니까', 'past', 'question', 'formal-polite'],
+  ['었습니까', 'past', 'question', 'formal-polite'],
+  ['였습니까', 'past', 'question', 'formal-polite'],
+  ['겠습니까', 'future', 'question', 'formal-polite'],
+
+  // ============================================
+  // 3. 비격식 존댓말 평서문 (polite)
+  // ============================================
   ['아요', 'present', 'statement', 'polite'],
   ['어요', 'present', 'statement', 'polite'],
-  ['니', 'present', 'question', 'casual'],
-  ['나', 'present', 'question', 'casual'],
+  ['여요', 'present', 'statement', 'polite'],
+  ['해요', 'present', 'statement', 'polite'],
+  ['았어요', 'past', 'statement', 'polite'],
+  ['었어요', 'past', 'statement', 'polite'],
+  ['였어요', 'past', 'statement', 'polite'],
+  ['했어요', 'past', 'statement', 'polite'],
+  ['겠어요', 'future', 'statement', 'polite'],
+  ['ㄹ게요', 'future', 'statement', 'polite'],
+  ['을게요', 'future', 'statement', 'polite'],
+  ['ㄹ거예요', 'future', 'statement', 'polite'],
+  ['을거예요', 'future', 'statement', 'polite'],
 
-  // 미래/의지
-  ['ㄹ게', 'future', 'statement', 'casual'],
-  ['을게', 'future', 'statement', 'casual'],
-  ['ㄹ거야', 'future', 'statement', 'casual'],
-  ['을거야', 'future', 'statement', 'casual'],
+  // ============================================
+  // 4. 비격식 존댓말 의문문 (polite)
+  // ============================================
+  ['아요?', 'present', 'question', 'polite'],
+  ['어요?', 'present', 'question', 'polite'],
+  ['나요?', 'present', 'question', 'polite'],
+  ['세요?', 'present', 'question', 'polite'],
+  ['았어요?', 'past', 'question', 'polite'],
+  ['었어요?', 'past', 'question', 'polite'],
+  ['ㄹ까요?', 'future', 'question', 'polite'],
+  ['을까요?', 'future', 'question', 'polite'],
 
-  // 부정
-  ['지 않았어', 'past', 'negative', 'casual'],
-  ['지 않았다', 'past', 'negative', 'neutral'],
-  ['지 않아', 'present', 'negative', 'casual'],
-  ['지 않는다', 'present', 'negative', 'neutral'],
-  ['지 못했어', 'past', 'negative', 'casual'],
-  ['지 못해', 'present', 'negative', 'casual'],
+  // ============================================
+  // 5. 해라체/평서형 (plain)
+  // ============================================
+  ['는다', 'present', 'statement', 'plain'],
+  ['ㄴ다', 'present', 'statement', 'plain'],
+  ['다', 'present', 'statement', 'plain'],
+  ['았다', 'past', 'statement', 'plain'],
+  ['었다', 'past', 'statement', 'plain'],
+  ['였다', 'past', 'statement', 'plain'],
+  ['했다', 'past', 'statement', 'plain'],
+  ['겠다', 'future', 'statement', 'plain'],
+  ['리라', 'future', 'statement', 'plain'],
+
+  // ============================================
+  // 6. 해라체 의문문 (plain)
+  // ============================================
+  ['느냐', 'present', 'question', 'plain'],
+  ['냐', 'present', 'question', 'plain'],
+  ['니', 'present', 'question', 'plain'],
+  ['나', 'present', 'question', 'plain'],
+  ['았느냐', 'past', 'question', 'plain'],
+  ['었느냐', 'past', 'question', 'plain'],
+  ['았니', 'past', 'question', 'plain'],
+  ['었니', 'past', 'question', 'plain'],
+  ['했니', 'past', 'question', 'plain'],
+
+  // ============================================
+  // 7. 반말 평서문 (informal)
+  // ============================================
+  ['아', 'present', 'statement', 'informal'],
+  ['어', 'present', 'statement', 'informal'],
+  ['야', 'present', 'statement', 'informal'],
+  ['해', 'present', 'statement', 'informal'],
+  ['았어', 'past', 'statement', 'informal'],
+  ['었어', 'past', 'statement', 'informal'],
+  ['였어', 'past', 'statement', 'informal'],
+  ['했어', 'past', 'statement', 'informal'],
+  ['겠어', 'future', 'statement', 'informal'],
+  ['ㄹ게', 'future', 'statement', 'informal'],
+  ['을게', 'future', 'statement', 'informal'],
+  ['ㄹ거야', 'future', 'statement', 'informal'],
+  ['을거야', 'future', 'statement', 'informal'],
+
+  // ============================================
+  // 8. 반말 의문문 (informal)
+  // ============================================
+  ['아?', 'present', 'question', 'informal'],
+  ['어?', 'present', 'question', 'informal'],
+  ['ㄹ까?', 'present', 'question', 'informal'],
+  ['을까?', 'present', 'question', 'informal'],
+  ['ㄹ래?', 'present', 'question', 'informal'],
+  ['을래?', 'present', 'question', 'informal'],
+
+  // ============================================
+  // 9. 명령형 (imperative)
+  // ============================================
+  ['세요', 'present', 'imperative', 'polite'],
+  ['십시오', 'present', 'imperative', 'formal-polite'],
+  ['아라', 'present', 'imperative', 'plain'],
+  ['어라', 'present', 'imperative', 'plain'],
+  ['여라', 'present', 'imperative', 'plain'],
+  ['하라', 'present', 'imperative', 'plain'],
+  ['거라', 'present', 'imperative', 'plain'],
+  ['아', 'present', 'imperative', 'informal'],
+  ['어', 'present', 'imperative', 'informal'],
+
+  // ============================================
+  // 10. 청유형 (suggestion)
+  // ============================================
+  ['ㅂ시다', 'present', 'suggestion', 'formal-polite'],
+  ['읍시다', 'present', 'suggestion', 'formal-polite'],
+  ['자', 'present', 'suggestion', 'informal'],
+  ['ㄹ까요', 'present', 'suggestion', 'polite'],
+  ['을까요', 'present', 'suggestion', 'polite'],
+  ['ㄹ까', 'present', 'suggestion', 'informal'],
+  ['을까', 'present', 'suggestion', 'informal'],
+
+  // ============================================
+  // 11. 감탄형 (exclamation)
+  // ============================================
+  ['는구나', 'present', 'exclamation', 'plain'],
+  ['구나', 'present', 'exclamation', 'plain'],
+  ['네', 'present', 'exclamation', 'polite'],
+  ['군요', 'present', 'exclamation', 'polite'],
+
+  // ============================================
+  // 12. 확인/동의 요청
+  // ============================================
+  ['지', 'present', 'question', 'informal'],
+  ['잖아', 'present', 'statement', 'informal'],
+  ['잖아요', 'present', 'statement', 'polite'],
+
+  // ============================================
+  // 13. 회상/전달
+  // ============================================
+  ['더라', 'past', 'statement', 'plain'],
+  ['더라고', 'past', 'statement', 'informal'],
+  ['더라고요', 'past', 'statement', 'polite'],
+
+  // ============================================
+  // 14. 약속/의지
+  // ============================================
+  ['마', 'present', 'imperative', 'informal'],
+  ['지마', 'present', 'imperative', 'informal'],
+  ['지마세요', 'present', 'imperative', 'polite'],
+
+  // ============================================
+  // 15. 부정문 패턴
+  // ============================================
+  ['지 않았어', 'past', 'statement', 'informal'],
+  ['지 않았다', 'past', 'statement', 'plain'],
+  ['지 않았어요', 'past', 'statement', 'polite'],
+  ['지 않았습니다', 'past', 'statement', 'formal-polite'],
+  ['지 않아', 'present', 'statement', 'informal'],
+  ['지 않는다', 'present', 'statement', 'plain'],
+  ['지 않아요', 'present', 'statement', 'polite'],
+  ['지 않습니다', 'present', 'statement', 'formal-polite'],
+  ['지 못했어', 'past', 'statement', 'informal'],
+  ['지 못해', 'present', 'statement', 'informal'],
+  ['지 못해요', 'present', 'statement', 'polite'],
 ];
+
+/**
+ * 종결어미 정렬 (긴 어미부터 매칭)
+ * Phase 1: Ko→En 종결어미 분석
+ */
+export const SORTED_ENDINGS = [...ENDINGS].sort((a, b) => b[0].length - a[0].length);
+
+/**
+ * 종결어미 분석 결과
+ */
+export interface EndingAnalysis {
+  /** 추출된 어간 */
+  stem: string;
+  /** 매칭된 어미 */
+  ending: string;
+  /** 시제 */
+  tense: 'past' | 'present' | 'future';
+  /** 문장 유형 */
+  sentenceType: 'statement' | 'question' | 'imperative' | 'suggestion' | 'exclamation';
+  /** 격식 수준 */
+  politeness: 'formal-polite' | 'polite' | 'plain' | 'informal';
+  /** 부정문 여부 */
+  negated: boolean;
+}
+
+/**
+ * 받침 흡수형 종결어미 패턴
+ * 모음으로 끝나는 어간 + 받침이 붙는 어미 (간다=가+ㄴ다, 갑니다=가+ㅂ니다)
+ *
+ * 구조: [받침, 나머지어미, 시제, 문장유형, 격식]
+ */
+const CONTRACTED_ENDINGS: Array<[string, string, string, string, string]> = [
+  // -ㄴ다 (간다, 온다) - 평서형 plain
+  ['ㄴ', '다', 'present', 'statement', 'plain'],
+  // -ㅂ니다 (갑니다, 옵니다) - 평서형 formal
+  ['ㅂ', '니다', 'present', 'statement', 'formal-polite'],
+  // -ㅂ니까 (갑니까, 옵니까) - 의문형 formal
+  ['ㅂ', '니까', 'present', 'question', 'formal-polite'],
+  ['ㅂ', '니까?', 'present', 'question', 'formal-polite'],
+  // -ㅂ시다 (갑시다, 옵시다) - 청유형 formal
+  ['ㅂ', '시다', 'present', 'suggestion', 'formal-polite'],
+  // -ㄹ래 (갈래, 올래) - 의지/의향 informal
+  ['ㄹ', '래', 'present', 'question', 'informal'],
+  ['ㄹ', '래?', 'present', 'question', 'informal'],
+  // -ㄹ까 (갈까, 올까) - 청유/의문 informal
+  ['ㄹ', '까', 'present', 'suggestion', 'informal'],
+  ['ㄹ', '까?', 'present', 'question', 'informal'],
+  // -ㄹ게 (갈게, 올게) - 약속/의지 informal
+  ['ㄹ', '게', 'future', 'statement', 'informal'],
+  // -라 (가라, 와라) - 명령형 plain
+  // Note: '라' 단독은 어미이므로 별도 처리 필요
+];
+
+/**
+ * 받침 흡수형 종결어미 분석
+ * 모음으로 끝나는 어간 + 받침이 붙는 패턴 (간다=가+ㄴ다)
+ *
+ * @param word 분석할 단어
+ * @param negated 부정문 여부
+ * @returns 분석 결과 또는 null
+ */
+function analyzeContractedEnding(word: string, negated: boolean): EndingAnalysis | null {
+  if (word.length < 2) return null;
+
+  for (const [batchim, suffix, tense, sentenceType, politeness] of CONTRACTED_ENDINGS) {
+    // 나머지 어미와 일치하는지 확인
+    const suffixClean = suffix.replace(/\?$/, '');
+    if (!word.endsWith(suffix) && !word.endsWith(suffixClean)) continue;
+
+    const matchedSuffix = word.endsWith(suffix) ? suffix : suffixClean;
+    const prefixPart = word.slice(0, -matchedSuffix.length);
+
+    if (prefixPart.length < 1) continue;
+
+    // 마지막 글자의 받침 확인
+    const lastChar = prefixPart[prefixPart.length - 1];
+    if (!lastChar) continue;
+
+    const lastBatchim = getBatchim(lastChar);
+    if (lastBatchim !== batchim) continue;
+
+    // 받침 제거하여 어간 추출
+    const stemWithoutBatchim = removeBatchim(lastChar);
+    if (!stemWithoutBatchim) continue;
+
+    const stem = prefixPart.slice(0, -1) + stemWithoutBatchim;
+
+    return {
+      stem,
+      ending: batchim + matchedSuffix,
+      tense: tense as 'past' | 'present' | 'future',
+      sentenceType: sentenceType as
+        | 'statement'
+        | 'question'
+        | 'imperative'
+        | 'suggestion'
+        | 'exclamation',
+      politeness: politeness as 'formal-polite' | 'polite' | 'plain' | 'informal',
+      negated,
+    };
+  }
+
+  return null;
+}
+
+/**
+ * 한국어 동사/형용사의 종결어미를 분석
+ *
+ * @param word 분석할 단어 (예: "갑니다", "먹었어")
+ * @returns 분석 결과 또는 null
+ */
+export function analyzeKoreanEnding(word: string): EndingAnalysis | null {
+  // 부정문 체크
+  let negated = false;
+  let cleanWord = word;
+
+  if (word.includes('지 않') || word.includes('지않')) {
+    negated = true;
+    cleanWord = word.replace(/지\s*않/, '');
+  } else if (word.includes('지 못') || word.includes('지못')) {
+    negated = true;
+    cleanWord = word.replace(/지\s*못/, '');
+  }
+
+  // 1. 받침 흡수형 종결어미 우선 체크 (간다, 갑니다 등)
+  const contractedResult = analyzeContractedEnding(cleanWord, negated);
+  if (contractedResult) {
+    return contractedResult;
+  }
+
+  // 2. 일반 종결어미 매칭 (긴 어미부터)
+  for (const [ending, tense, type, politeness] of SORTED_ENDINGS) {
+    // 물음표 제거한 버전도 체크
+    const endingClean = ending.replace(/\?$/, '');
+
+    if (cleanWord.endsWith(ending) || cleanWord.endsWith(endingClean)) {
+      const matchedEnding = cleanWord.endsWith(ending) ? ending : endingClean;
+      const stem = cleanWord.slice(0, -matchedEnding.length);
+
+      if (stem.length > 0) {
+        return {
+          stem,
+          ending: matchedEnding,
+          tense: tense as 'past' | 'present' | 'future',
+          sentenceType: type as
+            | 'statement'
+            | 'question'
+            | 'imperative'
+            | 'suggestion'
+            | 'exclamation',
+          politeness: politeness as 'formal-polite' | 'polite' | 'plain' | 'informal',
+          negated,
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * 종결어미 정보를 영어 문장 형식으로 변환
+ *
+ * @param analysis 종결어미 분석 결과
+ * @param verb 영어 동사 원형
+ * @returns 영어 문장 또는 null
+ */
+export function endingToEnglish(
+  analysis: EndingAnalysis,
+  verb: string,
+): { text: string; prefix?: string; suffix?: string } | null {
+  const { sentenceType, tense, politeness, negated } = analysis;
+
+  // 문장 유형별 영어 변환
+  switch (sentenceType) {
+    case 'statement':
+      if (negated) {
+        if (tense === 'past') return { text: `didn't ${verb}` };
+        if (tense === 'future') return { text: `won't ${verb}` };
+        return { text: `don't ${verb}` };
+      }
+      if (tense === 'past') return { text: verb }; // 과거형은 동사 활용 필요
+      if (tense === 'future') return { text: `will ${verb}` };
+      return { text: verb };
+
+    case 'question':
+      if (tense === 'past') return { prefix: 'Did', text: verb, suffix: '?' };
+      if (tense === 'future') return { prefix: 'Will', text: verb, suffix: '?' };
+      return { prefix: 'Do', text: verb, suffix: '?' };
+
+    case 'imperative':
+      if (negated) return { prefix: "Don't", text: verb, suffix: '!' };
+      if (politeness === 'polite') return { prefix: 'Please', text: verb };
+      return { text: verb.charAt(0).toUpperCase() + verb.slice(1), suffix: '!' };
+
+    case 'suggestion':
+      if (politeness === 'formal-polite' || politeness === 'polite') {
+        return { prefix: "Let's", text: verb };
+      }
+      return { prefix: "Let's", text: verb };
+
+    case 'exclamation':
+      return { prefix: 'Oh,', text: `you ${verb}` };
+
+    default:
+      return null;
+  }
+}
 
 // ============================================
 // 4. 불규칙 동사
 // ============================================
 
-/** 영어 불규칙 동사: [원형, 과거, 과거분사] */
+/**
+ * 영어 불규칙 동사: [원형, 과거, 과거분사]
+ *
+ * 80개+ 불규칙 동사 완전 사전
+ * - 기본 동사 (go, come, eat, ...)
+ * - 빈도 높은 동사 (think, know, find, ...)
+ * - 조동사/보조동사 관련 (can→could, will→would, ...)
+ */
 export const IRREGULAR_VERBS: Array<[string, string, string]> = [
+  // ============================================
+  // 기본 동사 (25개)
+  // ============================================
   ['go', 'went', 'gone'],
   ['come', 'came', 'come'],
   ['eat', 'ate', 'eaten'],
@@ -190,12 +544,96 @@ export const IRREGULAR_VERBS: Array<[string, string, string]> = [
   ['do', 'did', 'done'],
   ['be', 'was/were', 'been'],
   ['get', 'got', 'gotten'],
-  // Phase 2A: 다의어 동사 추가
   ['ride', 'rode', 'ridden'],
   ['hit', 'hit', 'hit'],
   ['catch', 'caught', 'caught'],
   ['hold', 'held', 'held'],
   ['fall', 'fell', 'fallen'],
+
+  // ============================================
+  // 인지/사고 동사 (15개)
+  // ============================================
+  ['think', 'thought', 'thought'],
+  ['know', 'knew', 'known'],
+  ['understand', 'understood', 'understood'],
+  ['forget', 'forgot', 'forgotten'],
+  ['remember', 'remembered', 'remembered'], // 규칙이지만 빈도 높음
+  ['mean', 'meant', 'meant'],
+  ['feel', 'felt', 'felt'],
+  ['find', 'found', 'found'],
+  ['believe', 'believed', 'believed'], // 규칙
+  ['learn', 'learned/learnt', 'learned/learnt'],
+  ['teach', 'taught', 'taught'],
+  ['show', 'showed', 'shown'],
+  ['tell', 'told', 'told'],
+  ['say', 'said', 'said'],
+  ['speak', 'spoke', 'spoken'],
+
+  // ============================================
+  // 이동/위치 동사 (15개)
+  // ============================================
+  ['sit', 'sat', 'sat'],
+  ['stand', 'stood', 'stood'],
+  ['lie', 'lay', 'lain'],
+  ['lay', 'laid', 'laid'],
+  ['rise', 'rose', 'risen'],
+  ['fly', 'flew', 'flown'],
+  ['swim', 'swam', 'swum'],
+  ['drive', 'drove', 'driven'],
+  ['leave', 'left', 'left'],
+  ['meet', 'met', 'met'],
+  ['bring', 'brought', 'brought'],
+  ['send', 'sent', 'sent'],
+  ['spend', 'spent', 'spent'],
+  ['lend', 'lent', 'lent'],
+  ['lead', 'led', 'led'],
+
+  // ============================================
+  // 행위 동사 (20개)
+  // ============================================
+  ['put', 'put', 'put'],
+  ['set', 'set', 'set'],
+  ['let', 'let', 'let'],
+  ['cut', 'cut', 'cut'],
+  ['shut', 'shut', 'shut'],
+  ['cost', 'cost', 'cost'],
+  ['hurt', 'hurt', 'hurt'],
+  ['break', 'broke', 'broken'],
+  ['choose', 'chose', 'chosen'],
+  ['throw', 'threw', 'thrown'],
+  ['grow', 'grew', 'grown'],
+  ['blow', 'blew', 'blown'],
+  ['draw', 'drew', 'drawn'],
+  ['wear', 'wore', 'worn'],
+  ['tear', 'tore', 'torn'],
+  ['beat', 'beat', 'beaten'],
+  ['begin', 'began', 'begun'],
+  ['sing', 'sang', 'sung'],
+  ['ring', 'rang', 'rung'],
+  ['sink', 'sank', 'sunk'],
+
+  // ============================================
+  // 소유/획득 동사 (10개)
+  // ============================================
+  ['lose', 'lost', 'lost'],
+  ['win', 'won', 'won'],
+  ['keep', 'kept', 'kept'],
+  ['pay', 'paid', 'paid'],
+  ['build', 'built', 'built'],
+  ['fight', 'fought', 'fought'],
+  ['seek', 'sought', 'sought'],
+  ['bind', 'bound', 'bound'],
+  ['hang', 'hung', 'hung'],
+  ['stick', 'stuck', 'stuck'],
+
+  // ============================================
+  // 조동사/보조동사 원형 (5개)
+  // ============================================
+  ['can', 'could', 'been able to'],
+  ['will', 'would', 'willed'],
+  ['shall', 'should', 'should'],
+  ['may', 'might', 'might'],
+  ['must', 'had to', 'had to'],
 ];
 
 /** 불규칙 동사 빠른 조회용 맵 */
@@ -205,6 +643,170 @@ export const VERB_BASE = new Map(
     past.includes('/') ? past.split('/').map((p) => [p, base]) : [[past, base]],
   ),
 );
+
+// ============================================
+// 4.1 조동사 변환 규칙 (Modal Verbs)
+// ============================================
+
+/**
+ * 조동사 → 한국어 표현 매핑
+ *
+ * 일반화 규칙:
+ * - can/could: 능력/가능 → -ㄹ 수 있다
+ * - must/should/have to: 의무/당위 → -해야 한다
+ * - will/would: 미래/의지 → -ㄹ 것이다
+ * - may/might: 추측/가능성 → -ㄹ지도 모른다
+ *
+ * 각 조동사는 시제와 극성(긍정/부정)에 따라 다른 표현 사용
+ */
+export interface ModalRule {
+  /** 한국어 어미 (동사 어간 뒤에 붙음) */
+  suffix: string;
+  /** 부정형 어미 */
+  negativeSuffix: string;
+  /** 의미 카테고리 */
+  meaning: 'ability' | 'obligation' | 'future' | 'possibility' | 'permission';
+  /** 시제 (과거형 조동사인 경우) */
+  tense?: 'past';
+}
+
+export const MODAL_RULES: Record<string, ModalRule> = {
+  // 능력/가능
+  can: {
+    suffix: 'ㄹ 수 있다',
+    negativeSuffix: 'ㄹ 수 없다',
+    meaning: 'ability',
+  },
+  could: {
+    suffix: 'ㄹ 수 있었다',
+    negativeSuffix: 'ㄹ 수 없었다',
+    meaning: 'ability',
+    tense: 'past',
+  },
+
+  // 의무/당위
+  must: {
+    suffix: '해야 한다',
+    negativeSuffix: '하면 안 된다',
+    meaning: 'obligation',
+  },
+  should: {
+    suffix: '해야 한다',
+    negativeSuffix: '하지 않아야 한다',
+    meaning: 'obligation',
+  },
+  'have to': {
+    suffix: '해야 한다',
+    negativeSuffix: '하지 않아도 된다',
+    meaning: 'obligation',
+  },
+  'has to': {
+    suffix: '해야 한다',
+    negativeSuffix: '하지 않아도 된다',
+    meaning: 'obligation',
+  },
+  'had to': {
+    suffix: '해야 했다',
+    negativeSuffix: '하지 않아도 됐다',
+    meaning: 'obligation',
+    tense: 'past',
+  },
+
+  // 미래/의지
+  will: {
+    suffix: 'ㄹ 것이다',
+    negativeSuffix: '지 않을 것이다',
+    meaning: 'future',
+  },
+  would: {
+    suffix: 'ㄹ 것이다',
+    negativeSuffix: '지 않을 것이다',
+    meaning: 'future',
+    tense: 'past',
+  },
+
+  // 추측/가능성
+  may: {
+    suffix: 'ㄹ지도 모른다',
+    negativeSuffix: '지 않을지도 모른다',
+    meaning: 'possibility',
+  },
+  might: {
+    suffix: 'ㄹ지도 모른다',
+    negativeSuffix: '지 않을지도 모른다',
+    meaning: 'possibility',
+    tense: 'past',
+  },
+};
+
+/** 조동사 목록 (감지용) */
+export const MODAL_VERBS = new Set(Object.keys(MODAL_RULES));
+
+/**
+ * 한국어 조동사 패턴 → 영어 조동사 매핑
+ *
+ * Ko→En 번역 시 사용
+ * 패턴은 긴 것부터 매칭해야 함 (ㄹ 수 있었다 > ㄹ 수 있다)
+ */
+export const KO_MODAL_PATTERNS: Array<{
+  pattern: RegExp;
+  modal: string;
+  negative: boolean;
+}> = [
+  // 능력/가능 (긴 패턴부터)
+  { pattern: /ㄹ 수 없었/, modal: "couldn't", negative: true },
+  { pattern: /ㄹ 수 있었/, modal: 'could', negative: false },
+  { pattern: /ㄹ 수 없/, modal: "can't", negative: true },
+  { pattern: /ㄹ 수 있/, modal: 'can', negative: false },
+
+  // 의무/당위
+  { pattern: /하면 안 된/, modal: 'must not', negative: true },
+  { pattern: /해야 했/, modal: 'had to', negative: false },
+  { pattern: /해야 한/, modal: 'must', negative: false },
+  { pattern: /해야 해/, modal: 'should', negative: false },
+  { pattern: /하지 않아도 되/, modal: "don't have to", negative: true },
+  { pattern: /하지 않아도 됐/, modal: "didn't have to", negative: true },
+
+  // 미래/의지
+  { pattern: /ㄹ 것이/, modal: 'will', negative: false },
+  { pattern: /지 않을 것이/, modal: "won't", negative: true },
+
+  // 추측/가능성
+  { pattern: /ㄹ지도 모른/, modal: 'might', negative: false },
+  { pattern: /지 않을지도 모른/, modal: 'might not', negative: true },
+];
+
+/**
+ * Phase 5: 의존명사 패턴 (Bound Noun Patterns)
+ * Ko→En 번역에서 특수한 문법 구조 처리
+ */
+export const KO_BOUND_NOUN_PATTERNS: Array<{
+  pattern: RegExp;
+  english: string;
+  type: 'experience' | 'ability' | 'nominalization' | 'probability';
+}> = [
+  // -ㄴ 적 있다 (경험): have + past participle
+  { pattern: /ㄴ 적 있/, english: 'have {PP}', type: 'experience' },
+  { pattern: /ㄴ 적 없/, english: 'have never {PP}', type: 'experience' },
+  { pattern: /은 적 있/, english: 'have {PP}', type: 'experience' },
+  { pattern: /은 적 없/, english: 'have never {PP}', type: 'experience' },
+
+  // -ㄹ 줄 알다 (능력/방법): know how to
+  { pattern: /ㄹ 줄 알/, english: 'know how to {V}', type: 'ability' },
+  { pattern: /ㄹ 줄 모르/, english: "don't know how to {V}", type: 'ability' },
+  { pattern: /을 줄 알/, english: 'know how to {V}', type: 'ability' },
+  { pattern: /을 줄 모르/, english: "don't know how to {V}", type: 'ability' },
+
+  // -는 것 (명사화): -ing / what/that
+  { pattern: /는 것/, english: '{-ING}', type: 'nominalization' },
+  { pattern: /ㄴ 것/, english: 'what {S} {PP}', type: 'nominalization' },
+  { pattern: /ㄹ 것/, english: 'what {S} will {V}', type: 'nominalization' },
+
+  // -ㄹ 것 같다 (추측): seem to / probably
+  { pattern: /ㄹ 것 같/, english: 'seem to {V}', type: 'probability' },
+  { pattern: /ㄴ 것 같/, english: 'seem to have {PP}', type: 'probability' },
+  { pattern: /는 것 같/, english: 'seem to be {-ING}', type: 'probability' },
+];
 
 // ============================================
 // 5. 한국어 동사 어간 사전 (규칙 기반 활용)
@@ -239,6 +841,7 @@ export const VERB_STEMS: Record<string, string> = {
   팔: 'sell',
   주: 'give',
   하: 'do',
+  해: 'do', // 하다의 활용형
   되: 'become',
   있: 'have',
   없: 'not have',
@@ -516,10 +1119,81 @@ export const KO_NUMBERS: Record<string, number> = {
 
 /** 관용구: 통문장 매칭 */
 export const IDIOMS_KO_EN: Record<string, string> = {
+  // 속담
   '티끌 모아 태산': 'Every little bit counts',
   '눈 감아주다': 'let it slide',
   '발 뻗고 자다': 'sleep in peace',
   '야 진짜 대박': 'OMG',
+
+  // === 인사 ===
+  안녕: 'Hi',
+  안녕하세요: 'Hello',
+  안녕하십니까: 'Hello',
+  '안녕히 가세요': 'Goodbye',
+  '안녕히 계세요': 'Goodbye',
+  '잘 가': 'Bye',
+  '잘 가요': 'Bye',
+  '좋은 아침': 'Good morning',
+  '좋은 아침이에요': 'Good morning',
+  '좋은 아침입니다': 'Good morning',
+  반가워: 'Nice to meet you',
+  반가워요: 'Nice to meet you',
+  반갑습니다: 'Nice to meet you',
+  '만나서 반갑습니다': 'Nice to meet you',
+  '잘 지내': 'How are you',
+  '잘 지내요': 'How are you',
+  '어떻게 지내세요': 'How are you',
+
+  // === 감사/사과 ===
+  고마워: 'Thanks',
+  고마워요: 'Thank you',
+  감사합니다: 'Thank you',
+  '정말 고마워': 'Thank you very much',
+  '정말 감사합니다': 'Thank you very much',
+  '대단히 감사합니다': 'Thank you very much',
+  별말을: "You're welcome",
+  천만에요: "You're welcome",
+  미안해: 'Sorry',
+  미안해요: "I'm sorry",
+  죄송합니다: "I'm sorry",
+  죄송해요: "I'm sorry",
+  실례합니다: 'Excuse me',
+  실례해요: 'Excuse me',
+
+  // === 응답 ===
+  응: 'Yes',
+  네: 'Yes',
+  예: 'Yes',
+  아니: 'No',
+  아니요: 'No',
+  아닙니다: 'No',
+  그래: 'Okay',
+  그래요: 'Okay',
+  알았어: 'Okay',
+  알았어요: 'Okay',
+  알겠습니다: 'Okay',
+  물론: 'Of course',
+  물론이죠: 'Of course',
+  물론입니다: 'Of course',
+  당연하지: 'Of course',
+  당연하죠: 'Of course',
+
+  // === 일상 표현 ===
+  '잘 자': 'Good night',
+  '잘 자요': 'Good night',
+  '안녕히 주무세요': 'Good night',
+  수고하세요: 'Take care',
+  수고했어: 'Good job',
+  수고했어요: 'Good job',
+  수고하셨습니다: 'Good job',
+  화이팅: 'Good luck',
+  파이팅: 'Good luck',
+  힘내: 'Cheer up',
+  힘내요: 'Cheer up',
+  힘내세요: 'Cheer up',
+  축하해: 'Congratulations',
+  축하해요: 'Congratulations',
+  축하합니다: 'Congratulations',
 };
 
 /**

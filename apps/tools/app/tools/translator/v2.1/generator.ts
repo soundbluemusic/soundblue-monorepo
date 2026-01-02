@@ -11,11 +11,14 @@ import {
   translatePronoun,
 } from '../dictionary/declension';
 import {
+  analyzeKoreanEnding,
   COUNTERS,
   EN_KO,
+  endingToEnglish,
   IDIOMS_EN_KO,
   IDIOMS_KO_EN,
   KO_EN,
+  MODAL_VERBS,
   NOUN_CONTEXT,
   VERB_PAST,
   VERB_PREPOSITIONS,
@@ -109,6 +112,20 @@ const SENTENCE_TEMPLATES: Partial<Record<AllTemplateKeys, string>> & Record<Temp
   'imperative-future-negated': "Don't {V} {O} {L} {A}",
   'imperative-present-perfect-negated': "Don't {V} {O} {L} {A}",
   'imperative-past-perfect-negated': "Don't {V} {O} {L} {A}",
+
+  // Phase 1: 청유문 (suggestion)
+  'suggestion-present': "Let's {V} {O} {L} {A}",
+  'suggestion-past': "Let's {V} {O} {L} {A}",
+  'suggestion-future': "Let's {V} {O} {L} {A}",
+  'suggestion-present-perfect': "Let's {V} {O} {L} {A}",
+  'suggestion-past-perfect': "Let's {V} {O} {L} {A}",
+
+  // 청유문 부정
+  'suggestion-present-negated': "Let's not {V} {O} {L} {A}",
+  'suggestion-past-negated': "Let's not {V} {O} {L} {A}",
+  'suggestion-future-negated': "Let's not {V} {O} {L} {A}",
+  'suggestion-present-perfect-negated': "Let's not {V} {O} {L} {A}",
+  'suggestion-past-perfect-negated': "Let's not {V} {O} {L} {A}",
 };
 
 /**
@@ -503,14 +520,18 @@ function detectCounterPattern(tokens: Token[]): string | null {
  * 보조용언 패턴으로 영어 생성
  *
  * Phase 0: 긴급 수정
- * "-고 있다" → "I'm Ving"
- * "-고 싶다" → "I want to V"
+ * "-고 있다" → "is Ving" (주어 없을 때) / "I'm Ving" (주어 있을 때)
+ * "-고 싶다" → "want to V" (주어 없을 때) / "I want to V" (주어 있을 때)
+ * "-을 것이다" → "will V"
+ * "-어 본 적 있다" → "have Vpp"
+ * "-ㄹ 수 있다" → "can V"
+ * "-도 된다" → "may V"
  */
 function generateWithAuxiliaryPattern(parsed: ParsedSentence): string {
   const parts: string[] = [];
 
   // 주어 찾기
-  let subject = 'I'; // 기본값
+  let subject: string | null = null; // 명시적 주어가 없으면 null
   let verb = '';
 
   for (const token of parsed.tokens) {
@@ -530,36 +551,185 @@ function generateWithAuxiliaryPattern(parsed: ParsedSentence): string {
   switch (parsed.auxiliaryPattern) {
     case 'progressive': {
       // -고 있다 → be + Ving
-      const beVerb = getBeVerbForAuxiliary(subject);
       const gerund = toGerund(verb);
-      parts.push(`${subject}'${beVerb === 'am' ? 'm' : beVerb === 'are' ? 're' : 's'} ${gerund}`);
+      if (subject) {
+        const beVerb = getBeVerbForAuxiliary(subject);
+        parts.push(`${subject}'${beVerb === 'am' ? 'm' : beVerb === 'are' ? 're' : 's'} ${gerund}`);
+      } else {
+        // 주어 없음: "is eating"
+        parts.push(`is ${gerund}`);
+      }
+      break;
+    }
+    case 'past-progressive': {
+      // -고 있었다 → was + Ving
+      const gerund = toGerund(verb);
+      if (subject) {
+        const isIOrThirdPerson = subject.toLowerCase() === 'i' || is3rdPersonSingular(subject);
+        const wasWere = isIOrThirdPerson ? 'was' : 'were';
+        parts.push(`${subject} ${wasWere} ${gerund}`);
+      } else {
+        // 주어 없음: "was eating"
+        parts.push(`was ${gerund}`);
+      }
+      break;
+    }
+    case 'future': {
+      // -을 것이다 → will V
+      if (subject) {
+        parts.push(`${subject} will ${verb}`);
+      } else {
+        parts.push(`will ${verb}`);
+      }
+      break;
+    }
+    case 'perfect': {
+      // -어 본 적 있다 → have Vpp
+      const pp = toPastParticiple(verb);
+      if (subject) {
+        const haveHas = is3rdPersonSingular(subject) ? 'has' : 'have';
+        parts.push(`${subject} ${haveHas} ${pp}`);
+      } else {
+        parts.push(`have ${pp}`);
+      }
+      break;
+    }
+    case 'modal-can': {
+      // -ㄹ 수 있다 → can V
+      if (subject) {
+        parts.push(`${subject} can ${verb}`);
+      } else {
+        parts.push(`can ${verb}`);
+      }
+      break;
+    }
+    case 'modal-may': {
+      // -도 된다 → may V
+      if (subject) {
+        parts.push(`${subject} may ${verb}`);
+      } else {
+        parts.push(`may ${verb}`);
+      }
       break;
     }
     case 'desiderative': {
       // -고 싶다 → want to V
-      parts.push(
-        `${subject} want${subject.toLowerCase() === 'i' || isPlural(subject) ? '' : 's'} to ${verb}`,
-      );
+      if (subject) {
+        parts.push(
+          `${subject} want${subject.toLowerCase() === 'i' || isPlural(subject) ? '' : 's'} to ${verb}`,
+        );
+      } else {
+        parts.push(`want to ${verb}`);
+      }
       break;
     }
     case 'attemptive': {
       // -아/어 보다 → try Ving
       const gerund = toGerund(verb);
-      parts.push(`${subject} tried ${gerund}`);
+      if (subject) {
+        parts.push(`${subject} tried ${gerund}`);
+      } else {
+        parts.push(`tried ${gerund}`);
+      }
       break;
     }
     case 'completive': {
       // -아/어 버리다 → end up Ving
       const gerund = toGerund(verb);
-      parts.push(`${subject} ended up ${gerund}`);
+      if (subject) {
+        parts.push(`${subject} ended up ${gerund}`);
+      } else {
+        parts.push(`ended up ${gerund}`);
+      }
+      break;
+    }
+    case 'benefactive': {
+      // -아/어 주다 → V for (someone)
+      if (subject) {
+        parts.push(`${subject} ${verb}s for`);
+      } else {
+        parts.push(`${verb} for`);
+      }
       break;
     }
     default:
       // fallback
-      parts.push(`${subject} ${verb}`);
+      if (subject) {
+        parts.push(`${subject} ${verb}`);
+      } else {
+        parts.push(verb);
+      }
   }
 
   return parts.join(' ').trim();
+}
+
+/**
+ * 3인칭 단수인지 확인
+ */
+function is3rdPersonSingular(subject: string): boolean {
+  const lower = subject.toLowerCase();
+  return lower === 'he' || lower === 'she' || lower === 'it';
+}
+
+/**
+ * 동사를 과거분사로 변환
+ */
+function toPastParticiple(verb: string): string {
+  if (!verb) return 'done';
+
+  // 불규칙 동사
+  const irregulars: Record<string, string> = {
+    be: 'been',
+    have: 'had',
+    do: 'done',
+    go: 'gone',
+    eat: 'eaten',
+    see: 'seen',
+    take: 'taken',
+    give: 'given',
+    come: 'come',
+    get: 'gotten',
+    make: 'made',
+    know: 'known',
+    write: 'written',
+    read: 'read',
+    speak: 'spoken',
+    buy: 'bought',
+    sell: 'sold',
+    sleep: 'slept',
+    drink: 'drunk',
+    swim: 'swum',
+    sing: 'sung',
+    run: 'run',
+    begin: 'begun',
+    break: 'broken',
+    choose: 'chosen',
+    drive: 'driven',
+    fly: 'flown',
+    forget: 'forgotten',
+    freeze: 'frozen',
+    grow: 'grown',
+    hide: 'hidden',
+    ride: 'ridden',
+    rise: 'risen',
+    shake: 'shaken',
+    steal: 'stolen',
+    throw: 'thrown',
+    wake: 'woken',
+    wear: 'worn',
+  };
+  if (irregulars[verb]) return irregulars[verb];
+
+  // 규칙 동사: -ed (과거형과 동일)
+  if (verb.endsWith('e')) return `${verb}d`;
+  if (/[aeiou][bcdfghjklmnpqrstvwxz]$/i.test(verb) && verb.length <= 4) {
+    return `${verb}${verb[verb.length - 1]}ed`;
+  }
+  if (verb.endsWith('y') && !/[aeiou]y$/i.test(verb)) {
+    return `${verb.slice(0, -1)}ied`;
+  }
+  return `${verb}ed`;
 }
 
 /**
@@ -593,8 +763,11 @@ function toGerund(verb: string): string {
     return `${verb.slice(0, -1)}ing`;
   }
 
-  // 단모음 + 단자음으로 끝나면 자음 중복
-  if (/^[a-z]*[aeiou][bcdfghjklmnpqrstvwxz]$/i.test(verb) && verb.length <= 4) {
+  // CVC 패턴 (자음-단모음-자음)으로 끝나면 자음 중복
+  // 예: run → running, sit → sitting, stop → stopping
+  // 예외: eat → eating (ea는 이중모음이므로 중복 안 함)
+  // w, x, y로 끝나는 경우는 중복 안 함
+  if (/^[bcdfghjklmnpqrstvwxyz][aeiou][bcdfghjklmnpqrstvz]$/i.test(verb)) {
     const lastChar = verb[verb.length - 1];
     return `${verb}${lastChar}ing`;
   }
@@ -608,6 +781,82 @@ function toGerund(verb: string): string {
 function isPlural(subject: string): boolean {
   const lower = subject.toLowerCase();
   return lower === 'we' || lower === 'they' || lower === 'you';
+}
+
+/**
+ * 한국어 조사 → 영어 전치사 변환 (문맥 기반)
+ *
+ * Phase 4: 조사 매핑
+ * - 에: 목적지/시간/장소 (to/at/in/on)
+ * - 에서: 행동 장소 (at/in/from)
+ * - 로/으로: 방향/수단 (to/by/with)
+ * - 와/과/하고: 동반 (with/and)
+ * - 의: 소유격 (of/'s)
+ */
+function mapParticleToPreposition(particle?: string, verb?: string): string {
+  if (!particle) return 'at';
+
+  const verbLower = verb?.toLowerCase() || '';
+
+  // 이동 동사 목록 (to를 사용)
+  const motionVerbs = [
+    'go',
+    'come',
+    'move',
+    'travel',
+    'walk',
+    'run',
+    'drive',
+    'fly',
+    'return',
+    'arrive',
+  ];
+  const isMotionVerb = motionVerbs.some((v) => verbLower.includes(v));
+
+  switch (particle) {
+    case '에':
+      // 이동 동사 + 에 → to
+      if (isMotionVerb) return 'to';
+      // 존재/위치 동사 → at/in
+      if (verbLower.includes('stay') || verbLower.includes('live') || verbLower.includes('be')) {
+        return 'in';
+      }
+      // 기본값: at (시간, 장소)
+      return 'at';
+
+    case '에서':
+      // 출발점 의미 (from) - come, leave 등
+      if (
+        verbLower.includes('come') ||
+        verbLower.includes('leave') ||
+        verbLower.includes('depart')
+      ) {
+        return 'from';
+      }
+      // 행동 장소: at/in
+      return 'at';
+
+    case '로':
+    case '으로':
+      // 이동 방향 → to
+      if (isMotionVerb) return 'to';
+      // 수단/방법 → by/with
+      if (verbLower.includes('make') || verbLower.includes('write') || verbLower.includes('cut')) {
+        return 'with';
+      }
+      return 'by';
+
+    case '와':
+    case '과':
+    case '하고':
+      return 'with';
+
+    case '의':
+      return 'of';
+
+    default:
+      return 'at';
+  }
 }
 
 /**
@@ -632,6 +881,67 @@ export function generateEnglish(parsed: ParsedSentence): string {
   // 1. 관용구 체크 (통문장)
   const idiom = IDIOMS_KO_EN[parsed.original.replace(/[.!?？！。]+$/, '').trim()];
   if (idiom) return idiom;
+
+  // 1.2. Phase 1: 단일 동사+종결어미 분석 (갑니다, 먹었어 등)
+  // 토큰이 1개이고 동사/형용사 역할인 경우 종결어미 분석
+  if (parsed.tokens.length === 1) {
+    const token = parsed.tokens[0];
+    const word = token.text;
+
+    // 종결어미 분석 시도
+    const endingAnalysis = analyzeKoreanEnding(word);
+    if (endingAnalysis) {
+      // Bug fix: 토크나이저에서 감지된 부정 ("안" 전치 부정)을 병합
+      // "안 먹었다" → tokenizer strips "안 " and sets parsed.negated = true
+      // but analyzeKoreanEnding("먹었다") doesn't know about it
+      if (parsed.negated && !endingAnalysis.negated) {
+        endingAnalysis.negated = true;
+      }
+
+      // 어간에서 영어 동사 찾기
+      const stemWithDa = `${endingAnalysis.stem}다`;
+      const enVerb =
+        KO_EN[endingAnalysis.stem] || KO_EN[stemWithDa] || token.translated || endingAnalysis.stem;
+
+      // 종결어미에 따른 영어 문장 생성
+      const englishResult = endingToEnglish(endingAnalysis, enVerb);
+      if (englishResult) {
+        // 과거 시제인 경우 동사 활용
+        let verbForm = englishResult.text;
+        if (endingAnalysis.tense === 'past' && !endingAnalysis.negated) {
+          verbForm = applyTense(enVerb, 'past');
+        }
+
+        // 조합
+        const parts: string[] = [];
+        if (englishResult.prefix) parts.push(englishResult.prefix);
+        parts.push(verbForm);
+        if (englishResult.suffix) {
+          // 마침표/물음표/느낌표를 마지막에 붙임
+          return parts.join(' ').trim() + englishResult.suffix;
+        }
+        return parts.join(' ').trim();
+      }
+    }
+  }
+
+  // 1.5. Phase 3: 비교급/최상급 패턴 우선 처리
+  // "더 크다" → "bigger", "가장 좋다" → "best"
+  if (parsed.comparativeType && parsed.tokens.length === 1) {
+    const token = parsed.tokens[0];
+    // 형용사/동사 어간에서 영어 비교급/최상급 생성
+    const adjStem = token.stem || token.text;
+    const enComp = toEnglishComparative(adjStem, parsed.comparativeType);
+    if (enComp) {
+      return enComp;
+    }
+    // 매핑이 없으면 기본 번역 + more/most 접두사
+    const enBase = token.translated || KO_EN[adjStem] || adjStem;
+    if (parsed.comparativeType === 'comparative') {
+      return `more ${enBase}`;
+    }
+    return `most ${enBase}`;
+  }
 
   // 2. 숫자+분류사 패턴 감지 (명사 숫자 분류사 순서)
   // "사과 1개", "고양이 5마리" 패턴
@@ -763,7 +1073,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
               const contextHints = new Set(allContextTokens.map((t) => t.stem));
               const contextTranslation = resolveNounContext(loc.stem, contextHints);
               const noun = contextTranslation || loc.translated || KO_EN[loc.stem] || loc.stem;
-              const prep = loc.meta?.particle === '에서' ? 'at' : 'to';
+              const prep = mapParticleToPreposition(loc.meta?.particle, verbText);
               return `${prep} ${noun}`;
             })
             .join(' ')
@@ -1240,6 +1550,15 @@ const EN_VERBS: Record<string, string> = {
   play: '놀다',
   run: '뛰다',
   walk: '걷다',
+  swim: '수영하다',
+  study: '공부하다',
+  sing: '노래하다',
+  dance: '춤추다',
+  cook: '요리하다',
+  clean: '청소하다',
+  wash: '씻다',
+  drive: '운전하다',
+  fly: '날다',
   learn: '배우다',
   teach: '가르치다',
   stay: '머무르다',
@@ -1752,6 +2071,214 @@ function extractEnglishVerbBase(verb: string): string {
   return lower;
 }
 
+/**
+ * 영어 동사가 과거형인지 판단
+ * - 규칙 동사: -ed로 끝남 (walked, talked, played)
+ * - 불규칙 동사: 별도 목록으로 관리 (went, saw, ate 등)
+ */
+const IRREGULAR_PAST_TENSE = new Set([
+  // be 동사
+  'was',
+  'were',
+  // 일반 불규칙 동사
+  'went',
+  'had',
+  'did',
+  'saw',
+  'came',
+  'took',
+  'got',
+  'made',
+  'said',
+  'knew',
+  'thought',
+  'gave',
+  'found',
+  'told',
+  'felt',
+  'became',
+  'left',
+  'put',
+  'meant',
+  'kept',
+  'let',
+  'began',
+  'seemed',
+  'helped',
+  'showed',
+  'heard',
+  'played',
+  'ran',
+  'moved',
+  'lived',
+  'believed',
+  'brought',
+  'happened',
+  'wrote',
+  'sat',
+  'stood',
+  'lost',
+  'paid',
+  'met',
+  'included',
+  'continued',
+  'set',
+  'learned',
+  'changed',
+  'led',
+  'understood',
+  'watched',
+  'followed',
+  'stopped',
+  'created',
+  'spoke',
+  'read', // 과거형 read는 발음만 다름
+  'spent',
+  'grew',
+  'opened',
+  'walked',
+  'won',
+  'taught',
+  'offered',
+  'remembered',
+  'considered',
+  'appeared',
+  'bought',
+  'waited',
+  'served',
+  'died',
+  'sent',
+  'built',
+  'stayed',
+  'fell',
+  'cut',
+  'reached',
+  'killed',
+  'raised',
+  'passed',
+  'sold',
+  'decided',
+  'returned',
+  'explained',
+  'hoped',
+  'developed',
+  'carried',
+  'broke',
+  'received',
+  'agreed',
+  'supported',
+  'hit',
+  'produced',
+  'ate',
+  'covered',
+  'caught',
+  'drew',
+  'chose',
+  'sang',
+  'drank',
+  'flew',
+  'drove',
+  'rode',
+  'swam',
+  'threw',
+  'wore',
+  'woke',
+  'slept',
+  'fought',
+  'held',
+  'hung',
+  'shook',
+  'spread',
+  'arose',
+  'awoke',
+  'beat',
+  'bent',
+  'bet',
+  'bit',
+  'bled',
+  'blew',
+  'bound',
+  'bred',
+  'burst',
+  'cast',
+  'clung',
+  'cost',
+  'crept',
+  'dealt',
+  'dug',
+  'dove',
+  'fed',
+  'fled',
+  'flung',
+  'forbade',
+  'forgave',
+  'forgot',
+  'froze',
+  'hid',
+  'hurt',
+  'knelt',
+  'laid',
+  'leapt',
+  'lent',
+  'lit',
+  'quit',
+  'rang',
+  'rose',
+  'sank',
+  'sought',
+  'shone',
+  'shot',
+  'shrank',
+  'shut',
+  'slid',
+  'slit',
+  'slung',
+  'slunk',
+  'smelt',
+  'snuck',
+  'sowed',
+  'spat',
+  'sped',
+  'spelt',
+  'spilt',
+  'sprang',
+  'stank',
+  'stole',
+  'strode',
+  'struck',
+  'strung',
+  'stuck',
+  'stung',
+  'sunk',
+  'swept',
+  'swore',
+  'swung',
+  'tore',
+  'thrust',
+  'underwent',
+  'upset',
+  'withdrew',
+  'wove',
+  'wound',
+  'wrung',
+]);
+
+function isPastTenseVerb(word: string): boolean {
+  const lower = word.toLowerCase().replace(/[.,!?]/g, '');
+
+  // 불규칙 과거형 체크
+  if (IRREGULAR_PAST_TENSE.has(lower)) {
+    return true;
+  }
+
+  // 규칙 과거형 체크: -ed로 끝남
+  if (lower.endsWith('ed') && lower.length > 3) {
+    return true;
+  }
+
+  return false;
+}
+
 /** 조동사 및 부정 축약형 */
 const EN_AUXILIARIES = new Set([
   // 기본 조동사
@@ -1899,8 +2426,7 @@ const _MODAL_PATTERNS: Record<
   would: { pattern: '-ㄹ 것이다', type: 'volition' },
 };
 
-/** 조동사인지 확인 (문장 구조 분석용) */
-const MODAL_VERBS = new Set(['can', 'could', 'may', 'might', 'must', 'should', 'will', 'would']);
+// MODAL_VERBS는 ./data에서 import됨 (can, could, may, might, must, should, will, would + have to, had to)
 
 // ============================================
 // Phase 2.2: Comparatives & Superlatives (비교급/최상급)
@@ -1952,6 +2478,94 @@ const EN_ADJECTIVES: Record<string, string> = {
   deep: '깊다',
   shallow: '얕다',
 };
+
+/**
+ * 한국어 형용사 → 영어 형용사 매핑 (EN_ADJECTIVES의 역매핑)
+ */
+const KO_ADJECTIVES: Record<string, string> = Object.entries(EN_ADJECTIVES).reduce(
+  (acc, [en, ko]) => {
+    acc[ko] = en;
+    return acc;
+  },
+  {} as Record<string, string>,
+);
+
+/**
+ * 불규칙 비교급/최상급 영어 형태 (Ko→En용)
+ * 원형 형용사 → { comparative: 비교급, superlative: 최상급 }
+ */
+const EN_IRREGULAR_FORMS: Record<string, { comparative: string; superlative: string }> = {
+  good: { comparative: 'better', superlative: 'best' },
+  bad: { comparative: 'worse', superlative: 'worst' },
+  far: { comparative: 'farther', superlative: 'farthest' },
+  little: { comparative: 'less', superlative: 'least' },
+  much: { comparative: 'more', superlative: 'most' },
+  many: { comparative: 'more', superlative: 'most' },
+  old: { comparative: 'older', superlative: 'oldest' },
+};
+
+/**
+ * 한국어 형용사를 영어 비교급/최상급으로 변환
+ * "크다" + comparative → "bigger"
+ * "좋다" + superlative → "best"
+ */
+function toEnglishComparative(
+  koAdjective: string,
+  compType: 'comparative' | 'superlative',
+): string | null {
+  // 어간 추출 (크다 → 크)
+  const stem = koAdjective.endsWith('다') ? koAdjective.slice(0, -1) : koAdjective;
+
+  // 한국어 → 영어 형용사
+  const enAdj = KO_ADJECTIVES[koAdjective] || KO_ADJECTIVES[`${stem}다`];
+  if (!enAdj) return null;
+
+  // 불규칙 비교급/최상급 확인
+  if (EN_IRREGULAR_FORMS[enAdj]) {
+    return compType === 'comparative'
+      ? EN_IRREGULAR_FORMS[enAdj].comparative
+      : EN_IRREGULAR_FORMS[enAdj].superlative;
+  }
+
+  // 규칙적 변환
+  // 다음절 형용사(syllables > 2): more/most + 형용사
+  const syllables = countSyllables(enAdj);
+  if (syllables >= 3 || (syllables === 2 && !enAdj.endsWith('y'))) {
+    return compType === 'comparative' ? `more ${enAdj}` : `most ${enAdj}`;
+  }
+
+  // -y로 끝나는 형용사: y → ier/iest
+  if (enAdj.endsWith('y')) {
+    const base = enAdj.slice(0, -1);
+    return compType === 'comparative' ? `${base}ier` : `${base}iest`;
+  }
+
+  // -e로 끝나는 형용사: +r/+st
+  if (enAdj.endsWith('e')) {
+    return compType === 'comparative' ? `${enAdj}r` : `${enAdj}st`;
+  }
+
+  // 단모음+단자음: 자음 중복 + er/est
+  if (/^[^aeiou]*[aeiou][bcdfghlmnprstvwz]$/.test(enAdj)) {
+    const lastChar = enAdj[enAdj.length - 1];
+    return compType === 'comparative' ? `${enAdj}${lastChar}er` : `${enAdj}${lastChar}est`;
+  }
+
+  // 기본: +er/+est
+  return compType === 'comparative' ? `${enAdj}er` : `${enAdj}est`;
+}
+
+/**
+ * 영어 단어의 음절 수 추정
+ */
+function countSyllables(word: string): number {
+  const vowels = word.toLowerCase().match(/[aeiouy]+/g);
+  if (!vowels) return 1;
+  // 단어 끝의 무성 e 제거
+  let count = vowels.length;
+  if (word.endsWith('e') && count > 1) count--;
+  return Math.max(1, count);
+}
 
 /**
  * 불규칙 비교급/최상급 매핑
@@ -2601,11 +3215,23 @@ function tagEnglishWords(parsed: ParsedSentence): TaggedWord[] {
       foundModal = negatedModal!; // modal 종류 (can, could, will 등)
       // negated는 tokenizer에서 이미 처리됨
     }
-    // 3.6. Phase 1.1: have/has/had 체크 (완료형)
+    // 3.6. Phase 2: "have to", "has to", "had to" 복합 조동사 체크
+    // "have to go" → "가야 한다" (의무/필요)
+    // 주의: "have gone" (완료형)과 구분해야 함
     else if (['have', 'has', 'had'].includes(lower) && !foundVerb) {
-      pos = 'aux';
-      ko = '';
-      foundHaveAux = true; // 완료형 조동사 발견
+      // 다음 토큰이 "to"인지 확인 (look-ahead)
+      const nextToken = i + 1 < parsed.tokens.length ? parsed.tokens[i + 1].stem.toLowerCase() : '';
+      if (nextToken === 'to') {
+        pos = 'aux';
+        ko = '';
+        // "have to" → 현재 의무, "had to" → 과거 의무
+        foundModal = lower === 'had' ? 'had to' : 'have to';
+      } else {
+        // "have/has/had + 과거분사" = 완료형
+        pos = 'aux';
+        ko = '';
+        foundHaveAux = true; // 완료형 조동사 발견
+      }
     }
     // 3.7. Phase 4: 보조용언 체크 (want to, try to, start to 등)
     else if (AUXILIARY_VERBS[lower] && !foundVerb) {
@@ -3218,17 +3844,45 @@ function processRelativeClause(parsed: ParsedSentence, _formality: Formality): s
   const relativeClauseWords = words.slice(relPronounIndex + 1);
   if (relativeClauseWords.length === 0) return null;
 
-  // 4. 관계절 동사 찾기 및 관형형 변환
+  // 4. 관계절 동사 찾기 및 시제 감지
   let relVerb = '';
+  let relVerbTense: 'present' | 'past' | 'future' | 'retrospective' = 'present';
   const relObjects: string[] = [];
+  let hasWill = false;
+  let hasUsedTo = false;
 
   for (let i = 0; i < relativeClauseWords.length; i++) {
     const word = relativeClauseWords[i].replace(/[.,!?]/g, '');
+    const nextWord = relativeClauseWords[i + 1]?.replace(/[.,!?]/g, '');
+
+    // 미래 시제 감지 (will)
+    if (word === 'will') {
+      hasWill = true;
+      continue;
+    }
+
+    // 회상 시제 감지 (used to)
+    if (word === 'used' && nextWord === 'to') {
+      hasUsedTo = true;
+      continue;
+    }
+    if (word === 'to' && hasUsedTo) {
+      continue;
+    }
 
     // 동사 찾기
     if (EN_VERBS[word] || EN_KO[word]?.endsWith('다')) {
       const verbBase = extractEnglishVerbBase(word) || word;
       relVerb = EN_KO[verbBase] || EN_VERBS[verbBase] || word;
+
+      // 시제 판단
+      if (hasWill) {
+        relVerbTense = 'future';
+      } else if (hasUsedTo) {
+        relVerbTense = 'retrospective';
+      } else if (isPastTenseVerb(word)) {
+        relVerbTense = 'past';
+      }
     } else {
       const ko = EN_KO[word];
       if (ko && !['the', 'a', 'an', 'i', 'you', 'he', 'she', 'it', 'we', 'they'].includes(word)) {
@@ -3239,10 +3893,8 @@ function processRelativeClause(parsed: ParsedSentence, _formality: Formality): s
 
   if (!relVerb) return null;
 
-  // 5. 관형형 어미 적용 (-는, -은/ㄴ)
-  // 현재: -는 (달리는)
-  // 과거: -은/ㄴ (달린)
-  const attributiveVerb = applyAttributiveEnding(relVerb, 'present');
+  // 5. 관형형 어미 적용 (-는, -은/ㄴ, -ㄹ/을, -던)
+  const attributiveVerb = applyAttributiveEnding(relVerb, relVerbTense);
 
   // 6. 결과 조립: 관형절 + 선행사
   // "who runs" → "달리는" + "남자" → "달리는 남자"
@@ -3422,25 +4074,46 @@ function processAdverbialClause(parsed: ParsedSentence, _formality: Formality): 
  *
  * 현재: -는 (가다 → 가는, 먹다 → 먹는)
  * 과거: -은/ㄴ (가다 → 간, 먹다 → 먹은)
+ * 미래: -ㄹ/을 (가다 → 갈, 먹다 → 먹을)
+ * 회상: -던 (가다 → 가던, 먹다 → 먹던)
  */
-function applyAttributiveEnding(verb: string, tense: 'present' | 'past'): string {
+function applyAttributiveEnding(
+  verb: string,
+  tense: 'present' | 'past' | 'future' | 'retrospective',
+): string {
   if (!verb) return '';
 
   // 동사 어간 추출
   const stem = verb.endsWith('다') ? verb.slice(0, -1) : verb;
-
-  if (tense === 'present') {
-    // 현재 관형형: -는
-    return `${stem}는`;
-  }
-  // 과거 관형형: -은/ㄴ
   const lastChar = stem[stem.length - 1];
   const hasJong = hasJongseong(lastChar);
 
-  if (hasJong) {
-    return `${stem}은`;
+  switch (tense) {
+    case 'present':
+      // 현재 관형형: -는
+      return `${stem}는`;
+
+    case 'past':
+      // 과거 관형형: -은/ㄴ
+      if (hasJong) {
+        return `${stem}은`;
+      }
+      return `${addJongseong(stem, 'ㄴ')}`;
+
+    case 'future':
+      // 미래 관형형: -ㄹ/을
+      if (hasJong) {
+        return `${stem}을`;
+      }
+      return `${addJongseong(stem, 'ㄹ')}`;
+
+    case 'retrospective':
+      // 회상 관형형: -던
+      return `${stem}던`;
+
+    default:
+      return `${stem}는`;
   }
-  return `${addJongseong(stem, 'ㄴ')}`;
 }
 
 /**
@@ -3839,9 +4512,15 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
       const baseProgressive = progressive.replace(/있다$/, '');
       // 진행형의 "있다"는 특별 처리 (있다 → 있어/있어요/있다)
       parts.push(baseProgressive + applyProgressiveEnding(formality, sentenceType));
+    } else if (parsed.tense === 'past' && parsed.negated) {
+      // Phase 12: 과거 부정 → -지 않았다 (didn't + verb)
+      parts.push(applyPastNegation(verb, formality, sentenceType));
     } else if (parsed.tense === 'past') {
       // Phase 12: 과거 시제 → -었다/-았다
       parts.push(applyPastTense(verb, formality, sentenceType));
+    } else if (parsed.tense === 'future' && parsed.negated) {
+      // Phase 12: 미래 부정 → -지 않을 것이다 (won't + verb)
+      parts.push(applyFutureNegation(verb, formality, sentenceType));
     } else if (parsed.tense === 'future') {
       // Phase 12: 미래 시제 → -ㄹ 것이다
       parts.push(applyFutureTense(verb, formality, sentenceType));
@@ -4691,7 +5370,9 @@ function applyFutureEnding(
 }
 
 /**
- * 부정문 적용 (-지 않다)
+ * 부정문 적용 (안 + 동사)
+ * "I don't go" → "나는 안 간다"
+ * "He doesn't eat" → "그는 안 먹는다"
  *
  * @param verb 동사 기본형
  * @param formality 어조
@@ -4702,25 +5383,15 @@ function applyNegation(
   formality: Formality,
   sentenceType: 'statement' | 'question',
 ): string {
-  // 어간 추출
-  let stem = verb;
-  if (verb.endsWith('다')) {
-    stem = verb.slice(0, -1);
-  }
-
-  // 하다 동사 처리
-  if (verb.endsWith('하다')) {
-    const prefix = verb.slice(0, -2);
-    return applyNegationEnding(`${prefix}하지`, formality, sentenceType);
-  }
-
-  return applyNegationEnding(`${stem}지`, formality, sentenceType);
+  // 동사를 해당 어조로 활용한 후 "안" 추가
+  const conjugated = applyFormality(verb, formality, sentenceType);
+  return `안 ${conjugated}`;
 }
 
 /**
  * 부정 어간에 어미 적용
  */
-function applyNegationEnding(
+function _applyNegationEnding(
   negStem: string,
   formality: Formality,
   sentenceType: 'statement' | 'question',
@@ -4738,6 +5409,84 @@ function applyNegationEnding(
       return sentenceType === 'question' ? `${negStem} 않습니까` : `${negStem} 않습니다`;
     default:
       return `${negStem} 않는다`;
+  }
+}
+
+/**
+ * 과거 부정문 적용 (안 + 과거 동사)
+ * "I didn't sleep" → "나는 안 잤다"
+ * "I didn't eat" → "나는 안 먹었다"
+ */
+function applyPastNegation(
+  verb: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  // 동사를 과거형으로 활용한 후 "안" 추가
+  const conjugated = applyPastTense(verb, formality, sentenceType);
+  return `안 ${conjugated}`;
+}
+
+/**
+ * 과거 부정 어간에 어미 적용
+ */
+function _applyPastNegationEnding(
+  negStem: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  switch (formality) {
+    case 'casual':
+      return sentenceType === 'question' ? `${negStem} 않았어` : `${negStem} 않았어`;
+    case 'formal':
+      return sentenceType === 'question' ? `${negStem} 않았어요` : `${negStem} 않았어요`;
+    case 'neutral':
+      return sentenceType === 'question' ? `${negStem} 않았니` : `${negStem} 않았다`;
+    case 'friendly':
+      return sentenceType === 'question' ? `${negStem} 않았어` : `${negStem} 않았어~`;
+    case 'literal':
+      return sentenceType === 'question' ? `${negStem} 않았습니까` : `${negStem} 않았습니다`;
+    default:
+      return `${negStem} 않았다`;
+  }
+}
+
+/**
+ * 미래 부정문 적용 (안 + 미래 동사)
+ * "I won't go" → "나는 안 갈 것이다"
+ * "I won't eat" → "나는 안 먹을 것이다"
+ */
+function applyFutureNegation(
+  verb: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  // 동사를 미래형으로 활용한 후 "안" 추가
+  const conjugated = applyFutureTense(verb, formality, sentenceType);
+  return `안 ${conjugated}`;
+}
+
+/**
+ * 미래 부정 어간에 어미 적용
+ */
+function _applyFutureNegationEnding(
+  negStem: string,
+  formality: Formality,
+  sentenceType: 'statement' | 'question',
+): string {
+  switch (formality) {
+    case 'casual':
+      return sentenceType === 'question' ? `${negStem} 않을 거야` : `${negStem} 않을 거야`;
+    case 'formal':
+      return sentenceType === 'question' ? `${negStem} 않을 거예요` : `${negStem} 않을 거예요`;
+    case 'neutral':
+      return sentenceType === 'question' ? `${negStem} 않을 거니` : `${negStem} 않을 것이다`;
+    case 'friendly':
+      return sentenceType === 'question' ? `${negStem} 않을 거야` : `${negStem} 않을 거야~`;
+    case 'literal':
+      return sentenceType === 'question' ? `${negStem} 않을 것입니까` : `${negStem} 않을 것입니다`;
+    default:
+      return `${negStem} 않을 것이다`;
   }
 }
 
@@ -4900,14 +5649,30 @@ function applyModalVerb(
       );
 
     case 'must':
-    case 'should': {
-      // must/should → -아/어야 하다
+    case 'should':
+    case 'have to': {
+      // must/should/have to → -아/어야 하다
       if (isHadaVerb) {
         return applyModalEnding(`${hadaPrefix}해야`, 'obligation', formality, sentenceType);
       }
-      // 모음조화
-      const vowelEnding = getVowelHarmonyEnding(stem);
-      return applyModalEnding(`${stem}${vowelEnding}야`, 'obligation', formality, sentenceType);
+      // 모음조화 + 모음축약
+      const obligationStem = applyVowelContraction(stem);
+      return applyModalEnding(`${obligationStem}야`, 'obligation', formality, sentenceType);
+    }
+
+    case 'had to': {
+      // had to → -아/어야 했다 (과거 의무)
+      if (isHadaVerb) {
+        return applyModalEnding(`${hadaPrefix}해야`, 'past-obligation', formality, sentenceType);
+      }
+      // 모음조화 + 모음축약
+      const pastObligationStem = applyVowelContraction(stem);
+      return applyModalEnding(
+        `${pastObligationStem}야`,
+        'past-obligation',
+        formality,
+        sentenceType,
+      );
     }
 
     case 'may': {
@@ -4915,8 +5680,9 @@ function applyModalVerb(
       if (isHadaVerb) {
         return applyModalEnding(`${hadaPrefix}해도`, 'permission', formality, sentenceType);
       }
-      const mayEnding = getVowelHarmonyEnding(stem);
-      return applyModalEnding(`${stem}${mayEnding}도`, 'permission', formality, sentenceType);
+      // 모음조화 + 모음축약
+      const permissionStem = applyVowelContraction(stem);
+      return applyModalEnding(`${permissionStem}도`, 'permission', formality, sentenceType);
     }
 
     case 'might':
@@ -5032,6 +5798,39 @@ function applyNegatedModalVerb(
       return applyNegatedModalEnding(`${stem}면`, 'prohibition', formality, sentenceType);
     }
 
+    case 'have to': {
+      // don't have to → -지 않아도 된다 (no obligation, different from prohibition)
+      // "You don't have to go" = "안 가도 돼" (선택의 여지)
+      if (isHadaVerb) {
+        return applyNegatedModalEnding(
+          `${hadaPrefix}하지 않아도`,
+          'no-obligation',
+          formality,
+          sentenceType,
+        );
+      }
+      return applyNegatedModalEnding(`${stem}지 않아도`, 'no-obligation', formality, sentenceType);
+    }
+
+    case 'had to': {
+      // didn't have to → -지 않아도 됐다 (past no obligation)
+      // "You didn't have to go" = "안 가도 됐어"
+      if (isHadaVerb) {
+        return applyNegatedModalEnding(
+          `${hadaPrefix}하지 않아도`,
+          'past-no-obligation',
+          formality,
+          sentenceType,
+        );
+      }
+      return applyNegatedModalEnding(
+        `${stem}지 않아도`,
+        'past-no-obligation',
+        formality,
+        sentenceType,
+      );
+    }
+
     case 'may': {
       // may not → -면 안 되다 (permission denied)
       if (isHadaVerb) {
@@ -5078,7 +5877,13 @@ function applyNegatedModalVerb(
  */
 function applyNegatedModalEnding(
   modalStem: string,
-  modalType: 'inability' | 'past-inability' | 'prohibition' | 'negative-possibility',
+  modalType:
+    | 'inability'
+    | 'past-inability'
+    | 'prohibition'
+    | 'negative-possibility'
+    | 'no-obligation'
+    | 'past-no-obligation',
   formality: Formality,
   sentenceType: 'statement' | 'question',
 ): string {
@@ -5151,6 +5956,40 @@ function applyNegatedModalEnding(
           return sentenceType === 'question' ? `${modalStem} 모릅니까` : `${modalStem} 모릅니다`;
         default:
           return `${modalStem} 모른다`;
+      }
+
+    case 'no-obligation':
+      // -지 않아도 된다 (don't have to)
+      switch (formality) {
+        case 'casual':
+          return sentenceType === 'question' ? `${modalStem} 돼` : `${modalStem} 돼`;
+        case 'formal':
+          return sentenceType === 'question' ? `${modalStem} 돼요` : `${modalStem} 돼요`;
+        case 'neutral':
+          return sentenceType === 'question' ? `${modalStem} 되니` : `${modalStem} 된다`;
+        case 'friendly':
+          return sentenceType === 'question' ? `${modalStem} 돼` : `${modalStem} 돼~`;
+        case 'literal':
+          return sentenceType === 'question' ? `${modalStem} 됩니까` : `${modalStem} 됩니다`;
+        default:
+          return `${modalStem} 된다`;
+      }
+
+    case 'past-no-obligation':
+      // -지 않아도 됐다 (didn't have to)
+      switch (formality) {
+        case 'casual':
+          return sentenceType === 'question' ? `${modalStem} 됐어` : `${modalStem} 됐어`;
+        case 'formal':
+          return sentenceType === 'question' ? `${modalStem} 됐어요` : `${modalStem} 됐어요`;
+        case 'neutral':
+          return sentenceType === 'question' ? `${modalStem} 됐니` : `${modalStem} 됐다`;
+        case 'friendly':
+          return sentenceType === 'question' ? `${modalStem} 됐어` : `${modalStem} 됐어~`;
+        case 'literal':
+          return sentenceType === 'question' ? `${modalStem} 됐습니까` : `${modalStem} 됐습니다`;
+        default:
+          return `${modalStem} 됐다`;
       }
 
     default:
@@ -5227,7 +6066,7 @@ function applyConditional(verb: string): string {
 /**
  * 모음조화에 따른 어미 (아/어) 선택
  */
-function getVowelHarmonyEnding(stem: string): string {
+function _getVowelHarmonyEnding(stem: string): string {
   if (!stem) return '어';
 
   const lastChar = stem[stem.length - 1];
@@ -5246,11 +6085,101 @@ function getVowelHarmonyEnding(stem: string): string {
 }
 
 /**
+ * 모음축약 적용
+ * 어간 마지막 모음 + 아/어 연결어미 → 축약형
+ *
+ * 규칙:
+ * - 가 (ㅏ) + 아 → 가 (아 생략)
+ * - 서 (ㅓ) + 어 → 서 (어 생략)
+ * - 오 (ㅗ) + 아 → 와 (ㅗ+ㅏ→ㅘ 축약)
+ * - 오다 → 와 (특수)
+ * - 주다 → 줘 (특수)
+ * - 두다 → 둬 (특수)
+ * - 보다 → 봐 (특수)
+ *
+ * @param stem 동사 어간 (ex: 가, 먹, 오)
+ * @returns 축약된 어간+모음 (ex: 가, 먹어, 와)
+ */
+function applyVowelContraction(stem: string): string {
+  if (!stem) return '어';
+
+  const lastChar = stem[stem.length - 1];
+  const code = lastChar.charCodeAt(0);
+
+  // 한글이 아니면 기본값 반환
+  if (code < 0xac00 || code > 0xd7a3) return `${stem}어`;
+
+  const syllableIndex = code - 0xac00;
+  const initialIndex = Math.floor(syllableIndex / 588); // 초성
+  const vowelIndex = Math.floor((syllableIndex % 588) / 28); // 중성
+  const finalIndex = syllableIndex % 28; // 종성
+
+  // 종성이 있으면 축약 없음 (먹 + 어 → 먹어)
+  if (finalIndex !== 0) {
+    const vowelEnding = vowelIndex === 0 || vowelIndex === 8 ? '아' : '어';
+    return stem + vowelEnding;
+  }
+
+  // 모음 인덱스별 축약 처리
+  switch (vowelIndex) {
+    case 0: // ㅏ: 가 + 아 → 가
+      return stem;
+
+    case 4: // ㅓ: 서 + 어 → 서
+      return stem;
+
+    case 8: {
+      // ㅗ: 오 + 아 → 와
+      // 새로운 글자 생성: 초성 + ㅘ(vowel 9) + 종성 없음
+      const waCode = 0xac00 + initialIndex * 588 + 9 * 28;
+      const prefix = stem.length > 1 ? stem.slice(0, -1) : '';
+      return prefix + String.fromCharCode(waCode);
+    }
+
+    case 13: {
+      // ㅜ: 주 + 어 → 줘
+      // 새로운 글자 생성: 초성 + ㅝ(vowel 14) + 종성 없음
+      const woCode = 0xac00 + initialIndex * 588 + 14 * 28;
+      const prefix = stem.length > 1 ? stem.slice(0, -1) : '';
+      return prefix + String.fromCharCode(woCode);
+    }
+
+    case 20: {
+      // ㅡ: 쓰 + 어 → 써
+      // 새로운 글자 생성: 초성 + ㅓ(vowel 4) + 종성 없음
+      const eoCode = 0xac00 + initialIndex * 588 + 4 * 28;
+      const prefix = stem.length > 1 ? stem.slice(0, -1) : '';
+      return prefix + String.fromCharCode(eoCode);
+    }
+
+    case 18: {
+      // ㅣ: 기 + 어 → 겨 (축약형 사용)
+      // 새로운 글자 생성: 초성 + ㅕ(vowel 6) + 종성 없음
+      const yeoCode = 0xac00 + initialIndex * 588 + 6 * 28;
+      const prefix = stem.length > 1 ? stem.slice(0, -1) : '';
+      return prefix + String.fromCharCode(yeoCode);
+    }
+
+    default: {
+      // 기타: 모음조화에 따라 아/어 추가
+      const vowelEnding = vowelIndex === 0 || vowelIndex === 8 ? '아' : '어';
+      return stem + vowelEnding;
+    }
+  }
+}
+
+/**
  * 조동사 어간에 어미 적용
  */
 function applyModalEnding(
   modalStem: string,
-  modalType: 'ability' | 'past-ability' | 'obligation' | 'permission' | 'possibility',
+  modalType:
+    | 'ability'
+    | 'past-ability'
+    | 'obligation'
+    | 'past-obligation'
+    | 'permission'
+    | 'possibility',
   formality: Formality,
   sentenceType: 'statement' | 'question',
 ): string {
@@ -5306,6 +6235,23 @@ function applyModalEnding(
           return sentenceType === 'question' ? `${modalStem} 합니까` : `${modalStem} 합니다`;
         default:
           return `${modalStem} 한다`;
+      }
+
+    case 'past-obligation':
+      // -아/어야 했다 (had to)
+      switch (formality) {
+        case 'casual':
+          return sentenceType === 'question' ? `${modalStem} 했어` : `${modalStem} 했어`;
+        case 'formal':
+          return sentenceType === 'question' ? `${modalStem} 했어요` : `${modalStem} 했어요`;
+        case 'neutral':
+          return sentenceType === 'question' ? `${modalStem} 했니` : `${modalStem} 했다`;
+        case 'friendly':
+          return sentenceType === 'question' ? `${modalStem} 했어` : `${modalStem} 했어~`;
+        case 'literal':
+          return sentenceType === 'question' ? `${modalStem} 했습니까` : `${modalStem} 했습니다`;
+        default:
+          return `${modalStem} 했다`;
       }
 
     case 'permission':

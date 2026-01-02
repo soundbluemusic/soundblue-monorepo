@@ -79,9 +79,29 @@ interface AuxiliaryPattern {
   /** 매칭 패턴 */
   pattern: RegExp;
   /** 문법적 의미 */
-  meaning: 'progressive' | 'desiderative' | 'attemptive' | 'completive';
+  meaning:
+    | 'progressive'
+    | 'past-progressive'
+    | 'desiderative'
+    | 'attemptive'
+    | 'completive'
+    | 'benefactive'
+    | 'future'
+    | 'perfect'
+    | 'modal-can'
+    | 'modal-may';
   /** 영어 표현 형식 */
-  englishForm: 'be + Ving' | 'want to V' | 'try Ving' | 'end up Ving';
+  englishForm:
+    | 'be + Ving'
+    | 'was + Ving'
+    | 'want to V'
+    | 'try Ving'
+    | 'end up Ving'
+    | 'V for someone'
+    | 'will V'
+    | 'have Vpp'
+    | 'can V'
+    | 'may V';
 }
 
 /**
@@ -89,12 +109,40 @@ interface AuxiliaryPattern {
  * 우선순위: 긴 패턴부터 매칭
  */
 const AUXILIARY_PATTERNS: AuxiliaryPattern[] = [
+  // ============================================
+  // 긴 패턴부터 (우선순위 높음)
+  // ============================================
+
+  // -어 본 적 있다 (경험/완료): 먹어 본 적 있다
+  { pattern: /(.+)[아어]\s*본\s*적\s*있/, meaning: 'perfect', englishForm: 'have Vpp' },
+
+  // -ㄹ/을 수 있다 (능력): 할 수 있다, 먹을 수 있다
+  // 받침 없는 어간 + ㄹ 받침 (할, 갈, 볼...) 또는 받침 있는 어간 + 을 (먹을, 읽을...)
+  { pattern: /(.+)을\s*수\s*있/, meaning: 'modal-can', englishForm: 'can V' },
+  // 받침 ㄹ로 끝나는 글자 + 수 있다 패턴은 별도 처리 필요 (할 수 있다 등)
+  { pattern: /(.)\s*수\s*있/, meaning: 'modal-can', englishForm: 'can V' },
+
+  // -도 된다 (허가): 해도 된다, 가도 돼
+  { pattern: /(.+)도\s*(?:된다|돼)/, meaning: 'modal-may', englishForm: 'may V' },
+
+  // -ㄹ/을 것이다 (미래): 먹을 것이다, 갈 것이다
+  { pattern: /(.+)[ㄹ을]\s*것이다/, meaning: 'future', englishForm: 'will V' },
+
+  // -고 있었다 (과거 진행형): 먹고 있었다
+  { pattern: /(.+)고\s*있었/, meaning: 'past-progressive', englishForm: 'was + Ving' },
+
   // -고 있다 (진행형): 먹고 있다, 가고 있어, 하고 있습니다
   { pattern: /(.+)고\s*있/, meaning: 'progressive', englishForm: 'be + Ving' },
+
   // -고 싶다 (희망): 먹고 싶다, 가고 싶어
   { pattern: /(.+)고\s*싶/, meaning: 'desiderative', englishForm: 'want to V' },
+
+  // -아/어 주다 (수혜): 도와 주다, 알려 줘
+  { pattern: /(.+)[아어]\s*주/, meaning: 'benefactive', englishForm: 'V for someone' },
+
   // -아/어 보다 (시도): 먹어 봤다, 해 봐
   { pattern: /(.+)[아어]\s*보/, meaning: 'attemptive', englishForm: 'try Ving' },
+
   // -아/어 버리다 (완료): 먹어 버렸다, 가 버렸어
   { pattern: /(.+)[아어]\s*버리/, meaning: 'completive', englishForm: 'end up Ving' },
 ];
@@ -629,10 +677,20 @@ function parseWithAuxiliaryPattern(
   }
 
   // 2. 동사 어간 추출 및 번역
-  // auxMatch.verbStem: "하", "먹", "운동을 하" 등
+  // auxMatch.verbStem: "하", "먹", "운동을 하", "할" (ㄹ 받침) 등
   let verbStem = auxMatch.verbStem.trim();
   let verbTranslation: string | undefined;
   let objectToken: Token | undefined;
+
+  // modal-can 패턴에서 ㄹ 받침 처리: "할" → "하"
+  // 단일 글자이고 ㄹ 받침으로 끝나면 받침 제거
+  if (auxMatch.pattern.meaning === 'modal-can' && verbStem.length === 1) {
+    const jamo = decompose(verbStem);
+    if (jamo && jamo.jong === 'ㄹ') {
+      // ㄹ 받침 제거하여 원형 어간 추출: 할 → 하, 갈 → 가, 볼 → 보
+      verbStem = composeWithoutJong(jamo.cho, jamo.jung);
+    }
+  }
 
   // "운동을 하" → "운동을" + "하"로 분리
   if (verbStem.includes(' ')) {
@@ -659,8 +717,9 @@ function parseWithAuxiliaryPattern(
     objectToken.translated = undefined;
     objectToken.role = 'object-absorbed'; // 동사에 흡수됨
   } else {
-    // 일반 동사 어간 번역 (WSD 사용)
-    verbTranslation = translateWithWSD(verbStem, original) || VERB_STEMS[verbStem] || 'do';
+    // 보조용언 패턴에서는 VERB_STEMS를 우선 확인 (동사 문맥)
+    // "해"가 "sun"(태양)이 아닌 "do"(하다)로 번역되어야 함
+    verbTranslation = VERB_STEMS[verbStem] || translateWithWSD(verbStem, original) || 'do';
   }
 
   // 3. 보조용언 패턴에 따른 문법 정보 설정
@@ -776,6 +835,27 @@ export function parseKorean(text: string): ParsedSentence {
     return ` ${verb}`;
   });
 
+  // Phase 6: "더" / "가장" 비교급/최상급 감지
+  // "더 크다" → comparative + "크다"
+  // "가장 크다" → superlative + "크다"
+  let comparativeType: 'comparative' | 'superlative' | undefined;
+  if (/^더\s+/.test(cleaned)) {
+    comparativeType = 'comparative';
+    cleaned = cleaned.replace(/^더\s+/, '');
+  } else if (/^가장\s+/.test(cleaned)) {
+    comparativeType = 'superlative';
+    cleaned = cleaned.replace(/^가장\s+/, '');
+  }
+  // 문장 중간의 비교급: "그녀는 더 크다" → "그녀는" + comparative + "크다"
+  cleaned = cleaned.replace(/\s+더\s+(\S+)$/, (_, adj) => {
+    comparativeType = 'comparative';
+    return ` ${adj}`;
+  });
+  cleaned = cleaned.replace(/\s+가장\s+(\S+)$/, (_, adj) => {
+    comparativeType = 'superlative';
+    return ` ${adj}`;
+  });
+
   // 3. 공백으로 분리 + 숫자+분류사 분리
   const rawWords = cleaned.split(/\s+/).filter(Boolean);
   const words: string[] = [];
@@ -811,6 +891,7 @@ export function parseKorean(text: string): ParsedSentence {
     type,
     tense: sentenceTense,
     negated,
+    comparativeType,
   };
 }
 
@@ -1169,16 +1250,17 @@ export function parseEnglish(text: string): ParsedSentence {
  *
  * 규칙 동사는 -ed로 끝나므로 정규식으로 감지
  * 불규칙 동사는 개별 매핑 필요
+ *
+ * data.ts의 IRREGULAR_VERBS와 동기화됨 (80개+)
  */
 const IRREGULAR_PAST_VERBS = new Set([
   // be동사
   'was',
   'were',
-  // have
+  // have/do
   'had',
-  // do
   'did',
-  // 일반 불규칙 동사
+  // 기본 동사
   'ate', // eat
   'went', // go
   'came', // come
@@ -1187,70 +1269,96 @@ const IRREGULAR_PAST_VERBS = new Set([
   'gave', // give
   'made', // make
   'got', // get
-  'found', // find
-  'thought', // think
-  'told', // tell
-  'became', // become
-  'left', // leave
-  'felt', // feel
-  'put', // put
-  'brought', // bring
-  'began', // begin
-  'kept', // keep
-  'held', // hold
+  'read', // read
   'wrote', // write
-  'stood', // stand
-  'heard', // hear
-  'let', // let
-  'meant', // mean
-  'set', // set
-  'met', // meet
-  'ran', // run
-  'paid', // pay
-  'sat', // sit
-  'spoke', // speak
-  'lay', // lie
-  'led', // lead
-  'read', // read (발음은 다르지만 철자 같음)
-  'grew', // grow
-  'lost', // lose
-  'knew', // know
-  'drank', // drink
   'slept', // sleep
+  'woke', // wake
   'bought', // buy
   'sold', // sell
-  'taught', // teach
+  'ran', // run
+  'rode', // ride
+  'hit', // hit
   'caught', // catch
-  'fought', // fight
-  'threw', // throw
-  'broke', // break
-  'chose', // choose
-  'wore', // wear
-  'sang', // sing
-  'drove', // drive
-  'woke', // wake
+  'held', // hold
+  'fell', // fall
+  // 인지/사고 동사
+  'thought', // think
+  'knew', // know
+  'understood', // understand
   'forgot', // forget
+  'meant', // mean
+  'felt', // feel
+  'found', // find
+  'taught', // teach
+  'told', // tell
+  'said', // say
+  'spoke', // speak
+  // 이동/위치 동사
+  'sat', // sit
+  'stood', // stand
+  'lay', // lie
+  'laid', // lay
+  'rose', // rise
   'flew', // fly
-  'drew', // draw
   'swam', // swim
-  'hung', // hang
-  'built', // build
+  'drove', // drive
+  'left', // leave
+  'met', // meet
+  'brought', // bring
   'sent', // send
   'spent', // spend
-  'understood', // understand
+  'lent', // lend
+  'led', // lead
+  // 행위 동사
+  'put', // put
+  'set', // set
+  'let', // let
+  'cut', // cut
+  'shut', // shut
+  'cost', // cost
+  'hurt', // hurt
+  'broke', // break
+  'chose', // choose
+  'threw', // throw
+  'grew', // grow
+  'blew', // blow
+  'drew', // draw
+  'wore', // wear
+  'tore', // tear
+  'beat', // beat
+  'began', // begin
+  'sang', // sing
+  'rang', // ring
+  'sank', // sink
+  // 소유/획득 동사
+  'lost', // lose
   'won', // win
-  'shook', // shake
-  'rose', // rise
-  'fell', // fall
+  'kept', // keep
+  'paid', // pay
+  'built', // build
+  'fought', // fight
+  'sought', // seek
+  'bound', // bind
+  'hung', // hang
+  'stuck', // stick
+  // 조동사
+  'could', // can
+  'would', // will
+  'should', // shall
+  'might', // may
 ]);
 
 /**
  * 영어 과거분사 불규칙 동사
+ *
+ * data.ts의 IRREGULAR_VERBS와 동기화됨 (80개+)
  */
 const IRREGULAR_PAST_PARTICIPLES = new Set([
+  // be/have/do
   'been', // be
   'had', // have
   'done', // do
+  // 기본 동사
   'eaten', // eat
   'gone', // go
   'come', // come
@@ -1258,63 +1366,84 @@ const IRREGULAR_PAST_PARTICIPLES = new Set([
   'taken', // take
   'given', // give
   'made', // make
-  'gotten', // get (미국 영어)
-  'got', // get (영국 영어)
-  'found', // find
-  'thought', // think
-  'told', // tell
-  'become', // become
-  'left', // leave
-  'felt', // feel
-  'put', // put
-  'brought', // bring
-  'begun', // begin
-  'kept', // keep
-  'held', // hold
-  'written', // write
-  'stood', // stand
-  'heard', // hear
-  'let', // let
-  'meant', // mean
-  'set', // set
-  'met', // meet
-  'run', // run
-  'paid', // pay
-  'sat', // sit
-  'spoken', // speak
-  'lain', // lie
-  'led', // lead
+  'gotten', // get (미국)
+  'got', // get (영국)
   'read', // read
-  'grown', // grow
-  'lost', // lose
-  'known', // know
-  'drunk', // drink
+  'written', // write
   'slept', // sleep
+  'woken', // wake
   'bought', // buy
   'sold', // sell
-  'taught', // teach
+  'run', // run
+  'ridden', // ride
+  'hit', // hit
   'caught', // catch
-  'fought', // fight
-  'thrown', // throw
-  'broken', // break
-  'chosen', // choose
-  'worn', // wear
-  'sung', // sing
-  'driven', // drive
-  'woken', // wake
+  'held', // hold
+  'fallen', // fall
+  // 인지/사고 동사
+  'thought', // think
+  'known', // know
+  'understood', // understand
   'forgotten', // forget
+  'meant', // mean
+  'felt', // feel
+  'found', // find
+  'taught', // teach
+  'told', // tell
+  'said', // say
+  'spoken', // speak
+  'shown', // show
+  // 이동/위치 동사
+  'sat', // sit
+  'stood', // stand
+  'lain', // lie
+  'laid', // lay
+  'risen', // rise
   'flown', // fly
-  'drawn', // draw
   'swum', // swim
-  'hung', // hang
-  'built', // build
+  'driven', // drive
+  'left', // leave
+  'met', // meet
+  'brought', // bring
   'sent', // send
   'spent', // spend
-  'understood', // understand
+  'lent', // lend
+  'led', // lead
+  // 행위 동사
+  'put', // put
+  'set', // set
+  'let', // let
+  'cut', // cut
+  'shut', // shut
+  'cost', // cost
+  'hurt', // hurt
+  'broken', // break
+  'chosen', // choose
+  'thrown', // throw
+  'grown', // grow
+  'blown', // blow
+  'drawn', // draw
+  'worn', // wear
+  'torn', // tear
+  'beaten', // beat
+  'begun', // begin
+  'sung', // sing
+  'rung', // ring
+  'sunk', // sink
+  // 소유/획득 동사
+  'lost', // lose
   'won', // win
+  'kept', // keep
+  'paid', // pay
+  'built', // build
+  'fought', // fight
+  'sought', // seek
+  'bound', // bind
+  'hung', // hang
+  'stuck', // stick
+  // 기타
+  'drunk', // drink
   'shaken', // shake
-  'risen', // rise
-  'fallen', // fall
 ]);
 
 /**
@@ -1366,6 +1495,16 @@ function detectEnglishTense(words: string[]): Tense {
 
   // 미래형
   if (/\b(will|going to|'ll)\b/.test(text)) return 'future';
+
+  // 과거 부정형: didn't + 동사원형 → past
+  if (/\bdidn't\b/i.test(text) || /\bdid\s+not\b/i.test(text)) {
+    return 'past';
+  }
+
+  // won't → 미래 부정이므로 future로 처리
+  if (/\bwon't\b/i.test(text)) {
+    return 'future';
+  }
 
   return 'present';
 }

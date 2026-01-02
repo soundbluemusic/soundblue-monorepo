@@ -116,14 +116,21 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
   // 2. 복문인 경우 절별로 번역
   const translatedClauses: string[] = [];
 
-  for (const clause of clauseInfo.clauses) {
+  for (let i = 0; i < clauseInfo.clauses.length; i++) {
+    const clause = clauseInfo.clauses[i];
     const parsed = parseKorean(clause.text);
     let translated = generateEnglish(parsed);
     translated = validateTranslation(parsed, translated, 'ko-en');
 
     // 연결사 추가 (영어)
-    if (clause.connector && clause.isSubordinate) {
-      translated = `${clause.connector} ${translated.toLowerCase()}`;
+    if (clause.connector) {
+      if (clause.isSubordinate) {
+        // 종속절: 접속사를 앞에 붙임 (because, if, when 등)
+        translated = `${clause.connector} ${translated.toLowerCase()}`;
+      } else if (i > 0) {
+        // 등위접속절: 앞 절과 연결 (and, but 등)
+        translated = `${clause.connector} ${translated.toLowerCase()}`;
+      }
     }
 
     translatedClauses.push(translated);

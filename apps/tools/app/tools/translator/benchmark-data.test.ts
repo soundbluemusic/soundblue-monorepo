@@ -124,49 +124,49 @@ describe('Benchmark Test Count Verification', () => {
 // 각 카테고리별 테스트 실행 (선택적으로 활성화)
 // 주의: 전체 실행 시 시간이 오래 걸릴 수 있음
 
-describe.skip('1. Grammar Rules Tests (400개)', () => {
+describe('1. Grammar Rules Tests (400개)', () => {
   for (const level of grammarRulesTests) {
     runTestsForLevel(level);
   }
 });
 
-describe.skip('2. Context Tests (26개)', () => {
+describe('2. Context Tests (26개)', () => {
   for (const level of contextTests) {
     runTestsForLevel(level);
   }
 });
 
-describe.skip('3. Extended Typo Tests (56개)', () => {
+describe('3. Extended Typo Tests (56개)', () => {
   for (const level of extendedTypoTests) {
     runTestsForLevel(level);
   }
 });
 
-describe.skip('4. Polysemy Tests (63개)', () => {
+describe('4. Polysemy Tests (63개)', () => {
   for (const level of polysemyTests) {
     runTestsForLevel(level);
   }
 });
 
-describe.skip('5. Professional Translator Tests (18개)', () => {
+describe('5. Professional Translator Tests (18개)', () => {
   for (const level of professionalTranslatorTests) {
     runTestsForLevel(level);
   }
 });
 
-describe.skip('6. Extended Localization Tests (85개)', () => {
+describe('6. Extended Localization Tests (85개)', () => {
   for (const level of extendedLocalizationTests) {
     runTestsForLevel(level);
   }
 });
 
-describe.skip('7. Integration Tests (58개)', () => {
+describe('7. Integration Tests (58개)', () => {
   for (const level of integrationTests) {
     runTestsForLevel(level);
   }
 });
 
-describe.skip('8. Anti-Hardcoding Tests (212개)', () => {
+describe('8. Anti-Hardcoding Tests (212개)', () => {
   for (const level of antiHardcodingTests) {
     runTestsForLevel(level);
   }

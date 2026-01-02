@@ -158,6 +158,22 @@ const manualKoToEnWords: Record<string, string> = {
   그녀의: 'her',
   그들: 'they',
   그들의: 'their',
+
+  // === 재귀 대명사 (Reflexive Pronouns) ===
+  자신: 'self',
+  '나 자신': 'myself',
+  '나 자신을': 'myself',
+  '너 자신': 'yourself',
+  '너 자신을': 'yourself',
+  '그 자신': 'himself',
+  '그 자신을': 'himself',
+  '그녀 자신': 'herself',
+  '그녀 자신을': 'herself',
+  '우리 자신': 'ourselves',
+  '우리 자신을': 'ourselves',
+  '그들 자신': 'themselves',
+  '그들 자신을': 'themselves',
+
   이: 'this', // 지시형용사 (이 책 = this book)
   // 저: 'that' 는 저: 'I' (겸양어)와 중복되므로 '저것'으로 처리
   이것: 'this',
@@ -1206,9 +1222,19 @@ const manualKoToEnWords: Record<string, string> = {
 
   // === 형용사 어간 ===
   크: 'big',
+  큰: 'big',
   작: 'small',
+  작은: 'small',
   많: 'many',
+  많은: 'many',
   적: 'few',
+  적은: 'few',
+
+  // === 수량사 (Quantifiers) ===
+  약간의: 'some',
+  조금의: 'a little',
+  몇몇: 'some',
+  전체: 'entire',
   좋: 'good',
   좋다: 'is good',
   좋았: 'was good',
@@ -1691,6 +1717,7 @@ const manualKoToEnWords: Record<string, string> = {
 
   // Level 21: 불규칙 동사 (한→영)
   갔다: 'went',
+  먹었다: 'ate',
   봤다: 'saw',
   샀다: 'bought',
   생각했다: 'thought',
@@ -1701,6 +1728,8 @@ const manualKoToEnWords: Record<string, string> = {
   만들었다: 'made',
   가르쳤다: 'taught',
   잡았다: 'caught',
+  탔다: 'rode',
+  말했다: 'spoke',
 
   // Level 22: 복합 문장
   새들: 'birds',
@@ -1793,11 +1822,39 @@ const manualEnToKoWords: Record<string, string> = {
   these: '이것들',
   those: '저것들',
 
+  // === 재귀 대명사 (Reflexive Pronouns) ===
+  myself: '나 자신을',
+  yourself: '너 자신을',
+  himself: '그 자신을',
+  herself: '그녀 자신을',
+  itself: '그것 자신을',
+  ourselves: '우리 자신을',
+  yourselves: '너희 자신을',
+  themselves: '그들 자신을',
+
   // === 관사/한정사 ===
   the: '',
   a: '',
   an: '',
   every: '매',
+
+  // === 수량사 (Quantifiers) ===
+  many: '많은',
+  much: '많은',
+  few: '적은',
+  little: '적은',
+  'a few': '약간의',
+  'a little': '약간의',
+  some: '약간의',
+  all: '모든',
+  any: '어떤',
+  no: '',
+  none: '없다',
+  several: '여러',
+  enough: '충분한',
+  more: '더 많은',
+  less: '더 적은',
+  most: '대부분의',
 
   // === be 동사 ===
   am: '',
@@ -2242,7 +2299,6 @@ const manualEnToKoWords: Record<string, string> = {
   'end up': '결국 ~하게 되다',
   lesson: '교훈',
   // dreams, give up은 아래에서 정의됨
-  yourself: '자신',
 
   // 대조 구문
   'not just': '단지 ~만이 아니라',
@@ -2341,6 +2397,9 @@ const manualEnToKoWords: Record<string, string> = {
   window: '창문',
   water: '물',
   food: '음식',
+  breakfast: '아침',
+  lunch: '점심',
+  dinner: '저녁',
   money: '돈',
   job: '직업',
   business: '사업',
@@ -2374,8 +2433,17 @@ const manualEnToKoWords: Record<string, string> = {
   korean: '한국어',
   leg: '다리',
   horse: '말',
+  ship: '배',
+  boat: '배',
+  pear: '배',
   eyes: '눈',
   eye: '눈',
+  snow: '눈',
+  snowing: '눈이 온다',
+  hurts: '아프다',
+  ride: '타다',
+  rode: '탔다',
+  riding: '타는',
   kids: '아이들',
   painting: '그림',
   paintings: '그림들',
