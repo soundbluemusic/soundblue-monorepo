@@ -891,6 +891,13 @@ export function generateEnglish(parsed: ParsedSentence): string {
     // 종결어미 분석 시도
     const endingAnalysis = analyzeKoreanEnding(word);
     if (endingAnalysis) {
+      // Bug fix: 토크나이저에서 감지된 부정 ("안" 전치 부정)을 병합
+      // "안 먹었다" → tokenizer strips "안 " and sets parsed.negated = true
+      // but analyzeKoreanEnding("먹었다") doesn't know about it
+      if (parsed.negated && !endingAnalysis.negated) {
+        endingAnalysis.negated = true;
+      }
+
       // 어간에서 영어 동사 찾기
       const stemWithDa = `${endingAnalysis.stem}다`;
       const enVerb =

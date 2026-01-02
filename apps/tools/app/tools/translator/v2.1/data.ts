@@ -1119,10 +1119,81 @@ export const KO_NUMBERS: Record<string, number> = {
 
 /** 관용구: 통문장 매칭 */
 export const IDIOMS_KO_EN: Record<string, string> = {
+  // 속담
   '티끌 모아 태산': 'Every little bit counts',
   '눈 감아주다': 'let it slide',
   '발 뻗고 자다': 'sleep in peace',
   '야 진짜 대박': 'OMG',
+
+  // === 인사 ===
+  안녕: 'Hi',
+  안녕하세요: 'Hello',
+  안녕하십니까: 'Hello',
+  '안녕히 가세요': 'Goodbye',
+  '안녕히 계세요': 'Goodbye',
+  '잘 가': 'Bye',
+  '잘 가요': 'Bye',
+  '좋은 아침': 'Good morning',
+  '좋은 아침이에요': 'Good morning',
+  '좋은 아침입니다': 'Good morning',
+  반가워: 'Nice to meet you',
+  반가워요: 'Nice to meet you',
+  반갑습니다: 'Nice to meet you',
+  '만나서 반갑습니다': 'Nice to meet you',
+  '잘 지내': 'How are you',
+  '잘 지내요': 'How are you',
+  '어떻게 지내세요': 'How are you',
+
+  // === 감사/사과 ===
+  고마워: 'Thanks',
+  고마워요: 'Thank you',
+  감사합니다: 'Thank you',
+  '정말 고마워': 'Thank you very much',
+  '정말 감사합니다': 'Thank you very much',
+  '대단히 감사합니다': 'Thank you very much',
+  별말을: "You're welcome",
+  천만에요: "You're welcome",
+  미안해: 'Sorry',
+  미안해요: "I'm sorry",
+  죄송합니다: "I'm sorry",
+  죄송해요: "I'm sorry",
+  실례합니다: 'Excuse me',
+  실례해요: 'Excuse me',
+
+  // === 응답 ===
+  응: 'Yes',
+  네: 'Yes',
+  예: 'Yes',
+  아니: 'No',
+  아니요: 'No',
+  아닙니다: 'No',
+  그래: 'Okay',
+  그래요: 'Okay',
+  알았어: 'Okay',
+  알았어요: 'Okay',
+  알겠습니다: 'Okay',
+  물론: 'Of course',
+  물론이죠: 'Of course',
+  물론입니다: 'Of course',
+  당연하지: 'Of course',
+  당연하죠: 'Of course',
+
+  // === 일상 표현 ===
+  '잘 자': 'Good night',
+  '잘 자요': 'Good night',
+  '안녕히 주무세요': 'Good night',
+  수고하세요: 'Take care',
+  수고했어: 'Good job',
+  수고했어요: 'Good job',
+  수고하셨습니다: 'Good job',
+  화이팅: 'Good luck',
+  파이팅: 'Good luck',
+  힘내: 'Cheer up',
+  힘내요: 'Cheer up',
+  힘내세요: 'Cheer up',
+  축하해: 'Congratulations',
+  축하해요: 'Congratulations',
+  축하합니다: 'Congratulations',
 };
 
 /**
