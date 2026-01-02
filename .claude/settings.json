@@ -6,9 +6,32 @@
       "Bash(git push --force:*)",
       "Bash(git push:*--force:*)",
       "Bash(git reset --hard:*)"
-    ]
+    ],
+    "ask": ["Bash(git push:*)", "Bash(rm -rf:*)", "Bash(pnpm publish:*)"]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/tool-failure.sh"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "matcher": "",
