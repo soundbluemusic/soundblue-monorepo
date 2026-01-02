@@ -4,6 +4,13 @@
  */
 
 import {
+  getEnglishPreposition,
+  getPronounCase,
+  type ParticleCategory,
+  selectParticle,
+  translatePronoun,
+} from '../dictionary/declension';
+import {
   COUNTERS,
   EN_KO,
   IDIOMS_EN_KO,
@@ -5212,4 +5219,112 @@ function applyModalEnding(
     default:
       return `${modalStem}다`;
   }
+}
+
+// ============================================
+// 격변화 처리 함수 (Declension Processing)
+// ============================================
+
+/**
+ * 영어 대명사를 한국어로 변환 (격 보존)
+ *
+ * @param word 영어 대명사
+ * @param _role 문장 내 역할 (subject, object 등) - 향후 확장용
+ * @returns 한국어 대명사 + 조사
+ *
+ * @example
+ * translateEnglishPronounWithCase('I', 'subject') → '나는'
+ * translateEnglishPronounWithCase('me', 'object') → '나를'
+ * translateEnglishPronounWithCase('my', 'possessive') → '나의'
+ */
+export function translateEnglishPronounWithCase(
+  word: string,
+  _role: 'subject' | 'object' | 'possessive' | 'unknown',
+): string | null {
+  const pronounInfo = getPronounCase(word);
+  if (!pronounInfo) return null;
+
+  // 영어 격에 맞는 한국어 번역
+  const korean = translatePronoun(word);
+  if (!korean) return null;
+
+  return korean;
+}
+
+/**
+ * 한국어 명사에 적절한 조사 추가
+ *
+ * @param noun 한국어 명사
+ * @param category 조사 카테고리
+ * @returns 명사 + 조사
+ *
+ * @example
+ * addKoreanParticle('책', 'nominative') → '책이'
+ * addKoreanParticle('사과', 'nominative') → '사과가'
+ * addKoreanParticle('친구', 'dative') → '친구에게'
+ */
+export function addKoreanParticle(noun: string, category: ParticleCategory): string {
+  const particle = selectParticle(noun, category);
+  return noun + particle;
+}
+
+/**
+ * 한국어 조사를 영어 전치사로 변환
+ *
+ * @param category 조사 카테고리
+ * @returns 영어 전치사
+ *
+ * @example
+ * getPrepositionFromParticle('dative') → 'to'
+ * getPrepositionFromParticle('ablative') → 'from'
+ * getPrepositionFromParticle('locative') → 'at'
+ */
+export function getPrepositionFromParticle(category: ParticleCategory): string {
+  return getEnglishPreposition(category);
+}
+
+/**
+ * 영어 전치사를 한국어 조사 카테고리로 매핑 (격변화용)
+ */
+const PREPOSITION_TO_PARTICLE_CATEGORY: Record<string, ParticleCategory> = {
+  // 여격 (to, for)
+  to: 'dative',
+  for: 'dative',
+  // 탈격 (from)
+  from: 'ablative',
+  // 처격 (at, in, on)
+  at: 'locative',
+  in: 'locative',
+  on: 'locative',
+  // 도구격 (by, with)
+  by: 'instrumental',
+  with: 'comitative', // 또는 instrumental
+  // 비교격 (than)
+  than: 'comparative',
+  // 소유격 (of)
+  of: 'genitive',
+};
+
+/**
+ * 영어 전치사구를 한국어로 변환 (격변화 기반)
+ *
+ * @param preposition 영어 전치사
+ * @param noun 명사 (이미 한국어로 번역된)
+ * @returns 한국어 명사 + 조사
+ *
+ * @example
+ * translatePrepositionalPhrase('to', '친구') → '친구에게'
+ * translatePrepositionalPhrase('from', '서울') → '서울에서'
+ * translatePrepositionalPhrase('with', '칼') → '칼로'
+ */
+export function translatePrepositionalPhrase(preposition: string, noun: string): string {
+  const lower = preposition.toLowerCase();
+  const category = PREPOSITION_TO_PARTICLE_CATEGORY[lower];
+
+  if (!category) {
+    // 알려지지 않은 전치사: 그냥 명사 반환
+    return noun;
+  }
+
+  return addKoreanParticle(noun, category);
 }
