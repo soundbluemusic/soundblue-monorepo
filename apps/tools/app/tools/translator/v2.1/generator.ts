@@ -5384,7 +5384,7 @@ function applyNegation(
 /**
  * 부정 어간에 어미 적용
  */
-function applyNegationEnding(
+function _applyNegationEnding(
   negStem: string,
   formality: Formality,
   sentenceType: 'statement' | 'question',
@@ -5423,7 +5423,7 @@ function applyPastNegation(
 /**
  * 과거 부정 어간에 어미 적용
  */
-function applyPastNegationEnding(
+function _applyPastNegationEnding(
   negStem: string,
   formality: Formality,
   sentenceType: 'statement' | 'question',
@@ -5462,7 +5462,7 @@ function applyFutureNegation(
 /**
  * 미래 부정 어간에 어미 적용
  */
-function applyFutureNegationEnding(
+function _applyFutureNegationEnding(
   negStem: string,
   formality: Formality,
   sentenceType: 'statement' | 'question',
@@ -6059,7 +6059,7 @@ function applyConditional(verb: string): string {
 /**
  * 모음조화에 따른 어미 (아/어) 선택
  */
-function getVowelHarmonyEnding(stem: string): string {
+function _getVowelHarmonyEnding(stem: string): string {
   if (!stem) return '어';
 
   const lastChar = stem[stem.length - 1];
@@ -6100,7 +6100,7 @@ function applyVowelContraction(stem: string): string {
   const code = lastChar.charCodeAt(0);
 
   // 한글이 아니면 기본값 반환
-  if (code < 0xac00 || code > 0xd7a3) return stem + '어';
+  if (code < 0xac00 || code > 0xd7a3) return `${stem}어`;
 
   const syllableIndex = code - 0xac00;
   const initialIndex = Math.floor(syllableIndex / 588); // 초성

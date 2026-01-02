@@ -3,6 +3,8 @@
  * v1의 사전 데이터 재사용 + 핵심 규칙 정의
  */
 
+// 한글 처리 유틸리티
+import { getBatchim, removeBatchim } from '@soundblue/hangul';
 // v1 사전 재사용
 import { enToKoWords, koToEnWords } from '../dictionary';
 import type { Formality } from '../settings';
@@ -323,6 +325,86 @@ export interface EndingAnalysis {
 }
 
 /**
+ * 받침 흡수형 종결어미 패턴
+ * 모음으로 끝나는 어간 + 받침이 붙는 어미 (간다=가+ㄴ다, 갑니다=가+ㅂ니다)
+ *
+ * 구조: [받침, 나머지어미, 시제, 문장유형, 격식]
+ */
+const CONTRACTED_ENDINGS: Array<[string, string, string, string, string]> = [
+  // -ㄴ다 (간다, 온다) - 평서형 plain
+  ['ㄴ', '다', 'present', 'statement', 'plain'],
+  // -ㅂ니다 (갑니다, 옵니다) - 평서형 formal
+  ['ㅂ', '니다', 'present', 'statement', 'formal-polite'],
+  // -ㅂ니까 (갑니까, 옵니까) - 의문형 formal
+  ['ㅂ', '니까', 'present', 'question', 'formal-polite'],
+  ['ㅂ', '니까?', 'present', 'question', 'formal-polite'],
+  // -ㅂ시다 (갑시다, 옵시다) - 청유형 formal
+  ['ㅂ', '시다', 'present', 'suggestion', 'formal-polite'],
+  // -ㄹ래 (갈래, 올래) - 의지/의향 informal
+  ['ㄹ', '래', 'present', 'question', 'informal'],
+  ['ㄹ', '래?', 'present', 'question', 'informal'],
+  // -ㄹ까 (갈까, 올까) - 청유/의문 informal
+  ['ㄹ', '까', 'present', 'suggestion', 'informal'],
+  ['ㄹ', '까?', 'present', 'question', 'informal'],
+  // -ㄹ게 (갈게, 올게) - 약속/의지 informal
+  ['ㄹ', '게', 'future', 'statement', 'informal'],
+  // -라 (가라, 와라) - 명령형 plain
+  // Note: '라' 단독은 어미이므로 별도 처리 필요
+];
+
+/**
+ * 받침 흡수형 종결어미 분석
+ * 모음으로 끝나는 어간 + 받침이 붙는 패턴 (간다=가+ㄴ다)
+ *
+ * @param word 분석할 단어
+ * @param negated 부정문 여부
+ * @returns 분석 결과 또는 null
+ */
+function analyzeContractedEnding(word: string, negated: boolean): EndingAnalysis | null {
+  if (word.length < 2) return null;
+
+  for (const [batchim, suffix, tense, sentenceType, politeness] of CONTRACTED_ENDINGS) {
+    // 나머지 어미와 일치하는지 확인
+    const suffixClean = suffix.replace(/\?$/, '');
+    if (!word.endsWith(suffix) && !word.endsWith(suffixClean)) continue;
+
+    const matchedSuffix = word.endsWith(suffix) ? suffix : suffixClean;
+    const prefixPart = word.slice(0, -matchedSuffix.length);
+
+    if (prefixPart.length < 1) continue;
+
+    // 마지막 글자의 받침 확인
+    const lastChar = prefixPart[prefixPart.length - 1];
+    if (!lastChar) continue;
+
+    const lastBatchim = getBatchim(lastChar);
+    if (lastBatchim !== batchim) continue;
+
+    // 받침 제거하여 어간 추출
+    const stemWithoutBatchim = removeBatchim(lastChar);
+    if (!stemWithoutBatchim) continue;
+
+    const stem = prefixPart.slice(0, -1) + stemWithoutBatchim;
+
+    return {
+      stem,
+      ending: batchim + matchedSuffix,
+      tense: tense as 'past' | 'present' | 'future',
+      sentenceType: sentenceType as
+        | 'statement'
+        | 'question'
+        | 'imperative'
+        | 'suggestion'
+        | 'exclamation',
+      politeness: politeness as 'formal-polite' | 'polite' | 'plain' | 'informal',
+      negated,
+    };
+  }
+
+  return null;
+}
+
+/**
  * 한국어 동사/형용사의 종결어미를 분석
  *
  * @param word 분석할 단어 (예: "갑니다", "먹었어")
@@ -341,7 +423,13 @@ export function analyzeKoreanEnding(word: string): EndingAnalysis | null {
     cleanWord = word.replace(/지\s*못/, '');
   }
 
-  // 긴 어미부터 매칭
+  // 1. 받침 흡수형 종결어미 우선 체크 (간다, 갑니다 등)
+  const contractedResult = analyzeContractedEnding(cleanWord, negated);
+  if (contractedResult) {
+    return contractedResult;
+  }
+
+  // 2. 일반 종결어미 매칭 (긴 어미부터)
   for (const [ending, tense, type, politeness] of SORTED_ENDINGS) {
     // 물음표 제거한 버전도 체크
     const endingClean = ending.replace(/\?$/, '');
