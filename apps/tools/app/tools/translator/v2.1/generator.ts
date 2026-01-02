@@ -520,14 +520,18 @@ function detectCounterPattern(tokens: Token[]): string | null {
  * 보조용언 패턴으로 영어 생성
  *
  * Phase 0: 긴급 수정
- * "-고 있다" → "I'm Ving"
- * "-고 싶다" → "I want to V"
+ * "-고 있다" → "is Ving" (주어 없을 때) / "I'm Ving" (주어 있을 때)
+ * "-고 싶다" → "want to V" (주어 없을 때) / "I want to V" (주어 있을 때)
+ * "-을 것이다" → "will V"
+ * "-어 본 적 있다" → "have Vpp"
+ * "-ㄹ 수 있다" → "can V"
+ * "-도 된다" → "may V"
  */
 function generateWithAuxiliaryPattern(parsed: ParsedSentence): string {
   const parts: string[] = [];
 
   // 주어 찾기
-  let subject = 'I'; // 기본값
+  let subject: string | null = null; // 명시적 주어가 없으면 null
   let verb = '';
 
   for (const token of parsed.tokens) {
@@ -547,43 +551,185 @@ function generateWithAuxiliaryPattern(parsed: ParsedSentence): string {
   switch (parsed.auxiliaryPattern) {
     case 'progressive': {
       // -고 있다 → be + Ving
-      const beVerb = getBeVerbForAuxiliary(subject);
       const gerund = toGerund(verb);
-      parts.push(`${subject}'${beVerb === 'am' ? 'm' : beVerb === 'are' ? 're' : 's'} ${gerund}`);
+      if (subject) {
+        const beVerb = getBeVerbForAuxiliary(subject);
+        parts.push(`${subject}'${beVerb === 'am' ? 'm' : beVerb === 'are' ? 're' : 's'} ${gerund}`);
+      } else {
+        // 주어 없음: "is eating"
+        parts.push(`is ${gerund}`);
+      }
+      break;
+    }
+    case 'past-progressive': {
+      // -고 있었다 → was + Ving
+      const gerund = toGerund(verb);
+      if (subject) {
+        const isIOrThirdPerson = subject.toLowerCase() === 'i' || is3rdPersonSingular(subject);
+        const wasWere = isIOrThirdPerson ? 'was' : 'were';
+        parts.push(`${subject} ${wasWere} ${gerund}`);
+      } else {
+        // 주어 없음: "was eating"
+        parts.push(`was ${gerund}`);
+      }
+      break;
+    }
+    case 'future': {
+      // -을 것이다 → will V
+      if (subject) {
+        parts.push(`${subject} will ${verb}`);
+      } else {
+        parts.push(`will ${verb}`);
+      }
+      break;
+    }
+    case 'perfect': {
+      // -어 본 적 있다 → have Vpp
+      const pp = toPastParticiple(verb);
+      if (subject) {
+        const haveHas = is3rdPersonSingular(subject) ? 'has' : 'have';
+        parts.push(`${subject} ${haveHas} ${pp}`);
+      } else {
+        parts.push(`have ${pp}`);
+      }
+      break;
+    }
+    case 'modal-can': {
+      // -ㄹ 수 있다 → can V
+      if (subject) {
+        parts.push(`${subject} can ${verb}`);
+      } else {
+        parts.push(`can ${verb}`);
+      }
+      break;
+    }
+    case 'modal-may': {
+      // -도 된다 → may V
+      if (subject) {
+        parts.push(`${subject} may ${verb}`);
+      } else {
+        parts.push(`may ${verb}`);
+      }
       break;
     }
     case 'desiderative': {
       // -고 싶다 → want to V
-      parts.push(
-        `${subject} want${subject.toLowerCase() === 'i' || isPlural(subject) ? '' : 's'} to ${verb}`,
-      );
+      if (subject) {
+        parts.push(
+          `${subject} want${subject.toLowerCase() === 'i' || isPlural(subject) ? '' : 's'} to ${verb}`,
+        );
+      } else {
+        parts.push(`want to ${verb}`);
+      }
       break;
     }
     case 'attemptive': {
       // -아/어 보다 → try Ving
       const gerund = toGerund(verb);
-      parts.push(`${subject} tried ${gerund}`);
+      if (subject) {
+        parts.push(`${subject} tried ${gerund}`);
+      } else {
+        parts.push(`tried ${gerund}`);
+      }
       break;
     }
     case 'completive': {
       // -아/어 버리다 → end up Ving
       const gerund = toGerund(verb);
-      parts.push(`${subject} ended up ${gerund}`);
+      if (subject) {
+        parts.push(`${subject} ended up ${gerund}`);
+      } else {
+        parts.push(`ended up ${gerund}`);
+      }
       break;
     }
     case 'benefactive': {
       // -아/어 주다 → V for (someone)
-      // "도와 주다" → "help (someone)"
-      // "알려 주다" → "let (someone) know"
-      parts.push(`${subject} ${verb}s for`);
+      if (subject) {
+        parts.push(`${subject} ${verb}s for`);
+      } else {
+        parts.push(`${verb} for`);
+      }
       break;
     }
     default:
       // fallback
-      parts.push(`${subject} ${verb}`);
+      if (subject) {
+        parts.push(`${subject} ${verb}`);
+      } else {
+        parts.push(verb);
+      }
   }
 
   return parts.join(' ').trim();
+}
+
+/**
+ * 3인칭 단수인지 확인
+ */
+function is3rdPersonSingular(subject: string): boolean {
+  const lower = subject.toLowerCase();
+  return lower === 'he' || lower === 'she' || lower === 'it';
+}
+
+/**
+ * 동사를 과거분사로 변환
+ */
+function toPastParticiple(verb: string): string {
+  if (!verb) return 'done';
+
+  // 불규칙 동사
+  const irregulars: Record<string, string> = {
+    be: 'been',
+    have: 'had',
+    do: 'done',
+    go: 'gone',
+    eat: 'eaten',
+    see: 'seen',
+    take: 'taken',
+    give: 'given',
+    come: 'come',
+    get: 'gotten',
+    make: 'made',
+    know: 'known',
+    write: 'written',
+    read: 'read',
+    speak: 'spoken',
+    buy: 'bought',
+    sell: 'sold',
+    sleep: 'slept',
+    drink: 'drunk',
+    swim: 'swum',
+    sing: 'sung',
+    run: 'run',
+    begin: 'begun',
+    break: 'broken',
+    choose: 'chosen',
+    drive: 'driven',
+    fly: 'flown',
+    forget: 'forgotten',
+    freeze: 'frozen',
+    grow: 'grown',
+    hide: 'hidden',
+    ride: 'ridden',
+    rise: 'risen',
+    shake: 'shaken',
+    steal: 'stolen',
+    throw: 'thrown',
+    wake: 'woken',
+    wear: 'worn',
+  };
+  if (irregulars[verb]) return irregulars[verb];
+
+  // 규칙 동사: -ed (과거형과 동일)
+  if (verb.endsWith('e')) return `${verb}d`;
+  if (/[aeiou][bcdfghjklmnpqrstvwxz]$/i.test(verb) && verb.length <= 4) {
+    return `${verb}${verb[verb.length - 1]}ed`;
+  }
+  if (verb.endsWith('y') && !/[aeiou]y$/i.test(verb)) {
+    return `${verb.slice(0, -1)}ied`;
+  }
+  return `${verb}ed`;
 }
 
 /**
@@ -617,8 +763,11 @@ function toGerund(verb: string): string {
     return `${verb.slice(0, -1)}ing`;
   }
 
-  // 단모음 + 단자음으로 끝나면 자음 중복
-  if (/^[a-z]*[aeiou][bcdfghjklmnpqrstvwxz]$/i.test(verb) && verb.length <= 4) {
+  // CVC 패턴 (자음-단모음-자음)으로 끝나면 자음 중복
+  // 예: run → running, sit → sitting, stop → stopping
+  // 예외: eat → eating (ea는 이중모음이므로 중복 안 함)
+  // w, x, y로 끝나는 경우는 중복 안 함
+  if (/^[bcdfghjklmnpqrstvwxyz][aeiou][bcdfghjklmnpqrstvz]$/i.test(verb)) {
     const lastChar = verb[verb.length - 1];
     return `${verb}${lastChar}ing`;
   }

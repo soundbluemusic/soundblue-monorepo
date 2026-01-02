@@ -79,9 +79,29 @@ interface AuxiliaryPattern {
   /** 매칭 패턴 */
   pattern: RegExp;
   /** 문법적 의미 */
-  meaning: 'progressive' | 'desiderative' | 'attemptive' | 'completive' | 'benefactive';
+  meaning:
+    | 'progressive'
+    | 'past-progressive'
+    | 'desiderative'
+    | 'attemptive'
+    | 'completive'
+    | 'benefactive'
+    | 'future'
+    | 'perfect'
+    | 'modal-can'
+    | 'modal-may';
   /** 영어 표현 형식 */
-  englishForm: 'be + Ving' | 'want to V' | 'try Ving' | 'end up Ving' | 'V for someone';
+  englishForm:
+    | 'be + Ving'
+    | 'was + Ving'
+    | 'want to V'
+    | 'try Ving'
+    | 'end up Ving'
+    | 'V for someone'
+    | 'will V'
+    | 'have Vpp'
+    | 'can V'
+    | 'may V';
 }
 
 /**
@@ -89,14 +109,40 @@ interface AuxiliaryPattern {
  * 우선순위: 긴 패턴부터 매칭
  */
 const AUXILIARY_PATTERNS: AuxiliaryPattern[] = [
+  // ============================================
+  // 긴 패턴부터 (우선순위 높음)
+  // ============================================
+
+  // -어 본 적 있다 (경험/완료): 먹어 본 적 있다
+  { pattern: /(.+)[아어]\s*본\s*적\s*있/, meaning: 'perfect', englishForm: 'have Vpp' },
+
+  // -ㄹ/을 수 있다 (능력): 할 수 있다, 먹을 수 있다
+  // 받침 없는 어간 + ㄹ 받침 (할, 갈, 볼...) 또는 받침 있는 어간 + 을 (먹을, 읽을...)
+  { pattern: /(.+)을\s*수\s*있/, meaning: 'modal-can', englishForm: 'can V' },
+  // 받침 ㄹ로 끝나는 글자 + 수 있다 패턴은 별도 처리 필요 (할 수 있다 등)
+  { pattern: /(.)\s*수\s*있/, meaning: 'modal-can', englishForm: 'can V' },
+
+  // -도 된다 (허가): 해도 된다, 가도 돼
+  { pattern: /(.+)도\s*(?:된다|돼)/, meaning: 'modal-may', englishForm: 'may V' },
+
+  // -ㄹ/을 것이다 (미래): 먹을 것이다, 갈 것이다
+  { pattern: /(.+)[ㄹ을]\s*것이다/, meaning: 'future', englishForm: 'will V' },
+
+  // -고 있었다 (과거 진행형): 먹고 있었다
+  { pattern: /(.+)고\s*있었/, meaning: 'past-progressive', englishForm: 'was + Ving' },
+
   // -고 있다 (진행형): 먹고 있다, 가고 있어, 하고 있습니다
   { pattern: /(.+)고\s*있/, meaning: 'progressive', englishForm: 'be + Ving' },
+
   // -고 싶다 (희망): 먹고 싶다, 가고 싶어
   { pattern: /(.+)고\s*싶/, meaning: 'desiderative', englishForm: 'want to V' },
+
   // -아/어 주다 (수혜): 도와 주다, 알려 줘
   { pattern: /(.+)[아어]\s*주/, meaning: 'benefactive', englishForm: 'V for someone' },
+
   // -아/어 보다 (시도): 먹어 봤다, 해 봐
   { pattern: /(.+)[아어]\s*보/, meaning: 'attemptive', englishForm: 'try Ving' },
+
   // -아/어 버리다 (완료): 먹어 버렸다, 가 버렸어
   { pattern: /(.+)[아어]\s*버리/, meaning: 'completive', englishForm: 'end up Ving' },
 ];
@@ -631,10 +677,20 @@ function parseWithAuxiliaryPattern(
   }
 
   // 2. 동사 어간 추출 및 번역
-  // auxMatch.verbStem: "하", "먹", "운동을 하" 등
+  // auxMatch.verbStem: "하", "먹", "운동을 하", "할" (ㄹ 받침) 등
   let verbStem = auxMatch.verbStem.trim();
   let verbTranslation: string | undefined;
   let objectToken: Token | undefined;
+
+  // modal-can 패턴에서 ㄹ 받침 처리: "할" → "하"
+  // 단일 글자이고 ㄹ 받침으로 끝나면 받침 제거
+  if (auxMatch.pattern.meaning === 'modal-can' && verbStem.length === 1) {
+    const jamo = decompose(verbStem);
+    if (jamo && jamo.jong === 'ㄹ') {
+      // ㄹ 받침 제거하여 원형 어간 추출: 할 → 하, 갈 → 가, 볼 → 보
+      verbStem = composeWithoutJong(jamo.cho, jamo.jung);
+    }
+  }
 
   // "운동을 하" → "운동을" + "하"로 분리
   if (verbStem.includes(' ')) {
@@ -661,8 +717,9 @@ function parseWithAuxiliaryPattern(
     objectToken.translated = undefined;
     objectToken.role = 'object-absorbed'; // 동사에 흡수됨
   } else {
-    // 일반 동사 어간 번역 (WSD 사용)
-    verbTranslation = translateWithWSD(verbStem, original) || VERB_STEMS[verbStem] || 'do';
+    // 보조용언 패턴에서는 VERB_STEMS를 우선 확인 (동사 문맥)
+    // "해"가 "sun"(태양)이 아닌 "do"(하다)로 번역되어야 함
+    verbTranslation = VERB_STEMS[verbStem] || translateWithWSD(verbStem, original) || 'do';
   }
 
   // 3. 보조용언 패턴에 따른 문법 정보 설정

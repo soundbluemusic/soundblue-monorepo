@@ -35,10 +35,15 @@ export type Role =
 /** 보조용언 패턴 유형 */
 export type AuxiliaryMeaning =
   | 'progressive'
+  | 'past-progressive'
   | 'desiderative'
   | 'attemptive'
   | 'completive'
-  | 'benefactive';
+  | 'benefactive'
+  | 'future'
+  | 'perfect'
+  | 'modal-can'
+  | 'modal-may';
 
 /** 시제 */
 export type Tense = 'past' | 'present' | 'future' | 'present-perfect' | 'past-perfect';

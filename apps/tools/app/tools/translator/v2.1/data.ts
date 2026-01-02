@@ -753,6 +753,7 @@ export const VERB_STEMS: Record<string, string> = {
   팔: 'sell',
   주: 'give',
   하: 'do',
+  해: 'do', // 하다의 활용형
   되: 'become',
   있: 'have',
   없: 'not have',
