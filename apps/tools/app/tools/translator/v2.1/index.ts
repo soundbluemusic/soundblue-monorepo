@@ -91,6 +91,14 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
     return parsed.tokens[0].translated || sentence;
   }
 
+  // Phase 0: 보조용언 패턴 우선 체크 (절 분리 전에!)
+  // "-고 있다", "-고 싶다" 등의 패턴이 감지되면 절 분리 없이 바로 번역
+  if (parsed.auxiliaryPattern) {
+    let translated = generateEnglish(parsed);
+    translated = validateTranslation(parsed, translated, 'ko-en');
+    return translated;
+  }
+
   // 1. 절 분리
   const clauseInfo = parseKoreanClauses(sentence);
 

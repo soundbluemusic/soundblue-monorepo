@@ -500,9 +500,128 @@ function detectCounterPattern(tokens: Token[]): string | null {
 }
 
 /**
+ * 보조용언 패턴으로 영어 생성
+ *
+ * Phase 0: 긴급 수정
+ * "-고 있다" → "I'm Ving"
+ * "-고 싶다" → "I want to V"
+ */
+function generateWithAuxiliaryPattern(parsed: ParsedSentence): string {
+  const parts: string[] = [];
+
+  // 주어 찾기
+  let subject = 'I'; // 기본값
+  let verb = '';
+
+  for (const token of parsed.tokens) {
+    if (token.role === 'subject') {
+      // 주어 번역 (한→영: translated 값을 그대로 사용)
+      const translated = token.translated || KO_EN[token.stem];
+      if (translated) {
+        subject = translated;
+      }
+    } else if (token.role === 'verb' && token.meta?.auxiliaryMeaning) {
+      // 보조용언 패턴의 동사
+      verb = token.translated || 'do';
+    }
+  }
+
+  // 보조용언 패턴에 따른 생성
+  switch (parsed.auxiliaryPattern) {
+    case 'progressive': {
+      // -고 있다 → be + Ving
+      const beVerb = getBeVerbForAuxiliary(subject);
+      const gerund = toGerund(verb);
+      parts.push(`${subject}'${beVerb === 'am' ? 'm' : beVerb === 'are' ? 're' : 's'} ${gerund}`);
+      break;
+    }
+    case 'desiderative': {
+      // -고 싶다 → want to V
+      parts.push(
+        `${subject} want${subject.toLowerCase() === 'i' || isPlural(subject) ? '' : 's'} to ${verb}`,
+      );
+      break;
+    }
+    case 'attemptive': {
+      // -아/어 보다 → try Ving
+      const gerund = toGerund(verb);
+      parts.push(`${subject} tried ${gerund}`);
+      break;
+    }
+    case 'completive': {
+      // -아/어 버리다 → end up Ving
+      const gerund = toGerund(verb);
+      parts.push(`${subject} ended up ${gerund}`);
+      break;
+    }
+    default:
+      // fallback
+      parts.push(`${subject} ${verb}`);
+  }
+
+  return parts.join(' ').trim();
+}
+
+/**
+ * be 동사 선택 (보조용언 패턴용)
+ */
+function getBeVerbForAuxiliary(subject: string): string {
+  const lower = subject.toLowerCase();
+  if (lower === 'i') return 'am';
+  if (lower === 'he' || lower === 'she' || lower === 'it') return 'is';
+  return 'are';
+}
+
+/**
+ * 동사를 -ing 형태로 변환
+ */
+function toGerund(verb: string): string {
+  if (!verb) return 'doing';
+
+  // 불규칙 동사
+  const irregulars: Record<string, string> = {
+    be: 'being',
+    have: 'having',
+    die: 'dying',
+    lie: 'lying',
+    tie: 'tying',
+  };
+  if (irregulars[verb]) return irregulars[verb];
+
+  // -e로 끝나면 e 제거 + ing
+  if (verb.endsWith('e') && !verb.endsWith('ee') && !verb.endsWith('ye')) {
+    return `${verb.slice(0, -1)}ing`;
+  }
+
+  // 단모음 + 단자음으로 끝나면 자음 중복
+  if (/^[a-z]*[aeiou][bcdfghjklmnpqrstvwxz]$/i.test(verb) && verb.length <= 4) {
+    const lastChar = verb[verb.length - 1];
+    return `${verb}${lastChar}ing`;
+  }
+
+  return `${verb}ing`;
+}
+
+/**
+ * 복수 주어인지 확인
+ */
+function isPlural(subject: string): boolean {
+  const lower = subject.toLowerCase();
+  return lower === 'we' || lower === 'they' || lower === 'you';
+}
+
+/**
  * 한→영 생성
  */
 export function generateEnglish(parsed: ParsedSentence): string {
+  // ============================================
+  // Phase 0: 보조용언 패턴 우선 처리 (긴급 수정)
+  // "-고 있다" 등의 패턴을 먼저 처리
+  // ============================================
+  if (parsed.auxiliaryPattern) {
+    return generateWithAuxiliaryPattern(parsed);
+  }
+
   // 0. 복합어 토큰 처리 (배고프다, 목마르다 등)
   // 복합어는 이미 번역된 상태로 토큰화됨
   if (parsed.tokens.length === 1 && parsed.tokens[0].role === 'compound') {
@@ -2952,7 +3071,7 @@ function processThatClause(parsed: ParsedSentence, formality: Formality): string
   const words = parsed.original.toLowerCase().split(/\s+/);
 
   // 1. 'that' 위치 찾기
-  const thatIndex = words.findIndex((w) => w === 'that');
+  const thatIndex = words.indexOf('that');
   if (thatIndex === -1) return null;
 
   // 2. that 앞에 절을 취하는 동사가 있는지 확인

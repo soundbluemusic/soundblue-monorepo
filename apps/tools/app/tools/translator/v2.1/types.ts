@@ -21,6 +21,7 @@ export type Formality = 'casual' | 'formal' | 'neutral' | 'friendly' | 'literal'
 export type Role =
   | 'subject' // 주어
   | 'object' // 목적어
+  | 'object-absorbed' // 목적어가 동사에 흡수됨 (운동을 하고 있다 → exercising)
   | 'verb' // 동사
   | 'adjective' // 형용사
   | 'adverb' // 부사
@@ -30,6 +31,9 @@ export type Role =
   | 'punctuation' // 구두점
   | 'compound' // 복합어/관용어 (배고프다, 목마르다 등)
   | 'unknown'; // 미분류
+
+/** 보조용언 패턴 유형 */
+export type AuxiliaryMeaning = 'progressive' | 'desiderative' | 'attemptive' | 'completive';
 
 /** 시제 */
 export type Tense = 'past' | 'present' | 'future' | 'present-perfect' | 'past-perfect';
@@ -69,6 +73,12 @@ export interface Token {
     isCopula?: boolean;
     /** 경동사 여부 (했다, 한다 등 - 목적어를 동사로 변환) */
     isLightVerb?: boolean;
+    /** 보조용언 패턴 유형 (Phase 0) */
+    auxiliaryMeaning?: AuxiliaryMeaning;
+    /** 진행형 여부 (-고 있다) */
+    isProgressive?: boolean;
+    /** 희망형 여부 (-고 싶다) */
+    isDesiderative?: boolean;
   };
 }
 
@@ -81,6 +91,7 @@ export type TokenStrategy =
   | 'similarity' // 유사도 기반 (jamoEditDistance)
   | 'irregular' // 불규칙 동사 처리
   | 'compound' // 복합어/관용어 매칭
+  | 'grammar-pattern' // 문법 패턴 매칭 (보조용언 등)
   | 'unknown'; // 미인식
 
 /** 분석된 문장 */
@@ -95,6 +106,8 @@ export interface ParsedSentence {
   tense: Tense;
   /** 부정문 여부 */
   negated: boolean;
+  /** 보조용언 패턴 (Phase 0) */
+  auxiliaryPattern?: AuxiliaryMeaning;
 }
 
 /** 번역 결과 */

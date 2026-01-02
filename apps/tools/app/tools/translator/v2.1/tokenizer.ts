@@ -24,6 +24,57 @@ import {
 import type { ParsedSentence, Role, SentenceType, Tense, Token, TokenStrategy } from './types';
 
 // ============================================
+// 보조용언 패턴 (Phase 0: 긴급 수정)
+// "-고 있다", "-고 싶다" 등을 우선 인식하여
+// "하고"→"하구" 오매칭 방지
+// ============================================
+
+interface AuxiliaryPattern {
+  /** 매칭 패턴 */
+  pattern: RegExp;
+  /** 문법적 의미 */
+  meaning: 'progressive' | 'desiderative' | 'attemptive' | 'completive';
+  /** 영어 표현 형식 */
+  englishForm: 'be + Ving' | 'want to V' | 'try Ving' | 'end up Ving';
+}
+
+/**
+ * 보조용언 패턴 목록
+ * 우선순위: 긴 패턴부터 매칭
+ */
+const AUXILIARY_PATTERNS: AuxiliaryPattern[] = [
+  // -고 있다 (진행형): 먹고 있다, 가고 있어, 하고 있습니다
+  { pattern: /(.+)고\s*있/, meaning: 'progressive', englishForm: 'be + Ving' },
+  // -고 싶다 (희망): 먹고 싶다, 가고 싶어
+  { pattern: /(.+)고\s*싶/, meaning: 'desiderative', englishForm: 'want to V' },
+  // -아/어 보다 (시도): 먹어 봤다, 해 봐
+  { pattern: /(.+)[아어]\s*보/, meaning: 'attemptive', englishForm: 'try Ving' },
+  // -아/어 버리다 (완료): 먹어 버렸다, 가 버렸어
+  { pattern: /(.+)[아어]\s*버리/, meaning: 'completive', englishForm: 'end up Ving' },
+];
+
+/**
+ * 보조용언 패턴 감지
+ * @param text 입력 문장
+ * @returns 감지된 패턴 정보 또는 null
+ */
+function detectAuxiliaryPattern(
+  text: string,
+): { verbStem: string; pattern: AuxiliaryPattern; fullMatch: string } | null {
+  for (const pattern of AUXILIARY_PATTERNS) {
+    const match = text.match(pattern.pattern);
+    if (match?.[1]) {
+      return {
+        verbStem: match[1],
+        pattern,
+        fullMatch: match[0],
+      };
+    }
+  }
+  return null;
+}
+
+// ============================================
 // 신뢰도 상수 정의
 // ============================================
 
@@ -40,14 +91,18 @@ const CONFIDENCE_UNKNOWN = 0.3;
 
 /** 유사도 검색 임계값 (이 거리 이하만 후보로 인정)
  *
- * 값이 너무 높으면 관련 없는 단어도 매칭됨 (예: 간→판다)
+ * Phase 0: 0.8 → 0.3으로 강화 (긴급 수정)
+ * - "하고"→"하구" 오매칭 방지 (거리 0.5였음)
+ * - 도메인 사전의 전문 용어가 일반 단어를 오염시키는 것 방지
+ *
+ * 값이 너무 높으면 관련 없는 단어도 매칭됨 (예: 하고→하구)
  * 값이 너무 낮으면 유사어 검색 효과 없음
  *
- * 0.5 = 자모 1개 다른 경우까지만 허용 (매우 엄격)
- * 1.0 = 자모 2개까지 허용 (엄격)
- * 1.5 = 자모 3개까지 허용 (느슨)
+ * 0.3 = 자모 1개 미만 차이만 허용 (매우 엄격, Phase 0 설정)
+ * 0.5 = 자모 1개 다른 경우까지만 허용 (엄격)
+ * 1.0 = 자모 2개까지 허용 (느슨)
  */
-const SIMILARITY_THRESHOLD = 0.8;
+const SIMILARITY_THRESHOLD = 0.3;
 
 // ============================================
 // 유사도 기반 단어 검색 (Strategy B)
@@ -560,14 +615,128 @@ const SORTED_PARTICLES = [...PARTICLES].sort((a, b) => b[0].length - a[0].length
 const SORTED_ENDINGS = [...ENDINGS].sort((a, b) => b[0].length - a[0].length);
 
 /**
+ * 보조용언 패턴을 포함한 문장 파싱
+ *
+ * Phase 0: 긴급 수정
+ * "-고 있다" 등의 패턴을 우선 처리하여 "하고"→"하구" 오매칭 방지
+ */
+function parseWithAuxiliaryPattern(
+  original: string,
+  auxMatch: { verbStem: string; pattern: AuxiliaryPattern; fullMatch: string },
+  sentenceType: SentenceType,
+): ParsedSentence {
+  const tokens: Token[] = [];
+  const cleaned = original.replace(/[.!?？！。]+$/, '').trim();
+
+  // 보조용언 패턴 앞부분 (주어, 목적어 등) 분리
+  const beforePattern = cleaned.slice(0, cleaned.indexOf(auxMatch.fullMatch)).trim();
+  const afterPattern = cleaned
+    .slice(cleaned.indexOf(auxMatch.fullMatch) + auxMatch.fullMatch.length)
+    .trim();
+
+  // 1. 앞부분 토큰화 (주어, 목적어)
+  if (beforePattern) {
+    const words = beforePattern.split(/\s+/).filter(Boolean);
+    for (const word of words) {
+      tokens.push(tokenizeKoreanWord(word));
+    }
+  }
+
+  // 2. 동사 어간 추출 및 번역
+  // auxMatch.verbStem: "하", "먹", "운동을 하" 등
+  let verbStem = auxMatch.verbStem.trim();
+  let verbTranslation: string | undefined;
+  let objectToken: Token | undefined;
+
+  // "운동을 하" → "운동을" + "하"로 분리
+  if (verbStem.includes(' ')) {
+    const parts = verbStem.split(/\s+/);
+    const lastPart = parts.pop() || '';
+
+    // 마지막 부분 전까지를 토큰화
+    for (const part of parts) {
+      const token = tokenizeKoreanWord(part);
+      tokens.push(token);
+      if (token.role === 'object') {
+        objectToken = token;
+      }
+    }
+    verbStem = lastPart;
+  }
+
+  // "하" 동사의 경우 목적어에 따라 동사 결정
+  // "운동을 하고 있다" → "exercising" (운동 = exercise)
+  if (verbStem === '하' && objectToken?.translated) {
+    // 목적어 번역을 동사로 사용
+    verbTranslation = objectToken.translated;
+    // 목적어 토큰의 translated를 지워서 중복 출력 방지
+    objectToken.translated = undefined;
+    objectToken.role = 'object-absorbed'; // 동사에 흡수됨
+  } else {
+    // 일반 동사 어간 번역
+    verbTranslation = KO_EN[verbStem] || VERB_STEMS[verbStem] || 'do';
+  }
+
+  // 3. 보조용언 패턴에 따른 문법 정보 설정
+  const isProgressive = auxMatch.pattern.meaning === 'progressive';
+  const isDesiderative = auxMatch.pattern.meaning === 'desiderative';
+
+  // 동사 토큰 생성
+  tokens.push({
+    text: auxMatch.fullMatch,
+    stem: verbStem,
+    role: 'verb',
+    translated: verbTranslation,
+    confidence: CONFIDENCE_RULE,
+    meta: {
+      strategy: 'grammar-pattern' as TokenStrategy,
+      tense: 'present',
+      auxiliaryMeaning: auxMatch.pattern.meaning,
+      isProgressive,
+      isDesiderative,
+    },
+  });
+
+  // 4. 뒷부분 토큰화 (드문 케이스)
+  if (afterPattern) {
+    const words = afterPattern.split(/\s+/).filter(Boolean);
+    for (const word of words) {
+      tokens.push(tokenizeKoreanWord(word));
+    }
+  }
+
+  return {
+    original,
+    tokens,
+    type: sentenceType,
+    tense: 'present',
+    negated: false,
+    // Phase 0: 보조용언 정보 추가
+    auxiliaryPattern: auxMatch.pattern.meaning,
+  };
+}
+
+/**
  * 한국어 문장 파싱
  */
 export function parseKorean(text: string): ParsedSentence {
   const original = text.trim();
+  const cleanedForDetection = original.replace(/[.!?？！。]+$/, '');
+
+  // ============================================
+  // Phase 0: 보조용언 패턴 우선 체크 (긴급 수정)
+  // "-고 있다", "-고 싶다" 등을 먼저 인식하여
+  // "하고"→"하구" 오매칭 방지
+  // ============================================
+  const auxMatch = detectAuxiliaryPattern(cleanedForDetection);
+  if (auxMatch) {
+    const type = detectSentenceType(original);
+    return parseWithAuxiliaryPattern(original, auxMatch, type);
+  }
 
   // 0. 복합어/관용어 우선 체크 (띄어쓰기 유무 상관없이)
   // "배고프다", "배가 고프다" 등을 통째로 인식
-  const compoundMatch = matchCompoundExpression(original.replace(/[.!?？！。]+$/, ''));
+  const compoundMatch = matchCompoundExpression(cleanedForDetection);
   if (compoundMatch && !compoundMatch.remaining) {
     // 전체 문장이 복합어인 경우
     const type = detectSentenceType(original);
