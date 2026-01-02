@@ -16,6 +16,7 @@ import {
   IDIOMS_EN_KO,
   IDIOMS_KO_EN,
   KO_EN,
+  MODAL_VERBS,
   NOUN_CONTEXT,
   VERB_PAST,
   VERB_PREPOSITIONS,
@@ -632,6 +633,24 @@ export function generateEnglish(parsed: ParsedSentence): string {
   // 1. 관용구 체크 (통문장)
   const idiom = IDIOMS_KO_EN[parsed.original.replace(/[.!?？！。]+$/, '').trim()];
   if (idiom) return idiom;
+
+  // 1.5. Phase 3: 비교급/최상급 패턴 우선 처리
+  // "더 크다" → "bigger", "가장 좋다" → "best"
+  if (parsed.comparativeType && parsed.tokens.length === 1) {
+    const token = parsed.tokens[0];
+    // 형용사/동사 어간에서 영어 비교급/최상급 생성
+    const adjStem = token.stem || token.text;
+    const enComp = toEnglishComparative(adjStem, parsed.comparativeType);
+    if (enComp) {
+      return enComp;
+    }
+    // 매핑이 없으면 기본 번역 + more/most 접두사
+    const enBase = token.translated || KO_EN[adjStem] || adjStem;
+    if (parsed.comparativeType === 'comparative') {
+      return `more ${enBase}`;
+    }
+    return `most ${enBase}`;
+  }
 
   // 2. 숫자+분류사 패턴 감지 (명사 숫자 분류사 순서)
   // "사과 1개", "고양이 5마리" 패턴
@@ -1899,8 +1918,7 @@ const _MODAL_PATTERNS: Record<
   would: { pattern: '-ㄹ 것이다', type: 'volition' },
 };
 
-/** 조동사인지 확인 (문장 구조 분석용) */
-const MODAL_VERBS = new Set(['can', 'could', 'may', 'might', 'must', 'should', 'will', 'would']);
+// MODAL_VERBS는 ./data에서 import됨 (can, could, may, might, must, should, will, would + have to, had to)
 
 // ============================================
 // Phase 2.2: Comparatives & Superlatives (비교급/최상급)
@@ -1952,6 +1970,94 @@ const EN_ADJECTIVES: Record<string, string> = {
   deep: '깊다',
   shallow: '얕다',
 };
+
+/**
+ * 한국어 형용사 → 영어 형용사 매핑 (EN_ADJECTIVES의 역매핑)
+ */
+const KO_ADJECTIVES: Record<string, string> = Object.entries(EN_ADJECTIVES).reduce(
+  (acc, [en, ko]) => {
+    acc[ko] = en;
+    return acc;
+  },
+  {} as Record<string, string>,
+);
+
+/**
+ * 불규칙 비교급/최상급 영어 형태 (Ko→En용)
+ * 원형 형용사 → { comparative: 비교급, superlative: 최상급 }
+ */
+const EN_IRREGULAR_FORMS: Record<string, { comparative: string; superlative: string }> = {
+  good: { comparative: 'better', superlative: 'best' },
+  bad: { comparative: 'worse', superlative: 'worst' },
+  far: { comparative: 'farther', superlative: 'farthest' },
+  little: { comparative: 'less', superlative: 'least' },
+  much: { comparative: 'more', superlative: 'most' },
+  many: { comparative: 'more', superlative: 'most' },
+  old: { comparative: 'older', superlative: 'oldest' },
+};
+
+/**
+ * 한국어 형용사를 영어 비교급/최상급으로 변환
+ * "크다" + comparative → "bigger"
+ * "좋다" + superlative → "best"
+ */
+function toEnglishComparative(
+  koAdjective: string,
+  compType: 'comparative' | 'superlative',
+): string | null {
+  // 어간 추출 (크다 → 크)
+  const stem = koAdjective.endsWith('다') ? koAdjective.slice(0, -1) : koAdjective;
+
+  // 한국어 → 영어 형용사
+  const enAdj = KO_ADJECTIVES[koAdjective] || KO_ADJECTIVES[`${stem}다`];
+  if (!enAdj) return null;
+
+  // 불규칙 비교급/최상급 확인
+  if (EN_IRREGULAR_FORMS[enAdj]) {
+    return compType === 'comparative'
+      ? EN_IRREGULAR_FORMS[enAdj].comparative
+      : EN_IRREGULAR_FORMS[enAdj].superlative;
+  }
+
+  // 규칙적 변환
+  // 다음절 형용사(syllables > 2): more/most + 형용사
+  const syllables = countSyllables(enAdj);
+  if (syllables >= 3 || (syllables === 2 && !enAdj.endsWith('y'))) {
+    return compType === 'comparative' ? `more ${enAdj}` : `most ${enAdj}`;
+  }
+
+  // -y로 끝나는 형용사: y → ier/iest
+  if (enAdj.endsWith('y')) {
+    const base = enAdj.slice(0, -1);
+    return compType === 'comparative' ? `${base}ier` : `${base}iest`;
+  }
+
+  // -e로 끝나는 형용사: +r/+st
+  if (enAdj.endsWith('e')) {
+    return compType === 'comparative' ? `${enAdj}r` : `${enAdj}st`;
+  }
+
+  // 단모음+단자음: 자음 중복 + er/est
+  if (/^[^aeiou]*[aeiou][bcdfghlmnprstvwz]$/.test(enAdj)) {
+    const lastChar = enAdj[enAdj.length - 1];
+    return compType === 'comparative' ? `${enAdj}${lastChar}er` : `${enAdj}${lastChar}est`;
+  }
+
+  // 기본: +er/+est
+  return compType === 'comparative' ? `${enAdj}er` : `${enAdj}est`;
+}
+
+/**
+ * 영어 단어의 음절 수 추정
+ */
+function countSyllables(word: string): number {
+  const vowels = word.toLowerCase().match(/[aeiouy]+/g);
+  if (!vowels) return 1;
+  // 단어 끝의 무성 e 제거
+  let count = vowels.length;
+  if (word.endsWith('e') && count > 1) count--;
+  return Math.max(1, count);
+}
 
 /**
  * 불규칙 비교급/최상급 매핑
@@ -2601,11 +2707,23 @@ function tagEnglishWords(parsed: ParsedSentence): TaggedWord[] {
       foundModal = negatedModal!; // modal 종류 (can, could, will 등)
       // negated는 tokenizer에서 이미 처리됨
     }
-    // 3.6. Phase 1.1: have/has/had 체크 (완료형)
+    // 3.6. Phase 2: "have to", "has to", "had to" 복합 조동사 체크
+    // "have to go" → "가야 한다" (의무/필요)
+    // 주의: "have gone" (완료형)과 구분해야 함
     else if (['have', 'has', 'had'].includes(lower) && !foundVerb) {
-      pos = 'aux';
-      ko = '';
-      foundHaveAux = true; // 완료형 조동사 발견
+      // 다음 토큰이 "to"인지 확인 (look-ahead)
+      const nextToken = i + 1 < parsed.tokens.length ? parsed.tokens[i + 1].stem.toLowerCase() : '';
+      if (nextToken === 'to') {
+        pos = 'aux';
+        ko = '';
+        // "have to" → 현재 의무, "had to" → 과거 의무
+        foundModal = lower === 'had' ? 'had to' : 'have to';
+      } else {
+        // "have/has/had + 과거분사" = 완료형
+        pos = 'aux';
+        ko = '';
+        foundHaveAux = true; // 완료형 조동사 발견
+      }
     }
     // 3.7. Phase 4: 보조용언 체크 (want to, try to, start to 등)
     else if (AUXILIARY_VERBS[lower] && !foundVerb) {
@@ -4900,14 +5018,30 @@ function applyModalVerb(
       );
 
     case 'must':
-    case 'should': {
-      // must/should → -아/어야 하다
+    case 'should':
+    case 'have to': {
+      // must/should/have to → -아/어야 하다
       if (isHadaVerb) {
         return applyModalEnding(`${hadaPrefix}해야`, 'obligation', formality, sentenceType);
       }
       // 모음조화
       const vowelEnding = getVowelHarmonyEnding(stem);
       return applyModalEnding(`${stem}${vowelEnding}야`, 'obligation', formality, sentenceType);
+    }
+
+    case 'had to': {
+      // had to → -아/어야 했다 (과거 의무)
+      if (isHadaVerb) {
+        return applyModalEnding(`${hadaPrefix}해야`, 'past-obligation', formality, sentenceType);
+      }
+      // 모음조화
+      const vowelEnding = getVowelHarmonyEnding(stem);
+      return applyModalEnding(
+        `${stem}${vowelEnding}야`,
+        'past-obligation',
+        formality,
+        sentenceType,
+      );
     }
 
     case 'may': {
@@ -5032,6 +5166,39 @@ function applyNegatedModalVerb(
       return applyNegatedModalEnding(`${stem}면`, 'prohibition', formality, sentenceType);
     }
 
+    case 'have to': {
+      // don't have to → -지 않아도 된다 (no obligation, different from prohibition)
+      // "You don't have to go" = "안 가도 돼" (선택의 여지)
+      if (isHadaVerb) {
+        return applyNegatedModalEnding(
+          `${hadaPrefix}하지 않아도`,
+          'no-obligation',
+          formality,
+          sentenceType,
+        );
+      }
+      return applyNegatedModalEnding(`${stem}지 않아도`, 'no-obligation', formality, sentenceType);
+    }
+
+    case 'had to': {
+      // didn't have to → -지 않아도 됐다 (past no obligation)
+      // "You didn't have to go" = "안 가도 됐어"
+      if (isHadaVerb) {
+        return applyNegatedModalEnding(
+          `${hadaPrefix}하지 않아도`,
+          'past-no-obligation',
+          formality,
+          sentenceType,
+        );
+      }
+      return applyNegatedModalEnding(
+        `${stem}지 않아도`,
+        'past-no-obligation',
+        formality,
+        sentenceType,
+      );
+    }
+
     case 'may': {
       // may not → -면 안 되다 (permission denied)
       if (isHadaVerb) {
@@ -5078,7 +5245,13 @@ function applyNegatedModalVerb(
  */
 function applyNegatedModalEnding(
   modalStem: string,
-  modalType: 'inability' | 'past-inability' | 'prohibition' | 'negative-possibility',
+  modalType:
+    | 'inability'
+    | 'past-inability'
+    | 'prohibition'
+    | 'negative-possibility'
+    | 'no-obligation'
+    | 'past-no-obligation',
   formality: Formality,
   sentenceType: 'statement' | 'question',
 ): string {
@@ -5151,6 +5324,40 @@ function applyNegatedModalEnding(
           return sentenceType === 'question' ? `${modalStem} 모릅니까` : `${modalStem} 모릅니다`;
         default:
           return `${modalStem} 모른다`;
+      }
+
+    case 'no-obligation':
+      // -지 않아도 된다 (don't have to)
+      switch (formality) {
+        case 'casual':
+          return sentenceType === 'question' ? `${modalStem} 돼` : `${modalStem} 돼`;
+        case 'formal':
+          return sentenceType === 'question' ? `${modalStem} 돼요` : `${modalStem} 돼요`;
+        case 'neutral':
+          return sentenceType === 'question' ? `${modalStem} 되니` : `${modalStem} 된다`;
+        case 'friendly':
+          return sentenceType === 'question' ? `${modalStem} 돼` : `${modalStem} 돼~`;
+        case 'literal':
+          return sentenceType === 'question' ? `${modalStem} 됩니까` : `${modalStem} 됩니다`;
+        default:
+          return `${modalStem} 된다`;
+      }
+
+    case 'past-no-obligation':
+      // -지 않아도 됐다 (didn't have to)
+      switch (formality) {
+        case 'casual':
+          return sentenceType === 'question' ? `${modalStem} 됐어` : `${modalStem} 됐어`;
+        case 'formal':
+          return sentenceType === 'question' ? `${modalStem} 됐어요` : `${modalStem} 됐어요`;
+        case 'neutral':
+          return sentenceType === 'question' ? `${modalStem} 됐니` : `${modalStem} 됐다`;
+        case 'friendly':
+          return sentenceType === 'question' ? `${modalStem} 됐어` : `${modalStem} 됐어~`;
+        case 'literal':
+          return sentenceType === 'question' ? `${modalStem} 됐습니까` : `${modalStem} 됐습니다`;
+        default:
+          return `${modalStem} 됐다`;
       }
 
     default:
@@ -5250,7 +5457,13 @@ function getVowelHarmonyEnding(stem: string): string {
  */
 function applyModalEnding(
   modalStem: string,
-  modalType: 'ability' | 'past-ability' | 'obligation' | 'permission' | 'possibility',
+  modalType:
+    | 'ability'
+    | 'past-ability'
+    | 'obligation'
+    | 'past-obligation'
+    | 'permission'
+    | 'possibility',
   formality: Formality,
   sentenceType: 'statement' | 'question',
 ): string {
@@ -5306,6 +5519,23 @@ function applyModalEnding(
           return sentenceType === 'question' ? `${modalStem} 합니까` : `${modalStem} 합니다`;
         default:
           return `${modalStem} 한다`;
+      }
+
+    case 'past-obligation':
+      // -아/어야 했다 (had to)
+      switch (formality) {
+        case 'casual':
+          return sentenceType === 'question' ? `${modalStem} 했어` : `${modalStem} 했어`;
+        case 'formal':
+          return sentenceType === 'question' ? `${modalStem} 했어요` : `${modalStem} 했어요`;
+        case 'neutral':
+          return sentenceType === 'question' ? `${modalStem} 했니` : `${modalStem} 했다`;
+        case 'friendly':
+          return sentenceType === 'question' ? `${modalStem} 했어` : `${modalStem} 했어~`;
+        case 'literal':
+          return sentenceType === 'question' ? `${modalStem} 했습니까` : `${modalStem} 했습니다`;
+        default:
+          return `${modalStem} 했다`;
       }
 
     case 'permission':

@@ -113,6 +113,8 @@ export interface ParsedSentence {
   negated: boolean;
   /** 보조용언 패턴 (Phase 0) */
   auxiliaryPattern?: AuxiliaryMeaning;
+  /** 비교급/최상급 마커 (Phase 3) - "더"=comparative, "가장"=superlative */
+  comparativeType?: 'comparative' | 'superlative';
 }
 
 /** 번역 결과 */

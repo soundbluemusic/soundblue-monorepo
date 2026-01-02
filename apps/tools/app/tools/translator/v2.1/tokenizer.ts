@@ -776,6 +776,27 @@ export function parseKorean(text: string): ParsedSentence {
     return ` ${verb}`;
   });
 
+  // Phase 6: "더" / "가장" 비교급/최상급 감지
+  // "더 크다" → comparative + "크다"
+  // "가장 크다" → superlative + "크다"
+  let comparativeType: 'comparative' | 'superlative' | undefined;
+  if (/^더\s+/.test(cleaned)) {
+    comparativeType = 'comparative';
+    cleaned = cleaned.replace(/^더\s+/, '');
+  } else if (/^가장\s+/.test(cleaned)) {
+    comparativeType = 'superlative';
+    cleaned = cleaned.replace(/^가장\s+/, '');
+  }
+  // 문장 중간의 비교급: "그녀는 더 크다" → "그녀는" + comparative + "크다"
+  cleaned = cleaned.replace(/\s+더\s+(\S+)$/, (_, adj) => {
+    comparativeType = 'comparative';
+    return ` ${adj}`;
+  });
+  cleaned = cleaned.replace(/\s+가장\s+(\S+)$/, (_, adj) => {
+    comparativeType = 'superlative';
+    return ` ${adj}`;
+  });
+
   // 3. 공백으로 분리 + 숫자+분류사 분리
   const rawWords = cleaned.split(/\s+/).filter(Boolean);
   const words: string[] = [];
@@ -811,6 +832,7 @@ export function parseKorean(text: string): ParsedSentence {
     type,
     tense: sentenceTense,
     negated,
+    comparativeType,
   };
 }
 
@@ -1169,16 +1191,17 @@ export function parseEnglish(text: string): ParsedSentence {
  *
  * 규칙 동사는 -ed로 끝나므로 정규식으로 감지
  * 불규칙 동사는 개별 매핑 필요
+ *
+ * data.ts의 IRREGULAR_VERBS와 동기화됨 (80개+)
  */
 const IRREGULAR_PAST_VERBS = new Set([
   // be동사
   'was',
   'were',
-  // have
+  // have/do
   'had',
-  // do
   'did',
-  // 일반 불규칙 동사
+  // 기본 동사
   'ate', // eat
   'went', // go
   'came', // come
@@ -1187,70 +1210,96 @@ const IRREGULAR_PAST_VERBS = new Set([
   'gave', // give
   'made', // make
   'got', // get
-  'found', // find
-  'thought', // think
-  'told', // tell
-  'became', // become
-  'left', // leave
-  'felt', // feel
-  'put', // put
-  'brought', // bring
-  'began', // begin
-  'kept', // keep
-  'held', // hold
+  'read', // read
   'wrote', // write
-  'stood', // stand
-  'heard', // hear
-  'let', // let
-  'meant', // mean
-  'set', // set
-  'met', // meet
-  'ran', // run
-  'paid', // pay
-  'sat', // sit
-  'spoke', // speak
-  'lay', // lie
-  'led', // lead
-  'read', // read (발음은 다르지만 철자 같음)
-  'grew', // grow
-  'lost', // lose
-  'knew', // know
-  'drank', // drink
   'slept', // sleep
+  'woke', // wake
   'bought', // buy
   'sold', // sell
-  'taught', // teach
+  'ran', // run
+  'rode', // ride
+  'hit', // hit
   'caught', // catch
-  'fought', // fight
-  'threw', // throw
-  'broke', // break
-  'chose', // choose
-  'wore', // wear
-  'sang', // sing
-  'drove', // drive
-  'woke', // wake
+  'held', // hold
+  'fell', // fall
+  // 인지/사고 동사
+  'thought', // think
+  'knew', // know
+  'understood', // understand
   'forgot', // forget
+  'meant', // mean
+  'felt', // feel
+  'found', // find
+  'taught', // teach
+  'told', // tell
+  'said', // say
+  'spoke', // speak
+  // 이동/위치 동사
+  'sat', // sit
+  'stood', // stand
+  'lay', // lie
+  'laid', // lay
+  'rose', // rise
   'flew', // fly
-  'drew', // draw
   'swam', // swim
-  'hung', // hang
-  'built', // build
+  'drove', // drive
+  'left', // leave
+  'met', // meet
+  'brought', // bring
   'sent', // send
   'spent', // spend
-  'understood', // understand
+  'lent', // lend
+  'led', // lead
+  // 행위 동사
+  'put', // put
+  'set', // set
+  'let', // let
+  'cut', // cut
+  'shut', // shut
+  'cost', // cost
+  'hurt', // hurt
+  'broke', // break
+  'chose', // choose
+  'threw', // throw
+  'grew', // grow
+  'blew', // blow
+  'drew', // draw
+  'wore', // wear
+  'tore', // tear
+  'beat', // beat
+  'began', // begin
+  'sang', // sing
+  'rang', // ring
+  'sank', // sink
+  // 소유/획득 동사
+  'lost', // lose
   'won', // win
-  'shook', // shake
-  'rose', // rise
-  'fell', // fall
+  'kept', // keep
+  'paid', // pay
+  'built', // build
+  'fought', // fight
+  'sought', // seek
+  'bound', // bind
+  'hung', // hang
+  'stuck', // stick
+  // 조동사
+  'could', // can
+  'would', // will
+  'should', // shall
+  'might', // may
 ]);
 
 /**
  * 영어 과거분사 불규칙 동사
+ *
+ * data.ts의 IRREGULAR_VERBS와 동기화됨 (80개+)
  */
 const IRREGULAR_PAST_PARTICIPLES = new Set([
+  // be/have/do
   'been', // be
   'had', // have
   'done', // do
+  // 기본 동사
   'eaten', // eat
   'gone', // go
   'come', // come
@@ -1258,63 +1307,84 @@ const IRREGULAR_PAST_PARTICIPLES = new Set([
   'taken', // take
   'given', // give
   'made', // make
-  'gotten', // get (미국 영어)
-  'got', // get (영국 영어)
-  'found', // find
-  'thought', // think
-  'told', // tell
-  'become', // become
-  'left', // leave
-  'felt', // feel
-  'put', // put
-  'brought', // bring
-  'begun', // begin
-  'kept', // keep
-  'held', // hold
-  'written', // write
-  'stood', // stand
-  'heard', // hear
-  'let', // let
-  'meant', // mean
-  'set', // set
-  'met', // meet
-  'run', // run
-  'paid', // pay
-  'sat', // sit
-  'spoken', // speak
-  'lain', // lie
-  'led', // lead
+  'gotten', // get (미국)
+  'got', // get (영국)
   'read', // read
-  'grown', // grow
-  'lost', // lose
-  'known', // know
-  'drunk', // drink
+  'written', // write
   'slept', // sleep
+  'woken', // wake
   'bought', // buy
   'sold', // sell
-  'taught', // teach
+  'run', // run
+  'ridden', // ride
+  'hit', // hit
   'caught', // catch
-  'fought', // fight
-  'thrown', // throw
-  'broken', // break
-  'chosen', // choose
-  'worn', // wear
-  'sung', // sing
-  'driven', // drive
-  'woken', // wake
+  'held', // hold
+  'fallen', // fall
+  // 인지/사고 동사
+  'thought', // think
+  'known', // know
+  'understood', // understand
   'forgotten', // forget
+  'meant', // mean
+  'felt', // feel
+  'found', // find
+  'taught', // teach
+  'told', // tell
+  'said', // say
+  'spoken', // speak
+  'shown', // show
+  // 이동/위치 동사
+  'sat', // sit
+  'stood', // stand
+  'lain', // lie
+  'laid', // lay
+  'risen', // rise
   'flown', // fly
-  'drawn', // draw
   'swum', // swim
-  'hung', // hang
-  'built', // build
+  'driven', // drive
+  'left', // leave
+  'met', // meet
+  'brought', // bring
   'sent', // send
   'spent', // spend
-  'understood', // understand
+  'lent', // lend
+  'led', // lead
+  // 행위 동사
+  'put', // put
+  'set', // set
+  'let', // let
+  'cut', // cut
+  'shut', // shut
+  'cost', // cost
+  'hurt', // hurt
+  'broken', // break
+  'chosen', // choose
+  'thrown', // throw
+  'grown', // grow
+  'blown', // blow
+  'drawn', // draw
+  'worn', // wear
+  'torn', // tear
+  'beaten', // beat
+  'begun', // begin
+  'sung', // sing
+  'rung', // ring
+  'sunk', // sink
+  // 소유/획득 동사
+  'lost', // lose
   'won', // win
+  'kept', // keep
+  'paid', // pay
+  'built', // build
+  'fought', // fight
+  'sought', // seek
+  'bound', // bind
+  'hung', // hang
+  'stuck', // stick
+  // 기타
+  'drunk', // drink
   'shaken', // shake
-  'risen', // rise
-  'fallen', // fall
 ]);
 
 /**

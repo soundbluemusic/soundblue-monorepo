@@ -168,8 +168,18 @@ export const ENDINGS: Array<[string, string, string, string]> = [
 // 4. 불규칙 동사
 // ============================================
 
-/** 영어 불규칙 동사: [원형, 과거, 과거분사] */
+/**
+ * 영어 불규칙 동사: [원형, 과거, 과거분사]
+ *
+ * 80개+ 불규칙 동사 완전 사전
+ * - 기본 동사 (go, come, eat, ...)
+ * - 빈도 높은 동사 (think, know, find, ...)
+ * - 조동사/보조동사 관련 (can→could, will→would, ...)
+ */
 export const IRREGULAR_VERBS: Array<[string, string, string]> = [
+  // ============================================
+  // 기본 동사 (25개)
+  // ============================================
   ['go', 'went', 'gone'],
   ['come', 'came', 'come'],
   ['eat', 'ate', 'eaten'],
@@ -190,12 +200,96 @@ export const IRREGULAR_VERBS: Array<[string, string, string]> = [
   ['do', 'did', 'done'],
   ['be', 'was/were', 'been'],
   ['get', 'got', 'gotten'],
-  // Phase 2A: 다의어 동사 추가
   ['ride', 'rode', 'ridden'],
   ['hit', 'hit', 'hit'],
   ['catch', 'caught', 'caught'],
   ['hold', 'held', 'held'],
   ['fall', 'fell', 'fallen'],
+
+  // ============================================
+  // 인지/사고 동사 (15개)
+  // ============================================
+  ['think', 'thought', 'thought'],
+  ['know', 'knew', 'known'],
+  ['understand', 'understood', 'understood'],
+  ['forget', 'forgot', 'forgotten'],
+  ['remember', 'remembered', 'remembered'], // 규칙이지만 빈도 높음
+  ['mean', 'meant', 'meant'],
+  ['feel', 'felt', 'felt'],
+  ['find', 'found', 'found'],
+  ['believe', 'believed', 'believed'], // 규칙
+  ['learn', 'learned/learnt', 'learned/learnt'],
+  ['teach', 'taught', 'taught'],
+  ['show', 'showed', 'shown'],
+  ['tell', 'told', 'told'],
+  ['say', 'said', 'said'],
+  ['speak', 'spoke', 'spoken'],
+
+  // ============================================
+  // 이동/위치 동사 (15개)
+  // ============================================
+  ['sit', 'sat', 'sat'],
+  ['stand', 'stood', 'stood'],
+  ['lie', 'lay', 'lain'],
+  ['lay', 'laid', 'laid'],
+  ['rise', 'rose', 'risen'],
+  ['fly', 'flew', 'flown'],
+  ['swim', 'swam', 'swum'],
+  ['drive', 'drove', 'driven'],
+  ['leave', 'left', 'left'],
+  ['meet', 'met', 'met'],
+  ['bring', 'brought', 'brought'],
+  ['send', 'sent', 'sent'],
+  ['spend', 'spent', 'spent'],
+  ['lend', 'lent', 'lent'],
+  ['lead', 'led', 'led'],
+
+  // ============================================
+  // 행위 동사 (20개)
+  // ============================================
+  ['put', 'put', 'put'],
+  ['set', 'set', 'set'],
+  ['let', 'let', 'let'],
+  ['cut', 'cut', 'cut'],
+  ['shut', 'shut', 'shut'],
+  ['cost', 'cost', 'cost'],
+  ['hurt', 'hurt', 'hurt'],
+  ['break', 'broke', 'broken'],
+  ['choose', 'chose', 'chosen'],
+  ['throw', 'threw', 'thrown'],
+  ['grow', 'grew', 'grown'],
+  ['blow', 'blew', 'blown'],
+  ['draw', 'drew', 'drawn'],
+  ['wear', 'wore', 'worn'],
+  ['tear', 'tore', 'torn'],
+  ['beat', 'beat', 'beaten'],
+  ['begin', 'began', 'begun'],
+  ['sing', 'sang', 'sung'],
+  ['ring', 'rang', 'rung'],
+  ['sink', 'sank', 'sunk'],
+
+  // ============================================
+  // 소유/획득 동사 (10개)
+  // ============================================
+  ['lose', 'lost', 'lost'],
+  ['win', 'won', 'won'],
+  ['keep', 'kept', 'kept'],
+  ['pay', 'paid', 'paid'],
+  ['build', 'built', 'built'],
+  ['fight', 'fought', 'fought'],
+  ['seek', 'sought', 'sought'],
+  ['bind', 'bound', 'bound'],
+  ['hang', 'hung', 'hung'],
+  ['stick', 'stuck', 'stuck'],
+
+  // ============================================
+  // 조동사/보조동사 원형 (5개)
+  // ============================================
+  ['can', 'could', 'been able to'],
+  ['will', 'would', 'willed'],
+  ['shall', 'should', 'should'],
+  ['may', 'might', 'might'],
+  ['must', 'had to', 'had to'],
 ];
 
 /** 불규칙 동사 빠른 조회용 맵 */
@@ -205,6 +299,138 @@ export const VERB_BASE = new Map(
     past.includes('/') ? past.split('/').map((p) => [p, base]) : [[past, base]],
   ),
 );
+
+// ============================================
+// 4.1 조동사 변환 규칙 (Modal Verbs)
+// ============================================
+
+/**
+ * 조동사 → 한국어 표현 매핑
+ *
+ * 일반화 규칙:
+ * - can/could: 능력/가능 → -ㄹ 수 있다
+ * - must/should/have to: 의무/당위 → -해야 한다
+ * - will/would: 미래/의지 → -ㄹ 것이다
+ * - may/might: 추측/가능성 → -ㄹ지도 모른다
+ *
+ * 각 조동사는 시제와 극성(긍정/부정)에 따라 다른 표현 사용
+ */
+export interface ModalRule {
+  /** 한국어 어미 (동사 어간 뒤에 붙음) */
+  suffix: string;
+  /** 부정형 어미 */
+  negativeSuffix: string;
+  /** 의미 카테고리 */
+  meaning: 'ability' | 'obligation' | 'future' | 'possibility' | 'permission';
+  /** 시제 (과거형 조동사인 경우) */
+  tense?: 'past';
+}
+
+export const MODAL_RULES: Record<string, ModalRule> = {
+  // 능력/가능
+  can: {
+    suffix: 'ㄹ 수 있다',
+    negativeSuffix: 'ㄹ 수 없다',
+    meaning: 'ability',
+  },
+  could: {
+    suffix: 'ㄹ 수 있었다',
+    negativeSuffix: 'ㄹ 수 없었다',
+    meaning: 'ability',
+    tense: 'past',
+  },
+
+  // 의무/당위
+  must: {
+    suffix: '해야 한다',
+    negativeSuffix: '하면 안 된다',
+    meaning: 'obligation',
+  },
+  should: {
+    suffix: '해야 한다',
+    negativeSuffix: '하지 않아야 한다',
+    meaning: 'obligation',
+  },
+  'have to': {
+    suffix: '해야 한다',
+    negativeSuffix: '하지 않아도 된다',
+    meaning: 'obligation',
+  },
+  'has to': {
+    suffix: '해야 한다',
+    negativeSuffix: '하지 않아도 된다',
+    meaning: 'obligation',
+  },
+  'had to': {
+    suffix: '해야 했다',
+    negativeSuffix: '하지 않아도 됐다',
+    meaning: 'obligation',
+    tense: 'past',
+  },
+
+  // 미래/의지
+  will: {
+    suffix: 'ㄹ 것이다',
+    negativeSuffix: '지 않을 것이다',
+    meaning: 'future',
+  },
+  would: {
+    suffix: 'ㄹ 것이다',
+    negativeSuffix: '지 않을 것이다',
+    meaning: 'future',
+    tense: 'past',
+  },
+
+  // 추측/가능성
+  may: {
+    suffix: 'ㄹ지도 모른다',
+    negativeSuffix: '지 않을지도 모른다',
+    meaning: 'possibility',
+  },
+  might: {
+    suffix: 'ㄹ지도 모른다',
+    negativeSuffix: '지 않을지도 모른다',
+    meaning: 'possibility',
+    tense: 'past',
+  },
+};
+
+/** 조동사 목록 (감지용) */
+export const MODAL_VERBS = new Set(Object.keys(MODAL_RULES));
+
+/**
+ * 한국어 조동사 패턴 → 영어 조동사 매핑
+ *
+ * Ko→En 번역 시 사용
+ * 패턴은 긴 것부터 매칭해야 함 (ㄹ 수 있었다 > ㄹ 수 있다)
+ */
+export const KO_MODAL_PATTERNS: Array<{
+  pattern: RegExp;
+  modal: string;
+  negative: boolean;
+}> = [
+  // 능력/가능 (긴 패턴부터)
+  { pattern: /ㄹ 수 없었/, modal: "couldn't", negative: true },
+  { pattern: /ㄹ 수 있었/, modal: 'could', negative: false },
+  { pattern: /ㄹ 수 없/, modal: "can't", negative: true },
+  { pattern: /ㄹ 수 있/, modal: 'can', negative: false },
+
+  // 의무/당위
+  { pattern: /하면 안 된/, modal: 'must not', negative: true },
+  { pattern: /해야 했/, modal: 'had to', negative: false },
+  { pattern: /해야 한/, modal: 'must', negative: false },
+  { pattern: /해야 해/, modal: 'should', negative: false },
+  { pattern: /하지 않아도 되/, modal: "don't have to", negative: true },
+  { pattern: /하지 않아도 됐/, modal: "didn't have to", negative: true },
+
+  // 미래/의지
+  { pattern: /ㄹ 것이/, modal: 'will', negative: false },
+  { pattern: /지 않을 것이/, modal: "won't", negative: true },
+
+  // 추측/가능성
+  { pattern: /ㄹ지도 모른/, modal: 'might', negative: false },
+  { pattern: /지 않을지도 모른/, modal: 'might not', negative: true },
+];
 
 // ============================================
 // 5. 한국어 동사 어간 사전 (규칙 기반 활용)
