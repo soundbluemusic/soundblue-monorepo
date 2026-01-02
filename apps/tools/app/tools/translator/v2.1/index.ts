@@ -15,6 +15,7 @@
 
 import { type ParsedClauses, parseEnglishClauses, parseKoreanClauses } from './clause-parser';
 import { generateEnglish, generateKorean } from './generator';
+import { normalizeSpacing } from './spacing-normalizer';
 import { parseEnglish, parseKorean } from './tokenizer';
 import type { Direction, Formality, ParsedSentence, TranslationResult } from './types';
 import { validateWordTranslation } from './validator';
@@ -46,8 +47,11 @@ export function translateWithInfo(
 
   const formality = options?.formality || 'neutral';
 
+  // Phase 0: 띄어쓰기 정규화 (붙어있는 텍스트 분리)
+  const normalized = normalizeSpacing(trimmed, direction);
+
   // 문장 분리 (?, !, . 기준)
-  const sentences = splitSentences(trimmed);
+  const sentences = splitSentences(normalized);
   const results: string[] = [];
 
   for (const { sentence, punctuation } of sentences) {
