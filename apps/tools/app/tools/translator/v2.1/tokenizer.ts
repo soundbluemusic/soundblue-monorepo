@@ -7,10 +7,14 @@
  * - 규칙 기반 형태소 분석 강화
  * - 미인식 단어는 원문 유지 (추측하지 않음)
  * - WSD 통합 (다의어 해소)
+ * - morphology 모듈 통합 (리팩토링)
  */
 
 import { decompose } from '@soundblue/hangul';
 import { disambiguate, isPolysemous, koToEnWords } from '@soundblue/translator';
+// morphology 모듈 통합 (리팩토링)
+import { tryExtractContracted } from '../dictionary/morphology/korean-contracted';
+import { tryExtractCopula } from '../dictionary/morphology/korean-copulas';
 import {
   COUNTERS,
   ENDINGS,
@@ -905,7 +909,70 @@ function tokenizeKoreanWord(word: string, context?: string): Token {
     }
   }
 
-  // 5. 조사 분리 안 된 단어가 사전에 있으면 그대로 사용 (WSD 사용)
+  // 5. 축약형 동사 체크 (morphology/korean-contracted.ts 사용)
+  // ============================================
+  // 리팩토링: contractedForms 모듈 통합
+  // 해, 가, 와, 먹어, 마셔 등 현재 비격식 패턴 처리
+  // ⚠️ 중요: dictionary 체크(section 5.5)보다 먼저 실행해야 함
+  //    - "가"는 PARTICLES에 "가"(주격조사)와 충돌하지만, 단독 사용시 동사
+  //    - morphology 모듈이 role='verb'로 정확히 인식
+  //    - dictionary는 role='unknown'으로 처리하여 validator에서 롤백됨
+  // ============================================
+  const contractedResult = tryExtractContracted(word);
+  if (contractedResult) {
+    const { prefix, contracted } = contractedResult;
+    // prefix가 있으면 (예: "공부해" → prefix="공부", contracted={stem:"하", ...})
+    // prefix가 없으면 단독 동사 (예: "해" → prefix="", contracted={stem:"하", ...})
+    const verbStem = prefix ? `${prefix}${contracted.stem}` : contracted.stem;
+    const verbEn = prefix
+      ? NOUN_TO_VERB[prefix] || KO_EN[prefix] || contracted.baseMeaning
+      : contracted.baseMeaning;
+
+    return {
+      text: word,
+      stem: verbStem,
+      role: 'verb',
+      translated: verbEn,
+      confidence: CONFIDENCE_DICTIONARY,
+      meta: {
+        strategy: 'morphology' as TokenStrategy,
+        tense: contracted.tense as Tense,
+        formality: contracted.formality,
+        isDescriptive: contracted.isDescriptive,
+      },
+    };
+  }
+
+  // 5.1. 서술격 조사 체크 (morphology/korean-copulas.ts 사용)
+  // ============================================
+  // 리팩토링: copulas 모듈 통합
+  // 명사 + 이다/입니다/이에요/예요/야/이야 → "is + 명사"
+  // ============================================
+  const copulaResult = tryExtractCopula(word);
+  if (copulaResult) {
+    const { noun, copula, info } = copulaResult;
+    // WSD 사용하여 명사 번역
+    const nounTranslation = translateWithWSD(noun, context);
+    if (nounTranslation) {
+      return {
+        text: word,
+        stem: noun,
+        role: 'verb', // 서술어 역할
+        // be 동사는 generator에서 주어에 맞게 활용 (I am, he is, they are)
+        translated: nounTranslation,
+        confidence: CONFIDENCE_RULE,
+        meta: {
+          strategy: 'morphology' as TokenStrategy,
+          copula,
+          isCopula: true,
+          tense: info.tense as Tense,
+          formality: info.formality,
+        },
+      };
+    }
+  }
+
+  // 5.5. 조사 분리 안 된 단어가 사전에 있으면 그대로 사용 (WSD 사용)
   const directTranslation = translateWithWSD(word, context);
   if (!particle && directTranslation) {
     // 경동사(light verb) 패턴: 했다, 했어, 한다, 해 등
@@ -933,42 +1000,6 @@ function tokenizeKoreanWord(word: string, context?: string): Token {
       confidence: CONFIDENCE_DICTIONARY,
       meta: { strategy: 'dictionary' },
     };
-  }
-
-  // 5.5. 서술격 조사 (-이다/-입니다) 처리
-  // ============================================
-  // 일반화 규칙:
-  // 명사 + 이다/입니다/이에요/예요/야/이야 → "is + 명사"
-  // 받침 있는 명사 + 이다 (사람이다)
-  // 받침 없는 명사 + 다 (학생이다 → 의미적으로 이다 포함)
-  // ============================================
-  const copulaPatterns = [
-    { pattern: /^(.+)입니다$/, copula: '입니다' },
-    { pattern: /^(.+)이에요$/, copula: '이에요' },
-    { pattern: /^(.+)예요$/, copula: '예요' },
-    { pattern: /^(.+)이야$/, copula: '이야' },
-    { pattern: /^(.+)야$/, copula: '야' },
-    { pattern: /^(.+)이다$/, copula: '이다' },
-  ];
-
-  for (const { pattern, copula } of copulaPatterns) {
-    const match = word.match(pattern);
-    if (match?.[1]) {
-      const noun = match[1];
-      // WSD 사용하여 명사 번역
-      const nounTranslation = translateWithWSD(noun, context);
-      if (nounTranslation) {
-        return {
-          text: word,
-          stem: noun,
-          role: 'verb', // 서술어 역할
-          // be 동사는 generator에서 주어에 맞게 활용 (I am, he is, they are)
-          translated: nounTranslation,
-          confidence: CONFIDENCE_RULE,
-          meta: { strategy: 'rule', copula, isCopula: true },
-        };
-      }
-    }
   }
 
   // 6. 동사 활용형 체크 - 규칙 기반 + 축약형 맵

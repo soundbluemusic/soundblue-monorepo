@@ -79,6 +79,10 @@ export interface Token {
     isProgressive?: boolean;
     /** 희망형 여부 (-고 싶다) */
     isDesiderative?: boolean;
+    /** 격식 (morphology 모듈) */
+    formality?: 'formal' | 'polite' | 'casual';
+    /** 형용사/서술적 동사 여부 (morphology 모듈) */
+    isDescriptive?: boolean;
   };
 }
 
@@ -92,6 +96,7 @@ export type TokenStrategy =
   | 'irregular' // 불규칙 동사 처리
   | 'compound' // 복합어/관용어 매칭
   | 'grammar-pattern' // 문법 패턴 매칭 (보조용언 등)
+  | 'morphology' // 형태소 모듈 (korean-contracted, korean-copulas)
   | 'unknown'; // 미인식
 
 /** 분석된 문장 */
