@@ -338,6 +338,35 @@ The translator at `apps/tools/app/tools/translator/` follows **algorithm-based g
 
 ---
 
+## ⚠️ Known Issues & Workarounds (알려진 이슈 & 해결책)
+
+### SSG Hydration Bug (React Router v7 + React 19)
+
+> **자체 해결책 - 공식 수정 미제공**
+
+| Item | Description |
+|------|-------------|
+| **증상** | SSG 빌드 후 버튼 클릭이 작동하지 않음 (Buttons don't work after SSG build) |
+| **원인** | Hydration 실패 시 DOM 중복 발생 (DOM duplication on hydration failure) |
+| **해결** | `entry.client.tsx`에서 orphan DOM 제거 (Remove orphan DOM in entry.client.tsx) |
+| **위치** | `apps/*/app/entry.client.tsx` |
+
+```typescript
+// apps/*/app/entry.client.tsx - DO NOT DELETE!
+setTimeout(() => {
+  const divs = [...document.body.children].filter(el => el.tagName === 'DIV');
+  if (divs.length >= 2 && !Object.keys(divs[0]).some(k => k.startsWith('__react'))) {
+    divs[0].remove();
+  }
+}, 100);
+```
+
+**Related Issues:**
+- [react-router#12893](https://github.com/remix-run/react-router/issues/12893)
+- [react-router#12360](https://github.com/remix-run/react-router/issues/12360)
+
+---
+
 ## ⚠️ SSG Only Policy (SSG 전용 정책)
 
 > **This project uses 100% SSG (Static Site Generation) mode ONLY.**

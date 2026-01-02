@@ -119,6 +119,48 @@ export default defineConfig({
 
 **Note**: Tailwind v4는 `tailwind.config.js`, `postcss.config.js` 불필요 (Zero-config)
 
+## SSG Hydration Workaround (자체 해결책)
+
+> **React Router v7 + React 19 SSG 환경의 hydration 버그 해결책 (공식 미제공)**
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    ⚠️ SSG HYDRATION WORKAROUND - 삭제 금지 ⚠️                   ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  📍 위치: apps/*/app/entry.client.tsx                                        ║
+║                                                                              ║
+║  🐛 문제:                                                                    ║
+║  • SSG 빌드 후 버튼 클릭(북마크, 다운로드 등)이 작동하지 않음                     ║
+║  • Hydration 실패 시 React가 새 DOM을 생성하지만 기존 서버 HTML을               ║
+║    삭제하지 않아 DOM 중복 발생                                                 ║
+║  • 공식 팀 상태: "버그 수정 중..." (2024년부터 계속)                            ║
+║                                                                              ║
+║  ✅ 해결책: entry.client.tsx에서 orphan DOM 제거                              ║
+║                                                                              ║
+║  // apps/*/app/entry.client.tsx - 삭제 금지!                                  ║
+║  // React Router v7 SSG hydration 버그 workaround                            ║
+║  setTimeout(() => {                                                          ║
+║    const divs = [...document.body.children].filter(                          ║
+║      el => el.tagName === 'DIV'                                              ║
+║    );                                                                        ║
+║    if (divs.length >= 2 &&                                                   ║
+║        !Object.keys(divs[0]).some(k => k.startsWith('__react'))) {           ║
+║      divs[0].remove();  // React가 관리 안하는 orphan DOM 제거                 ║
+║    }                                                                         ║
+║  }, 100);                                                                    ║
+║                                                                              ║
+║  🔗 관련 이슈:                                                               ║
+║  • https://github.com/remix-run/react-router/issues/12893                    ║
+║  • https://github.com/remix-run/react-router/issues/12360                    ║
+║                                                                              ║
+║  ⚠️ 공식 수정이 나올 때까지 이 workaround 유지 필수                             ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
 ## 절대 규칙 (CRITICAL RULES)
 
 > **이 규칙들은 절대 위반하지 말 것. CMS, 외부 DB, 서버 로직 제안 금지.**
