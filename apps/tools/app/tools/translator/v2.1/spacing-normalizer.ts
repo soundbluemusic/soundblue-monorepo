@@ -1081,7 +1081,7 @@ function findLongestKoreanMatch(text: string): { word: string; length: number } 
     for (const ending of KO_ENDINGS) {
       if (candidate.endsWith(ending)) {
         const stem = candidate.slice(0, -ending.length);
-        if (stem.length > 0 && (KO_EN[stem] || KO_EN[stem + '다'])) {
+        if (stem.length > 0 && (KO_EN[stem] || KO_EN[`${stem}다`])) {
           if (!bestMatch || len > bestMatch.length) {
             bestMatch = { word: candidate, length: len };
           }
