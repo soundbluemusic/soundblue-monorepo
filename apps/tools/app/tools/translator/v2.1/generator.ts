@@ -5214,7 +5214,9 @@ function applyFutureEnding(
 }
 
 /**
- * 부정문 적용 (-지 않다)
+ * 부정문 적용 (안 + 동사)
+ * "I don't go" → "나는 안 간다"
+ * "He doesn't eat" → "그는 안 먹는다"
  *
  * @param verb 동사 기본형
  * @param formality 어조
@@ -5225,19 +5227,9 @@ function applyNegation(
   formality: Formality,
   sentenceType: 'statement' | 'question',
 ): string {
-  // 어간 추출
-  let stem = verb;
-  if (verb.endsWith('다')) {
-    stem = verb.slice(0, -1);
-  }
-
-  // 하다 동사 처리
-  if (verb.endsWith('하다')) {
-    const prefix = verb.slice(0, -2);
-    return applyNegationEnding(`${prefix}하지`, formality, sentenceType);
-  }
-
-  return applyNegationEnding(`${stem}지`, formality, sentenceType);
+  // 동사를 해당 어조로 활용한 후 "안" 추가
+  const conjugated = applyFormality(verb, formality, sentenceType);
+  return `안 ${conjugated}`;
 }
 
 /**
@@ -5265,27 +5257,18 @@ function applyNegationEnding(
 }
 
 /**
- * 과거 부정문 적용 (-지 않았다)
- * "I didn't eat" → "나는 먹지 않았다"
+ * 과거 부정문 적용 (안 + 과거 동사)
+ * "I didn't sleep" → "나는 안 잤다"
+ * "I didn't eat" → "나는 안 먹었다"
  */
 function applyPastNegation(
   verb: string,
   formality: Formality,
   sentenceType: 'statement' | 'question',
 ): string {
-  // 어간 추출
-  let stem = verb;
-  if (verb.endsWith('다')) {
-    stem = verb.slice(0, -1);
-  }
-
-  // 하다 동사 처리
-  if (verb.endsWith('하다')) {
-    const prefix = verb.slice(0, -2);
-    return applyPastNegationEnding(`${prefix}하지`, formality, sentenceType);
-  }
-
-  return applyPastNegationEnding(`${stem}지`, formality, sentenceType);
+  // 동사를 과거형으로 활용한 후 "안" 추가
+  const conjugated = applyPastTense(verb, formality, sentenceType);
+  return `안 ${conjugated}`;
 }
 
 /**
@@ -5313,27 +5296,18 @@ function applyPastNegationEnding(
 }
 
 /**
- * 미래 부정문 적용 (-지 않을 것이다)
- * "I won't go" → "나는 가지 않을 것이다"
+ * 미래 부정문 적용 (안 + 미래 동사)
+ * "I won't go" → "나는 안 갈 것이다"
+ * "I won't eat" → "나는 안 먹을 것이다"
  */
 function applyFutureNegation(
   verb: string,
   formality: Formality,
   sentenceType: 'statement' | 'question',
 ): string {
-  // 어간 추출
-  let stem = verb;
-  if (verb.endsWith('다')) {
-    stem = verb.slice(0, -1);
-  }
-
-  // 하다 동사 처리
-  if (verb.endsWith('하다')) {
-    const prefix = verb.slice(0, -2);
-    return applyFutureNegationEnding(`${prefix}하지`, formality, sentenceType);
-  }
-
-  return applyFutureNegationEnding(`${stem}지`, formality, sentenceType);
+  // 동사를 미래형으로 활용한 후 "안" 추가
+  const conjugated = applyFutureTense(verb, formality, sentenceType);
+  return `안 ${conjugated}`;
 }
 
 /**
