@@ -4,16 +4,31 @@
 // ========================================
 
 /**
+ * 기본 Trie 정보 타입
+ * 품사, 도메인 등의 메타데이터
+ */
+export interface TrieNodeInfo {
+  /** 품사 (part of speech) */
+  pos?: 'noun' | 'verb' | 'adjective' | 'adverb' | 'particle' | 'conjunction' | 'interjection';
+  /** 도메인 (전문 분야) */
+  domain?: string;
+  /** 우선순위 (낮을수록 우선) */
+  priority?: number;
+  /** 추가 메타데이터 */
+  [key: string]: unknown;
+}
+
+/**
  * Trie 노드
  */
-interface TrieNode {
-  children: Map<string, TrieNode>;
+interface TrieNode<TInfo = TrieNodeInfo> {
+  children: Map<string, TrieNode<TInfo>>;
   /** 이 노드에서 끝나는 단어 (있으면 완전한 단어) */
   word: string | null;
   /** 번역 결과 */
   translation: string | null;
   /** 추가 정보 */
-  info: Record<string, unknown> | null;
+  info: TInfo | null;
 }
 
 /**
@@ -21,6 +36,8 @@ interface TrieNode {
  * 단어의 시작부터 매칭하여 빠른 검색과 자동완성 지원
  *
  * 100K+ 단어에서도 O(k) 검색 보장 (k = 접두사 길이)
+ *
+ * @typeParam TInfo - 노드에 저장할 추가 정보의 타입 (기본: TrieNodeInfo)
  *
  * @example
  * const trie = new PrefixTrie();
@@ -32,8 +49,8 @@ interface TrieNode {
  * trie.get('학교')        // 'school'
  * trie.longestPrefix('학교에서') // { word: '학교', translation: 'school' }
  */
-export class PrefixTrie {
-  private root: TrieNode;
+export class PrefixTrie<TInfo = TrieNodeInfo> {
+  private root: TrieNode<TInfo>;
   private _size: number;
 
   constructor() {
@@ -41,7 +58,7 @@ export class PrefixTrie {
     this._size = 0;
   }
 
-  private createNode(): TrieNode {
+  private createNode(): TrieNode<TInfo> {
     return {
       children: new Map(),
       word: null,
@@ -56,7 +73,7 @@ export class PrefixTrie {
    * @param translation 번역 결과
    * @param info 추가 정보 (품사, 도메인 등)
    */
-  insert(word: string, translation: string, info?: Record<string, unknown>): void {
+  insert(word: string, translation: string, info?: TInfo): void {
     let node = this.root;
 
     // 정방향으로 순회 (시작 → 끝)
@@ -80,9 +97,7 @@ export class PrefixTrie {
   /**
    * 여러 단어 일괄 삽입
    */
-  insertMany(
-    entries: Array<{ word: string; translation: string; info?: Record<string, unknown> }>,
-  ): void {
+  insertMany(entries: Array<{ word: string; translation: string; info?: TInfo }>): void {
     for (const entry of entries) {
       this.insert(entry.word, entry.translation, entry.info);
     }
@@ -117,7 +132,7 @@ export class PrefixTrie {
   /**
    * 단어의 노드 찾기
    */
-  private findNode(word: string): TrieNode | null {
+  private findNode(word: string): TrieNode<TInfo> | null {
     let node = this.root;
 
     for (const char of word) {
@@ -153,7 +168,7 @@ export class PrefixTrie {
   searchPrefixWithTranslation(
     prefix: string,
     limit = 100,
-  ): Array<{ word: string; translation: string; info: Record<string, unknown> | null }> {
+  ): Array<{ word: string; translation: string; info: TInfo | null }> {
     const prefixNode = this.findNode(prefix);
     if (!prefixNode) {
       return [];
@@ -162,7 +177,7 @@ export class PrefixTrie {
     const results: Array<{
       word: string;
       translation: string;
-      info: Record<string, unknown> | null;
+      info: TInfo | null;
     }> = [];
     this.collectWordsWithTranslation(prefixNode, results, limit);
     return results;
@@ -171,7 +186,7 @@ export class PrefixTrie {
   /**
    * 노드 아래의 모든 단어 수집 (DFS)
    */
-  private collectWords(node: TrieNode, results: string[], limit: number): void {
+  private collectWords(node: TrieNode<TInfo>, results: string[], limit: number): void {
     if (results.length >= limit) return;
 
     if (node.word !== null) {
@@ -188,8 +203,8 @@ export class PrefixTrie {
    * 노드 아래의 모든 단어와 번역 수집 (DFS)
    */
   private collectWordsWithTranslation(
-    node: TrieNode,
-    results: Array<{ word: string; translation: string; info: Record<string, unknown> | null }>,
+    node: TrieNode<TInfo>,
+    results: Array<{ word: string; translation: string; info: TInfo | null }>,
     limit: number,
   ): void {
     if (results.length >= limit) return;
@@ -217,14 +232,12 @@ export class PrefixTrie {
    * trie.insert('학교', 'school');
    * trie.longestPrefix('학교에서') // { word: '학교', translation: 'school' }
    */
-  longestPrefix(
-    text: string,
-  ): { word: string; translation: string; info: Record<string, unknown> | null } | null {
+  longestPrefix(text: string): { word: string; translation: string; info: TInfo | null } | null {
     let node = this.root;
     let lastMatch: {
       word: string;
       translation: string;
-      info: Record<string, unknown> | null;
+      info: TInfo | null;
     } | null = null;
 
     for (const char of text) {
@@ -250,13 +263,11 @@ export class PrefixTrie {
   /**
    * 문자열에서 모든 매칭 접두사 찾기 (짧은 것부터)
    */
-  allPrefixes(
-    text: string,
-  ): Array<{ word: string; translation: string; info: Record<string, unknown> | null }> {
+  allPrefixes(text: string): Array<{ word: string; translation: string; info: TInfo | null }> {
     const results: Array<{
       word: string;
       translation: string;
-      info: Record<string, unknown> | null;
+      info: TInfo | null;
     }> = [];
     let node = this.root;
 
@@ -291,7 +302,7 @@ export class PrefixTrie {
    * 컴팩트한 JSON 형식으로 저장
    */
   serialize(): string {
-    const serializeNode = (node: TrieNode): object => {
+    const serializeNode = (node: TrieNode<TInfo>): object => {
       const children: Record<string, object> = {};
 
       for (const [char, child] of node.children) {
@@ -314,24 +325,24 @@ export class PrefixTrie {
 
   /**
    * 역직렬화 (SSG 런타임용)
+   * @typeParam T - 노드 정보 타입 (기본: TrieNodeInfo)
    */
-  static deserialize(json: string): PrefixTrie {
-    const trie = new PrefixTrie();
-    const data = JSON.parse(json);
+  static deserialize<T = TrieNodeInfo>(json: string): PrefixTrie<T> {
+    const trie = new PrefixTrie<T>();
+    const data = JSON.parse(json) as { root: SerializedNode<T>; size?: number };
 
-    const deserializeNode = (obj: Record<string, unknown>, node: TrieNode): void => {
+    const deserializeNode = (obj: SerializedNode<T>, node: TrieNode<T>): void => {
       if (obj.w) {
-        node.word = obj.w as string;
+        node.word = obj.w;
       }
       if (obj.t) {
-        node.translation = obj.t as string;
+        node.translation = obj.t;
       }
       if (obj.i) {
-        node.info = obj.i as Record<string, unknown>;
+        node.info = obj.i;
       }
       if (obj.c) {
-        const children = obj.c as Record<string, Record<string, unknown>>;
-        for (const [char, childObj] of Object.entries(children)) {
+        for (const [char, childObj] of Object.entries(obj.c)) {
           const childNode = trie.createNode();
           node.children.set(char, childNode);
           deserializeNode(childObj, childNode);
@@ -356,7 +367,7 @@ export class PrefixTrie {
     let totalDepth = 0;
     let wordCount = 0;
 
-    const traverse = (node: TrieNode, depth: number): void => {
+    const traverse = (node: TrieNode<TInfo>, depth: number): void => {
       nodeCount++;
       if (node.word !== null) {
         wordCount++;
@@ -375,4 +386,18 @@ export class PrefixTrie {
       averageDepth: wordCount > 0 ? totalDepth / wordCount : 0,
     };
   }
+}
+
+/**
+ * 직렬화된 노드 형식 (JSON용)
+ */
+interface SerializedNode<TInfo> {
+  /** children */
+  c?: Record<string, SerializedNode<TInfo>>;
+  /** word */
+  w?: string;
+  /** translation */
+  t?: string;
+  /** info */
+  i?: TInfo;
 }

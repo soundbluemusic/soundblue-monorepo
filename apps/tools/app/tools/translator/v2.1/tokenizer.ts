@@ -6,9 +6,15 @@
  * - 유사도 검색 제거 (할루시네이션 방지)
  * - 규칙 기반 형태소 분석 강화
  * - 미인식 단어는 원문 유지 (추측하지 않음)
+ * - WSD 통합 (다의어 해소)
+ * - morphology 모듈 통합 (리팩토링)
  */
 
 import { decompose } from '@soundblue/hangul';
+import { disambiguate, isPolysemous, koToEnWords } from '@soundblue/translator';
+// morphology 모듈 통합 (리팩토링)
+import { tryExtractContracted } from '../dictionary/morphology/korean-contracted';
+import { tryExtractCopula } from '../dictionary/morphology/korean-copulas';
 import {
   COUNTERS,
   ENDINGS,
@@ -22,6 +28,46 @@ import {
   VERB_STEMS,
 } from './data';
 import type { ParsedSentence, Role, SentenceType, Tense, Token, TokenStrategy } from './types';
+
+// ============================================
+// WSD 통합 (다의어 해소)
+// ============================================
+
+/**
+ * WSD를 사용한 단어 번역
+ *
+ * 번역 우선순위:
+ * 1. 기본 사전 (대명사, 기본 어휘 - WSD 불필요)
+ * 2. WSD (다의어 - 문맥 기반 의미 결정)
+ *
+ * @param word 한국어 단어
+ * @param context 문맥 (전체 문장 또는 주변 토큰)
+ * @returns 영어 번역 또는 undefined
+ */
+function translateWithWSD(word: string, context?: string): string | undefined {
+  // 1. 기본 사전 우선 조회 (대명사, 기본 어휘는 WSD 제외)
+  // v2.1 사전과 core 사전 모두 확인
+  const directTranslation = KO_EN[word] || koToEnWords[word];
+  if (directTranslation) {
+    return directTranslation;
+  }
+
+  // 2. 다의어인지 확인 (사전에 없는 경우만)
+  if (isPolysemous(word)) {
+    // WSD를 통해 의미 결정
+    const contextWindow = {
+      before: [],
+      after: [],
+      full: context || word,
+    };
+    const wsdResult = disambiguate(word, contextWindow, null, context);
+    if (wsdResult) {
+      return wsdResult.sense.en;
+    }
+  }
+
+  return undefined;
+}
 
 // ============================================
 // 보조용언 패턴 (Phase 0: 긴급 수정)
@@ -574,11 +620,11 @@ function parseWithAuxiliaryPattern(
     .slice(cleaned.indexOf(auxMatch.fullMatch) + auxMatch.fullMatch.length)
     .trim();
 
-  // 1. 앞부분 토큰화 (주어, 목적어)
+  // 1. 앞부분 토큰화 (주어, 목적어) - WSD를 위해 원문 전달
   if (beforePattern) {
     const words = beforePattern.split(/\s+/).filter(Boolean);
     for (const word of words) {
-      tokens.push(tokenizeKoreanWord(word));
+      tokens.push(tokenizeKoreanWord(word, original));
     }
   }
 
@@ -593,9 +639,9 @@ function parseWithAuxiliaryPattern(
     const parts = verbStem.split(/\s+/);
     const lastPart = parts.pop() || '';
 
-    // 마지막 부분 전까지를 토큰화
+    // 마지막 부분 전까지를 토큰화 - WSD를 위해 원문 전달
     for (const part of parts) {
-      const token = tokenizeKoreanWord(part);
+      const token = tokenizeKoreanWord(part, original);
       tokens.push(token);
       if (token.role === 'object') {
         objectToken = token;
@@ -613,8 +659,8 @@ function parseWithAuxiliaryPattern(
     objectToken.translated = undefined;
     objectToken.role = 'object-absorbed'; // 동사에 흡수됨
   } else {
-    // 일반 동사 어간 번역
-    verbTranslation = KO_EN[verbStem] || VERB_STEMS[verbStem] || 'do';
+    // 일반 동사 어간 번역 (WSD 사용)
+    verbTranslation = translateWithWSD(verbStem, original) || VERB_STEMS[verbStem] || 'do';
   }
 
   // 3. 보조용언 패턴에 따른 문법 정보 설정
@@ -637,11 +683,11 @@ function parseWithAuxiliaryPattern(
     },
   });
 
-  // 4. 뒷부분 토큰화 (드문 케이스)
+  // 4. 뒷부분 토큰화 (드문 케이스) - WSD를 위해 원문 전달
   if (afterPattern) {
     const words = afterPattern.split(/\s+/).filter(Boolean);
     for (const word of words) {
-      tokens.push(tokenizeKoreanWord(word));
+      tokens.push(tokenizeKoreanWord(word, original));
     }
   }
 
@@ -745,13 +791,13 @@ export function parseKorean(text: string): ParsedSentence {
     }
   }
 
-  // 4. 각 단어를 토큰으로 변환
+  // 4. 각 단어를 토큰으로 변환 (WSD를 위해 원문 전달)
   const tokens: Token[] = [];
   let sentenceTense: Tense = 'present';
   let negated = prefixNegation; // Phase 5: "안" 전치 부정 반영
 
   for (const word of words) {
-    const token = tokenizeKoreanWord(word);
+    const token = tokenizeKoreanWord(word, original);
     tokens.push(token);
 
     // 시제/부정 정보 수집
@@ -787,8 +833,12 @@ function detectSentenceType(text: string): SentenceType {
  * - Strategy B: 규칙 기반 추론 (0.85) - 어미 분리, 조사 분리
  * - Strategy C: 불규칙 동사 (0.9)
  * - Strategy D: 미인식 → 원문 유지 (0.3) - 추측하지 않음
+ * - WSD 통합: 다의어는 문맥 기반 의미 결정
+ *
+ * @param word 토큰화할 단어
+ * @param context 문맥 (원문 문장) - WSD에 사용
  */
-function tokenizeKoreanWord(word: string): Token {
+function tokenizeKoreanWord(word: string, context?: string): Token {
   // 1. 숫자 체크
   if (/^\d+$/.test(word)) {
     return {
@@ -835,17 +885,18 @@ function tokenizeKoreanWord(word: string): Token {
   for (const [p, r] of SORTED_PARTICLES) {
     if (word.endsWith(p) && word.length > p.length) {
       const possibleStem = word.slice(0, -p.length);
-      // 분리된 기본형이 사전에 있으면 조사 분리 확정
-      if (KO_EN[possibleStem]) {
+      // 분리된 기본형이 사전에 있으면 조사 분리 확정 (WSD 사용)
+      const stemTranslation = translateWithWSD(possibleStem, context);
+      if (stemTranslation) {
         stem = possibleStem;
         particle = p;
         role = r === 'subject' || r === 'topic' ? 'subject' : r === 'object' ? 'object' : 'unknown';
-        // 기본형을 사전에서 찾아 반환
+        // 기본형을 WSD로 번역하여 반환
         return {
           text: word,
           stem,
           role,
-          translated: KO_EN[stem],
+          translated: stemTranslation,
           confidence: CONFIDENCE_DICTIONARY,
           meta: { strategy: 'dictionary', particle },
         };
@@ -858,10 +909,72 @@ function tokenizeKoreanWord(word: string): Token {
     }
   }
 
-  // 5. 조사 분리 안 된 단어가 사전에 있으면 그대로 사용
-  if (!particle && KO_EN[word]) {
-    const en = KO_EN[word];
+  // 5. 축약형 동사 체크 (morphology/korean-contracted.ts 사용)
+  // ============================================
+  // 리팩토링: contractedForms 모듈 통합
+  // 해, 가, 와, 먹어, 마셔 등 현재 비격식 패턴 처리
+  // ⚠️ 중요: dictionary 체크(section 5.5)보다 먼저 실행해야 함
+  //    - "가"는 PARTICLES에 "가"(주격조사)와 충돌하지만, 단독 사용시 동사
+  //    - morphology 모듈이 role='verb'로 정확히 인식
+  //    - dictionary는 role='unknown'으로 처리하여 validator에서 롤백됨
+  // ============================================
+  const contractedResult = tryExtractContracted(word);
+  if (contractedResult) {
+    const { prefix, contracted } = contractedResult;
+    // prefix가 있으면 (예: "공부해" → prefix="공부", contracted={stem:"하", ...})
+    // prefix가 없으면 단독 동사 (예: "해" → prefix="", contracted={stem:"하", ...})
+    const verbStem = prefix ? `${prefix}${contracted.stem}` : contracted.stem;
+    const verbEn = prefix
+      ? NOUN_TO_VERB[prefix] || KO_EN[prefix] || contracted.baseMeaning
+      : contracted.baseMeaning;
 
+    return {
+      text: word,
+      stem: verbStem,
+      role: 'verb',
+      translated: verbEn,
+      confidence: CONFIDENCE_DICTIONARY,
+      meta: {
+        strategy: 'morphology' as TokenStrategy,
+        tense: contracted.tense as Tense,
+        formality: contracted.formality,
+        isDescriptive: contracted.isDescriptive,
+      },
+    };
+  }
+
+  // 5.1. 서술격 조사 체크 (morphology/korean-copulas.ts 사용)
+  // ============================================
+  // 리팩토링: copulas 모듈 통합
+  // 명사 + 이다/입니다/이에요/예요/야/이야 → "is + 명사"
+  // ============================================
+  const copulaResult = tryExtractCopula(word);
+  if (copulaResult) {
+    const { noun, copula, info } = copulaResult;
+    // WSD 사용하여 명사 번역
+    const nounTranslation = translateWithWSD(noun, context);
+    if (nounTranslation) {
+      return {
+        text: word,
+        stem: noun,
+        role: 'verb', // 서술어 역할
+        // be 동사는 generator에서 주어에 맞게 활용 (I am, he is, they are)
+        translated: nounTranslation,
+        confidence: CONFIDENCE_RULE,
+        meta: {
+          strategy: 'morphology' as TokenStrategy,
+          copula,
+          isCopula: true,
+          tense: info.tense as Tense,
+          formality: info.formality,
+        },
+      };
+    }
+  }
+
+  // 5.5. 조사 분리 안 된 단어가 사전에 있으면 그대로 사용 (WSD 사용)
+  const directTranslation = translateWithWSD(word, context);
+  if (!particle && directTranslation) {
     // 경동사(light verb) 패턴: 했다, 했어, 한다, 해 등
     // "[명사]를 하다" 패턴에서 하다 부분 - verb 역할 부여
     const lightVerbPattern = /^(했다|했어|했어요|했습니다|한다|해|해요|합니다|하다)$/;
@@ -878,50 +991,15 @@ function tokenizeKoreanWord(word: string): Token {
     }
 
     // 감탄사는 대문자로 시작
-    const wordRole: Role = /^[A-Z]/.test(en) ? 'adverb' : 'unknown';
+    const wordRole: Role = /^[A-Z]/.test(directTranslation) ? 'adverb' : 'unknown';
     return {
       text: word,
       stem: word,
       role: wordRole,
-      translated: en,
+      translated: directTranslation,
       confidence: CONFIDENCE_DICTIONARY,
       meta: { strategy: 'dictionary' },
     };
-  }
-
-  // 5.5. 서술격 조사 (-이다/-입니다) 처리
-  // ============================================
-  // 일반화 규칙:
-  // 명사 + 이다/입니다/이에요/예요/야/이야 → "is + 명사"
-  // 받침 있는 명사 + 이다 (사람이다)
-  // 받침 없는 명사 + 다 (학생이다 → 의미적으로 이다 포함)
-  // ============================================
-  const copulaPatterns = [
-    { pattern: /^(.+)입니다$/, copula: '입니다' },
-    { pattern: /^(.+)이에요$/, copula: '이에요' },
-    { pattern: /^(.+)예요$/, copula: '예요' },
-    { pattern: /^(.+)이야$/, copula: '이야' },
-    { pattern: /^(.+)야$/, copula: '야' },
-    { pattern: /^(.+)이다$/, copula: '이다' },
-  ];
-
-  for (const { pattern, copula } of copulaPatterns) {
-    const match = word.match(pattern);
-    if (match?.[1]) {
-      const noun = match[1];
-      const nounTranslation = KO_EN[noun];
-      if (nounTranslation) {
-        return {
-          text: word,
-          stem: noun,
-          role: 'verb', // 서술어 역할
-          // be 동사는 generator에서 주어에 맞게 활용 (I am, he is, they are)
-          translated: nounTranslation,
-          confidence: CONFIDENCE_RULE,
-          meta: { strategy: 'rule', copula, isCopula: true },
-        };
-      }
-    }
   }
 
   // 6. 동사 활용형 체크 - 규칙 기반 + 축약형 맵
@@ -972,10 +1050,11 @@ function tokenizeKoreanWord(word: string): Token {
             confidence = CONFIDENCE_DICTIONARY;
             break;
           }
-          // 기본 사전에서 어간 찾기
-          if (KO_EN[verbPart]) {
+          // 기본 사전에서 어간 찾기 (WSD 사용)
+          const verbPartTranslation = translateWithWSD(verbPart, context);
+          if (verbPartTranslation) {
             stem = verbPart;
-            translated = KO_EN[verbPart];
+            translated = verbPartTranslation;
             tense = t as Tense;
             role = 'verb';
             strategy = 'dictionary';
@@ -1022,9 +1101,9 @@ function tokenizeKoreanWord(word: string): Token {
     stem = stem.slice(2);
   }
 
-  // 10. 사전에서 번역 찾기 (아직 없으면)
+  // 10. 사전에서 번역 찾기 (아직 없으면) - WSD 사용
   if (!translated) {
-    translated = KO_EN[stem];
+    translated = translateWithWSD(stem, context);
     if (translated) {
       strategy = 'dictionary';
       confidence = CONFIDENCE_DICTIONARY;

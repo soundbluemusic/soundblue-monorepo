@@ -67,7 +67,8 @@ describe('getMessage', () => {
       mockGetLocale.mockReturnValue('en');
       const { getMessage } = await import('./messages');
 
-      const result = getMessage('nonexistent.key' as any);
+      // @ts-expect-error Testing with invalid key to verify fallback behavior
+      const result = getMessage('nonexistent.key');
       expect(result).toBe('nonexistent.key');
     });
 
@@ -82,7 +83,8 @@ describe('getMessage', () => {
     });
 
     it('언어에 키가 없으면 영어로 fallback', async () => {
-      mockGetLocale.mockReturnValue('fr' as any); // Unsupported locale
+      // @ts-expect-error Testing with unsupported locale to verify fallback behavior
+      mockGetLocale.mockReturnValue('fr');
       const { getMessage } = await import('./messages');
 
       const result = getMessage('seo_siteName');
@@ -95,7 +97,8 @@ describe('getMessage', () => {
       mockGetLocale.mockReturnValue('en');
       const { getMessage } = await import('./messages');
 
-      const result = getMessage('' as any);
+      // @ts-expect-error Testing with empty string to verify edge case handling
+      const result = getMessage('');
       expect(result).toBe('');
     });
 
@@ -156,7 +159,8 @@ describe('getRawMessage', () => {
       mockGetLocale.mockReturnValue('en');
       const { getRawMessage } = await import('./messages');
 
-      const result = getRawMessage('nonexistent.key' as any);
+      // @ts-expect-error Testing with invalid key to verify undefined return
+      const result = getRawMessage('nonexistent.key');
       expect(result).toBeUndefined();
     });
   });

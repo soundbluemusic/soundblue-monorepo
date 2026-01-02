@@ -1,5 +1,10 @@
 /**
- * 번역 서비스 (v2.1 래퍼)
+ * 번역 서비스 (v2.1 절 파싱 + core WSD 통합)
+ *
+ * 아키텍처:
+ * - 문장 파싱: v2.1 (절 분리, 복문 처리, 어순 변환)
+ * - 단어 번역: v2.1 + core WSD (다의어 해소)
+ * - 결과 생성: v2.1 (템플릿, 어미 처리)
  */
 
 import type { Formality, TranslationDirection } from './settings';
@@ -10,14 +15,19 @@ export interface TranslateOptions {
 }
 
 /**
- * 번역 함수
+ * 번역 함수 (v2.1 절 파싱 + WSD 연결)
  */
 export function translate(
   text: string,
   direction: TranslationDirection,
   options?: TranslateOptions,
 ): string {
-  return translateV2(text, direction, options);
+  // 빈 입력 처리
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+
+  // v2.1 엔진 사용 (절 파싱 + WSD 통합됨)
+  return translateV2(trimmed, direction, options);
 }
 
 /**

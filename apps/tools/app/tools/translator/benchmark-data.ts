@@ -37,9 +37,11 @@
  * level-test.test.ts, category-test.test.ts, context-test.test.ts에서 추출
  */
 
+import { grammarRulesTests } from './grammar-rules-tests';
 import type { TestCase, TestCategory, TestLevel } from './types';
 
 export type { TestCase, TestCategory, TestLevel };
+export { grammarRulesTests };
 
 // ========================================
 // 레벨 테스트 데이터 (Level Tests)
@@ -5295,10 +5297,110 @@ export const antiHardcodingTests: TestLevel[] = [
 ];
 
 // ========================================
+// 통합 테스트 (Integration Tests)
+// levelTests + finalTests 통합
+// ========================================
+
+export const integrationTests: TestLevel[] = [...levelTests, ...finalTests];
+
+// ========================================
+// 통합 의역 테스트 (Extended Localization Tests)
+// localizationTests + uniqueTests 통합
+// ========================================
+
+export const extendedLocalizationTests: TestLevel[] = [...localizationTests, ...uniqueTests];
+
+// ========================================
+// 통합 오타 테스트 (Extended Typo Tests)
+// typoTests + spacingErrorTests 통합
+// ========================================
+
+export const extendedTypoTests: TestLevel[] = [...typoTests, ...spacingErrorTests];
+
+// ========================================
 // 헬퍼 함수
 // ========================================
 
+/**
+ * 모든 벤치마크 테스트를 반환합니다.
+ *
+ * 새 카테고리 구조 (8개):
+ * 1. grammarRulesTests (400개) - 30개 문법 규칙
+ * 2. contextTests (26개) - 문맥 기반
+ * 3. extendedTypoTests (56개) - typoTests + spacingErrorTests
+ * 4. polysemyTests (63개) - 다의어
+ * 5. professionalTranslatorTests (18개) - 전문 번역가 수준
+ * 6. extendedLocalizationTests (85개) - localizationTests + uniqueTests
+ * 7. integrationTests (58개) - levelTests + finalTests
+ * 8. antiHardcodingTests (212개) - 22개 레벨 알고리즘 테스트
+ */
 export function getAllTests(): TestCase[] {
+  const tests: TestCase[] = [];
+
+  // 1. 문법 규칙 테스트 (400개)
+  for (const level of grammarRulesTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  // 2. 문맥 테스트 (26개)
+  for (const level of contextTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  // 3. 오타 테스트 (56개) - typoTests + spacingErrorTests
+  for (const level of extendedTypoTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  // 4. 다의어 테스트 (63개)
+  for (const level of polysemyTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  // 5. 전문 번역가 수준 테스트 (18개)
+  for (const level of professionalTranslatorTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  // 6. 의역 테스트 (85개) - localizationTests + uniqueTests
+  for (const level of extendedLocalizationTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  // 7. 통합 테스트 (58개) - levelTests + finalTests
+  for (const level of integrationTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  // 8. 안티하드코딩 테스트 (212개) - 22개 레벨
+  for (const level of antiHardcodingTests) {
+    for (const category of level.categories) {
+      tests.push(...category.tests);
+    }
+  }
+
+  return tests;
+}
+
+/**
+ * 레거시 getAllTests - 기존 모든 카테고리 포함
+ * @deprecated 새 구조로 마이그레이션 권장
+ */
+export function getAllTestsLegacy(): TestCase[] {
   const tests: TestCase[] = [];
 
   for (const level of levelTests) {
@@ -5385,3 +5487,18 @@ export function countTests(levels: TestLevel[]): number {
   }
   return count;
 }
+
+// ========================================
+// 새 벤치마크 카테고리 (8개)
+// ========================================
+
+export const allBenchmarkCategories = {
+  grammarRulesTests, // 1. 문법 규칙 (400개)
+  contextTests, // 2. 문맥 기반 (26개)
+  extendedTypoTests, // 3. 오타 처리 (56개)
+  polysemyTests, // 4. 다의어 (63개)
+  professionalTranslatorTests, // 5. 전문 번역 (18개)
+  extendedLocalizationTests, // 6. 의역 (85개)
+  integrationTests, // 7. 통합 (58개)
+  antiHardcodingTests, // 8. 안티하드코딩 (212개)
+};
