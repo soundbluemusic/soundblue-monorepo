@@ -503,6 +503,13 @@ function detectCounterPattern(tokens: Token[]): string | null {
  * 한→영 생성
  */
 export function generateEnglish(parsed: ParsedSentence): string {
+  // 0. 복합어 토큰 처리 (배고프다, 목마르다 등)
+  // 복합어는 이미 번역된 상태로 토큰화됨
+  if (parsed.tokens.length === 1 && parsed.tokens[0].role === 'compound') {
+    const token = parsed.tokens[0];
+    return token.translated || token.text;
+  }
+
   // 1. 관용구 체크 (통문장)
   const idiom = IDIOMS_KO_EN[parsed.original.replace(/[.!?？！。]+$/, '').trim()];
   if (idiom) return idiom;

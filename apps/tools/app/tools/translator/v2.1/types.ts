@@ -28,6 +28,7 @@ export type Role =
   | 'number' // 숫자
   | 'counter' // 분류사 (개, 마리...)
   | 'punctuation' // 구두점
+  | 'compound' // 복합어/관용어 (배고프다, 목마르다 등)
   | 'unknown'; // 미분류
 
 /** 시제 */
@@ -79,6 +80,7 @@ export type TokenStrategy =
   | 'rule' // 규칙 기반 (모음조화 등)
   | 'similarity' // 유사도 기반 (jamoEditDistance)
   | 'irregular' // 불규칙 동사 처리
+  | 'compound' // 복합어/관용어 매칭
   | 'unknown'; // 미인식
 
 /** 분석된 문장 */

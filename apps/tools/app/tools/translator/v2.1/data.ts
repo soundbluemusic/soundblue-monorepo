@@ -1065,3 +1065,95 @@ export const NOUN_CONTEXT: Record<string, NounContextRule> = {
     },
   },
 };
+
+// ============================================
+// 복합어/관용어 사전 (Ko→En)
+// 띄어쓰기 유무와 상관없이 통째로 매칭
+// ============================================
+
+/**
+ * 복합어/관용어 사전
+ *
+ * 형태: { pattern: translation }
+ * pattern은 정규표현식 패턴으로 변환됨
+ * - 공백을 \s*로 대체 (띄어쓰기 유무 모두 매칭)
+ * - ㅂ불규칙 활용 포함
+ */
+export const COMPOUND_EXPRESSIONS: Record<string, string> = {
+  // === 배고프다 계열 (ㅂ불규칙 형용사) ===
+  // 기본형 + 활용형 모두 포함
+  배고프다: "I'm hungry",
+  배고파: "I'm hungry",
+  배고파요: "I'm hungry",
+  배고픕니다: "I'm hungry",
+  '배가 고프다': "I'm hungry",
+  '배가 고파': "I'm hungry",
+  '배가 고파요': "I'm hungry",
+  '배가 고픕니다': "I'm hungry",
+
+  // === 목마르다 계열 (르불규칙 형용사) ===
+  목마르다: "I'm thirsty",
+  목말라: "I'm thirsty",
+  목말라요: "I'm thirsty",
+  목마릅니다: "I'm thirsty",
+  '목이 마르다': "I'm thirsty",
+  '목이 말라': "I'm thirsty",
+
+  // === 배부르다 계열 (르불규칙 형용사) ===
+  배부르다: "I'm full",
+  배불러: "I'm full",
+  배불러요: "I'm full",
+  배부릅니다: "I'm full",
+  '배가 부르다': "I'm full",
+  '배가 불러': "I'm full",
+
+  // === 피곤하다 계열 ===
+  피곤하다: "I'm tired",
+  피곤해: "I'm tired",
+  피곤해요: "I'm tired",
+  피곤합니다: "I'm tired",
+
+  // === 아프다 계열 (ㅡ탈락) ===
+  아프다: "I'm sick",
+  아파: "I'm sick",
+  아파요: "I'm sick",
+  아픕니다: "I'm sick",
+  '머리가 아프다': 'I have a headache',
+  '머리가 아파': 'I have a headache',
+  '배가 아프다': 'My stomach hurts',
+  '배가 아파': 'My stomach hurts',
+};
+
+/**
+ * 복합어 패턴 목록 (긴 것부터 정렬)
+ * 긴 패턴이 먼저 매칭되어야 부분 매칭 방지
+ */
+export const COMPOUND_PATTERNS = Object.keys(COMPOUND_EXPRESSIONS).sort(
+  (a, b) => b.length - a.length,
+);
+
+/**
+ * 복합어 매칭 함수
+ * @param text 입력 텍스트
+ * @returns 매칭된 복합어 정보 또는 null
+ */
+export function matchCompoundExpression(
+  text: string,
+): { pattern: string; translation: string; remaining: string } | null {
+  const normalized = text.trim();
+
+  for (const pattern of COMPOUND_PATTERNS) {
+    // 공백을 유연하게 매칭 (띄어쓰기 유무 모두)
+    const regexPattern = pattern.replace(/\s+/g, '\\s*');
+    const regex = new RegExp(`^${regexPattern}`, 'u');
+
+    const match = normalized.match(regex);
+    if (match) {
+      const translation = COMPOUND_EXPRESSIONS[pattern];
+      const remaining = normalized.slice(match[0].length).trim();
+      return { pattern, translation: translation || '', remaining };
+    }
+  }
+
+  return null;
+}

@@ -16,6 +16,7 @@ import {
   KO_EN,
   KO_NUMBERS,
   KO_VERB_MAP,
+  matchCompoundExpression,
   NOUN_TO_VERB,
   PARTICLES,
   VERB_STEMS,
@@ -563,6 +564,30 @@ const SORTED_ENDINGS = [...ENDINGS].sort((a, b) => b[0].length - a[0].length);
  */
 export function parseKorean(text: string): ParsedSentence {
   const original = text.trim();
+
+  // 0. 복합어/관용어 우선 체크 (띄어쓰기 유무 상관없이)
+  // "배고프다", "배가 고프다" 등을 통째로 인식
+  const compoundMatch = matchCompoundExpression(original.replace(/[.!?？！。]+$/, ''));
+  if (compoundMatch && !compoundMatch.remaining) {
+    // 전체 문장이 복합어인 경우
+    const type = detectSentenceType(original);
+    return {
+      original,
+      tokens: [
+        {
+          text: compoundMatch.pattern,
+          stem: compoundMatch.pattern,
+          role: 'compound',
+          translated: compoundMatch.translation,
+          confidence: 1.0,
+          meta: { strategy: 'compound' as TokenStrategy },
+        },
+      ],
+      type,
+      tense: 'present',
+      negated: false,
+    };
+  }
 
   // 1. 문장 유형 감지
   const type = detectSentenceType(original);

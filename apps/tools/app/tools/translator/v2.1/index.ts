@@ -84,12 +84,18 @@ export function translateWithInfo(
  * 한국어 문장을 절 단위로 분리하여 영어로 번역
  */
 function translateKoreanSentence(sentence: string, _formality: Formality): string {
+  // 0. 복합어/관용어 우선 체크 (절 분리 전에!)
+  // "배고프다", "배가 고프다" 등의 복합어가 절로 잘못 분리되는 것을 방지
+  const parsed = parseKorean(sentence);
+  if (parsed.tokens.length === 1 && parsed.tokens[0].role === 'compound') {
+    return parsed.tokens[0].translated || sentence;
+  }
+
   // 1. 절 분리
   const clauseInfo = parseKoreanClauses(sentence);
 
   // 단문인 경우 기존 방식 사용
   if (clauseInfo.structure === 'simple') {
-    const parsed = parseKorean(sentence);
     let translated = generateEnglish(parsed);
     translated = validateTranslation(parsed, translated, 'ko-en');
     return translated;
