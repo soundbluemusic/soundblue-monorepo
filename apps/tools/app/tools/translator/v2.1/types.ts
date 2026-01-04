@@ -41,10 +41,36 @@ export type AuxiliaryMeaning =
   | 'attemptive'
   | 'completive'
   | 'benefactive'
+  | 'benefactive-honorific' // -어 드리다
+  | 'resultative' // -어 놓다
+  | 'accomplishment' // -어 내다
+  | 'prohibition' // -면 안 되다
+  | 'seem' // -는 것 같다
+  | 'inchoative' // -기 시작하다
+  | 'know-how' // -ㄹ 줄 알다
+  | 'know-how-negative' // -ㄹ 줄 모르다
+  | 'tendency' // -는 편이다
   | 'future'
   | 'perfect'
   | 'modal-can'
-  | 'modal-may';
+  | 'modal-cannot' // -ㄹ 수 없다 (불능)
+  | 'modal-may'
+  // 의존명사 패턴 (Bound Nouns)
+  | 'only' // -ㄹ 뿐이다
+  | 'experience' // -ㄴ 적 있다
+  | 'intention' // -ㄹ 생각이다
+  | 'schedule' // -ㄹ 예정이다
+  | 'worth' // -ㄹ 만하다
+  | 'necessity' // -ㄹ 필요가 있다
+  | 'reason' // -ㄹ 이유
+  // 조동사 패턴 (Modals) g5
+  | 'modal-might' // -지도 모르다 (불확실)
+  | 'modal-must' // -어야 하다 (의무)
+  | 'modal-should' // -는 게 좋다 (권고)
+  | 'modal-would' // -곤 하다 (과거 습관)
+  | 'polite-request' // -주시겠어요? (정중 요청)
+  | 'modal-could' // -ㄹ 수 있었다 (과거 능력)
+  | 'modal-had-to'; // -어야 했다 (과거 의무)
 
 /** 시제 */
 export type Tense = 'past' | 'present' | 'future' | 'present-perfect' | 'past-perfect';
@@ -54,6 +80,34 @@ export type SentenceType = 'statement' | 'question' | 'exclamation' | 'imperativ
 
 /** 격식 수준 (종결어미에서 추출) */
 export type PolitenessLevel = 'formal-polite' | 'polite' | 'plain' | 'informal';
+
+/**
+ * 종결어미 유형 (g15 Final Endings)
+ * 한국어 문장의 마무리 형태를 나타냄
+ */
+export type FinalEndingType =
+  // 평서문 종결어미
+  | 'formal-polite' // -ㅂ니다 (갑니다)
+  | 'polite' // -아/어요 (가요)
+  | 'plain' // -다/-ㄴ다 (간다)
+  | 'informal' // 어간만 (가)
+  // 의문문 종결어미
+  | 'formal-question' // -ㅂ니까? (갑니까?)
+  // 명령문 종결어미
+  | 'please-honorific' // -세요 (가세요)
+  | 'command' // -라 (가라)
+  // 청유문 종결어미
+  | 'formal-suggestion' // -ㅂ시다 (갑시다)
+  | 'casual-suggestion' // -자 (가자)
+  // 감탄문 종결어미
+  | 'exclamation' // -구나 (가는구나)
+  // 특수 종결어미
+  | 'tag-question' // -지 (가지)
+  | 'you-know' // -잖아 (가잖아)
+  | 'promise' // -ㄹ게 (갈게)
+  | 'want' // -ㄹ래? (갈래?)
+  | 'shall' // -ㄹ까? (갈까?)
+  | 'retrospective'; // -더라 (가더라)
 
 /** 토큰 */
 export interface Token {
@@ -145,6 +199,10 @@ export interface ParsedSentence {
   comparativeType?: 'comparative' | 'superlative';
   /** 격식 수준 (Phase 1: 종결어미) */
   politenessLevel?: PolitenessLevel;
+  /** 종결어미 유형 (g15) */
+  finalEndingType?: FinalEndingType;
+  /** 종결어미에서 추출된 동사 어간 */
+  finalEndingStem?: string;
   /** 피동문 여부 (g4) - 열리다, 들리다, 해결되다, 사랑받다, 비난당하다 */
   passive?: boolean;
   /** 피동 접미사 타입 */
@@ -295,6 +353,23 @@ export interface ParsedSentence {
   quotationVerb?: string;
   /** 영어 인용 표현 여부 */
   englishQuotation?: boolean;
+
+  // ============================================
+  // g15 영어 종결어미 패턴 (En→Ko)
+  // ============================================
+  /** 영어 종결어미 패턴 유형 */
+  englishFinalPatternType?:
+    | 'formal-statement' // I V (formal)
+    | 'polite-statement' // I V (polite)
+    | 'casual-statement' // I V (casual)
+    | 'formal-question' // Do you V? (formal)
+    | 'please-command' // Please V
+    | 'command' // V! (command)
+    | 'lets' // Let's V
+    | 'want-question' // Want to V?
+    | 'shall-question'; // Shall we V?
+  /** 영어 종결어미 패턴에서 추출된 동사 */
+  englishFinalPatternVerb?: string;
 }
 
 /** 번역 결과 */

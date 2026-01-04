@@ -10,7 +10,7 @@
  * - morphology 모듈 통합 (리팩토링)
  */
 
-import { decompose } from '@soundblue/hangul';
+import { decompose, getBatchim } from '@soundblue/hangul';
 import { disambiguate, isPolysemous, koToEnWords } from '@soundblue/translator';
 // morphology 모듈 통합 (리팩토링)
 import { tryExtractContracted } from '../dictionary/morphology/korean-contracted';
@@ -86,22 +86,36 @@ interface AuxiliaryPattern {
     | 'attemptive'
     | 'completive'
     | 'benefactive'
+    | 'benefactive-honorific'
+    | 'resultative'
+    | 'accomplishment'
+    | 'prohibition'
+    | 'seem'
+    | 'inchoative'
+    | 'know-how'
+    | 'know-how-negative'
+    | 'tendency'
     | 'future'
     | 'perfect'
     | 'modal-can'
-    | 'modal-may';
+    | 'modal-cannot'
+    | 'modal-may'
+    | 'modal-might'
+    | 'modal-must'
+    | 'modal-should'
+    | 'modal-would'
+    | 'modal-could'
+    | 'modal-had-to'
+    | 'polite-request'
+    | 'only'
+    | 'experience'
+    | 'intention'
+    | 'schedule'
+    | 'worth'
+    | 'necessity'
+    | 'reason';
   /** 영어 표현 형식 */
-  englishForm:
-    | 'be + Ving'
-    | 'was + Ving'
-    | 'want to V'
-    | 'try Ving'
-    | 'end up Ving'
-    | 'V for someone'
-    | 'will V'
-    | 'have Vpp'
-    | 'can V'
-    | 'may V';
+  englishForm: string;
 }
 
 /**
@@ -116,14 +130,82 @@ const AUXILIARY_PATTERNS: AuxiliaryPattern[] = [
   // -어 본 적 있다 (경험/완료): 먹어 본 적 있다
   { pattern: /(.+)[아어]\s*본\s*적\s*있/, meaning: 'perfect', englishForm: 'have Vpp' },
 
+  // -ㄹ 필요가 있다 (필요): 할 필요가 있다, 갈 필요가 있다
+  { pattern: /(.+)\s*필요가?\s*있/, meaning: 'necessity', englishForm: 'need to V' },
+
+  // -ㄹ 줄 모르다 (능력 부정): 할 줄 모르다, 수영할 줄 모르다
+  { pattern: /(.+)\s*줄\s*모르/, meaning: 'know-how-negative', englishForm: "don't know how to V" },
+
+  // -ㄹ 줄 알다 (능력 지식): 할 줄 알다, 수영할 줄 알다
+  // 한글 받침 ㄹ은 합자 안에 있으므로 [ㄹ을] 대신 전체 글자 매칭
+  { pattern: /(.+)\s*줄\s*알/, meaning: 'know-how', englishForm: 'know how to V' },
+
+  // -ㄴ 적 있다 (경험): 간 적 있다, 본 적 있다
+  { pattern: /(.+)\s*적\s*있/, meaning: 'experience', englishForm: 'have Vpp' },
+
+  // -ㄹ 생각이다 (의도): 할 생각이다, 갈 생각이다
+  { pattern: /(.+)\s*생각이[다]?/, meaning: 'intention', englishForm: 'intend to V' },
+
+  // -ㄹ 예정이다 (예정): 갈 예정이다, 할 예정이다
+  { pattern: /(.+)\s*예정이[다]?/, meaning: 'schedule', englishForm: 'plan to V' },
+
+  // -ㄹ 뿐이다 (한정): 갈 뿐이다, 할 뿐이다
+  { pattern: /(.+)\s*뿐이[다]?/, meaning: 'only', englishForm: 'only V' },
+
+  // -ㄹ 만하다 (가치): 볼 만하다, 읽을 만하다
+  { pattern: /(.+)\s*만하[다]?/, meaning: 'worth', englishForm: 'worth Ving' },
+
+  // -ㄹ 이유 (이유): 갈 이유, 할 이유
+  { pattern: /(.+)\s*이유/, meaning: 'reason', englishForm: 'reason to V' },
+
+  // ============================================
+  // g5: 조동사 패턴 (Modals)
+  // ============================================
+
+  // -ㄹ 수 있었다 (과거 능력): 할 수 있었다
+  { pattern: /(.+)\s*수\s*있었/, meaning: 'modal-could', englishForm: 'could V' },
+
+  // -어야 했다 (과거 의무): 해야 했다, 먹어야 했다
+  { pattern: /(.+)야\s*했/, meaning: 'modal-had-to', englishForm: 'had to V' },
+
+  // -주시겠어요? (정중 요청): 해 주시겠어요?
+  { pattern: /(.+)\s*주시겠/, meaning: 'polite-request', englishForm: 'Would you V?' },
+
+  // -지도 모르다 (불확실): 할지도 모른다, 갈지도 모른다
+  { pattern: /(.+)지도\s*모[르른]/, meaning: 'modal-might', englishForm: 'might V' },
+
+  // -어야 하다 (의무): 해야 한다, 먹어야 한다
+  { pattern: /(.+)야\s*한[다]?/, meaning: 'modal-must', englishForm: 'must V' },
+
+  // -는 게 좋다 (권고): 하는 게 좋다, 먹는 게 좋다
+  { pattern: /(.+)는\s*게\s*좋/, meaning: 'modal-should', englishForm: 'should V' },
+
+  // -곤 하다 (과거 습관): 하곤 했다, 먹곤 했다
+  { pattern: /(.+)곤\s*했/, meaning: 'modal-would', englishForm: 'would V' },
+
+  // -ㄹ/을 수 없다 (불능): 할 수 없다, 먹을 수 없다
+  // 긴 패턴이 먼저 매칭되도록 "있다" 앞에 배치
+  { pattern: /(.+)을\s*수\s*없/, meaning: 'modal-cannot', englishForm: 'cannot V' },
+  { pattern: /(.)\s*수\s*없/, meaning: 'modal-cannot', englishForm: 'cannot V' },
+
   // -ㄹ/을 수 있다 (능력): 할 수 있다, 먹을 수 있다
-  // 받침 없는 어간 + ㄹ 받침 (할, 갈, 볼...) 또는 받침 있는 어간 + 을 (먹을, 읽을...)
   { pattern: /(.+)을\s*수\s*있/, meaning: 'modal-can', englishForm: 'can V' },
-  // 받침 ㄹ로 끝나는 글자 + 수 있다 패턴은 별도 처리 필요 (할 수 있다 등)
   { pattern: /(.)\s*수\s*있/, meaning: 'modal-can', englishForm: 'can V' },
 
-  // -도 된다 (허가): 해도 된다, 가도 돼
-  { pattern: /(.+)도\s*(?:된다|돼)/, meaning: 'modal-may', englishForm: 'may V' },
+  // -는 것 같다 (추측): 하는 것 같다, 먹는 것 같다
+  { pattern: /(.+)는\s*것\s*같/, meaning: 'seem', englishForm: 'seem to V' },
+
+  // -는 편이다 (경향): 하는 편이다, 먹는 편이다
+  { pattern: /(.+)는\s*편이/, meaning: 'tendency', englishForm: 'tend to V' },
+
+  // -기 시작하다 (시작): 하기 시작하다, 먹기 시작하다
+  { pattern: /(.+)기\s*시작하/, meaning: 'inchoative', englishForm: 'start to V' },
+
+  // -면 안 되다 (금지): 하면 안 되다, 가면 안 돼
+  { pattern: /(.+)면\s*안\s*(?:되다|돼)/, meaning: 'prohibition', englishForm: 'must not V' },
+
+  // -도 되다 (허가): 해도 되다, 가도 돼
+  { pattern: /(.+)도\s*(?:되다|된다|돼)/, meaning: 'modal-may', englishForm: 'may V' },
 
   // -ㄹ/을 것이다 (미래): 먹을 것이다, 갈 것이다
   { pattern: /(.+)[ㄹ을]\s*것이다/, meaning: 'future', englishForm: 'will V' },
@@ -137,14 +219,36 @@ const AUXILIARY_PATTERNS: AuxiliaryPattern[] = [
   // -고 싶다 (희망): 먹고 싶다, 가고 싶어
   { pattern: /(.+)고\s*싶/, meaning: 'desiderative', englishForm: 'want to V' },
 
-  // -아/어 주다 (수혜): 도와 주다, 알려 줘
-  { pattern: /(.+)[아어]\s*주/, meaning: 'benefactive', englishForm: 'V for someone' },
+  // -아/어 드리다 (수혜 높임): 해 드리다, 도와 드리다
+  // 축약형 포함: 해(하+아), 써(쓰+어) 등
+  { pattern: /(.+)\s*드리/, meaning: 'benefactive-honorific', englishForm: 'V for (honorific)' },
 
-  // -아/어 보다 (시도): 먹어 봤다, 해 봐
-  { pattern: /(.+)[아어]\s*보/, meaning: 'attemptive', englishForm: 'try Ving' },
+  // -아/어 주다 (수혜): 도와 주다, 알려 줘, 해 주다
+  { pattern: /(.+)\s*주[다]?$/, meaning: 'benefactive', englishForm: 'V for (someone)' },
 
-  // -아/어 버리다 (완료): 먹어 버렸다, 가 버렸어
-  { pattern: /(.+)[아어]\s*버리/, meaning: 'completive', englishForm: 'end up Ving' },
+  // -아/어 놓다 (결과 유지): 써 놓다, 해 놓다
+  { pattern: /(.+)\s*놓[다]?$/, meaning: 'resultative', englishForm: 'have Vpp (and left)' },
+
+  // -아/어 버리다 (완료): 먹어 버리다, 가 버렸어, 먹어버렸다
+  // 더 긴 패턴을 먼저 매칭하기 위해 "보다" 앞에 배치
+  // 시제 활용형 포함: 버리다/버렸다/버렸어/버려
+  {
+    pattern: /(.+)\s*버(?:리다|렸다|렸어|려|림)$/,
+    meaning: 'completive',
+    englishForm: 'V up (completely)',
+  },
+
+  // -아/어 내다 (완수): 해 내다, 견뎌 내다, 해냈다
+  // 시제 활용형 포함: 내다/냈다/냈어/내
+  {
+    pattern: /(.+)\s*(?:내다|냈다|냈어|내)$/,
+    meaning: 'accomplishment',
+    englishForm: 'accomplish',
+  },
+
+  // -아/어 보다 (시도): 먹어 봤다, 해 봐, 가 보다, 먹어봤다
+  // 시제 활용형 포함: 보다/봤다/봤어/봐
+  { pattern: /(.+)\s*(?:보다|봤다|봤어|봐)$/, meaning: 'attemptive', englishForm: 'try Ving' },
 ];
 
 /**
@@ -669,6 +773,10 @@ function parseWithAuxiliaryPattern(
   const tokens: Token[] = [];
   const cleaned = original.replace(/[.!?？！。]+$/, '').trim();
 
+  // 시제 감지: 봤다/버렸다/냈다 등 과거형 패턴
+  const isPastTense =
+    /봤다$|봤어$|버렸다$|버렸어$|냈다$|냈어$|있었다$|있었어$|싶었다$|싶었어$/.test(cleaned);
+
   // 보조용언 패턴 앞부분 (주어, 목적어 등) 분리
   const beforePattern = cleaned.slice(0, cleaned.indexOf(auxMatch.fullMatch)).trim();
   const afterPattern = cleaned
@@ -715,9 +823,56 @@ function parseWithAuxiliaryPattern(
     verbStem = lastPart;
   }
 
+  // 연결어미 제거: "먹어" → "먹", "써" → "쓰", "해" → "하"
+  // 보조용언 앞의 연결어미(-아/-어)를 제거하여 어간 추출
+  let pureVerbStem = verbStem;
+
+  // 축약형 처리: "해" → "하", "써" → "쓰", "봐" → "보"
+  const contractedForms: Record<string, string> = {
+    해: '하',
+    써: '쓰',
+    봐: '보',
+    돼: '되',
+    줘: '주',
+    와: '오',
+    가: '가',
+  };
+
+  if (contractedForms[pureVerbStem]) {
+    pureVerbStem = contractedForms[pureVerbStem];
+  } else if (pureVerbStem.endsWith('아') || pureVerbStem.endsWith('어')) {
+    // 연결어미 -아/-어 제거
+    pureVerbStem = pureVerbStem.slice(0, -1);
+  }
+
+  // 관형형 어미 처리: 의존명사/조동사 패턴에서 동사 어간 추출
+  // -ㄹ 받침: "할", "갈", "볼" → "하", "가", "보"
+  // -ㄴ 받침: "간", "본" → "가", "보"
+  const boundNounPatterns: string[] = [
+    'know-how',
+    'know-how-negative',
+    'modal-can',
+    'modal-cannot',
+    'modal-could',
+    'modal-might',
+    'only',
+    'experience',
+    'intention',
+    'schedule',
+    'worth',
+    'necessity',
+    'reason',
+  ];
+  if (boundNounPatterns.includes(auxMatch.pattern.meaning)) {
+    const jamo = decompose(pureVerbStem);
+    if (jamo && (jamo.jong === 'ㄹ' || jamo.jong === 'ㄴ')) {
+      pureVerbStem = composeWithoutJong(jamo.cho, jamo.jung);
+    }
+  }
+
   // "하" 동사의 경우 목적어에 따라 동사 결정
   // "운동을 하고 있다" → "exercising" (운동 = exercise)
-  if (verbStem === '하' && objectToken?.translated) {
+  if (pureVerbStem === '하' && objectToken?.translated) {
     // 목적어 번역을 동사로 사용
     verbTranslation = objectToken.translated;
     // 목적어 토큰의 translated를 지워서 중복 출력 방지
@@ -726,7 +881,7 @@ function parseWithAuxiliaryPattern(
   } else {
     // 보조용언 패턴에서는 VERB_STEMS를 우선 확인 (동사 문맥)
     // "해"가 "sun"(태양)이 아닌 "do"(하다)로 번역되어야 함
-    verbTranslation = VERB_STEMS[verbStem] || translateWithWSD(verbStem, original) || 'do';
+    verbTranslation = VERB_STEMS[pureVerbStem] || translateWithWSD(pureVerbStem, original) || 'do';
   }
 
   // 3. 보조용언 패턴에 따른 문법 정보 설정
@@ -761,7 +916,7 @@ function parseWithAuxiliaryPattern(
     original,
     tokens,
     type: sentenceType,
-    tense: 'present',
+    tense: isPastTense ? 'past' : 'present',
     negated: false,
     // Phase 0: 보조용언 정보 추가
     auxiliaryPattern: auxMatch.pattern.meaning,
@@ -894,6 +1049,11 @@ interface ConditionalMatch {
 
 function detectKoreanConditional(text: string): ConditionalMatch | null {
   const cleaned = text.replace(/[.!?？！。]+$/, '').trim();
+
+  // 보조용언 패턴 제외: -면 안 되다, -도 되다는 조건문이 아닌 보조용언 패턴
+  // 이 패턴들은 g22 보조용언에서 처리
+  if (/면\s*안\s*(되다|돼)/.test(cleaned)) return null;
+  if (/도\s*(되다|돼|된다)$/.test(cleaned)) return null;
 
   // Type 3: 과거 가정법 (-았/었더라면 ... 었을 텐데)
   // 공부했더라면 합격했을 텐데
@@ -2250,6 +2410,22 @@ function tokenizeKoreanWord(word: string, context?: string): Token {
       };
     }
 
+    // 동사 기본형 (다로 끝나는 단어) - VERB_STEMS 확인
+    // "가다", "오다", "보다" 등 기본형 동사를 verb 역할로 인식
+    if (word.endsWith('다') && word.length >= 2) {
+      const stemOnly = word.slice(0, -1); // 다 제거
+      if (VERB_STEMS[stemOnly]) {
+        return {
+          text: word,
+          stem: word,
+          role: 'verb',
+          translated: VERB_STEMS[stemOnly],
+          confidence: CONFIDENCE_DICTIONARY,
+          meta: { strategy: 'dictionary' },
+        };
+      }
+    }
+
     // 감탄사는 대문자로 시작
     const wordRole: Role = /^[A-Z]/.test(directTranslation) ? 'adverb' : 'unknown';
     return {
@@ -2554,6 +2730,25 @@ export function parseEnglish(text: string): ParsedSentence {
         stem: quotationResult.quotedVerb,
         role: 'verb',
         meta: { strategy: 'quotation-verb' as TokenStrategy },
+      },
+    ];
+  }
+
+  // g15: 영어 종결어미 패턴 감지
+  // "I eat (formal)" → 먹습니다
+  // "Please eat" → 드세요
+  // "Let's eat" → 먹자
+  const finalPatternResult = detectEnglishFinalPattern(original);
+  if (finalPatternResult) {
+    result.englishFinalPatternType = finalPatternResult.type;
+    result.englishFinalPatternVerb = finalPatternResult.verb;
+    // 동사 토큰 추가
+    result.tokens = [
+      {
+        text: finalPatternResult.verb,
+        stem: finalPatternResult.verb.toLowerCase(),
+        role: 'verb',
+        meta: { strategy: 'final-pattern-verb' as TokenStrategy },
       },
     ];
   }
@@ -3510,11 +3705,19 @@ export function detectKoreanQuotation(text: string): KoreanQuotationMatch | null
     return { type: 'nyae', stem: nyae[1], quotationVerb: '해', tense: 'present' };
   }
 
-  // Pattern 7: -래 (축약형 명령문)
-  // 가래 → stem="가", type=rae
+  // Pattern 7: -래 (축약형 명령문) - 단, -ㄹ래 (want 패턴) 제외
+  // 가래 → stem="가", type=rae (quotation: "he/she says to go")
+  // 갈래 → 가+ㄹ래 (contracted want: "Want to go?") - 제외해야 함
+  // 구분: 마지막 글자가 ㄹ 받침이면 want 패턴이므로 제외
   const rae = cleaned.match(/^(.+?)래$/);
   if (rae) {
-    return { type: 'rae', stem: rae[1], quotationVerb: '해', tense: 'present' };
+    const stemPart = rae[1];
+    const lastChar = stemPart[stemPart.length - 1];
+    // ㄹ 받침이면 -ㄹ래 want 패턴이므로 quotation 아님
+    if (getBatchim(lastChar) !== 'ㄹ') {
+      return { type: 'rae', stem: stemPart, quotationVerb: '해', tense: 'present' };
+    }
+    // ㄹ 받침이면 null 반환하여 다른 패턴에서 처리하도록
   }
 
   return null;
@@ -3589,6 +3792,190 @@ export function detectEnglishQuotation(text: string): EnglishQuotationMatch | nu
   const heardThat = cleaned.match(/^(\w+)\s+heard\s+that\s+(?:\w+\s+)?(\w+)$/i);
   if (heardThat) {
     return { type: 'heard-that', quotedVerb: heardThat[2], subject: heardThat[1], tense: 'past' };
+  }
+
+  return null;
+}
+
+// ============================================
+// g15 종결어미 감지 함수
+// ============================================
+
+export interface FinalEndingMatch {
+  type: import('./types.ts').FinalEndingType;
+  stem: string; // 동사 어간
+  verb?: string; // 영어 동사 (번역됨)
+}
+
+/**
+ * 한국어 종결어미 감지
+ *
+ * @param text - 원본 텍스트
+ * @returns 종결어미 정보 또는 null
+ */
+export function detectKoreanFinalEnding(text: string): FinalEndingMatch | null {
+  const cleaned = text.replace(/[.!?？！。]+$/, '').trim();
+
+  // 1. -ㅂ니까? (격식 의문) - 갑니까?
+  const formalQuestionMatch = cleaned.match(/^(.+)([ㅂ습])니까$/);
+  if (formalQuestionMatch) {
+    let stem = formalQuestionMatch[1];
+    // ㅂ니까 앞의 받침 처리 (습니까 → 받침 있음, ㅂ니까 → 받침 없음)
+    if (formalQuestionMatch[2] === '습') {
+      // 받침 있는 동사: 먹습니까 → 먹
+      stem = formalQuestionMatch[1];
+    } else {
+      // 받침 없는 동사: 갑니까 → 가
+      stem = formalQuestionMatch[1];
+    }
+    return { type: 'formal-question', stem };
+  }
+
+  // 2. -세요 (존경 명령) - 가세요
+  const pleaseMatch = cleaned.match(/^(.+)세요$/);
+  if (pleaseMatch) {
+    const stem = pleaseMatch[1];
+    return { type: 'please-honorific', stem };
+  }
+
+  // 3. -라 (명령) - 가라, 먹어라
+  // 가라 → 가 + 라, 먹어라 → 먹 + 어라
+  const commandMatch = cleaned.match(/^(.+)(어라|아라|라)$/);
+  if (commandMatch) {
+    let stem = commandMatch[1];
+    // 어라/아라 → 어/아 제거하고 어간 추출
+    if (commandMatch[2] !== '라') {
+      stem = commandMatch[1];
+    }
+    return { type: 'command', stem };
+  }
+
+  // 4. -구나 (감탄) - 가는구나, 예쁘구나
+  const exclamationMatch = cleaned.match(/^(.+)(는구나|구나)$/);
+  if (exclamationMatch) {
+    let stem = exclamationMatch[1];
+    // 가는구나 → 가 + 는구나
+    if (exclamationMatch[2] === '는구나') {
+      stem = exclamationMatch[1];
+    }
+    return { type: 'exclamation', stem };
+  }
+
+  // 5. -지 (부가의문) - 가지, 먹지
+  // 주의: 다른 패턴과 충돌 방지 (가지 않다 등)
+  if (cleaned.match(/^(.+)지$/) && !cleaned.match(/지\s*(않|못)/)) {
+    const match = cleaned.match(/^(.+)지$/);
+    if (match) {
+      return { type: 'tag-question', stem: match[1] };
+    }
+  }
+
+  // 6. -잖아 (상대 인식) - 가잖아
+  const youKnowMatch = cleaned.match(/^(.+)잖아$/);
+  if (youKnowMatch) {
+    return { type: 'you-know', stem: youKnowMatch[1] };
+  }
+
+  // 7. -ㄹ래? (의향 질문) - 갈래?, 먹을래?
+  const wantMatch = cleaned.match(/^(.+)[ㄹ을]래$/);
+  if (wantMatch) {
+    return { type: 'want', stem: wantMatch[1] };
+  }
+
+  // 8. -ㄹ까? (제안) - 갈까?, 먹을까?
+  const shallMatch = cleaned.match(/^(.+)[ㄹ을]까$/);
+  if (shallMatch) {
+    return { type: 'shall', stem: shallMatch[1] };
+  }
+
+  // 9. -더라 (회상) - 가더라
+  const retrospectiveMatch = cleaned.match(/^(.+)더라$/);
+  if (retrospectiveMatch) {
+    return { type: 'retrospective', stem: retrospectiveMatch[1] };
+  }
+
+  return null;
+}
+
+/**
+ * 영어 종결어미/문법 구조 감지 (En→Ko)
+ *
+ * @param text - 원본 텍스트
+ * @returns 영어 문법 정보 또는 null
+ */
+export interface EnglishFinalPatternMatch {
+  type:
+    | 'formal-statement' // I V (formal)
+    | 'polite-statement' // I V (polite)
+    | 'casual-statement' // I V (casual)
+    | 'formal-question' // Do you V? (formal)
+    | 'please-command' // Please V
+    | 'command' // V! (command)
+    | 'lets' // Let's V
+    | 'want-question' // Want to V?
+    | 'shall-question'; // Shall we V?
+  verb: string; // 동사 원형
+  verbKorean?: string; // 한국어 동사 어간
+}
+
+export function detectEnglishFinalPattern(text: string): EnglishFinalPatternMatch | null {
+  // 끝 구두점 제거
+  const cleaned = text.replace(/[.!?]+$/, '').trim();
+
+  // 1. I V (formal) → 먹습니다
+  const formalStatementMatch = cleaned.match(/^I\s+(\w+)\s*\(formal\)$/i);
+  if (formalStatementMatch) {
+    return { type: 'formal-statement', verb: formalStatementMatch[1] };
+  }
+
+  // 2. I V (polite) → 먹어요
+  const politeStatementMatch = cleaned.match(/^I\s+(\w+)\s*\(polite\)$/i);
+  if (politeStatementMatch) {
+    return { type: 'polite-statement', verb: politeStatementMatch[1] };
+  }
+
+  // 3. I V (casual) → 먹어
+  const casualStatementMatch = cleaned.match(/^I\s+(\w+)\s*\(casual\)$/i);
+  if (casualStatementMatch) {
+    return { type: 'casual-statement', verb: casualStatementMatch[1] };
+  }
+
+  // 4. Do you V? (formal) → 드십니까?
+  // [.!?]* 추가: "Do you eat? (formal)" 처리
+  const formalQuestionMatch = cleaned.match(/^Do\s+you\s+(\w+)[.!?]*\s*\(formal\)$/i);
+  if (formalQuestionMatch) {
+    return { type: 'formal-question', verb: formalQuestionMatch[1] };
+  }
+
+  // 5. Please V → 드세요
+  const pleaseMatch = cleaned.match(/^Please\s+(\w+)$/i);
+  if (pleaseMatch) {
+    return { type: 'please-command', verb: pleaseMatch[1] };
+  }
+
+  // 6. V! (command) → 먹어라
+  // [.!?]* 추가: "Eat! (command)" 처리
+  const commandMatch = cleaned.match(/^(\w+)[.!?]*\s*\(command\)$/i);
+  if (commandMatch) {
+    return { type: 'command', verb: commandMatch[1] };
+  }
+
+  // 7. Let's V → 먹자
+  const letsMatch = cleaned.match(/^Let's\s+(\w+)$/i);
+  if (letsMatch) {
+    return { type: 'lets', verb: letsMatch[1] };
+  }
+
+  // 8. Want to V? → 먹을래?
+  const wantMatch = cleaned.match(/^Want\s+to\s+(\w+)[.!?]*$/i);
+  if (wantMatch) {
+    return { type: 'want-question', verb: wantMatch[1] };
+  }
+
+  // 9. Shall we V? → 먹을까?
+  const shallMatch = cleaned.match(/^Shall\s+we\s+(\w+)[.!?]*$/i);
+  if (shallMatch) {
+    return { type: 'shall-question', verb: shallMatch[1] };
   }
 
   return null;

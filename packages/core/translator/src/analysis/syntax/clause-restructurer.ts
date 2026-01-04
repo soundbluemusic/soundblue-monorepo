@@ -129,6 +129,13 @@ const CONNECTIVE_PATTERNS: ConnectivePattern[] = [
   { pattern: '였고', info: { korean: '였고', english: 'and', type: 'and', tense: 'past' } },
   { pattern: '했고', info: { korean: '했고', english: 'and', type: 'and', tense: 'past' } },
 
+  // 3글자 - 추가 패턴
+  { pattern: '으려고', info: { korean: '으려고', english: 'in order to', type: 'reason' } },
+  { pattern: '느라고', info: { korean: '느라고', english: 'because of', type: 'reason' } },
+  { pattern: '더라도', info: { korean: '더라도', english: 'even if', type: 'concession' } },
+  { pattern: '다가는', info: { korean: '다가는', english: 'if continues', type: 'condition' } },
+  { pattern: '거나', info: { korean: '거나', english: 'or', type: 'and' } },
+
   // 2글자
   { pattern: '아서', info: { korean: '아서', english: 'and then', type: 'sequence' } },
   { pattern: '어서', info: { korean: '어서', english: 'and then', type: 'sequence' } },
@@ -141,6 +148,9 @@ const CONNECTIVE_PATTERNS: ConnectivePattern[] = [
   { pattern: '는데', info: { korean: '는데', english: 'but', type: 'contrast' } },
   { pattern: '니까', info: { korean: '니까', english: 'because', type: 'reason' } },
   { pattern: 'ㄴ데', info: { korean: 'ㄴ데', english: 'but', type: 'contrast' } },
+  { pattern: '려고', info: { korean: '려고', english: 'in order to', type: 'reason' } },
+  { pattern: '느라', info: { korean: '느라', english: 'because of', type: 'reason' } },
+  { pattern: '다가', info: { korean: '다가', english: 'while', type: 'simultaneous' } },
 
   // 1글자
   { pattern: '고', info: { korean: '고', english: 'and', type: 'and' } },
@@ -226,8 +236,12 @@ function splitByConnectives(text: string): Clause[] {
         // 어간 부분 (연결어미 제외)
         const stemPart = token.slice(0, -pattern.length);
 
+        // 어간에 종결어미 "다"를 붙여서 기본형으로 만듦 (번역을 위해)
+        // 예: "먹" → "먹다", "가" → "간다" (동사 기본형)
+        const verbForm = stemPart + '다';
+
         clauses.push({
-          text: clauseText.replace(new RegExp(`${escapeRegex(pattern)}$`), stemPart),
+          text: clauseText.replace(new RegExp(`${escapeRegex(pattern)}$`), verbForm),
           connective: info,
           isMainClause: false,
         });

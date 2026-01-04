@@ -102,15 +102,19 @@ const KO_CONNECTIVE_ENDINGS: Record<string, { en: string; type: ClauseType }> = 
   는동안: { en: 'while', type: 'adverbial' },
   면서: { en: 'while', type: 'adverbial' },
   으면서: { en: 'while', type: 'adverbial' },
+  다가: { en: 'while', type: 'adverbial' }, // 가다가 (while going)
   기전에: { en: 'before', type: 'adverbial' },
   ㄴ후에: { en: 'after', type: 'adverbial' },
   은후에: { en: 'after', type: 'adverbial' },
 
   // 이유 연결
-  아서: { en: 'because', type: 'adverbial' },
-  어서: { en: 'because', type: 'adverbial' },
+  아서: { en: 'so', type: 'adverbial' },
+  어서: { en: 'so', type: 'adverbial' },
+  해서: { en: 'so', type: 'adverbial' }, // 피곤해서 (because tired)
   니까: { en: 'because', type: 'adverbial' },
   으니까: { en: 'because', type: 'adverbial' },
+  느라고: { en: 'because of', type: 'adverbial' }, // 공부하느라고
+  느라: { en: 'because of', type: 'adverbial' },
   기때문에: { en: 'because', type: 'adverbial' },
 
   // 조건/양보
@@ -127,8 +131,9 @@ const KO_CONNECTIVE_ENDINGS: Record<string, { en: string; type: ClauseType }> = 
   도록: { en: 'so that', type: 'adverbial' },
   게: { en: 'so that', type: 'adverbial' },
 
-  // 나열/병렬
+  // 나열/선택
   고: { en: 'and', type: 'main' },
+  거나: { en: 'or', type: 'main' }, // 먹거나 (or eat)
 
   // 인용
   라고: { en: 'that (quote)', type: 'quotation' },
@@ -221,11 +226,16 @@ export function parseKoreanClauses(text: string): ParsedClauses {
   const segments = splitByConnectors(normalized, 'ko');
 
   if (segments.length === 1) {
-    // 단문
+    // 단문이지만 연결어미가 있을 수 있음 (예: "비가 오니까")
+    const segment = segments[0];
+    const endingInfo = segment.connector ? KO_CONNECTIVE_ENDINGS[segment.connector] : undefined;
+
     clauses.push({
-      type: 'main',
-      text: segments[0].text,
-      isSubordinate: false,
+      type: endingInfo?.type || 'main',
+      text: segment.text,
+      connector: endingInfo?.en,
+      connectorKo: segment.connector,
+      isSubordinate: !!endingInfo,
     });
     return { original: text, clauses, structure: 'simple' };
   }
@@ -356,22 +366,62 @@ function splitKoreanByConnectors(text: string): Segment[] {
   // 연결어미 패턴 (긴 것부터 매칭)
   const endings = Object.keys(KO_CONNECTIVE_ENDINGS).sort((a, b) => b.length - a.length);
 
-  // 첫 번째 연결어미만 찾아서 분리
-  for (const ending of endings) {
-    const idx = text.indexOf(ending);
-    // 연결어미가 문장 중간에 있어야 함 (끝에 있으면 분리 안 함)
-    if (idx !== -1 && idx > 0 && idx + ending.length < text.length) {
-      const beforeText = text.slice(0, idx + ending.length).trim();
-      const afterText = text.slice(idx + ending.length).trim();
+  // 구두점 제거한 버전으로 끝 체크 (?, !, . 등은 실제 텍스트 아님)
+  const textWithoutPunctuation = text.replace(/[.!?？！。]+$/, '');
 
-      if (beforeText && afterText) {
-        return [{ text: beforeText, connector: ending }, { text: afterText }];
+  // 공백으로 토큰 분리하여 각 토큰의 끝에서 연결어미 찾기
+  const tokens = textWithoutPunctuation.split(/\s+/);
+  const segments: Segment[] = [];
+  const currentTokens: string[] = [];
+
+  // 모든 토큰을 순회하면서 연결어미 찾기
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (!token) continue;
+
+    let foundEnding = false;
+
+    for (const ending of endings) {
+      if (token.endsWith(ending) && token.length > ending.length) {
+        // 연결어미 발견 - 어간 추출
+        let stem = token.slice(0, -ending.length);
+
+        // 하다 동사 특별 처리: 해서/해도/하면 등
+        // "피곤해서" → ending="해서", stem="피곤" → "피곤하다"
+        // "공부해서" → ending="해서", stem="공부" → "공부하다"
+        if (ending.startsWith('해') || ending === '하면' || ending === '하지만') {
+          // 하다 동사의 어간이므로 "하" 추가
+          stem = stem + '하';
+        }
+
+        // 어간에 '다' 붙여서 기본형으로 만듦
+        const verbForm = stem + '다';
+
+        // 현재까지의 토큰들 + 현재 동사 형태로 세그먼트 생성
+        const segmentText = [...currentTokens, verbForm].join(' ');
+        segments.push({ text: segmentText, connector: ending });
+        currentTokens.length = 0; // 초기화
+        foundEnding = true;
+        break;
       }
+    }
+
+    if (!foundEnding) {
+      currentTokens.push(token);
     }
   }
 
-  // 분리 불가 - 단문
-  return [{ text }];
+  // 남은 토큰이 있으면 마지막 세그먼트로 추가
+  if (currentTokens.length > 0) {
+    segments.push({ text: currentTokens.join(' ') });
+  }
+
+  // 세그먼트가 없으면 원본 텍스트 반환
+  if (segments.length === 0) {
+    return [{ text }];
+  }
+
+  return segments;
 }
 
 /**

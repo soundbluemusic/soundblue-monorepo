@@ -286,6 +286,10 @@ const KOREAN_CONNECTIVES: Record<string, { en: string; type: string; tense?: str
   는데: { en: 'but', type: 'but' },
   ㄴ데: { en: 'but', type: 'but' },
   니까: { en: 'because', type: 'reason' },
+  거나: { en: 'or', type: 'or' },
+  려고: { en: 'in order to', type: 'purpose' },
+  다가: { en: 'while', type: 'while' },
+  느라: { en: 'because of', type: 'reason' },
   // 1글자
   고: { en: 'and', type: 'and' },
   며: { en: 'and', type: 'and' },
@@ -533,11 +537,21 @@ function translateCompoundSentence(text: string): string {
   // 1. 절 분리 (연결어미 기반)
   const clauses = splitIntoClauses(text);
 
+  // DEBUG: 절 분리 결과 확인
+  console.log(
+    '[DEBUG translateCompoundSentence] input:',
+    text,
+    'clauses:',
+    JSON.stringify(clauses),
+  );
+
   // 2. 각 절 번역
   const translatedClauses: Array<{ text: string; connective?: ConnectiveInfo }> = [];
 
   for (const clause of clauses) {
     const translated = translateClauseKoToEn(clause.text);
+    // DEBUG
+    // console.log(`[DEBUG] clause: "${clause.text}" → translated: "${translated}"`);
     translatedClauses.push({
       text: translated,
       connective: clause.connective,

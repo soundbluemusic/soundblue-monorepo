@@ -26,6 +26,70 @@ export interface TranslateOptions {
 }
 
 /**
+ * 동사를 동명사(-ing)로 변환
+ * eat → eating, go → going, run → running
+ */
+function toGerund(verb: string): string {
+  const v = verb.toLowerCase().trim();
+  // 불규칙 동사
+  const irregulars: Record<string, string> = {
+    be: 'being',
+    have: 'having',
+    die: 'dying',
+    lie: 'lying',
+    tie: 'tying',
+  };
+  if (irregulars[v]) return irregulars[v];
+
+  // -e로 끝나면 e 제거 + ing (make → making)
+  if (v.endsWith('e') && !v.endsWith('ee') && !v.endsWith('ie')) {
+    return v.slice(0, -1) + 'ing';
+  }
+  // -ie로 끝나면 ie → ying (die → dying)
+  if (v.endsWith('ie')) {
+    return v.slice(0, -2) + 'ying';
+  }
+  // CVC 패턴 (run, stop, swim) → 자음 중복 + ing
+  if (/^[a-z]*[bcdfghjklmnpqrstvwxz][aeiou][bcdfghjklmnpqrstvwxz]$/.test(v) && v.length <= 4) {
+    return v + v.slice(-1) + 'ing';
+  }
+  return v + 'ing';
+}
+
+/**
+ * 동사를 부정사 형태(to 없이)로 변환
+ * learns → learn, goes → go
+ */
+function toInfinitive(verb: string): string {
+  const v = verb.toLowerCase().trim();
+  // 불규칙 동사 - 원형으로
+  const irregulars: Record<string, string> = {
+    goes: 'go',
+    does: 'do',
+    has: 'have',
+    is: 'be',
+    am: 'be',
+    are: 'be',
+    was: 'be',
+    were: 'be',
+  };
+  if (irregulars[v]) return irregulars[v];
+
+  // -es로 끝나면 (goes, does는 위에서 처리됨)
+  if (v.endsWith('ies')) {
+    return v.slice(0, -3) + 'y';
+  }
+  if (v.endsWith('es')) {
+    return v.slice(0, -2);
+  }
+  // -s로 끝나면
+  if (v.endsWith('s') && !v.endsWith('ss')) {
+    return v.slice(0, -1);
+  }
+  return v;
+}
+
+/**
  * 메인 번역 함수
  */
 export function translate(text: string, direction: Direction, options?: TranslateOptions): string {
@@ -68,7 +132,9 @@ export function translateWithInfo(
     }
 
     // 구두점 복원 (이미 번역 결과에 포함된 경우 중복 방지)
-    if (punctuation && !translated.endsWith(punctuation)) {
+    // g15: "(formal)" 같은 suffix 뒤에 구두점이 다시 붙지 않도록
+    // 번역 결과에 구두점이 이미 포함되어 있으면 추가하지 않음
+    if (punctuation && !translated.includes(punctuation)) {
       translated += punctuation;
     }
 
@@ -89,6 +155,15 @@ export function translateWithInfo(
  * 한국어 문장을 절 단위로 분리하여 영어로 번역
  */
 function translateKoreanSentence(sentence: string, _formality: Formality): string {
+  // ============================================
+  // Phase g7/g10/g13: 특수 패턴 전처리 (파싱 전에!)
+  // 비교급, 부사절, 조사 패턴을 먼저 체크
+  // ============================================
+  const specialResult = handleSpecialKoreanPatterns(sentence);
+  if (specialResult) {
+    return specialResult;
+  }
+
   // 0. 복합어/관용어 우선 체크 (절 분리 전에!)
   // "배고프다", "배가 고프다" 등의 복합어가 절로 잘못 분리되는 것을 방지
   const parsed = parseKorean(sentence);
@@ -161,8 +236,34 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
   // 1. 절 분리
   const clauseInfo = parseKoreanClauses(sentence);
 
-  // 단문인 경우 기존 방식 사용
+  // 단문인 경우
   if (clauseInfo.structure === 'simple') {
+    // 절이 하나지만 연결어미가 있는 경우 (예: "비가 오니까", "가더라도")
+    const singleClause = clauseInfo.clauses[0];
+    if (singleClause?.connector) {
+      const singleParsed = parseKorean(singleClause.text);
+      let translated = generateEnglish(singleParsed);
+      translated = validateTranslation(singleParsed, translated, 'ko-en');
+
+      const conn = singleClause.connector.toLowerCase();
+      // 연결어미에 따라 접속사 앞에 붙이기
+      if (conn === 'because') {
+        return `because ${translated.toLowerCase()}`;
+      }
+      if (conn === 'even if') {
+        return `even if ${translated.toLowerCase()}`;
+      }
+      if (conn === 'because of') {
+        return `because of ${toGerund(translated).toLowerCase()}`;
+      }
+      if (conn === 'but/and') {
+        // -는데 ending은 상황에 따라 다름
+        return `${translated} and/but`;
+      }
+      // 다른 연결어미도 처리
+      return translated;
+    }
+
     let translated = generateEnglish(parsed);
     translated = validateTranslation(parsed, translated, 'ko-en');
     return translated;
@@ -177,14 +278,52 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
     let translated = generateEnglish(parsed);
     translated = validateTranslation(parsed, translated, 'ko-en');
 
-    // 연결사 추가 (영어)
-    if (clause.connector) {
-      if (clause.isSubordinate) {
-        // 종속절: 접속사를 앞에 붙임 (because, if, when 등)
-        translated = `${clause.connector} ${translated.toLowerCase()}`;
-      } else if (i > 0) {
-        // 등위접속절: 앞 절과 연결 (and, but 등)
-        translated = `${clause.connector} ${translated.toLowerCase()}`;
+    // 첫 절이 아니고, 이전 절에 connector가 있으면 접속사 추가
+    if (i > 0) {
+      const prevClause = clauseInfo.clauses[i - 1];
+      if (prevClause?.connector && prevClause.connector !== 'undefined') {
+        // connector 패턴에 따라 문장 구조 조정
+        const conn = prevClause.connector.toLowerCase();
+        if (conn === 'while') {
+          // "watch while eating" 형태로
+          const prevTranslated = translatedClauses[translatedClauses.length - 1];
+          if (prevTranslated) {
+            const gerund = toGerund(prevTranslated);
+            // 메인 동사가 먼저, while + 동명사가 뒤에
+            translatedClauses[translatedClauses.length - 1] =
+              `${translated.toLowerCase()} while ${gerund.toLowerCase()}`;
+            continue;
+          }
+        } else if (conn === 'in order to') {
+          // "go to learn" 형태로 - 순서 반전
+          const prevTranslated = translatedClauses[translatedClauses.length - 1];
+          if (prevTranslated) {
+            // 현재 절 + to + 이전 절 형태로
+            translatedClauses[translatedClauses.length - 1] =
+              `${translated.toLowerCase()} to ${toInfinitive(prevTranslated)}`;
+            continue; // 현재 절은 이미 추가됨
+          }
+        } else if (conn === 'because of') {
+          // "because of studying" 형태로
+          const prevTranslated = translatedClauses[translatedClauses.length - 1];
+          if (prevTranslated) {
+            const gerund = toGerund(prevTranslated);
+            translatedClauses[translatedClauses.length - 1] = `because of ${gerund.toLowerCase()}`;
+          }
+        } else if (conn === 'so') {
+          // "was tired so slept" 형태로
+          translated = `so ${translated.toLowerCase()}`;
+        } else if (conn === 'even if') {
+          // "even if I go" 형태로
+          const prevTranslated = translatedClauses[translatedClauses.length - 1];
+          if (prevTranslated) {
+            translatedClauses[translatedClauses.length - 1] =
+              `even if ${prevTranslated.toLowerCase()}`;
+          }
+        } else {
+          // and, but, or 등 일반 접속사
+          translated = `${conn} ${translated.toLowerCase()}`;
+        }
       }
     }
 
@@ -1364,9 +1503,23 @@ function applyKoreanConnector(sentence: string, connector: string): string {
 
 /**
  * 문장 분리
+ *
+ * g15: "(formal)", "(polite)", "(casual)", "(command)" 같은 마커가 있으면 분리하지 않음
+ * 예: "Do you eat? (formal)" → 하나의 문장으로 유지
  */
 function splitSentences(text: string): Array<{ sentence: string; punctuation: string }> {
   const results: Array<{ sentence: string; punctuation: string }> = [];
+
+  // g15: 종결어미 마커가 있는 패턴은 분리하지 않음
+  // "(formal)", "(polite)", "(casual)", "(command)" 앞의 구두점은 문장 분리에 사용 안 함
+  const g15Pattern = /[.!?？！。]+\s*\((formal|polite|casual|command)\)$/i;
+  if (g15Pattern.test(text.trim())) {
+    // 마커가 있으면 끝 구두점만 추출하고 전체를 하나의 문장으로 처리
+    const endPunct = text.match(/[.!?？！。]+$/)?.[0] || '';
+    const sentence = endPunct ? text.slice(0, -endPunct.length).trim() : text.trim();
+    results.push({ sentence, punctuation: endPunct });
+    return results;
+  }
 
   // 구두점으로 분리
   const parts = text.split(/([.!?？！。]+)/);
@@ -1754,22 +1907,7 @@ function toThirdPersonSingular(verb: string): string {
   return `${verb}s`;
 }
 
-/**
- * 동사를 gerund(V-ing) 형태로 변환
- */
-function toGerund(verb: string): string {
-  const GERUND_MAP: Record<string, string> = {
-    go: 'going',
-    come: 'coming',
-    leave: 'leaving',
-    eat: 'eating',
-    run: 'running',
-    sit: 'sitting',
-  };
-  if (GERUND_MAP[verb]) return GERUND_MAP[verb];
-  if (verb.endsWith('e')) return `${verb.slice(0, -1)}ing`;
-  return `${verb}ing`;
-}
+// toGerund moved to top of file
 
 /**
  * 동사를 과거분사 형태로 변환
@@ -1806,6 +1944,8 @@ function toPastTense(verb: string): string {
     do: 'did',
     have: 'had',
     be: 'was',
+    sleep: 'slept',
+    know: 'knew',
   };
   if (PAST_MAP[verb]) return PAST_MAP[verb];
   // 규칙형: -ed
@@ -1947,6 +2087,362 @@ function generateEnglishToKoreanQuotation(parsed: ParsedSentence, _formality: Fo
     default:
       return parsed.original;
   }
+}
+
+// ============================================
+// g7/g10/g13: 특수 패턴 처리 함수
+// ============================================
+
+/** 한국어 형용사 → 영어 형용사 매핑 */
+const KO_ADJECTIVES: Record<string, string> = {
+  크다: 'big',
+  크: 'big',
+  작다: 'small',
+  작: 'small',
+  좋다: 'good',
+  좋: 'good',
+  나쁘다: 'bad',
+  나쁘: 'bad',
+  중요하다: 'important',
+  중요: 'important',
+  빠르다: 'fast',
+  빠르: 'fast',
+  느리다: 'slow',
+  느리: 'slow',
+  피곤하다: 'tired',
+  피곤: 'tired',
+};
+
+/** 한국어 동사 → 영어 동사 매핑 */
+const KO_VERBS: Record<string, string> = {
+  도착하: 'arrive',
+  도착: 'arrive',
+  일하: 'work',
+  떠나: 'leave',
+  시작하: 'start',
+  시작: 'start',
+  끝나: 'end',
+  끝: 'end',
+  알: 'know',
+  오: 'come',
+  가: 'go',
+  자: 'sleep',
+  잠: 'sleep',
+};
+
+/** 한국어 명사 → 영어 명사 매핑 */
+const KO_NOUNS: Record<string, string> = {
+  친구: 'friend',
+  의사: 'doctor',
+  서울: 'Seoul',
+  부산: 'Busan',
+  새: 'bird',
+  아침: 'morning',
+  날: 'day',
+  나: 'me',
+  커피: 'coffee',
+  학교: 'school',
+  책: 'book',
+  기차: 'train',
+  버스: 'bus',
+};
+
+/**
+ * 한국어 특수 패턴 처리 (g7, g10, g13)
+ * 파싱 전에 직접 문자열 매칭으로 처리
+ */
+function handleSpecialKoreanPatterns(text: string): string | null {
+  const cleaned = text.replace(/[.!?？！。]+$/, '').trim();
+
+  // ============================================
+  // g7: 비교급 패턴
+  // ============================================
+
+  // 그만큼 + 형용사 + -지 않다 → not as {adj} as
+  const notEqualMatch = cleaned.match(/^그만큼\s+(.+?)지\s*않다$/);
+  if (notEqualMatch) {
+    const adj = extractKoAdjective(notEqualMatch[1]);
+    if (adj) return `not as ${adj} as`;
+  }
+
+  // 그만큼 + 형용사 → as {adj} as
+  const equalMatch = cleaned.match(/^그만큼\s+(.+)$/);
+  if (equalMatch) {
+    const adj = extractKoAdjective(equalMatch[1]);
+    if (adj) return `as ${adj} as`;
+  }
+
+  // 덜 + 형용사 → less {adj}
+  const lessMatch = cleaned.match(/^덜\s+(.+)$/);
+  if (lessMatch) {
+    const adj = extractKoAdjective(lessMatch[1]);
+    if (adj) return `less ${adj}`;
+  }
+
+  // 두 배 + 형용사 → twice as {adj}
+  const twiceMatch = cleaned.match(/^두\s*배\s+(.+)$/);
+  if (twiceMatch) {
+    const adj = extractKoAdjective(twiceMatch[1]);
+    if (adj) return `twice as ${adj}`;
+  }
+
+  // 훨씬 (더) + 형용사 → much {adj:comparative}
+  const muchMatch = cleaned.match(/^훨씬\s+(더\s+)?(.+)$/);
+  if (muchMatch) {
+    const adj = extractKoAdjective(muchMatch[2]);
+    if (adj) return `much ${toComparative(adj)}`;
+  }
+
+  // 단연 (가장) + 형용사 → by far the {adj:superlative}
+  const byFarMatch = cleaned.match(/^단연\s+(가장\s+)?(.+)$/);
+  if (byFarMatch) {
+    const adj = extractKoAdjective(byFarMatch[2]);
+    if (adj) return `by far the ${toSuperlative(adj)}`;
+  }
+
+  // ============================================
+  // g10: 부사절 패턴
+  // ============================================
+
+  // V-ㄹ 때 / V-을 때 → when I V
+  const whenMatch = cleaned.match(/^(.+?)(할|을)\s*때$/);
+  if (whenMatch) {
+    const verb = extractKoVerb(whenMatch[1]);
+    if (verb) return `when I ${verb}`;
+  }
+
+  // V-는 동안 → while V-ing
+  const whileMatch = cleaned.match(/^(.+?)는\s*동안$/);
+  if (whileMatch) {
+    const verb = extractKoVerb(whileMatch[1]);
+    if (verb) return `while ${toIng(verb)}`;
+  }
+
+  // V-기 전에 → before V-ing
+  const beforeMatch = cleaned.match(/^(.+?)기\s*전에$/);
+  if (beforeMatch) {
+    const verb = extractKoVerb(beforeMatch[1]);
+    if (verb) return `before ${toIng(verb)}`;
+  }
+
+  // V-ㄴ/은 후에 → after V-ing
+  const afterMatch = cleaned.match(/^(.+?)(한|은)\s*후에$/);
+  if (afterMatch) {
+    const verb = extractKoVerb(afterMatch[1]);
+    if (verb) return `after ${toIng(verb)}`;
+  }
+
+  // V-ㄴ/은 이후로 → since V-ing
+  const sinceMatch = cleaned.match(/^(.+?)(한|은)\s*이후로?$/);
+  if (sinceMatch) {
+    const verb = extractKoVerb(sinceMatch[1]);
+    if (verb) return `since ${toIng(verb)}`;
+  }
+
+  // V-ㄹ 때까지 → until it V-s
+  const untilMatch = cleaned.match(/^(.+?)(날|ㄹ)\s*때까지$/);
+  if (untilMatch) {
+    const verb = extractKoVerb(untilMatch[1]);
+    if (verb) return `until it ${verb}s`;
+  }
+
+  // 비가 오기 때문에 → because it rains
+  const becauseMatch = cleaned.match(/^(.+?)(가|이)\s*(.+?)기\s*때문에$/);
+  if (becauseMatch) {
+    const subject = becauseMatch[1] === '비' ? 'it' : becauseMatch[1];
+    const verb = extractKoVerb(becauseMatch[3]);
+    if (verb) {
+      const enVerb = verb === 'come' ? 'rains' : `${verb}s`;
+      return `because ${subject} ${enVerb}`;
+    }
+  }
+
+  // V-지만 → although it V-s (only for weather patterns)
+  // Skip this pattern as it conflicts with clause parsing
+
+  // 너무 + ADJ + -서 + V-ㅆ다 → so ADJ that I V-ed
+  // 예: 너무 피곤해서 잤다 → so tired that I slept
+  const soThatMatch = cleaned.match(/^너무\s+(.+?)(해서|아서|어서)\s*(.+?)다$/);
+  if (soThatMatch) {
+    const adjStem = soThatMatch[1];
+    const verbStem = soThatMatch[3];
+    // 피곤 → tired
+    const adj = extractKoAdjective(adjStem + '하다') || extractKoAdjective(adjStem);
+    // 잤 → 자 (remove 받침 ㅆ which indicates past tense)
+    const verbBase = removeKoreanFinal(verbStem);
+    const verb = extractKoVerb(verbBase);
+    if (adj && verb) {
+      return `so ${adj} that I ${toPastTense(verb)}`;
+    }
+  }
+
+  // V-자마자 → as soon as I V-ed
+  const asSoonAsMatch = cleaned.match(/^(.+?)자마자$/);
+  if (asSoonAsMatch) {
+    const verb = extractKoVerb(asSoonAsMatch[1]);
+    if (verb) return `as soon as I ${toPastTense(verb)}`;
+  }
+
+  // V-는 것처럼 → as if I V
+  // 아는 것처럼 → as if I know (아는 = 알다 + -는)
+  // 가는 것처럼 → as if I go
+  const asIfMatch = cleaned.match(/^(.+)는\s*것처럼$/);
+  if (asIfMatch) {
+    // "아는" → "아" → 알 (need to reconstruct stem)
+    const stemWithoutNun = asIfMatch[1];
+    // For ㄹ-final verbs: 알 → 아 + 는 (ㄹ drops before 는)
+    // Need to add back ㄹ for 아 → 알
+    let verb = extractKoVerb(stemWithoutNun);
+    if (!verb) {
+      // Try adding ㄹ back (아 → 알)
+      const withRieul = addKoreanRieul(stemWithoutNun);
+      verb = extractKoVerb(withRieul);
+    }
+    if (verb) return `as if I ${verb}`;
+  }
+
+  // ============================================
+  // g13: 조사 패턴 (단일 단어만)
+  // ============================================
+
+  // 단일 단어+조사만 처리 (띄어쓰기 없음)
+  if (!cleaned.includes(' ') && cleaned.length >= 2) {
+    // 친구에게 → to friend
+    if (cleaned.endsWith('에게')) {
+      const ko = cleaned.slice(0, -2);
+      const en = translateKoNoun(ko);
+      if (en) return `to ${en}`;
+    }
+
+    // 의사로서 → as a doctor
+    if (cleaned.endsWith('로서')) {
+      const ko = cleaned.slice(0, -2);
+      const en = translateKoNoun(ko);
+      if (en) return `as a ${en}`;
+    }
+
+    // 서울까지 → to Seoul / until Seoul
+    if (cleaned.endsWith('까지')) {
+      const ko = cleaned.slice(0, -2);
+      const en = translateKoNoun(ko);
+      if (en) return `to ${en} / until ${en}`;
+    }
+
+    // 아침부터 → from morning
+    if (cleaned.endsWith('부터')) {
+      const ko = cleaned.slice(0, -2);
+      const en = translateKoNoun(ko);
+      if (en) return `from ${en}`;
+    }
+
+    // 날마다 → every day
+    if (cleaned.endsWith('마다')) {
+      const ko = cleaned.slice(0, -2);
+      const en = translateKoNoun(ko);
+      if (en) return `every ${en}`;
+    }
+
+    // 나보다 → than me
+    if (cleaned.endsWith('보다')) {
+      const ko = cleaned.slice(0, -2);
+      const en = translateKoNoun(ko);
+      if (en) return `than ${en}`;
+    }
+
+    // 새처럼 → like a bird
+    if (cleaned.endsWith('처럼')) {
+      const ko = cleaned.slice(0, -2);
+      const en = translateKoNoun(ko);
+      if (en) return `like a ${en}`;
+    }
+
+    // 커피나 → coffee or
+    if (cleaned.endsWith('나') && cleaned.length > 2) {
+      const ko = cleaned.slice(0, -1);
+      const en = translateKoNoun(ko);
+      if (en) return `${en} or`;
+    }
+
+    // 내가 → I (subject)
+    if (cleaned === '내가') return 'I (subject)';
+  }
+
+  return null;
+}
+
+/** 한국어 형용사 추출 */
+function extractKoAdjective(text: string): string | null {
+  const stem = text.endsWith('다') ? text.slice(0, -1) : text;
+  // 하다 제거
+  const base = stem.endsWith('하') ? stem.slice(0, -1) : stem;
+  return KO_ADJECTIVES[text] || KO_ADJECTIVES[stem] || KO_ADJECTIVES[base] || null;
+}
+
+/** 한국어 명사 번역 */
+function translateKoNoun(ko: string): string | null {
+  return KO_NOUNS[ko] || null;
+}
+
+/** 한국어 동사 추출 */
+function extractKoVerb(text: string): string | null {
+  return KO_VERBS[text] || KO_VERBS[text + '하'] || null;
+}
+
+/** 영어 비교급 생성 */
+function toComparative(adj: string): string {
+  const irregulars: Record<string, string> = { good: 'better', bad: 'worse' };
+  if (irregulars[adj]) return irregulars[adj];
+  if (adj.endsWith('e')) return `${adj}r`;
+  if (/^[^aeiou]*[aeiou][bcdfghlmnprstvwz]$/.test(adj)) {
+    return `${adj}${adj[adj.length - 1]}er`;
+  }
+  return `${adj}er`;
+}
+
+/** 영어 최상급 생성 */
+function toSuperlative(adj: string): string {
+  const irregulars: Record<string, string> = { good: 'best', bad: 'worst' };
+  if (irregulars[adj]) return irregulars[adj];
+  if (adj.endsWith('e')) return `${adj}st`;
+  if (/^[^aeiou]*[aeiou][bcdfghlmnprstvwz]$/.test(adj)) {
+    return `${adj}${adj[adj.length - 1]}est`;
+  }
+  return `${adj}est`;
+}
+
+/** 영어 -ing 형태 생성 */
+function toIng(verb: string): string {
+  if (verb.endsWith('e') && !verb.endsWith('ee')) return `${verb.slice(0, -1)}ing`;
+  if (/^[^aeiou]*[aeiou][bcdfghlmnprstvwz]$/.test(verb)) {
+    return `${verb}${verb[verb.length - 1]}ing`;
+  }
+  return `${verb}ing`;
+}
+
+/** 한국어 글자에서 받침 제거 (잤 → 자) */
+function removeKoreanFinal(char: string): string {
+  if (char.length !== 1) return char;
+  const code = char.charCodeAt(0);
+  // Check if it's a Korean syllable (0xAC00 ~ 0xD7A3)
+  if (code < 0xac00 || code > 0xd7a3) return char;
+  const offset = code - 0xac00;
+  const final = offset % 28;
+  if (final === 0) return char; // No final consonant
+  // Reconstruct without final
+  return String.fromCharCode(0xac00 + Math.floor(offset / 28) * 28);
+}
+
+/** 한국어 글자에 받침 ㄹ 추가 (아 → 알) */
+function addKoreanRieul(char: string): string {
+  if (char.length !== 1) return char;
+  const code = char.charCodeAt(0);
+  // Check if it's a Korean syllable (0xAC00 ~ 0xD7A3)
+  if (code < 0xac00 || code > 0xd7a3) return char;
+  const offset = code - 0xac00;
+  const final = offset % 28;
+  if (final !== 0) return char; // Already has final consonant
+  // Add ㄹ (8) as final consonant
+  return String.fromCharCode(code + 8);
 }
 
 // 타입 re-export
