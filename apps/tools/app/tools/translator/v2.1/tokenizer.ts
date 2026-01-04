@@ -360,6 +360,20 @@ function extractVerbStemByRule(
     word.endsWith('해요') ||
     word.endsWith('합니다');
 
+  /**
+   * 하다동사의 영어 번역을 조회
+   *
+   * 조회 우선순위:
+   * 1. KO_EN[stem] - 어간 전체 (좋아하 → like)
+   * 2. VERB_STEMS[stem] - 동사 어간 사전
+   * 3. NOUN_TO_VERB[prefix] - 명사→동사 특별 변환 (노래 → sing)
+   * 4. KO_EN[prefix] - 명사 번역을 동사로 사용 (운동 → exercise)
+   * 5. 'do' - fallback
+   */
+  const lookupHadaVerb = (prefix: string, stem: string): string => {
+    return KO_EN[stem] || VERB_STEMS[stem] || NOUN_TO_VERB[prefix] || KO_EN[prefix] || 'do';
+  };
+
   if (!isHadaPattern) {
     for (const [conjugated, info] of Object.entries(IRREGULAR_KO_VERBS)) {
       if (word.startsWith(conjugated)) {
@@ -381,17 +395,9 @@ function extractVerbStemByRule(
     // "공부했어" → prefix "공부", 어간 "공부하"
     const stem = prefix ? `${prefix}하` : '하';
 
-    // 영어 동사 결정 (우선순위):
-    // 1. NOUN_TO_VERB[prefix] - 명사→동사 특별 변환 (노래→sing)
-    // 2. KO_EN[prefix] - 명사 번역을 그대로 동사로 사용 (운동→exercise)
-    // 3. VERB_STEMS[stem] - 동사 어간 사전 (일하→work)
-    // 4. 'do' - fallback
-    let en: string;
-    if (prefix) {
-      en = NOUN_TO_VERB[prefix] || KO_EN[prefix] || VERB_STEMS[stem] || 'do';
-    } else {
-      en = 'do';
-    }
+    // 영어 동사 결정 - lookupHadaVerb 사용
+    // 우선순위: KO_EN[stem] → VERB_STEMS[stem] → NOUN_TO_VERB[prefix] → KO_EN[prefix] → 'do'
+    const en = prefix ? lookupHadaVerb(prefix, stem) : 'do';
 
     return { stem, tense: 'past', en };
   }
@@ -414,8 +420,9 @@ function extractVerbStemByRule(
       const prefix = match[1];
       const stem = `${prefix}하`;
 
-      // 영어 동사 결정 (과거형과 동일한 우선순위)
-      const en = NOUN_TO_VERB[prefix] || KO_EN[prefix] || VERB_STEMS[stem] || 'do';
+      // 영어 동사 결정 - lookupHadaVerb 사용
+      // 우선순위: KO_EN[stem] → VERB_STEMS[stem] → NOUN_TO_VERB[prefix] → KO_EN[prefix] → 'do'
+      const en = lookupHadaVerb(prefix, stem);
 
       return { stem, tense: 'present', en };
     }
@@ -2344,8 +2351,14 @@ function tokenizeKoreanWord(word: string, context?: string): Token {
     // prefix가 있으면 (예: "공부해" → prefix="공부", contracted={stem:"하", ...})
     // prefix가 없으면 단독 동사 (예: "해" → prefix="", contracted={stem:"하", ...})
     const verbStem = prefix ? `${prefix}${contracted.stem}` : contracted.stem;
+    // 영어 동사 결정 - lookupHadaVerb와 동일한 우선순위 적용
+    // 우선순위: KO_EN[verbStem] → VERB_STEMS[verbStem] → NOUN_TO_VERB[prefix] → KO_EN[prefix] → baseMeaning
     const verbEn = prefix
-      ? NOUN_TO_VERB[prefix] || KO_EN[prefix] || contracted.baseMeaning
+      ? KO_EN[verbStem] ||
+        VERB_STEMS[verbStem] ||
+        NOUN_TO_VERB[prefix] ||
+        KO_EN[prefix] ||
+        contracted.baseMeaning
       : contracted.baseMeaning;
 
     return {
