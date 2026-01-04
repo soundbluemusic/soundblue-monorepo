@@ -208,6 +208,19 @@ export function validateWordTranslation(
     };
   }
 
+  // 2.5. 조사 제거 후 비교 (운동 vs 운동을)
+  // 역번역 결과에서 조사를 제거하고 원본과 비교
+  const KOREAN_PARTICLES = /[을를이가은는도만에서로으로와과하고의]$/;
+  const reverseStripped = reverseLower.replace(KOREAN_PARTICLES, '');
+  const originalStripped = originalLower.replace(KOREAN_PARTICLES, '');
+  if (reverseStripped === originalStripped) {
+    return {
+      valid: true,
+      reverseTranslation,
+      confidence: 0.95,
+    };
+  }
+
   // 3. 동의어 허용 집합 확인
   const allowedSynonyms = REVERSE_VALID[originalLower];
   if (allowedSynonyms) {
