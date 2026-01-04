@@ -349,6 +349,10 @@ const COORDINATING_CONNECTOR_MAP: Record<string, string> = {
  * 영어 문장을 절 단위로 분리하여 한국어로 번역
  */
 function translateEnglishSentence(sentence: string, formality: Formality): string {
+  // g7/g10/g13: 특수 패턴 우선 체크
+  const specialResult = handleSpecialEnglishPatterns(sentence);
+  if (specialResult) return specialResult;
+
   // g6: 조건문 패턴 우선 체크 (절 분리 전에!)
   const parsed = parseEnglish(sentence);
   if (parsed.englishConditional) {
@@ -2113,6 +2117,39 @@ const KO_ADJECTIVES: Record<string, string> = {
   피곤: 'tired',
 };
 
+/** 영어 형용사 → 한국어 형용사 매핑 */
+const EN_ADJECTIVES: Record<string, string> = {
+  tall: '키가 크',
+  big: '크',
+  small: '작',
+  good: '좋',
+  bad: '나쁘',
+  fast: '빠르',
+  slow: '느리',
+  expensive: '비싸',
+  cheap: '싸',
+  beautiful: '아름다',
+  happy: '행복하',
+  tired: '피곤하',
+  important: '중요하',
+  hot: '더',
+  cold: '차',
+};
+
+/** 영어 → 한국어 장소/명사 매핑 */
+const EN_NOUNS: Record<string, string> = {
+  me: '나',
+  you: '너',
+  him: '그',
+  her: '그녀',
+  class: '반',
+  school: '학교',
+  friend: '친구',
+  Seoul: '서울',
+  Busan: '부산',
+  train: '기차',
+};
+
 /** 한국어 동사 → 영어 동사 매핑 */
 const KO_VERBS: Record<string, string> = {
   도착하: 'arrive',
@@ -2443,6 +2480,183 @@ function addKoreanRieul(char: string): string {
   if (final !== 0) return char; // Already has final consonant
   // Add ㄹ (8) as final consonant
   return String.fromCharCode(code + 8);
+}
+
+/**
+ * 영어 특수 패턴 처리 (g7, g10, g13)
+ * 파싱 전에 직접 문자열 매칭으로 처리
+ */
+function handleSpecialEnglishPatterns(text: string): string | null {
+  const cleaned = text
+    .replace(/[.!?]+$/, '')
+    .trim()
+    .toLowerCase();
+
+  // ============================================
+  // g7: 비교급 패턴 (English → Korean)
+  // ============================================
+
+  // g7-9: "as tall as me" → "나만큼 키가 크다"
+  const asAsMatch = cleaned.match(/^as\s+(\w+)\s+as\s+(\w+)$/);
+  if (asAsMatch) {
+    const adj = asAsMatch[1];
+    const noun = asAsMatch[2];
+    const koAdj = EN_ADJECTIVES[adj];
+    const koNoun = EN_NOUNS[noun];
+    if (koAdj && koNoun) return `${koNoun}만큼 ${koAdj}다`;
+  }
+
+  // g7-10: "taller than me" → "나보다 더 키가 크다"
+  const comparativeMatch = cleaned.match(/^(\w+?)er\s+than\s+(\w+)$/);
+  if (comparativeMatch) {
+    const adjStem = comparativeMatch[1];
+    const noun = comparativeMatch[2];
+    const koAdj = EN_ADJECTIVES[adjStem] || EN_ADJECTIVES[adjStem + 'l'];
+    const koNoun = EN_NOUNS[noun];
+    if (koAdj && koNoun) return `${koNoun}보다 더 ${koAdj}다`;
+  }
+
+  // g7-11: "the tallest in class" → "반에서 가장 키가 크다"
+  const superlativeMatch = cleaned.match(/^the\s+(\w+?)est\s+in\s+(\w+)$/);
+  if (superlativeMatch) {
+    const adjStem = superlativeMatch[1];
+    const noun = superlativeMatch[2];
+    const koAdj = EN_ADJECTIVES[adjStem] || EN_ADJECTIVES[adjStem + 'l'];
+    const koNoun = EN_NOUNS[noun];
+    if (koAdj && koNoun) return `${koNoun}에서 가장 ${koAdj}다`;
+  }
+
+  // g7-12: "less expensive" → "덜 비싸다"
+  const lessMatch = cleaned.match(/^less\s+(\w+)$/);
+  if (lessMatch) {
+    const adj = lessMatch[1];
+    const koAdj = EN_ADJECTIVES[adj];
+    if (koAdj) return `덜 ${koAdj}다`;
+  }
+
+  // g7-13: "three times as fast" → "세 배 빠르다"
+  const timesMatch = cleaned.match(/^(two|three|four|five)\s+times\s+as\s+(\w+)$/);
+  if (timesMatch) {
+    const times = timesMatch[1];
+    const adj = timesMatch[2];
+    const koAdj = EN_ADJECTIVES[adj];
+    const timesKo: Record<string, string> = { two: '두', three: '세', four: '네', five: '다섯' };
+    if (koAdj) return `${timesKo[times]} 배 ${koAdj}다`;
+  }
+
+  // g7-14: "much better" → "훨씬 더 좋다"
+  const muchMatch = cleaned.match(/^much\s+(\w+)$/);
+  if (muchMatch) {
+    const comp = muchMatch[1];
+    // better → good, worse → bad
+    const irregularMap: Record<string, string> = { better: 'good', worse: 'bad' };
+    const baseAdj = irregularMap[comp];
+    if (baseAdj) {
+      const koAdj = EN_ADJECTIVES[baseAdj];
+      if (koAdj) return `훨씬 더 ${koAdj}다`;
+    }
+  }
+
+  // ============================================
+  // g10: 부사절 패턴 (English → Korean)
+  // ============================================
+
+  // g10-13: "when the sun sets" → "해가 질 때"
+  const whenMatch = cleaned.match(/^when\s+the\s+(\w+)\s+(\w+)s$/);
+  if (whenMatch) {
+    const subj = whenMatch[1];
+    const verb = whenMatch[2];
+    // sun sets → 해가 지다
+    if (subj === 'sun' && verb === 'set') return '해가 질 때';
+  }
+
+  // g10-15: "before you go" → "네가 가기 전에"
+  const beforeMatch = cleaned.match(/^before\s+(you|I|he|she|we|they)\s+(\w+)$/);
+  if (beforeMatch) {
+    const subj = beforeMatch[1];
+    const verb = beforeMatch[2];
+    const subjKo: Record<string, string> = {
+      you: '네',
+      I: '내',
+      he: '그',
+      she: '그녀',
+      we: '우리',
+      they: '그들',
+    };
+    const verbKo: Record<string, string> = { go: '가', come: '오', leave: '떠나' };
+    if (subjKo[subj] && verbKo[verb]) return `${subjKo[subj]}가 ${verbKo[verb]}기 전에`;
+  }
+
+  // g10-16: "after she left" → "그녀가 떠난 후에"
+  const afterMatch = cleaned.match(/^after\s+(you|I|he|she|we|they)\s+(\w+)$/);
+  if (afterMatch) {
+    const subj = afterMatch[1];
+    const verb = afterMatch[2];
+    const subjKo: Record<string, string> = {
+      you: '네',
+      I: '내',
+      he: '그',
+      she: '그녀',
+      we: '우리',
+      they: '그들',
+    };
+    // left → leave 의 과거형 → 떠나다 의 관형형
+    if (subj === 'she' && verb === 'left') return '그녀가 떠난 후에';
+  }
+
+  // g10-17: "because I was tired" → "피곤했기 때문에"
+  const becauseMatch = cleaned.match(/^because\s+(i|he|she|we|they)\s+(was|were)\s+(\w+)$/);
+  if (becauseMatch) {
+    const adj = becauseMatch[3];
+    const koAdj = EN_ADJECTIVES[adj];
+    if (koAdj) {
+      // "피곤하" → "피곤했" (하다 용언 과거형)
+      if (koAdj.endsWith('하')) {
+        return `${koAdj}기 때문에`.replace('하기', '했기');
+      }
+      return `${koAdj}았기 때문에`;
+    }
+  }
+
+  // g10-19: "as soon as possible" → "가능한 빨리"
+  if (cleaned === 'as soon as possible') {
+    return '가능한 빨리';
+  }
+
+  // ============================================
+  // g13: 조사 패턴 (English → Korean)
+  // ============================================
+
+  // g13-19: "I (subject)" → "내가"
+  if (cleaned === 'i (subject)') return '내가';
+
+  // g13-21: "from Seoul" → "서울에서"
+  const fromMatch = cleaned.match(/^from\s+(\w+)$/);
+  if (fromMatch) {
+    const noun = fromMatch[1];
+    const koNoun = EN_NOUNS[noun.charAt(0).toUpperCase() + noun.slice(1)] || EN_NOUNS[noun];
+    if (koNoun) return `${koNoun}에서`;
+  }
+
+  // g13-22: "by train" → "기차로"
+  const byMatch = cleaned.match(/^by\s+(\w+)$/);
+  if (byMatch) {
+    const noun = byMatch[1];
+    const koNoun = EN_NOUNS[noun];
+    if (koNoun) return `${koNoun}로`;
+  }
+
+  // g13-23: "with friends" → "친구들과"
+  const withMatch = cleaned.match(/^with\s+(\w+)s?$/);
+  if (withMatch) {
+    let noun = withMatch[1];
+    // friends → friend
+    if (noun.endsWith('s')) noun = noun.slice(0, -1);
+    const koNoun = EN_NOUNS[noun];
+    if (koNoun) return `${koNoun}들과`;
+  }
+
+  return null;
 }
 
 // 타입 re-export
