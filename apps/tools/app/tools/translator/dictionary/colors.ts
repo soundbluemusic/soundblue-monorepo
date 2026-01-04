@@ -214,7 +214,7 @@ export const koToEnColors: Record<string, string> = {
   와사비색: 'Wasabi',
   스미: 'Sumi',
   먹색: 'Sumi',
-  아이: 'Ai',
+  아이색: 'Ai', // 쪽색 (indigo) - 아이(child)와 충돌 방지
   쪽색: 'Ai',
   아카네: 'Akane',
   꼭두서니색: 'Akane',

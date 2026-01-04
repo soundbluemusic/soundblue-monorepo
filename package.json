@@ -37,6 +37,7 @@
     "@inlang/plugin-m-function-matcher": "^2.1.0",
     "@inlang/plugin-message-format": "^4.0.0",
     "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.57.0",
     "@size-limit/preset-app": "^12.0.0",
     "@storybook/addon-a11y": "^10.1.11",
     "@storybook/react": "^10.1.11",

@@ -5,9 +5,13 @@
 import { ARTS_EN_KO, ARTS_KO_EN } from './arts';
 import { ALL_BODY_EN_KO, ALL_BODY_KO_EN, BODY_STATS } from './body';
 import { BODY_MOVEMENTS_EN_KO, BODY_MOVEMENTS_KO_EN } from './body-movements';
+import { BOOKS_EN_KO, BOOKS_KO_EN } from './books';
 import { EDUCATION_EN_KO, EDUCATION_KO_EN } from './education';
 import { EMOTIONS_EN_KO, EMOTIONS_KO_EN } from './emotions';
 import { FITNESS_EN_KO, FITNESS_KO_EN } from './fitness';
+import { FOOD_EN_KO, FOOD_KO_EN } from './food';
+import { HOME_EN_KO, HOME_KO_EN } from './home';
+import { HOSPITAL_EN_KO, HOSPITAL_KO_EN } from './hospital';
 import { LEGAL_EN_KO, LEGAL_KO_EN } from './legal';
 import { MEDICAL_EN_KO, MEDICAL_KO_EN } from './medical';
 import { SHOPPING_EN_KO, SHOPPING_KO_EN } from './shopping';
@@ -18,9 +22,13 @@ import { TECHNOLOGY_EN_KO, TECHNOLOGY_KO_EN } from './technology';
 export { ARTS_EN_KO, ARTS_KO_EN } from './arts';
 export * from './body';
 export { BODY_MOVEMENTS_EN_KO, BODY_MOVEMENTS_KO_EN } from './body-movements';
+export { BOOKS_EN_KO, BOOKS_KO_EN } from './books';
 export { EDUCATION_EN_KO, EDUCATION_KO_EN } from './education';
 export { EMOTIONS_EN_KO, EMOTIONS_KO_EN } from './emotions';
 export { FITNESS_EN_KO, FITNESS_KO_EN } from './fitness';
+export { FOOD_EN_KO, FOOD_KO_EN } from './food';
+export { HOME_EN_KO, HOME_KO_EN } from './home';
+export { HOSPITAL_EN_KO, HOSPITAL_KO_EN } from './hospital';
 export { LEGAL_EN_KO, LEGAL_KO_EN } from './legal';
 export { MEDICAL_EN_KO, MEDICAL_KO_EN } from './medical';
 export { SHOPPING_EN_KO, SHOPPING_KO_EN } from './shopping';
@@ -48,6 +56,10 @@ export const ALL_DOMAINS_KO_EN: Record<string, string> = {
   ...BODY_MOVEMENTS_KO_EN,
   ...ALL_BODY_KO_EN,
   ...TECHNOLOGY_KO_EN,
+  ...BOOKS_KO_EN,
+  ...FOOD_KO_EN,
+  ...HOME_KO_EN,
+  ...HOSPITAL_KO_EN,
 };
 
 /**
@@ -65,6 +77,10 @@ export const ALL_DOMAINS_EN_KO: Record<string, string> = {
   ...BODY_MOVEMENTS_EN_KO,
   ...ALL_BODY_EN_KO,
   ...TECHNOLOGY_EN_KO,
+  ...BOOKS_EN_KO,
+  ...FOOD_EN_KO,
+  ...HOME_EN_KO,
+  ...HOSPITAL_EN_KO,
 };
 
 /**
@@ -82,6 +98,10 @@ export const DOMAIN_STATS = {
   bodyMovements: Object.keys(BODY_MOVEMENTS_KO_EN).length,
   body: BODY_STATS,
   technology: Object.keys(TECHNOLOGY_KO_EN).length,
+  books: Object.keys(BOOKS_KO_EN).length,
+  food: Object.keys(FOOD_KO_EN).length,
+  home: Object.keys(HOME_KO_EN).length,
+  hospital: Object.keys(HOSPITAL_KO_EN).length,
   get total() {
     return Object.keys(ALL_DOMAINS_KO_EN).length;
   },

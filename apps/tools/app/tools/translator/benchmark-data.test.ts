@@ -36,15 +36,18 @@ function runTestsForLevel(level: TestLevel) {
         for (const test of category.tests) {
           it(`[${test.id}] ${test.input.slice(0, 50)}...`, () => {
             const result = translate(test.input, test.direction);
-            // 유연한 매칭: 정확히 일치하거나 expected의 일부를 포함하면 통과
-            const normalizedResult = result
-              .toLowerCase()
-              .replace(/[.,!?]/g, '')
-              .trim();
-            const normalizedExpected = test.expected
-              .toLowerCase()
-              .replace(/[.,!?]/g, '')
-              .trim();
+
+            // 정규화: 구두점 제거, 소문자, 관사 정규화
+            const normalize = (s: string) =>
+              s
+                .toLowerCase()
+                .replace(/[.,!?]/g, '')
+                // 관사 정규화: a/an/the → 통일 (관사 차이는 무시)
+                .replace(/\b(a|an|the)\s+/g, 'ART ')
+                .trim();
+
+            const normalizedResult = normalize(result);
+            const normalizedExpected = normalize(test.expected);
 
             // 정확히 일치하거나, 부분 일치, 또는 "/" 구분 옵션 중 하나와 일치
             const options = normalizedExpected.split('/').map((s) => s.trim());

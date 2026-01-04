@@ -698,6 +698,9 @@ const manualKoToEnWords: Record<string, string> = {
   열쇠: 'key',
   문: 'door',
   창문: 'window',
+  소리: 'sound',
+  목소리: 'voice',
+  소음: 'noise',
   의자: 'chair',
   책상: 'desk',
   테이블: 'table',
@@ -1913,6 +1916,15 @@ const manualKoToEnWords: Record<string, string> = {
   // === Level 2 조건/가정 관련 (기존 미포함 항목만) ===
   만약: 'if',
   바로: 'right',
+  // g6 조건문 관련 단어
+  부자: 'rich',
+  젖: 'get wet',
+  젖다: 'get wet',
+  젖는다: 'gets wet',
+  서두르: 'hurry',
+  서두르다: 'hurry',
+  어렵다: 'hard',
+  어려우: 'hard',
   도전: 'challenge',
   도전했: 'challenged',
   도전하: 'challenge',
@@ -2050,10 +2062,10 @@ const manualEnToKoWords: Record<string, string> = {
   done: '한',
 
   // === 핵심 동사 (기본형 + 활용형) ===
-  run: '달리다',
-  runs: '달린다',
-  ran: '달렸다',
-  running: '달리는',
+  run: '뛰다',
+  runs: '뛴다',
+  ran: '뛰었다',
+  running: '뛰는',
 
   get: '받다',
   gets: '받다',
@@ -2636,6 +2648,7 @@ const manualEnToKoWords: Record<string, string> = {
 
 // 역방향 사전 (영→한) 자동 생성 + 수동 사전 병합
 export const enToKoWords: Record<string, string> = {
+  // Auto-generated from manualKoToEnWords
   ...Object.fromEntries(
     Object.entries(manualKoToEnWords).map(([ko, en]) => [en.toLowerCase(), ko]),
   ),

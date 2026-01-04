@@ -32,6 +32,9 @@ importers:
       '@lhci/cli':
         specifier: ^0.15.1
         version: 0.15.1
+      '@playwright/test':
+        specifier: ^1.57.0
+        version: 1.57.0
       '@size-limit/preset-app':
         specifier: ^12.0.0
         version: 12.0.0(size-limit@12.0.0(jiti@2.6.1))
