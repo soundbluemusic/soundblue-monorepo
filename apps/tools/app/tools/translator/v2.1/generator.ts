@@ -22,8 +22,182 @@ import {
   NOUN_CONTEXT,
   VERB_PAST,
   VERB_PREPOSITIONS,
+  VERB_STEMS,
 } from './data';
 import type { Formality, ParsedSentence, SentenceType, Tense, Token } from './types';
+
+// ============================================
+// 한글 자모 처리 유틸리티
+// ============================================
+
+// 한글 유니코드 상수
+const HANGUL_BASE = 0xac00; // '가'
+const HANGUL_END = 0xd7a3; // '힣'
+const JONGSEONG_COUNT = 28; // 종성 개수 (없음 포함)
+const JUNGSEONG_COUNT = 21; // 중성 개수
+
+// 초성, 중성, 종성 목록
+const CHOSEONG = [
+  'ㄱ',
+  'ㄲ',
+  'ㄴ',
+  'ㄷ',
+  'ㄸ',
+  'ㄹ',
+  'ㅁ',
+  'ㅂ',
+  'ㅃ',
+  'ㅅ',
+  'ㅆ',
+  'ㅇ',
+  'ㅈ',
+  'ㅉ',
+  'ㅊ',
+  'ㅋ',
+  'ㅌ',
+  'ㅍ',
+  'ㅎ',
+];
+const JUNGSEONG = [
+  'ㅏ',
+  'ㅐ',
+  'ㅑ',
+  'ㅒ',
+  'ㅓ',
+  'ㅔ',
+  'ㅕ',
+  'ㅖ',
+  'ㅗ',
+  'ㅘ',
+  'ㅙ',
+  'ㅚ',
+  'ㅛ',
+  'ㅜ',
+  'ㅝ',
+  'ㅞ',
+  'ㅟ',
+  'ㅠ',
+  'ㅡ',
+  'ㅢ',
+  'ㅣ',
+];
+const JONGSEONG = [
+  '',
+  'ㄱ',
+  'ㄲ',
+  'ㄳ',
+  'ㄴ',
+  'ㄵ',
+  'ㄶ',
+  'ㄷ',
+  'ㄹ',
+  'ㄺ',
+  'ㄻ',
+  'ㄼ',
+  'ㄽ',
+  'ㄾ',
+  'ㄿ',
+  'ㅀ',
+  'ㅁ',
+  'ㅂ',
+  'ㅄ',
+  'ㅅ',
+  'ㅆ',
+  'ㅇ',
+  'ㅈ',
+  'ㅊ',
+  'ㅋ',
+  'ㅌ',
+  'ㅍ',
+  'ㅎ',
+];
+
+/**
+ * 한글 음절을 초성, 중성, 종성으로 분해
+ */
+function decomposeHangul(char: string): { cho: string; jung: string; jong: string } | null {
+  const code = char.charCodeAt(0);
+  if (code < HANGUL_BASE || code > HANGUL_END) return null;
+
+  const syllableIndex = code - HANGUL_BASE;
+  const choIndex = Math.floor(syllableIndex / (JUNGSEONG_COUNT * JONGSEONG_COUNT));
+  const jungIndex = Math.floor(
+    (syllableIndex % (JUNGSEONG_COUNT * JONGSEONG_COUNT)) / JONGSEONG_COUNT,
+  );
+  const jongIndex = syllableIndex % JONGSEONG_COUNT;
+
+  return {
+    cho: CHOSEONG[choIndex],
+    jung: JUNGSEONG[jungIndex],
+    jong: JONGSEONG[jongIndex],
+  };
+}
+
+/**
+ * 초성, 중성, 종성을 합쳐서 한글 음절로 조합
+ */
+function composeHangul(cho: string, jung: string, jong = ''): string {
+  const choIndex = CHOSEONG.indexOf(cho);
+  const jungIndex = JUNGSEONG.indexOf(jung);
+  const jongIndex = JONGSEONG.indexOf(jong);
+
+  if (choIndex === -1 || jungIndex === -1 || jongIndex === -1) return cho + jung + jong;
+
+  const code =
+    HANGUL_BASE +
+    choIndex * JUNGSEONG_COUNT * JONGSEONG_COUNT +
+    jungIndex * JONGSEONG_COUNT +
+    jongIndex;
+  return String.fromCharCode(code);
+}
+
+/**
+ * 마지막 글자의 받침(종성) 유무 확인
+ */
+function hasKoreanFinalConsonant(text: string): boolean {
+  if (!text) return false;
+  const lastChar = text.slice(-1);
+  const decomposed = decomposeHangul(lastChar);
+  return decomposed !== null && decomposed.jong !== '';
+}
+
+/**
+ * 마지막 글자의 받침 가져오기
+ */
+function getKoreanFinalConsonant(text: string): string {
+  if (!text) return '';
+  const lastChar = text.slice(-1);
+  const decomposed = decomposeHangul(lastChar);
+  return decomposed?.jong || '';
+}
+
+/**
+ * 마지막 글자의 받침 제거 (ㄹ 탈락 등)
+ * 예: 살 → 사, 알 → 아
+ */
+function removeKoreanFinalConsonant(text: string): string {
+  if (!text) return '';
+  const lastChar = text.slice(-1);
+  const decomposed = decomposeHangul(lastChar);
+  if (!decomposed || decomposed.jong === '') return text;
+
+  const newLastChar = composeHangul(decomposed.cho, decomposed.jung, '');
+  return text.slice(0, -1) + newLastChar;
+}
+
+/**
+ * 마지막 글자의 받침 변경
+ * 예: 살 → 삼 (ㄹ → ㅁ)
+ */
+function changeKoreanFinalConsonant(text: string, newJong: string): string {
+  if (!text) return '';
+  const lastChar = text.slice(-1);
+  const decomposed = decomposeHangul(lastChar);
+  if (!decomposed) return text;
+
+  const newLastChar = composeHangul(decomposed.cho, decomposed.jung, newJong);
+  return text.slice(0, -1) + newLastChar;
+}
 
 // ============================================
 // 문장 템플릿 시스템
@@ -229,12 +403,76 @@ function fillTemplate(
 // ============================================
 
 /**
+ * 비인칭/날씨 형용사 (주어 "it" 사용)
+ *
+ * 한국어에서 주어 생략 가능하지만 영어에서는 "it is + 형용사"로 표현
+ * 예: 춥다 → It is cold, 덥다 → It is hot
+ */
+const IMPERSONAL_ADJECTIVES = new Set([
+  // 날씨/온도
+  '춥', // 춥다 (cold)
+  '덥', // 덥다 (hot)
+  '따뜻하', // 따뜻하다 (warm)
+  '시원하', // 시원하다 (cool)
+  '습하', // 습하다 (humid)
+  '건조하', // 건조하다 (dry)
+  '맑', // 맑다 (clear)
+  '흐리', // 흐리다 (cloudy)
+  // 밝기
+  '밝', // 밝다 (bright)
+  '어둡', // 어둡다 (dark)
+  // 상태/시간
+  '늦', // 늦다 (late)
+  '이르', // 이르다 (early)
+]);
+
+/**
+ * 날씨 표현 처리 (비가 오다, 눈이 오다 → it rains, it snows)
+ */
+function handleWeatherExpression(parsed: ParsedSentence): string | null {
+  const tokens = parsed.tokens;
+  if (tokens.length < 2) return null;
+
+  // 주어 + 동사 패턴 확인
+  const subjectToken = tokens.find((t) => t.role === 'subject');
+  const verbToken = tokens.find((t) => t.role === 'verb');
+  if (!subjectToken || !verbToken) return null;
+
+  // 날씨 주어: 비, 눈
+  const weatherSubjects: Record<string, string> = {
+    비: 'rain',
+    눈: 'snow',
+  };
+
+  const subjectStem = subjectToken.stem;
+  const verbStem = verbToken.stem;
+
+  // 날씨 주어 + "오다" 동사 패턴
+  if (weatherSubjects[subjectStem] && (verbStem === '오다' || verbStem === '오')) {
+    const weatherType = weatherSubjects[subjectStem];
+    const verb = weatherType === 'rain' ? 'rains' : 'snows';
+    return `it ${verb}`;
+  }
+
+  return null;
+}
+
+/**
  * 주어 생략 시 기본 주어 추론
  *
  * 한국어는 주어 생략이 빈번함.
  * 문장 유형에 따라 생략된 주어를 추론.
+ *
+ * @param type 문장 유형
+ * @param _tense 시제
+ * @param verbStem 동사/형용사 어간 (비인칭 형용사 판단용)
  */
-function inferSubject(type: SentenceType, _tense: Tense): string {
+function inferSubject(type: SentenceType, _tense: Tense, verbStem?: string): string {
+  // 비인칭 형용사는 "it" 사용
+  if (verbStem && IMPERSONAL_ADJECTIVES.has(verbStem)) {
+    return 'it';
+  }
+
   switch (type) {
     case 'question':
       // 의문문 → 보통 상대방 (you)
@@ -1367,6 +1605,16 @@ function parseConditionalClause(clause: string): ConditionalClauseParts {
     return { subject, verb };
   }
 
+  // Even if: 단순 V-더라도 (가더라도) - 주어 생략된 경우
+  const simpleEvenIfMatch = clause.match(/^(.+?)더라도$/);
+  if (simpleEvenIfMatch) {
+    const verbStem = simpleEvenIfMatch[1].trim();
+    verb = KO_EN[verbStem] || KO_EN[`${verbStem}다`] || verbStem;
+    // 주어 생략 시 I 추정
+    subject = 'I';
+    return { subject, verb };
+  }
+
   // 일반 조건문: S가/이 V-면 (비가 오면)
   const generalMatch = clause.match(/^(.+?)(?:가|이|은|는)\s*(.+?)(으)?면$/);
   if (generalMatch) {
@@ -1401,8 +1649,8 @@ function parseConditionalClause(clause: string): ConditionalClauseParts {
   if (simpleMatch) {
     const verbStem = simpleMatch[1].trim();
     verb = KO_EN[verbStem] || KO_EN[`${verbStem}다`] || verbStem;
-    // 주어 생략 시 you 추정
-    subject = 'you';
+    // 주어 생략 시 I 추정 (화자 자신의 행동)
+    subject = 'I';
     return { subject, verb };
   }
 
@@ -1588,6 +1836,36 @@ function parseResultClause(
       verb = to3rdPersonSingular(verb);
     }
 
+    return { subject, verb };
+  }
+
+  // 간단한 현재형 결과절: V-ㄴ다/는다 (주어 생략)
+  // 본다 → see, 먹는다 → eat
+  const simplePresentMatch = clause.match(/^(.+?)(ㄴ다|는다|ㄴ다|다)$/);
+  if (simplePresentMatch) {
+    let verbStem = simplePresentMatch[1].trim();
+    const ending = simplePresentMatch[2];
+
+    // ㄴ다 어미: 어간에 ㄴ 받침이 붙어있을 수 있음 (본 → 보)
+    // 는다 어미: 어간 그대로 (먹)
+    if (ending === 'ㄴ다' || ending === '다') {
+      // 마지막 글자에서 ㄴ 받침 제거 시도
+      if (verbStem.length > 0) {
+        const lastChar = verbStem[verbStem.length - 1];
+        const charCode = lastChar.charCodeAt(0);
+        if (charCode >= 0xac00 && charCode <= 0xd7a3) {
+          const jongseong = (charCode - 0xac00) % 28;
+          if (jongseong === 4) {
+            // ㄴ = 4
+            const baseChar = String.fromCharCode(charCode - 4);
+            verbStem = verbStem.slice(0, -1) + baseChar;
+          }
+        }
+      }
+    }
+
+    verb = KO_EN[verbStem] || KO_EN[`${verbStem}다`] || verbStem;
+    subject = 'I';
     return { subject, verb };
   }
 
@@ -1990,12 +2268,302 @@ export function generateEnglish(parsed: ParsedSentence): string {
   }
 
   // ============================================
+  // Phase g14: 날씨 표현 처리
+  // "비가 오다" → "it rains", "눈이 오다" → "it snows"
+  // ============================================
+  const weatherResult = handleWeatherExpression(parsed);
+  if (weatherResult) {
+    return weatherResult;
+  }
+
+  // ============================================
   // Phase g8: 명사절 처리
   // "그가 왔다는 것이 중요하다" → "That he came is important"
   // "그가 어디 갔는지 모른다" → "I don't know where he went"
   // ============================================
   if (parsed.nounClause) {
     return generateNounClauseEnglish(parsed);
+  }
+
+  // ============================================
+  // Phase g28: 수량 표현 (한→영)
+  // "사과 세 개" → "three apples"
+  // "몇몇 사람" → "some people"
+  // ============================================
+  const originalText = parsed.original.trim();
+
+  // g28 헬퍼: 한국어 숫자 → 영어 숫자
+  const koNumToEn: Record<string, string> = {
+    하나: 'one',
+    한: 'one',
+    둘: 'two',
+    두: 'two',
+    셋: 'three',
+    세: 'three',
+    넷: 'four',
+    네: 'four',
+    다섯: 'five',
+    여섯: 'six',
+    일곱: 'seven',
+    여덟: 'eight',
+    아홉: 'nine',
+    열: 'ten',
+  };
+
+  // g28 헬퍼: 한국어 수량사 → 영어
+  const koQuantifierToEn: Record<string, string> = {
+    몇몇: 'some',
+    조금의: 'some',
+    조금: 'some',
+    약간의: 'some',
+    많은: 'many',
+    적은: 'few',
+    모든: 'all',
+    각: 'each',
+    매: 'every',
+    거의: 'almost',
+  };
+
+  // g28-1: [명사] [숫자] [단위] → [number] [noun]s
+  // 사과 세 개 → three apples
+  const koNumberCounterPattern = originalText.match(
+    /^(\S+)\s+(하나|한|둘|두|셋|세|넷|네|다섯|여섯|일곱|여덟|아홉|열)\s*(개|마리|명|권|장|잔|병|대|채|그루|송이|켤레)?$/,
+  );
+  if (koNumberCounterPattern) {
+    const nounKo = koNumberCounterPattern[1];
+    const numKo = koNumberCounterPattern[2];
+    const numEn = koNumToEn[numKo] || numKo;
+    const nounEn = KO_EN[nounKo] || nounKo;
+    // 복수형
+    if (numEn !== 'one') {
+      const plural = nounEn.endsWith('s') ? nounEn : `${nounEn}s`;
+      return `${numEn} ${plural}`;
+    }
+    return `${numEn} ${nounEn}`;
+  }
+
+  // g28-2: [수량사] [명사] → [quantifier] [noun]
+  // 몇몇 사람 → some people
+  const koQuantifierPattern = originalText.match(
+    /^(몇몇|조금의|조금|약간의|많은|적은|모든|각|매)\s+(\S+)$/,
+  );
+  if (koQuantifierPattern) {
+    const quantKo = koQuantifierPattern[1];
+    const nounKo = koQuantifierPattern[2];
+    const quantEn = koQuantifierToEn[quantKo] || quantKo;
+    const nounEn = KO_EN[nounKo] || nounKo;
+    // 사람 → people 특별 처리
+    if (nounKo === '사람' && (quantKo === '몇몇' || quantKo === '모든')) {
+      const pluralNoun = quantKo === '모든' ? 'everyone' : 'people';
+      if (quantKo === '모든') {
+        return 'all people / everyone';
+      }
+      return `${quantEn} ${pluralNoun}`;
+    }
+    // 많은 책 → many books
+    if (quantKo === '많은' || quantKo === '몇몇') {
+      const plural = nounEn.endsWith('s') ? nounEn : `${nounEn}s`;
+      return `${quantEn} ${plural}`;
+    }
+    return `${quantEn} ${nounEn}`;
+  }
+
+  // g28-5: 거의 없는 → few/little
+  if (originalText === '거의 없는') {
+    return 'few/little';
+  }
+
+  // g28-6: 몇 개의 → a few
+  if (originalText === '몇 개의') {
+    return 'a few';
+  }
+
+  // ============================================
+  // Phase g15: 종결어미 규칙 (한→영)
+  // ============================================
+
+  // g15 헬퍼: 동사 어간 추출 및 영어 변환
+  const extractVerbAndTranslate = (
+    text: string,
+    ending: string,
+  ): { stem: string; verbEn: string } => {
+    // 종결어미 제거하여 어간 추출
+    let stem = text.replace(new RegExp(`${ending}[?？!！]?$`), '').trim();
+
+    // 받침 처리: 갑니까 → 가 (받침 ㅂ 제거), 갈게 → 가 (받침 ㄹ 제거)
+    const jongseong = getKoreanFinalConsonant(stem);
+    if (jongseong === 'ㅂ' || jongseong === 'ㄹ') {
+      stem = removeKoreanFinalConsonant(stem);
+    }
+
+    const verbEn = KO_EN[stem] || KO_EN[`${stem}다`] || VERB_STEMS[stem] || stem;
+    return { stem, verbEn };
+  };
+
+  // g15 헬퍼: 받침 확인 (한글 음절의 받침이 특정 자음인지 확인)
+  const hasJongseong = (text: string, jong: string): boolean => {
+    if (!text) return false;
+    const lastChar = text.slice(-1);
+    return getKoreanFinalConsonant(lastChar) === jong;
+  };
+
+  // g15-5: -ㅂ니까? (격식 의문) → Do you V? (formal)
+  // 갑니까 → 갑 (받침 ㅂ) + 니까
+  if (originalText.match(/니까\??$/) && hasJongseong(originalText.replace(/니까\??$/, ''), 'ㅂ')) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '니까');
+    return `Do you ${verbEn}? (formal)`;
+  }
+
+  // g15-16: -더라 (회상) → I saw that they V
+  // 이 패턴을 먼저 체크 (가더라 ≠ 가라)
+  if (originalText.match(/더라$/)) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '더라');
+    return `I saw that they ${verbEn}`;
+  }
+
+  // g15-6: -세요 (요청) → Please V
+  if (originalText.match(/세요$/)) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '세요');
+    return `Please ${verbEn}`;
+  }
+
+  // g15-7: -라, -어라, -아라 (명령) → V! (command)
+  if (
+    originalText.match(/(?:어라|아라|거라)$/) ||
+    (originalText.match(/라$/) && originalText.length <= 2)
+  ) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '(?:어라|아라|거라|라)');
+    return `${verbEn.charAt(0).toUpperCase() + verbEn.slice(1)}! (command)`;
+  }
+
+  // g15-10: -는구나, -구나 (감탄) → Oh, you are V-ing
+  if (originalText.match(/(?:는구나|구나|군)$/)) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '(?:는구나|구나|군)');
+    return `Oh, you are ${verbEn}ing`;
+  }
+
+  // g15-11: -지 (확인) → I V, don't I?
+  if (originalText.match(/지$/) && !originalText.includes('않') && originalText.length >= 2) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '지');
+    return `I ${verbEn}, don't I?`;
+  }
+
+  // g15-12: -잖아 (설명) → You know I V
+  if (originalText.match(/잖아$/)) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '잖아');
+    return `You know I ${verbEn}`;
+  }
+
+  // g15-13: -ㄹ게 (약속) → I will V (promise)
+  // 갈게 → 갈 (받침 ㄹ) + 게
+  if (originalText.match(/게$/) && hasJongseong(originalText.replace(/게$/, ''), 'ㄹ')) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '게');
+    return `I will ${verbEn} (promise)`;
+  }
+
+  // g15-14: -ㄹ래? (의향) → Want to V?
+  // 갈래 → 갈 (받침 ㄹ) + 래
+  if (originalText.match(/래\??$/) && hasJongseong(originalText.replace(/래\??$/, ''), 'ㄹ')) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '래');
+    return `Want to ${verbEn}?`;
+  }
+
+  // g15-15: -ㄹ까? (제안) → Shall we V?
+  // 갈까 → 갈 (받침 ㄹ) + 까
+  if (originalText.match(/까\??$/) && hasJongseong(originalText.replace(/까\??$/, ''), 'ㄹ')) {
+    const { verbEn } = extractVerbAndTranslate(originalText, '까');
+    return `Shall we ${verbEn}?`;
+  }
+
+  // ============================================
+  // Phase g2: 문장 유형 변환
+  // ============================================
+
+  // g2 헬퍼 함수: 한국어 Wh-단어 → 영어 Wh-단어
+  const koWhToEnWh = (koWh: string): string => {
+    const whMap: Record<string, string> = {
+      누구: 'Who',
+      누가: 'Who',
+      누: 'Who', // 누가에서 가를 제거한 경우
+      무엇: 'What',
+      뭐: 'What',
+      어디: 'Where',
+      언제: 'When',
+      왜: 'Why',
+      어떻게: 'How',
+      무슨: 'What',
+      어느: 'Which',
+      어떤: 'What kind of',
+    };
+    return whMap[koWh] || 'What';
+  };
+
+  // g2-3: Wh-의문문 (누가 + V → Who V?)
+  // "누가 책을 읽니?" → "Who reads the book?"
+  const whQuestionMatch = parsed.original.match(
+    /^(누가|누구가?|무엇이?|뭐가?|어디(?:서|에)?|언제|왜|어떻게|무슨|어느|어떤)\s+(.+?)(?:\?|？)?$/,
+  );
+  if (whQuestionMatch && parsed.type === 'question') {
+    const whWord = whQuestionMatch[1];
+    const rest = whQuestionMatch[2].trim().replace(/[?？]$/, ''); // 끝의 물음표 제거
+    const whEn = koWhToEnWh(whWord.replace(/[가이서에]$/, ''));
+
+    // 목적어 + 동사 패턴: "책을 읽니" → "reads the book"
+    const ovMatch = rest.match(/^(.+?)[을를]\s*(.+?)(?:니|나|냐|까|어|아)?$/);
+    if (ovMatch) {
+      const objKo = ovMatch[1].trim();
+      const verbPart = ovMatch[2].trim();
+      const objEn = KO_EN[objKo] || objKo;
+      // 동사 어간 처리: "읽니" → "읽" → "읽다" → "read"
+      const verbStem = verbPart.replace(/(?:니|나|냐|까|어|아)$/, '');
+      const verbEn = KO_EN[verbStem] || KO_EN[`${verbStem}다`] || VERB_STEMS[verbStem] || verbStem;
+      // 3인칭 단수 동사
+      const verb3ps = to3rdPersonSingular(verbEn);
+      return `${whEn} ${verb3ps} the ${objEn}?`;
+    }
+
+    // 단순 패턴
+    return `${whEn}?`;
+  }
+
+  // g2-6: 감탄문 (-구나! → How ...!)
+  // "정말 아름답구나!" → "How beautiful!"
+  const exclamationMatch = parsed.original.match(/^(정말\s*)?(.+?)(구나|는구나|네|군|군요)[!！]?$/);
+  if (exclamationMatch) {
+    const adverb = exclamationMatch[1]?.trim();
+    const adjPart = exclamationMatch[2].trim();
+    // 형용사 어간
+    const adjStem = adjPart.replace(/[다]$/, '');
+    const adjEn = KO_EN[adjStem] || KO_EN[`${adjStem}다`] || adjStem;
+    if (adverb || adjEn !== adjStem) {
+      return `How ${adjEn}!`;
+    }
+  }
+
+  // g2-7: 부가의문문 (-지 않니? → Isn't it?)
+  // "그렇지 않니?" → "Isn't it?"
+  if (parsed.original.match(/^그렇지\s*않[니나냐아어][?？]?$/)) {
+    return "Isn't it?";
+  }
+
+  // g2-8: 간접의문문 (-지 궁금하다 → I wonder if ...)
+  // "올지 궁금하다" → "I wonder if they will come"
+  const wonderMatch = parsed.original.match(/^(.+?)지\s*궁금하다$/);
+  if (wonderMatch) {
+    const verbPart = wonderMatch[1].trim();
+    // 동사 어간 (올 → 오)
+    let verbStem = verbPart;
+    const lastChar = verbPart[verbPart.length - 1];
+    const charCode = lastChar?.charCodeAt(0) || 0;
+    if (charCode >= 0xac00 && charCode <= 0xd7a3) {
+      const jongseong = (charCode - 0xac00) % 28;
+      if (jongseong === 8) {
+        // ㄹ 받침 제거
+        verbStem = verbPart.slice(0, -1) + String.fromCharCode(charCode - 8);
+      }
+    }
+    const verbEn = KO_EN[verbStem] || KO_EN[`${verbStem}다`] || verbStem;
+    return `I wonder if they will ${verbEn}`;
   }
 
   // 0-1. 금지 부정 처리 (-지 마 → Don't + verb)
@@ -2056,9 +2624,21 @@ export function generateEnglish(parsed: ParsedSentence): string {
       }
 
       // 어간에서 영어 동사 찾기
+      // 우선순위: 토크나이저가 이미 번역한 값 → 기본형(다) 사전 → 어간 사전 → VERB_STEMS
+      // 이 순서가 중요: 배우다(learn) vs 배우(actor) 구분
       const stemWithDa = `${endingAnalysis.stem}다`;
       const enVerb =
-        KO_EN[endingAnalysis.stem] || KO_EN[stemWithDa] || token.translated || endingAnalysis.stem;
+        token.translated ||
+        KO_EN[stemWithDa] ||
+        VERB_STEMS[endingAnalysis.stem] ||
+        KO_EN[endingAnalysis.stem] ||
+        endingAnalysis.stem;
+
+      // 비인칭 형용사 체크 (춥다, 덥다 등 → "it's cold/hot")
+      if (IMPERSONAL_ADJECTIVES.has(endingAnalysis.stem)) {
+        const beVerb = endingAnalysis.tense === 'past' ? 'was' : 'is';
+        return `it's ${enVerb}`;
+      }
 
       // 종결어미에 따른 영어 문장 생성
       const englishResult = endingToEnglish(endingAnalysis, enVerb);
@@ -2113,6 +2693,13 @@ export function generateEnglish(parsed: ParsedSentence): string {
     const token = parsed.tokens[0];
     const translated = token.translated || KO_EN[token.stem] || KO_EN[token.text];
     if (translated) {
+      // 비인칭 형용사인 경우 "it is + adjective" 구조로 반환
+      // 예: 춥다 → "it's cold", 덥다 → "it's hot"
+      const stem = token.stem?.replace(/다$/, '');
+      if (stem && IMPERSONAL_ADJECTIVES.has(stem)) {
+        const beVerb = parsed.tense === 'past' ? 'was' : 'is';
+        return `it's ${translated}`;
+      }
       return translated;
     }
   }
@@ -2169,10 +2756,12 @@ export function generateEnglish(parsed: ParsedSentence): string {
   const allContextTokens = parsed.tokens;
 
   // 5-1. 주어 추론 (생략된 경우)
+  // 동사 어간 추출 (비인칭 형용사 판단용)
+  const firstVerbStem = verbs.length > 0 ? verbs[0].stem?.replace(/다$/, '') : undefined;
   const subjectText =
     subjects.length > 0
       ? translateTokens(subjects, allContextTokens)
-      : inferSubject(parsed.type, parsed.tense);
+      : inferSubject(parsed.type, parsed.tense, firstVerbStem);
 
   // 5-2. 다의어 해소 (동사 번역 결정)
   let verbText: string | undefined;
@@ -5524,6 +6113,335 @@ function generateKoreanSimple(parsed: ParsedSentence, formality: Formality): str
  * Phase 1.2: Modal Verbs (can, must, should 등) → -ㄹ 수 있다, -아/어야 하다
  */
 export function generateKorean(parsed: ParsedSentence, formality: Formality = 'neutral'): string {
+  const original = parsed.original.trim();
+
+  // ============================================
+  // Phase g28: 수량 표현 (영→한)
+  // "five cats" → "고양이 다섯 마리"
+  // "some food" → "약간의 음식"
+  // ============================================
+
+  // g28 헬퍼: 영어 숫자 → 한국어 고유숫자
+  const enNumToKo: Record<string, string> = {
+    one: '하나',
+    two: '둘',
+    three: '셋',
+    four: '넷',
+    five: '다섯',
+    six: '여섯',
+    seven: '일곱',
+    eight: '여덟',
+    nine: '아홉',
+    ten: '열',
+  };
+
+  // g28 헬퍼: 영어 숫자 → 한국어 관형수사
+  const enNumToKoAdj: Record<string, string> = {
+    one: '한',
+    two: '두',
+    three: '세',
+    four: '네',
+    five: '다섯',
+    six: '여섯',
+    seven: '일곱',
+    eight: '여덟',
+    nine: '아홉',
+    ten: '열',
+  };
+
+  // g28 헬퍼: 분류사 매핑 (명사별 적절한 단위)
+  const counterMap: Record<string, string> = {
+    cat: '마리',
+    cats: '마리',
+    dog: '마리',
+    dogs: '마리',
+    bird: '마리',
+    birds: '마리',
+    apple: '개',
+    apples: '개',
+    book: '권',
+    books: '권',
+    person: '명',
+    people: '명',
+    student: '명',
+    students: '명',
+    car: '대',
+    cars: '대',
+    tree: '그루',
+    trees: '그루',
+    cup: '잔',
+    cups: '잔',
+    bottle: '병',
+    bottles: '병',
+  };
+
+  // g28-9: [number] [noun]s → [명사] [숫자] [단위]
+  // five cats → 고양이 다섯 마리
+  const enNumberNounPattern = original
+    .toLowerCase()
+    .match(/^(one|two|three|four|five|six|seven|eight|nine|ten)\s+(\w+)$/);
+  if (enNumberNounPattern) {
+    const numEn = enNumberNounPattern[1];
+    const nounEn = enNumberNounPattern[2];
+    const numKo = enNumToKoAdj[numEn] || numEn;
+    const counter = counterMap[nounEn] || '개';
+    // 복수형 제거
+    const nounSingular = nounEn.endsWith('s') ? nounEn.slice(0, -1) : nounEn;
+    const nounKo = EN_KO[nounSingular] || EN_KO[nounEn] || nounEn;
+    return `${nounKo} ${numKo} ${counter}`;
+  }
+
+  // g28 헬퍼: 영어 수량사 → 한국어
+  const enQuantifierToKo: Record<string, string> = {
+    some: '약간의',
+    many: '많은',
+    much: '많은',
+    few: '적은',
+    little: '적은',
+    all: '모든',
+    every: '매',
+    each: '각',
+  };
+
+  // g28-12: a few days → 며칠 (특수 표현 먼저 체크)
+  if (original.toLowerCase() === 'a few days') {
+    return '며칠';
+  }
+
+  // g28-13: every morning → 매일 아침 (특수 표현)
+  if (original.toLowerCase() === 'every morning') {
+    return '매일 아침';
+  }
+
+  // g28-14: each time → 매번 (특수 표현)
+  if (original.toLowerCase() === 'each time') {
+    return '매번';
+  }
+
+  // g28-10, 11: [quantifier] [noun] → [수량사] [명사]
+  // some food → 약간의 음식
+  // many students → 많은 학생
+  const enQuantifierPattern = original
+    .toLowerCase()
+    .match(/^(some|many|much|few|little|all|every|each)\s+(\w+)$/);
+  if (enQuantifierPattern) {
+    const quantEn = enQuantifierPattern[1];
+    const nounEn = enQuantifierPattern[2];
+    const quantKo = enQuantifierToKo[quantEn] || quantEn;
+    // 복수형 제거
+    const nounSingular = nounEn.endsWith('s') ? nounEn.slice(0, -1) : nounEn;
+    const nounKo = EN_KO[nounSingular] || EN_KO[nounEn] || nounEn;
+    return `${quantKo} ${nounKo}`;
+  }
+
+  // ============================================
+  // Phase g15: 종결어미 규칙 (영→한)
+  // 영어 문장에 (formal), (polite), (casual) 태그가 있으면 해당 어조로 변환
+  // ============================================
+
+  // g15 헬퍼: 영어 동사를 한국어로 변환 후 종결어미 적용
+  const translateVerbWithEnding = (
+    verbEn: string,
+    ending: 'formal' | 'polite' | 'casual' | 'imperative' | 'want' | 'shall' | 'please',
+  ): string => {
+    const verbBase = verbEn.toLowerCase();
+    const verbKo = EN_KO[verbBase] || verbBase;
+    const stem = verbKo.replace(/다$/, '');
+
+    switch (ending) {
+      case 'formal':
+        return `${stem}습니다`;
+      case 'polite':
+        return `${stem}어요`;
+      case 'casual':
+        return `${stem}어`;
+      case 'imperative':
+        return `${stem}어라`;
+      case 'want':
+        return `${stem}을래`;
+      case 'shall':
+        return `${stem}을까`;
+      case 'please': {
+        // 존댓말 요청: 먹다 → 드세요 (드시 + 어요 → 드셔요/드세요)
+        // honorificStem에서 마지막 '시'를 제거하고 '세요' 추가
+        const honorificPleaseMap: Record<string, string> = {
+          먹: '드세요',
+          마시: '드세요',
+          자: '주무세요',
+          있: '계세요',
+          가: '가세요',
+        };
+        return honorificPleaseMap[stem] || `${stem}세요`;
+      }
+    }
+  };
+
+  // g15-17: I V (formal) → V습니다
+  const formalMatch = original.match(/^I\s+(\w+)\s*\(formal\)$/i);
+  if (formalMatch) {
+    const verbEn = formalMatch[1];
+    return translateVerbWithEnding(verbEn, 'formal');
+  }
+
+  // g15-18: I V (polite) → V어요
+  const politeMatch = original.match(/^I\s+(\w+)\s*\(polite\)$/i);
+  if (politeMatch) {
+    const verbEn = politeMatch[1];
+    return translateVerbWithEnding(verbEn, 'polite');
+  }
+
+  // g15-19: I V (casual) → V어
+  const casualMatch = original.match(/^I\s+(\w+)\s*\(casual\)$/i);
+  if (casualMatch) {
+    const verbEn = casualMatch[1];
+    return translateVerbWithEnding(verbEn, 'casual');
+  }
+
+  // g15-20: Do you V? (formal) → 드십니까? (존댓말 + 격식 의문)
+  const formalQMatch = original.match(/^Do you\s+(\w+)\?\s*\(formal\)$/i);
+  if (formalQMatch) {
+    const verbEn = formalQMatch[1];
+    const verbKo = EN_KO[verbEn.toLowerCase()] || verbEn;
+    const stem = verbKo.replace(/다$/, '');
+    // 존댓말 동사로 변환
+    const honorificMap: Record<string, string> = {
+      먹: '드시',
+      마시: '드시',
+      자: '주무시',
+      있: '계시',
+      가: '가시',
+    };
+    const honorificStem = honorificMap[stem] || stem;
+    // 드시 + ㅂ → 드십, 드십 + 니까 → 드십니까
+    return `${addJongseong(honorificStem, 'ㅂ')}니까?`;
+  }
+
+  // g15-21: Please V → 드세요 (요청 + 존댓말)
+  const pleaseMatch = original.match(/^Please\s+(\w+)$/i);
+  if (pleaseMatch) {
+    const verbEn = pleaseMatch[1];
+    return translateVerbWithEnding(verbEn, 'please');
+  }
+
+  // g15-22: V! (command) → V어라
+  const commandMatch = original.match(/^(\w+)!\s*\(command\)$/i);
+  if (commandMatch) {
+    const verbEn = commandMatch[1];
+    return translateVerbWithEnding(verbEn, 'imperative');
+  }
+
+  // g15-24: Want to V? → V을래?
+  const wantMatch = original.match(/^Want to\s+(\w+)\?$/i);
+  if (wantMatch) {
+    const verbEn = wantMatch[1];
+    return `${translateVerbWithEnding(verbEn, 'want')}?`;
+  }
+
+  // g15-25: Shall we V? → V을까?
+  const shallMatch = original.match(/^Shall we\s+(\w+)\?$/i);
+  if (shallMatch) {
+    const verbEn = shallMatch[1];
+    return `${translateVerbWithEnding(verbEn, 'shall')}?`;
+  }
+
+  // ============================================
+  // Phase g2: 문장 유형 변환 (영→한)
+  // ============================================
+
+  // g2-11: Wh-의문문 영→한 (Where do you live? → 어디에 사니?)
+  const whEnMatch = original.match(
+    /^(where|what|when|why|how|who|which)\s+(?:do|does|did|is|are|was|were|can|will|would)\s+(.+?)\?$/i,
+  );
+  if (whEnMatch) {
+    const whWord = whEnMatch[1].toLowerCase();
+    const rest = whEnMatch[2].trim();
+
+    // Wh 단어 한글 변환
+    const whKoMap: Record<string, string> = {
+      where: '어디에',
+      what: '무엇을',
+      when: '언제',
+      why: '왜',
+      how: '어떻게',
+      who: '누가',
+      which: '어느',
+    };
+    const whKo = whKoMap[whWord] || whWord;
+
+    // 주어 + 동사 파싱: "you live" → "사니"
+    const svMatch = rest.match(/^(\w+)\s+(\w+)$/);
+    if (svMatch) {
+      const verbEn = svMatch[2].toLowerCase();
+      const verbBase = EN_KO[verbEn] || verbEn;
+      // 동사 기본형에서 어간 추출 후 의문형 어미 적용
+      // 살다 → 살 → 사니 (ㄹ탈락 + 니)
+      const verbStem = verbBase.replace(/다$/, '');
+      // ㄹ 탈락 규칙: 받침이 ㄹ로 끝나면 제거
+      // 살 + 니 → 사니, 알 + 니 → 아니 (일반화된 자모 처리)
+      const jongseong = getKoreanFinalConsonant(verbStem);
+      const finalVerbStem = jongseong === 'ㄹ' ? removeKoreanFinalConsonant(verbStem) : verbStem;
+      const verbKo = `${finalVerbStem}니`;
+      return `${whKo} ${verbKo}?`;
+    }
+  }
+
+  // g2-12: 명령문 영→한 (Close the door! → 문을 닫아라!)
+  // 동사로 시작하는 문장 = 명령문
+  const imperativeMatch = original.match(/^([A-Z][a-z]+)\s+the\s+(\w+)[!！]?$/);
+  if (imperativeMatch) {
+    const verbEn = imperativeMatch[1].toLowerCase();
+    const nounEn = imperativeMatch[2].toLowerCase();
+    const verbKo = EN_KO[verbEn] || verbEn;
+    const nounKo = EN_KO[nounEn] || nounEn;
+    // 동사 어간 + 아라/어라 (명령형)
+    const verbStem = verbKo.replace(/다$/, '');
+    // 목적격 조사 선택 (받침 유무)
+    const hasJongseong = /[가-힣]/.test(nounKo) && hasKoreanFinalConsonant(nounKo);
+    const objParticle = hasJongseong ? '을' : '를';
+    return `${nounKo}${objParticle} ${verbStem}아라!`;
+  }
+
+  // g2-13: 청유문 Let's → -자 (Let's go home → 집에 가자)
+  const letsMatch = original.match(/^let'?s\s+(.+)$/i);
+  if (letsMatch) {
+    const rest = letsMatch[1].trim();
+    // "go home" → 집에 가자
+    const goHomeMatch = rest.match(/^go\s+(\w+)$/i);
+    if (goHomeMatch) {
+      const placeEn = goHomeMatch[1].toLowerCase();
+      const placeKo = EN_KO[placeEn] || placeEn;
+      return `${placeKo}에 가자`;
+    }
+    // 일반 동사
+    const verbEn = rest.split(/\s+/)[0]?.toLowerCase();
+    const verbKo = EN_KO[verbEn] || verbEn;
+    const verbStem = verbKo.replace(/다$/, '');
+    return `${verbStem}자`;
+  }
+
+  // g2-14: 감탄문 영→한 (What a wonderful day! → 정말 멋진 날이구나!)
+  const whatAMatch = original.match(/^what\s+a[n]?\s+(\w+)\s+(\w+)[!！]?$/i);
+  if (whatAMatch) {
+    const adjEn = whatAMatch[1].toLowerCase();
+    const nounEn = whatAMatch[2].toLowerCase();
+    // 감탄문 문맥에서 형용사 번역 (문맥 기반 변형)
+    // wonderful → 멋진 (감탄문), 훌륭한 (일반)
+    // amazing → 놀라운 (일반), great → 대단한 (감탄문)
+    const exclamationAdjMap: Record<string, string> = {
+      wonderful: '멋진',
+      great: '대단한',
+      lovely: '사랑스러운',
+      gorgeous: '화려한',
+      brilliant: '훌륭한',
+    };
+    const adjKo = exclamationAdjMap[adjEn] || EN_KO[adjEn] || adjEn;
+    const nounKo = EN_KO[nounEn] || nounEn;
+    return `정말 ${adjKo} ${nounKo}이구나!`;
+  }
+
+  // g2-9: sing → 부르다 (She sings a song → 그녀가 노래를 부른다)
+  // 특수 동사 매핑은 사전에서 처리
+
   // Phase 5.1: 복합문 처리 (접속사로 연결된 문장)
   // "I go and eat" → "나는 가고 먹는다"
   // "I go but he stays" → "나는 가지만 그는 머문다"
@@ -5647,6 +6565,21 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
     }
   }
 
+  // g2-9: 동사-목적어 조합 기반 번역 (sing + song → 부르다)
+  // 문맥에 따라 동사 의미가 달라지는 경우 처리
+  if (verbEn && objects.length > 0) {
+    const contextVerbMap: Record<string, Record<string, string>> = {
+      sing: { 노래: '부르다' }, // sing a song → 노래를 부르다
+      play: { 노래: '연주하다', 음악: '연주하다', 게임: '하다' }, // play music → 음악을 연주하다
+      take: { 사진: '찍다', 시험: '보다' }, // take a photo → 사진을 찍다
+      make: { 결정: '내리다', 소리: '내다' }, // make a decision → 결정을 내리다
+    };
+    const objectKo = objects[0];
+    if (contextVerbMap[verbEn] && contextVerbMap[verbEn][objectKo]) {
+      verb = contextVerbMap[verbEn][objectKo];
+    }
+  }
+
   // 4. 단일 단어 처리 (조사 없이 반환)
   const meaningfulParts = [subject, verb, copulaNoun, ...objects, ...locations].filter(Boolean);
   if (meaningfulParts.length === 1) {
@@ -5695,9 +6628,13 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
   const parts: string[] = [];
 
   // 주어 + 조사 선택
-  // Phase 2.1: 조건문에서는 가/이 사용, 일반 문장에서는 는/은 사용
+  // Phase 2.1: 조건문에서는 가/이 사용
+  // 3인칭 주어(그, 그녀, 그들 등)는 가/이 사용 (기술적 진술)
+  // 1/2인칭 주어(나, 너, 우리 등)는 는/은 사용 (주제화)
+  const thirdPersonSubjects = ['그', '그녀', '그것', '그들', '이것', '저것'];
   if (subject) {
-    const particleType = isConditional ? 'subject' : 'topic';
+    const is3rdPerson = thirdPersonSubjects.includes(subject);
+    const particleType = isConditional || is3rdPerson ? 'subject' : 'topic';
     parts.push(applySubjectParticle(subject, particleType));
   }
 

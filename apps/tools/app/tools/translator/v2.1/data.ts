@@ -831,7 +831,7 @@ export const VERB_STEMS: Record<string, string> = {
   오: 'come',
   먹: 'eat',
   마시: 'drink',
-  보: 'see',
+  보: 'watch',
   듣: 'listen',
   읽: 'read',
   쓰: 'write',

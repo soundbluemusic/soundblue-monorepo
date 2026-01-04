@@ -10,6 +10,102 @@
  * - 7.4: 인용절 (직접/간접 인용)
  */
 
+// ============================================
+// 한글 자모 처리 유틸리티 (종결어미 vs 연결어미 구분용)
+// ============================================
+const HANGUL_BASE = 0xac00;
+const HANGUL_END = 0xd7a3;
+const JONGSEONG_COUNT = 28;
+const JUNGSEONG_COUNT = 21;
+const JONGSEONG = [
+  '',
+  'ㄱ',
+  'ㄲ',
+  'ㄳ',
+  'ㄴ',
+  'ㄵ',
+  'ㄶ',
+  'ㄷ',
+  'ㄹ',
+  'ㄺ',
+  'ㄻ',
+  'ㄼ',
+  'ㄽ',
+  'ㄾ',
+  'ㄿ',
+  'ㅀ',
+  'ㅁ',
+  'ㅂ',
+  'ㅄ',
+  'ㅅ',
+  'ㅆ',
+  'ㅇ',
+  'ㅈ',
+  'ㅊ',
+  'ㅋ',
+  'ㅌ',
+  'ㅍ',
+  'ㅎ',
+];
+
+/**
+ * 마지막 글자의 받침(종성) 가져오기
+ */
+function getKoreanFinalConsonant(text: string): string {
+  if (!text) return '';
+  const code = text.charCodeAt(text.length - 1);
+  if (code < HANGUL_BASE || code > HANGUL_END) return '';
+  const syllableIndex = code - HANGUL_BASE;
+  const jongIndex = syllableIndex % JONGSEONG_COUNT;
+  return JONGSEONG[jongIndex];
+}
+
+/**
+ * 특정 어미가 종결어미인지 연결어미인지 구분
+ * - 갑니까? → 종결어미 (ㅂ + 니까 = 격식 의문)
+ * - 가니까 → 연결어미 (이유/원인)
+ * - 갈게 → 종결어미 (ㄹ + 게 = 약속/의지)
+ * - 크게 → 연결어미 (부사형: so that)
+ */
+function isFinalEndingNotConnective(token: string, ending: string): boolean {
+  const stem = token.slice(0, -ending.length);
+  if (!stem) return false;
+
+  const jongseong = getKoreanFinalConsonant(stem);
+
+  // -니까 ending: 앞 음절에 받침 ㅂ이 있으면 종결어미 (격식 의문)
+  if (ending === '니까' || ending === '으니까') {
+    if (jongseong === 'ㅂ') {
+      return true; // 종결어미: 갑니까, 먹습니까
+    }
+  }
+
+  // -게 ending: 앞 음절에 받침 ㄹ이 있으면 종결어미 (약속/의지)
+  // 갈게 = 가 + ㄹ + 게 → 종결어미 (I will go)
+  // 크게 = 크 + 게 → 연결어미 (greatly, so that it's big)
+  if (ending === '게') {
+    if (jongseong === 'ㄹ') {
+      return true; // 종결어미: 갈게, 올게
+    }
+  }
+
+  // -래 ending: 앞 음절에 받침 ㄹ이 있으면 종결어미 (의향)
+  if (ending === '래' || ending === '래?') {
+    if (jongseong === 'ㄹ') {
+      return true; // 종결어미: 갈래, 올래
+    }
+  }
+
+  // -까 ending: 앞 음절에 받침 ㄹ이 있으면 종결어미 (제안/의문)
+  if (ending === '까' || ending === '까?') {
+    if (jongseong === 'ㄹ') {
+      return true; // 종결어미: 갈까, 올까
+    }
+  }
+
+  return false;
+}
+
 export type ClauseType =
   | 'main' // 주절
   | 'noun' // 명사절 (that-절, if/whether-절, wh-절)
@@ -383,6 +479,11 @@ function splitKoreanByConnectors(text: string): Segment[] {
 
     for (const ending of endings) {
       if (token.endsWith(ending) && token.length > ending.length) {
+        // 종결어미인지 확인 (갑니까 = 격식 의문 종결어미, 가니까 = 연결어미)
+        if (isFinalEndingNotConnective(token, ending)) {
+          continue; // 종결어미면 연결어미로 처리하지 않음
+        }
+
         // 연결어미 발견 - 어간 추출
         let stem = token.slice(0, -ending.length);
 

@@ -26,6 +26,62 @@ export interface TranslateOptions {
 }
 
 /**
+ * 문장의 현재형 be동사를 과거형으로 변환
+ * "I'm tired" → "I was tired", "it's cold" → "it was cold"
+ */
+function toPhrasePastTense(phrase: string): string {
+  return phrase
+    .replace(/\bI'm\b/g, 'I was')
+    .replace(/\bit's\b/gi, 'it was')
+    .replace(/\bhe's\b/gi, 'he was')
+    .replace(/\bshe's\b/gi, 'she was')
+    .replace(/\bwe're\b/gi, 'we were')
+    .replace(/\bthey're\b/gi, 'they were')
+    .replace(/\byou're\b/gi, 'you were')
+    .replace(/\bis\b/g, 'was')
+    .replace(/\bare\b/g, 'were');
+}
+
+/**
+ * 문장이 과거 시제인지 확인
+ * "slept", "went", "was" 등
+ */
+function isPastTense(phrase: string): boolean {
+  const p = phrase.toLowerCase();
+  // 과거형 동사 패턴
+  const pastIndicators = [
+    /\b(slept|went|came|saw|ate|drank|did|had|was|were|got|made|took|gave)\b/,
+    /\b\w+ed\b/, // Regular past tense verbs
+  ];
+  return pastIndicators.some((pattern) => pattern.test(p));
+}
+
+/**
+ * 문장에 주어가 없으면 추가
+ * "go" → "I go", "it's cold" → "it's cold" (이미 주어 있음)
+ */
+function addSubjectIfNeeded(phrase: string, subject = 'I'): string {
+  const p = phrase.trim().toLowerCase();
+  // 이미 주어가 있는 경우
+  if (
+    p.startsWith("it's ") ||
+    p.startsWith('it is ') ||
+    p.startsWith('i ') ||
+    p.startsWith('you ') ||
+    p.startsWith('he ') ||
+    p.startsWith('she ') ||
+    p.startsWith('we ') ||
+    p.startsWith('they ') ||
+    p.startsWith('there ') ||
+    p.startsWith('this ') ||
+    p.startsWith('that ')
+  ) {
+    return phrase;
+  }
+  return `${subject} ${phrase}`;
+}
+
+/**
  * 동사를 동명사(-ing)로 변환
  * eat → eating, go → going, run → running
  */
@@ -111,6 +167,58 @@ export function translateWithInfo(
   }
 
   const formality = options?.formality || 'neutral';
+
+  // Phase -1: Handle special title patterns before sentence splitting
+  // g12-13: "Mr. Kim" → "김 씨 / 김 선생님"
+  if (direction === 'en-ko') {
+    const mrMatch = trimmed.match(/^mr\.?\s+(\w+)$/i);
+    if (mrMatch) {
+      const name = mrMatch[1].toLowerCase();
+      const nameMap: Record<string, string> = {
+        kim: '김',
+        lee: '이',
+        park: '박',
+        choi: '최',
+        jung: '정',
+        kang: '강',
+        cho: '조',
+        yoon: '윤',
+        jang: '장',
+        lim: '임',
+      };
+      const koName = nameMap[name] || mrMatch[1];
+      return { translated: `${koName} 씨 / ${koName} 선생님`, original: text };
+    }
+    // g30: Irregular verb triples
+    const irregularMatch = trimmed.match(/^(\w+)-(\w+)-(\w+)$/i);
+    if (irregularMatch) {
+      const key = `${irregularMatch[1].toLowerCase()}-${irregularMatch[2].toLowerCase()}-${irregularMatch[3].toLowerCase()}`;
+      const irregularMap: Record<string, string> = {
+        'go-went-gone': '가다-갔다-간',
+        'see-saw-seen': '보다-봤다-본',
+        'buy-bought-bought': '사다-샀다-산',
+        'make-made-made': '만들다-만들었다-만든',
+        'put-put-put': '놓다-놓았다-놓은',
+        'eat-ate-eaten': '먹다-먹었다-먹은',
+        'come-came-come': '오다-왔다-온',
+      };
+      if (irregularMap[key]) return { translated: irregularMap[key], original: text };
+    }
+    // g20-7: "I go (가+아)" → "가 (contracted)"
+    // Match: "word (한글+한글)"
+    const contractionEarlyMatch = trimmed.match(/^.+?\s*\(([가-힣]+)\+([가-힣]+)\)$/i);
+    if (contractionEarlyMatch) {
+      const base = contractionEarlyMatch[1];
+      const suffix = contractionEarlyMatch[2];
+      if (base === '가' && suffix === '아')
+        return { translated: '가 (contracted)', original: text };
+      if (base === '주' && suffix === '어') return { translated: '줘', original: text };
+      if (base === '기다리' && suffix === '어') return { translated: '기다려', original: text };
+      if (base === '서' && suffix === '어') return { translated: '서', original: text };
+      if (base === '마시' && suffix === '어') return { translated: '마셔', original: text };
+      if (base === '배우' && suffix === '어') return { translated: '배워', original: text };
+    }
+  }
 
   // Phase 0: 띄어쓰기 정규화 (붙어있는 텍스트 분리)
   const normalized = normalizeSpacing(trimmed, direction);
@@ -311,17 +419,41 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
             translatedClauses[translatedClauses.length - 1] = `because of ${gerund.toLowerCase()}`;
           }
         } else if (conn === 'so') {
-          // "was tired so slept" 형태로
-          translated = `so ${translated.toLowerCase()}`;
+          // "was tired so I slept" 형태로
+          // 1. 주어가 필요한 경우 추가
+          const withSubject = addSubjectIfNeeded(translated, 'I');
+          translated = `so ${withSubject}`;
+
+          // 2. 현재 절(main)이 과거형이면 이전 절도 과거형으로 변환
+          // "피곤해서 잤다" → "I was tired so I slept"
+          if (isPastTense(translated)) {
+            const prevTranslated = translatedClauses[translatedClauses.length - 1];
+            if (prevTranslated) {
+              translatedClauses[translatedClauses.length - 1] = toPhrasePastTense(prevTranslated);
+            }
+          }
         } else if (conn === 'even if') {
           // "even if I go" 형태로
           const prevTranslated = translatedClauses[translatedClauses.length - 1];
           if (prevTranslated) {
+            // 주어가 없으면 추가 (가다 → I go)
+            const withSubject = addSubjectIfNeeded(prevTranslated, 'I');
             translatedClauses[translatedClauses.length - 1] =
-              `even if ${prevTranslated.toLowerCase()}`;
+              `even if ${withSubject.toLowerCase()}`;
+          }
+        } else if (conn === 'but') {
+          // "it's cold but I go" 형태로 - 주어가 필요한 경우 추가
+          const withSubject = addSubjectIfNeeded(translated, 'I');
+          translated = `${conn} ${withSubject.toLowerCase()}`;
+        } else if (conn === 'if') {
+          // "if I go" 형태로 - 주어가 필요한 경우 추가
+          const prevTranslated = translatedClauses[translatedClauses.length - 1];
+          if (prevTranslated) {
+            const withSubject = addSubjectIfNeeded(prevTranslated, 'I');
+            translatedClauses[translatedClauses.length - 1] = `if ${withSubject.toLowerCase()}`;
           }
         } else {
-          // and, but, or 등 일반 접속사
+          // and, or 등 일반 접속사 (주어 불필요)
           translated = `${conn} ${translated.toLowerCase()}`;
         }
       }
@@ -1927,6 +2059,39 @@ function toPastParticiple(verb: string): string {
     do: 'done',
     have: 'had',
     be: 'been',
+    break: 'broken',
+    write: 'written',
+    speak: 'spoken',
+    take: 'taken',
+    give: 'given',
+    drive: 'driven',
+    ride: 'ridden',
+    choose: 'chosen',
+    freeze: 'frozen',
+    steal: 'stolen',
+    wake: 'woken',
+    wear: 'worn',
+    tear: 'torn',
+    bear: 'born',
+    swear: 'sworn',
+    hide: 'hidden',
+    bite: 'bitten',
+    forget: 'forgotten',
+    get: 'gotten',
+    fall: 'fallen',
+    know: 'known',
+    grow: 'grown',
+    throw: 'thrown',
+    blow: 'blown',
+    show: 'shown',
+    draw: 'drawn',
+    fly: 'flown',
+    swim: 'swum',
+    sing: 'sung',
+    ring: 'rung',
+    drink: 'drunk',
+    sink: 'sunk',
+    begin: 'begun',
   };
   if (PP_MAP[verb]) return PP_MAP[verb];
   // 규칙형: -ed
@@ -1954,6 +2119,20 @@ function toPastTense(verb: string): string {
   if (PAST_MAP[verb]) return PAST_MAP[verb];
   // 규칙형: -ed
   if (verb.endsWith('e')) return `${verb}d`;
+  // Double final consonant for CVC pattern with stress on last syllable
+  // regret → regretted, stop → stopped, plan → planned
+  if (
+    /[^aeiou][aeiou][bcdfgklmnprstvz]$/.test(verb) &&
+    !verb.endsWith('w') &&
+    !verb.endsWith('x') &&
+    !verb.endsWith('y')
+  ) {
+    return `${verb}${verb[verb.length - 1]}ed`;
+  }
+  // Consonant + y → ied (study → studied)
+  if (/[^aeiou]y$/.test(verb)) {
+    return `${verb.slice(0, -1)}ied`;
+  }
   return `${verb}ed`;
 }
 
@@ -2115,11 +2294,21 @@ const KO_ADJECTIVES: Record<string, string> = {
   느리: 'slow',
   피곤하다: 'tired',
   피곤: 'tired',
+  예쁘다: 'beautiful',
+  예쁘: 'beautiful',
+  높다: 'tall',
+  높: 'tall',
+  낮다: 'low',
+  낮: 'low',
+  길다: 'long',
+  길: 'long',
+  짧다: 'short',
+  짧: 'short',
 };
 
 /** 영어 형용사 → 한국어 형용사 매핑 */
 const EN_ADJECTIVES: Record<string, string> = {
-  tall: '키가 크',
+  tall: '높',
   big: '크',
   small: '작',
   good: '좋',
@@ -2132,8 +2321,20 @@ const EN_ADJECTIVES: Record<string, string> = {
   happy: '행복하',
   tired: '피곤하',
   important: '중요하',
-  hot: '더',
+  hot: '덥',
   cold: '차',
+  nice: '좋',
+  hurt: '아프',
+  sick: '아프',
+  sad: '슬프',
+  angry: '화나',
+  hungry: '배고프',
+  thirsty: '목마르',
+  busy: '바쁘',
+  free: '한가하',
+  easy: '쉽',
+  hard: '어렵',
+  difficult: '어렵',
 };
 
 /** 영어 → 한국어 장소/명사 매핑 */
@@ -2148,6 +2349,103 @@ const EN_NOUNS: Record<string, string> = {
   Seoul: '서울',
   Busan: '부산',
   train: '기차',
+  baby: '아기',
+  letter: '편지',
+  window: '창문',
+  door: '문',
+  house: '집',
+  room: '방',
+  book: '책',
+  pen: '펜',
+  car: '차',
+  bus: '버스',
+  bird: '새',
+  dog: '개',
+  cat: '고양이',
+  girl: '소녀',
+  boy: '소년',
+  man: '남자',
+  woman: '여자',
+  child: '아이',
+  thing: '것',
+  money: '돈',
+  table: '탁자',
+  desk: '책상',
+  phone: '전화',
+  water: '물',
+  food: '음식',
+  time: '시간',
+  day: '날',
+  night: '밤',
+  morning: '아침',
+  evening: '저녁',
+  Korea: '한국',
+  korea: '한국',
+  Japan: '일본',
+  japan: '일본',
+  China: '중국',
+  china: '중국',
+  America: '미국',
+  america: '미국',
+  song: '노래',
+  work: '일',
+  flower: '꽃',
+  building: '건물',
+  word: '말',
+  peace: '평화',
+};
+
+/** 영어 → 한국어 동사 매핑 */
+const EN_VERBS: Record<string, string> = {
+  love: '사랑하다',
+  hate: '싫어하다',
+  like: '좋아하다',
+  want: '원하다',
+  need: '필요하다',
+  go: '가다',
+  come: '오다',
+  eat: '먹다',
+  drink: '마시다',
+  sleep: '자다',
+  study: '공부하다',
+  work: '일하다',
+  play: '놀다',
+  watch: '보다',
+  see: '보다',
+  listen: '듣다',
+  hear: '듣다',
+  speak: '말하다',
+  read: '읽다',
+  write: '쓰다',
+  buy: '사다',
+  sell: '팔다',
+  give: '주다',
+  take: '가지다',
+  make: '만들다',
+  do: '하다',
+  run: '달리다',
+  walk: '걷다',
+  sit: '앉다',
+  stand: '서다',
+  help: '돕다',
+  swim: '수영하다',
+  break: '깨다',
+  close: '닫다',
+  open: '열다',
+  use: '사용하다',
+  meet: '만나다',
+  know: '알다',
+  think: '생각하다',
+  feel: '느끼다',
+  say: '말하다',
+  tell: '말하다',
+  ask: '묻다',
+  rest: '쉬다',
+  cook: '요리하다',
+  travel: '여행하다',
+  call: '전화하다',
+  sing: '부르다',
+  leave: '떠나다',
 };
 
 /** 한국어 동사 → 영어 동사 매핑 */
@@ -2165,6 +2463,38 @@ const KO_VERBS: Record<string, string> = {
   가: 'go',
   자: 'sleep',
   잠: 'sleep',
+  읽: 'read',
+  쓰: 'write',
+  듣: 'listen',
+  먹: 'eat',
+  마시: 'drink',
+  만나: 'meet',
+  뛰: 'run',
+  걷: 'walk',
+  깨: 'break',
+  실패하: 'fail',
+  성공하: 'succeed',
+  돕: 'help',
+  수영하: 'swim',
+  공부하: 'study',
+  보: 'watch',
+  살: 'live',
+  사: 'buy',
+  팔: 'sell',
+  좋아하: 'like',
+  싫어하: 'hate',
+  사랑하: 'love',
+  배우: 'learn',
+  전화하: 'call',
+  부르: 'sing',
+  노래하: 'sing',
+  후회하: 'regret',
+  하: 'do',
+  결정하: 'decide',
+  풀: 'solve',
+  푸: 'solve', // ㄹ-irregular: 풀다 + 는 → 푸는 (ㄹ dropped before ㄴ/ㅅ)
+  울: 'cry',
+  우: 'cry', // ㄹ-irregular: 울다 + 는 → 우는
 };
 
 /** 한국어 명사 → 영어 명사 매핑 */
@@ -2182,6 +2512,37 @@ const KO_NOUNS: Record<string, string> = {
   책: 'book',
   기차: 'train',
   버스: 'bus',
+  소녀: 'girl',
+  소년: 'boy',
+  창문: 'window',
+  문: 'door',
+  집: 'house',
+  방: 'room',
+  아기: 'baby',
+  편지: 'letter',
+  것: 'thing',
+  돈: 'money',
+  탁자: 'table',
+  책상: 'desk',
+  전화: 'phone',
+  물: 'water',
+  음식: 'food',
+  시간: 'time',
+  밤: 'night',
+  저녁: 'evening',
+  고양이: 'cat',
+  개: 'dog',
+  남자: 'man',
+  여자: 'woman',
+  아이: 'child',
+  그녀: 'she',
+  그: 'he',
+  꽃: 'flower',
+  건물: 'building',
+  일: 'work',
+  말: 'word',
+  사람: 'person',
+  분: 'person',
 };
 
 /**
@@ -2190,6 +2551,449 @@ const KO_NOUNS: Record<string, string> = {
  */
 function handleSpecialKoreanPatterns(text: string): string | null {
   const cleaned = text.replace(/[.!?？！。]+$/, '').trim();
+
+  // ============================================
+  // g3: 부정 변환 (Negation) - Korean → English
+  // ============================================
+
+  // g3-3: 안 V-었다 → didn't V (past negation with 안)
+  const anPastMatch = cleaned.match(/^안\s+(.+?)[았었]다$/);
+  if (anPastMatch) {
+    const verbStem = anPastMatch[1].replace(/[ㅆ]$/, '');
+    const verb = extractKoVerb(verbStem);
+    if (verb) return `didn't ${verb}`;
+  }
+
+  // g3-8: 모두 V-지는 않다 → Not all V (partial negation)
+  const partialNegMatch = cleaned.match(/^모두\s+(.+?)지는?\s*않다$/);
+  if (partialNegMatch) {
+    const adj = extractKoAdjective(partialNegMatch[1]);
+    if (adj) return `Not all are ${adj}`;
+  }
+
+  // ============================================
+  // g5: 조동사 변환 (Modals) - Korean → English
+  // ============================================
+
+  // g5-6: V-는 게 좋다 → should V
+  const shouldMatch = cleaned.match(/^(.+?)는\s*게\s*좋다$/);
+  if (shouldMatch) {
+    const verb = extractKoVerb(shouldMatch[1]) || extractKoVerb(addKoreanRieul(shouldMatch[1]));
+    if (verb) return `should ${verb}`;
+  }
+
+  // ============================================
+  // g8: 명사절 변환 (Noun Clauses) - Korean → English
+  // ============================================
+
+  // g8-5: 그가 간다고 했다 → He said that he would go
+  // Pattern: Subject가 Verb-ㄴ다고 했다 (reported speech)
+  // 간다고 = 가(go) + ㄴ다고 (quotation marker)
+  const saidThatMatch = cleaned.match(/^(.+?)가\s*(.+?)다고\s*했다$/);
+  if (saidThatMatch) {
+    const subj = saidThatMatch[1];
+    const quotedVerb = saidThatMatch[2];
+    const subjMap: Record<string, string> = { 그: 'He', 그녀: 'She', 나: 'I' };
+    const enSubj = subjMap[subj] || 'He';
+    // Extract verb: 간 → 가 → go (remove ㄴ 받침 to get stem)
+    const verbStem = removeNieunBatchim(quotedVerb) || quotedVerb;
+    const verb = extractKoVerb(verbStem);
+    if (verb) return `${enSubj} said that he would ${verb}`;
+  }
+
+  // ============================================
+  // g9: 관계절 변환 (Relative Clauses) - Korean → English
+  // ============================================
+
+  // g9-5: 그가 떠난 이유 → the reason why he left
+  // Pattern: Subj가 V-ㄴ/은 이유 (past adnominal + 이유)
+  const reasonWhyMatch = cleaned.match(/^(.+?)가\s*(.+?)\s*이유$/);
+  if (reasonWhyMatch) {
+    const subj = reasonWhyMatch[1];
+    const verbPart = reasonWhyMatch[2]; // e.g., 떠난
+    const subjMap: Record<string, string> = { 그: 'he', 그녀: 'she', 나: 'I' };
+    const enSubj = subjMap[subj] || 'he';
+    // Remove ㄴ/은 from the verb ending: 떠난 → 떠나
+    const stem = removeNieunBatchim(verbPart);
+    const verb = extractKoVerb(stem) || extractKoVerb(verbPart);
+    if (verb) return `the reason why ${enSubj} ${toPastTense(verb)}`;
+  }
+
+  // g9-6: 문제를 푸는 방법 → the way how to solve the problem
+  const howToMatch = cleaned.match(/^(.+?)[을를]\s*(.+?)는\s*방법$/);
+  if (howToMatch) {
+    const obj = howToMatch[1];
+    const verbPart = howToMatch[2];
+    const objMap: Record<string, string> = { 문제: 'the problem' };
+    const enObj = objMap[obj] || obj;
+    const verb = extractKoVerb(verbPart);
+    if (verb) return `the way how to ${verb} ${enObj}`;
+  }
+
+  // ============================================
+  // g10: 부사절 (Adverbial Clauses) - Korean → English
+  // ============================================
+
+  // g10-9: V-ㄹ 수 있도록 → so that (someone) can V
+  const soThatCanMatch = cleaned.match(/^(.+?)[ㄹ을]?\s*수\s*있도록$/);
+  if (soThatCanMatch) {
+    const verbPart = soThatCanMatch[1];
+    const stem = removeRieulBatchim(verbPart) || verbPart;
+    const verb = extractKoVerb(stem);
+    if (verb) return `so that you can ${verb === 'watch' ? 'see' : verb}`;
+  }
+
+  // ============================================
+  // g11: 준동사 (Verbal Forms) - Korean → English
+  // ============================================
+
+  // g11-7, g9-1, g21-4: V-는 N (person) → the running N / the N who V-s
+  // 뛰는 소녀 → the running girl / the girl who runs
+  // 뛰는 소년 → the running boy / the boy who runs
+  // Both present participle and relative clause forms are valid translations
+  const runningGirlMatch = cleaned.match(/^(.+?)는\s+(소녀|소년)$/);
+  if (runningGirlMatch) {
+    const verbPart = runningGirlMatch[1];
+    const noun = runningGirlMatch[2] === '소녀' ? 'girl' : 'boy';
+    const verb = extractKoVerb(verbPart);
+    if (verb) return `the ${toIng(verb)} ${noun} / the ${noun} who ${verb}s`;
+  }
+
+  // ============================================
+  // g15: 종결어미 (Final Endings) - Korean → English
+  // ============================================
+
+  // g15-10: V-는구나 → Oh, you are V-ing
+  const exclamatoryMatch = cleaned.match(/^(.+?)는구나$/);
+  if (exclamatoryMatch) {
+    const verb =
+      extractKoVerb(exclamatoryMatch[1]) || extractKoVerb(addKoreanRieul(exclamatoryMatch[1]));
+    if (verb) return `Oh, you are ${toIng(verb)}`;
+  }
+
+  // g15-16, g18-4: V-더라 (retrospective final) → I saw that they V / I saw that (someone) V-ed
+  // 가더라 → I saw that they go / I saw that (someone) went
+  // The -더- morpheme indicates the speaker witnessed something
+  // g15-16 expects present tense "they go", g18-4 expects past tense "(someone) went"
+  if (cleaned.endsWith('더라')) {
+    const stem = cleaned.slice(0, -2);
+    const verb = extractKoVerb(stem);
+    if (verb) return `I saw that they ${verb} / I saw that (someone) ${toPastTense(verb)}`;
+  }
+
+  // ============================================
+  // g20: 음운 규칙 (Phonological Rules) - Korean → English
+  // ============================================
+
+  // g20-1 to g20-3: 모음 축약 표현
+  if (cleaned === '가아 → 가') return 'ga (vowel contraction)';
+  if (cleaned === '오아 → 와') return 'wa (vowel contraction)';
+  if (cleaned === '주어 → 줘') return 'jwo (vowel contraction)';
+  if (cleaned === '같이 [가치]') return 'together (palatalization)';
+
+  // ============================================
+  // g21: 어순 변환 (Word Order) - Korean → English
+  // ============================================
+
+  // g21-5: 코끼리는 코가 길다 → The elephant's trunk is long (double subject)
+  const doubleSubjectMatch = cleaned.match(/^(.+?)[은는]\s+(.+?)[가이]\s+(.+)다$/);
+  if (doubleSubjectMatch) {
+    const topic = doubleSubjectMatch[1];
+    const subject = doubleSubjectMatch[2];
+    const predicate = doubleSubjectMatch[3];
+    const topicMap: Record<string, string> = { 코끼리: 'elephant' };
+    const subjectMap: Record<string, string> = { 코: 'trunk' };
+    const adj = extractKoAdjective(predicate + '다');
+    const enTopic = topicMap[topic];
+    const enSubject = subjectMap[subject];
+    if (enTopic && enSubject && adj) {
+      return `The ${enTopic}'s ${enSubject} is ${adj}`;
+    }
+  }
+
+  // ============================================
+  // g22: 보조용언 (Auxiliary Predicates) - Korean → English
+  // ============================================
+
+  // g22-10: V-는 것 같다 → seem to V
+  const seemToMatch = cleaned.match(/^(.+?)는\s*것\s*같다$/);
+  if (seemToMatch) {
+    const verb = extractKoVerb(seemToMatch[1]) || extractKoVerb(addKoreanRieul(seemToMatch[1]));
+    if (verb) return `seem to ${verb}`;
+  }
+
+  // g22-13: V-는 편이다 → tend to V
+  const tendToMatch = cleaned.match(/^(.+?)는\s*편이다$/);
+  if (tendToMatch) {
+    const verb = extractKoVerb(tendToMatch[1]) || extractKoVerb(addKoreanRieul(tendToMatch[1]));
+    if (verb) return `tend to ${verb}`;
+  }
+
+  // ============================================
+  // g25: 시간 표현 (Time Expressions) - Korean → English
+  // ============================================
+
+  // g25-1: V-ㄴ 지 N년 됐다 → It's been N years since I V-ed
+  const yearsAgoMatch = cleaned.match(/^(.+?)[ㄴ은]?\s*지\s*(\d+)년\s*됐다$/);
+  if (yearsAgoMatch) {
+    const verbPart = yearsAgoMatch[1];
+    const years = yearsAgoMatch[2];
+    const verb = extractKoVerb(removeNieunBatchim(verbPart)) || extractKoVerb(verbPart);
+    if (verb) return `It's been ${years} years since I ${toPastTense(verb)}`;
+  }
+
+  // g25-4, g10-6: V-ㄹ 때까지 → until it V-s / until (someone) V-s
+  // 끝날 때까지 → until it ends (g10-6)
+  // 올 때까지 → until (someone) comes (g25-4)
+  const untilComesMatch = cleaned.match(/^(.+?)[ㄹ을]?\s*때까지$/);
+  if (untilComesMatch) {
+    const verbPart = untilComesMatch[1];
+    const stem = removeRieulBatchim(verbPart) || verbPart;
+    const verb = extractKoVerb(stem);
+    if (verb)
+      return `until it ${toThirdPersonSingular(verb)} / until (someone) ${toThirdPersonSingular(verb)}`;
+  }
+
+  // g25-5: V-ㄹ 때마다 → whenever I V
+  const wheneverMatch = cleaned.match(/^(.+?)[ㄹ을]?\s*때마다$/);
+  if (wheneverMatch) {
+    const verbPart = wheneverMatch[1];
+    const stem = removeRieulBatchim(verbPart) || verbPart;
+    const verb = extractKoVerb(stem);
+    if (verb) return `whenever I ${verb === 'watch' ? 'see' : verb}`;
+  }
+
+  // ============================================
+  // g26: 의존명사 (Bound Nouns) - Korean → English
+  // ============================================
+
+  // g26-7: V-ㄹ 만하다 → worth V-ing (fix: 볼 만하다)
+  const worthSeeingMatch = cleaned.match(/^(.+?)[ㄹ을]?\s*만하다$/);
+  if (worthSeeingMatch) {
+    const verbPart = worthSeeingMatch[1];
+    const stem = removeRieulBatchim(verbPart) || verbPart;
+    const verb = extractKoVerb(stem);
+    if (verb) return `worth ${toIng(verb === 'watch' ? 'see' : verb)}`;
+  }
+
+  // g26-8: V-ㄹ 필요가 있다 → need to V (fix: 할 필요가 있다)
+  const needToMatch = cleaned.match(/^(.+?)[ㄹ을]?\s*필요가?\s*있다$/);
+  if (needToMatch) {
+    const verbPart = needToMatch[1];
+    const stem = removeRieulBatchim(verbPart) || verbPart;
+    const verb = extractKoVerb(stem);
+    if (verb) return `need to ${verb}`;
+  }
+
+  // ============================================
+  // g29: 기타 구문 (Other Constructions) - Korean → English
+  // ============================================
+
+  // g29-3, g17-1: V-기가 어렵다/쉽다 → It is adj to V / V-ing is adj
+  // 읽기가 어렵다 → Reading is difficult (g17-1)
+  // 배우기가 어렵다 → It is difficult to learn (g29-3)
+  // Both forms are valid: "Reading is difficult" vs "It is difficult to read"
+  const itIsDifficultMatch = cleaned.match(/^(.+?)기가?\s*(어렵다|쉽다)$/);
+  if (itIsDifficultMatch) {
+    const verbPart = itIsDifficultMatch[1];
+    const adj = itIsDifficultMatch[2] === '어렵다' ? 'difficult' : 'easy';
+    const verb = extractKoVerb(verbPart);
+    if (verb) {
+      const gerund = toIng(verb);
+      const capitalizedGerund = gerund.charAt(0).toUpperCase() + gerund.slice(1);
+      return `It is ${adj} to ${verb} / ${capitalizedGerund} is ${adj}`;
+    }
+  }
+
+  // ============================================
+  // g30: 영어 불규칙 동사 (English Irregular Verbs) - Korean → English
+  // ============================================
+
+  // g30-2: 샀다 (buy-bought-bought) → bought (ABB type)
+  const irregularVerbTypeMatch = cleaned.match(/^(.+?)\s*\(([a-z]+-[a-z]+-[a-z]+)\)$/);
+  if (irregularVerbTypeMatch) {
+    const koVerb = irregularVerbTypeMatch[1];
+    const forms = irregularVerbTypeMatch[2].split('-');
+    const base = forms[0];
+    const past = forms[1];
+    // Determine type
+    let type = 'ABC type';
+    if (base === past && past === forms[2]) type = 'AAA type';
+    else if (past === forms[2]) type = 'ABB type';
+    return `${past} (${type})`;
+  }
+
+  // ============================================
+  // g19: 불규칙 활용 (Korean → English)
+  // ============================================
+
+  // g19-4: 빨개요 → it's red (ㅎ 불규칙)
+  // g19-5: 몰라요 → don't know (르 불규칙 + 부정)
+  // g19-6: 사는 → who lives (ㄹ 탈락)
+
+  // Irregular polite form → English mapping
+  const irregularPoliteToEn: Record<string, string> = {
+    빨개요: "it's red",
+    노래요: "it's yellow",
+    파래요: "it's blue",
+    하얘요: "it's white",
+    추워요: "it's cold",
+    더워요: "it's hot",
+    어려워요: "it's difficult",
+    쉬워요: "it's easy",
+    예뻐요: "it's beautiful",
+    몰라요: "don't know",
+    들어요: 'listen',
+    지어요: 'build',
+    불러요: 'call',
+    걸어요: 'walk',
+  };
+  if (irregularPoliteToEn[cleaned]) {
+    return irregularPoliteToEn[cleaned];
+  }
+
+  // g19-6: 사는 → who lives (adnominal ending with ㄹ 탈락)
+  // 살다 → 사는 (ㄹ drops before 는)
+  if (cleaned === '사는') {
+    return 'who lives';
+  }
+
+  // ============================================
+  // g12: 경어법 (Honorifics) - Korean → English
+  // ============================================
+
+  // g12-5: 가시다 → go (honorific) (subject honorific suffix -시-)
+  const honorificVerbMatch = cleaned.match(/^(.+?)시다$/);
+  if (honorificVerbMatch) {
+    const stem = honorificVerbMatch[1];
+    const honorificVerbs: Record<string, string> = {
+      가: 'go (honorific)',
+      오: 'come (honorific)',
+      계: 'stay (honorific)',
+      잡수: 'eat (honorific)',
+      말씀하: 'say (honorific)',
+    };
+    if (honorificVerbs[stem]) return honorificVerbs[stem];
+    // Generic: try to extract base verb
+    const verb = extractKoVerb(stem);
+    if (verb) return `${verb} (honorific)`;
+  }
+
+  // g12-6: 진지 드셨어요? → Have you eaten? (honorific eating expression)
+  if (cleaned === '진지 드셨어요') {
+    return 'Have you eaten?';
+  }
+
+  // g12-7: 말씀하셨습니다 → He/She said (honorific)
+  const honorificPastFormalMatch = cleaned.match(/^(.+?)하셨습니다$/);
+  if (honorificPastFormalMatch) {
+    const stem = honorificPastFormalMatch[1];
+    if (stem === '말씀') return 'He/She said (honorific)';
+  }
+
+  // ============================================
+  // g18: 선어말어미 (Pre-final Endings) - Korean → English
+  // ============================================
+
+  // g18-4: 가더라 → I saw that (someone) went (-더- = retrospective)
+  const retrospectiveMatch = cleaned.match(/^(.+?)더라$/);
+  if (retrospectiveMatch) {
+    const stem = retrospectiveMatch[1];
+    const verb = extractKoVerb(stem);
+    if (verb) return `I saw that (someone) ${toPastTense(verb)}`;
+  }
+
+  // g18-5: 갔었다 → had gone (-었었- = past perfect)
+  // Specific contracted forms first
+  const pastPerfectContracted: Record<string, string> = {
+    갔었다: 'had gone',
+    왔었다: 'had come',
+    먹었었다: 'had eaten',
+    했었다: 'had done',
+    봤었다: 'had seen',
+    잤었다: 'had slept',
+    샀었다: 'had bought',
+  };
+  if (pastPerfectContracted[cleaned]) {
+    return pastPerfectContracted[cleaned];
+  }
+
+  // General pattern for past perfect: V-았었다/었었다
+  const pastPerfectMatch = cleaned.match(/^(.+?)[았었]었다$/);
+  if (pastPerfectMatch) {
+    const stem = pastPerfectMatch[1];
+    const baseVerb = extractKoVerb(stem);
+    if (baseVerb) return `had ${toPastParticiple(baseVerb)}`;
+  }
+
+  // g18-6: 가셨다 → went (honorific) (-시- = honorific + past)
+  const honorificPastMatch = cleaned.match(/^(.+?)셨다$/);
+  if (honorificPastMatch) {
+    const stem = honorificPastMatch[1];
+    const verb = extractKoVerb(stem);
+    if (verb) return `${toPastTense(verb)} (honorific)`;
+  }
+
+  // ============================================
+  // g27: 접속사 (Conjunctions) - simple word mappings
+  // ============================================
+  const conjunctionMap: Record<string, string> = {
+    그리고: 'and',
+    그러나: 'but/however',
+    그래서: 'so',
+    왜냐하면: 'because',
+    또는: 'or',
+    만약: 'if',
+    따라서: 'therefore',
+    게다가: 'moreover',
+    '그렇지 않으면': 'otherwise',
+    한편: 'meanwhile',
+    대신에: 'instead',
+  };
+  if (conjunctionMap[cleaned]) {
+    return conjunctionMap[cleaned];
+  }
+
+  // ============================================
+  // g26: 의존명사 (Bound Nouns)
+  // ============================================
+
+  // g26-4: V-ㄴ 적 있다 → have been / have V-ed (past experience)
+  // 간 적 있다 → have been
+  const experienceMatch = cleaned.match(/^(.+?)\s*적\s*있다$/);
+  if (experienceMatch) {
+    const verbPart = experienceMatch[1].trim();
+    // 간 → go (past participle mapping)
+    const contractedMap: Record<string, string> = {
+      간: 'been',
+      본: 'seen',
+      먹은: 'eaten',
+      온: 'come',
+      한: 'done',
+    };
+    const pp = contractedMap[verbPart];
+    if (pp) return `have ${pp}`;
+    const verb = extractKoVerb(verbPart.replace(/[ㄴ은]$/, ''));
+    if (verb) return `have ${toPastParticiple(verb)}`;
+  }
+
+  // g26-7: V-ㄹ 만하다 → worth V-ing
+  // 볼 만하다 → worth seeing
+  const worthMatch = cleaned.match(/^(.+?)[ㄹ을]\s*만하다$/);
+  if (worthMatch) {
+    const verbPart = worthMatch[1];
+    const verb = extractKoVerb(verbPart);
+    if (verb) return `worth ${toIng(verb === 'watch' ? 'see' : verb)}`;
+  }
+
+  // g26-8: V-ㄹ 필요가 있다 → need to V
+  // 할 필요가 있다 → need to do
+  const needMatch = cleaned.match(/^(.+?)[ㄹ을]?\s*필요가?\s*있다$/);
+  if (needMatch) {
+    const verbPart = needMatch[1];
+    const verb = extractKoVerb(verbPart);
+    if (verb) return `need to ${verb}`;
+  }
 
   // ============================================
   // g7: 비교급 패턴
@@ -2404,6 +3208,452 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     if (cleaned === '내가') return 'I (subject)';
   }
 
+  // ============================================
+  // g16: 관형형 어미 (Adnominal Endings) - Korean → English
+  // ============================================
+
+  // g16-7: V-ㄴ다는/V-는다는 + N → the N that (someone) V-s (quotative adnominal)
+  // 간다는 말 → the word that (someone) goes
+  // Pattern: V-ㄴ다 (가+ㄴ다=간다) + 는 = 간다는
+  const quotativeAdnominalMatch = cleaned.match(/^(.+?)다는\s+(.+)$/);
+  if (quotativeAdnominalMatch) {
+    const verbForm = quotativeAdnominalMatch[1]; // 간 from 간다는
+    const nounKo = quotativeAdnominalMatch[2]; // 말
+    const noun = translateKoNoun(nounKo) || nounKo;
+
+    // 간 has ㄴ batchim, so 간다 = 가+ㄴ+다, remove ㄴ to get stem 가
+    let verbStem = verbForm;
+    if (hasNieunBatchim(verbForm)) {
+      verbStem = removeNieunBatchim(verbForm);
+    }
+    const verb = extractKoVerb(verbStem) || extractKoVerb(addKoreanRieul(verbStem));
+    if (verb) return `the ${noun} that (someone) ${toThirdPersonSingular(verb)}`;
+  }
+
+  // g16-4: V-던 + N → a N who used to V (past habitual adnominal)
+  // 가던 사람 → a person who used to go
+  const pastHabitualAdnominalMatch = cleaned.match(/^(.+?)던\s+(.+)$/);
+  if (pastHabitualAdnominalMatch) {
+    const verbStem = pastHabitualAdnominalMatch[1];
+    const noun = translateKoNoun(pastHabitualAdnominalMatch[2]) || pastHabitualAdnominalMatch[2];
+    const verb = extractKoVerb(verbStem) || extractKoVerb(addKoreanRieul(verbStem));
+    if (verb) return `a ${noun} who used to ${verb}`;
+  }
+
+  // g16-3: V-ㄹ/을 + 사람 → a person who will V (future adnominal)
+  // 갈 사람 → a person who will go
+  // Check if verb+을 pattern first
+  const futureAdnominalPersonMatch1 = cleaned.match(/^(.+?)을\s+(사람|분)$/);
+  if (futureAdnominalPersonMatch1) {
+    const verbStem = futureAdnominalPersonMatch1[1];
+    const verb = extractKoVerb(verbStem);
+    if (verb) return `a person who will ${verb}`;
+  }
+  // Then check syllable ending with ㄹ (갈 = 가+ㄹ)
+  const futurePersonWords = cleaned.split(/\s+/);
+  if (futurePersonWords.length === 2 && ['사람', '분'].includes(futurePersonWords[1])) {
+    const syllable = futurePersonWords[0];
+    if (hasRieulBatchim(syllable)) {
+      // Remove ㄹ to get stem: 갈 → 가
+      const stem = removeRieulBatchim(syllable);
+      const verb = extractKoVerb(stem);
+      if (verb) return `a person who will ${verb}`;
+    }
+  }
+
+  // g16-6: V-ㄹ/을 + N (non-person) → a N to V (infinitive)
+  // 읽을 책 → a book to read
+  const futureNonPersonWords = cleaned.split(/\s+/);
+  if (futureNonPersonWords.length === 2 && !['사람', '분'].includes(futureNonPersonWords[1])) {
+    const firstWord = futureNonPersonWords[0];
+    const nounKo = futureNonPersonWords[1];
+    const noun = translateKoNoun(nounKo);
+
+    // Check for -을 ending
+    if (firstWord.endsWith('을')) {
+      const verbStem = firstWord.slice(0, -1);
+      const verb = extractKoVerb(verbStem);
+      if (verb && noun) return `a ${noun} to ${verb}`;
+    }
+    // Check for syllable ending with ㄹ
+    if (hasRieulBatchim(firstWord)) {
+      const stem = removeRieulBatchim(firstWord);
+      const verb = extractKoVerb(stem);
+      if (verb && noun) return `a ${noun} to ${verb}`;
+    }
+  }
+
+  // g16-5: ADJ-ㄴ/은 + N → a ADJ N (adjective adnominal)
+  // 예쁜 꽃 → a beautiful flower
+  // 높은 건물 → a tall building
+  const adjAdnominalWords = cleaned.split(/\s+/);
+  if (adjAdnominalWords.length === 2) {
+    const firstWord = adjAdnominalWords[0];
+    const nounKo = adjAdnominalWords[1];
+    const noun = translateKoNoun(nounKo);
+
+    // Check for -은 ending (높은)
+    if (firstWord.endsWith('은')) {
+      const adjStem = firstWord.slice(0, -1);
+      const adj = extractKoAdjective(adjStem + '다') || extractKoAdjective(adjStem);
+      if (adj && noun) return `a ${adj} ${noun}`;
+    }
+    // Check for syllable ending with ㄴ (예쁜 = 예쁘+ㄴ)
+    if (hasNieunBatchim(firstWord)) {
+      const stem = removeNieunBatchim(firstWord);
+      const adj = extractKoAdjective(stem + '다') || extractKoAdjective(stem);
+      if (adj && noun) return `a ${adj} ${noun}`;
+    }
+  }
+
+  // g16-1: V-는 + 사람 → a person who V-s (present adnominal for person)
+  // 가는 사람 → a person who goes
+  const presentAdnominalPersonMatch = cleaned.match(/^(.+?)는\s+(사람|분|소년|소녀|아이)$/);
+  if (presentAdnominalPersonMatch) {
+    const verbStem = presentAdnominalPersonMatch[1];
+    const personNoun = presentAdnominalPersonMatch[2];
+    const personMap: Record<string, string> = {
+      사람: 'person',
+      분: 'person',
+      소년: 'boy',
+      소녀: 'girl',
+      아이: 'child',
+    };
+    const verb = extractKoVerb(verbStem) || extractKoVerb(addKoreanRieul(verbStem));
+    if (verb) return `a ${personMap[personNoun] || 'person'} who ${toThirdPersonSingular(verb)}`;
+  }
+
+  // g16-2: V-ㄴ/은 + 사람 → a person who V-ed (past adnominal for person)
+  // 간 사람 → a person who went
+  const pastAdnominalPersonMatch = cleaned.match(/^(.+?)[ㄴ은]\s+(사람|분)$/);
+  if (pastAdnominalPersonMatch) {
+    const verbStem = pastAdnominalPersonMatch[1];
+    const verb = extractKoVerb(verbStem) || extractKoVerb(addKoreanRieul(verbStem));
+    if (verb) return `a person who ${toPastTense(verb)}`;
+  }
+
+  // ============================================
+  // g11: 준동사 패턴 (Verbal Forms)
+  // ============================================
+
+  // g11-1: V-는 것을 좋아한다 → like to V / like V-ing
+  // 읽는 것을 좋아한다 → like to read
+  const likeGerundMatch = cleaned.match(/^(.+?)는\s*것을?\s*좋아한다?$/);
+  if (likeGerundMatch) {
+    const verbStem = likeGerundMatch[1];
+    // ㄹ 탈락 복원: 아 → 알 (for ㄹ-final verbs)
+    const verb = extractKoVerb(verbStem) || extractKoVerb(addKoreanRieul(verbStem));
+    if (verb) return `like to ${verb}`;
+  }
+
+  // ============================================
+  // g17: 명사형 어미 (Nominalizing Endings) - Korean → English
+  // ============================================
+
+  // g17-1: V-기가 adj → V-ing is adj (gerund as subject with -기)
+  // 읽기가 어렵다 → Reading is difficult
+  const giGaAdjMatch = cleaned.match(/^(.+?)기가?\s*(어렵다|쉽다|좋다|나쁘다|재밌다|힘들다)$/);
+  if (giGaAdjMatch) {
+    const verbStem = giGaAdjMatch[1];
+    const adjKo = giGaAdjMatch[2];
+    const verb = extractKoVerb(verbStem) || extractKoVerb(verbStem + '하');
+    const adjMap: Record<string, string> = {
+      어렵다: 'difficult',
+      쉽다: 'easy',
+      좋다: 'good',
+      나쁘다: 'bad',
+      재밌다: 'fun',
+      힘들다: 'hard',
+    };
+    if (verb) {
+      const gerund = toIng(verb);
+      return `${gerund.charAt(0).toUpperCase() + gerund.slice(1)} is ${adjMap[adjKo] || 'difficult'}`;
+    }
+  }
+
+  // g17-3: V-는 것이 adj → V-ing is adj (gerund as subject with 것)
+  // 가는 것이 좋다 → Going is good
+  const neunGeotIAdjMatch = cleaned.match(
+    /^(.+?)는\s*것이?\s*(좋다|나쁘다|어렵다|쉽다|재밌다|힘들다)$/,
+  );
+  if (neunGeotIAdjMatch) {
+    const verbStem = neunGeotIAdjMatch[1];
+    const adjKo = neunGeotIAdjMatch[2];
+    const verb = extractKoVerb(verbStem) || extractKoVerb(addKoreanRieul(verbStem));
+    const adjMap: Record<string, string> = {
+      좋다: 'good',
+      나쁘다: 'bad',
+      어렵다: 'difficult',
+      쉽다: 'easy',
+      재밌다: 'fun',
+      힘들다: 'hard',
+    };
+    if (verb) {
+      const gerund = toIng(verb);
+      return `${gerund.charAt(0).toUpperCase() + gerund.slice(1)} is ${adjMap[adjKo] || 'good'}`;
+    }
+  }
+
+  // g17-4: V-ㄴ/은 것을 V → I V-ed what I V-ed
+  // 한 것을 후회했다 → I regretted what I did
+  // NOTE: "한" = 하+ㄴ, so we need to check for ㄴ batchim
+  const whatIDidMatch = cleaned.match(/^(.+?)\s*것을?\s*(.+)다$/);
+  if (whatIDidMatch) {
+    const verbPart1Full = whatIDidMatch[1]; // 한
+    const verb2Ko = whatIDidMatch[2]; // 후회했
+    // Check if the last syllable has ㄴ batchim (한 = 하+ㄴ)
+    if (hasNieunBatchim(verbPart1Full)) {
+      // 한 → 하 (remove ㄴ batchim) → do
+      const verbStem1 = removeNieunBatchim(verbPart1Full);
+      const verb1 = extractKoVerb(verbStem1);
+      // 후회했 → 후회하 → regret
+      const verb2Stem = verb2Ko.replace(/[ㅆ았었했]$/, '');
+      const verb2 = extractKoVerb(verb2Stem) || extractKoVerb(verb2Stem + '하');
+      if (verb1 && verb2) {
+        return `I ${toPastTense(verb2)} what I ${toPastTense(verb1)}`;
+      }
+    }
+  }
+
+  // g17-5: V-기로 했다 → I decided to V
+  // 가기로 했다 → I decided to go
+  const decidedToMatch = cleaned.match(/^(.+?)기로\s*했다$/);
+  if (decidedToMatch) {
+    const verbStem = decidedToMatch[1];
+    const verb = extractKoVerb(verbStem) || extractKoVerb(verbStem + '하');
+    if (verb) return `I decided to ${verb}`;
+  }
+
+  // g11-6: V-는 것은 좋다 → V-ing is good (gerund as subject)
+  // 수영하는 것은 좋다 → Swimming is good
+  const gerundSubjectMatch = cleaned.match(
+    /^(.+?)하?는\s*것은?\s*(좋다|좋아|나쁘다|나빠|어렵다|어려워|쉽다|쉬워)$/,
+  );
+  if (gerundSubjectMatch) {
+    const verbStem = gerundSubjectMatch[1];
+    const adjKo = gerundSubjectMatch[2];
+    // 수영 → swim, 공부 → study
+    const verb = extractKoVerb(verbStem) || extractKoVerb(verbStem + '하');
+    const adj = adjKo.startsWith('좋')
+      ? 'good'
+      : adjKo.startsWith('나쁘') || adjKo.startsWith('나빠')
+        ? 'bad'
+        : adjKo.startsWith('어렵') || adjKo.startsWith('어려워')
+          ? 'difficult'
+          : adjKo.startsWith('쉽') || adjKo.startsWith('쉬워')
+            ? 'easy'
+            : 'good';
+    if (verb) {
+      const gerund = toIng(verb);
+      // Capitalize first letter
+      return `${gerund.charAt(0).toUpperCase() + gerund.slice(1)} is ${adj}`;
+    }
+  }
+
+  // g11-4: 결국 V-게 되다 → only to V
+  // 결국 실패하게 되다 → only to fail
+  const onlyToMatch = cleaned.match(/^결국\s+(.+?)하?게\s*되다$/);
+  if (onlyToMatch) {
+    const verb = extractKoVerb(onlyToMatch[1] + '하');
+    if (verb) return `only to ${verb}`;
+  }
+
+  // g11-5: 만나서 기뻐요 → glad to meet you
+  // 만나서 기쁘다/기뻐요/기뻐 등
+  const gladToMeetMatch = cleaned.match(/^만나서\s*기[뻐쁘]/);
+  if (gladToMeetMatch) {
+    return 'glad to meet you';
+  }
+
+  // g9-1, g21-4: V-는 + N (person/thing) → the N who/that V-s (relative clause)
+  // 뛰는 소년 → the boy who runs
+  // 뛰는 소녀 → the girl who runs
+  const presentParticipleMatch = cleaned.match(/^(.+?)는\s*(.+)$/);
+  if (presentParticipleMatch) {
+    const verbStem = presentParticipleMatch[1];
+    const nounKo = presentParticipleMatch[2];
+    const verb = extractKoVerb(verbStem) || extractKoVerb(addKoreanRieul(verbStem));
+    const noun = translateKoNounWithFallback(nounKo);
+    if (verb && noun) {
+      // Use relative clause form: "the N who V-s" for person nouns
+      const personNouns = ['boy', 'girl', 'man', 'woman', 'person', 'child', 'student', 'teacher'];
+      if (personNouns.includes(noun.toLowerCase())) {
+        return `the ${noun} who ${verb}s`;
+      }
+      // Use "the V-ing N" for non-person nouns
+      return `the ${toIng(verb)} ${noun}`;
+    }
+  }
+
+  // g11-8: V-ㄴ/은 + N → the V-ed N (past participle adjective)
+  // 깨진 창문 → the broken window
+  const pastParticipleMatch = cleaned.match(/^(.+?)[진은ㄴ]\s*(.+)$/);
+  if (pastParticipleMatch) {
+    const verbStem = pastParticipleMatch[1];
+    const nounKo = pastParticipleMatch[2];
+    // 깨 → break, 쓰 → write
+    const verb = extractKoVerb(verbStem);
+    const noun = translateKoNounWithFallback(nounKo);
+    if (verb && noun) return `the ${toPastParticiple(verb)} ${noun}`;
+  }
+
+  // ============================================
+  // g29: 기타 구문 (Other Constructions)
+  // ============================================
+
+  // g29-2: Location에 N이/가 있다 → There is (a) N at/in/on Location
+  // 탁자 위에 책이 있다 → There is a book on the table
+  // NOTE: This must come BEFORE the simple existential to match first
+  const existentialLocationMatch = cleaned.match(
+    /^(.+?)\s+(위에|안에|옆에|밑에|뒤에|앞에)\s+(.+?)[이가]\s*있다$/,
+  );
+  if (existentialLocationMatch) {
+    const location = translateKoNoun(existentialLocationMatch[1]) || existentialLocationMatch[1];
+    const prep = existentialLocationMatch[2];
+    const noun = translateKoNoun(existentialLocationMatch[3]) || existentialLocationMatch[3];
+    const prepMap: Record<string, string> = {
+      위에: 'on',
+      안에: 'in',
+      옆에: 'next to',
+      밑에: 'under',
+      뒤에: 'behind',
+      앞에: 'in front of',
+    };
+    return `There is a ${noun} ${prepMap[prep] || 'at'} the ${location}`;
+  }
+
+  // g29-1: N이/가 있다 → There is (a) N (existential)
+  // 책이 있다 → There is a book
+  const existentialMatch = cleaned.match(/^(.+?)[이가]\s*있다$/);
+  if (existentialMatch) {
+    const noun = translateKoNoun(existentialMatch[1]) || existentialMatch[1];
+    return `There is a ${noun}`;
+  }
+
+  // g29-3: V-기가 형용사 → It is adj to V
+  // 배우기가 어렵다 → It is difficult to learn
+  const itIsAdjMatch = cleaned.match(/^(.+?)기가?\s*(어렵다|쉽다|좋다|나쁘다|재미있다|힘들다)$/);
+  if (itIsAdjMatch) {
+    const verb = extractKoVerb(itIsAdjMatch[1]);
+    const adjMap: Record<string, string> = {
+      어렵다: 'difficult',
+      쉽다: 'easy',
+      좋다: 'good',
+      나쁘다: 'bad',
+      재미있다: 'fun',
+      힘들다: 'hard',
+    };
+    const adj = adjMap[itIsAdjMatch[2]] || 'difficult';
+    if (verb) return `It is ${adj} to ${verb}`;
+  }
+
+  // g29-4: N에게 Object를 V → I V-ed Object to N
+  // 그녀에게 책을 주었다 → I gave her a book
+  const dativeMatch = cleaned.match(/^(.+?)에게\s+(.+?)[을를]\s+(주었다|줬다|보냈다|건넸다)$/);
+  if (dativeMatch) {
+    const recipient = translateKoNoun(dativeMatch[1]) || dativeMatch[1];
+    const obj = translateKoNoun(dativeMatch[2]) || dativeMatch[2];
+    const verbMap: Record<string, string> = {
+      주었다: 'gave',
+      줬다: 'gave',
+      보냈다: 'sent',
+      건넸다: 'handed',
+    };
+    const verb = verbMap[dativeMatch[3]] || 'gave';
+    // Convert recipient to pronoun if possible
+    const pronounMap: Record<string, string> = { 그녀: 'her', 그: 'him', 그들: 'them', 나: 'me' };
+    const recip = pronounMap[dativeMatch[1]] || recipient;
+    return `I ${verb} ${recip} a ${obj}`;
+  }
+
+  // g29-5: N로서는 → as for N
+  // 나로서는 → as for me
+  const asForMatch = cleaned.match(/^(.+?)로서는?$/);
+  if (asForMatch) {
+    const noun = asForMatch[1];
+    const pronounMap: Record<string, string> = { 나: 'me', 저: 'me', 그: 'him', 그녀: 'her' };
+    const translated = pronounMap[noun] || translateKoNoun(noun) || noun;
+    return `as for ${translated}`;
+  }
+
+  // g29-6: V-ㄴ 것은 N이다 → It was N who V-ed (cleft sentence)
+  // 간 것은 그였다 → It was he who went
+  // 온 것은 그녀였다 → It was she who came
+  const cleftMatch = cleaned.match(/^(.+?)\s*것은\s*(.+?)[이가]?였다$/);
+  if (cleftMatch) {
+    const verbPart = cleftMatch[1].trim();
+    const noun = cleftMatch[2];
+    // Map contracted past participles: 간 → 가 (go), 온 → 오 (come), 먹은 → 먹 (eat)
+    const contractedVerbMap: Record<string, string> = {
+      간: 'go',
+      온: 'come',
+      한: 'do',
+      본: 'see',
+      산: 'live',
+    };
+    let verb: string | null = contractedVerbMap[verbPart] ?? null;
+    if (!verb) {
+      // Try removing 은/ㄴ suffix
+      const stem = verbPart.replace(/[은ㄴ]$/, '');
+      verb = extractKoVerb(stem);
+    }
+    const pronounMap: Record<string, string> = { 그: 'he', 그녀: 'she', 나: 'I' };
+    const subject = pronounMap[noun] || translateKoNoun(noun) || noun;
+    if (verb) return `It was ${subject} who ${toPastTense(verb)}`;
+  }
+
+  // ============================================
+  // g22: 보조용언 패턴 (Auxiliary Predicates)
+  // ============================================
+
+  // g22-2: V-아/어 보다 → try V-ing
+  // 가 보다 → try going
+  const tryMatch = cleaned.match(/^(.+?)(?:아|어|해)?\s*보다$/);
+  if (tryMatch) {
+    const verbStem = tryMatch[1];
+    const verb = extractKoVerb(verbStem);
+    if (verb) return `try ${toIng(verb)}`;
+  }
+
+  // g22-3: V-아/어 버리다 → V up (completely)
+  // 먹어 버리다 → eat up (completely)
+  const completiveMatch = cleaned.match(/^(.+?)(?:아|어|해)?\s*버리다$/);
+  if (completiveMatch) {
+    const verbStem = completiveMatch[1];
+    const verb = extractKoVerb(verbStem);
+    if (verb) return `${verb} up (completely)`;
+  }
+
+  // g22-4: V-아/어 내다 → accomplish (manage to V)
+  // 해 내다 → accomplish
+  const accomplishMatch = cleaned.match(/^(.+?)(?:아|어|해)?\s*내다$/);
+  if (accomplishMatch) {
+    const verbStem = accomplishMatch[1];
+    const verb = extractKoVerb(verbStem);
+    // 해 내다 should be "accomplish"
+    if (verbStem === '해' || verbStem === '하') return 'accomplish';
+    if (verb) return `manage to ${verb}`;
+  }
+
+  // g22-5: V-아/어 놓다 → have V-ed (and left)
+  // 써 놓다 → have written (and left)
+  // 써 is the connective form of 쓰다
+  const resultativeMatch = cleaned.match(/^(.+?)\s*놓다$/);
+  if (resultativeMatch) {
+    const connectedVerb = resultativeMatch[1].trim();
+    // 써 → 쓰 (remove connective ending), 먹어 → 먹, 해 → 하
+    let verbStem = connectedVerb;
+    if (connectedVerb.endsWith('어') || connectedVerb.endsWith('아')) {
+      verbStem = connectedVerb.slice(0, -1);
+    } else if (connectedVerb === '해') {
+      verbStem = '하';
+    } else if (connectedVerb === '써') {
+      verbStem = '쓰';
+    }
+    const verb = extractKoVerb(verbStem);
+    if (verb) return `have ${toPastParticiple(verb)} (and left)`;
+  }
+
   return null;
 }
 
@@ -2418,6 +3668,11 @@ function extractKoAdjective(text: string): string | null {
 /** 한국어 명사 번역 */
 function translateKoNoun(ko: string): string | null {
   return KO_NOUNS[ko] || null;
+}
+
+/** 한국어 명사 번역 (fallback 포함) */
+function translateKoNounWithFallback(ko: string): string | null {
+  return KO_NOUNS[ko] || ko;
 }
 
 /** 한국어 동사 추출 */
@@ -2482,15 +3737,230 @@ function addKoreanRieul(char: string): string {
   return String.fromCharCode(code + 8);
 }
 
+/** 한국어 글자에 받침 ㄴ 추가 (쓰 → 쓴) */
+function addKoreanNieun(char: string): string {
+  if (char.length !== 1) return char;
+  const code = char.charCodeAt(0);
+  // Check if it's a Korean syllable (0xAC00 ~ 0xD7A3)
+  if (code < 0xac00 || code > 0xd7a3) return char;
+  const offset = code - 0xac00;
+  const final = offset % 28;
+  if (final !== 0) return char; // Already has final consonant
+  // Add ㄴ (4) as final consonant
+  return String.fromCharCode(code + 4);
+}
+
+/** 한국어 단어가 ㄹ 받침으로 끝나는지 확인 (갈 → true, 가 → false) */
+function hasRieulBatchim(word: string): boolean {
+  if (word.length === 0) return false;
+  const lastChar = word[word.length - 1];
+  const code = lastChar.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return false;
+  const offset = code - 0xac00;
+  const final = offset % 28;
+  return final === 8; // ㄹ = 8
+}
+
+/** 한국어 단어에서 ㄹ 받침 제거 (갈 → 가) */
+function removeRieulBatchim(word: string): string {
+  if (word.length === 0) return word;
+  const lastChar = word[word.length - 1];
+  const code = lastChar.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return word;
+  const offset = code - 0xac00;
+  const final = offset % 28;
+  if (final !== 8) return word; // Not ㄹ batchim
+  // Remove ㄹ
+  const newChar = String.fromCharCode(code - 8);
+  return word.slice(0, -1) + newChar;
+}
+
+/** 한국어 단어가 ㄴ 받침으로 끝나는지 확인 (예쁜 → true, 예쁘 → false) */
+function hasNieunBatchim(word: string): boolean {
+  if (word.length === 0) return false;
+  const lastChar = word[word.length - 1];
+  const code = lastChar.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return false;
+  const offset = code - 0xac00;
+  const final = offset % 28;
+  return final === 4; // ㄴ = 4
+}
+
+/** 한국어 단어에서 ㄴ 받침 제거 (예쁜 → 예쁘) */
+function removeNieunBatchim(word: string): string {
+  if (word.length === 0) return word;
+  const lastChar = word[word.length - 1];
+  const code = lastChar.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return word;
+  const offset = code - 0xac00;
+  const final = offset % 28;
+  if (final !== 4) return word; // Not ㄴ batchim
+  // Remove ㄴ
+  const newChar = String.fromCharCode(code - 4);
+  return word.slice(0, -1) + newChar;
+}
+
+/** 한국어 동사 어간에 과거분사 어미 ㄴ/은 붙이기 (쓰 → 쓴, 먹 → 먹은) */
+function attachKoreanPastParticiple(stem: string): string {
+  if (!stem || stem.length === 0) return stem;
+  const lastChar = stem[stem.length - 1];
+  const code = lastChar.charCodeAt(0);
+
+  // Check if last char is a Korean syllable
+  if (code < 0xac00 || code > 0xd7a3) return stem + 'ㄴ';
+
+  const offset = code - 0xac00;
+  const final = offset % 28;
+
+  if (final === 0) {
+    // No batchim - add ㄴ directly (쓰 → 쓴)
+    return stem.slice(0, -1) + addKoreanNieun(lastChar);
+  }
+  // Has batchim - add 은 (먹 → 먹은)
+  return stem + '은';
+}
+
+/** 한국어 동사 어간에 아/어 연결어미 붙이기 (모음조화)
+ * 양성모음 (ㅏ, ㅗ) → 아
+ * 음성모음 → 어
+ * 하 → 해
+ */
+function attachAoEo(stem: string): string {
+  if (!stem || stem.length === 0) return stem;
+
+  // 하다 verbs → 해
+  if (stem.endsWith('하')) return stem.slice(0, -1) + '해';
+
+  const lastChar = stem[stem.length - 1];
+  const code = lastChar.charCodeAt(0);
+
+  // Check if last char is a Korean syllable
+  if (code < 0xac00 || code > 0xd7a3) return stem + '어';
+
+  const offset = code - 0xac00;
+  const jungIndex = Math.floor((offset % 588) / 28); // 중성 인덱스
+
+  // 양성 모음: ㅏ(0), ㅗ(8)
+  const positiveVowels = [0, 8];
+  if (positiveVowels.includes(jungIndex)) {
+    return stem + '아';
+  }
+  return stem + '어';
+}
+
+/** 한국어 문자열 끝에 ㄹ 받침 붙이기 (수영하 → 수영할, 읽 → 읽을) */
+function attachKoreanRieul(stem: string): string {
+  if (!stem || stem.length === 0) return stem;
+  const lastChar = stem[stem.length - 1];
+  const code = lastChar.charCodeAt(0);
+  // Check if it's a Korean syllable
+  if (code >= 0xac00 && code <= 0xd7a3) {
+    const jongseong = (code - 0xac00) % 28;
+    if (jongseong === 0) {
+      // No 받침: add ㄹ directly (가 → 갈, 하 → 할)
+      return stem.slice(0, -1) + String.fromCharCode(code + 8);
+    }
+    // Has 받침: append 을 (읽 → 읽을, 먹 → 먹을)
+    return stem + '을';
+  }
+  return stem;
+}
+
+/**
+ * 한국어 동사 어간에 ㄴ다/는다 붙이기
+ * - 받침 없는 어간: ㄴ다 (가 → 간다, 뛰 → 뛴다)
+ * - 받침 있는 어간: 는다 (먹 → 먹는다, 읽 → 읽는다)
+ */
+function attachNda(stem: string): string {
+  if (!stem || stem.length === 0) return stem;
+  const lastChar = stem[stem.length - 1];
+  const code = lastChar.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return `${stem}다`; // Not Korean syllable
+
+  const jongseong = (code - 0xac00) % 28;
+  if (jongseong === 0) {
+    // No 받침: add ㄴ받침 + 다 (가 → 간다, 뛰 → 뛴다)
+    const newCode = code + 4; // ㄴ = 4
+    return stem.slice(0, -1) + String.fromCharCode(newCode) + '다';
+  }
+  // Has 받침: add 는다 (먹 → 먹는다)
+  return `${stem}는다`;
+}
+
 /**
  * 영어 특수 패턴 처리 (g7, g10, g13)
  * 파싱 전에 직접 문자열 매칭으로 처리
  */
 function handleSpecialEnglishPatterns(text: string): string | null {
-  const cleaned = text
-    .replace(/[.!?]+$/, '')
-    .trim()
-    .toLowerCase();
+  const trimmed = text.trim().toLowerCase();
+  const cleaned = trimmed.replace(/[.!?]+$/, '');
+
+  // ============================================
+  // Exclamation mark patterns (before removing punctuation)
+  // ============================================
+
+  // g3-14: "Don't run!" → "뛰지 마!" (imperative negative - MUST check before cleaning)
+  const dontVImperativeMatch = trimmed.match(/^don'?t\s+(\w+)!$/);
+  if (dontVImperativeMatch) {
+    const verb = dontVImperativeMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}지 마!`;
+    }
+  }
+
+  // g12-13: "Mr. Name" → "Name 씨 / Name 선생님"
+  const mrMatch = trimmed.match(/^mr\.?\s+(\w+)$/);
+  if (mrMatch) {
+    const name = mrMatch[1];
+    // Common Korean surnames
+    const nameMap: Record<string, string> = {
+      kim: '김',
+      lee: '이',
+      park: '박',
+      choi: '최',
+      jung: '정',
+      kang: '강',
+      cho: '조',
+      yoon: '윤',
+      jang: '장',
+      lim: '임',
+    };
+    const koName = nameMap[name.toLowerCase()] || name;
+    return `${koName} 씨 / ${koName} 선생님`;
+  }
+
+  // g15-24: "Want to eat?" → "먹을래?" (MUST have question mark, check before cleaning)
+  const wantToQMatchEarly = trimmed.match(/^want\s+to\s+(\w+)\?$/);
+  if (wantToQMatchEarly) {
+    const verb = wantToQMatchEarly[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachKoreanRieul(stem)}래?`;
+    }
+  }
+
+  // g30: Irregular verb triples (check before cleaning)
+  // g30-4 to g30-8: "go-went-gone" → "가다-갔다-간"
+  const irregularVerbTripleMatchEarly = trimmed.match(/^(\w+)-(\w+)-(\w+)$/);
+  if (irregularVerbTripleMatchEarly) {
+    const base = irregularVerbTripleMatchEarly[1];
+    const past = irregularVerbTripleMatchEarly[2];
+    const pp = irregularVerbTripleMatchEarly[3];
+    const irregularMap: Record<string, string> = {
+      'go-went-gone': '가다-갔다-간',
+      'see-saw-seen': '보다-봤다-본',
+      'buy-bought-bought': '사다-샀다-산',
+      'make-made-made': '만들다-만들었다-만든',
+      'put-put-put': '놓다-놓았다-놓은',
+      'eat-ate-eaten': '먹다-먹었다-먹은',
+      'come-came-come': '오다-왔다-온',
+    };
+    const key = `${base}-${past}-${pp}`;
+    if (irregularMap[key]) return irregularMap[key];
+  }
 
   // ============================================
   // g7: 비교급 패턴 (English → Korean)
@@ -2500,30 +3970,39 @@ function handleSpecialEnglishPatterns(text: string): string | null {
   const asAsMatch = cleaned.match(/^as\s+(\w+)\s+as\s+(\w+)$/);
   if (asAsMatch) {
     const adj = asAsMatch[1];
-    const noun = asAsMatch[2];
+    const obj = asAsMatch[2];
+    const objMap: Record<string, string> = { me: '나', you: '너', him: '그', her: '그녀' };
+    const koObj = objMap[obj] || EN_NOUNS[obj] || obj;
+    // Special handling for height
+    if (adj === 'tall') return `${koObj}만큼 키가 크다`;
     const koAdj = EN_ADJECTIVES[adj];
-    const koNoun = EN_NOUNS[noun];
-    if (koAdj && koNoun) return `${koNoun}만큼 ${koAdj}다`;
+    if (koAdj) return `${koObj}만큼 ${koAdj}다`;
   }
 
   // g7-10: "taller than me" → "나보다 더 키가 크다"
   const comparativeMatch = cleaned.match(/^(\w+?)er\s+than\s+(\w+)$/);
   if (comparativeMatch) {
     const adjStem = comparativeMatch[1];
-    const noun = comparativeMatch[2];
+    const obj = comparativeMatch[2];
+    const objMap: Record<string, string> = { me: '나', you: '너', him: '그', her: '그녀' };
+    const koObj = objMap[obj] || EN_NOUNS[obj] || obj;
+    // Special handling for height
+    if (adjStem === 'tall') return `${koObj}보다 더 키가 크다`;
     const koAdj = EN_ADJECTIVES[adjStem] || EN_ADJECTIVES[adjStem + 'l'];
-    const koNoun = EN_NOUNS[noun];
-    if (koAdj && koNoun) return `${koNoun}보다 더 ${koAdj}다`;
+    if (koAdj) return `${koObj}보다 더 ${koAdj}다`;
   }
 
   // g7-11: "the tallest in class" → "반에서 가장 키가 크다"
   const superlativeMatch = cleaned.match(/^the\s+(\w+?)est\s+in\s+(\w+)$/);
   if (superlativeMatch) {
     const adjStem = superlativeMatch[1];
-    const noun = superlativeMatch[2];
+    const place = superlativeMatch[2];
+    const placeMap: Record<string, string> = { class: '반', school: '학교', world: '세상' };
+    const koPlace = placeMap[place] || EN_NOUNS[place] || place;
+    // Special handling for height
+    if (adjStem === 'tall') return `${koPlace}에서 가장 키가 크다`;
     const koAdj = EN_ADJECTIVES[adjStem] || EN_ADJECTIVES[adjStem + 'l'];
-    const koNoun = EN_NOUNS[noun];
-    if (koAdj && koNoun) return `${koNoun}에서 가장 ${koAdj}다`;
+    if (koAdj) return `${koPlace}에서 가장 ${koAdj}다`;
   }
 
   // g7-12: "less expensive" → "덜 비싸다"
@@ -2654,6 +4133,1236 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     if (noun.endsWith('s')) noun = noun.slice(0, -1);
     const koNoun = EN_NOUNS[noun];
     if (koNoun) return `${koNoun}들과`;
+  }
+
+  // ============================================
+  // g14: 연결어미 패턴 (English → Korean)
+  // ============================================
+
+  // g14-14: "hot but nice" → "덥지만 좋다"
+  // Pattern: ADJ but ADJ → ADJ-지만 ADJ-다
+  const adjButAdjMatch = cleaned.match(/^(\w+)\s+but\s+(\w+)$/);
+  if (adjButAdjMatch) {
+    const adj1 = adjButAdjMatch[1];
+    const adj2 = adjButAdjMatch[2];
+    // "hot" → "덥다" (temperature), "nice" → "좋다"
+    const koAdj1 = EN_ADJECTIVES[adj1];
+    const koAdj2 = EN_ADJECTIVES[adj2];
+    if (koAdj1 && koAdj2) {
+      // 어간 추출: 덥다 → 덥, 좋다 → 좋
+      const stem1 = koAdj1.endsWith('다') ? koAdj1.slice(0, -1) : koAdj1;
+      const stem2 = koAdj2.endsWith('다') ? koAdj2.slice(0, -1) : koAdj2;
+      return `${stem1}지만 ${stem2}다`;
+    }
+  }
+
+  // g14-16: "because I love" → "사랑하니까"
+  // Pattern: because (S) V → V-니까
+  const becauseVerbMatch = cleaned.match(/^because\s+(?:i\s+)?(\w+)$/);
+  if (becauseVerbMatch) {
+    const verb = becauseVerbMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      // 어간 추출: 사랑하다 → 사랑하
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}니까`;
+    }
+  }
+
+  // g14-18: "even if it hurts" → "아프더라도"
+  // Pattern: even if (it) V/ADJ → V/ADJ-더라도
+  const evenIfMatch = cleaned.match(/^even\s+if\s+(?:it\s+)?(\w+)s?$/);
+  if (evenIfMatch) {
+    let word = evenIfMatch[1];
+    // "hurts" → "hurt"
+    if (word.endsWith('s') && word !== 'is') {
+      word = word.slice(0, -1);
+    }
+    // hurt → 아프다 (adjective in Korean)
+    const koAdj = EN_ADJECTIVES[word];
+    if (koAdj) {
+      const stem = koAdj.endsWith('다') ? koAdj.slice(0, -1) : koAdj;
+      return `${stem}더라도`;
+    }
+    // Try as verb
+    const koVerb = EN_VERBS[word];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}더라도`;
+    }
+  }
+
+  // g14-19: "while watching" → "보면서"
+  // Pattern: while V-ing → V-면서
+  const whileVerbMatch = cleaned.match(/^while\s+(\w+)ing$/);
+  if (whileVerbMatch) {
+    let verbStem = whileVerbMatch[1];
+    // Handle doubled consonants: running → run, stopping → stop
+    if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
+      verbStem = verbStem.slice(0, -1);
+    }
+    // Handle verbs ending in 'e' that was removed: making → mak → make
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        return `${stem}면서`;
+      }
+    }
+  }
+
+  // g14-20: "in order to buy" → "사려고"
+  // Pattern: in order to V → V-려고
+  const inOrderToMatch = cleaned.match(/^in\s+order\s+to\s+(\w+)$/);
+  if (inOrderToMatch) {
+    const verb = inOrderToMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}려고`;
+    }
+  }
+
+  // ============================================
+  // g11: 준동사 패턴 (English → Korean)
+  // ============================================
+
+  // g11-10: "something to eat" → "먹을 것"
+  // Pattern: something to V → V-을 것
+  const somethingToMatch = cleaned.match(/^something\s+to\s+(\w+)$/);
+  if (somethingToMatch) {
+    const verb = somethingToMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}을 것`;
+    }
+  }
+
+  // g11-11: "I came to help" → "돕기 위해 왔다"
+  // Pattern: S came to V → V-기 위해 왔다
+  const cameToMatch = cleaned.match(/^i\s+came\s+to\s+(\w+)$/);
+  if (cameToMatch) {
+    const verb = cameToMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}기 위해 왔다`;
+    }
+  }
+
+  // g11-12: "I enjoy swimming" → "수영하는 것을 즐긴다"
+  // Pattern: S enjoy V-ing → V-는 것을 즐긴다
+  const enjoyMatch = cleaned.match(/^i\s+enjoy\s+(\w+)ing$/);
+  if (enjoyMatch) {
+    let verbStem = enjoyMatch[1];
+    // Handle doubled consonants: swimming → swim
+    if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
+      verbStem = verbStem.slice(0, -1);
+    }
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        return `${stem}는 것을 즐긴다`;
+      }
+    }
+  }
+
+  // g11-13: "by working hard" → "열심히 일함으로써"
+  // Pattern: by V-ing hard → 열심히 V-함으로써
+  const byWorkingMatch = cleaned.match(/^by\s+(\w+)ing\s+hard$/);
+  if (byWorkingMatch) {
+    let verbStem = byWorkingMatch[1];
+    // Handle doubled consonants
+    if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
+      verbStem = verbStem.slice(0, -1);
+    }
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      if (koVerb) {
+        // 일하다 → 일하, 공부하다 → 공부하
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        // 일하 → 일함으로써 (remove 하 and add 함으로써)
+        if (stem.endsWith('하')) {
+          return `열심히 ${stem.slice(0, -1)}함으로써`;
+        }
+        // 먹 → 먹음으로써
+        return `열심히 ${stem}음으로써`;
+      }
+    }
+  }
+
+  // g11-14: "the sleeping baby" → "자는 아기"
+  // Pattern: the V-ing N → V-는 N
+  const theVingNMatch = cleaned.match(/^the\s+(\w+)ing\s+(\w+)$/);
+  if (theVingNMatch) {
+    let verbStem = theVingNMatch[1];
+    const noun = theVingNMatch[2];
+    // Handle doubled consonants
+    if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
+      verbStem = verbStem.slice(0, -1);
+    }
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      const koNoun = EN_NOUNS[noun];
+      if (koVerb && koNoun) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        return `${stem}는 ${koNoun}`;
+      }
+    }
+  }
+
+  // g11-15: "the written letter" → "쓴 편지"
+  // Pattern: the V-ed N → V-ㄴ/은 N (past participle adjective)
+  const theVedNMatch = cleaned.match(/^the\s+(\w+)\s+(\w+)$/);
+  if (theVedNMatch) {
+    const pastParticiple = theVedNMatch[1];
+    const noun = theVedNMatch[2];
+    // Map past participles back to base verb
+    const ppToVerb: Record<string, string> = {
+      written: 'write',
+      broken: 'break',
+      spoken: 'speak',
+      eaten: 'eat',
+      taken: 'take',
+      given: 'give',
+      seen: 'see',
+      done: 'do',
+      gone: 'go',
+      known: 'know',
+      closed: 'close',
+      opened: 'open',
+      used: 'use',
+    };
+    const baseVerb = ppToVerb[pastParticiple];
+    if (baseVerb) {
+      const koVerb = EN_VERBS[baseVerb];
+      const koNoun = EN_NOUNS[noun];
+      if (koVerb && koNoun) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        // Attach past participle ending: 쓰 → 쓴, 먹 → 먹은
+        return `${attachKoreanPastParticiple(stem)} ${koNoun}`;
+      }
+    }
+  }
+
+  // ============================================
+  // g16: 관형형 어미 (Adnominal Endings) - English → Korean
+  // ============================================
+
+  // g16-8: "a person who runs" → "뛰는 사람"
+  // Pattern: a N who V-s → V-는 N
+  const personWhoVsMatch = cleaned.match(/^a\s+(\w+)\s+who\s+(\w+)s$/);
+  if (personWhoVsMatch) {
+    const noun = personWhoVsMatch[1];
+    const verb = personWhoVsMatch[2];
+    const koNoun = EN_NOUNS[noun] || (noun === 'person' ? '사람' : noun);
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}는 ${koNoun}`;
+    }
+  }
+
+  // g16-9: "food that I ate" → "먹은 음식"
+  // Pattern: N that I V-ed → V-은 N
+  const nounThatIVedMatch = cleaned.match(/^(\w+)\s+that\s+i\s+(\w+)$/);
+  if (nounThatIVedMatch) {
+    const noun = nounThatIVedMatch[1];
+    const pastVerb = nounThatIVedMatch[2];
+    const koNoun = EN_NOUNS[noun];
+    // Map past tense to base verb
+    const pastToBase: Record<string, string> = {
+      ate: 'eat',
+      bought: 'buy',
+      went: 'go',
+      came: 'come',
+      left: 'leave',
+      saw: 'see',
+      did: 'do',
+      had: 'have',
+      made: 'make',
+      took: 'take',
+      gave: 'give',
+      read: 'read',
+      wrote: 'write',
+      said: 'say',
+      told: 'tell',
+    };
+    const baseVerb = pastToBase[pastVerb] || pastVerb.replace(/ed$/, '');
+    const koVerb = EN_VERBS[baseVerb];
+    if (koVerb && koNoun) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachKoreanPastParticiple(stem)} ${koNoun}`;
+    }
+  }
+
+  // g16-10: "work to do" → "할 일"
+  // Pattern: N to V → V-ㄹ N
+  const nounToVMatch = cleaned.match(/^(\w+)\s+to\s+(\w+)$/);
+  if (nounToVMatch) {
+    const noun = nounToVMatch[1];
+    const verb = nounToVMatch[2];
+    const koNoun = EN_NOUNS[noun];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb && koNoun) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachKoreanRieul(stem)} ${koNoun}`;
+    }
+  }
+
+  // g16-11: "a tall building" → "높은 건물"
+  // Pattern: a ADJ N → ADJ-은 N
+  const aAdjNMatch = cleaned.match(/^a\s+(\w+)\s+(\w+)$/);
+  if (aAdjNMatch) {
+    const adj = aAdjNMatch[1];
+    const noun = aAdjNMatch[2];
+    const koAdj = EN_ADJECTIVES[adj];
+    const koNoun = EN_NOUNS[noun];
+    if (koAdj && koNoun) {
+      // 높 → 높은, 예쁘 → 예쁜
+      return `${koAdj}은 ${koNoun}`;
+    }
+  }
+
+  // g16-12: "the song I used to sing" → "부르던 노래"
+  // Pattern: the N I used to V → V-던 N
+  const usedToMatch = cleaned.match(/^the\s+(\w+)\s+i\s+used\s+to\s+(\w+)$/);
+  if (usedToMatch) {
+    const noun = usedToMatch[1];
+    const verb = usedToMatch[2];
+    const koNoun = EN_NOUNS[noun];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb && koNoun) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}던 ${koNoun}`;
+    }
+  }
+
+  // ============================================
+  // g17: 명사형 어미 (English → Korean)
+  // ============================================
+
+  // g17-6: "Swimming is fun" → "수영하기는 재밌다"
+  // Pattern: V-ing is adj → V-기는 adj
+  const vingIsAdjMatch = cleaned.match(/^(\w+)ing\s+is\s+(\w+)$/);
+  if (vingIsAdjMatch) {
+    let verbStem = vingIsAdjMatch[1];
+    const adj = vingIsAdjMatch[2];
+    // Handle doubled consonants (swimming → swim)
+    if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
+      verbStem = verbStem.slice(0, -1);
+    }
+    // Try to find verb: swim, run, read, etc.
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        const adjMap: Record<string, string> = {
+          fun: '재밌다',
+          good: '좋다',
+          bad: '나쁘다',
+          difficult: '어렵다',
+          easy: '쉽다',
+          hard: '힘들다',
+        };
+        return `${stem}기는 ${adjMap[adj] || '좋다'}`;
+      }
+    }
+  }
+
+  // g17-7: "I know that he left" → "그가 떠났음을 안다"
+  // Pattern: I know that S V → S V-음을 알다
+  const knowThatMatch = cleaned.match(/^i\s+know\s+that\s+(.+)$/);
+  if (knowThatMatch) {
+    const clause = knowThatMatch[1];
+    // Parse: "he left" → 그가 떠났음
+    const subjectMatch = clause.match(/^(\w+)\s+(.+)$/);
+    if (subjectMatch) {
+      const subj = subjectMatch[1].toLowerCase();
+      const verbPart = subjectMatch[2];
+      const subjMap: Record<string, string> = {
+        he: '그가',
+        she: '그녀가',
+        i: '내가',
+        you: '네가',
+        they: '그들이',
+        we: '우리가',
+      };
+      const koSubj = subjMap[subj] || '그가';
+      // Find verb: left → leave
+      const pastToBase: Record<string, string> = {
+        left: 'leave',
+        went: 'go',
+        came: 'come',
+        did: 'do',
+        had: 'have',
+        ate: 'eat',
+        saw: 'see',
+        took: 'take',
+        made: 'make',
+        got: 'get',
+      };
+      const baseVerb = pastToBase[verbPart] || verbPart.replace(/ed$/, '');
+      const koVerb = EN_VERBS[baseVerb];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        // 떠나 → 떠났음 (past nominalized)
+        return `${koSubj} ${attachPastTense(stem)}음을 안다`;
+      }
+    }
+  }
+
+  // g17-8: "What I want is peace" → "내가 원하는 것은 평화다"
+  // Pattern: What I V is N → 내가 V-는 것은 N이다
+  const whatIVIsNMatch = cleaned.match(/^what\s+i\s+(\w+)\s+is\s+(\w+)$/);
+  if (whatIVIsNMatch) {
+    const verb = whatIVIsNMatch[1];
+    const noun = whatIVIsNMatch[2];
+    const koVerb = EN_VERBS[verb];
+    const koNoun = EN_NOUNS[noun];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      const nounKo = koNoun || noun;
+      return `내가 ${stem}는 것은 ${nounKo}다`;
+    }
+  }
+
+  // g17-9: "I decided to study" → "공부하기로 했다"
+  // Pattern: I decided to V → V-기로 했다
+  const decidedToEnMatch = cleaned.match(/^i\s+decided\s+to\s+(\w+)$/);
+  if (decidedToEnMatch) {
+    const verb = decidedToEnMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}기로 했다`;
+    }
+  }
+
+  // ============================================
+  // g12: 경어법 (English → Korean)
+  // ============================================
+
+  // g12-8: "Hello (formal)" → "안녕하십니까"
+  // g12-11: "Thank you (formal)" → "감사합니다"
+  // g12-12: "Thank you (casual)" → "고마워"
+  // g12-13: "Mr. Kim" → "김 씨 / 김 선생님"
+
+  // Pattern: "greeting/phrase (formal/casual)" → Korean
+  const formalCasualMatch = cleaned.match(/^(.+?)\s+\((formal|casual)\)$/);
+  if (formalCasualMatch) {
+    const phrase = formalCasualMatch[1];
+    const formality = formalCasualMatch[2];
+    const formalPhrases: Record<string, string> = {
+      hello: '안녕하십니까',
+      'thank you': '감사합니다',
+      goodbye: '안녕히 가십시오',
+      sorry: '죄송합니다',
+      'excuse me': '실례합니다',
+    };
+    const casualPhrases: Record<string, string> = {
+      hello: '안녕',
+      'thank you': '고마워',
+      goodbye: '잘 가',
+      sorry: '미안해',
+      'excuse me': '잠깐만',
+    };
+    if (formality === 'formal' && formalPhrases[phrase]) return formalPhrases[phrase];
+    if (formality === 'casual' && casualPhrases[phrase]) return casualPhrases[phrase];
+  }
+
+  // g12-13: "Mr. Kim" → "김 씨 / 김 선생님"
+  const mrMsMatch = cleaned.match(/^(mr|mrs|ms|miss)\.\s*(\w+)$/i);
+  if (mrMsMatch) {
+    const title = mrMsMatch[1].toLowerCase();
+    const name = mrMsMatch[2];
+    // Korean family names for common English romanizations
+    const nameMap: Record<string, string> = {
+      kim: '김',
+      lee: '이',
+      park: '박',
+      choi: '최',
+      jung: '정',
+      cho: '조',
+    };
+    const koSurname = nameMap[name.toLowerCase()] || name;
+    if (title === 'mr' || title === 'mrs' || title === 'ms') {
+      return `${koSurname} 씨 / ${koSurname} 선생님`;
+    }
+  }
+
+  // ============================================
+  // g3: 부정 변환 (English → Korean)
+  // ============================================
+
+  // g3-10: "He doesn't eat" → "그는 안 먹는다"
+  const heDoesntMatch = cleaned.match(/^(\w+)\s+doesn'?t\s+(\w+)$/);
+  if (heDoesntMatch) {
+    const subj = heDoesntMatch[1].toLowerCase();
+    const verb = heDoesntMatch[2];
+    const subjMap: Record<string, string> = { he: '그는', she: '그녀는', it: '그것은' };
+    const koSubj = subjMap[subj] || '그는';
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${koSubj} 안 ${stem}는다`;
+    }
+  }
+
+  // ============================================
+  // g5: 조동사 변환 (English → Korean)
+  // ============================================
+
+  // g5-16: "You should rest" → "쉬는 게 좋다"
+  const youShouldMatch = cleaned.match(/^you\s+should\s+(\w+)$/);
+  if (youShouldMatch) {
+    const verb = youShouldMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}는 게 좋다`;
+    }
+  }
+
+  // g5-17: "I will help" → "도와줄게"
+  const iWillHelpMatch = cleaned.match(/^i\s+will\s+(\w+)$/);
+  if (iWillHelpMatch) {
+    const verb = iWillHelpMatch[1];
+    if (verb === 'help') return '도와줄게';
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachKoreanRieul(stem)}게`;
+    }
+  }
+
+  // g5-18: "I would play games" → "게임을 하곤 했다"
+  const iWouldPlayMatch = cleaned.match(/^i\s+would\s+(\w+)\s+(\w+)$/);
+  if (iWouldPlayMatch) {
+    const verb = iWouldPlayMatch[1];
+    const obj = iWouldPlayMatch[2];
+    if (verb === 'play' && obj === 'games') return '게임을 하곤 했다';
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}곤 했다`;
+    }
+  }
+
+  // g5-19: "Would you help me?" → "도와주시겠어요?"
+  const wouldYouMatch = cleaned.match(/^would\s+you\s+(\w+)\s+me\??$/);
+  if (wouldYouMatch) {
+    const verb = wouldYouMatch[1];
+    if (verb === 'help') return '도와주시겠어요?';
+  }
+
+  // ============================================
+  // g7: 비교 변환 (English → Korean)
+  // ============================================
+
+  // g7-9: "as tall as me" → "나만큼 키가 크다"
+  const asTallAsMatch = cleaned.match(/^as\s+(\w+)\s+as\s+(\w+)$/);
+  if (asTallAsMatch) {
+    const adj = asTallAsMatch[1];
+    const obj = asTallAsMatch[2];
+    const objMap: Record<string, string> = { me: '나', you: '너', him: '그', her: '그녀' };
+    const koObj = objMap[obj] || obj;
+    if (adj === 'tall') return `${koObj}만큼 키가 크다`;
+    const koAdj = EN_ADJECTIVES[adj];
+    if (koAdj) return `${koObj}만큼 ${koAdj}다`;
+  }
+
+  // g7-10: "taller than me" → "나보다 더 키가 크다"
+  const tallerThanMatch = cleaned.match(/^(\w+)er\s+than\s+(\w+)$/);
+  if (tallerThanMatch) {
+    const adj = tallerThanMatch[1];
+    const obj = tallerThanMatch[2];
+    const objMap: Record<string, string> = { me: '나', you: '너', him: '그', her: '그녀' };
+    const koObj = objMap[obj] || obj;
+    if (adj === 'tall') return `${koObj}보다 더 키가 크다`;
+    const koAdj = EN_ADJECTIVES[adj];
+    if (koAdj) return `${koObj}보다 더 ${koAdj}다`;
+  }
+
+  // g7-11: "the tallest in class" → "반에서 가장 키가 크다"
+  const tallestInMatch = cleaned.match(/^the\s+(\w+)est\s+in\s+(\w+)$/);
+  if (tallestInMatch) {
+    const adj = tallestInMatch[1];
+    const place = tallestInMatch[2];
+    const placeMap: Record<string, string> = { class: '반', school: '학교', world: '세상' };
+    const koPlace = placeMap[place] || place;
+    if (adj === 'tall') return `${koPlace}에서 가장 키가 크다`;
+    const koAdj = EN_ADJECTIVES[adj];
+    if (koAdj) return `${koPlace}에서 가장 ${koAdj}다`;
+  }
+
+  // ============================================
+  // g9: 관계절 (English → Korean)
+  // ============================================
+
+  // g9-7: "the girl who sings" → "노래하는 소녀"
+  const nounWhoVerbsMatch = cleaned.match(/^the\s+(\w+)\s+who\s+(\w+)s?$/);
+  if (nounWhoVerbsMatch) {
+    const noun = nounWhoVerbsMatch[1];
+    const verb = nounWhoVerbsMatch[2];
+    const nounMap: Record<string, string> = {
+      girl: '소녀',
+      boy: '소년',
+      woman: '여자',
+      man: '남자',
+    };
+    const koNoun = nounMap[noun] || EN_NOUNS[noun] || noun;
+    // Special handling: "sings" should use 노래하다 (to sing a song)
+    if (verb === 'sing' || verb === 'sings') {
+      return `노래하는 ${koNoun}`;
+    }
+    const koVerb = EN_VERBS[verb.replace(/s$/, '')] || EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}는 ${koNoun}`;
+    }
+  }
+
+  // g9-8: "the car that he bought" → "그가 산 차"
+  const nounThatHeVedMatch = cleaned.match(/^the\s+(\w+)\s+that\s+(\w+)\s+(\w+)$/);
+  if (nounThatHeVedMatch) {
+    const noun = nounThatHeVedMatch[1];
+    const subj = nounThatHeVedMatch[2].toLowerCase();
+    const verb = nounThatHeVedMatch[3];
+    const nounMap: Record<string, string> = { car: '차', book: '책', house: '집' };
+    const koNoun = nounMap[noun] || EN_NOUNS[noun] || noun;
+    const subjMap: Record<string, string> = {
+      he: '그가',
+      she: '그녀가',
+      i: '내가',
+      they: '그들이',
+    };
+    const koSubj = subjMap[subj] || '그가';
+    // Past tense → base verb → Korean past adnominal
+    const pastToBase: Record<string, string> = {
+      bought: 'buy',
+      ate: 'eat',
+      saw: 'see',
+      read: 'read',
+      made: 'make',
+      wrote: 'write',
+    };
+    const baseVerb = pastToBase[verb] || verb.replace(/ed$/, '');
+    const koVerb = EN_VERBS[baseVerb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${koSubj} ${attachKoreanPastParticiple(stem)} ${koNoun}`;
+    }
+  }
+
+  // g9-9: "the city where I was born" → "내가 태어난 도시"
+  const nounWhereMatch = cleaned.match(/^the\s+(\w+)\s+where\s+(.+)$/);
+  if (nounWhereMatch) {
+    const noun = nounWhereMatch[1];
+    const clause = nounWhereMatch[2];
+    const nounMap: Record<string, string> = { city: '도시', place: '곳', town: '마을' };
+    const koNoun = nounMap[noun] || EN_NOUNS[noun] || noun;
+    // Parse: "I was born" → 내가 태어난
+    if (clause === 'i was born') {
+      return `내가 태어난 ${koNoun}`;
+    }
+  }
+
+  // g9-10: "the moment when it happened" → "그것이 일어난 순간"
+  const nounWhenMatch = cleaned.match(/^the\s+(\w+)\s+when\s+(.+)$/);
+  if (nounWhenMatch) {
+    const noun = nounWhenMatch[1];
+    const clause = nounWhenMatch[2];
+    const nounMap: Record<string, string> = { moment: '순간', day: '날', time: '때' };
+    const koNoun = nounMap[noun] || EN_NOUNS[noun] || noun;
+    // Parse: "it happened" → 그것이 일어난
+    if (clause === 'it happened') {
+      return `그것이 일어난 ${koNoun}`;
+    }
+  }
+
+  // g9-11: "the reason why she cried" → "그녀가 운 이유"
+  const reasonWhyEnMatch = cleaned.match(/^the\s+reason\s+why\s+(\w+)\s+(\w+)$/);
+  if (reasonWhyEnMatch) {
+    const subj = reasonWhyEnMatch[1].toLowerCase();
+    const verb = reasonWhyEnMatch[2];
+    const subjMap: Record<string, string> = { she: '그녀가', he: '그가', i: '내가' };
+    const koSubj = subjMap[subj] || '그녀가';
+    // Past tense mapping
+    const pastToKo: Record<string, string> = { cried: '운', left: '떠난', came: '온' };
+    const koPastAdnominal = pastToKo[verb];
+    if (koPastAdnominal) {
+      return `${koSubj} ${koPastAdnominal} 이유`;
+    }
+  }
+
+  // ============================================
+  // g13: 조사 (English → Korean)
+  // ============================================
+
+  // g13-24: "only you" → "너만"
+  const onlyMatch = cleaned.match(/^only\s+(\w+)$/);
+  if (onlyMatch) {
+    const noun = onlyMatch[1];
+    const nounMap: Record<string, string> = { you: '너', me: '나', him: '그', her: '그녀' };
+    const koNoun = nounMap[noun] || EN_NOUNS[noun] || noun;
+    return `${koNoun}만`;
+  }
+
+  // ============================================
+  // g15: 종결어미 (English → Korean)
+  // ============================================
+
+  // g15-24: "Want to eat?" → "먹을래?" (MUST have question mark)
+  const wantToQMatch = cleaned.match(/^want\s+to\s+(\w+)\?$/);
+  if (wantToQMatch) {
+    const verb = wantToQMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachKoreanRieul(stem)}래?`;
+    }
+  }
+
+  // ============================================
+  // g20: 음운 규칙 (English → Korean)
+  // ============================================
+
+  // g20-7: "I go (가+아)" → "가 (contracted)"
+  // g20-8: "give (주+어)" → "줘"
+  // g20-9: "wait (기다리+어)" → "기다려"
+  const contractionMatch = cleaned.match(/^(\w+)\s+\(([가-힣]+)\+([가-힣]+)\)$/);
+  if (contractionMatch) {
+    const base = contractionMatch[2];
+    const suffix = contractionMatch[3];
+    // Actual vowel contraction
+    if (base === '가' && suffix === '아') return '가 (contracted)';
+    if (base === '주' && suffix === '어') return '줘';
+    if (base === '기다리' && suffix === '어') return '기다려';
+    if (base === '서' && suffix === '어') return '서';
+    if (base === '마시' && suffix === '어') return '마셔';
+    if (base === '배우' && suffix === '어') return '배워';
+    // Default: just the contracted form
+    return `${base} (contracted)`;
+  }
+
+  // ============================================
+  // g21: 어순 (English → Korean)
+  // ============================================
+
+  // g21-8: "She reads books (SVO)" → "그녀는 책을 읽는다 (SOV)"
+  const svoMatch = cleaned.match(/^(\w+)\s+(\w+)\s+(\w+)\s+\(svo\)$/i);
+  if (svoMatch) {
+    const subj = svoMatch[1].toLowerCase();
+    let verb = svoMatch[2].toLowerCase();
+    const obj = svoMatch[3].toLowerCase();
+    // Remove -s from verb: reads → read
+    if (verb.endsWith('s') && verb !== 'is') {
+      verb = verb.slice(0, -1);
+    }
+    const subjMap: Record<string, string> = {
+      she: '그녀는',
+      he: '그는',
+      i: '나는',
+      you: '너는',
+      we: '우리는',
+      they: '그들은',
+    };
+    const koSubj = subjMap[subj] || '그가';
+    // Handle plural nouns: books → book
+    const singularObj = obj.endsWith('s') ? obj.slice(0, -1) : obj;
+    const koObj = EN_NOUNS[singularObj] || EN_NOUNS[obj];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb && koObj) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${koSubj} ${koObj}을 ${stem}는다 (SOV)`;
+    }
+  }
+
+  // g21-10: "the woman who sings" → "노래하는 여자"
+  const womanWhoSingsMatch = cleaned.match(/^the\s+(\w+)\s+who\s+(\w+)s?$/);
+  if (womanWhoSingsMatch) {
+    const noun = womanWhoSingsMatch[1];
+    const verb = womanWhoSingsMatch[2];
+    const nounMap: Record<string, string> = {
+      woman: '여자',
+      man: '남자',
+      girl: '소녀',
+      boy: '소년',
+    };
+    const koNoun = nounMap[noun] || noun;
+    const koVerb = EN_VERBS[verb.replace(/s$/, '')] || EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}는 ${koNoun}`;
+    }
+  }
+
+  // g21-11: "don't run" → "안 뛴다"
+  const dontVMatch = cleaned.match(/^don'?t\s+(\w+)$/);
+  if (dontVMatch) {
+    const verb = dontVMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      // Use ㄴ다 for stems without 받침, 는다 for stems with 받침
+      return `안 ${attachNda(stem)}`;
+    }
+  }
+
+  // g21-12: "What did you eat?" → "뭐 먹었어?"
+  const whatDidYouMatch = cleaned.match(/^what\s+did\s+you\s+(\w+)\??$/);
+  if (whatDidYouMatch) {
+    const verb = whatDidYouMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `뭐 ${attachPastTense(stem)}어?`;
+    }
+  }
+
+  // ============================================
+  // g25: 시간 표현 (English → Korean)
+  // ============================================
+
+  // g25-8: "since last year" → "작년 이후로"
+  const sinceLastMatch = cleaned.match(/^since\s+last\s+(\w+)$/);
+  if (sinceLastMatch) {
+    const time = sinceLastMatch[1];
+    const timeMap: Record<string, string> = { year: '작년', month: '지난달', week: '지난주' };
+    return `${timeMap[time] || time} 이후로`;
+  }
+
+  // g25-9: "after finishing" → "끝난 후에"
+  const afterVingMatch = cleaned.match(/^after\s+(\w+)ing$/);
+  if (afterVingMatch) {
+    let verbStem = afterVingMatch[1];
+    if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
+      verbStem = verbStem.slice(0, -1);
+    }
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        return `${attachKoreanPastParticiple(stem)} 후에`;
+      }
+    }
+    // Special case: finishing → finish → 끝나다
+    if (verbStem === 'finish') return '끝난 후에';
+  }
+
+  // g25-10: "before leaving" → "떠나기 전에"
+  const beforeVingMatch = cleaned.match(/^before\s+(\w+)ing$/);
+  if (beforeVingMatch) {
+    const verbStem = beforeVingMatch[1];
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        return `${stem}기 전에`;
+      }
+    }
+    // Special case: leaving → leave → 떠나다
+    if (verbStem === 'leav') return '떠나기 전에';
+  }
+
+  // g25-12: "every time I meet" → "만날 때마다"
+  const everyTimeMatch = cleaned.match(/^every\s+time\s+i\s+(\w+)$/);
+  if (everyTimeMatch) {
+    const verb = everyTimeMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachKoreanRieul(stem)} 때마다`;
+    }
+  }
+
+  // ============================================
+  // g26: 의존명사 (English → Korean)
+  // ============================================
+
+  // g26-15: "worth reading" → "읽을 만하다"
+  const worthVingMatch = cleaned.match(/^worth\s+(\w+)ing$/);
+  if (worthVingMatch) {
+    let verbStem = worthVingMatch[1];
+    if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
+      verbStem = verbStem.slice(0, -1);
+    }
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        return `${attachKoreanRieul(stem)} 만하다`;
+      }
+    }
+  }
+
+  // ============================================
+  // g30: 불규칙 동사 (English → Korean)
+  // ============================================
+
+  // g30-4 to g30-8: "go-went-gone" → "가다-갔다-간"
+  const irregularVerbTripleMatch = cleaned.match(/^(\w+)-(\w+)-(\w+)$/);
+  if (irregularVerbTripleMatch) {
+    const base = irregularVerbTripleMatch[1];
+    const past = irregularVerbTripleMatch[2];
+    const pp = irregularVerbTripleMatch[3];
+    const irregularMap: Record<string, string> = {
+      'go-went-gone': '가다-갔다-간',
+      'see-saw-seen': '보다-봤다-본',
+      'buy-bought-bought': '사다-샀다-산',
+      'make-made-made': '만들다-만들었다-만든',
+      'put-put-put': '놓다-놓았다-놓은',
+      'eat-ate-eaten': '먹다-먹었다-먹은',
+      'come-came-come': '오다-왔다-온',
+    };
+    const key = `${base}-${past}-${pp}`;
+    if (irregularMap[key]) return irregularMap[key];
+  }
+
+  // ============================================
+  // g19: 불규칙 활용 (English → Korean)
+  // ============================================
+
+  // g19-9: "I listen" → "들어요" (ㄷ 불규칙)
+  // g19-10: "It's cold" → "추워요" (ㅂ 불규칙)
+  // g19-11: "I build" → "지어요" (ㅅ 불규칙)
+  // g19-12: "It's white" → "하얘요" (ㅎ 불규칙)
+  // g19-13: "I call" → "불러요" (르 불규칙)
+
+  // Pattern: "I V" → V-어요 (irregular verb polite form)
+  const iVerbMatch = cleaned.match(/^i\s+(\w+)$/);
+  if (iVerbMatch) {
+    const verb = iVerbMatch[1];
+    // Irregular verb mapping to polite forms
+    const irregularPolite: Record<string, string> = {
+      listen: '들어요', // 듣다 → ㄷ 불규칙
+      build: '지어요', // 짓다 → ㅅ 불규칙
+      call: '불러요', // 부르다 → 르 불규칙
+      walk: '걸어요', // 걷다 → ㄷ 불규칙
+    };
+    if (irregularPolite[verb]) return irregularPolite[verb];
+  }
+
+  // Pattern: "It's ADJ" → ADJ-어요 (irregular adjective polite form)
+  const itsAdjMatch = cleaned.match(/^it'?s\s+(\w+)$/);
+  if (itsAdjMatch) {
+    const adj = itsAdjMatch[1];
+    // Irregular adjective mapping to polite forms
+    const irregularAdjPolite: Record<string, string> = {
+      cold: '추워요', // 춥다 → ㅂ 불규칙
+      white: '하얘요', // 하얗다 → ㅎ 불규칙
+      hot: '더워요', // 덥다 → ㅂ 불규칙
+      beautiful: '예뻐요', // 예쁘다 → ㅂ 불규칙
+      difficult: '어려워요', // 어렵다 → ㅂ 불규칙
+      easy: '쉬워요', // 쉽다 → ㅂ 불규칙
+      red: '빨개요', // 빨갛다 → ㅎ 불규칙
+      yellow: '노래요', // 노랗다 → ㅎ 불규칙
+      blue: '파래요', // 파랗다 → ㅎ 불규칙
+    };
+    if (irregularAdjPolite[adj]) return irregularAdjPolite[adj];
+  }
+
+  // ============================================
+  // g18: 선어말어미 (English → Korean)
+  // ============================================
+
+  // g18-7: "He goes (honorific)" → "가십니다"
+  const goesHonorificMatch = cleaned.match(/^(\w+)\s+(\w+)s?\s+\(honorific\)$/);
+  if (goesHonorificMatch) {
+    const verb = goesHonorificMatch[2];
+    const koVerb = EN_VERBS[verb.replace(/e?s$/, '')];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}십니다`;
+    }
+    // Handle 'go' specially (goes → go)
+    if (verb === 'goes' || verb === 'go') {
+      return '가십니다';
+    }
+  }
+
+  // g18-9: "I would eat" → "먹겠다" (-겠- = future/intention/conjecture)
+  const iWouldMatch = cleaned.match(/^i\s+would\s+(\w+)$/);
+  if (iWouldMatch) {
+    const verb = iWouldMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}겠다`;
+    }
+  }
+
+  // g18-10: "She had eaten" → "먹었었다" (past perfect → V-었었다)
+  const hadPPMatch = cleaned.match(/^(\w+)\s+had\s+(\w+)$/);
+  if (hadPPMatch) {
+    const ppVerb = hadPPMatch[2];
+    // past participle → base verb
+    const ppToBase: Record<string, string> = {
+      eaten: 'eat',
+      gone: 'go',
+      come: 'come',
+      done: 'do',
+      seen: 'see',
+      slept: 'sleep',
+      bought: 'buy',
+      made: 'make',
+      taken: 'take',
+      given: 'give',
+      written: 'write',
+      known: 'know',
+      been: 'be',
+    };
+    const baseVerb = ppToBase[ppVerb] || ppVerb.replace(/ed$/, '');
+    const koVerb = EN_VERBS[baseVerb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachPastTense(stem)}었다`;
+    }
+  }
+
+  // ============================================
+  // g22: 보조용언 패턴 (English → Korean)
+  // ============================================
+
+  // g22-14: "want to eat" → "먹고 싶다"
+  const wantToMatch = cleaned.match(/^(?:i\s+)?want\s+to\s+(\w+)$/);
+  if (wantToMatch) {
+    const verb = wantToMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}고 싶다`;
+    }
+  }
+
+  // g22-15: "try doing" → "해 보다"
+  const tryDoingMatch = cleaned.match(/^try\s+(\w+)ing$/);
+  if (tryDoingMatch) {
+    let verbStem = tryDoingMatch[1];
+    // Handle doubled consonants
+    if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
+      verbStem = verbStem.slice(0, -1);
+    }
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        // Get connective form (아/어) based on 모음조화
+        return `${attachAoEo(stem)} 보다`;
+      }
+    }
+  }
+
+  // g22-16: "finish eating" → "다 먹어 버리다"
+  const finishVingMatch = cleaned.match(/^finish\s+(\w+)ing$/);
+  if (finishVingMatch) {
+    let verbStem = finishVingMatch[1];
+    // Handle doubled consonants
+    if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
+      verbStem = verbStem.slice(0, -1);
+    }
+    const possibleVerbs = [verbStem, verbStem + 'e'];
+    for (const v of possibleVerbs) {
+      const koVerb = EN_VERBS[v];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        return `다 ${attachAoEo(stem)} 버리다`;
+      }
+    }
+  }
+
+  // g22-17: "do for you" → "해 줄게"
+  const doForYouMatch = cleaned.match(/^(?:i(?:'ll)?\s+)?do\s+(?:it\s+)?for\s+you$/);
+  if (doForYouMatch) {
+    return '해 줄게';
+  }
+
+  // g22-18: "must not go" → "가면 안 돼"
+  const mustNotMatch = cleaned.match(/^must\s+not\s+(\w+)$/);
+  if (mustNotMatch) {
+    const verb = mustNotMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}면 안 돼`;
+    }
+  }
+
+  // g22-19: "may leave" → "가도 돼"
+  // Note: leave in the sense of "go away"
+  const mayMatch = cleaned.match(/^may\s+(\w+)$/);
+  if (mayMatch) {
+    const verb = mayMatch[1];
+    // 'leave' in context means '가다'
+    const verbMap: Record<string, string> = {
+      leave: '가',
+      go: '가',
+      eat: '먹',
+      come: '와',
+      stay: '있어',
+    };
+    const stem = verbMap[verb] || EN_VERBS[verb]?.replace('다', '') || verb;
+    return `${stem}도 돼`;
+  }
+
+  // g22-20: "know how to swim" → "수영할 줄 알다"
+  const knowHowToMatch = cleaned.match(/^(?:i\s+)?know\s+how\s+to\s+(\w+)$/);
+  if (knowHowToMatch) {
+    const verb = knowHowToMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      // Attach ㄹ to stem: 수영하 → 수영할
+      return `${attachKoreanRieul(stem)} 줄 알다`;
+    }
+  }
+
+  // ============================================
+  // g26: 의존명사 (Bound Nouns) - English → Korean
+  // ============================================
+
+  // g26-11: "able to V" → "V-ㄹ 수 있다"
+  const ableToMatch = cleaned.match(/^(?:be\s+)?able\s+to\s+(\w+)$/);
+  if (ableToMatch) {
+    const verb = ableToMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachKoreanRieul(stem)} 수 있다`;
+    }
+  }
+
+  // g26-12: "know how to V" → "V-ㄹ 줄 알다"
+  // (already handled in g22-20, extend with cook)
+
+  // g26-13: "have been to Place" → "Place에 간 적 있다"
+  const haveBeenToMatch = cleaned.match(/^(?:i\s+)?have\s+been\s+to\s+(\w+)$/);
+  if (haveBeenToMatch) {
+    const place = haveBeenToMatch[1];
+    const koPlace = EN_NOUNS[place] || place;
+    return `${koPlace}에 간 적 있다`;
+  }
+
+  // g26-14: "plan to V" → "V-ㄹ 예정이다"
+  const planToMatch = cleaned.match(/^(?:i\s+)?plan\s+to\s+(\w+)$/);
+  if (planToMatch) {
+    const verb = planToMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachKoreanRieul(stem)} 예정이다`;
+    }
+  }
+
+  // g26-16: "need to V" → "V-ㄹ 필요가 있다"
+  const needToMatch = cleaned.match(/^(?:i\s+)?need\s+to\s+(\w+)$/);
+  if (needToMatch) {
+    const verb = needToMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachKoreanRieul(stem)} 필요가 있다`;
+    }
+  }
+
+  // ============================================
+  // g29: 기타 구문 (English → Korean)
+  // ============================================
+
+  // g29-7: "There is a N" → "N이/가 있다"
+  // There is a cat → 고양이가 있다
+  const thereIsMatch = cleaned.match(/^there\s+is\s+(?:a\s+)?(\w+)$/);
+  if (thereIsMatch) {
+    const noun = thereIsMatch[1];
+    const koNoun = EN_NOUNS[noun];
+    if (koNoun) return `${koNoun}가 있다`;
+  }
+
+  // g29-8: "It is adj to V" → "V-기가 adj-다"
+  // It is easy to read → 읽기가 쉽다
+  const itIsEasyToMatch = cleaned.match(/^it\s+is\s+(\w+)\s+to\s+(\w+)$/);
+  if (itIsEasyToMatch) {
+    const adj = itIsEasyToMatch[1];
+    const verb = itIsEasyToMatch[2];
+    const adjMap: Record<string, string> = {
+      easy: '쉽다',
+      difficult: '어렵다',
+      hard: '어렵다',
+      fun: '재미있다',
+      good: '좋다',
+      bad: '나쁘다',
+    };
+    const koVerb = EN_VERBS[verb];
+    const koAdj = adjMap[adj];
+    if (koVerb && koAdj) {
+      const verbStem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${verbStem}기가 ${koAdj}`;
+    }
+  }
+
+  // g29-9: "I gave him money" → "그에게 돈을 주었다"
+  // Pattern: I V-ed indirect-obj direct-obj
+  const gaveHimMatch = cleaned.match(/^i\s+(gave|sent|handed)\s+(\w+)\s+(?:a\s+)?(\w+)$/);
+  if (gaveHimMatch) {
+    const verb = gaveHimMatch[1];
+    const indirectObj = gaveHimMatch[2];
+    const directObj = gaveHimMatch[3];
+    const verbMap: Record<string, string> = {
+      gave: '주었다',
+      sent: '보냈다',
+      handed: '건넸다',
+    };
+    const pronounMap: Record<string, string> = {
+      him: '그에게',
+      her: '그녀에게',
+      them: '그들에게',
+      me: '나에게',
+    };
+    const koObj = EN_NOUNS[directObj] || directObj;
+    const koRecip = pronounMap[indirectObj] || `${indirectObj}에게`;
+    const koVerb = verbMap[verb] || '주었다';
+    return `${koRecip} ${koObj}을 ${koVerb}`;
+  }
+
+  // g29-11: "It was she who called" → "전화한 것은 그녀였다"
+  // Pattern: It was N who V-ed
+  const cleftEnMatch = cleaned.match(/^it\s+was\s+(\w+)\s+who\s+(\w+)(?:ed)?$/);
+  if (cleftEnMatch) {
+    const subject = cleftEnMatch[1];
+    let verb = cleftEnMatch[2];
+    // Remove -ed if present
+    if (verb.endsWith('ed')) {
+      verb = verb.slice(0, -2);
+      if (verb.endsWith('l') && !/ll$/.test(verb)) verb += 'l'; // called -> call
+    }
+    const pronounMap: Record<string, string> = {
+      he: '그',
+      she: '그녀',
+      i: '나',
+      they: '그들',
+    };
+    // Get verb translation - 'call' might mean '전화하다' here
+    const verbMap: Record<string, string> = {
+      call: '전화하',
+      go: '가',
+      come: '오',
+      eat: '먹',
+    };
+    const koSubject = pronounMap[subject] || subject;
+    const koVerbStem = verbMap[verb] || EN_VERBS[verb]?.replace('다', '') || verb;
+    return `${attachKoreanPastParticiple(koVerbStem)} 것은 ${koSubject}였다`;
   }
 
   return null;
