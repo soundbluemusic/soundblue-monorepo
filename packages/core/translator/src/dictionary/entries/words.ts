@@ -1896,8 +1896,12 @@ const manualKoToEnWords: Record<string, string> = {
   정말일까: 'is it true',
 
   // === Level 2 감정/상태 관련 (기존 미포함 항목만) ===
-  힘들: 'hard',
+  힘들: 'difficult',
+  힘든: 'difficult',
   힘들었: 'had a hard time',
+  이겨내: 'overcome',
+  이겨내다: 'overcome',
+  이겨냈: 'overcame',
   // 수십: 'dozens', // 1537번째 줄에 이미 존재
   군데: 'places',
   포기: 'give up',

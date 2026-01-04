@@ -144,9 +144,12 @@ const manualKoToEnWords: Record<string, string> = {
   // === 대명사 ===
   나: 'I',
   내: 'my', // 나의 축약형
+  내가: 'I', // 나+가 축약형 (주격)
   저: 'I',
   제: 'my', // 저의 축약형
+  제가: 'I', // 저+가 축약형 (주격)
   너: 'you',
+  네가: 'you', // 너+가 축약형 (주격)
   // 네: 'your', // 너의 축약형 - 중복 (31행 '네: Yes'와 충돌)
   니: 'your', // 구어체 너의
   당신: 'you',
@@ -1750,6 +1753,12 @@ const manualKoToEnWords: Record<string, string> = {
   // Level 22: 복합 문장
   새들: 'birds',
   노래하다: 'sing',
+
+  // 감정/상태 표현 (조건문/가능성 패턴용)
+  힘든: 'difficult',
+  이겨내: 'overcome',
+  이겨내다: 'overcome',
+  이겨냈: 'overcame',
 };
 
 // ========================================

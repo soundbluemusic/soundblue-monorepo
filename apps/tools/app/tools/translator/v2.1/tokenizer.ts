@@ -1093,6 +1093,23 @@ function detectKoreanConditional(text: string): ConditionalMatch | null {
     };
   }
 
+  // Type 2-extended: 일반 가정법 (-(이)라면 + 결과절, 텐데 없음)
+  // 너와 내가 함께라면 힘든것도 이겨낼 수 있어
+  // 네가 나라면 어떻게 할 거야?
+  const type2ExtMatch = cleaned.match(/^(.+?)(이)?라면\s+(.+)$/);
+  if (type2ExtMatch) {
+    const condPart = type2ExtMatch[1].trim();
+    const resultPart = type2ExtMatch[3].trim();
+    return {
+      conditional: true,
+      type: 'type2',
+      conditionClause: condPart + (type2ExtMatch[2] || '') + '라면',
+      resultClause: resultPart,
+      conditionVerb: condPart,
+      resultVerb: resultPart,
+    };
+  }
+
   // Even-if: -더라도 (양보 조건)
   // 비가 오더라도
   const evenIfMatch = cleaned.match(/^(.+?)더라도$/);

@@ -1209,10 +1209,23 @@ function generateConditionalEnglish(parsed: ParsedSentence): string {
     }
 
     case 'type2': {
-      // If + S + were/V-ed, S + would + V
+      // If + S + were/V-ed, S + would + V (또는 could)
       // 부자라면 여행할 텐데 → If I were rich, I would travel
+      // 함께라면 이겨낼 수 있어 → If we were together, we could overcome
       const ifClause = `If ${condParts.subject} were ${condParts.adjective || condParts.verb}`;
-      const mainClause = resultParts ? `${resultParts.subject} would ${resultParts.verb}` : '';
+
+      let mainClause = '';
+      if (resultParts) {
+        const verbPhrase = resultParts.verb;
+        // 결과절에 can/cannot이 포함된 경우 could/could not으로 변환
+        if (verbPhrase.startsWith('can ')) {
+          mainClause = `${resultParts.subject} could ${verbPhrase.slice(4)}`;
+        } else if (verbPhrase.startsWith('cannot ')) {
+          mainClause = `${resultParts.subject} could not ${verbPhrase.slice(7)}`;
+        } else {
+          mainClause = `${resultParts.subject} would ${verbPhrase}`;
+        }
+      }
       return mainClause ? `${ifClause}, ${mainClause}` : ifClause;
     }
 
@@ -1277,9 +1290,43 @@ function parseConditionalClause(clause: string): ConditionalClauseParts {
   }
 
   // Type 2: N(이)라면 패턴 (부자라면)
+  // 확장: S와 S가 N(이)라면 (너와 내가 함께라면)
   const type2Match = clause.match(/^(.+?)(이)?라면$/);
   if (type2Match) {
-    const noun = type2Match[1].trim();
+    const conditionPart = type2Match[1].trim();
+
+    // 복합 주어 패턴: S와/과 S가 N라면 (너와 내가 함께라면)
+    // 주의: 내가, 네가, 제가는 축약형이므로 조사 분리 안함
+    const compoundSubjectMatch = conditionPart.match(/^(.+?)(와|과)\s*(.+?)(가|이)\s+(.+)$/);
+    if (compoundSubjectMatch) {
+      const subj1Raw = compoundSubjectMatch[1].trim();
+      const subj2WithParticle = compoundSubjectMatch[3].trim() + compoundSubjectMatch[4]; // 내가
+      const subj2Raw = compoundSubjectMatch[3].trim(); // 내
+      const state = compoundSubjectMatch[5].trim();
+
+      // 주어1: 조사 없이 조회
+      const subj1 = KO_EN[subj1Raw] || subj1Raw;
+      // 주어2: 축약형 먼저 조회 (내가 → I), 없으면 기본형 (내 → my)
+      const subj2 = KO_EN[subj2WithParticle] || KO_EN[subj2Raw] || subj2Raw;
+
+      // 함께 → together
+      adjective = KO_EN[state] || state;
+      subject = `${subj1} and ${subj2}`;
+      verb = 'are';
+      return { subject, verb, adjective };
+    }
+
+    // 단순 주어 패턴: S가 N라면 (내가 부자라면)
+    const subjectMatch = conditionPart.match(/^(.+?)(?:가|이)\s+(.+)$/);
+    if (subjectMatch) {
+      subject = KO_EN[subjectMatch[1].trim()] || subjectMatch[1].trim();
+      adjective = KO_EN[subjectMatch[2].trim()] || subjectMatch[2].trim();
+      verb = subject === 'I' ? 'were' : 'was';
+      return { subject, verb, adjective };
+    }
+
+    // 기본: 단순 명사 (부자라면)
+    const noun = conditionPart;
     // 명사가 형용사처럼 사용됨 (부자 = rich)
     adjective = KO_EN[noun] || noun;
     subject = 'I'; // 주어가 생략된 경우 I로 추정
@@ -1433,6 +1480,94 @@ function parseResultClause(
       verb = KO_EN[verbStem] || KO_EN[`${verbStem}다`] || verbStem;
       subject = 'I';
     }
+    return { subject, verb };
+  }
+
+  // -ㄹ 수 있다 (possibility/ability) - 공백 기반 분리
+  // 힘든것도 이겨낼 수 있어 → can overcome difficult things
+  // 할 수 있다 → can do
+  // 패턴: [목적어] 동사(ㄹ종성) 수 있다/있어/없다/없어
+  const parts = clause.split(/\s+/);
+  const canEndings = ['있다', '있어', '있어요', '없다', '없어', '없어요'];
+
+  if (
+    parts.length >= 3 &&
+    parts[parts.length - 2] === '수' &&
+    canEndings.includes(parts[parts.length - 1])
+  ) {
+    const canType = parts[parts.length - 1]; // 있어/없어
+    let verbPart = parts[parts.length - 3]; // 이겨낼
+    const objectPart = parts.slice(0, -3).join(' '); // 힘든것도
+
+    // ㄹ 받침 제거 (이겨낼 → 이겨내)
+    if (verbPart) {
+      const lastChar = verbPart[verbPart.length - 1];
+      const charCode = lastChar.charCodeAt(0);
+      if (charCode >= 0xac00 && charCode <= 0xd7a3) {
+        const jongseong = (charCode - 0xac00) % 28;
+        if (jongseong === 8) {
+          // ㄹ = 8
+          const baseChar = String.fromCharCode(charCode - 8);
+          verbPart = verbPart.slice(0, -1) + baseChar;
+        }
+      }
+    }
+
+    // 동사 번역
+    verb = KO_EN[verbPart] || KO_EN[`${verbPart}다`] || verbPart;
+
+    // 목적어 처리 (관형형 + 의존명사 포함)
+    let objectEn = '';
+    if (objectPart) {
+      // 보조사 제거 (도, 을, 를)
+      const objClean = objectPart.replace(/[도을를]$/, '');
+
+      // 관형형 + 것 패턴: 힘든것 → difficult things
+      if (objClean.endsWith('것') || objClean.endsWith('거')) {
+        const modifierPart = objClean.slice(0, -1); // 힘든
+        const modifierEn = KO_EN[modifierPart] || KO_EN[`${modifierPart}다`] || modifierPart;
+        objectEn = `${modifierEn} things`;
+      } else {
+        objectEn = KO_EN[objClean] || objClean;
+      }
+    }
+
+    // can/cannot 결정
+    const canWord = canType.startsWith('없') ? 'cannot' : 'can';
+
+    // 결과 구성
+    if (objectEn) {
+      verb = `${canWord} ${verb} ${objectEn}`;
+    } else {
+      verb = `${canWord} ${verb}`;
+    }
+
+    subject = condType === 'type2' ? 'we' : 'I';
+    return { subject, verb };
+  }
+
+  // 간단한 -ㄹ 수 있다 패턴 (2단어): 할 수 있어
+  if (parts.length === 3 && parts[1] === '수' && canEndings.includes(parts[2])) {
+    let verbPart = parts[0];
+    const canType = parts[2];
+
+    // ㄹ 받침 제거
+    if (verbPart) {
+      const lastChar = verbPart[verbPart.length - 1];
+      const charCode = lastChar.charCodeAt(0);
+      if (charCode >= 0xac00 && charCode <= 0xd7a3) {
+        const jongseong = (charCode - 0xac00) % 28;
+        if (jongseong === 8) {
+          const baseChar = String.fromCharCode(charCode - 8);
+          verbPart = verbPart.slice(0, -1) + baseChar;
+        }
+      }
+    }
+
+    verb = KO_EN[verbPart] || KO_EN[`${verbPart}다`] || verbPart;
+    const canWord = canType.startsWith('없') ? 'cannot' : 'can';
+    verb = `${canWord} ${verb}`;
+    subject = condType === 'type2' ? 'we' : 'I';
     return { subject, verb };
   }
 
