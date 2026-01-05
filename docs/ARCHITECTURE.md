@@ -88,6 +88,65 @@ All `platform/` packages MUST provide two implementations:
 }
 ```
 
+### 4. Quality Principles (품질 원칙)
+
+> **품질/성능 우선, 테스트 통과 우선 아님**
+> **(Quality/Performance First, NOT Test Passing First)**
+
+모든 패키지와 앱에 적용되는 핵심 개발 원칙입니다.
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║         품질/성능 우선, 테스트 통과 우선 아님                                       ║
+║         (Quality/Performance First, NOT Test Passing First)                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  🔴 금지되는 접근 방식 (Anti-Patterns):                                        ║
+║  ├── 하드코딩 (Hardcoding) - 특정 케이스만 통과하는 고정값                        ║
+║  ├── 과적합 (Overfitting) - 테스트 데이터에만 최적화                             ║
+║  ├── 임시 해결 (Quick Fix) - 근본 원인 무시                                     ║
+║  ├── 삭제/교체 (Delete/Replace) - 기존 기능 제거                                ║
+║  └── 에러 숨기기 (Error Hiding) - catch 후 무시                                ║
+║                                                                              ║
+║  🟢 올바른 접근 방식 (Correct Approaches):                                      ║
+║  ├── 일반화 (Generalization) - 모든 유사 케이스 처리                            ║
+║  ├── 확장 (Extension) - 기존 유지하며 추가                                      ║
+║  ├── 구조적 해결 (Structural Fix) - 근본 원인 수정                              ║
+║  └── 명시적 처리 (Explicit Handling) - 모든 경우 명시                           ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+#### Anti-Pattern Examples (안티패턴 예시)
+
+| Anti-Pattern | Example | Why Wrong |
+|--------------|---------|-----------|
+| Hardcoding | `if (text === 'test') return 'expected'` | Only one case passes |
+| Overfitting | Regex for specific test sentence | Other similar sentences fail |
+| Quick Fix | Add exception without understanding | Root cause remains |
+| Delete/Replace | Remove `wonderful` to add `amazing` | Loses existing functionality |
+| Error Hiding | `catch (e) { /* ignore */ }` | Bugs hidden, debugging impossible |
+
+#### Correct Approach Examples (올바른 접근 예시)
+
+| Approach | Example | Why Correct |
+|----------|---------|-------------|
+| Generalization | `-었/았 → past tense` pattern | All past tense verbs handled |
+| Extension | Add `amazing` alongside `wonderful` | Both available for context selection |
+| Structural Fix | Fix algorithm, not output | All similar cases fixed |
+| Explicit Handling | Switch case with default | All branches visible |
+
+#### Package-Specific Application (패키지별 적용)
+
+| Package | Apply To |
+|---------|----------|
+| `@soundblue/translator` | Dictionary entries, grammar patterns, generation rules |
+| `@soundblue/hangul` | Character mappings, decomposition rules |
+| `@soundblue/nlu` | Intent patterns, entity extractors |
+| `@soundblue/audio-engine` | Timing algorithms, pattern logic |
+| All `platform/` packages | API abstractions, fallback behaviors |
+| All `ui/` components | Prop handling, state management |
+
 ---
 
 ## Package Structure (패키지 구조)
