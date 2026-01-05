@@ -95,6 +95,75 @@ All translation tests must pass through **algorithm and logic improvements only*
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
+### 🔒 사전/어휘 수정 정책 (Dictionary/Vocabulary Modification Policy)
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║            삭제 금지, 추가만 허용, 문맥 기반 선택                                  ║
+║            (Never Delete, Only Add, Context-Based Selection)                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  🔴 절대 금지 (NEVER):                                                        ║
+║  ┌──────────────────────────────────────────────────────────────────────┐    ║
+║  │ • 기존 단어 매핑 삭제                                                   │    ║
+║  │   예: 대단하다: 'wonderful' → 대단하다: 'amazing' (삭제 후 교체 ❌)       │    ║
+║  │                                                                      │    ║
+║  │ • 기존 의미 덮어쓰기                                                    │    ║
+║  │   예: wonderful을 삭제하고 amazing으로 변경 ❌                           │    ║
+║  │                                                                      │    ║
+║  │ • 테스트 통과를 위한 의미 변경                                           │    ║
+║  │   예: 테스트가 'amazing' 기대 → 기존 'wonderful' 삭제 ❌                 │    ║
+║  └──────────────────────────────────────────────────────────────────────┘    ║
+║                                                                              ║
+║  🟢 허용 (ALLOWED):                                                          ║
+║  ┌──────────────────────────────────────────────────────────────────────┐    ║
+║  │ • 동의어/대체 표현 추가                                                 │    ║
+║  │   예: 대단하다: ['wonderful', 'amazing', 'remarkable', 'incredible']   │    ║
+║  │                                                                      │    ║
+║  │ • 문맥별 변형 추가                                                      │    ║
+║  │   예: { default: 'wonderful', casual: 'amazing', formal: 'remarkable' }│    ║
+║  │                                                                      │    ║
+║  │ • 새로운 단어 쌍 추가                                                   │    ║
+║  │   예: 새로운 단어 '멋지다' 추가                                          │    ║
+║  └──────────────────────────────────────────────────────────────────────┘    ║
+║                                                                              ║
+║  🔵 선택 로직 (Selection Logic):                                             ║
+║  ┌──────────────────────────────────────────────────────────────────────┐    ║
+║  │ 문맥 분석기가 다음 요소를 고려하여 적절한 의미 선택:                        │    ║
+║  │ • 문장 전체 분위기 (어조)                                               │    ║
+║  │ • 주변 단어 (연어 관계)                                                 │    ║
+║  │ • 화자 유형 (격식/비격식)                                               │    ║
+║  │ • 감정 상태                                                            │    ║
+║  └──────────────────────────────────────────────────────────────────────┘    ║
+║                                                                              ║
+║  📌 적용 범위 (Scope):                                                       ║
+║  이 정책은 번역기 전체에 적용됨:                                                ║
+║  • dictionary/words.ts - 단어 사전                                          ║
+║  • dictionary/idioms.ts - 관용구                                            ║
+║  • dictionary/cultural-expressions.ts - 문화 표현                           ║
+║  • v2.1/data.ts - 문법 패턴 데이터                                          ║
+║  • v2.1/tokenizer.ts - 토크나이저 내 매핑                                    ║
+║  • v2.1/generator.ts - 생성기 내 매핑                                       ║
+║  • context/context-analyzer.ts - 문맥 분석기                                ║
+║  • 향후 추가될 모든 언어 관련 도구                                             ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+**핵심 원칙: 번역기 성능이 우선, 테스트 통과가 우선 아님**
+
+테스트를 통과시키기 위해 기존 매핑을 삭제/변경하면:
+- 해당 테스트는 통과하지만
+- 다른 문맥에서는 부자연스러운 번역 발생
+- 전체 번역 품질 저하
+
+올바른 방식:
+1. 기존 매핑 유지
+2. 새로운 의미/동의어 추가
+3. 문맥 분석기가 상황에 맞게 선택
+
+---
+
 ### Prohibited (금지 사항)
 
 | File | What NOT to do (하지 말 것) |
@@ -105,6 +174,7 @@ All translation tests must pass through **algorithm and logic improvements only*
 | `translator-service.ts` | Regex patterns for specific test sentences (특정 테스트 문장 정규식 패턴) |
 | `core/en-to-ko.ts` | MARKER patterns, hardcoded sentence handling (마커 패턴, 하드코딩 문장 처리) |
 | `core/ko-to-en.ts` | MARKER patterns, hardcoded sentence handling (마커 패턴, 하드코딩 문장 처리) |
+| **All dictionary files** | **Deleting existing word mappings (기존 단어 매핑 삭제 금지)** |
 
 ### Allowed (허용 사항)
 

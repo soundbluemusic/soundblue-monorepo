@@ -166,6 +166,8 @@ translate('안녕하세요', 'ko-en'); // → 'Hello'
 translate('Hello', 'en-ko');      // → '안녕하세요'
 ```
 
+> **Dictionary Policy:** See [Language Tools Dictionary Policy](#language-tools-dictionary-policy) below.
+
 #### @soundblue/nlu
 
 Natural Language Understanding for intent/entity extraction.
@@ -415,6 +417,73 @@ startTransition(() => {
 ```
 ⚠️ 이 workaround는 공식 수정이 나올 때까지 삭제 금지!
 ⚠️ DO NOT DELETE until official fix is released!
+```
+
+---
+
+## Language Tools Dictionary Policy (언어 도구 사전 정책)
+
+> **This policy applies to ALL language-related packages in this monorepo.**
+> **이 정책은 모노레포의 모든 언어 관련 패키지에 적용됩니다.**
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║            삭제 금지, 추가만 허용, 문맥 기반 선택                                  ║
+║            (Never Delete, Only Add, Context-Based Selection)                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  🔴 절대 금지 (NEVER):                                                        ║
+║     • 기존 단어 매핑 삭제 (Deleting existing word mappings)                    ║
+║     • 기존 의미 덮어쓰기 (Overwriting existing meanings)                       ║
+║     • 테스트 통과를 위한 의미 변경 (Changing meanings for test passing)         ║
+║                                                                              ║
+║  🟢 허용 (ALLOWED):                                                          ║
+║     • 동의어/대체 표현 추가 (Adding synonyms/alternatives)                     ║
+║     • 문맥별 변형 추가 (Adding context-specific variants)                      ║
+║     • 새로운 단어 쌍 추가 (Adding new word pairs)                              ║
+║                                                                              ║
+║  🔵 선택 로직 (Selection Logic):                                             ║
+║     문맥 분석기가 문장 분위기, 주변 단어, 화자 유형을 고려하여 적절한 의미 선택      ║
+║     Context analyzer selects appropriate meaning based on:                   ║
+║     - Sentence tone/mood                                                     ║
+║     - Surrounding words (collocations)                                       ║
+║     - Speaker type (formal/casual)                                           ║
+║                                                                              ║
+║  ⚠️ 핵심 원칙: 도구 성능 우선, 테스트 통과 우선 아님                               ║
+║     (Tool performance first, NOT test passing first)                        ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+### Affected Packages (적용 대상 패키지)
+
+| Package | Description |
+|---------|-------------|
+| `@soundblue/translator` | Translation engine (번역 엔진) |
+| `@soundblue/hangul` | Korean text processing (한글 처리) |
+| `@soundblue/nlu` | Natural language understanding (자연어 이해) |
+| `apps/tools/translator` | Translator app (번역기 앱) |
+| Future language tools | 향후 추가될 모든 언어 도구 |
+
+### Example (예시)
+
+```typescript
+// ❌ WRONG: Deleting/replacing existing mapping
+// 기존 매핑 삭제/교체 (잘못됨)
+대단하다: 'amazing'  // 'wonderful' 삭제됨
+
+// ✅ CORRECT: Adding synonyms while keeping existing
+// 기존 유지하면서 동의어 추가 (올바름)
+대단하다: ['wonderful', 'amazing', 'remarkable', 'incredible']
+
+// ✅ CORRECT: Context-based variants
+// 문맥별 변형 (올바름)
+대단하다: {
+  default: 'wonderful',
+  casual: 'amazing',
+  formal: 'remarkable',
+  exclamation: 'incredible'
+}
 ```
 
 ---
