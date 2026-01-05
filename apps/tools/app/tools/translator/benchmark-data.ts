@@ -269,6 +269,28 @@ export function countTests(levels: TestLevel[]): number {
 }
 
 // ========================================
+// 벤치마크 테스트 그룹 (UI용 - 자동 동기화)
+// ========================================
+
+/** 벤치마크 UI에서 사용하는 테스트 그룹 배열 (새 테스트 추가 시 여기만 수정) */
+export const benchmarkTestGroups: { name: string; data: TestLevel[] }[] = [
+  { name: 'Grammar Rules', data: grammarRulesTests },
+  { name: 'Level Tests', data: levelTests },
+  { name: 'Category Tests', data: categoryTests },
+  { name: 'Context Tests', data: contextTests },
+  { name: 'Typo Tests', data: typoTests },
+  { name: 'Unique Tests', data: uniqueTests },
+  { name: 'Polysemy Tests', data: polysemyTests },
+  { name: 'Word Order Tests', data: wordOrderTests },
+  { name: 'Spacing Tests', data: spacingErrorTests },
+  { name: 'Final Tests', data: finalTests },
+  { name: 'Professional Tests', data: professionalTranslatorTests },
+  { name: 'Localization Tests', data: localizationTests },
+  { name: 'Anti-Hardcoding Tests', data: antiHardcodingTests },
+  { name: 'Figurative Tests', data: figurativeTests },
+];
+
+// ========================================
 // 벤치마크 카테고리 (14개 개별 + 3개 통합 = 17개)
 // ========================================
 

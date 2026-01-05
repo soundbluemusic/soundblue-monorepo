@@ -16,6 +16,9 @@ import type { TestCase, TestCategory, TestLevel } from '~/tools/translator/bench
 // Dynamic import types for lazy loading
 type TranslateFn = (input: string, direction: 'ko-en' | 'en-ko') => string;
 type TestGroup = { name: string; data: TestLevel[] };
+type BenchmarkDataModule = {
+  benchmarkTestGroups: TestGroup[];
+};
 
 export const meta: MetaFunction = () => [
   { title: 'Benchmark | Tools' },
@@ -51,21 +54,11 @@ let cachedTranslateFn: TranslateFn | null = null;
 async function loadBenchmarkData(): Promise<TestGroup[]> {
   if (cachedTestGroups) return cachedTestGroups;
 
-  const benchmarkModule = await import('~/tools/translator/benchmark-data');
-  cachedTestGroups = [
-    { name: 'Level Tests', data: benchmarkModule.levelTests },
-    { name: 'Category Tests', data: benchmarkModule.categoryTests },
-    { name: 'Context Tests', data: benchmarkModule.contextTests },
-    { name: 'Typo Tests', data: benchmarkModule.typoTests },
-    { name: 'Unique Tests', data: benchmarkModule.uniqueTests },
-    { name: 'Polysemy Tests', data: benchmarkModule.polysemyTests },
-    { name: 'Word Order Tests', data: benchmarkModule.wordOrderTests },
-    { name: 'Spacing Tests', data: benchmarkModule.spacingErrorTests },
-    { name: 'Final Tests', data: benchmarkModule.finalTests },
-    { name: 'Professional Tests', data: benchmarkModule.professionalTranslatorTests },
-    { name: 'Localization Tests', data: benchmarkModule.localizationTests },
-    { name: 'Anti-Hardcoding Tests', data: benchmarkModule.antiHardcodingTests },
-  ];
+  // benchmarkTestGroups를 직접 import하여 자동 동기화
+  const benchmarkModule = (await import(
+    '~/tools/translator/benchmark-data'
+  )) as BenchmarkDataModule;
+  cachedTestGroups = benchmarkModule.benchmarkTestGroups;
   return cachedTestGroups;
 }
 
