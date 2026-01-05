@@ -338,8 +338,37 @@ This principle applies to **ALL apps and packages** in this monorepo.
 - [ ] 비슷한 다른 케이스에서도 작동하는가?
 - [ ] 기존 기능을 삭제하지 않고 확장하는가?
 - [ ] 테스트 통과가 아닌 제품 개선이 목적인가?
+- [ ] **vitest와 UI 양쪽에서 모두 검증했는가?**
 
 📄 **Full documentation:** `CLAUDE.md`
+
+---
+
+## ⚠️ UI-vitest Synchronization (UI-vitest 동기화)
+
+> **UI and vitest MUST be 100% identical**
+> **(UI와 vitest는 반드시 100% 동일해야 한다)**
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              UI와 vitest는 반드시 100% 동일해야 한다                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  🔴 절대 금지:                                                                ║
+║  • vitest에서만 통과하고 UI에서 실패하는 변경                                    ║
+║  • UI에서만 통과하고 vitest에서 실패하는 변경                                    ║
+║  • "코드상으로는 통과" 같은 애매한 표현                                          ║
+║  • "엄격한 테스트" vs "관대한 테스트" 구분                                       ║
+║                                                                              ║
+║  ✅ 필수:                                                                     ║
+║  • 테스트 파일과 UI 컴포넌트가 완전히 동일한 로직 사용                             ║
+║  • 변경 후 반드시 양쪽에서 테스트 실행                                           ║
+║  • 결과 보고 시 vitest와 UI 모두 확인 후 보고                                   ║
+║                                                                              ║
+║  ⚠️ 위반 시: "해결되었습니다" 같은 보고는 무효                                    ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
 ---
 
@@ -368,7 +397,7 @@ The translator at `apps/tools/app/tools/translator/` follows **algorithm-based g
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
-📄 **Full documentation:** `apps/tools/app/tools/translator/README.md`
+📄 **Full documentation:** `apps/tools/app/tools/translator/CLAUDE.md`
 
 ---
 

@@ -3452,6 +3452,19 @@ export function generateEnglish(parsed: ParsedSentence): string {
       return `${whEn} ${verb3ps} the ${objEn}?`;
     }
 
+    // g21-7: 어디 + 동사 패턴 (어디 가니? → Where are you going?)
+    // Pattern: 어디/어디서/어디에 + V-니/나/냐/까/어?
+    const verbOnlyMatch = rest.match(/^(.+?)(?:니|나|냐|까|어|아)\??$/);
+    if (verbOnlyMatch) {
+      const verbStem = verbOnlyMatch[1].trim();
+      const verbEn = KO_EN[verbStem] || KO_EN[`${verbStem}다`] || VERB_STEMS[verbStem] || verbStem;
+      if (verbEn && typeof verbEn === 'string') {
+        // 현재진행형으로 번역 (가니? → are you going?)
+        const gerund = verbEn.endsWith('e') ? `${verbEn.slice(0, -1)}ing` : `${verbEn}ing`;
+        return `${whEn} are you ${gerund}?`;
+      }
+    }
+
     // 단순 패턴
     return `${whEn}?`;
   }

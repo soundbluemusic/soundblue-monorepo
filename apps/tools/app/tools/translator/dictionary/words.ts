@@ -2,12 +2,16 @@
 // Words Dictionary - 단어 사전 (한→영)
 // 기본 어휘 + 도메인 사전 통합
 // i18n 사전 자동 통합 (사이트 성장 = 번역기 성장)
+// 외부 사전 통합 (public-monorepo/data/context)
 // 문맥 기반 다중 번역 지원 (차 → tea/car/difference)
 // ========================================
 
 import { enToKoColors, koToEnColors } from './colors';
 import { enToKoCountries, koToEnCountries } from './countries';
 import { ALL_DOMAINS_EN_KO, ALL_DOMAINS_KO_EN } from './domains';
+// 외부 사전 (public-monorepo에서 동기화됨)
+// 우선순위: 수동 사전 > 외부 사전 (기존 사전이 우선)
+import { externalEnToKoWords, externalKoToEnWords } from './external';
 import {
   CATEGORY_KEYWORDS,
   MULTI_TRANSLATION_WORDS,
@@ -1768,7 +1772,9 @@ const manualKoToEnWords: Record<string, string> = {
 // ========================================
 
 export const koToEnWords: Record<string, string> = {
-  // 도메인 사전 (가장 낮은 우선순위)
+  // 외부 사전 (가장 낮은 우선순위 - public-monorepo에서 동기화)
+  ...externalKoToEnWords,
+  // 도메인 사전
   ...ALL_DOMAINS_KO_EN,
   // 기본 사전
   ...manualKoToEnWords,
@@ -2513,9 +2519,11 @@ const manualEnToKoWords: Record<string, string> = {
   opened: '열린', // 수동태용
 };
 
-// 역방향 사전 (영→한) 자동 생성 + 수동 사전 + 국가명 + 색상 + 도메인 병합
+// 역방향 사전 (영→한) 자동 생성 + 수동 사전 + 국가명 + 색상 + 도메인 + 외부 사전 병합
 export const enToKoWords: Record<string, string> = {
-  // 도메인 사전 (가장 낮은 우선순위)
+  // 외부 사전 (가장 낮은 우선순위 - public-monorepo에서 동기화)
+  ...externalEnToKoWords,
+  // 도메인 사전
   ...ALL_DOMAINS_EN_KO,
   // 기본 사전 역방향 생성
   ...Object.fromEntries(

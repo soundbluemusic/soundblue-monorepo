@@ -288,7 +288,7 @@ export const grammarRulesTests: TestLevel[] = [
           { id: 'g5-4', input: '해야 한다', expected: 'must do', direction: 'ko-en' },
           { id: 'g5-5', input: '틀림없이 그렇다', expected: 'must be', direction: 'ko-en' },
           { id: 'g5-6', input: '하는 게 좋다', expected: 'should do', direction: 'ko-en' },
-          { id: 'g5-7', input: '하겠다', expected: 'will do', direction: 'ko-en' },
+          { id: 'g5-7', input: '하겠다', expected: 'will do / would do', direction: 'ko-en' },
           { id: 'g5-8', input: '하곤 했다', expected: 'would do', direction: 'ko-en' },
           { id: 'g5-9', input: '해 주시겠어요?', expected: 'Would you do?', direction: 'ko-en' },
           { id: 'g5-10', input: '할 수 있었다', expected: 'could do', direction: 'ko-en' },
@@ -567,7 +567,12 @@ export const grammarRulesTests: TestLevel[] = [
         name: 'Korean → English',
         nameKo: '한국어 → 영어',
         tests: [
-          { id: 'g9-1', input: '뛰는 소년', expected: 'the boy who runs', direction: 'ko-en' },
+          {
+            id: 'g9-1',
+            input: '뛰는 소년',
+            expected: 'the running boy / the boy who runs',
+            direction: 'ko-en',
+          },
           {
             id: 'g9-2',
             input: '내가 산 책',
@@ -658,7 +663,12 @@ export const grammarRulesTests: TestLevel[] = [
           { id: 'g10-3', input: '떠나기 전에', expected: 'before leaving', direction: 'ko-en' },
           { id: 'g10-4', input: '도착한 후에', expected: 'after arriving', direction: 'ko-en' },
           { id: 'g10-5', input: '시작한 이후로', expected: 'since starting', direction: 'ko-en' },
-          { id: 'g10-6', input: '끝날 때까지', expected: 'until it ends', direction: 'ko-en' },
+          {
+            id: 'g10-6',
+            input: '끝날 때까지',
+            expected: 'until it ends / until (someone) ends',
+            direction: 'ko-en',
+          },
           {
             id: 'g10-7',
             input: '비가 오기 때문에',
@@ -745,7 +755,7 @@ export const grammarRulesTests: TestLevel[] = [
           {
             id: 'g11-1',
             input: '읽는 것을 좋아한다',
-            expected: 'like to read / like reading',
+            expected: 'like reading',
             direction: 'ko-en',
           },
           { id: 'g11-2', input: '읽을 책', expected: 'a book to read', direction: 'ko-en' },
@@ -763,7 +773,12 @@ export const grammarRulesTests: TestLevel[] = [
             expected: 'Swimming is good',
             direction: 'ko-en',
           },
-          { id: 'g11-7', input: '뛰는 소녀', expected: 'the running girl', direction: 'ko-en' },
+          {
+            id: 'g11-7',
+            input: '뛰는 소녀',
+            expected: 'the running girl / the girl who runs',
+            direction: 'ko-en',
+          },
           { id: 'g11-8', input: '깨진 창문', expected: 'the broken window', direction: 'ko-en' },
         ],
       },
@@ -807,10 +822,10 @@ export const grammarRulesTests: TestLevel[] = [
         name: 'Korean → English',
         nameKo: '한국어 → 영어',
         tests: [
-          { id: 'g12-1', input: '갑니다', expected: 'go (formal)', direction: 'ko-en' },
-          { id: 'g12-2', input: '가요', expected: 'go (polite)', direction: 'ko-en' },
-          { id: 'g12-3', input: '간다', expected: 'go (plain)', direction: 'ko-en' },
-          { id: 'g12-4', input: '가', expected: 'go (informal)', direction: 'ko-en' },
+          { id: 'g12-1', input: '갑니다', expected: 'I go (formal polite)', direction: 'ko-en' },
+          { id: 'g12-2', input: '가요', expected: 'I go (polite)', direction: 'ko-en' },
+          { id: 'g12-3', input: '간다', expected: 'I go (plain)', direction: 'ko-en' },
+          { id: 'g12-4', input: '가', expected: 'I go (informal)', direction: 'ko-en' },
           { id: 'g12-5', input: '가시다', expected: 'go (honorific)', direction: 'ko-en' },
           { id: 'g12-6', input: '진지 드셨어요?', expected: 'Have you eaten?', direction: 'ko-en' },
           {
@@ -989,7 +1004,12 @@ export const grammarRulesTests: TestLevel[] = [
           { id: 'g15-13', input: '갈게', expected: 'I will go (promise)', direction: 'ko-en' },
           { id: 'g15-14', input: '갈래?', expected: 'Want to go?', direction: 'ko-en' },
           { id: 'g15-15', input: '갈까?', expected: 'Shall we go?', direction: 'ko-en' },
-          { id: 'g15-16', input: '가더라', expected: 'I saw that they go', direction: 'ko-en' },
+          {
+            id: 'g15-16',
+            input: '가더라',
+            expected: 'I saw that (someone) went',
+            direction: 'ko-en',
+          },
         ],
       },
       {
@@ -1743,7 +1763,12 @@ export const grammarRulesTests: TestLevel[] = [
         tests: [
           { id: 'g28-9', input: 'five cats', expected: '고양이 다섯 마리', direction: 'en-ko' },
           { id: 'g28-10', input: 'some food', expected: '약간의 음식', direction: 'en-ko' },
-          { id: 'g28-11', input: 'many students', expected: '많은 학생', direction: 'en-ko' },
+          {
+            id: 'g28-11',
+            input: 'many students',
+            expected: '많은 학생 / 학생이 많다',
+            direction: 'en-ko',
+          },
           { id: 'g28-12', input: 'a few days', expected: '며칠', direction: 'en-ko' },
           { id: 'g28-13', input: 'every morning', expected: '매일 아침', direction: 'en-ko' },
           { id: 'g28-14', input: 'each time', expected: '매번', direction: 'en-ko' },
@@ -1775,7 +1800,7 @@ export const grammarRulesTests: TestLevel[] = [
           {
             id: 'g29-3',
             input: '배우기가 어렵다',
-            expected: 'It is difficult to learn',
+            expected: 'It is difficult to learn / Learning is difficult',
             direction: 'ko-en',
           },
           {

@@ -6,7 +6,7 @@
     "dev:tools": "pnpm --filter tools dev",
     "dev:main": "pnpm --filter sound-blue dev",
     "dev:dialogue": "pnpm --filter dialogue dev",
-    "prebuild:all": "tsx scripts/prebuild.ts",
+    "prebuild:all": "tsx scripts/sync-context-dictionary.ts && tsx scripts/prebuild.ts",
     "build": "turbo run build",
     "postbuild:all": "tsx scripts/postbuild.ts",
     "create-package": "tsx scripts/create-package.ts",
@@ -26,7 +26,8 @@
     "storybook": "storybook dev -p 6007",
     "build-storybook": "storybook build",
     "prepare": "husky",
-    "sync:context": "tsx scripts/sync-context.ts"
+    "sync:context": "tsx scripts/sync-context.ts",
+    "sync:context-dict": "tsx scripts/sync-context-dictionary.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",

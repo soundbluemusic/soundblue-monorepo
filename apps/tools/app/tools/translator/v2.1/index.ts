@@ -13,6 +13,8 @@
  * 3. 확장성: 새 규칙 추가는 data.ts만 수정
  */
 
+// 외부 문장 사전 (대화 예문에서 추출 - 정확히 매칭 시 알고리즘보다 우선)
+import { externalEnToKoSentences, externalKoToEnSentences } from '../dictionary/external';
 import { type ParsedClauses, parseEnglishClauses, parseKoreanClauses } from './clause-parser';
 import { EN_KO, KO_NOUNS, KO_VERBS } from './data';
 import { generateNounClauseKorean, generateRelativeClauseKorean } from './en-to-ko/clauses';
@@ -71,6 +73,20 @@ export function translateWithInfo(
   }
 
   const formality = options?.formality || 'neutral';
+
+  // Phase 0: 외부 문장 사전 우선 조회 (정확히 일치하는 경우에만)
+  // 대화 예문에서 추출된 문장은 알고리즘보다 정확할 가능성이 높음
+  if (direction === 'ko-en') {
+    const exactMatch = externalKoToEnSentences[trimmed];
+    if (exactMatch) {
+      return { translated: exactMatch, original: text };
+    }
+  } else {
+    const exactMatch = externalEnToKoSentences[trimmed.toLowerCase()];
+    if (exactMatch) {
+      return { translated: exactMatch, original: text };
+    }
+  }
 
   // Phase -1: Handle special title patterns before sentence splitting
   // g12-13: "Mr. Kim" → "김 씨 / 김 선생님"

@@ -447,6 +447,32 @@ Before any fix (수정 전 반드시):
 - Follow project conventions (프로젝트 컨벤션 준수)
 - Add comments explaining WHY (WHY를 설명하는 주석)
 
+#### 5. UI-vitest 동기화 필수 (UI-vitest Synchronization Required)
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              UI와 vitest는 반드시 100% 동일해야 한다                              ║
+║              (UI and vitest MUST be 100% identical)                          ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  🔴 절대 금지 (ABSOLUTELY PROHIBITED):                                        ║
+║  • vitest에서만 통과하고 UI에서 실패하는 변경                                    ║
+║  • UI에서만 통과하고 vitest에서 실패하는 변경                                    ║
+║  • "코드상으로는 통과" 같은 애매한 표현                                          ║
+║  • "엄격한 테스트" vs "관대한 테스트" 구분                                       ║
+║  • vitest와 UI의 정규화/비교 함수가 다른 것                                     ║
+║                                                                              ║
+║  ✅ 필수 (REQUIRED):                                                         ║
+║  • 테스트 파일과 UI 컴포넌트가 완전히 동일한 로직 사용                             ║
+║  • 변경 후 반드시 양쪽에서 테스트 실행                                           ║
+║  • 결과 보고 시 vitest와 UI 모두 확인 후 보고                                   ║
+║                                                                              ║
+║  ⚠️ 위반 시: "해결되었습니다" 같은 보고는 무효                                    ║
+║     vitest + UI 양쪽 모두 통과 확인 후에만 "해결됨" 선언 가능                     ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
 ### When Uncertain (불확실할 때)
 
 Ask before (다음 작업 전 질문):
@@ -538,7 +564,7 @@ When writing code, if any of the 12 metrics is compromised (코드 작성 시 12
 ## Translator Development Rules (번역기 개발 규칙)
 
 > **Location**: `apps/tools/app/tools/translator/`
-> **Full docs**: `apps/tools/app/tools/translator/README.md`
+> **Full docs**: `apps/tools/app/tools/translator/CLAUDE.md`
 
 ### 🎯 하드코딩 정책 (Hardcoding Policy) - 번역기 전용
 
@@ -742,36 +768,57 @@ When writing code, if any of the 12 metrics is compromised (코드 작성 시 12
 7. **DO** ADD new context variants to CONTEXT_VOCABULARY (문맥별 변형 추가)
 8. **DO** ADD new words to words.ts (keep existing, add new) (기존 유지, 새 단어 추가)
 
-### 📊 성능 벤치마크 정답지 (Performance Benchmark - Single Source of Truth)
+### 📊 벤치마크 단일 소스 정책 (Benchmark Single Source Policy)
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
+║                    ⚠️ 벤치마크 단일 소스 - 절대 규칙 ⚠️                          ║
+╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║   📁 benchmark-data.ts (12개 테스트 그룹)                                      ║
+║   📁 단일 소스: benchmarkTestGroups (14개 그룹, 1,105개 테스트)                 ║
+║   📍 위치: apps/tools/app/tools/translator/benchmark-data.ts                 ║
 ║                                                                              ║
-║   번역기 성능 측정의 유일한 정답지                                               ║
-║   The ONLY source of truth for translator performance                        ║
+║   🔗 3가지가 완벽히 동기화되어야 함:                                             ║
+║   ┌──────────────────────────────────────────────────────────────────────┐   ║
+║   │ 1. benchmark-data.ts     → benchmarkTestGroups 정의                  │   ║
+║   │ 2. benchmark-data.test.ts → benchmarkTestGroups 사용 (vitest)        │   ║
+║   │ 3. benchmark.tsx          → benchmarkTestGroups 사용 (UI)            │   ║
+║   └──────────────────────────────────────────────────────────────────────┘   ║
 ║                                                                              ║
-║   ⚠️  benchmark-data.ts 외의 다른 vitest 테스트 파일은 만들지 않는다             ║
+║   ✅ 통과 기준 완전 동일:                                                      ║
+║   ┌──────────────────────────────────────────────────────────────────────┐   ║
+║   │ • ko-en: normalizeEnglish(actual) === normalizeEnglish(expected)     │   ║
+║   │ • en-ko: normalizeKorean(actual) === normalizeKorean(expected)       │   ║
+║   │                                                                      │   ║
+║   │ normalizeEnglish: 소문자 + 관사(a/an/the) 제거 + 공백 정규화           │   ║
+║   │ normalizeKorean: 조사(은/는/이/가→가, 을/를→를) 통일 + 공백 정규화      │   ║
+║   └──────────────────────────────────────────────────────────────────────┘   ║
+║                                                                              ║
+║   ❌ 절대 금지:                                                               ║
+║   • vitest와 UI의 통과 기준이 다른 것                                          ║
+║   • benchmarkTestGroups 외의 별도 테스트 데이터 사용                           ║
+║   • 부분 일치(includes) 등 관대한 매칭 로직                                    ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
-**12개 테스트 그룹:**
+**14개 테스트 그룹 (benchmarkTestGroups):**
 
-| # | 변수명 | 설명 |
+| # | 그룹명 | 설명 |
 |---|--------|------|
-| 1 | `levelTests` | 레벨별 기본 번역 테스트 |
-| 2 | `categoryTests` | 카테고리별 테스트 |
-| 3 | `contextTests` | 문맥 기반 번역 테스트 |
-| 4 | `typoTests` | 오타 처리 테스트 |
-| 5 | `uniqueTests` | 고유 표현 테스트 |
-| 6 | `polysemyTests` | 다의어 처리 테스트 |
-| 7 | `wordOrderTests` | SVO↔SOV 어순 변환 테스트 |
-| 8 | `spacingErrorTests` | 띄어쓰기 오류 처리 테스트 |
-| 9 | `finalTests` | 종합 테스트 |
-| 10 | `professionalTranslatorTests` | 전문 번역 품질 테스트 |
-| 11 | `localizationTests` | 현지화 테스트 |
-| 12 | `antiHardcodingTests` | 하드코딩 방지 테스트 **(22개 레벨)** |
+| 1 | Grammar Rules | 문법 규칙 (424개) |
+| 2 | Level Tests | 레벨별 기본 번역 |
+| 3 | Category Tests | 카테고리별 테스트 |
+| 4 | Context Tests | 문맥 기반 번역 |
+| 5 | Typo Tests | 오타 처리 |
+| 6 | Unique Tests | 고유 표현 |
+| 7 | Polysemy Tests | 다의어 처리 |
+| 8 | Word Order Tests | SVO↔SOV 어순 변환 |
+| 9 | Spacing Tests | 띄어쓰기 오류 처리 |
+| 10 | Final Tests | 종합 테스트 |
+| 11 | Professional Tests | 전문 번역 품질 |
+| 12 | Localization Tests | 현지화 |
+| 13 | Anti-Hardcoding Tests | 하드코딩 방지 (212개) |
+| 14 | Figurative Tests | 비유 표현 |
 
-> **12번 antiHardcodingTests** = 22가지 핵심 알고리즘 규칙 (암기/하드코딩 절대 불가)
+> **vitest 결과 = UI 벤치마크 결과** (완벽히 일치해야 함)
