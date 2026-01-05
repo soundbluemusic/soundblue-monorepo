@@ -2,13 +2,15 @@ import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
 import m from '~/lib/messages';
+import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction = ({ params }) => [
   { title: 'Built With | Tools' },
   {
     name: 'description',
     content: 'Technologies used to build Tools - React, TypeScript, SCSS Modules.',
   },
+  ...getSeoMeta('/built-with', params),
 ];
 
 type OpenSourceItem = {

@@ -4,6 +4,7 @@ import { Link, useLoaderData } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
 import m from '~/lib/messages';
+import { getSeoMeta } from '~/lib/seo';
 import { ALL_TOOLS } from '~/lib/toolCategories';
 
 /**
@@ -19,9 +20,10 @@ export async function loader() {
   };
 }
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction = ({ params }) => [
   { title: 'Sitemap | Tools' },
   { name: 'description', content: 'Complete sitemap of SoundBlueMusic Tools website.' },
+  ...getSeoMeta('/sitemap', params),
 ];
 
 export default function Sitemap() {
