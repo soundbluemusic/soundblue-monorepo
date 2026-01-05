@@ -15,10 +15,10 @@
 
 import { type ParsedClauses, parseEnglishClauses, parseKoreanClauses } from './clause-parser';
 import { EN_ADJECTIVES, EN_KO, EN_NOUNS, EN_VERBS, KO_NOUNS, KO_VERBS } from './data';
+import { generateConditionalKorean } from './en-to-ko/conditionals';
 import {
   addSubjectIfNeeded,
   isPastTense,
-  ppToBase,
   toGerund,
   toInfinitive,
   toPastParticiple,
@@ -31,14 +31,12 @@ import {
   addKoreanRieul,
   attachAoEo,
   attachKoNieun,
-  attachKoPast,
   attachKoRieul,
   attachKoreanPastParticiple,
   attachKoreanRieul,
   attachNda,
   hasNieunBatchim,
   hasRieulBatchim,
-  removeKoDa,
   removeKoreanFinal,
   removeNieunBatchim,
   removeRieulBatchim,
@@ -489,282 +487,6 @@ function translateEnglishSentence(sentence: string, formality: Formality): strin
   return combineKoreanClauses(translatedClauses, clauseInfo);
 }
 
-/**
- * g6: 영어 조건문을 한국어로 변환
- */
-function generateConditionalKorean(parsed: ParsedSentence, _formality: Formality): string {
-  const condType = parsed.englishConditionalType;
-  const condClause = parsed.conditionalClause || '';
-  const resultClause = parsed.resultClause || '';
-
-  // 조건절에서 주어/동사 추출
-  const condParts = parseEnglishConditionClause(condClause);
-  const resultParts = resultClause ? parseEnglishResultClause(resultClause, condType) : null;
-
-  switch (condType) {
-    case 'type0': {
-      // If + present, present → V-면 V-ㄴ다
-      // "If you study, you learn" → "공부하면 배운다"
-      const condKo = condParts.verbKo ? `${condParts.verbKo}면` : condClause;
-      const resultKo = resultParts?.verbKo ? `${attachKoNieun(resultParts.verbKo)}다` : '';
-      return resultKo ? `${condKo} ${resultKo}` : condKo;
-    }
-
-    case 'type1': {
-      // If + present, will + V → V-면 V-을 것이다
-      // "If it snows, I will stay home" → "눈이 오면 집에 있을 것이다"
-      const condKo = generateType1ConditionKorean(condParts);
-      const resultKo = resultParts?.verbKo
-        ? `${resultParts.objectKo || ''}${attachKoRieul(resultParts.verbKo)} 것이다`
-        : '';
-      return resultKo ? `${condKo} ${resultKo}` : condKo;
-    }
-
-    case 'type2': {
-      // If + were, would + V → N-(이)라면 V-ㄹ 텐데
-      // "If I were you, I would go" → "내가 너라면 갈 텐데"
-      const condKo = generateType2ConditionKorean(condParts);
-      const resultKo = resultParts?.verbKo ? `${attachKoRieul(resultParts.verbKo)} 텐데` : '';
-      return resultKo ? `${condKo} ${resultKo}` : condKo;
-    }
-
-    case 'type3': {
-      // If + had + pp, would have + pp → V-았더라면 V-었을 텐데
-      // "If I had known, I would have helped" → "알았더라면 도왔을 텐데"
-      const condPast = condParts.verbKo ? `${attachKoPast(condParts.verbKo)}더라면` : condClause;
-      const resultPast = resultParts?.verbKo
-        ? `${attachKoPast(resultParts.verbKo, resultParts.verb)}을 텐데`
-        : '';
-      return resultPast ? `${condPast} ${resultPast}` : condPast;
-    }
-
-    case 'unless': {
-      // Unless + clause → V-지 않으면
-      // "Unless you hurry" → "서두르지 않으면"
-      const verbKo = condParts.verbKo || '';
-      return `${verbKo}지 않으면`;
-    }
-
-    case 'even-if': {
-      // Even if + clause → V-더라도
-      // "Even if it is hard" → "어렵더라도"
-      // 형용사인 경우 바로 -더라도 붙임
-      if (condParts.adjectiveKo) {
-        return `${condParts.adjectiveKo}더라도`;
-      }
-      const verbKo = condParts.verbKo || '';
-      return `${verbKo}더라도`;
-    }
-
-    default:
-      return parsed.original;
-  }
-}
-
-/**
- * 영어 조건절 파싱 (Type 1 전용)
- */
-function generateType1ConditionKorean(parts: EnglishClauseParts): string {
-  // "it snows" → "눈이 오면"
-  if (parts.subjectKo === '그것' && parts.weatherVerb) {
-    const weatherNoun = parts.weatherVerb === 'snow' ? '눈' : '비';
-    return `${weatherNoun}이 오면`;
-  }
-  return parts.verbKo ? `${parts.verbKo}면` : '';
-}
-
-/**
- * 영어 조건절 파싱 (Type 2 전용)
- */
-function generateType2ConditionKorean(parts: EnglishClauseParts): string {
-  // "I were you" → "내가 너라면"
-  if (parts.complement) {
-    const subjectKo = parts.subjectKo || '나';
-    const complementKo = getKoreanSubject(parts.complement.toLowerCase());
-    // 나 + 가 → 내가 (특수 처리)
-    const subjectWithParticle = subjectKo === '나' ? '내가' : `${subjectKo}가`;
-    return `${subjectWithParticle} ${complementKo}라면`;
-  }
-  return parts.verbKo ? `${parts.subjectKo || ''}${parts.verbKo}라면` : '';
-}
-
-interface EnglishClauseParts {
-  subject?: string;
-  subjectKo?: string;
-  verb?: string;
-  verbKo?: string;
-  object?: string;
-  objectKo?: string;
-  complement?: string; // "you" in "I were you"
-  adjectiveKo?: string;
-  weatherVerb?: string;
-}
-
-/**
- * 영어 조건절 파싱
- */
-function parseEnglishConditionClause(clause: string): EnglishClauseParts {
-  const words = clause.split(/\s+/);
-  const result: EnglishClauseParts = {};
-
-  // 주어 찾기
-  const subjectMatch = clause.match(/^(I|you|he|she|it|we|they)\s+/i);
-  if (subjectMatch) {
-    result.subject = subjectMatch[1];
-    result.subjectKo = getKoreanSubject(subjectMatch[1].toLowerCase());
-  }
-
-  // "it snows/rains" 날씨 패턴
-  if (/\bit\s+(snows?|rains?)/i.test(clause)) {
-    result.subjectKo = '그것';
-    result.weatherVerb = clause.match(/snows?/i) ? 'snow' : 'rain';
-    return result;
-  }
-
-  // "I were you" 패턴 (Type 2)
-  const wereMatch = clause.match(/^(\w+)\s+were\s+(\w+)$/i);
-  if (wereMatch) {
-    result.subject = wereMatch[1];
-    result.subjectKo = getKoreanSubject(wereMatch[1].toLowerCase());
-    result.complement = wereMatch[2];
-    return result;
-  }
-
-  // "I had known" 패턴 (Type 3)
-  const hadMatch = clause.match(/^(\w+)\s+had\s+(\w+)$/i);
-  if (hadMatch) {
-    result.subject = hadMatch[1];
-    result.subjectKo = getKoreanSubject(hadMatch[1].toLowerCase());
-    const pp = hadMatch[2].toLowerCase();
-    // 과거분사 → 동사 원형 → 한국어
-    const baseVerb = ppToBase(pp);
-    result.verbKo = removeKoDa(EN_KO[baseVerb] || baseVerb);
-    return result;
-  }
-
-  // "you study" 일반 패턴
-  const generalMatch = clause.match(/^(\w+)\s+(\w+)$/i);
-  if (generalMatch) {
-    result.subject = generalMatch[1];
-    result.subjectKo = getKoreanSubject(generalMatch[1].toLowerCase());
-    const verb = generalMatch[2].toLowerCase();
-    // 3인칭 단수 -s 제거
-    const baseVerb = verb.endsWith('s') ? verb.slice(0, -1) : verb;
-    result.verb = baseVerb;
-    result.verbKo = removeKoDa(EN_KO[baseVerb] || baseVerb);
-    return result;
-  }
-
-  // "you hurry" (Unless용)
-  if (words.length >= 2) {
-    result.subject = words[0];
-    result.subjectKo = getKoreanSubject(words[0].toLowerCase());
-    const verb = words[1].toLowerCase();
-    result.verb = verb;
-    result.verbKo = removeKoDa(EN_KO[verb] || verb);
-  }
-
-  // "it is hard" (Even if용)
-  const isMatch = clause.match(/^it\s+is\s+(\w+)$/i);
-  if (isMatch) {
-    const adj = isMatch[1].toLowerCase();
-    result.adjectiveKo = removeKoDa(EN_KO[adj] || adj);
-    return result;
-  }
-
-  return result;
-}
-
-/**
- * 영어 주어를 한국어로 변환 (조사 처리 포함)
- */
-function getKoreanSubject(en: string): string {
-  const subjectMap: Record<string, string> = {
-    i: '나',
-    you: '너',
-    he: '그',
-    she: '그녀',
-    it: '그것',
-    we: '우리',
-    they: '그들',
-  };
-  return subjectMap[en] || EN_KO[en] || en;
-}
-
-/**
- * 영어 결과절 파싱
- */
-function parseEnglishResultClause(
-  clause: string,
-  condType?: 'type0' | 'type1' | 'type2' | 'type3' | 'unless' | 'even-if',
-): EnglishClauseParts {
-  const result: EnglishClauseParts = {};
-
-  // Type 1: "I will stay home"
-  const willMatch = clause.match(/^(\w+)\s+will\s+(.+)$/i);
-  if (willMatch && condType === 'type1') {
-    result.subject = willMatch[1];
-    result.subjectKo = getKoreanSubject(willMatch[1].toLowerCase());
-    // "stay home" 파싱
-    const verbPart = willMatch[2].trim();
-    const verbWords = verbPart.split(/\s+/);
-    if (verbWords.length >= 2) {
-      const verb = verbWords[0].toLowerCase();
-      const obj = verbWords.slice(1).join(' ');
-      result.verb = verb;
-      result.verbKo = removeKoDa(EN_KO[verb] || verb);
-      result.objectKo = EN_KO[obj.toLowerCase()] || '';
-      // "stay home" → "집에 있" (특수 처리)
-      if (verb === 'stay' && obj.toLowerCase() === 'home') {
-        result.objectKo = '집에 ';
-        result.verbKo = '있';
-      }
-    } else {
-      result.verb = verbWords[0].toLowerCase();
-      result.verbKo = removeKoDa(EN_KO[verbWords[0].toLowerCase()] || verbWords[0]);
-    }
-    return result;
-  }
-
-  // Type 2: "I would go"
-  const wouldMatch = clause.match(/^(\w+)\s+would\s+(\w+)$/i);
-  if (wouldMatch && condType === 'type2') {
-    result.subject = wouldMatch[1];
-    result.subjectKo = getKoreanSubject(wouldMatch[1].toLowerCase());
-    result.verb = wouldMatch[2].toLowerCase();
-    result.verbKo = removeKoDa(EN_KO[wouldMatch[2].toLowerCase()] || wouldMatch[2]);
-    return result;
-  }
-
-  // Type 3: "I would have helped"
-  const wouldHaveMatch = clause.match(/^(\w+)\s+would\s+have\s+(\w+)$/i);
-  if (wouldHaveMatch && condType === 'type3') {
-    result.subject = wouldHaveMatch[1];
-    result.subjectKo = getKoreanSubject(wouldHaveMatch[1].toLowerCase());
-    const pp = wouldHaveMatch[2].toLowerCase();
-    const baseVerb = ppToBase(pp);
-    result.verbKo = removeKoDa(EN_KO[baseVerb] || baseVerb);
-    // 도왔 (돕 + 았) 처리 - '돕' 어간 사용
-    if (baseVerb === 'help') {
-      result.verbKo = '도';
-    }
-    return result;
-  }
-
-  // Type 0: "you learn"
-  const generalMatch = clause.match(/^(\w+)\s+(\w+)$/i);
-  if (generalMatch) {
-    result.subject = generalMatch[1];
-    result.subjectKo = getKoreanSubject(generalMatch[1].toLowerCase());
-    const verb = generalMatch[2].toLowerCase();
-    result.verb = verb;
-    result.verbKo = removeKoDa(EN_KO[verb] || verb);
-    return result;
-  }
-
-  return result;
-}
-
 // ============================================
 // g8: 명사절 한국어 생성
 // ============================================
@@ -1126,7 +848,7 @@ function translateVerbToKorean(
  */
 function generateRelativeClauseEnglish(parsed: ParsedSentence): string {
   const clauseType = parsed.relativeClauseType || 'that';
-  const antecedent = parsed.relativeAntecedent || '';
+  const _antecedent = parsed.relativeAntecedent || '';
 
   // 토큰에서 주어, 목적어, 동사 추출
   let subject = '';
@@ -1253,15 +975,15 @@ function translateVerb(koStem: string, tense: 'past' | 'present'): string {
 
   const entry = verbMap[koStem];
   if (entry) {
-    return tense === 'past' ? entry.past : entry.base + 's';
+    return tense === 'past' ? entry.past : `${entry.base}s`;
   }
 
   // 기본 변환
   const baseVerb = EN_KO[koStem] || koStem;
   if (tense === 'past') {
-    return baseVerb + 'ed';
+    return `${baseVerb}ed`;
   }
-  return baseVerb + 's';
+  return `${baseVerb}s`;
 }
 
 /**
@@ -2370,7 +2092,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     const predicate = doubleSubjectMatch[3];
     const topicMap: Record<string, string> = { 코끼리: 'elephant' };
     const subjectMap: Record<string, string> = { 코: 'trunk' };
-    const adj = extractKoAdjective(predicate + '다');
+    const adj = extractKoAdjective(`${predicate}다`);
     const enTopic = topicMap[topic];
     const enSubject = subjectMap[subject];
     if (enTopic && enSubject && adj) {
@@ -2479,7 +2201,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
   // g30-2: 샀다 (buy-bought-bought) → bought (ABB type)
   const irregularVerbTypeMatch = cleaned.match(/^(.+?)\s*\(([a-z]+-[a-z]+-[a-z]+)\)$/);
   if (irregularVerbTypeMatch) {
-    const koVerb = irregularVerbTypeMatch[1];
+    const _koVerb = irregularVerbTypeMatch[1];
     const forms = irregularVerbTypeMatch[2].split('-');
     const base = forms[0];
     const past = forms[1];
@@ -2775,7 +2497,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     const adjStem = soThatMatch[1];
     const verbStem = soThatMatch[3];
     // 피곤 → tired
-    const adj = extractKoAdjective(adjStem + '하다') || extractKoAdjective(adjStem);
+    const adj = extractKoAdjective(`${adjStem}하다`) || extractKoAdjective(adjStem);
     // 잤 → 자 (remove 받침 ㅆ which indicates past tense)
     const verbBase = removeKoreanFinal(verbStem);
     const verb = extractKoVerb(verbBase);
@@ -2962,13 +2684,13 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     // Check for -은 ending (높은)
     if (firstWord.endsWith('은')) {
       const adjStem = firstWord.slice(0, -1);
-      const adj = extractKoAdjective(adjStem + '다') || extractKoAdjective(adjStem);
+      const adj = extractKoAdjective(`${adjStem}다`) || extractKoAdjective(adjStem);
       if (adj && noun) return `a ${adj} ${noun}`;
     }
     // Check for syllable ending with ㄴ (예쁜 = 예쁘+ㄴ)
     if (hasNieunBatchim(firstWord)) {
       const stem = removeNieunBatchim(firstWord);
-      const adj = extractKoAdjective(stem + '다') || extractKoAdjective(stem);
+      const adj = extractKoAdjective(`${stem}다`) || extractKoAdjective(stem);
       if (adj && noun) return `a ${adj} ${noun}`;
     }
   }
@@ -3036,7 +2758,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
   if (giGaAdjMatch) {
     const verbStem = giGaAdjMatch[1];
     const adjKo = giGaAdjMatch[2];
-    const verb = extractKoVerb(verbStem) || extractKoVerb(verbStem + '하');
+    const verb = extractKoVerb(verbStem) || extractKoVerb(`${verbStem}하`);
     const adjMap: Record<string, string> = {
       어렵다: 'difficult',
       쉽다: 'easy',
@@ -3088,7 +2810,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
       const verb1 = extractKoVerb(verbStem1);
       // 후회했 → 후회하 → regret
       const verb2Stem = verb2Ko.replace(/[ㅆ았었했]$/, '');
-      const verb2 = extractKoVerb(verb2Stem) || extractKoVerb(verb2Stem + '하');
+      const verb2 = extractKoVerb(verb2Stem) || extractKoVerb(`${verb2Stem}하`);
       if (verb1 && verb2) {
         return `I ${toPastTense(verb2)} what I ${toPastTense(verb1)}`;
       }
@@ -3100,7 +2822,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
   const decidedToMatch = cleaned.match(/^(.+?)기로\s*했다$/);
   if (decidedToMatch) {
     const verbStem = decidedToMatch[1];
-    const verb = extractKoVerb(verbStem) || extractKoVerb(verbStem + '하');
+    const verb = extractKoVerb(verbStem) || extractKoVerb(`${verbStem}하`);
     if (verb) return `I decided to ${verb}`;
   }
 
@@ -3150,11 +2872,11 @@ function handleSpecialKoreanPatterns(text: string): string | null {
       }
       // -했 → 하
       else if (koPast.endsWith('했')) {
-        stem = koPast.slice(0, -1) + '하';
+        stem = `${koPast.slice(0, -1)}하`;
       }
 
       // KO_VERBS에서 영어 동사 찾기
-      const enVerb = KO_VERBS[stem] || KO_VERBS[stem + '하'] || null;
+      const enVerb = KO_VERBS[stem] || KO_VERBS[`${stem}하`] || null;
 
       if (enVerb) {
         // 영어 동사를 과거형으로 변환
@@ -3180,7 +2902,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     const verbStem = gerundSubjectMatch[1];
     const adjKo = gerundSubjectMatch[2];
     // 수영 → swim, 공부 → study
-    const verb = extractKoVerb(verbStem) || extractKoVerb(verbStem + '하');
+    const verb = extractKoVerb(verbStem) || extractKoVerb(`${verbStem}하`);
     const adj = adjKo.startsWith('좋')
       ? 'good'
       : adjKo.startsWith('나쁘') || adjKo.startsWith('나빠')
@@ -3201,7 +2923,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
   // 결국 실패하게 되다 → only to fail
   const onlyToMatch = cleaned.match(/^결국\s+(.+?)하?게\s*되다$/);
   if (onlyToMatch) {
-    const verb = extractKoVerb(onlyToMatch[1] + '하');
+    const verb = extractKoVerb(`${onlyToMatch[1]}하`);
     if (verb) return `only to ${verb}`;
   }
 
@@ -3424,7 +3146,7 @@ function translateKoNounWithFallback(ko: string): string | null {
 
 /** 한국어 동사 추출 */
 function extractKoVerb(text: string): string | null {
-  return KO_VERBS[text] || KO_VERBS[text + '하'] || null;
+  return KO_VERBS[text] || KO_VERBS[`${text}하`] || null;
 }
 
 /** 영어 비교급 생성 */
@@ -3572,7 +3294,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     const koObj = objMap[obj] || EN_NOUNS[obj] || obj;
     // Special handling for height
     if (adjStem === 'tall') return `${koObj}보다 더 키가 크다`;
-    const koAdj = EN_ADJECTIVES[adjStem] || EN_ADJECTIVES[adjStem + 'l'];
+    const koAdj = EN_ADJECTIVES[adjStem] || EN_ADJECTIVES[`${adjStem}l`];
     if (koAdj) return `${koObj}보다 더 ${koAdj}다`;
   }
 
@@ -3585,7 +3307,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     const koPlace = placeMap[place] || EN_NOUNS[place] || place;
     // Special handling for height
     if (adjStem === 'tall') return `${koPlace}에서 가장 키가 크다`;
-    const koAdj = EN_ADJECTIVES[adjStem] || EN_ADJECTIVES[adjStem + 'l'];
+    const koAdj = EN_ADJECTIVES[adjStem] || EN_ADJECTIVES[`${adjStem}l`];
     if (koAdj) return `${koPlace}에서 가장 ${koAdj}다`;
   }
 
@@ -3655,7 +3377,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
   if (afterMatch) {
     const subj = afterMatch[1];
     const verb = afterMatch[2];
-    const subjKo: Record<string, string> = {
+    const _subjKo: Record<string, string> = {
       you: '네',
       I: '내',
       he: '그',
@@ -3794,7 +3516,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
       verbStem = verbStem.slice(0, -1);
     }
     // Handle verbs ending in 'e' that was removed: making → mak → make
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       if (koVerb) {
@@ -3853,7 +3575,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
       verbStem = verbStem.slice(0, -1);
     }
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       if (koVerb) {
@@ -3872,7 +3594,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
       verbStem = verbStem.slice(0, -1);
     }
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       if (koVerb) {
@@ -3898,7 +3620,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
       verbStem = verbStem.slice(0, -1);
     }
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       const koNoun = EN_NOUNS[noun];
@@ -4051,7 +3773,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
       verbStem = verbStem.slice(0, -1);
     }
     // Try to find verb: swim, run, read, etc.
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       if (koVerb) {
@@ -4539,7 +4261,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
       verbStem = verbStem.slice(0, -1);
     }
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       if (koVerb) {
@@ -4555,7 +4277,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
   const beforeVingMatch = cleaned.match(/^before\s+(\w+)ing$/);
   if (beforeVingMatch) {
     const verbStem = beforeVingMatch[1];
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       if (koVerb) {
@@ -4589,7 +4311,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
       verbStem = verbStem.slice(0, -1);
     }
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       if (koVerb) {
@@ -4746,7 +4468,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
       verbStem = verbStem.slice(0, -1);
     }
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       if (koVerb) {
@@ -4765,7 +4487,7 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     if (/([bcdfghjklmnpqrstvwxz])\1$/.test(verbStem)) {
       verbStem = verbStem.slice(0, -1);
     }
-    const possibleVerbs = [verbStem, verbStem + 'e'];
+    const possibleVerbs = [verbStem, `${verbStem}e`];
     for (const v of possibleVerbs) {
       const koVerb = EN_VERBS[v];
       if (koVerb) {
