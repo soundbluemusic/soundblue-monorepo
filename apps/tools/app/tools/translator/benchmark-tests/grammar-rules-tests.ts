@@ -4,7 +4,7 @@
 // 30개 카테고리
 // ========================================
 
-import type { TestLevel } from './benchmark-data';
+import type { TestLevel } from '../types';
 
 export const grammarRulesTests: TestLevel[] = [
   // ========================================
