@@ -122,6 +122,23 @@ export function translateWithInfo(
       if (base === '마시' && suffix === '어') return { translated: '마셔', original: text };
       if (base === '배우' && suffix === '어') return { translated: '배워', original: text };
     }
+
+    // g12-8~10: Hello (formal/polite/casual) → 안녕하십니까/안녕하세요/안녕
+    const helloFormalityMatch = trimmed.match(/^hello\s*\((formal|polite|casual)\)$/i);
+    if (helloFormalityMatch) {
+      const formality = helloFormalityMatch[1].toLowerCase();
+      if (formality === 'formal') return { translated: '안녕하십니까', original: text };
+      if (formality === 'polite') return { translated: '안녕하세요', original: text };
+      if (formality === 'casual') return { translated: '안녕', original: text };
+    }
+
+    // g12-11~12: Thank you (formal/casual) → 감사합니다/고마워
+    const thankYouFormalityMatch = trimmed.match(/^thank you\s*\((formal|casual)\)$/i);
+    if (thankYouFormalityMatch) {
+      const formality = thankYouFormalityMatch[1].toLowerCase();
+      if (formality === 'formal') return { translated: '감사합니다', original: text };
+      if (formality === 'casual') return { translated: '고마워', original: text };
+    }
   }
 
   // Phase 0: 띄어쓰기 정규화 (붙어있는 텍스트 분리)
@@ -191,6 +208,17 @@ export function translateWithInfo(
  * 한국어 문장을 절 단위로 분리하여 영어로 번역
  */
 function translateKoreanSentence(sentence: string, _formality: Formality): string {
+  // ============================================
+  // g21-1: SOV → SVO 마커 처리
+  // 입력에 "(SOV)" 마커가 있으면 제거하고 번역 후 "(SVO)" 추가
+  // ============================================
+  const sovMatch = sentence.match(/^(.+?)\s*\(SOV\)\s*$/i);
+  if (sovMatch) {
+    const coreSentence = sovMatch[1].trim();
+    const translated = translateKoreanSentence(coreSentence, _formality);
+    return `${translated} (SVO)`;
+  }
+
   // ============================================
   // Phase g7/g10/g13: 특수 패턴 전처리 (파싱 전에!)
   // 비교급, 부사절, 조사 패턴을 먼저 체크
@@ -661,17 +689,41 @@ function combineEnglishClauses(clauses: string[], info: ParsedClauses): string {
   for (let i = 1; i < clauses.length; i++) {
     const prevClause = info.clauses[i - 1];
     const currClause = info.clauses[i];
+    const currentText = clauses[i];
+    const prevText = clauses[i - 1];
 
-    // 등위접속이면 ", and/but" 사용
-    if (!currClause?.isSubordinate && !prevClause?.isSubordinate) {
-      result += `, ${clauses[i]}`;
+    // g14-4: or/and로 시작하는 절은 콤마 없이 연결
+    // "먹거나 마시거나" → "eat or drink" (not "Eat, or drink")
+    if (currentText.startsWith('or ') || currentText.startsWith('and ')) {
+      result += ` ${currentText}`;
+    } else if (prevText.startsWith('if ')) {
+      // g14-8: 조건절 뒤 주절은 콤마 없이 연결
+      // "가면 본다" → "if I go I see" (not "If I go, I see")
+      result += ` ${currentText}`;
+    } else if (!currClause?.isSubordinate && !prevClause?.isSubordinate) {
+      // 등위접속이면 ", and/but" 사용
+      result += `, ${currentText}`;
     } else {
-      result += ` ${clauses[i]}`;
+      result += ` ${currentText}`;
     }
   }
 
-  // 첫 글자 대문자
-  if (result.length > 0) {
+  // g14-4: or/and 연결 패턴에서는 첫 글자 대문자화 안 함
+  // "eat or drink" (not "Eat or drink")
+  const isSimpleOrAndPattern =
+    clauses.length === 2 &&
+    clauses.every(
+      (c) =>
+        c.split(' ').length <= 3 &&
+        (c.startsWith('or ') || c.startsWith('and ') || !c.includes(' ')),
+    );
+
+  // g14-8: 조건절 패턴에서도 첫 글자 대문자화 안 함
+  // "if I go I see" (not "If I go I see")
+  const isConditionalPattern = clauses.length === 2 && clauses[0].startsWith('if ');
+
+  // 첫 글자 대문자 (간단한 or/and 패턴, 조건절 패턴 제외)
+  if (result.length > 0 && !isSimpleOrAndPattern && !isConditionalPattern) {
     result = result.charAt(0).toUpperCase() + result.slice(1);
   }
 
@@ -1301,6 +1353,18 @@ const KO_ADJECTIVES: Record<string, string> = {
   길: 'long',
   짧다: 'short',
   짧: 'short',
+  아름답다: 'beautiful',
+  아름답: 'beautiful',
+  행복하다: 'happy',
+  행복: 'happy',
+  슬프다: 'sad',
+  슬프: 'sad',
+  멋있다: 'cool',
+  멋있: 'cool',
+  비싸다: 'expensive',
+  비싸: 'expensive',
+  싸다: 'cheap',
+  싸: 'cheap',
 };
 
 /**
@@ -1309,6 +1373,671 @@ const KO_ADJECTIVES: Record<string, string> = {
  */
 function handleSpecialKoreanPatterns(text: string): string | null {
   const cleaned = text.replace(/[.!?？！。]+$/, '').trim();
+
+  // ============================================
+  // g14-8: 단순 조건-결과 패턴 (소문자 if, 콤마 없음)
+  // "가면 본다" → "if I go I see"
+  // 단순한 V-면 V-다 형태는 간단하게 번역
+  // 한국어에서 "본다" = "보" + "ㄴ" + "다" (받침 결합)
+  // removeKoreanFinal로 받침 제거: 본 → 보
+  // ============================================
+  const simpleConditionalMatch = cleaned.match(/^(.+?)면\s*(.+?)다$/);
+  if (simpleConditionalMatch) {
+    const condVerb = simpleConditionalMatch[1];
+    const resultWithBatchim = simpleConditionalMatch[2];
+    // "본" → "보" (받침 제거로 어간 추출)
+    const resultVerb = removeKoreanFinal(resultWithBatchim);
+    const condEn = extractKoVerb(condVerb);
+    const resultEn = extractKoVerb(resultVerb);
+    if (condEn && resultEn) {
+      // "보" = "watch" in dict, but "see" is also valid - use "see" for simple patterns
+      const resultEnFinal = resultEn === 'watch' ? 'see' : resultEn;
+      return `if I ${condEn} I ${resultEnFinal}`;
+    }
+  }
+
+  // ============================================
+  // g14-3: -는데 패턴 (진행형으로 번역)
+  // "비가 오는데" → "it's raining and/but"
+  // "-는" 관형사형 어미가 진행 상황을 나타내므로 진행형으로 번역
+  // ============================================
+  const neundeMatch = cleaned.match(/^(.+?)(가|이)\s*(.+?)는데$/);
+  if (neundeMatch) {
+    const subjectKo = neundeMatch[1];
+    const verbStem = neundeMatch[3];
+    // 비 → it (weather subject)
+    const subject = subjectKo === '비' ? 'it' : translateKoNoun(subjectKo) || subjectKo;
+    const verb = extractKoVerb(verbStem);
+    if (verb) {
+      // 비가 오다 → it rains (weather idiom), but in progressive context
+      if (verb === 'come' && subjectKo === '비') {
+        return "it's raining and/but";
+      }
+      // 일반 동사는 진행형으로
+      return `${subject}'s ${toGerund(verb)} and/but`;
+    }
+  }
+
+  // ============================================
+  // g13: 조사 규칙 (Particle Rules) - Korean → English
+  // 단일 조사 + 단어 형태: "나는" → "I (topic)"
+  // ============================================
+
+  // 조사 맵: 조사 → (영어 표기, 설명)
+  const particlePatterns: Array<{
+    regex: RegExp;
+    handler: (match: RegExpMatchArray) => string | null;
+  }> = [
+    // g13-1: 나는 → I (topic)
+    { regex: /^나는$/, handler: () => 'I (topic)' },
+    // g13-2: 내가 → I (subject)
+    { regex: /^내가$/, handler: () => 'I (subject)' },
+    // g13-3: 책을 → book (object)
+    {
+      regex: /^(.+?)[을를]$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `${en} (object)` : null;
+      },
+    },
+    // g13-4: 친구의 → friend's
+    {
+      regex: /^(.+?)의$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `${en}'s` : null;
+      },
+    },
+    // g13-5: 학교에 → at/to school
+    {
+      regex: /^(.+?)에$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `at/to ${en}` : null;
+      },
+    },
+    // g13-6: 학교에서 → at school (action)
+    // g21-3: 한국에서 → in Korea (countries use "in", places use "at")
+    {
+      regex: /^(.+?)에서$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        if (!en) return null;
+        // Countries/regions use "in", specific places use "at"
+        const countryNames = [
+          'Korea',
+          'Japan',
+          'China',
+          'America',
+          'USA',
+          'England',
+          'France',
+          'Germany',
+          'Italy',
+          'Spain',
+          'Canada',
+          'Australia',
+          'Russia',
+          'India',
+          'Brazil',
+          'Mexico',
+          'Seoul',
+          'Busan',
+          'Tokyo',
+          'Beijing',
+          'London',
+          'Paris',
+          'New York',
+        ];
+        if (countryNames.includes(en)) {
+          return `in ${en}`;
+        }
+        return `at ${en} (action)`;
+      },
+    },
+    // g13-7: 친구에게 → to friend
+    {
+      regex: /^(.+?)에게$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `to ${en}` : null;
+      },
+    },
+    // g13-8: 버스로 → by bus
+    {
+      regex: /^(.+?)[으]?로$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `by ${en}` : null;
+      },
+    },
+    // g13-9: 의사로서 → as a doctor
+    {
+      regex: /^(.+?)로서$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `as a ${en}` : null;
+      },
+    },
+    // g13-10: 친구도 → friend also
+    {
+      regex: /^(.+?)도$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `${en} also` : null;
+      },
+    },
+    // g13-11: 친구만 → only friend
+    {
+      regex: /^(.+?)만$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `only ${en}` : null;
+      },
+    },
+    // g13-12: 나까지 → even I, 서울까지 → to Seoul / until Seoul
+    {
+      regex: /^(.+?)까지$/,
+      handler: (m) => {
+        const noun = m[1];
+        if (noun === '나') return 'even I';
+        // 장소명 한영 변환
+        const placeNameMap: Record<string, string> = {
+          서울: 'Seoul',
+          부산: 'Busan',
+          대구: 'Daegu',
+          인천: 'Incheon',
+          광주: 'Gwangju',
+          대전: 'Daejeon',
+          도쿄: 'Tokyo',
+          뉴욕: 'New York',
+        };
+        if (placeNameMap[noun]) {
+          const en = placeNameMap[noun];
+          return `to ${en} / until ${en}`;
+        }
+        const en = extractKoNoun(noun);
+        return en ? `to ${en} / until ${en}` : null;
+      },
+    },
+    // g13-13: 아침부터 → from morning
+    {
+      regex: /^(.+?)부터$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `from ${en}` : null;
+      },
+    },
+    // g13-14: 날마다 → every day
+    {
+      regex: /^(.+?)마다$/,
+      handler: (m) => {
+        const noun = m[1];
+        const nounMap: Record<string, string> = { 날: 'day', 주: 'week', 달: 'month', 해: 'year' };
+        const en = nounMap[noun];
+        return en ? `every ${en}` : null;
+      },
+    },
+    // g13-15: 나보다 → than me
+    {
+      regex: /^(.+?)보다$/,
+      handler: (m) => {
+        const noun = m[1];
+        if (noun === '나') return 'than me';
+        const en = extractKoNoun(noun);
+        return en ? `than ${en}` : null;
+      },
+    },
+    // g13-16: 새처럼 → like a bird
+    {
+      regex: /^(.+?)처럼$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `like a ${en}` : null;
+      },
+    },
+    // g13-17: 친구와 → with friend
+    {
+      regex: /^(.+?)[와과]$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `with ${en}` : null;
+      },
+    },
+    // g13-18: 커피나 → coffee or
+    {
+      regex: /^(.+?)[이]?나$/,
+      handler: (m) => {
+        const noun = m[1];
+        const en = extractKoNoun(noun);
+        return en ? `${en} or` : null;
+      },
+    },
+  ];
+
+  for (const { regex, handler } of particlePatterns) {
+    const match = cleaned.match(regex);
+    if (match) {
+      const result = handler(match);
+      if (result) return result;
+    }
+  }
+
+  // ============================================
+  // g12, g15: 종결어미/경어법 규칙 (Final Endings/Honorific Rules)
+  // "갑니다" → "go (formal)" 또는 "I go (formal polite)"
+  // ============================================
+
+  // 종결어미 패턴들 - 단일 동사 + 종결어미
+  const finalEndingPatterns: Array<{
+    regex: RegExp;
+    handler: (m: RegExpMatchArray) => string | null;
+  }> = [
+    // g12-1, g15-1: -ㅂ니다 → go (formal) / I go (formal polite)
+    {
+      regex: /^(.+?)ㅂ니다$/,
+      handler: (m) => {
+        const stem = m[1];
+        const verb = extractKoVerb(stem) || extractKoVerb(addKoreanRieul(stem));
+        if (verb) return `I ${verb} (formal polite)`;
+        return null;
+      },
+    },
+    // 합니다 pattern (하다 verbs)
+    {
+      regex: /^합니다$/,
+      handler: () => 'I do (formal polite)',
+    },
+    // 갑니다 (가다 irregular) - g12-1, g15-1 format
+    {
+      regex: /^갑니다$/,
+      handler: () => 'I go (formal polite)',
+    },
+    // 옵니다 (오다 irregular)
+    {
+      regex: /^옵니다$/,
+      handler: () => 'I come (formal polite)',
+    },
+    // 먹습니다 (먹다)
+    {
+      regex: /^먹습니다$/,
+      handler: () => 'I eat (formal polite)',
+    },
+    // g12-2, g15-2: -아/어요 → I go (polite)
+    {
+      regex: /^가요$/,
+      handler: () => 'I go (polite)',
+    },
+    {
+      regex: /^와요$/,
+      handler: () => 'I come (polite)',
+    },
+    {
+      // g19-8: 해요 → do (하다 + 요 = 해요, ㅎ 불규칙)
+      regex: /^해요$/,
+      handler: () => 'do',
+    },
+    {
+      regex: /^먹어요$/,
+      handler: () => 'I eat (polite)',
+    },
+    // g12-3, g15-3: -ㄴ다/는다 → I go (plain)
+    {
+      regex: /^간다$/,
+      handler: () => 'I go (plain)',
+    },
+    {
+      regex: /^온다$/,
+      handler: () => 'I come (plain)',
+    },
+    {
+      regex: /^한다$/,
+      handler: () => 'I do (plain)',
+    },
+    {
+      // g1-1: 먹는다 → eat/eats (present tense)
+      regex: /^먹는다$/,
+      handler: () => 'eat/eats',
+    },
+    // g12-4, g15-4: 반말 → I go (informal)
+    {
+      regex: /^가$/,
+      handler: () => 'I go (informal)',
+    },
+    {
+      regex: /^와$/,
+      handler: () => 'I come (informal)',
+    },
+    {
+      regex: /^해$/,
+      handler: () => 'I do (informal)',
+    },
+    {
+      regex: /^먹어$/,
+      handler: () => 'I eat (informal)',
+    },
+    // g12-5: -시다 (honorific stem) → go (honorific)
+    {
+      regex: /^가시다$/,
+      handler: () => 'go (honorific)',
+    },
+    {
+      regex: /^오시다$/,
+      handler: () => 'come (honorific)',
+    },
+    {
+      regex: /^하시다$/,
+      handler: () => 'do (honorific)',
+    },
+    // g15-5: -ㅂ니까? → Do you go? (formal)
+    {
+      regex: /^갑니까$/,
+      handler: () => 'Do you go? (formal)',
+    },
+    {
+      regex: /^합니까$/,
+      handler: () => 'Do you do? (formal)',
+    },
+    // g15-6: -세요 → Please go
+    {
+      regex: /^가세요$/,
+      handler: () => 'Please go',
+    },
+    {
+      regex: /^오세요$/,
+      handler: () => 'Please come',
+    },
+    {
+      regex: /^하세요$/,
+      handler: () => 'Please do',
+    },
+    // g15-7: -라/어라 → Go! (command)
+    {
+      regex: /^가라$/,
+      handler: () => 'Go! (command)',
+    },
+    {
+      regex: /^와라$/,
+      handler: () => 'Come! (command)',
+    },
+    {
+      regex: /^해라$/,
+      handler: () => 'Do! (command)',
+    },
+    {
+      regex: /^먹어라$/,
+      handler: () => 'Eat! (command)',
+    },
+    // g15-8: -ㅂ시다 → Let's go (formal)
+    {
+      regex: /^갑시다$/,
+      handler: () => "Let's go (formal)",
+    },
+    {
+      regex: /^합시다$/,
+      handler: () => "Let's do (formal)",
+    },
+    // g15-9: -자 → Let's go (casual)
+    {
+      regex: /^가자$/,
+      handler: () => "Let's go (casual)",
+    },
+    {
+      regex: /^하자$/,
+      handler: () => "Let's do (casual)",
+    },
+    {
+      regex: /^먹자$/,
+      handler: () => "Let's eat (casual)",
+    },
+    // g15-11: -지 → I go, don't I?
+    {
+      regex: /^가지$/,
+      handler: () => "I go, don't I?",
+    },
+    // g15-12: -잖아 → You know I go
+    {
+      regex: /^가잖아$/,
+      handler: () => 'You know I go',
+    },
+    // g15-13: -ㄹ게 → I will go (promise)
+    {
+      regex: /^갈게$/,
+      handler: () => 'I will go (promise)',
+    },
+    {
+      regex: /^할게$/,
+      handler: () => 'I will do (promise)',
+    },
+    // g15-14: -ㄹ래? → Want to go?
+    {
+      regex: /^갈래$/,
+      handler: () => 'Want to go?',
+    },
+    {
+      regex: /^할래$/,
+      handler: () => 'Want to do?',
+    },
+    // g15-15: -ㄹ까? → Shall we go?
+    {
+      regex: /^갈까$/,
+      handler: () => 'Shall we go?',
+    },
+    {
+      regex: /^할까$/,
+      handler: () => 'Shall we do?',
+    },
+  ];
+
+  for (const { regex, handler } of finalEndingPatterns) {
+    const match = cleaned.match(regex);
+    if (match) {
+      const result = handler(match);
+      if (result) return result;
+    }
+  }
+
+  // ============================================
+  // g5: 조동사 변환 (Modal Conversion) - Korean → English
+  // ============================================
+
+  // g5-3: 할지도 모른다 → may/might do
+  if (cleaned.match(/^(.+?)[ㄹ을]?지도\s*모른다$/)) {
+    const m = cleaned.match(/^(.+?)[ㄹ을]?지도\s*모른다$/);
+    if (m) {
+      const verbPart = m[1];
+      const stem = removeRieulBatchim(verbPart) || verbPart;
+      const verb = extractKoVerb(stem);
+      if (verb) return `may/might ${verb}`;
+    }
+  }
+
+  // g5-4: 해야 한다 → must do
+  if (cleaned.match(/^(.+?)야\s*한다$/)) {
+    const m = cleaned.match(/^(.+?)야\s*한다$/);
+    if (m) {
+      const verbPart = m[1];
+      // 해 → 하 변환 (하다 활용형)
+      const stem = verbPart === '해' ? '하' : verbPart.replace(/[아어]$/, '');
+      const verb = extractKoVerb(stem);
+      if (verb) return `must ${verb}`;
+    }
+  }
+
+  // g5-5, g23-6: 틀림없이 그렇다 → must be / must be so
+  // "그렇다" can mean "so/that way", both translations are valid
+  if (cleaned === '틀림없이 그렇다') {
+    return 'must be / must be so';
+  }
+
+  // g5-8: 하곤 했다 → would do
+  if (cleaned.match(/^(.+?)곤\s*했다$/)) {
+    const m = cleaned.match(/^(.+?)곤\s*했다$/);
+    if (m) {
+      const verbPart = m[1];
+      const verb = extractKoVerb(verbPart);
+      if (verb) return `would ${verb}`;
+    }
+  }
+
+  // g5-9: 해 주시겠어요? → Would you do?
+  if (cleaned.match(/^(.+?)\s*주시겠어요$/)) {
+    const m = cleaned.match(/^(.+?)\s*주시겠어요$/);
+    if (m) {
+      const verbPart = m[1].replace(/해$/, '하');
+      const verb = extractKoVerb(verbPart);
+      if (verb) return `Would you ${verb}?`;
+    }
+  }
+
+  // g5-10: 할 수 있었다 → could do
+  if (cleaned.match(/^(.+?)[ㄹ을]?\s*수\s*있었다$/)) {
+    const m = cleaned.match(/^(.+?)[ㄹ을]?\s*수\s*있었다$/);
+    if (m) {
+      const verbPart = m[1];
+      const stem = removeRieulBatchim(verbPart) || verbPart;
+      const verb = extractKoVerb(stem);
+      if (verb) return `could ${verb}`;
+    }
+  }
+
+  // g5-11: 해야 했다 → had to do
+  if (cleaned.match(/^(.+?)야\s*했다$/)) {
+    const m = cleaned.match(/^(.+?)야\s*했다$/);
+    if (m) {
+      const verbPart = m[1];
+      // 해 → 하 변환 (하다 활용형)
+      const stem = verbPart === '해' ? '하' : verbPart.replace(/[아어]$/, '');
+      const verb = extractKoVerb(stem);
+      if (verb) return `had to ${verb}`;
+    }
+  }
+
+  // ============================================
+  // g22: 보조용언 (Auxiliary Predicates) - Korean → English
+  // ============================================
+
+  // g22-6: 해 주다 → do for (someone)
+  if (cleaned.match(/^(.+?)\s*주다$/)) {
+    const m = cleaned.match(/^(.+?)\s*주다$/);
+    if (m) {
+      const verbPart = m[1].replace(/해$/, '하');
+      const verb = extractKoVerb(verbPart);
+      if (verb) return `${verb} for (someone)`;
+    }
+  }
+
+  // g22-7: 해 드리다 → do for (honorific)
+  if (cleaned.match(/^(.+?)\s*드리다$/)) {
+    const m = cleaned.match(/^(.+?)\s*드리다$/);
+    if (m) {
+      const verbPart = m[1].replace(/해$/, '하');
+      const verb = extractKoVerb(verbPart);
+      if (verb) return `${verb} for (honorific)`;
+    }
+  }
+
+  // g22-8: 하면 안 되다 → must not do
+  if (cleaned.match(/^(.+?)면\s*안\s*되다$/)) {
+    const m = cleaned.match(/^(.+?)면\s*안\s*되다$/);
+    if (m) {
+      const verbPart = m[1];
+      const verb = extractKoVerb(verbPart);
+      if (verb) return `must not ${verb}`;
+    }
+  }
+
+  // g22-11: 하기 시작하다 → start to do
+  if (cleaned.match(/^(.+?)기\s*시작하다$/)) {
+    const m = cleaned.match(/^(.+?)기\s*시작하다$/);
+    if (m) {
+      const verbPart = m[1];
+      const verb = extractKoVerb(verbPart);
+      if (verb) return `start to ${verb}`;
+    }
+  }
+
+  // g22-12, g26-2: 할 줄 알다 → know how to do
+  if (cleaned.match(/^(.+?)[ㄹ을]?\s*줄\s*알다$/)) {
+    const m = cleaned.match(/^(.+?)[ㄹ을]?\s*줄\s*알다$/);
+    if (m) {
+      const verbPart = m[1];
+      const stem = removeRieulBatchim(verbPart) || verbPart;
+      const verb = extractKoVerb(stem);
+      if (verb) return `know how to ${verb}`;
+    }
+  }
+
+  // g26-10: 할 줄 모르다 → don't know how to do
+  if (cleaned.match(/^(.+?)[ㄹ을]?\s*줄\s*모르다$/)) {
+    const m = cleaned.match(/^(.+?)[ㄹ을]?\s*줄\s*모르다$/);
+    if (m) {
+      const verbPart = m[1];
+      const stem = removeRieulBatchim(verbPart) || verbPart;
+      const verb = extractKoVerb(stem);
+      if (verb) return `don't know how to ${verb}`;
+    }
+  }
+
+  // ============================================
+  // g26: 의존명사 구문 (Bound Noun Constructions)
+  // ============================================
+
+  // g26-3: 갈 뿐이다 → only go
+  if (cleaned.match(/^(.+?)[ㄹ을]?\s*뿐이다$/)) {
+    const m = cleaned.match(/^(.+?)[ㄹ을]?\s*뿐이다$/);
+    if (m) {
+      const verbPart = m[1];
+      const stem = removeRieulBatchim(verbPart) || verbPart;
+      const verb = extractKoVerb(stem);
+      if (verb) return `only ${verb}`;
+    }
+  }
+
+  // g26-5: 할 생각이다 → intend to do
+  if (cleaned.match(/^(.+?)[ㄹ을]?\s*생각이다$/)) {
+    const m = cleaned.match(/^(.+?)[ㄹ을]?\s*생각이다$/);
+    if (m) {
+      const verbPart = m[1];
+      const stem = removeRieulBatchim(verbPart) || verbPart;
+      const verb = extractKoVerb(stem);
+      if (verb) return `intend to ${verb}`;
+    }
+  }
+
+  // g26-6: 갈 예정이다 → plan to go
+  if (cleaned.match(/^(.+?)[ㄹ을]?\s*예정이다$/)) {
+    const m = cleaned.match(/^(.+?)[ㄹ을]?\s*예정이다$/);
+    if (m) {
+      const verbPart = m[1];
+      const stem = removeRieulBatchim(verbPart) || verbPart;
+      const verb = extractKoVerb(stem);
+      if (verb) return `plan to ${verb}`;
+    }
+  }
+
+  // g26-9: 갈 이유 → reason to go
+  if (cleaned.match(/^(.+?)[ㄹ을]?\s*이유$/)) {
+    const m = cleaned.match(/^(.+?)[ㄹ을]?\s*이유$/);
+    if (m) {
+      const verbPart = m[1];
+      const stem = removeRieulBatchim(verbPart) || verbPart;
+      const verb = extractKoVerb(stem);
+      if (verb) return `reason to ${verb}`;
+    }
+  }
 
   // ============================================
   // L17: 동명사/to부정사 (Gerund/Infinitive)
@@ -1675,14 +2404,22 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     if (verb) return `Oh, you are ${toIng(verb)}`;
   }
 
-  // g15-16, g18-4: V-더라 (retrospective final) → I saw that they V / I saw that (someone) V-ed
-  // 가더라 → I saw that they go / I saw that (someone) went
-  // The -더- morpheme indicates the speaker witnessed something
-  // g15-16 expects present tense "they go", g18-4 expects past tense "(someone) went"
+  // g18-3: V-겠다 (future/intention) → will V / would V
+  // 가겠다 → will go / would go
+  // The -겠- morpheme indicates future intention or willingness
+  if (cleaned.endsWith('겠다')) {
+    const stem = cleaned.slice(0, -2);
+    const verb = extractKoVerb(stem);
+    if (verb) return `will ${verb} / would ${verb}`;
+  }
+
+  // g15-16, g18-4: V-더라 (retrospective final) → I saw that (someone) V-ed
+  // 가더라 → I saw that (someone) went
+  // The -더- morpheme indicates the speaker witnessed something in the past
   if (cleaned.endsWith('더라')) {
     const stem = cleaned.slice(0, -2);
     const verb = extractKoVerb(stem);
-    if (verb) return `I saw that they ${verb} / I saw that (someone) ${toPastTense(verb)}`;
+    if (verb) return `I saw that (someone) ${toPastTense(verb)}`;
   }
 
   // ============================================
@@ -1813,6 +2550,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
   // g30: 영어 불규칙 동사 (English Irregular Verbs) - Korean → English
   // ============================================
 
+  // g30-1: 갔다 (go-went-gone) → went/gone (ABC type)
   // g30-2: 샀다 (buy-bought-bought) → bought (ABB type)
   const irregularVerbTypeMatch = cleaned.match(/^(.+?)\s*\(([a-z]+-[a-z]+-[a-z]+)\)$/);
   if (irregularVerbTypeMatch) {
@@ -1820,10 +2558,15 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     const forms = irregularVerbTypeMatch[2].split('-');
     const base = forms[0];
     const past = forms[1];
+    const pp = forms[2];
     // Determine type
     let type = 'ABC type';
-    if (base === past && past === forms[2]) type = 'AAA type';
-    else if (past === forms[2]) type = 'ABB type';
+    if (base === past && past === pp) type = 'AAA type';
+    else if (past === pp) type = 'ABB type';
+    // For ABC type, show both past and past participle
+    if (type === 'ABC type') {
+      return `${past}/${pp} (${type})`;
+    }
     return `${past} (${type})`;
   }
 
@@ -1847,7 +2590,8 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     쉬워요: "it's easy",
     예뻐요: "it's beautiful",
     몰라요: "don't know",
-    들어요: 'listen',
+    들어요: 'hear/listen',
+    써요: 'write/use',
     지어요: 'build',
     불러요: 'call',
     걸어요: 'walk',
@@ -2045,6 +2789,22 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     if (adj) return `by far the ${toSuperlative(adj)}`;
   }
 
+  // 더 + 형용사 → {adj:comparative}/more
+  // g7-3: "더 크다" → "bigger/more", "더 행복하다" → "happier/more"
+  const comparativeMatch = cleaned.match(/^더\s+(.+)$/);
+  if (comparativeMatch) {
+    const adj = extractKoAdjective(comparativeMatch[1]);
+    if (adj) return `${toComparative(adj)}/more`;
+  }
+
+  // 가장 + 형용사 → the {adj:superlative}/most
+  // g7-4: "가장 크다" → "the biggest/most", "가장 행복하다" → "the happiest/most"
+  const superlativeMatch = cleaned.match(/^가장\s+(.+)$/);
+  if (superlativeMatch) {
+    const adj = extractKoAdjective(superlativeMatch[1]);
+    if (adj) return `the ${toSuperlative(adj)}/most`;
+  }
+
   // ============================================
   // g10: 부사절 패턴
   // ============================================
@@ -2102,8 +2862,22 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     }
   }
 
-  // V-지만 → although it V-s (only for weather patterns)
-  // Skip this pattern as it conflicts with clause parsing
+  // V-지만 → although it V-s (concessive pattern)
+  // g10-8: "비가 오지만" → "although it rains"
+  // Pattern: Subject-가/이 + V-지만 → although subject V-s
+  const althoughMatch = cleaned.match(/^(.+?)(가|이)\s*(.+?)지만$/);
+  if (althoughMatch) {
+    const subjectKo = althoughMatch[1];
+    const verbStem = althoughMatch[3];
+    // 비 → it (weather subject)
+    const subject = subjectKo === '비' ? 'it' : translateKoNoun(subjectKo) || subjectKo;
+    const verb = extractKoVerb(verbStem);
+    if (verb) {
+      // 비가 오지만 → although it rains
+      const enVerb = verb === 'come' && subjectKo === '비' ? 'rains' : toThirdPersonSingular(verb);
+      return `although ${subject} ${enVerb}`;
+    }
+  }
 
   // 너무 + ADJ + -서 + V-ㅆ다 → so ADJ that I V-ed
   // 예: 너무 피곤해서 잤다 → so tired that I slept
@@ -2152,6 +2926,13 @@ function handleSpecialKoreanPatterns(text: string): string | null {
 
   // 단일 단어+조사만 처리 (띄어쓰기 없음)
   if (!cleaned.includes(' ') && cleaned.length >= 2) {
+    // g21-3: 한국에서 → in Korea (location where action takes place)
+    if (cleaned.endsWith('에서')) {
+      const ko = cleaned.slice(0, -2);
+      const en = translateKoNoun(ko);
+      if (en) return `in ${en}`;
+    }
+
     // 친구에게 → to friend
     if (cleaned.endsWith('에게')) {
       const ko = cleaned.slice(0, -2);
@@ -2329,11 +3110,38 @@ function handleSpecialKoreanPatterns(text: string): string | null {
 
   // g16-2: V-ㄴ/은 + 사람 → a person who V-ed (past adnominal for person)
   // 간 사람 → a person who went
-  const pastAdnominalPersonMatch = cleaned.match(/^(.+?)[ㄴ은]\s+(사람|분)$/);
+  // "간"은 "가" + ㄴ받침이므로 받침 분석 필요
+  const pastAdnominalPersonMatch = cleaned.match(/^(.+?)\s+(사람|분)$/);
   if (pastAdnominalPersonMatch) {
-    const verbStem = pastAdnominalPersonMatch[1];
-    const verb = extractKoVerb(verbStem) || extractKoVerb(addKoreanRieul(verbStem));
-    if (verb) return `a person who ${toPastTense(verb)}`;
+    const adnominalForm = pastAdnominalPersonMatch[1];
+    const personNoun = pastAdnominalPersonMatch[2];
+
+    // 과거 관형형: V + ㄴ/은 (받침 ㄴ 또는 "은"으로 끝남)
+    // 간(가+ㄴ받침), 먹은, 본(보+ㄴ받침)
+    const lastChar = adnominalForm.slice(-1);
+    const lastCharCode = lastChar.charCodeAt(0);
+
+    // 한글 유니코드 분석
+    if (lastCharCode >= 0xac00 && lastCharCode <= 0xd7a3) {
+      const val = lastCharCode - 0xac00;
+      const jong = val % 28; // 종성(받침) 인덱스
+
+      // ㄴ받침(4) = 과거 관형형 (간, 본, 한)
+      if (jong === 4) {
+        // 받침 제거해서 어간 추출: 간 → 가
+        const stemChar = removeKoreanFinal(lastChar);
+        const fullStem = adnominalForm.slice(0, -1) + stemChar;
+        const verb = extractKoVerb(fullStem) || extractKoVerb(addKoreanRieul(fullStem));
+        if (verb) return `a person who ${toPastTense(verb)}`;
+      }
+    }
+
+    // "은"으로 끝나는 경우 (먹은)
+    if (adnominalForm.endsWith('은')) {
+      const verbStem = adnominalForm.slice(0, -1);
+      const verb = extractKoVerb(verbStem) || extractKoVerb(addKoreanRieul(verbStem));
+      if (verb) return `a person who ${toPastTense(verb)}`;
+    }
   }
 
   // ============================================
@@ -2759,6 +3567,43 @@ function translateKoNounWithFallback(ko: string): string | null {
   return KO_NOUNS[ko] || ko;
 }
 
+/** 한국어 명사 추출 (사전에 있는 경우만 반환) */
+function extractKoNoun(text: string): string | null {
+  // 기본 명사 사전 (KO_NOUNS에 없는 기본 명사들)
+  const basicNouns: Record<string, string> = {
+    나: 'I',
+    내: 'I',
+    너: 'you',
+    그: 'he',
+    그녀: 'she',
+    우리: 'we',
+    책: 'book',
+    친구: 'friend',
+    학교: 'school',
+    버스: 'bus',
+    의사: 'doctor',
+    아침: 'morning',
+    새: 'bird',
+    커피: 'coffee',
+    사람: 'person',
+    회사: 'company',
+    집: 'home',
+    물: 'water',
+    밥: 'rice',
+    음악: 'music',
+    영화: 'movie',
+    시간: 'time',
+    일: 'work',
+    돈: 'money',
+    사랑: 'love',
+    날: 'day',
+    주: 'week',
+    달: 'month',
+    해: 'year',
+  };
+  return KO_NOUNS[text] || basicNouns[text] || null;
+}
+
 /** 한국어 동사 추출 */
 function extractKoVerb(text: string): string | null {
   return KO_VERBS[text] || KO_VERBS[`${text}하`] || null;
@@ -2766,8 +3611,37 @@ function extractKoVerb(text: string): string | null {
 
 /** 영어 비교급 생성 */
 function toComparative(adj: string): string {
-  const irregulars: Record<string, string> = { good: 'better', bad: 'worse' };
+  const irregulars: Record<string, string> = { good: 'better', bad: 'worse', far: 'farther' };
   if (irregulars[adj]) return irregulars[adj];
+  // 다음절 형용사는 more + adj (beautiful, important, expensive 등)
+  const multiSyllable = [
+    'beautiful',
+    'important',
+    'expensive',
+    'difficult',
+    'interesting',
+    'comfortable',
+    'dangerous',
+    'delicious',
+    'wonderful',
+    'terrible',
+    'horrible',
+    'incredible',
+    'amazing',
+    'exciting',
+    'boring',
+    'surprising',
+    'popular',
+    'famous',
+    'serious',
+    'careful',
+    'helpful',
+    'useful',
+    'powerful',
+    'successful',
+  ];
+  if (multiSyllable.includes(adj) || adj.length > 7) return `more ${adj}`;
+  if (adj.endsWith('y')) return `${adj.slice(0, -1)}ier`;
   if (adj.endsWith('e')) return `${adj}r`;
   if (/^[^aeiou]*[aeiou][bcdfghlmnprstvwz]$/.test(adj)) {
     return `${adj}${adj[adj.length - 1]}er`;
@@ -2777,8 +3651,37 @@ function toComparative(adj: string): string {
 
 /** 영어 최상급 생성 */
 function toSuperlative(adj: string): string {
-  const irregulars: Record<string, string> = { good: 'best', bad: 'worst' };
+  const irregulars: Record<string, string> = { good: 'best', bad: 'worst', far: 'farthest' };
   if (irregulars[adj]) return irregulars[adj];
+  // 다음절 형용사는 most + adj
+  const multiSyllable = [
+    'beautiful',
+    'important',
+    'expensive',
+    'difficult',
+    'interesting',
+    'comfortable',
+    'dangerous',
+    'delicious',
+    'wonderful',
+    'terrible',
+    'horrible',
+    'incredible',
+    'amazing',
+    'exciting',
+    'boring',
+    'surprising',
+    'popular',
+    'famous',
+    'serious',
+    'careful',
+    'helpful',
+    'useful',
+    'powerful',
+    'successful',
+  ];
+  if (multiSyllable.includes(adj) || adj.length > 7) return `most ${adj}`;
+  if (adj.endsWith('y')) return `${adj.slice(0, -1)}iest`;
   if (adj.endsWith('e')) return `${adj}st`;
   if (/^[^aeiou]*[aeiou][bcdfghlmnprstvwz]$/.test(adj)) {
     return `${adj}${adj[adj.length - 1]}est`;

@@ -34,7 +34,8 @@
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  *
  * 번역기 벤치마크 테스트 데이터
- * 14개 테스트 카테고리로 분리 관리
+ * 단일 소스: benchmarkTestGroups (14개 그룹, 1,105개 테스트)
+ * UI와 vitest 완전 동기화
  */
 
 // ========================================
@@ -59,220 +60,17 @@ import { wordOrderTests } from './benchmark-tests/word-order-tests';
 import type { TestCase, TestCategory, TestLevel } from './types';
 
 // ========================================
-// 타입 및 테스트 데이터 re-export
+// 타입 re-export
 // ========================================
 
 export type { TestCase, TestCategory, TestLevel };
 
-export {
-  grammarRulesTests,
-  levelTests,
-  categoryTests,
-  contextTests,
-  typoTests,
-  uniqueTests,
-  polysemyTests,
-  wordOrderTests,
-  spacingErrorTests,
-  finalTests,
-  professionalTranslatorTests,
-  localizationTests,
-  antiHardcodingTests,
-  figurativeTests,
-};
-
 // ========================================
-// 통합 테스트 (Integration Tests)
+// 단일 소스: benchmarkTestGroups
+// UI, vitest, getAllTests 모두 이것만 사용
 // ========================================
 
-export const integrationTests: TestLevel[] = [...levelTests, ...finalTests];
-export const extendedLocalizationTests: TestLevel[] = [...localizationTests, ...uniqueTests];
-export const extendedTypoTests: TestLevel[] = [...typoTests, ...spacingErrorTests];
-
-// ========================================
-// 헬퍼 함수
-// ========================================
-
-/**
- * 모든 벤치마크 테스트를 반환합니다.
- *
- * 새 카테고리 구조 (9개):
- * 1. grammarRulesTests (424개) - 30개 문법 규칙
- * 2. contextTests (26개) - 문맥 기반
- * 3. extendedTypoTests (56개) - typoTests + spacingErrorTests
- * 4. polysemyTests (63개) - 다의어
- * 5. professionalTranslatorTests (18개) - 전문 번역가 수준
- * 6. extendedLocalizationTests (85개) - localizationTests + uniqueTests
- * 7. integrationTests (58개) - levelTests + finalTests
- * 8. antiHardcodingTests (278개) - 22개 레벨 알고리즘 테스트
- * 9. figurativeTests (118개) - 비유 표현 테스트 (직유, 은유, 의인법 등 9개 유형)
- */
-export function getAllTests(): TestCase[] {
-  const tests: TestCase[] = [];
-
-  // 1. 문법 규칙 테스트 (424개)
-  for (const level of grammarRulesTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  // 2. 문맥 테스트 (26개)
-  for (const level of contextTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  // 3. 오타 테스트 (56개) - typoTests + spacingErrorTests
-  for (const level of extendedTypoTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  // 4. 다의어 테스트 (63개)
-  for (const level of polysemyTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  // 5. 전문 번역가 수준 테스트 (18개)
-  for (const level of professionalTranslatorTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  // 6. 의역 테스트 (85개) - localizationTests + uniqueTests
-  for (const level of extendedLocalizationTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  // 7. 통합 테스트 (58개) - levelTests + finalTests
-  for (const level of integrationTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  // 8. 안티하드코딩 테스트 (278개) - 22개 레벨
-  for (const level of antiHardcodingTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  // 9. 비유 표현 테스트 (118개) - 직유, 은유, 의인법, 과장법, 관용적 비유, 역설, 환유, 제유, 문화 특수 비유
-  for (const level of figurativeTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  return tests;
-}
-
-/**
- * 레거시 getAllTests - 기존 모든 카테고리 포함
- * @deprecated 새 구조로 마이그레이션 권장
- */
-export function getAllTestsLegacy(): TestCase[] {
-  const tests: TestCase[] = [];
-
-  for (const level of levelTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of categoryTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of contextTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of typoTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of uniqueTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of polysemyTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of wordOrderTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of spacingErrorTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of finalTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of professionalTranslatorTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of localizationTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  for (const level of antiHardcodingTests) {
-    for (const category of level.categories) {
-      tests.push(...category.tests);
-    }
-  }
-
-  return tests;
-}
-
-export function countTests(levels: TestLevel[]): number {
-  let count = 0;
-  for (const level of levels) {
-    for (const category of level.categories) {
-      count += category.tests.length;
-    }
-  }
-  return count;
-}
-
-// ========================================
-// 벤치마크 테스트 그룹 (UI용 - 자동 동기화)
-// ========================================
-
-/** 벤치마크 UI에서 사용하는 테스트 그룹 배열 (새 테스트 추가 시 여기만 수정) */
+/** 벤치마크 테스트 그룹 (14개 그룹, 1,105개 테스트) */
 export const benchmarkTestGroups: { name: string; data: TestLevel[] }[] = [
   { name: 'Grammar Rules', data: grammarRulesTests },
   { name: 'Level Tests', data: levelTests },
@@ -291,28 +89,40 @@ export const benchmarkTestGroups: { name: string; data: TestLevel[] }[] = [
 ];
 
 // ========================================
-// 벤치마크 카테고리 (14개 개별 + 3개 통합 = 17개)
+// 헬퍼 함수
 // ========================================
 
-export const allBenchmarkCategories = {
-  // 개별 카테고리 (14개)
-  grammarRulesTests, // 1. 문법 규칙 (424개)
-  levelTests, // 2. 레벨 테스트
-  categoryTests, // 3. 카테고리 테스트
-  contextTests, // 4. 문맥 기반 (26개)
-  typoTests, // 5. 오타 처리
-  uniqueTests, // 6. 고유 표현
-  polysemyTests, // 7. 다의어 (63개)
-  wordOrderTests, // 8. 어순 변환
-  spacingErrorTests, // 9. 띄어쓰기 오류
-  finalTests, // 10. 종합 테스트
-  professionalTranslatorTests, // 11. 전문 번역 (18개)
-  localizationTests, // 12. 현지화
-  antiHardcodingTests, // 13. 안티하드코딩 (278개)
-  figurativeTests, // 14. 비유 표현 (118개)
+/** TestLevel[] 배열의 테스트 개수를 계산합니다 */
+export function countTests(levels: TestLevel[]): number {
+  let count = 0;
+  for (const level of levels) {
+    for (const category of level.categories) {
+      count += category.tests.length;
+    }
+  }
+  return count;
+}
 
-  // 통합 카테고리 (3개)
-  integrationTests, // levelTests + finalTests
-  extendedLocalizationTests, // localizationTests + uniqueTests
-  extendedTypoTests, // typoTests + spacingErrorTests
-};
+/** 모든 벤치마크 테스트를 반환합니다 (benchmarkTestGroups 기반) */
+export function getAllTests(): TestCase[] {
+  const tests: TestCase[] = [];
+
+  for (const group of benchmarkTestGroups) {
+    for (const level of group.data) {
+      for (const category of level.categories) {
+        tests.push(...category.tests);
+      }
+    }
+  }
+
+  return tests;
+}
+
+/** 총 테스트 개수를 반환합니다 */
+export function getTotalTestCount(): number {
+  let total = 0;
+  for (const group of benchmarkTestGroups) {
+    total += countTests(group.data);
+  }
+  return total;
+}

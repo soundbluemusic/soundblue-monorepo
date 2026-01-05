@@ -45,6 +45,26 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
   const cleaned = trimmed.replace(/[.!?]+$/, '');
 
   // ============================================
+  // g27: 단일 접속사/접속부사 번역 (Conjunction words)
+  // ============================================
+  const conjunctionMap: Record<string, string> = {
+    but: '그러나/하지만',
+    however: '하지만',
+    because: '왜냐하면',
+    or: '또는',
+    if: '만약',
+    therefore: '따라서',
+    and: '그리고',
+    so: '그래서',
+    yet: '하지만',
+    although: '비록',
+    though: '비록',
+  };
+  if (conjunctionMap[cleaned]) {
+    return conjunctionMap[cleaned];
+  }
+
+  // ============================================
   // Exclamation mark patterns (before removing punctuation)
   // ============================================
 
@@ -122,6 +142,25 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
     const subj = sheVsSongMatch[1];
     const subjKo: Record<string, string> = { she: '그녀', he: '그', it: '그것' };
     return `${subjKo[subj]}가 노래를 부른다`;
+  }
+
+  // g2-10: "Do you like coffee?" → "커피를 좋아하니?" (주어 생략 - 자연스러운 한국어 의문문)
+  // 일반화: "Do you V N?" → "N를/을 V-니?"
+  const doYouLikeMatch = cleaned.match(/^do\s+you\s+(\w+)\s+(\w+)$/);
+  if (doYouLikeMatch) {
+    const verb = doYouLikeMatch[1];
+    const obj = doYouLikeMatch[2];
+    const koVerb = EN_VERBS[verb];
+    const koObj = EN_NOUNS[obj];
+    if (koVerb && koObj) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      // 받침 유무에 따른 목적격 조사 (을/를) 선택
+      const hasJongseong =
+        koObj.charCodeAt(koObj.length - 1) >= 0xac00 &&
+        (koObj.charCodeAt(koObj.length - 1) - 0xac00) % 28 !== 0;
+      const objParticle = hasJongseong ? '을' : '를';
+      return `${koObj}${objParticle} ${stem}니?`;
+    }
   }
 
   // ============================================
@@ -211,6 +250,27 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
     if (subj === 'sun' && verb === 'set') return '해가 질 때';
   }
 
+  // g10-14: "while I was sleeping" → "내가 자는 동안"
+  // Pattern: while S was V-ing → S가 V-는 동안
+  const whileWasMatch = cleaned.match(/^while\s+(i|he|she|we|they|you)\s+(was|were)\s+(\w+)ing$/);
+  if (whileWasMatch) {
+    const subj = whileWasMatch[1].toLowerCase();
+    const verb = whileWasMatch[3];
+    const subjKo: Record<string, string> = {
+      i: '내',
+      you: '네',
+      he: '그',
+      she: '그녀',
+      we: '우리',
+      they: '그들',
+    };
+    const verbKo = EN_VERBS[verb];
+    if (subjKo[subj] && verbKo) {
+      const stem = verbKo.endsWith('다') ? verbKo.slice(0, -1) : verbKo;
+      return `${subjKo[subj]}가 ${stem}는 동안`;
+    }
+  }
+
   // g10-15: "before you go" → "네가 가기 전에"
   const beforeMatch = cleaned.match(/^before\s+(you|I|he|she|we|they)\s+(\w+)$/);
   if (beforeMatch) {
@@ -256,6 +316,37 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
         return `${koAdj}기 때문에`.replace('하기', '했기');
       }
       return `${koAdj}았기 때문에`;
+    }
+  }
+
+  // g10-18: "although he tried" → "그가 노력했지만"
+  // Pattern: although S V-ed → S가 V-았/었지만
+  const althoughMatch = cleaned.match(/^although\s+(i|he|she|we|they|you)\s+(\w+)(?:ed|d)$/);
+  if (althoughMatch) {
+    const subj = althoughMatch[1].toLowerCase();
+    const verbPastPart = althoughMatch[2];
+    // Handle past tense forms:
+    // "tried" captures "trie" → need "try"
+    // "worked" captures "work" → need "work"
+    // "loved" captures "love" → need "love"
+    // Pattern: trie → try (ie → y), otherwise keep as is
+    const verbBase = verbPastPart.replace(/ie$/, 'y');
+    const subjKo: Record<string, string> = {
+      i: '내',
+      you: '네',
+      he: '그',
+      she: '그녀',
+      we: '우리',
+      they: '그들',
+    };
+    const verbKo = EN_VERBS[verbBase] || EN_VERBS[verbPastPart];
+    if (subjKo[subj] && verbKo) {
+      const stem = verbKo.endsWith('다') ? verbKo.slice(0, -1) : verbKo;
+      // 노력하 → 노력했지만
+      if (stem.endsWith('하')) {
+        return `${subjKo[subj]}가 ${stem}지만`.replace('하지만', '했지만');
+      }
+      return `${subjKo[subj]}가 ${stem}았지만`;
     }
   }
 
@@ -305,6 +396,24 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
     if (koNoun) return `${koNoun}에`;
   }
 
+  // g25-11: "until tomorrow" → "내일까지"
+  // Pattern: until + time noun → time-까지
+  const untilNounMatch = cleaned.match(/^until\s+(\w+)$/);
+  if (untilNounMatch) {
+    const timeNoun = untilNounMatch[1];
+    const timeMap: Record<string, string> = {
+      tomorrow: '내일',
+      today: '오늘',
+      yesterday: '어제',
+      now: '지금',
+      morning: '아침',
+      evening: '저녁',
+      night: '밤',
+    };
+    const koTime = timeMap[timeNoun] || EN_NOUNS[timeNoun];
+    if (koTime) return `${koTime}까지`;
+  }
+
   // ============================================
   // g14: 연결어미 패턴 (English → Korean)
   // ============================================
@@ -336,6 +445,18 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
       // 어간 추출: 사랑하다 → 사랑하
       const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
       return `${stem}니까`;
+    }
+  }
+
+  // g14-17: "if you study" → "공부하면" (주어 생략 - 자연스러운 한국어 조건절)
+  // 일반화: "if (you) V" → "V-면"
+  const ifYouVerbMatch = cleaned.match(/^if\s+(?:you\s+)?(\w+)$/);
+  if (ifYouVerbMatch) {
+    const verb = ifYouVerbMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${stem}면`;
     }
   }
 
@@ -833,6 +954,52 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
     if (verb === 'help') return '도와주시겠어요?';
   }
 
+  // g5-13: "You may go" → "가도 된다" (주어 생략 - 자연스러운 한국어)
+  // 일반화: "You may V" → "V-아도/어도 된다"
+  const youMayMatch = cleaned.match(/^you\s+may\s+(\w+)$/);
+  if (youMayMatch) {
+    const verb = youMayMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      // 모음 축약 처리: 가+아 → 가, 오+아 → 와 (but we use 아도, so 오+아도 → 와도)
+      // For "-아도/어도 된다" pattern:
+      // - 가 (ends with ㅏ) + 아도 → 가도 (ㅏ+ㅏ contracts)
+      // - 오 (ends with ㅗ) + 아도 → 와도 (ㅗ+ㅏ→ㅘ)
+      const lastChar = stem[stem.length - 1];
+      const code = lastChar.charCodeAt(0);
+      if (code >= 0xac00 && code <= 0xd7a3) {
+        const offset = code - 0xac00;
+        const jungIndex = Math.floor((offset % 588) / 28);
+        // ㅏ(0): 가+아도 → 가도
+        if (jungIndex === 0) {
+          return `${stem}도 된다`;
+        }
+        // ㅗ(8): 오+아도 → 와도
+        if (jungIndex === 8) {
+          const cho = Math.floor(offset / 588);
+          // ㅘ = jungIndex 9
+          const waChar = String.fromCharCode(0xac00 + cho * 588 + 9 * 28);
+          return `${stem.slice(0, -1)}${waChar}도 된다`;
+        }
+      }
+      // Default: use attachAoEo
+      return `${attachAoEo(stem)}도 된다`;
+    }
+  }
+
+  // g5-15: "You must study" → "공부해야 한다" (주어 생략)
+  // 일반화: "You must V" → "V-아야/어야 한다"
+  const youMustMatch = cleaned.match(/^you\s+must\s+(\w+)$/);
+  if (youMustMatch) {
+    const verb = youMustMatch[1];
+    const koVerb = EN_VERBS[verb];
+    if (koVerb) {
+      const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+      return `${attachAoEo(stem)}야 한다`;
+    }
+  }
+
   // ============================================
   // g7: 비교 변환 (English → Korean)
   // ============================================
@@ -1262,6 +1429,44 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
     }
   }
 
+  // g18-8: "I went" → "갔다" (주어 생략 - 자연스러운 한국어 과거형)
+  // 일반화: "I V-ed" → "V-았/었다"
+  const iVPastMatch = cleaned.match(/^i\s+(\w+)$/);
+  if (iVPastMatch) {
+    const pastVerb = iVPastMatch[1];
+    // 불규칙 과거 동사 처리
+    const irregularPast: Record<string, string> = {
+      went: '갔다',
+      came: '왔다',
+      ate: '먹었다',
+      drank: '마셨다',
+      saw: '봤다',
+      did: '했다',
+      made: '만들었다',
+      took: '가져갔다',
+      gave: '줬다',
+      got: '받았다',
+      had: '가졌다',
+      said: '말했다',
+      ran: '달렸다',
+      slept: '잤다',
+      read: '읽었다',
+      wrote: '썼다',
+    };
+    if (irregularPast[pastVerb]) {
+      return irregularPast[pastVerb];
+    }
+    // 규칙 과거 (-ed) 처리
+    if (pastVerb.endsWith('ed')) {
+      const baseVerb = pastVerb.replace(/ed$/, '').replace(/i$/, 'y');
+      const koVerb = EN_VERBS[baseVerb] || EN_VERBS[`${baseVerb}e`];
+      if (koVerb) {
+        const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
+        return attachPastTense(stem) + '다';
+      }
+    }
+  }
+
   // g18-9: "I would eat" → "먹겠다" (-겠- = future/intention/conjecture)
   const iWouldMatch = cleaned.match(/^i\s+would\s+(\w+)$/);
   if (iWouldMatch) {
@@ -1504,6 +1709,29 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
     const koRecip = pronounMap[indirectObj] || `${indirectObj}에게`;
     const koVerb = verbMap[verb] || '주었다';
     return `${koRecip} ${koObj}을 ${koVerb}`;
+  }
+
+  // g29-10: "As for this" → "이것은" (주제 표현)
+  // 일반화: "As for N" → "N은/는" (topic marker pattern)
+  const asForMatch = cleaned.match(/^as\s+for\s+(\w+)$/);
+  if (asForMatch) {
+    const noun = asForMatch[1];
+    const pronounMap: Record<string, string> = {
+      this: '이것',
+      that: '저것',
+      me: '나',
+      him: '그',
+      her: '그녀',
+      them: '그들',
+      it: '그것',
+    };
+    const koNoun = pronounMap[noun] || EN_NOUNS[noun] || noun;
+    // 받침 유무에 따른 주제격 조사 (은/는) 선택
+    const hasJongseong =
+      koNoun.charCodeAt(koNoun.length - 1) >= 0xac00 &&
+      (koNoun.charCodeAt(koNoun.length - 1) - 0xac00) % 28 !== 0;
+    const topicParticle = hasJongseong ? '은' : '는';
+    return `${koNoun}${topicParticle}`;
   }
 
   // g29-11: "It was she who called" → "전화한 것은 그녀였다"

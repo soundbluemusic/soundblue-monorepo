@@ -1,22 +1,9 @@
 /**
  * 벤치마크 실행 스크립트
- * 12개 테스트 카테고리의 성공률을 측정합니다.
+ * 14개 테스트 카테고리의 성공률을 측정합니다.
  */
 
-import {
-  antiHardcodingTests,
-  categoryTests,
-  contextTests,
-  finalTests,
-  levelTests,
-  localizationTests,
-  polysemyTests,
-  professionalTranslatorTests,
-  spacingErrorTests,
-  typoTests,
-  uniqueTests,
-  wordOrderTests,
-} from './benchmark-data';
+import { benchmarkTestGroups, countTests } from './benchmark-data';
 import { translate } from './translator-service';
 import type { TestLevel } from './types';
 
@@ -60,16 +47,6 @@ function runTestLevel(tests: TestLevel[]): { passed: number; failed: number; det
   return { passed, failed, details };
 }
 
-function countTests(tests: TestLevel[]): number {
-  let count = 0;
-  for (const level of tests) {
-    for (const category of level.categories) {
-      count += category.tests.length;
-    }
-  }
-  return count;
-}
-
 // 실행
 console.log('═══════════════════════════════════════════════════════════════');
 console.log('            번역기 벤치마크 테스트 실행 결과');
@@ -77,25 +54,10 @@ console.log('══════════════════════�
 
 const results: CategoryResult[] = [];
 
-const testSets = [
-  { name: '1. levelTests (레벨별 테스트)', data: levelTests },
-  { name: '2. categoryTests (카테고리별 테스트)', data: categoryTests },
-  { name: '3. contextTests (문맥 기반 테스트)', data: contextTests },
-  { name: '4. typoTests (오타 처리 테스트)', data: typoTests },
-  { name: '5. uniqueTests (고유 표현 테스트)', data: uniqueTests },
-  { name: '6. polysemyTests (다의어 처리 테스트)', data: polysemyTests },
-  { name: '7. wordOrderTests (어순 변환 테스트)', data: wordOrderTests },
-  { name: '8. spacingErrorTests (띄어쓰기 오류 테스트)', data: spacingErrorTests },
-  { name: '9. finalTests (종합 테스트)', data: finalTests },
-  { name: '10. professionalTranslatorTests (전문 번역 테스트)', data: professionalTranslatorTests },
-  { name: '11. localizationTests (현지화 테스트)', data: localizationTests },
-  { name: '12. antiHardcodingTests (하드코딩 방지 테스트)', data: antiHardcodingTests },
-];
-
 let totalPassed = 0;
 let totalFailed = 0;
 
-for (const testSet of testSets) {
+for (const testSet of benchmarkTestGroups) {
   const count = countTests(testSet.data);
   const result = runTestLevel(testSet.data);
 
