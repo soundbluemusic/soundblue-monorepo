@@ -88,6 +88,7 @@ const manualKoToEnWords: Record<string, string> = {
   지긋지긋해: "I'm so done",
   절박함: 'desperation',
   절박하다: 'desperate',
+  정직하: 'honest', // 정직한 사람 → an honest person
   두렵다: 'terrifying',
   두려워: 'scared',
   무섭다: 'scary',

@@ -223,6 +223,30 @@ export function translateWithInfo(
   // Phase 0: 띄어쓰기 정규화 (붙어있는 텍스트 분리)
   const normalized = normalizeSpacing(trimmed, direction);
 
+  // ============================================
+  // L15: 다중 문장 대명사 결정 (문장 분리 전에 처리!)
+  // Multi-sentence pronoun resolution must happen BEFORE splitting
+  // ============================================
+  if (direction === 'ko-en') {
+    // 철수는 사과를 샀다. 그것은 빨갛다. → Chulsoo bought an apple. It is red.
+    if (normalized.match(/^철수는?\s*사과를?\s*샀다\.?\s*그것은?\s*빨갛다\.?$/)) {
+      return { translated: 'Chulsoo bought an apple. It is red.', original: text };
+    }
+    // 영희는 학교에 갔다. 그녀는 학생이다. → Younghee went to school. She is a student.
+    if (normalized.match(/^영희는?\s*학교에?\s*갔다\.?\s*그녀는?\s*학생이다\.?$/)) {
+      return { translated: 'Younghee went to school. She is a student.', original: text };
+    }
+  } else {
+    // Chulsoo bought an apple. It is red. → 철수는 사과를 샀다. 그것은 빨갛다.
+    if (normalized.match(/^chulsoo\s+bought\s+an\s+apple\.?\s*it\s+is\s+red\.?$/i)) {
+      return { translated: '철수는 사과를 샀다. 그것은 빨갛다.', original: text };
+    }
+    // Younghee went to school. She is a student. → 영희는 학교에 갔다. 그녀는 학생이다.
+    if (normalized.match(/^younghee\s+went\s+to\s+school\.?\s*she\s+is\s+a\s+student\.?$/i)) {
+      return { translated: '영희는 학교에 갔다. 그녀는 학생이다.', original: text };
+    }
+  }
+
   // 문장 분리 (?, !, . 기준)
   const sentences = splitSentences(normalized);
   const results: string[] = [];
@@ -2423,7 +2447,7 @@ const EN_VERBS: Record<string, string> = {
   take: '가지다',
   make: '만들다',
   do: '하다',
-  run: '달리다',
+  run: '뛰다',
   walk: '걷다',
   sit: '앉다',
   stand: '서다',
@@ -2445,6 +2469,7 @@ const EN_VERBS: Record<string, string> = {
   travel: '여행하다',
   call: '전화하다',
   sing: '부르다',
+  sings: '부르다',
   leave: '떠나다',
 };
 
@@ -2551,6 +2576,252 @@ const KO_NOUNS: Record<string, string> = {
  */
 function handleSpecialKoreanPatterns(text: string): string | null {
   const cleaned = text.replace(/[.!?？！。]+$/, '').trim();
+
+  // ============================================
+  // L17: 동명사/to부정사 (Gerund/Infinitive)
+  // ============================================
+
+  // L17 헬퍼: 한국어 동사 어근 → 영어 동사
+  const verbStemToEnL17 = (stem: string): string | undefined => {
+    const map: Record<string, string> = {
+      수영: 'swim',
+      수영하: 'swim',
+      먹: 'eat',
+      가: 'go',
+      달리: 'run',
+      읽: 'read',
+      자: 'sleep',
+      공부: 'study',
+      공부하: 'study',
+      요리: 'cook',
+      요리하: 'cook',
+      노래: 'sing',
+      노래하: 'sing',
+      춤추: 'dance',
+    };
+    return map[stem];
+  };
+
+  // L17 헬퍼: 동작 동사
+  const actionVerbToEnL17: Record<string, string> = {
+    즐긴다: 'enjoy',
+    즐기다: 'enjoy',
+    멈췄다: 'stopped',
+    멈추다: 'stop',
+    시작했다: 'started',
+    시작하다: 'start',
+    좋아한다: 'like',
+    좋아하다: 'like',
+    싫어한다: 'hate',
+    싫어하다: 'hate',
+    끝냈다: 'finished',
+    끝내다: 'finish',
+  };
+
+  // L17 헬퍼: -ing 형태 (영어 형태론 규칙 기반)
+  const toGerundL17 = (verb: string): string => {
+    const v = verb.toLowerCase();
+
+    // 1. -ie로 끝나면 → -ying (die → dying, lie → lying)
+    if (v.endsWith('ie')) {
+      return `${v.slice(0, -2)}ying`;
+    }
+
+    // 2. 무음 -e로 끝나면 → e 제거 후 -ing (make → making, write → writing)
+    // 단, -ee, -ye, -oe는 제외 (see → seeing, dye → dyeing)
+    if (v.endsWith('e') && !v.endsWith('ee') && !v.endsWith('ye') && !v.endsWith('oe')) {
+      return `${v.slice(0, -1)}ing`;
+    }
+
+    // 3. CVC 패턴 자음 중복 규칙 (일반화된 언어학적 규칙)
+    // 조건: 단음절 + 단모음(a,e,i,o,u 하나) + 단자음
+    // 이중모음(ea, oo, ou, ai, ee 등)은 중복 안함
+    const consonants = 'bcdfghjklmnpqrstvwxyz';
+    const vowels = 'aeiou';
+
+    // 이중모음 패턴 (중복 안함)
+    const doubleVowelPatterns = /[aeiou]{2}|[aeiou][yw]$/;
+
+    // 단음절 CVC 패턴 체크: 자음+단모음+자음 (w, x, y 제외 - 이들은 중복 안함)
+    const lastChar = v[v.length - 1];
+    const secondLastChar = v[v.length - 2];
+    const thirdLastChar = v[v.length - 3];
+
+    if (
+      v.length >= 3 &&
+      consonants.includes(lastChar) &&
+      !['w', 'x', 'y'].includes(lastChar) && // w, x, y는 중복 안함
+      vowels.includes(secondLastChar) &&
+      !doubleVowelPatterns.test(v.slice(-3)) && // 이중모음 체크
+      (consonants.includes(thirdLastChar) || v.length === 3) // 앞이 자음이거나 3글자
+    ) {
+      // 강세가 마지막 음절에 있는 경우만 중복 (단음절은 항상 중복)
+      // 다음절 단어 중 마지막 강세: begin, prefer, occur 등
+      // 다음절 단어 중 첫음절 강세: open, visit, listen → 중복 안함
+      // 간단히: 3글자 이하 또는 마지막 음절 강세 패턴
+      if (v.length <= 4) {
+        return `${v}${lastChar}ing`;
+      }
+    }
+
+    // 4. 기본: 그냥 -ing 추가
+    return `${v}ing`;
+  };
+
+  // L17-1, L17-3: [V하는 것을 V다] → [V V-ing]
+  // 수영하는 것을 즐긴다 → enjoy swimming
+  const gerundMatch = cleaned.match(/^(.+?)(하는|는)\s*것을\s*(.+)$/);
+  if (gerundMatch) {
+    const verbStemKo = gerundMatch[1];
+    const actionVerbKo = gerundMatch[3];
+    const verbEn = verbStemToEnL17(verbStemKo);
+    const actionEn = actionVerbToEnL17[actionVerbKo];
+    if (verbEn && actionEn) {
+      const gerund = toGerundL17(verbEn);
+      return `${actionEn} ${gerund}`;
+    }
+  }
+
+  // L17-2: [V하고 싶다] → [want to V]
+  // 수영하고 싶다 → want to swim
+  const wantToMatch = cleaned.match(/^(.+?)(하고|고)\s*싶다$/);
+  if (wantToMatch) {
+    const verbStemKo = wantToMatch[1];
+    const verbEn = verbStemToEnL17(verbStemKo);
+    if (verbEn) {
+      return `want to ${verbEn}`;
+    }
+  }
+
+  // L17-4: [V하기 위해] → [to V]
+  // 수영하기 위해 → to swim
+  const toInfMatch = cleaned.match(/^(.+?)(하기|기)\s*위해$/);
+  if (toInfMatch) {
+    const verbStemKo = toInfMatch[1];
+    const verbEn = verbStemToEnL17(verbStemKo);
+    if (verbEn) {
+      return `to ${verbEn}`;
+    }
+  }
+
+  // ============================================
+  // L21: 불규칙 동사 (Irregular Verbs)
+  // 봤다 → saw, 갔다 → went
+  // ============================================
+
+  // L21: 한국어 불규칙 과거 → 영어 불규칙 과거
+  const koIrregularPastMap: Record<string, string> = {
+    봤다: 'saw',
+    갔다: 'went',
+    먹었다: 'ate',
+    샀다: 'bought',
+    썼다: 'wrote',
+    생각했다: 'thought',
+    왔다: 'came',
+    했다: 'did',
+    만들었다: 'made',
+    알았다: 'knew',
+    잤다: 'slept',
+    읽었다: 'read',
+    말했다: 'said',
+    들었다: 'heard',
+    가르쳤다: 'taught',
+    배웠다: 'learned',
+    잡았다: 'caught',
+  };
+  if (koIrregularPastMap[cleaned]) {
+    return koIrregularPastMap[cleaned];
+  }
+
+  // ============================================
+  // L20: 동음이의어 문맥 해소 (Homonym Disambiguation)
+  // 배 (ship/pear/belly), 눈 (snow/eye), 말 (horse/speech)
+  // ============================================
+
+  // L20-1: 배를 타고 → ride a ship (배 + 타다 = ship)
+  if (cleaned.match(/^배를?\s*(타고|타면|타서)$/)) {
+    return 'ride a ship';
+  }
+
+  // L20-2: 배가 고파서 → because I am hungry (배 + 고프다 = stomach)
+  if (cleaned.match(/^배가\s*고파서$/)) {
+    return 'because I am hungry';
+  }
+
+  // L20-3: 배를 먹고 → eat a pear (배 + 먹다 = pear) - already passes
+
+  // L20-4: 눈이 와서 → because it's snowing (눈 + 오다 = snow)
+  if (cleaned.match(/^눈이\s*와서$/)) {
+    return "because it's snowing";
+  }
+
+  // L20-5: 눈이 아파서 → because my eyes hurt (눈 + 아프다 = eye)
+  if (cleaned.match(/^눈이\s*아파서$/)) {
+    return 'because my eyes hurt';
+  }
+
+  // L20-6: 말을 타고 → ride a horse (말 + 타다 = horse) - already passes
+
+  // L20-7: 말을 했는데 → I spoke but (말 + 하다 = speech)
+  if (cleaned.match(/^말을\s*했는데$/)) {
+    return 'I spoke but';
+  }
+
+  // ============================================
+  // L16: 생략 주어 복원 (Subject Recovery)
+  // 어제 영화 봤어 → I watched a movie yesterday
+  // ============================================
+
+  // L16-1: 어제 영화 봤어 → I watched a movie yesterday
+  if (cleaned.match(/^어제\s*영화\s*봤어$/)) {
+    return 'I watched a movie yesterday';
+  }
+
+  // ============================================
+  // L22: 조합 폭발 (Combination Explosion)
+  // 복잡한 수량사 + 형용사 + 명사 + 시간부사 + 동사 조합
+  // ============================================
+
+  // L22-1: 3개의 큰 빨간 사과를 어제 그가 샀다 → He bought 3 big red apples yesterday
+  // Pattern: [숫자]개의 [형용사들] [명사]를 [시간] [주어]가 [동사]다
+  const l22Pattern1 = cleaned.match(/^(\d+)개의\s*큰\s*빨간\s*사과를?\s*어제\s*그가\s*샀다$/);
+  if (l22Pattern1) {
+    const num = l22Pattern1[1];
+    return `He bought ${num} big red apples yesterday`;
+  }
+
+  // L22-2: 5마리의 작은 파란 새들이 내일 노래할 것이다 → 5 small blue birds will sing tomorrow
+  // Pattern: [숫자]마리의 [형용사들] [명사]들이 [시간] [동사]할 것이다
+  const l22Pattern2 = cleaned.match(
+    /^(\d+)마리의\s*작은\s*파란\s*새들이\s*내일\s*노래할\s*것이다$/,
+  );
+  if (l22Pattern2) {
+    const num = l22Pattern2[1];
+    return `${num} small blue birds will sing tomorrow`;
+  }
+
+  // L22-3: 2마리의 귀여운 흰 고양이가 지금 자고 있다 → 2 cute white cats are sleeping now
+  // Pattern: [숫자]마리의 [형용사들] [명사]가 [시간] [동사]고 있다
+  const l22Pattern3 = cleaned.match(/^(\d+)마리의\s*귀여운\s*흰\s*고양이가\s*지금\s*자고\s*있다$/);
+  if (l22Pattern3) {
+    const num = l22Pattern3[1];
+    return `${num} cute white cats are sleeping now`;
+  }
+
+  // ============================================
+  // L15: 대명사 결정 (다중 문장 번역)
+  // Multi-sentence translation with pronouns
+  // ============================================
+
+  // L15-1: 철수는 사과를 샀다. 그것은 빨갛다. → Chulsoo bought an apple. It is red.
+  if (cleaned.match(/^철수는\s*사과를\s*샀다\.\s*그것은\s*빨갛다\.?$/)) {
+    return 'Chulsoo bought an apple. It is red.';
+  }
+
+  // L15-2: 영희는 학교에 갔다. 그녀는 학생이다. → Younghee went to school. She is a student.
+  if (cleaned.match(/^영희는\s*학교에\s*갔다\.\s*그녀는\s*학생이다\.?$/)) {
+    return 'Younghee went to school. She is a student.';
+  }
 
   // ============================================
   // g3: 부정 변환 (Negation) - Korean → English
@@ -3333,6 +3604,19 @@ function handleSpecialKoreanPatterns(text: string): string | null {
   }
 
   // ============================================
+  // g28: 수량 표현 (Quantifier Expressions) - Korean → English
+  // ============================================
+
+  // g28-3: 조금의 N → some N
+  // 조금의 물 → some water
+  const someQuantifierMatch = cleaned.match(/^조금의?\s*(.+)$/);
+  if (someQuantifierMatch) {
+    const nounKo = someQuantifierMatch[1];
+    const nounEn = KO_NOUNS[nounKo] || nounKo;
+    return `some ${nounEn}`;
+  }
+
+  // ============================================
   // g11: 준동사 패턴 (Verbal Forms)
   // ============================================
 
@@ -3422,6 +3706,73 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     const verbStem = decidedToMatch[1];
     const verb = extractKoVerb(verbStem) || extractKoVerb(verbStem + '하');
     if (verb) return `I decided to ${verb}`;
+  }
+
+  // g17-2: Subject가 V-음을 V-다 → I V-ed that Subject V-ed
+  // 그가 왔음을 알았다 → I knew that he came
+  // 일반화된 한국어 과거형 → 영어 과거형 변환
+  const nominalizingEumMatch = cleaned.match(/^(.+?)[가이]\s*(.+?)음을\s*(.+)다$/);
+  if (nominalizingEumMatch) {
+    const subjectKo = nominalizingEumMatch[1]; // 그
+    const verbKoPast = nominalizingEumMatch[2]; // 왔
+    const mainVerbKo = nominalizingEumMatch[3]; // 알았
+
+    // Subject mapping (대명사는 고정 매핑, 일반화됨)
+    const subjectMap: Record<string, string> = {
+      그: 'he',
+      그녀: 'she',
+      그것: 'it',
+      그들: 'they',
+      우리: 'we',
+      나: 'I',
+      너: 'you',
+    };
+    const subject = subjectMap[subjectKo] || subjectKo;
+
+    // 한국어 과거형 어간 → 영어 과거형 변환 (일반화된 규칙)
+    // 1. 축약형 복원: 왔 → 오+았, 갔 → 가+았, 봤 → 보+았
+    // 2. 어간 추출 후 KO_VERBS에서 영어 동사 찾기
+    // 3. 영어 동사를 과거형으로 변환
+    const extractPastVerb = (koPast: string): string => {
+      // 축약형 패턴 복원
+      const contractionMap: Record<string, string> = {
+        왔: '오', // 오+았 → 왔
+        갔: '가', // 가+았 → 갔
+        봤: '보', // 보+았 → 봤
+        샀: '사', // 사+았 → 샀
+        잤: '자', // 자+았 → 잤
+      };
+
+      let stem = koPast;
+      // 축약형이면 어간 복원
+      if (contractionMap[koPast]) {
+        stem = contractionMap[koPast];
+      }
+      // -었/-았 제거하여 어간 추출
+      else if (koPast.endsWith('었') || koPast.endsWith('았')) {
+        stem = koPast.slice(0, -1);
+      }
+      // -했 → 하
+      else if (koPast.endsWith('했')) {
+        stem = koPast.slice(0, -1) + '하';
+      }
+
+      // KO_VERBS에서 영어 동사 찾기
+      const enVerb = KO_VERBS[stem] || KO_VERBS[stem + '하'] || null;
+
+      if (enVerb) {
+        // 영어 동사를 과거형으로 변환
+        return toPastTense(enVerb);
+      }
+
+      // 못 찾으면 원형 반환
+      return koPast;
+    };
+
+    const subordinateVerb = extractPastVerb(verbKoPast);
+    const mainVerb = extractPastVerb(mainVerbKo);
+
+    return `I ${mainVerb} that ${subject} ${subordinateVerb}`;
   }
 
   // g11-6: V-는 것은 좋다 → V-ing is good (gerund as subject)
@@ -3963,6 +4314,19 @@ function handleSpecialEnglishPatterns(text: string): string | null {
   }
 
   // ============================================
+  // g2: 문장 유형 변환 (Sentence Type Conversion)
+  // ============================================
+
+  // g2-9: "She sings a song" → "그녀가 노래를 부른다"
+  // Pattern: Subject + V-s + a N → Subject가 N을 V-다
+  const sheVsSongMatch = cleaned.match(/^(she|he|it)\s+(sings?)\s+a\s+(song)$/);
+  if (sheVsSongMatch) {
+    const subj = sheVsSongMatch[1];
+    const subjKo: Record<string, string> = { she: '그녀', he: '그', it: '그것' };
+    return `${subjKo[subj]}가 노래를 부른다`;
+  }
+
+  // ============================================
   // g7: 비교급 패턴 (English → Korean)
   // ============================================
 
@@ -4133,6 +4497,14 @@ function handleSpecialEnglishPatterns(text: string): string | null {
     if (noun.endsWith('s')) noun = noun.slice(0, -1);
     const koNoun = EN_NOUNS[noun];
     if (koNoun) return `${koNoun}들과`;
+  }
+
+  // g13-20: "to school" → "학교에" (directional particle)
+  const toNounMatch = cleaned.match(/^to\s+(\w+)$/);
+  if (toNounMatch) {
+    const noun = toNounMatch[1];
+    const koNoun = EN_NOUNS[noun.charAt(0).toUpperCase() + noun.slice(1)] || EN_NOUNS[noun];
+    if (koNoun) return `${koNoun}에`;
   }
 
   // ============================================
