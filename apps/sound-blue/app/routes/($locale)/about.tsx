@@ -1,12 +1,15 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
 import m, { getRawMessage } from '~/lib/messages';
-export const meta: MetaFunction = () => [
+import { getSeoMeta } from '~/lib/seo';
+
+export const meta: MetaFunction = ({ params }) => [
   { title: 'About | Sound Blue' },
   {
     name: 'description',
     content: 'About Sound Blue and SoundBlueMusic. Learn more about the artist, music, and vision.',
   },
+  ...getSeoMeta('/about', params),
 ];
 
 export default function About() {

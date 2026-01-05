@@ -1,9 +1,12 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
 import m, { getRawMessage } from '~/lib/messages';
-export const meta: MetaFunction = () => [
+import { getSeoMeta } from '~/lib/seo';
+
+export const meta: MetaFunction = ({ params }) => [
   { title: 'License | Sound Blue' },
   { name: 'description', content: 'Sound recording license information.' },
+  ...getSeoMeta('/license', params),
 ];
 
 export default function License() {

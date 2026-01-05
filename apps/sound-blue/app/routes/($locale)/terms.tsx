@@ -1,12 +1,15 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
 import m from '~/lib/messages';
-export const meta: MetaFunction = () => [
+import { getSeoMeta } from '~/lib/seo';
+
+export const meta: MetaFunction = ({ params }) => [
   { title: 'Terms of Service | Sound Blue' },
   {
     name: 'description',
     content: 'Terms and conditions for using Sound Blue website and services.',
   },
+  ...getSeoMeta('/terms', params),
 ];
 
 export default function Terms() {

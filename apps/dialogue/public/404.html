@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Not Found | Dialogue</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          'Helvetica Neue',
+          Arial,
+          sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #e0e0e0;
+        padding: 20px;
+      }
+      .container {
+        text-align: center;
+        max-width: 500px;
+      }
+      h1 {
+        font-size: 8rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #f06292 0%, #ba68c8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 1rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #f0f0f0;
+      }
+      p {
+        font-size: 1rem;
+        color: #a0a0a0;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+      }
+      a {
+        display: inline-block;
+        padding: 12px 32px;
+        background: linear-gradient(135deg, #f06292 0%, #ba68c8 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(240, 98, 146, 0.4);
+      }
+    </style>
+    <script>
+      // Auto-detect language from URL or browser
+      (function () {
+        const path = window.location.pathname;
+        const isKorean =
+          path.startsWith('/ko') || navigator.language.startsWith('ko');
+        if (isKorean) {
+          document.documentElement.lang = 'ko';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>404</h1>
+      <h2 id="title">Page Not Found</h2>
+      <p id="message">
+        Sorry, the page you're looking for doesn't exist or has been moved.
+      </p>
+      <a href="/" id="homeLink">Go to Home</a>
+    </div>
+    <script>
+      // Translate content for Korean users
+      (function () {
+        const path = window.location.pathname;
+        const isKorean =
+          path.startsWith('/ko') || navigator.language.startsWith('ko');
+        if (isKorean) {
+          document.getElementById('title').textContent =
+            '페이지를 찾을 수 없습니다';
+          document.getElementById('message').textContent =
+            '죄송합니다. 찾으시는 페이지가 존재하지 않거나 이동되었습니다.';
+          document.getElementById('homeLink').textContent = '홈으로 이동';
+          document.getElementById('homeLink').href = '/ko';
+        }
+      })();
+    </script>
+  </body>
+</html>

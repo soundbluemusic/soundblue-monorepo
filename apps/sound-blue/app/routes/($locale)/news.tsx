@@ -1,9 +1,12 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
 import m from '~/lib/messages';
-export const meta: MetaFunction = () => [
+import { getSeoMeta } from '~/lib/seo';
+
+export const meta: MetaFunction = ({ params }) => [
   { title: 'News | Sound Blue' },
   { name: 'description', content: 'Latest news and updates from Sound Blue.' },
+  ...getSeoMeta('/news', params),
 ];
 
 export default function News() {

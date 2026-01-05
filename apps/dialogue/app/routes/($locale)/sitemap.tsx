@@ -2,6 +2,7 @@ import { getLocaleFromPath, getLocalizedPath } from '@soundblue/i18n';
 import type { MetaFunction } from 'react-router';
 import { Link, useLoaderData, useLocation } from 'react-router';
 import m from '~/lib/messages';
+import { getSeoMeta } from '~/lib/seo';
 
 /**
  * Build-time loader for sitemap date
@@ -13,9 +14,10 @@ export async function loader() {
   };
 }
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction = ({ params }) => [
   { title: 'Sitemap - Dialogue' },
   { name: 'description', content: 'Complete sitemap of Dialogue website.' },
+  ...getSeoMeta('/sitemap', params),
 ];
 
 export default function Sitemap() {

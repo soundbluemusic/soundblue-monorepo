@@ -1,14 +1,16 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
 import m from '~/lib/messages';
+import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction = ({ params }) => [
   { title: 'Sound Blue | SoundBlueMusic' },
   {
     name: 'description',
     content:
       'South Korean indie artist and music producer. Creating original BGM, soundtracks, and instrumental music.',
   },
+  ...getSeoMeta('/', params),
 ];
 
 export default function Home() {
