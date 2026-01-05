@@ -226,6 +226,7 @@ translate('Hello', 'en-ko');      // → '안녕하세요'
 ```
 
 > **Dictionary Policy:** See [Language Tools Dictionary Policy](#language-tools-dictionary-policy) below.
+> **External Dictionary:** See [External Dictionary Sync](#external-dictionary-sync) below.
 
 #### @soundblue/nlu
 
@@ -563,7 +564,84 @@ Before deploying, verify:
 
 ---
 
+## External Dictionary Sync (외부 사전 동기화)
+
+> **Build-time vocabulary synchronization from public-monorepo**
+> **빌드 시 public-monorepo에서 어휘 자동 동기화**
+
+The translator integrates an external vocabulary system that syncs from [public-monorepo](https://github.com/soundbluemusic/public-monorepo) at build time.
+
+### Architecture (아키텍처)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Source: github.com/soundbluemusic/public-monorepo/data/context             │
+│  ├── meta.json          → Dynamic file list (no hardcoding)                 │
+│  ├── entries/*.json     → Word data (1,185+ ko→en, 1,177+ en→ko)           │
+│  └── conversations.json → Dialogue examples (211+ sentence pairs)           │
+└─────────────────────────────────────────────────────────────────────────────┘
+                          │
+                          ▼ pnpm build:all (prebuild hook)
+                          ▼ pnpm sync:context-dict (manual)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Output: apps/tools/app/tools/translator/dictionary/external/               │
+│  ├── words.ts           → Word dictionary (auto-generated)                  │
+│  ├── sentences.ts       → Sentence dictionary (auto-generated)              │
+│  └── index.ts           → Unified exports (auto-generated)                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                          │
+                          ▼ Translation Pipeline
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Priority:                                                                  │
+│  1. Sentence Dict (exact match) → Return immediately                        │
+│  2. Algorithm Translation (v2.1 pipeline)                                   │
+│  3. Word Combination (external = lowest priority)                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Files (주요 파일)
+
+| File | Description | Auto-Generated |
+|------|-------------|:--------------:|
+| `scripts/sync-context-dictionary.ts` | Sync script (동기화 스크립트) | ❌ |
+| `dictionary/external/words.ts` | Word dictionary (단어 사전) | ✅ |
+| `dictionary/external/sentences.ts` | Sentence dictionary (문장 사전) | ✅ |
+| `dictionary/external/index.ts` | Exports | ✅ |
+
+### Commands (명령어)
+
+```bash
+# Manual sync (수동 동기화)
+pnpm sync:context-dict
+
+# Auto sync + build (자동 동기화 + 빌드)
+pnpm build:all
+```
+
+### Design Principles (설계 원칙)
+
+1. **Lowest Priority**: External dictionary never conflicts with manual dictionary
+2. **Dynamic Loading**: Uses `meta.json` for file list (no hardcoding)
+3. **Auto-Regeneration**: `external/` folder is auto-generated on every build
+4. **Sentence Priority**: Exact sentence matches override algorithm translation
+
+### Warning (주의)
+
+```
+⚠️ external/ 폴더의 파일은 자동 생성됩니다. 직접 수정하지 마세요!
+⚠️ Files in external/ folder are auto-generated. DO NOT edit directly!
+```
+
+---
+
 ## Changelog (변경 이력)
+
+### v2.1.0 - External Dictionary (2025-01)
+
+**New Features:**
+- External dictionary sync from public-monorepo
+- Sentence dictionary with exact match priority
+- Prebuild hook for automatic sync (`pnpm build:all`)
 
 ### v2.0.0 - SSG Edition (2024-12)
 

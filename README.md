@@ -247,8 +247,10 @@ pnpm dev:dialogue
 | `pnpm dev:tools` | Run Tools (Tools 실행) |
 | `pnpm dev:dialogue` | Run Dialogue (Dialogue 실행) |
 | `pnpm build` | Build all apps (모든 앱 빌드) |
+| `pnpm build:all` | Build with prebuild hooks (prebuild 훅 포함 빌드) |
 | `pnpm test` | Run tests (테스트 실행) |
 | `pnpm check:fix` | Lint & format (린트 & 포맷) |
+| `pnpm sync:context-dict` | Sync external dictionary (외부 사전 동기화) |
 
 ---
 
@@ -440,6 +442,42 @@ This policy applies to **ALL language-related tools** (translator, hangul, nlu, 
 - `packages/core/hangul/` - Hangul processing (한글 처리)
 - `packages/core/nlu/` - Natural language understanding (자연어 이해)
 - All future Korean-English language tools (향후 모든 한영 언어 도구)
+
+---
+
+## 📡 External Dictionary Sync (외부 사전 동기화)
+
+> **Build-time vocabulary sync from public-monorepo**
+> **(빌드 시 public-monorepo에서 어휘 자동 동기화)**
+
+The translator automatically syncs vocabulary from [public-monorepo](https://github.com/soundbluemusic/public-monorepo) at build time.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  public-monorepo (GitHub)                                                   │
+│  └── data/context/                                                          │
+│      ├── meta.json (dynamic file list)                                      │
+│      ├── entries/*.json (word data)                                         │
+│      └── conversations.json (dialogue examples)                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                          │
+                          ▼ pnpm build:all (prebuild hook)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  translator/dictionary/external/                                            │
+│  ├── words.ts (1,185+ ko→en, 1,177+ en→ko words)                           │
+│  └── sentences.ts (211+ sentence pairs)                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+| Command | Description |
+|---------|-------------|
+| `pnpm sync:context-dict` | Manual sync (수동 동기화) |
+| `pnpm build:all` | Auto sync + build (자동 동기화 + 빌드) |
+
+**Key points:**
+- ✅ External dict = lowest priority (no conflict with manual dict)
+- ✅ Sentence dict = highest priority (exact match)
+- ❌ Never edit `external/` folder directly (auto-generated)
 
 ---
 
