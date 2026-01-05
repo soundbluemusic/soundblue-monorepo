@@ -16,7 +16,7 @@
 const HANGUL_BASE = 0xac00;
 const HANGUL_END = 0xd7a3;
 const JONGSEONG_COUNT = 28;
-const JUNGSEONG_COUNT = 21;
+const _JUNGSEONG_COUNT = 21; // Reserved for future use
 const JONGSEONG = [
   '',
   'ㄱ',
