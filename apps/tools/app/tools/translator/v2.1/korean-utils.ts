@@ -324,3 +324,38 @@ export function attachNda(stem: string): string {
   // Has 받침: add 는다 (먹 → 먹는다)
   return `${stem}는다`;
 }
+
+/**
+ * 한국어 어간에 과거시제 접사(-았/-었) 붙이기
+ * 가 → 갔, 하 → 했, 먹 → 먹었
+ */
+export function attachPastTense(stem: string): string {
+  // 하다 동사
+  if (stem.endsWith('하')) {
+    return `${stem.slice(0, -1)}했`;
+  }
+
+  // 나다 동사: 나 + 았 → 났
+  if (stem.endsWith('나')) {
+    return `${stem.slice(0, -1)}났`;
+  }
+
+  // 가다 동사: 가 + 았 → 갔
+  if (stem.endsWith('가')) {
+    return `${stem.slice(0, -1)}갔`;
+  }
+
+  // 오다 동사: 오 + 았 → 왔
+  if (stem.endsWith('오')) {
+    return `${stem.slice(0, -1)}왔`;
+  }
+
+  // 양성모음이면 -았, 음성모음이면 -었
+  const lastChar = stem[stem.length - 1];
+  // 간단한 규칙: 아/오 포함이면 았, 아니면 었
+  if (/[아오]/.test(lastChar)) {
+    return `${stem}았`;
+  }
+
+  return `${stem}었`;
+}
