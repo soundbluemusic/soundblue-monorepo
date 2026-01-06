@@ -19,7 +19,8 @@
       "!**/.react-router",
       "!**/apps/tools/src",
       "!**/apps/sound-blue/src",
-      "!**/apps/dialogue/src"
+      "!**/apps/dialogue/src",
+      "!**/data/**"
     ]
   },
   "formatter": {
@@ -91,7 +92,7 @@
       }
     },
     {
-      "includes": ["**/translator/dictionary/*.ts"],
+      "includes": ["**/translator/**/*.ts"],
       "linter": {
         "rules": {
           "suspicious": {
@@ -109,6 +110,16 @@
           },
           "a11y": {
             "useButtonType": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["scripts/**/*.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noAssignInExpressions": "off"
           }
         }
       }

@@ -72,7 +72,7 @@
     </style>
     <script>
       // Auto-detect language from URL or browser
-      (function () {
+      (() => {
         const path = window.location.pathname;
         const isKorean =
           path.startsWith('/ko') || navigator.language.startsWith('ko');
@@ -93,7 +93,7 @@
     </div>
     <script>
       // Translate content for Korean users
-      (function () {
+      (() => {
         const path = window.location.pathname;
         const isKorean =
           path.startsWith('/ko') || navigator.language.startsWith('ko');

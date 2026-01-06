@@ -1,98 +1,10 @@
 // ========================================
-// Respiratory System - 호흡계
+// Respiratory Domain Dictionary - 호흡계 도메인 사전
+// 데이터: external/words.ts에서 통합 (Context 앱에서 동기화)
+// 로직: 하위 호환성을 위한 빈 객체 export
 // ========================================
 
-export const RESPIRATORY_KO_EN: Record<string, string> = {
-  // === 상기도 (Upper Respiratory Tract) ===
-  비강: 'nasal cavity',
-  외비공: 'external naris',
-  내비공: 'internal naris',
-  비전정: 'nasal vestibule',
-  비갑개: 'nasal concha',
-  상비갑개: 'superior nasal concha',
-  중비갑개: 'middle nasal concha',
-  하비갑개2: 'inferior nasal concha',
-  비중격: 'nasal septum',
-  비도: 'nasal meatus',
-  후각영역: 'olfactory region',
-  부비동: 'paranasal sinus',
-  전두동: 'frontal sinus',
-  상악동: 'maxillary sinus',
-  사골동: 'ethmoid sinus',
-  접형동: 'sphenoid sinus',
-  인두: 'pharynx',
-  비인두: 'nasopharynx',
-  구인두: 'oropharynx',
-  후두인두: 'laryngopharynx',
-  이관개구: 'pharyngeal opening of auditory tube',
-
-  // === 후두 (Larynx) ===
-  후두: 'larynx',
-  갑상연골: 'thyroid cartilage',
-  후두융기: 'laryngeal prominence',
-  윤상연골: 'cricoid cartilage',
-  후두개: 'epiglottis',
-  피열연골: 'arytenoid cartilage',
-  소각연골: 'corniculate cartilage',
-  설상연골: 'cuneiform cartilage',
-  성대: 'vocal cord',
-  성대주름: 'vocal fold',
-  가성대: 'false vocal cord',
-  전정주름: 'vestibular fold',
-  성문: 'glottis',
-  성문하강: 'subglottic space',
-  후두실: 'laryngeal ventricle',
-  윤상갑상막: 'cricothyroid membrane',
-
-  // === 하기도 (Lower Respiratory Tract) ===
-  기관: 'trachea',
-  기관연골: 'tracheal cartilage',
-  기관막: 'tracheal membrane',
-  기관분기부: 'carina',
-  주기관지: 'main bronchus',
-  우주기관지: 'right main bronchus',
-  좌주기관지: 'left main bronchus',
-  엽기관지: 'lobar bronchus',
-  구역기관지: 'segmental bronchus',
-  아구역기관지: 'subsegmental bronchus',
-  세기관지: 'bronchiole',
-  종말세기관지: 'terminal bronchiole',
-  호흡세기관지: 'respiratory bronchiole',
-
-  // === 폐 (Lungs) ===
-  폐: 'lung',
-  우폐: 'right lung',
-  좌폐: 'left lung',
-  폐첨: 'apex of lung',
-  폐저: 'base of lung',
-  폐문: 'hilum of lung',
-  폐엽: 'lobe',
-  우상엽: 'right upper lobe',
-  우중엽: 'right middle lobe',
-  우하엽: 'right lower lobe',
-  좌상엽: 'left upper lobe',
-  좌하엽: 'left lower lobe',
-  엽간열: 'interlobar fissure',
-  수평열: 'horizontal fissure',
-  사열: 'oblique fissure',
-  폐구역: 'bronchopulmonary segment',
-  폐포관: 'alveolar duct',
-  폐포낭: 'alveolar sac',
-  폐포: 'alveolus',
-  제1형폐포세포: 'type I pneumocyte',
-  제2형폐포세포: 'type II pneumocyte',
-  계면활성제: 'surfactant',
-  호흡막: 'respiratory membrane',
-
-  // === 흉막 (Pleura) ===
-  흉막: 'pleura',
-  벽측흉막: 'parietal pleura',
-  장측흉막: 'visceral pleura',
-  흉막강: 'pleural cavity',
-  흉수: 'pleural fluid',
-  늑골횡격막각: 'costodiaphragmatic recess',
-};
-
-export const RESPIRATORY_EN_KO: Record<string, string> = Object.fromEntries(
-  Object.entries(RESPIRATORY_KO_EN).map(([ko, en]) => [en.toLowerCase(), ko]),
-);
+// 하위 호환성을 위한 빈 객체 export
+// 실제 데이터는 external에서 통합됨
+export const RESPIRATORY_KO_EN: Record<string, string> = {};
+export const RESPIRATORY_EN_KO: Record<string, string> = {};

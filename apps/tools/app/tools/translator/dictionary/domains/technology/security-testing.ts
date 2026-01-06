@@ -1,91 +1,10 @@
 // ========================================
-// Security & Testing - 보안 / 테스팅
+// Technology: Security & Testing - 보안 및 테스팅
+// 데이터: external/words.ts에서 통합 (Context 앱에서 동기화)
+// 로직: 하위 호환성을 위한 빈 객체 export
 // ========================================
 
-export const TECH_SECURITY_TESTING_KO_EN: Record<string, string> = {
-  // === 보안 (Security) ===
-  인증: 'authentication',
-  인가: 'authorization',
-  암호화: 'encryption',
-  복호화: 'decryption',
-  해싱: 'hashing',
-  솔트: 'salt',
-  페퍼: 'pepper',
-  '대칭키 암호화': 'symmetric encryption',
-  '비대칭키 암호화': 'asymmetric encryption',
-  공개키: 'public key',
-  개인키: 'private key',
-  인증서: 'certificate',
-  'SSL 인증서': 'SSL certificate',
-  '디지털 서명': 'digital signature',
-  비밀번호: 'password',
-  패스워드리스: 'passwordless',
-  패스키: 'passkey',
-  생체인증: 'biometric authentication',
-  'SQL 인젝션': 'SQL injection',
-  취약점: 'vulnerability',
-  익스플로잇: 'exploit',
-  '페네트레이션 테스트': 'penetration testing',
-  펜테스트: 'pentest',
-  화이트햇: 'white hat',
-  블랙햇: 'black hat',
-  제로데이: 'zero-day',
-  패치: 'patch',
-  '시크릿 관리': 'secret management',
-  볼트: 'vault',
-  '키 관리': 'key management',
-
-  // === 테스팅 (Testing) ===
-  테스트: 'test',
-  테스팅: 'testing',
-  '단위 테스트': 'unit test',
-  '통합 테스트': 'integration test',
-  'E2E 테스트': 'end-to-end test',
-  '기능 테스트': 'functional test',
-  '비기능 테스트': 'non-functional test',
-  '회귀 테스트': 'regression test',
-  '스모크 테스트': 'smoke test',
-  '새너티 테스트': 'sanity test',
-  '성능 테스트': 'performance test',
-  '부하 테스트': 'load test',
-  '스트레스 테스트': 'stress test',
-  '스파이크 테스트': 'spike test',
-  '소크 테스트': 'soak test',
-  '보안 테스트': 'security test',
-  '침투 테스트': 'penetration test',
-  '사용성 테스트': 'usability test',
-  '접근성 테스트': 'accessibility test',
-  '수락 테스트': 'acceptance test',
-  '알파 테스트': 'alpha test',
-  '베타 테스트': 'beta test',
-  '카나리 테스트': 'canary test',
-  '테스트 케이스': 'test case',
-  '테스트 스위트': 'test suite',
-  '테스트 픽스처': 'test fixture',
-  '테스트 더블': 'test double',
-  목: 'mock',
-  스텁: 'stub',
-  스파이: 'spy',
-  페이크: 'fake',
-  더미: 'dummy',
-  어설션: 'assertion',
-  매처: 'matcher',
-  '코드 커버리지': 'code coverage',
-  '라인 커버리지': 'line coverage',
-  '브랜치 커버리지': 'branch coverage',
-  '테스트 러너': 'test runner',
-  제스트: 'Jest',
-  모카: 'Mocha',
-  재스민: 'Jasmine',
-  바이테스트: 'Vitest',
-  사이프레스: 'Cypress',
-  플레이라이트: 'Playwright',
-  퍼펫티어: 'Puppeteer',
-  셀레늄: 'Selenium',
-  파이테스트: 'Pytest',
-  '테스팅 라이브러리': 'Testing Library',
-};
-
-export const TECH_SECURITY_TESTING_EN_KO: Record<string, string> = Object.fromEntries(
-  Object.entries(TECH_SECURITY_TESTING_KO_EN).map(([ko, en]) => [en.toLowerCase(), ko]),
-);
+// 하위 호환성을 위한 빈 객체 export
+// 실제 데이터는 external에서 통합됨
+export const TECH_SECURITY_TESTING_KO_EN: Record<string, string> = {};
+export const TECH_SECURITY_TESTING_EN_KO: Record<string, string> = {};

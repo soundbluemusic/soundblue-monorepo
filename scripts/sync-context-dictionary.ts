@@ -102,7 +102,7 @@ async function syncDictionary(): Promise<void> {
     try {
       const entries = await fetchJson<Entry[]>(url);
       allEntries.push(...entries);
-    } catch (e) {
+    } catch (_e) {
       console.error(`   ⚠️  Failed: ${file}`);
     }
   }

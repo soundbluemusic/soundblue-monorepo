@@ -1,24 +1,12 @@
 // ========================================
 // Domain Dictionaries - 도메인별 사전 통합 export
+// 데이터: external/words.ts에서 통합 (Context 앱에서 동기화)
+// 로직: 하위 호환성을 위한 빈 객체 export
 // ========================================
 
-import { ARTS_EN_KO, ARTS_KO_EN } from './arts';
-import { ALL_BODY_EN_KO, ALL_BODY_KO_EN, BODY_STATS } from './body';
-import { BODY_MOVEMENTS_EN_KO, BODY_MOVEMENTS_KO_EN } from './body-movements';
-import { BOOKS_EN_KO, BOOKS_KO_EN } from './books';
-import { EDUCATION_EN_KO, EDUCATION_KO_EN } from './education';
-import { EMOTIONS_EN_KO, EMOTIONS_KO_EN } from './emotions';
-import { FITNESS_EN_KO, FITNESS_KO_EN } from './fitness';
-import { FOOD_EN_KO, FOOD_KO_EN } from './food';
-import { HOME_EN_KO, HOME_KO_EN } from './home';
-import { HOSPITAL_EN_KO, HOSPITAL_KO_EN } from './hospital';
-import { LEGAL_EN_KO, LEGAL_KO_EN } from './legal';
-import { MEDICAL_EN_KO, MEDICAL_KO_EN } from './medical';
-import { SHOPPING_EN_KO, SHOPPING_KO_EN } from './shopping';
-import { SPORTS_EN_KO, SPORTS_KO_EN } from './sports';
-import { TECHNOLOGY_EN_KO, TECHNOLOGY_KO_EN } from './technology';
+import { externalEnToKoWords, externalKoToEnWords } from '../external';
 
-// 개별 도메인 export
+// 개별 도메인 export (하위 호환성 - 빈 객체)
 export { ARTS_EN_KO, ARTS_KO_EN } from './arts';
 export * from './body';
 export { BODY_MOVEMENTS_EN_KO, BODY_MOVEMENTS_KO_EN } from './body-movements';
@@ -37,6 +25,7 @@ export * from './technology';
 
 /**
  * 모든 도메인 사전 통합 (한→영)
+ * 실제 데이터는 external에서 통합됨
  *
  * 사용법:
  * import { ALL_DOMAINS_KO_EN } from './domains';
@@ -45,63 +34,37 @@ export * from './technology';
  * import { SPORTS_KO_EN, FITNESS_KO_EN } from './domains';
  */
 export const ALL_DOMAINS_KO_EN: Record<string, string> = {
-  ...SPORTS_KO_EN,
-  ...FITNESS_KO_EN,
-  ...MEDICAL_KO_EN,
-  ...EDUCATION_KO_EN,
-  ...LEGAL_KO_EN,
-  ...ARTS_KO_EN,
-  ...SHOPPING_KO_EN,
-  ...EMOTIONS_KO_EN,
-  ...BODY_MOVEMENTS_KO_EN,
-  ...ALL_BODY_KO_EN,
-  ...TECHNOLOGY_KO_EN,
-  ...BOOKS_KO_EN,
-  ...FOOD_KO_EN,
-  ...HOME_KO_EN,
-  ...HOSPITAL_KO_EN,
+  ...externalKoToEnWords,
 };
 
 /**
  * 모든 도메인 사전 통합 (영→한)
+ * 실제 데이터는 external에서 통합됨
  */
 export const ALL_DOMAINS_EN_KO: Record<string, string> = {
-  ...SPORTS_EN_KO,
-  ...FITNESS_EN_KO,
-  ...MEDICAL_EN_KO,
-  ...EDUCATION_EN_KO,
-  ...LEGAL_EN_KO,
-  ...ARTS_EN_KO,
-  ...SHOPPING_EN_KO,
-  ...EMOTIONS_EN_KO,
-  ...BODY_MOVEMENTS_EN_KO,
-  ...ALL_BODY_EN_KO,
-  ...TECHNOLOGY_EN_KO,
-  ...BOOKS_EN_KO,
-  ...FOOD_EN_KO,
-  ...HOME_EN_KO,
-  ...HOSPITAL_EN_KO,
+  ...externalEnToKoWords,
 };
 
 /**
  * 도메인 사전 통계
+ * 실제 데이터는 external에서 통합되므로 전체 통계만 제공
  */
 export const DOMAIN_STATS = {
-  sports: Object.keys(SPORTS_KO_EN).length,
-  fitness: Object.keys(FITNESS_KO_EN).length,
-  medical: Object.keys(MEDICAL_KO_EN).length,
-  education: Object.keys(EDUCATION_KO_EN).length,
-  legal: Object.keys(LEGAL_KO_EN).length,
-  arts: Object.keys(ARTS_KO_EN).length,
-  shopping: Object.keys(SHOPPING_KO_EN).length,
-  emotions: Object.keys(EMOTIONS_KO_EN).length,
-  bodyMovements: Object.keys(BODY_MOVEMENTS_KO_EN).length,
-  body: BODY_STATS,
-  technology: Object.keys(TECHNOLOGY_KO_EN).length,
-  books: Object.keys(BOOKS_KO_EN).length,
-  food: Object.keys(FOOD_KO_EN).length,
-  home: Object.keys(HOME_KO_EN).length,
-  hospital: Object.keys(HOSPITAL_KO_EN).length,
+  sports: 0,
+  fitness: 0,
+  medical: 0,
+  education: 0,
+  legal: 0,
+  arts: 0,
+  shopping: 0,
+  emotions: 0,
+  bodyMovements: 0,
+  body: { total: 0 },
+  technology: 0,
+  books: 0,
+  food: 0,
+  home: 0,
+  hospital: 0,
   get total() {
     return Object.keys(ALL_DOMAINS_KO_EN).length;
   },

@@ -189,7 +189,7 @@ function removeKoreanFinalConsonant(text: string): string {
  * 마지막 글자의 받침 변경
  * 예: 살 → 삼 (ㄹ → ㅁ)
  */
-function changeKoreanFinalConsonant(text: string, newJong: string): string {
+function _changeKoreanFinalConsonant(text: string, newJong: string): string {
   if (!text) return '';
   const lastChar = text.slice(-1);
   const decomposed = decomposeHangul(lastChar);
@@ -1007,7 +1007,7 @@ function getPassiveVerbInfo(stem: string): { english: string; base: string } | n
  * "The window was broken" → "창문이 깨졌다"
  * "She was respected by everyone" → "그녀는 모두에게 존경받았다"
  */
-function generateKoreanPassive(parsed: ParsedSentence, formality: string): string | null {
+function generateKoreanPassive(parsed: ParsedSentence, _formality: string): string | null {
   const verb = parsed.englishPassiveVerb;
   if (!verb) return null;
 
@@ -1084,7 +1084,7 @@ function generateKoreanPassive(parsed: ParsedSentence, formality: string): strin
     parsed.passiveAgent &&
     !['그', '그녀', '그들', '그것'].includes(subject)
   ) {
-    subject = '그 ' + subject;
+    subject = `그 ${subject}`;
   }
 
   // 행위자 (by + agent) 처리
@@ -1143,9 +1143,9 @@ function generateKoreanPassive(parsed: ParsedSentence, formality: string): strin
   if (agent) {
     // -받다 계열은 '에게', 그 외는 '에 의해'
     if (passiveInfo.type === 'batda') {
-      parts.push(agent + '에게');
+      parts.push(`${agent}에게`);
     } else {
-      parts.push(agent + '에 의해');
+      parts.push(`${agent}에 의해`);
     }
   }
 
@@ -1159,30 +1159,30 @@ function generateKoreanPassive(parsed: ParsedSentence, formality: string): strin
     // 축약: ㅣ + 었 → 였, ㅏ + 았 → 았 등
     if (lastChar === '지') {
       // 깨지 + 었다 → 깨졌다 (ㅣ+ㅓ→ㅕ 축약)
-      conjugated = verbStem.slice(0, -1) + '졌다';
+      conjugated = `${verbStem.slice(0, -1)}졌다`;
     } else if (lastChar === '받') {
       // 존경받 + 았다 → 존경받았다 (ㅏ모음)
-      conjugated = verbStem + '았다';
+      conjugated = `${verbStem}았다`;
     } else if (lastChar === '되') {
       // 해결되 + 었다 → 해결되었다 (또는 해결됐다)
-      conjugated = verbStem + '었다';
+      conjugated = `${verbStem}었다`;
     } else if (lastChar === '리') {
       // 열리 + 었다 → 열렸다 (ㅣ+ㅓ→ㅕ 축약)
-      conjugated = verbStem.slice(0, -1) + '렸다';
+      conjugated = `${verbStem.slice(0, -1)}렸다`;
     } else if (lastChar === '이') {
       // 보이 + 었다 → 보였다 (ㅣ+ㅓ→ㅕ 축약)
-      conjugated = verbStem.slice(0, -1) + '였다';
+      conjugated = `${verbStem.slice(0, -1)}였다`;
     } else if (lastChar === '히') {
       // 닫히 + 었다 → 닫혔다 (ㅣ+ㅓ→ㅕ 축약)
-      conjugated = verbStem.slice(0, -1) + '혔다';
+      conjugated = `${verbStem.slice(0, -1)}혔다`;
     } else if (lastChar === '뀌') {
       // 바뀌 + 었다 → 바뀌었다
-      conjugated = verbStem + '었다';
+      conjugated = `${verbStem}었다`;
     } else {
-      conjugated = verbStem + '었다';
+      conjugated = `${verbStem}었다`;
     }
   } else {
-    conjugated = verbStem + '다';
+    conjugated = `${verbStem}다`;
   }
 
   parts.push(conjugated);
@@ -2312,18 +2312,18 @@ export function generateEnglish(parsed: ParsedSentence): string {
     const lower = verb.toLowerCase();
     // go, do → goes, does
     if (lower === 'go' || lower === 'do') {
-      return lower + 'es';
+      return `${lower}es`;
     }
     // -ch, -sh, -ss, -x, -o → +es
     if (/(?:ch|sh|ss|x|o)$/.test(lower)) {
-      return lower + 'es';
+      return `${lower}es`;
     }
     // consonant + y → -ies (study → studies)
     if (/[^aeiou]y$/.test(lower)) {
-      return lower.slice(0, -1) + 'ies';
+      return `${lower.slice(0, -1)}ies`;
     }
     // default: +s
-    return lower + 's';
+    return `${lower}s`;
   };
 
   // L5: 한국어 주어-동사 패턴
@@ -3251,7 +3251,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
         word.endsWith('sh')
       )
         return `${word}es`;
-      if (word.endsWith('y') && !/[aeiou]y$/i.test(word)) return word.slice(0, -1) + 'ies';
+      if (word.endsWith('y') && !/[aeiou]y$/i.test(word)) return `${word.slice(0, -1)}ies`;
       return `${word}s`;
     };
 
@@ -3579,7 +3579,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
 
       // 비인칭 형용사 체크 (춥다, 덥다 등 → "it's cold/hot")
       if (IMPERSONAL_ADJECTIVES.has(endingAnalysis.stem)) {
-        const beVerb = endingAnalysis.tense === 'past' ? 'was' : 'is';
+        const _beVerb = endingAnalysis.tense === 'past' ? 'was' : 'is';
         return `it's ${enVerb}`;
       }
 
@@ -3640,7 +3640,7 @@ export function generateEnglish(parsed: ParsedSentence): string {
       // 예: 춥다 → "it's cold", 덥다 → "it's hot"
       const stem = token.stem?.replace(/다$/, '');
       if (stem && IMPERSONAL_ADJECTIVES.has(stem)) {
-        const beVerb = parsed.tense === 'past' ? 'was' : 'is';
+        const _beVerb = parsed.tense === 'past' ? 'was' : 'is';
         return `it's ${translated}`;
       }
       return translated;
@@ -4476,7 +4476,6 @@ const CLAUSE_TAKING_VERBS = new Set([
 const CONNECTIVE_CONJUNCTIONS: Record<string, { ending: string; type: string }> = {
   // 1. 나열/순서
   and: { ending: '-고', type: 'listing' },
-  // biome-ignore lint/suspicious/noThenProperty: 'then'은 영어 접속사, Promise.then과 무관
   then: { ending: '-고 나서', type: 'sequence' },
 
   // 2. 대조/양보
@@ -6002,22 +6001,23 @@ function tagEnglishWords(parsed: ParsedSentence): TaggedWord[] {
     // "The book was read" → "책이 읽혔다"
     // 주의: 비교급/최상급 형용사(better, best, worse, worst, fastest 등)는 제외
     // 주의: -ing 형태는 수동태가 아니라 진행형이므로 제외
+    // NOTE: getPassiveVerbBase를 조건에 포함시켜서 실제 수동태인 경우에만 블록 진입
+    //       그렇지 않으면 copula 케이스(She is a student)가 이 블록에 들어가서 처리되지 않음
     else if (
       foundBeVerb &&
       !foundVerb &&
       !foundHaveAux &&
       !getComparativeInfo(lower) &&
-      !lower.endsWith('ing')
+      !lower.endsWith('ing') &&
+      getPassiveVerbBase(lower) // 실제로 수동태인 경우에만
     ) {
-      const passiveBase = getPassiveVerbBase(lower);
-      if (passiveBase) {
-        pos = 'verb';
-        const koVerb = EN_VERBS[passiveBase] || EN_KO[passiveBase] || passiveBase;
-        // 한국어 피동형으로 변환
-        ko = toPassiveKorean(koVerb);
-        isPassive = true;
-        foundVerb = true;
-      }
+      const passiveBase = getPassiveVerbBase(lower)!;
+      pos = 'verb';
+      const koVerb = EN_VERBS[passiveBase] || EN_KO[passiveBase] || passiveBase;
+      // 한국어 피동형으로 변환
+      ko = toPassiveKorean(koVerb);
+      isPassive = true;
+      foundVerb = true;
     }
     // 5.7. Phase 4.3: 사역동사 체크 (make/let/have + O + V)
     else if (CAUSATIVE_VERBS.has(lower) && !foundVerb) {
@@ -7129,7 +7129,7 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
   // ============================================
 
   // g28 헬퍼: 영어 숫자 → 한국어 고유숫자
-  const enNumToKo: Record<string, string> = {
+  const _enNumToKo: Record<string, string> = {
     one: '하나',
     two: '둘',
     three: '셋',
@@ -7539,7 +7539,7 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
   }
 
   // L4: 영어 시제-부사 → 한국어 (ate yesterday → 어제 먹었다)
-  const enTimeAdverbMap: Record<string, string> = {
+  const _enTimeAdverbMap: Record<string, string> = {
     yesterday: '어제',
     tomorrow: '내일',
     'every day': '매일',
@@ -7648,7 +7648,7 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
     .match(/^(\d+)\s+(glasses?|cups?|bottles?|pieces?|sheets?|bowls?)\s+of\s+(\w+)$/i);
   if (enUnitOfPattern) {
     const numStr = enUnitOfPattern[1];
-    const unitEn = enUnitOfPattern[2].toLowerCase();
+    const _unitEn = enUnitOfPattern[2].toLowerCase();
     const nounEn = enUnitOfPattern[3].toLowerCase();
 
     // 영어 명사 → 한국어 명사
@@ -7748,8 +7748,10 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
   }
 
   // L9: [Subject] [verb-past] [the/an] [object] → [주어]는 [목적어]를 [동사]었다
+  // NOTE: be동사(is, am, are, was, were)는 제외 - copula 패턴에서 처리
   const enActiveSVOPattern = original.match(/^(I|He|She|We|They)\s+(\w+)\s+(the|an?)\s+(\w+)$/i);
-  if (enActiveSVOPattern) {
+  const beVerbs = ['is', 'am', 'are', 'was', 'were', 'be', 'been', 'being'];
+  if (enActiveSVOPattern && !beVerbs.includes(enActiveSVOPattern[2].toLowerCase())) {
     const subjectEn = enActiveSVOPattern[1].toLowerCase();
     const verbEn = enActiveSVOPattern[2].toLowerCase();
     const objectEn = enActiveSVOPattern[4].toLowerCase();
@@ -8099,7 +8101,7 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
   // L18: a little water → 약간의 물
   const enAFewLittlePattern = original.toLowerCase().match(/^a\s+(few|little)\s+(\w+)$/);
   if (enAFewLittlePattern) {
-    const quantEn = enAFewLittlePattern[1]; // few or little
+    const _quantEn = enAFewLittlePattern[1]; // few or little
     const nounEn = enAFewLittlePattern[2];
     // 복수형 제거
     const nounSingular = nounEn.endsWith('s') ? nounEn.slice(0, -1) : nounEn;
@@ -8476,7 +8478,7 @@ export function generateKorean(parsed: ParsedSentence, formality: Formality = 'n
       make: { 결정: '내리다', 소리: '내다' }, // make a decision → 결정을 내리다
     };
     const objectKo = objects[0];
-    if (contextVerbMap[verbEn] && contextVerbMap[verbEn][objectKo]) {
+    if (contextVerbMap[verbEn]?.[objectKo]) {
       verb = contextVerbMap[verbEn][objectKo];
     }
   }
@@ -10011,7 +10013,7 @@ function applyInabilityVerbEnding(
   // base = "못 가", "못 먹" 등
   // 동사 어간 추출
   const parts = base.split(' ');
-  const stem = parts[parts.length - 1];
+  const _stem = parts[parts.length - 1];
 
   switch (formality) {
     case 'casual':

@@ -1,69 +1,10 @@
 // ========================================
-// Development Fields & Roles - 개발 분야 / 직군
+// Technology: Fields & Roles - 개발 분야 및 직군
+// 데이터: external/words.ts에서 통합 (Context 앱에서 동기화)
+// 로직: 하위 호환성을 위한 빈 객체 export
 // ========================================
 
-export const TECH_FIELDS_ROLES_KO_EN: Record<string, string> = {
-  // === 개발 분야 (Development Fields) ===
-  프론트엔드: 'frontend',
-  백엔드: 'backend',
-  풀스택: 'full stack',
-  '웹 개발': 'web development',
-  '앱 개발': 'app development',
-  '모바일 개발': 'mobile development',
-  '네이티브 개발': 'native development',
-  '크로스플랫폼 개발': 'cross-platform development',
-  '게임 개발': 'game development',
-  '임베디드 개발': 'embedded development',
-  '시스템 프로그래밍': 'systems programming',
-  데브옵스: 'DevOps',
-  '데이터 엔지니어링': 'data engineering',
-  '데이터 과학': 'data science',
-  머신러닝: 'machine learning',
-  딥러닝: 'deep learning',
-  인공지능: 'artificial intelligence',
-  '블록체인 개발': 'blockchain development',
-  '클라우드 컴퓨팅': 'cloud computing',
-  사물인터넷: 'Internet of Things',
-  보안: 'security',
-  사이버보안: 'cybersecurity',
-  '테스트 자동화': 'test automation',
-
-  // === 직군 / 직책 (Roles / Positions) ===
-  개발자: 'developer',
-  프로그래머: 'programmer',
-  '소프트웨어 엔지니어': 'software engineer',
-  '프론트엔드 개발자': 'frontend developer',
-  '백엔드 개발자': 'backend developer',
-  '풀스택 개발자': 'full stack developer',
-  '웹 개발자': 'web developer',
-  '모바일 개발자': 'mobile developer',
-  'iOS 개발자': 'iOS developer',
-  '안드로이드 개발자': 'Android developer',
-  '게임 개발자': 'game developer',
-  '데이터 엔지니어': 'data engineer',
-  '데이터 분석가': 'data analyst',
-  '데이터 과학자': 'data scientist',
-  'ML 엔지니어': 'ML engineer',
-  'AI 엔지니어': 'AI engineer',
-  '데브옵스 엔지니어': 'DevOps engineer',
-  '클라우드 엔지니어': 'cloud engineer',
-  '시스템 관리자': 'system administrator',
-  '네트워크 엔지니어': 'network engineer',
-  '보안 엔지니어': 'security engineer',
-  'QA 엔지니어': 'QA engineer',
-  '테스트 엔지니어': 'test engineer',
-  '솔루션 아키텍트': 'solutions architect',
-  '테크 리드': 'tech lead',
-  '시니어 개발자': 'senior developer',
-  '주니어 개발자': 'junior developer',
-  '엔지니어링 매니저': 'engineering manager',
-  '프로덕트 매니저': 'product manager',
-  '프로젝트 매니저': 'project manager',
-  '스크럼 마스터': 'scrum master',
-  '테크니컬 라이터': 'technical writer',
-  '개발자 애드보킷': 'developer advocate',
-};
-
-export const TECH_FIELDS_ROLES_EN_KO: Record<string, string> = Object.fromEntries(
-  Object.entries(TECH_FIELDS_ROLES_KO_EN).map(([ko, en]) => [en.toLowerCase(), ko]),
-);
+// 하위 호환성을 위한 빈 객체 export
+// 실제 데이터는 external에서 통합됨
+export const TECH_FIELDS_ROLES_KO_EN: Record<string, string> = {};
+export const TECH_FIELDS_ROLES_EN_KO: Record<string, string> = {};

@@ -155,11 +155,11 @@ export function attachKoNieun(stem: string): string {
   const lastChar = stem.charCodeAt(stem.length - 1);
 
   // 한글 범위 체크
-  if (lastChar < HANGUL_START || lastChar > HANGUL_END) return stem + 'ㄴ';
+  if (lastChar < HANGUL_START || lastChar > HANGUL_END) return `${stem}ㄴ`;
 
   // 이미 받침이 있으면 ㄴ 을 붙일 수 없음
   const jongseong = (lastChar - HANGUL_START) % 28;
-  if (jongseong !== 0) return stem + '은'; // 받침 있으면 -은 사용
+  if (jongseong !== 0) return `${stem}은`; // 받침 있으면 -은 사용
 
   // 받침 없는 경우: ㄴ(니은=4) 받침 추가
   const newChar = String.fromCharCode(lastChar + JONGSEONG_NIEUN);
@@ -175,11 +175,11 @@ export function attachKoRieul(stem: string): string {
   const lastChar = stem.charCodeAt(stem.length - 1);
 
   // 한글 범위 체크
-  if (lastChar < HANGUL_START || lastChar > HANGUL_END) return stem + 'ㄹ';
+  if (lastChar < HANGUL_START || lastChar > HANGUL_END) return `${stem}ㄹ`;
 
   // 이미 받침이 있으면 ㄹ 을 붙일 수 없음
   const jongseong = (lastChar - HANGUL_START) % 28;
-  if (jongseong !== 0) return stem + '을'; // 받침 있으면 -을 사용
+  if (jongseong !== 0) return `${stem}을`; // 받침 있으면 -을 사용
 
   // 받침 없는 경우: ㄹ(리을=8) 받침 추가
   const newChar = String.fromCharCode(lastChar + JONGSEONG_RIEUL);
@@ -202,7 +202,7 @@ export function attachKoPast(stem: string, baseVerb?: string): string {
   const lastChar = stem.charCodeAt(stem.length - 1);
 
   // 한글 범위 체크
-  if (lastChar < HANGUL_START || lastChar > HANGUL_END) return stem + '았';
+  if (lastChar < HANGUL_START || lastChar > HANGUL_END) return `${stem}았`;
 
   // 모음 추출 (중성)
   const jungseong = Math.floor(((lastChar - HANGUL_START) % 588) / 28);
@@ -245,7 +245,7 @@ export function attachKoreanPastParticiple(stem: string): string {
   const code = lastChar.charCodeAt(0);
 
   // Check if last char is a Korean syllable
-  if (code < HANGUL_START || code > HANGUL_END) return stem + 'ㄴ';
+  if (code < HANGUL_START || code > HANGUL_END) return `${stem}ㄴ`;
 
   const offset = code - HANGUL_START;
   const final = offset % 28;
@@ -255,7 +255,7 @@ export function attachKoreanPastParticiple(stem: string): string {
     return stem.slice(0, -1) + addKoreanNieun(lastChar);
   }
   // Has batchim - add 은 (먹 → 먹은)
-  return stem + '은';
+  return `${stem}은`;
 }
 
 /** 한국어 동사 어간에 아/어 연결어미 붙이기 (모음조화)
@@ -267,13 +267,13 @@ export function attachAoEo(stem: string): string {
   if (!stem || stem.length === 0) return stem;
 
   // 하다 verbs → 해
-  if (stem.endsWith('하')) return stem.slice(0, -1) + '해';
+  if (stem.endsWith('하')) return `${stem.slice(0, -1)}해`;
 
   const lastChar = stem[stem.length - 1];
   const code = lastChar.charCodeAt(0);
 
   // Check if last char is a Korean syllable
-  if (code < HANGUL_START || code > HANGUL_END) return stem + '어';
+  if (code < HANGUL_START || code > HANGUL_END) return `${stem}어`;
 
   const offset = code - HANGUL_START;
   const jungIndex = Math.floor((offset % 588) / 28); // 중성 인덱스
@@ -281,9 +281,9 @@ export function attachAoEo(stem: string): string {
   // 양성 모음: ㅏ(0), ㅗ(8)
   const positiveVowels = [0, 8];
   if (positiveVowels.includes(jungIndex)) {
-    return stem + '아';
+    return `${stem}아`;
   }
-  return stem + '어';
+  return `${stem}어`;
 }
 
 /** 한국어 문자열 끝에 ㄹ 받침 붙이기 (수영하 → 수영할, 읽 → 읽을) */
@@ -299,7 +299,7 @@ export function attachKoreanRieul(stem: string): string {
       return stem.slice(0, -1) + String.fromCharCode(code + JONGSEONG_RIEUL);
     }
     // Has 받침: append 을 (읽 → 읽을, 먹 → 먹을)
-    return stem + '을';
+    return `${stem}을`;
   }
   return stem;
 }
@@ -319,7 +319,7 @@ export function attachNda(stem: string): string {
   if (jongseong === 0) {
     // No 받침: add ㄴ받침 + 다 (가 → 간다, 뛰 → 뛴다)
     const newCode = code + JONGSEONG_NIEUN;
-    return stem.slice(0, -1) + String.fromCharCode(newCode) + '다';
+    return `${stem.slice(0, -1) + String.fromCharCode(newCode)}다`;
   }
   // Has 받침: add 는다 (먹 → 먹는다)
   return `${stem}는다`;
