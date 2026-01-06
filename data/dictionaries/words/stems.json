@@ -1,0 +1,4777 @@
+[
+  {
+    "stem": "가",
+    "en": "go",
+    "type": "verb"
+  },
+  {
+    "stem": "오",
+    "en": "come",
+    "type": "verb"
+  },
+  {
+    "stem": "서",
+    "en": "stand",
+    "type": "verb"
+  },
+  {
+    "stem": "앉",
+    "en": "sit",
+    "type": "verb"
+  },
+  {
+    "stem": "눕",
+    "en": "lie down",
+    "type": "verb"
+  },
+  {
+    "stem": "자",
+    "en": "sleep",
+    "type": "verb"
+  },
+  {
+    "stem": "깨",
+    "en": "wake up",
+    "type": "verb"
+  },
+  {
+    "stem": "일어나",
+    "en": "get up",
+    "type": "verb"
+  },
+  {
+    "stem": "걷",
+    "en": "walk",
+    "type": "verb"
+  },
+  {
+    "stem": "뛰",
+    "en": "run",
+    "type": "verb"
+  },
+  {
+    "stem": "날",
+    "en": "fly",
+    "type": "verb"
+  },
+  {
+    "stem": "헤엄치",
+    "en": "swim",
+    "type": "verb"
+  },
+  {
+    "stem": "타",
+    "en": "ride",
+    "type": "verb"
+  },
+  {
+    "stem": "운전하",
+    "en": "drive",
+    "type": "verb"
+  },
+  {
+    "stem": "먹",
+    "en": "eat",
+    "type": "verb"
+  },
+  {
+    "stem": "마시",
+    "en": "drink",
+    "type": "verb"
+  },
+  {
+    "stem": "씹",
+    "en": "chew",
+    "type": "verb"
+  },
+  {
+    "stem": "삼키",
+    "en": "swallow",
+    "type": "verb"
+  },
+  {
+    "stem": "요리하",
+    "en": "cook",
+    "type": "verb"
+  },
+  {
+    "stem": "끓이",
+    "en": "boil",
+    "type": "verb"
+  },
+  {
+    "stem": "굽",
+    "en": "bake",
+    "type": "verb"
+  },
+  {
+    "stem": "볶",
+    "en": "fry",
+    "type": "verb"
+  },
+  {
+    "stem": "찌",
+    "en": "steam",
+    "type": "verb"
+  },
+  {
+    "stem": "썰",
+    "en": "slice",
+    "type": "verb"
+  },
+  {
+    "stem": "보",
+    "en": "see",
+    "type": "verb"
+  },
+  {
+    "stem": "듣",
+    "en": "hear",
+    "type": "verb"
+  },
+  {
+    "stem": "냄새맡",
+    "en": "smell",
+    "type": "verb"
+  },
+  {
+    "stem": "맛보",
+    "en": "taste",
+    "type": "verb"
+  },
+  {
+    "stem": "만지",
+    "en": "touch",
+    "type": "verb"
+  },
+  {
+    "stem": "느끼",
+    "en": "feel",
+    "type": "verb"
+  },
+  {
+    "stem": "말하",
+    "en": "speak",
+    "type": "verb"
+  },
+  {
+    "stem": "이야기하",
+    "en": "talk",
+    "type": "verb"
+  },
+  {
+    "stem": "대화하",
+    "en": "converse",
+    "type": "verb"
+  },
+  {
+    "stem": "속삭이",
+    "en": "whisper",
+    "type": "verb"
+  },
+  {
+    "stem": "외치",
+    "en": "shout",
+    "type": "verb"
+  },
+  {
+    "stem": "소리치",
+    "en": "scream",
+    "type": "verb"
+  },
+  {
+    "stem": "울",
+    "en": "cry",
+    "type": "verb"
+  },
+  {
+    "stem": "웃",
+    "en": "laugh",
+    "type": "verb"
+  },
+  {
+    "stem": "미소짓",
+    "en": "smile",
+    "type": "verb"
+  },
+  {
+    "stem": "쓰",
+    "en": "write",
+    "type": "verb"
+  },
+  {
+    "stem": "읽",
+    "en": "read",
+    "type": "verb"
+  },
+  {
+    "stem": "그리",
+    "en": "draw",
+    "type": "verb"
+  },
+  {
+    "stem": "칠하",
+    "en": "paint",
+    "type": "verb"
+  },
+  {
+    "stem": "찍",
+    "en": "take (photo)",
+    "type": "verb"
+  },
+  {
+    "stem": "촬영하",
+    "en": "film",
+    "type": "verb"
+  },
+  {
+    "stem": "녹음하",
+    "en": "record",
+    "type": "verb"
+  },
+  {
+    "stem": "연주하",
+    "en": "play (music)",
+    "type": "verb"
+  },
+  {
+    "stem": "노래하",
+    "en": "sing",
+    "type": "verb"
+  },
+  {
+    "stem": "춤추",
+    "en": "dance",
+    "type": "verb"
+  },
+  {
+    "stem": "놀",
+    "en": "play",
+    "type": "verb"
+  },
+  {
+    "stem": "운동하",
+    "en": "exercise",
+    "type": "verb"
+  },
+  {
+    "stem": "달리",
+    "en": "run",
+    "type": "verb"
+  },
+  {
+    "stem": "수영하",
+    "en": "swim",
+    "type": "verb"
+  },
+  {
+    "stem": "축구하",
+    "en": "play soccer",
+    "type": "verb"
+  },
+  {
+    "stem": "농구하",
+    "en": "play basketball",
+    "type": "verb"
+  },
+  {
+    "stem": "야구하",
+    "en": "play baseball",
+    "type": "verb"
+  },
+  {
+    "stem": "테니스치",
+    "en": "play tennis",
+    "type": "verb"
+  },
+  {
+    "stem": "골프치",
+    "en": "play golf",
+    "type": "verb"
+  },
+  {
+    "stem": "등산하",
+    "en": "hike",
+    "type": "verb"
+  },
+  {
+    "stem": "캠핑하",
+    "en": "camp",
+    "type": "verb"
+  },
+  {
+    "stem": "낚시하",
+    "en": "fish",
+    "type": "verb"
+  },
+  {
+    "stem": "쇼핑하",
+    "en": "shop",
+    "type": "verb"
+  },
+  {
+    "stem": "사",
+    "en": "buy",
+    "type": "verb"
+  },
+  {
+    "stem": "팔",
+    "en": "sell",
+    "type": "verb"
+  },
+  {
+    "stem": "주",
+    "en": "give",
+    "type": "verb"
+  },
+  {
+    "stem": "받",
+    "en": "receive",
+    "type": "verb"
+  },
+  {
+    "stem": "빌리",
+    "en": "borrow",
+    "type": "verb"
+  },
+  {
+    "stem": "빌려주",
+    "en": "lend",
+    "type": "verb"
+  },
+  {
+    "stem": "입",
+    "en": "wear",
+    "type": "verb"
+  },
+  {
+    "stem": "벗",
+    "en": "take off",
+    "type": "verb"
+  },
+  {
+    "stem": "신",
+    "en": "put on (shoes)",
+    "type": "verb"
+  },
+  {
+    "stem": "씻",
+    "en": "wash",
+    "type": "verb"
+  },
+  {
+    "stem": "샤워하",
+    "en": "shower",
+    "type": "verb"
+  },
+  {
+    "stem": "목욕하",
+    "en": "bathe",
+    "type": "verb"
+  },
+  {
+    "stem": "닦",
+    "en": "wipe",
+    "type": "verb"
+  },
+  {
+    "stem": "청소하",
+    "en": "clean",
+    "type": "verb"
+  },
+  {
+    "stem": "쓸",
+    "en": "sweep",
+    "type": "verb"
+  },
+  {
+    "stem": "빨",
+    "en": "do laundry",
+    "type": "verb"
+  },
+  {
+    "stem": "다리미하",
+    "en": "iron",
+    "type": "verb"
+  },
+  {
+    "stem": "열",
+    "en": "open",
+    "type": "verb"
+  },
+  {
+    "stem": "닫",
+    "en": "close",
+    "type": "verb"
+  },
+  {
+    "stem": "켜",
+    "en": "turn on",
+    "type": "verb"
+  },
+  {
+    "stem": "끄",
+    "en": "turn off",
+    "type": "verb"
+  },
+  {
+    "stem": "누르",
+    "en": "press",
+    "type": "verb"
+  },
+  {
+    "stem": "당기",
+    "en": "pull",
+    "type": "verb"
+  },
+  {
+    "stem": "밀",
+    "en": "push",
+    "type": "verb"
+  },
+  {
+    "stem": "들",
+    "en": "lift",
+    "type": "verb"
+  },
+  {
+    "stem": "내리",
+    "en": "put down",
+    "type": "verb"
+  },
+  {
+    "stem": "던지",
+    "en": "throw",
+    "type": "verb"
+  },
+  {
+    "stem": "잡",
+    "en": "catch",
+    "type": "verb"
+  },
+  {
+    "stem": "치",
+    "en": "hit",
+    "type": "verb"
+  },
+  {
+    "stem": "때리",
+    "en": "beat",
+    "type": "verb"
+  },
+  {
+    "stem": "찌르",
+    "en": "stab",
+    "type": "verb"
+  },
+  {
+    "stem": "자르",
+    "en": "cut",
+    "type": "verb"
+  },
+  {
+    "stem": "찢",
+    "en": "tear",
+    "type": "verb"
+  },
+  {
+    "stem": "붙이",
+    "en": "attach",
+    "type": "verb"
+  },
+  {
+    "stem": "떼",
+    "en": "detach",
+    "type": "verb"
+  },
+  {
+    "stem": "묶",
+    "en": "tie",
+    "type": "verb"
+  },
+  {
+    "stem": "풀",
+    "en": "untie",
+    "type": "verb"
+  },
+  {
+    "stem": "생각하",
+    "en": "think",
+    "type": "verb"
+  },
+  {
+    "stem": "고민하",
+    "en": "worry",
+    "type": "verb"
+  },
+  {
+    "stem": "궁금하",
+    "en": "wonder",
+    "type": "verb"
+  },
+  {
+    "stem": "상상하",
+    "en": "imagine",
+    "type": "verb"
+  },
+  {
+    "stem": "꿈꾸",
+    "en": "dream",
+    "type": "verb"
+  },
+  {
+    "stem": "바라",
+    "en": "wish",
+    "type": "verb"
+  },
+  {
+    "stem": "원하",
+    "en": "want",
+    "type": "verb"
+  },
+  {
+    "stem": "필요하",
+    "en": "need",
+    "type": "verb"
+  },
+  {
+    "stem": "좋아하",
+    "en": "like",
+    "type": "verb"
+  },
+  {
+    "stem": "사랑하",
+    "en": "love",
+    "type": "verb"
+  },
+  {
+    "stem": "싫어하",
+    "en": "dislike",
+    "type": "verb"
+  },
+  {
+    "stem": "미워하",
+    "en": "hate",
+    "type": "verb"
+  },
+  {
+    "stem": "존경하",
+    "en": "respect",
+    "type": "verb"
+  },
+  {
+    "stem": "존중하",
+    "en": "esteem",
+    "type": "verb"
+  },
+  {
+    "stem": "부러워하",
+    "en": "envy",
+    "type": "verb"
+  },
+  {
+    "stem": "질투하",
+    "en": "be jealous",
+    "type": "verb"
+  },
+  {
+    "stem": "무서워하",
+    "en": "be afraid",
+    "type": "verb"
+  },
+  {
+    "stem": "두려워하",
+    "en": "fear",
+    "type": "verb"
+  },
+  {
+    "stem": "걱정하",
+    "en": "worry",
+    "type": "verb"
+  },
+  {
+    "stem": "불안해하",
+    "en": "be anxious",
+    "type": "verb"
+  },
+  {
+    "stem": "놀라",
+    "en": "be surprised",
+    "type": "verb"
+  },
+  {
+    "stem": "충격받",
+    "en": "be shocked",
+    "type": "verb"
+  },
+  {
+    "stem": "기뻐하",
+    "en": "be happy",
+    "type": "verb"
+  },
+  {
+    "stem": "즐거워하",
+    "en": "enjoy",
+    "type": "verb"
+  },
+  {
+    "stem": "슬퍼하",
+    "en": "be sad",
+    "type": "verb"
+  },
+  {
+    "stem": "우울해하",
+    "en": "be depressed",
+    "type": "verb"
+  },
+  {
+    "stem": "화내",
+    "en": "be angry",
+    "type": "verb"
+  },
+  {
+    "stem": "짜증나",
+    "en": "be irritated",
+    "type": "verb"
+  },
+  {
+    "stem": "후회하",
+    "en": "regret",
+    "type": "verb"
+  },
+  {
+    "stem": "부끄러워하",
+    "en": "be ashamed",
+    "type": "verb"
+  },
+  {
+    "stem": "당황하",
+    "en": "be embarrassed",
+    "type": "verb"
+  },
+  {
+    "stem": "자랑하",
+    "en": "be proud",
+    "type": "verb"
+  },
+  {
+    "stem": "만족하",
+    "en": "be satisfied",
+    "type": "verb"
+  },
+  {
+    "stem": "실망하",
+    "en": "be disappointed",
+    "type": "verb"
+  },
+  {
+    "stem": "지루해하",
+    "en": "be bored",
+    "type": "verb"
+  },
+  {
+    "stem": "피곤해하",
+    "en": "be tired",
+    "type": "verb"
+  },
+  {
+    "stem": "졸리",
+    "en": "be sleepy",
+    "type": "verb"
+  },
+  {
+    "stem": "배고프",
+    "en": "be hungry",
+    "type": "verb"
+  },
+  {
+    "stem": "목마르",
+    "en": "be thirsty",
+    "type": "verb"
+  },
+  {
+    "stem": "아프",
+    "en": "hurt",
+    "type": "verb"
+  },
+  {
+    "stem": "고통스러워하",
+    "en": "suffer",
+    "type": "verb"
+  },
+  {
+    "stem": "편안하",
+    "en": "be comfortable",
+    "type": "verb"
+  },
+  {
+    "stem": "불편하",
+    "en": "be uncomfortable",
+    "type": "verb"
+  },
+  {
+    "stem": "외롭",
+    "en": "be lonely",
+    "type": "verb"
+  },
+  {
+    "stem": "쓸쓸하",
+    "en": "be desolate",
+    "type": "verb"
+  },
+  {
+    "stem": "행복하",
+    "en": "be happy",
+    "type": "verb"
+  },
+  {
+    "stem": "알",
+    "en": "know",
+    "type": "verb"
+  },
+  {
+    "stem": "이해하",
+    "en": "understand",
+    "type": "verb"
+  },
+  {
+    "stem": "깨닫",
+    "en": "realize",
+    "type": "verb"
+  },
+  {
+    "stem": "배우",
+    "en": "learn",
+    "type": "verb"
+  },
+  {
+    "stem": "익히",
+    "en": "master",
+    "type": "verb"
+  },
+  {
+    "stem": "기억하",
+    "en": "remember",
+    "type": "verb"
+  },
+  {
+    "stem": "잊",
+    "en": "forget",
+    "type": "verb"
+  },
+  {
+    "stem": "떠올리",
+    "en": "recall",
+    "type": "verb"
+  },
+  {
+    "stem": "믿",
+    "en": "believe",
+    "type": "verb"
+  },
+  {
+    "stem": "의심하",
+    "en": "doubt",
+    "type": "verb"
+  },
+  {
+    "stem": "추측하",
+    "en": "guess",
+    "type": "verb"
+  },
+  {
+    "stem": "예상하",
+    "en": "expect",
+    "type": "verb"
+  },
+  {
+    "stem": "확인하",
+    "en": "confirm",
+    "type": "verb"
+  },
+  {
+    "stem": "증명하",
+    "en": "prove",
+    "type": "verb"
+  },
+  {
+    "stem": "판단하",
+    "en": "judge",
+    "type": "verb"
+  },
+  {
+    "stem": "결정하",
+    "en": "decide",
+    "type": "verb"
+  },
+  {
+    "stem": "선택하",
+    "en": "choose",
+    "type": "verb"
+  },
+  {
+    "stem": "동의하",
+    "en": "agree",
+    "type": "verb"
+  },
+  {
+    "stem": "반대하",
+    "en": "disagree",
+    "type": "verb"
+  },
+  {
+    "stem": "찬성하",
+    "en": "support",
+    "type": "verb"
+  },
+  {
+    "stem": "거절하",
+    "en": "refuse",
+    "type": "verb"
+  },
+  {
+    "stem": "수락하",
+    "en": "accept",
+    "type": "verb"
+  },
+  {
+    "stem": "허락하",
+    "en": "allow",
+    "type": "verb"
+  },
+  {
+    "stem": "금지하",
+    "en": "forbid",
+    "type": "verb"
+  },
+  {
+    "stem": "강요하",
+    "en": "force",
+    "type": "verb"
+  },
+  {
+    "stem": "권하",
+    "en": "recommend",
+    "type": "verb"
+  },
+  {
+    "stem": "제안하",
+    "en": "suggest",
+    "type": "verb"
+  },
+  {
+    "stem": "요청하",
+    "en": "request",
+    "type": "verb"
+  },
+  {
+    "stem": "부탁하",
+    "en": "ask",
+    "type": "verb"
+  },
+  {
+    "stem": "명령하",
+    "en": "order",
+    "type": "verb"
+  },
+  {
+    "stem": "지시하",
+    "en": "instruct",
+    "type": "verb"
+  },
+  {
+    "stem": "경고하",
+    "en": "warn",
+    "type": "verb"
+  },
+  {
+    "stem": "협박하",
+    "en": "threaten",
+    "type": "verb"
+  },
+  {
+    "stem": "약속하",
+    "en": "promise",
+    "type": "verb"
+  },
+  {
+    "stem": "맹세하",
+    "en": "swear",
+    "type": "verb"
+  },
+  {
+    "stem": "거짓말하",
+    "en": "lie",
+    "type": "verb"
+  },
+  {
+    "stem": "속이",
+    "en": "deceive",
+    "type": "verb"
+  },
+  {
+    "stem": "숨기",
+    "en": "hide",
+    "type": "verb"
+  },
+  {
+    "stem": "드러내",
+    "en": "reveal",
+    "type": "verb"
+  },
+  {
+    "stem": "밝히",
+    "en": "disclose",
+    "type": "verb"
+  },
+  {
+    "stem": "고백하",
+    "en": "confess",
+    "type": "verb"
+  },
+  {
+    "stem": "인정하",
+    "en": "admit",
+    "type": "verb"
+  },
+  {
+    "stem": "부인하",
+    "en": "deny",
+    "type": "verb"
+  },
+  {
+    "stem": "변명하",
+    "en": "make excuses",
+    "type": "verb"
+  },
+  {
+    "stem": "사과하",
+    "en": "apologize",
+    "type": "verb"
+  },
+  {
+    "stem": "용서하",
+    "en": "forgive",
+    "type": "verb"
+  },
+  {
+    "stem": "감사하",
+    "en": "thank",
+    "type": "verb"
+  },
+  {
+    "stem": "축하하",
+    "en": "congratulate",
+    "type": "verb"
+  },
+  {
+    "stem": "위로하",
+    "en": "comfort",
+    "type": "verb"
+  },
+  {
+    "stem": "격려하",
+    "en": "encourage",
+    "type": "verb"
+  },
+  {
+    "stem": "일하",
+    "en": "work",
+    "type": "verb"
+  },
+  {
+    "stem": "근무하",
+    "en": "be on duty",
+    "type": "verb"
+  },
+  {
+    "stem": "출근하",
+    "en": "go to work",
+    "type": "verb"
+  },
+  {
+    "stem": "퇴근하",
+    "en": "leave work",
+    "type": "verb"
+  },
+  {
+    "stem": "공부하",
+    "en": "study",
+    "type": "verb"
+  },
+  {
+    "stem": "연구하",
+    "en": "research",
+    "type": "verb"
+  },
+  {
+    "stem": "조사하",
+    "en": "investigate",
+    "type": "verb"
+  },
+  {
+    "stem": "분석하",
+    "en": "analyze",
+    "type": "verb"
+  },
+  {
+    "stem": "실험하",
+    "en": "experiment",
+    "type": "verb"
+  },
+  {
+    "stem": "관찰하",
+    "en": "observe",
+    "type": "verb"
+  },
+  {
+    "stem": "검사하",
+    "en": "inspect",
+    "type": "verb"
+  },
+  {
+    "stem": "측정하",
+    "en": "measure",
+    "type": "verb"
+  },
+  {
+    "stem": "계산하",
+    "en": "calculate",
+    "type": "verb"
+  },
+  {
+    "stem": "세",
+    "en": "count",
+    "type": "verb"
+  },
+  {
+    "stem": "더하",
+    "en": "add",
+    "type": "verb"
+  },
+  {
+    "stem": "빼",
+    "en": "subtract",
+    "type": "verb"
+  },
+  {
+    "stem": "곱하",
+    "en": "multiply",
+    "type": "verb"
+  },
+  {
+    "stem": "나누",
+    "en": "divide",
+    "type": "verb"
+  },
+  {
+    "stem": "가르치",
+    "en": "teach",
+    "type": "verb"
+  },
+  {
+    "stem": "설명하",
+    "en": "explain",
+    "type": "verb"
+  },
+  {
+    "stem": "해석하",
+    "en": "interpret",
+    "type": "verb"
+  },
+  {
+    "stem": "번역하",
+    "en": "translate",
+    "type": "verb"
+  },
+  {
+    "stem": "통역하",
+    "en": "interpret",
+    "type": "verb"
+  },
+  {
+    "stem": "발표하",
+    "en": "present",
+    "type": "verb"
+  },
+  {
+    "stem": "강연하",
+    "en": "lecture",
+    "type": "verb"
+  },
+  {
+    "stem": "토론하",
+    "en": "discuss",
+    "type": "verb"
+  },
+  {
+    "stem": "논쟁하",
+    "en": "argue",
+    "type": "verb"
+  },
+  {
+    "stem": "질문하",
+    "en": "question",
+    "type": "verb"
+  },
+  {
+    "stem": "대답하",
+    "en": "answer",
+    "type": "verb"
+  },
+  {
+    "stem": "응답하",
+    "en": "respond",
+    "type": "verb"
+  },
+  {
+    "stem": "반응하",
+    "en": "react",
+    "type": "verb"
+  },
+  {
+    "stem": "만들",
+    "en": "make",
+    "type": "verb"
+  },
+  {
+    "stem": "제작하",
+    "en": "produce",
+    "type": "verb"
+  },
+  {
+    "stem": "생산하",
+    "en": "manufacture",
+    "type": "verb"
+  },
+  {
+    "stem": "창조하",
+    "en": "create",
+    "type": "verb"
+  },
+  {
+    "stem": "발명하",
+    "en": "invent",
+    "type": "verb"
+  },
+  {
+    "stem": "개발하",
+    "en": "develop",
+    "type": "verb"
+  },
+  {
+    "stem": "설계하",
+    "en": "design",
+    "type": "verb"
+  },
+  {
+    "stem": "구성하",
+    "en": "construct",
+    "type": "verb"
+  },
+  {
+    "stem": "조립하",
+    "en": "assemble",
+    "type": "verb"
+  },
+  {
+    "stem": "분해하",
+    "en": "disassemble",
+    "type": "verb"
+  },
+  {
+    "stem": "수리하",
+    "en": "repair",
+    "type": "verb"
+  },
+  {
+    "stem": "고치",
+    "en": "fix",
+    "type": "verb"
+  },
+  {
+    "stem": "개선하",
+    "en": "improve",
+    "type": "verb"
+  },
+  {
+    "stem": "향상시키",
+    "en": "enhance",
+    "type": "verb"
+  },
+  {
+    "stem": "발전시키",
+    "en": "develop",
+    "type": "verb"
+  },
+  {
+    "stem": "변화시키",
+    "en": "change",
+    "type": "verb"
+  },
+  {
+    "stem": "바꾸",
+    "en": "change",
+    "type": "verb"
+  },
+  {
+    "stem": "전환하",
+    "en": "switch",
+    "type": "verb"
+  },
+  {
+    "stem": "옮기",
+    "en": "move",
+    "type": "verb"
+  },
+  {
+    "stem": "이동하",
+    "en": "transfer",
+    "type": "verb"
+  },
+  {
+    "stem": "운반하",
+    "en": "carry",
+    "type": "verb"
+  },
+  {
+    "stem": "배달하",
+    "en": "deliver",
+    "type": "verb"
+  },
+  {
+    "stem": "보내",
+    "en": "send",
+    "type": "verb"
+  },
+  {
+    "stem": "전달하",
+    "en": "convey",
+    "type": "verb"
+  },
+  {
+    "stem": "전송하",
+    "en": "transmit",
+    "type": "verb"
+  },
+  {
+    "stem": "수신하",
+    "en": "receive",
+    "type": "verb"
+  },
+  {
+    "stem": "저장하",
+    "en": "store",
+    "type": "verb"
+  },
+  {
+    "stem": "보관하",
+    "en": "keep",
+    "type": "verb"
+  },
+  {
+    "stem": "정리하",
+    "en": "organize",
+    "type": "verb"
+  },
+  {
+    "stem": "분류하",
+    "en": "classify",
+    "type": "verb"
+  },
+  {
+    "stem": "배치하",
+    "en": "arrange",
+    "type": "verb"
+  },
+  {
+    "stem": "설치하",
+    "en": "install",
+    "type": "verb"
+  },
+  {
+    "stem": "해체하",
+    "en": "dismantle",
+    "type": "verb"
+  },
+  {
+    "stem": "제거하",
+    "en": "remove",
+    "type": "verb"
+  },
+  {
+    "stem": "삭제하",
+    "en": "delete",
+    "type": "verb"
+  },
+  {
+    "stem": "추가하",
+    "en": "add",
+    "type": "verb"
+  },
+  {
+    "stem": "삽입하",
+    "en": "insert",
+    "type": "verb"
+  },
+  {
+    "stem": "복사하",
+    "en": "copy",
+    "type": "verb"
+  },
+  {
+    "stem": "붙여넣",
+    "en": "paste",
+    "type": "verb"
+  },
+  {
+    "stem": "잘라내",
+    "en": "cut",
+    "type": "verb"
+  },
+  {
+    "stem": "되돌리",
+    "en": "undo",
+    "type": "verb"
+  },
+  {
+    "stem": "다시하",
+    "en": "redo",
+    "type": "verb"
+  },
+  {
+    "stem": "취소하",
+    "en": "cancel",
+    "type": "verb"
+  },
+  {
+    "stem": "완료하",
+    "en": "complete",
+    "type": "verb"
+  },
+  {
+    "stem": "마치",
+    "en": "finish",
+    "type": "verb"
+  },
+  {
+    "stem": "끝내",
+    "en": "end",
+    "type": "verb"
+  },
+  {
+    "stem": "시작하",
+    "en": "start",
+    "type": "verb"
+  },
+  {
+    "stem": "시작되",
+    "en": "begin",
+    "type": "verb"
+  },
+  {
+    "stem": "개시하",
+    "en": "commence",
+    "type": "verb"
+  },
+  {
+    "stem": "착수하",
+    "en": "undertake",
+    "type": "verb"
+  },
+  {
+    "stem": "계속하",
+    "en": "continue",
+    "type": "verb"
+  },
+  {
+    "stem": "진행하",
+    "en": "proceed",
+    "type": "verb"
+  },
+  {
+    "stem": "중단하",
+    "en": "stop",
+    "type": "verb"
+  },
+  {
+    "stem": "일시정지하",
+    "en": "pause",
+    "type": "verb"
+  },
+  {
+    "stem": "재개하",
+    "en": "resume",
+    "type": "verb"
+  },
+  {
+    "stem": "반복하",
+    "en": "repeat",
+    "type": "verb"
+  },
+  {
+    "stem": "연습하",
+    "en": "practice",
+    "type": "verb"
+  },
+  {
+    "stem": "훈련하",
+    "en": "train",
+    "type": "verb"
+  },
+  {
+    "stem": "준비하",
+    "en": "prepare",
+    "type": "verb"
+  },
+  {
+    "stem": "계획하",
+    "en": "plan",
+    "type": "verb"
+  },
+  {
+    "stem": "예약하",
+    "en": "reserve",
+    "type": "verb"
+  },
+  {
+    "stem": "등록하",
+    "en": "register",
+    "type": "verb"
+  },
+  {
+    "stem": "신청하",
+    "en": "apply",
+    "type": "verb"
+  },
+  {
+    "stem": "참가하",
+    "en": "participate",
+    "type": "verb"
+  },
+  {
+    "stem": "참석하",
+    "en": "attend",
+    "type": "verb"
+  },
+  {
+    "stem": "결석하",
+    "en": "be absent",
+    "type": "verb"
+  },
+  {
+    "stem": "졸업하",
+    "en": "graduate",
+    "type": "verb"
+  },
+  {
+    "stem": "입학하",
+    "en": "enter school",
+    "type": "verb"
+  },
+  {
+    "stem": "전학하",
+    "en": "transfer schools",
+    "type": "verb"
+  },
+  {
+    "stem": "만나",
+    "en": "meet",
+    "type": "verb"
+  },
+  {
+    "stem": "만남하",
+    "en": "encounter",
+    "type": "verb"
+  },
+  {
+    "stem": "헤어지",
+    "en": "part",
+    "type": "verb"
+  },
+  {
+    "stem": "이별하",
+    "en": "say goodbye",
+    "type": "verb"
+  },
+  {
+    "stem": "인사하",
+    "en": "greet",
+    "type": "verb"
+  },
+  {
+    "stem": "소개하",
+    "en": "introduce",
+    "type": "verb"
+  },
+  {
+    "stem": "알리",
+    "en": "inform",
+    "type": "verb"
+  },
+  {
+    "stem": "통지하",
+    "en": "notify",
+    "type": "verb"
+  },
+  {
+    "stem": "연락하",
+    "en": "contact",
+    "type": "verb"
+  },
+  {
+    "stem": "전화하",
+    "en": "call",
+    "type": "verb"
+  },
+  {
+    "stem": "문자하",
+    "en": "text",
+    "type": "verb"
+  },
+  {
+    "stem": "이메일하",
+    "en": "email",
+    "type": "verb"
+  },
+  {
+    "stem": "채팅하",
+    "en": "chat",
+    "type": "verb"
+  },
+  {
+    "stem": "메시지보내",
+    "en": "message",
+    "type": "verb"
+  },
+  {
+    "stem": "초대하",
+    "en": "invite",
+    "type": "verb"
+  },
+  {
+    "stem": "방문하",
+    "en": "visit",
+    "type": "verb"
+  },
+  {
+    "stem": "찾아가",
+    "en": "visit",
+    "type": "verb"
+  },
+  {
+    "stem": "맞이하",
+    "en": "welcome",
+    "type": "verb"
+  },
+  {
+    "stem": "환영하",
+    "en": "greet",
+    "type": "verb"
+  },
+  {
+    "stem": "배웅하",
+    "en": "see off",
+    "type": "verb"
+  },
+  {
+    "stem": "따라가",
+    "en": "follow",
+    "type": "verb"
+  },
+  {
+    "stem": "안내하",
+    "en": "guide",
+    "type": "verb"
+  },
+  {
+    "stem": "인도하",
+    "en": "lead",
+    "type": "verb"
+  },
+  {
+    "stem": "동행하",
+    "en": "accompany",
+    "type": "verb"
+  },
+  {
+    "stem": "돕",
+    "en": "help",
+    "type": "verb"
+  },
+  {
+    "stem": "도와주",
+    "en": "assist",
+    "type": "verb"
+  },
+  {
+    "stem": "지원하",
+    "en": "support",
+    "type": "verb"
+  },
+  {
+    "stem": "협력하",
+    "en": "cooperate",
+    "type": "verb"
+  },
+  {
+    "stem": "협조하",
+    "en": "collaborate",
+    "type": "verb"
+  },
+  {
+    "stem": "경쟁하",
+    "en": "compete",
+    "type": "verb"
+  },
+  {
+    "stem": "대결하",
+    "en": "compete",
+    "type": "verb"
+  },
+  {
+    "stem": "싸우",
+    "en": "fight",
+    "type": "verb"
+  },
+  {
+    "stem": "다투",
+    "en": "quarrel",
+    "type": "verb"
+  },
+  {
+    "stem": "화해하",
+    "en": "reconcile",
+    "type": "verb"
+  },
+  {
+    "stem": "타협하",
+    "en": "compromise",
+    "type": "verb"
+  },
+  {
+    "stem": "협상하",
+    "en": "negotiate",
+    "type": "verb"
+  },
+  {
+    "stem": "거래하",
+    "en": "deal",
+    "type": "verb"
+  },
+  {
+    "stem": "교환하",
+    "en": "exchange",
+    "type": "verb"
+  },
+  {
+    "stem": "배분하",
+    "en": "distribute",
+    "type": "verb"
+  },
+  {
+    "stem": "할당하",
+    "en": "allocate",
+    "type": "verb"
+  },
+  {
+    "stem": "제공하",
+    "en": "provide",
+    "type": "verb"
+  },
+  {
+    "stem": "공급하",
+    "en": "supply",
+    "type": "verb"
+  },
+  {
+    "stem": "지급하",
+    "en": "pay",
+    "type": "verb"
+  },
+  {
+    "stem": "청구하",
+    "en": "charge",
+    "type": "verb"
+  },
+  {
+    "stem": "요구하",
+    "en": "demand",
+    "type": "verb"
+  },
+  {
+    "stem": "필요로하",
+    "en": "require",
+    "type": "verb"
+  },
+  {
+    "stem": "간청하",
+    "en": "beg",
+    "type": "verb"
+  },
+  {
+    "stem": "애원하",
+    "en": "plead",
+    "type": "verb"
+  },
+  {
+    "stem": "칭찬하",
+    "en": "praise",
+    "type": "verb"
+  },
+  {
+    "stem": "비판하",
+    "en": "criticize",
+    "type": "verb"
+  },
+  {
+    "stem": "비난하",
+    "en": "blame",
+    "type": "verb"
+  },
+  {
+    "stem": "욕하",
+    "en": "curse",
+    "type": "verb"
+  },
+  {
+    "stem": "무시하",
+    "en": "ignore",
+    "type": "verb"
+  },
+  {
+    "stem": "무관심하",
+    "en": "be indifferent",
+    "type": "verb"
+  },
+  {
+    "stem": "관심갖",
+    "en": "be interested",
+    "type": "verb"
+  },
+  {
+    "stem": "주목하",
+    "en": "pay attention",
+    "type": "verb"
+  },
+  {
+    "stem": "집중하",
+    "en": "concentrate",
+    "type": "verb"
+  },
+  {
+    "stem": "몰두하",
+    "en": "be absorbed",
+    "type": "verb"
+  },
+  {
+    "stem": "빠지",
+    "en": "fall into",
+    "type": "verb"
+  },
+  {
+    "stem": "참여하",
+    "en": "participate",
+    "type": "verb"
+  },
+  {
+    "stem": "가입하",
+    "en": "join",
+    "type": "verb"
+  },
+  {
+    "stem": "탈퇴하",
+    "en": "withdraw",
+    "type": "verb"
+  },
+  {
+    "stem": "소속되",
+    "en": "belong",
+    "type": "verb"
+  },
+  {
+    "stem": "포함되",
+    "en": "be included",
+    "type": "verb"
+  },
+  {
+    "stem": "제외되",
+    "en": "be excluded",
+    "type": "verb"
+  },
+  {
+    "stem": "구별하",
+    "en": "distinguish",
+    "type": "verb"
+  },
+  {
+    "stem": "비교하",
+    "en": "compare",
+    "type": "verb"
+  },
+  {
+    "stem": "대조하",
+    "en": "contrast",
+    "type": "verb"
+  },
+  {
+    "stem": "유사하",
+    "en": "be similar",
+    "type": "verb"
+  },
+  {
+    "stem": "다르",
+    "en": "differ",
+    "type": "verb"
+  },
+  {
+    "stem": "같",
+    "en": "be same",
+    "type": "verb"
+  },
+  {
+    "stem": "일치하",
+    "en": "match",
+    "type": "verb"
+  },
+  {
+    "stem": "틀리",
+    "en": "be wrong",
+    "type": "verb"
+  },
+  {
+    "stem": "맞",
+    "en": "be right",
+    "type": "verb"
+  },
+  {
+    "stem": "정확하",
+    "en": "be accurate",
+    "type": "verb"
+  },
+  {
+    "stem": "실수하",
+    "en": "make a mistake",
+    "type": "verb"
+  },
+  {
+    "stem": "착각하",
+    "en": "be mistaken",
+    "type": "verb"
+  },
+  {
+    "stem": "오해하",
+    "en": "misunderstand",
+    "type": "verb"
+  },
+  {
+    "stem": "파악하",
+    "en": "grasp",
+    "type": "verb"
+  },
+  {
+    "stem": "인식하",
+    "en": "recognize",
+    "type": "verb"
+  },
+  {
+    "stem": "구분하",
+    "en": "differentiate",
+    "type": "verb"
+  },
+  {
+    "stem": "발견하",
+    "en": "discover",
+    "type": "verb"
+  },
+  {
+    "stem": "찾",
+    "en": "find",
+    "type": "verb"
+  },
+  {
+    "stem": "탐색하",
+    "en": "search",
+    "type": "verb"
+  },
+  {
+    "stem": "추적하",
+    "en": "track",
+    "type": "verb"
+  },
+  {
+    "stem": "따라잡",
+    "en": "catch up",
+    "type": "verb"
+  },
+  {
+    "stem": "추월하",
+    "en": "overtake",
+    "type": "verb"
+  },
+  {
+    "stem": "앞서",
+    "en": "lead",
+    "type": "verb"
+  },
+  {
+    "stem": "뒤처지",
+    "en": "fall behind",
+    "type": "verb"
+  },
+  {
+    "stem": "성공하",
+    "en": "succeed",
+    "type": "verb"
+  },
+  {
+    "stem": "실패하",
+    "en": "fail",
+    "type": "verb"
+  },
+  {
+    "stem": "이기",
+    "en": "win",
+    "type": "verb"
+  },
+  {
+    "stem": "지",
+    "en": "lose",
+    "type": "verb"
+  },
+  {
+    "stem": "무승부하",
+    "en": "tie",
+    "type": "verb"
+  },
+  {
+    "stem": "살",
+    "en": "live",
+    "type": "verb"
+  },
+  {
+    "stem": "죽",
+    "en": "die",
+    "type": "verb"
+  },
+  {
+    "stem": "태어나",
+    "en": "be born",
+    "type": "verb"
+  },
+  {
+    "stem": "자라",
+    "en": "grow up",
+    "type": "verb"
+  },
+  {
+    "stem": "성장하",
+    "en": "grow",
+    "type": "verb"
+  },
+  {
+    "stem": "발달하",
+    "en": "develop",
+    "type": "verb"
+  },
+  {
+    "stem": "진화하",
+    "en": "evolve",
+    "type": "verb"
+  },
+  {
+    "stem": "변하",
+    "en": "change",
+    "type": "verb"
+  },
+  {
+    "stem": "변화하",
+    "en": "transform",
+    "type": "verb"
+  },
+  {
+    "stem": "유지하",
+    "en": "maintain",
+    "type": "verb"
+  },
+  {
+    "stem": "보존하",
+    "en": "preserve",
+    "type": "verb"
+  },
+  {
+    "stem": "파괴하",
+    "en": "destroy",
+    "type": "verb"
+  },
+  {
+    "stem": "망치",
+    "en": "ruin",
+    "type": "verb"
+  },
+  {
+    "stem": "손상시키",
+    "en": "damage",
+    "type": "verb"
+  },
+  {
+    "stem": "깨뜨리",
+    "en": "break",
+    "type": "verb"
+  },
+  {
+    "stem": "부수",
+    "en": "smash",
+    "type": "verb"
+  },
+  {
+    "stem": "터뜨리",
+    "en": "burst",
+    "type": "verb"
+  },
+  {
+    "stem": "폭발하",
+    "en": "explode",
+    "type": "verb"
+  },
+  {
+    "stem": "불타",
+    "en": "burn",
+    "type": "verb"
+  },
+  {
+    "stem": "녹",
+    "en": "melt",
+    "type": "verb"
+  },
+  {
+    "stem": "얼",
+    "en": "freeze",
+    "type": "verb"
+  },
+  {
+    "stem": "증발하",
+    "en": "evaporate",
+    "type": "verb"
+  },
+  {
+    "stem": "응축되",
+    "en": "condense",
+    "type": "verb"
+  },
+  {
+    "stem": "흐르",
+    "en": "flow",
+    "type": "verb"
+  },
+  {
+    "stem": "떨어지",
+    "en": "fall",
+    "type": "verb"
+  },
+  {
+    "stem": "추락하",
+    "en": "crash",
+    "type": "verb"
+  },
+  {
+    "stem": "상승하",
+    "en": "rise",
+    "type": "verb"
+  },
+  {
+    "stem": "하강하",
+    "en": "descend",
+    "type": "verb"
+  },
+  {
+    "stem": "오르",
+    "en": "climb",
+    "type": "verb"
+  },
+  {
+    "stem": "내려가",
+    "en": "go down",
+    "type": "verb"
+  },
+  {
+    "stem": "들어가",
+    "en": "enter",
+    "type": "verb"
+  },
+  {
+    "stem": "나가",
+    "en": "exit",
+    "type": "verb"
+  },
+  {
+    "stem": "돌아가",
+    "en": "return",
+    "type": "verb"
+  },
+  {
+    "stem": "출발하",
+    "en": "depart",
+    "type": "verb"
+  },
+  {
+    "stem": "도착하",
+    "en": "arrive",
+    "type": "verb"
+  },
+  {
+    "stem": "경유하",
+    "en": "via",
+    "type": "verb"
+  },
+  {
+    "stem": "통과하",
+    "en": "pass through",
+    "type": "verb"
+  },
+  {
+    "stem": "건너",
+    "en": "cross",
+    "type": "verb"
+  },
+  {
+    "stem": "우회하",
+    "en": "detour",
+    "type": "verb"
+  },
+  {
+    "stem": "피하",
+    "en": "avoid",
+    "type": "verb"
+  },
+  {
+    "stem": "회피하",
+    "en": "evade",
+    "type": "verb"
+  },
+  {
+    "stem": "직면하",
+    "en": "face",
+    "type": "verb"
+  },
+  {
+    "stem": "대면하",
+    "en": "confront",
+    "type": "verb"
+  },
+  {
+    "stem": "도전하",
+    "en": "challenge",
+    "type": "verb"
+  },
+  {
+    "stem": "시도하",
+    "en": "attempt",
+    "type": "verb"
+  },
+  {
+    "stem": "노력하",
+    "en": "try",
+    "type": "verb"
+  },
+  {
+    "stem": "애쓰",
+    "en": "strive",
+    "type": "verb"
+  },
+  {
+    "stem": "분투하",
+    "en": "struggle",
+    "type": "verb"
+  },
+  {
+    "stem": "고생하",
+    "en": "suffer",
+    "type": "verb"
+  },
+  {
+    "stem": "견디",
+    "en": "endure",
+    "type": "verb"
+  },
+  {
+    "stem": "참",
+    "en": "bear",
+    "type": "verb"
+  },
+  {
+    "stem": "극복하",
+    "en": "overcome",
+    "type": "verb"
+  },
+  {
+    "stem": "해결하",
+    "en": "solve",
+    "type": "verb"
+  },
+  {
+    "stem": "처리하",
+    "en": "handle",
+    "type": "verb"
+  },
+  {
+    "stem": "다루",
+    "en": "deal with",
+    "type": "verb"
+  },
+  {
+    "stem": "관리하",
+    "en": "manage",
+    "type": "verb"
+  },
+  {
+    "stem": "운영하",
+    "en": "operate",
+    "type": "verb"
+  },
+  {
+    "stem": "통제하",
+    "en": "control",
+    "type": "verb"
+  },
+  {
+    "stem": "조절하",
+    "en": "adjust",
+    "type": "verb"
+  },
+  {
+    "stem": "규제하",
+    "en": "regulate",
+    "type": "verb"
+  },
+  {
+    "stem": "억제하",
+    "en": "suppress",
+    "type": "verb"
+  },
+  {
+    "stem": "방지하",
+    "en": "prevent",
+    "type": "verb"
+  },
+  {
+    "stem": "막",
+    "en": "block",
+    "type": "verb"
+  },
+  {
+    "stem": "차단하",
+    "en": "cut off",
+    "type": "verb"
+  },
+  {
+    "stem": "연결하",
+    "en": "connect",
+    "type": "verb"
+  },
+  {
+    "stem": "결합하",
+    "en": "combine",
+    "type": "verb"
+  },
+  {
+    "stem": "합치",
+    "en": "merge",
+    "type": "verb"
+  },
+  {
+    "stem": "통합하",
+    "en": "integrate",
+    "type": "verb"
+  },
+  {
+    "stem": "분리하",
+    "en": "separate",
+    "type": "verb"
+  },
+  {
+    "stem": "쪼개",
+    "en": "split",
+    "type": "verb"
+  },
+  {
+    "stem": "모으",
+    "en": "gather",
+    "type": "verb"
+  },
+  {
+    "stem": "수집하",
+    "en": "collect",
+    "type": "verb"
+  },
+  {
+    "stem": "축적하",
+    "en": "accumulate",
+    "type": "verb"
+  },
+  {
+    "stem": "쌓",
+    "en": "pile up",
+    "type": "verb"
+  },
+  {
+    "stem": "흩어지",
+    "en": "scatter",
+    "type": "verb"
+  },
+  {
+    "stem": "퍼지",
+    "en": "spread",
+    "type": "verb"
+  },
+  {
+    "stem": "확산되",
+    "en": "expand",
+    "type": "verb"
+  },
+  {
+    "stem": "확대되",
+    "en": "enlarge",
+    "type": "verb"
+  },
+  {
+    "stem": "축소되",
+    "en": "reduce",
+    "type": "verb"
+  },
+  {
+    "stem": "감소하",
+    "en": "decrease",
+    "type": "verb"
+  },
+  {
+    "stem": "증가하",
+    "en": "increase",
+    "type": "verb"
+  },
+  {
+    "stem": "늘",
+    "en": "increase",
+    "type": "verb"
+  },
+  {
+    "stem": "줄",
+    "en": "decrease",
+    "type": "verb"
+  },
+  {
+    "stem": "변동하",
+    "en": "fluctuate",
+    "type": "verb"
+  },
+  {
+    "stem": "안정되",
+    "en": "stabilize",
+    "type": "verb"
+  },
+  {
+    "stem": "고정되",
+    "en": "be fixed",
+    "type": "verb"
+  },
+  {
+    "stem": "움직이",
+    "en": "move",
+    "type": "verb"
+  },
+  {
+    "stem": "정지하",
+    "en": "stop",
+    "type": "verb"
+  },
+  {
+    "stem": "멈추",
+    "en": "halt",
+    "type": "verb"
+  },
+  {
+    "stem": "쉬",
+    "en": "rest",
+    "type": "verb"
+  },
+  {
+    "stem": "휴식하",
+    "en": "take a break",
+    "type": "verb"
+  },
+  {
+    "stem": "재충전하",
+    "en": "recharge",
+    "type": "verb"
+  },
+  {
+    "stem": "크",
+    "en": "big",
+    "type": "adjective"
+  },
+  {
+    "stem": "큰",
+    "en": "large",
+    "type": "adjective"
+  },
+  {
+    "stem": "작",
+    "en": "small",
+    "type": "adjective"
+  },
+  {
+    "stem": "적",
+    "en": "few",
+    "type": "adjective"
+  },
+  {
+    "stem": "많",
+    "en": "many",
+    "type": "adjective"
+  },
+  {
+    "stem": "넓",
+    "en": "wide",
+    "type": "adjective"
+  },
+  {
+    "stem": "좁",
+    "en": "narrow",
+    "type": "adjective"
+  },
+  {
+    "stem": "길",
+    "en": "long",
+    "type": "adjective"
+  },
+  {
+    "stem": "짧",
+    "en": "short",
+    "type": "adjective"
+  },
+  {
+    "stem": "높",
+    "en": "high",
+    "type": "adjective"
+  },
+  {
+    "stem": "낮",
+    "en": "low",
+    "type": "adjective"
+  },
+  {
+    "stem": "깊",
+    "en": "deep",
+    "type": "adjective"
+  },
+  {
+    "stem": "얕",
+    "en": "shallow",
+    "type": "adjective"
+  },
+  {
+    "stem": "두껍",
+    "en": "thick",
+    "type": "adjective"
+  },
+  {
+    "stem": "얇",
+    "en": "thin",
+    "type": "adjective"
+  },
+  {
+    "stem": "무겁",
+    "en": "heavy",
+    "type": "adjective"
+  },
+  {
+    "stem": "가볍",
+    "en": "light",
+    "type": "adjective"
+  },
+  {
+    "stem": "강하",
+    "en": "strong",
+    "type": "adjective"
+  },
+  {
+    "stem": "약하",
+    "en": "weak",
+    "type": "adjective"
+  },
+  {
+    "stem": "단단하",
+    "en": "hard",
+    "type": "adjective"
+  },
+  {
+    "stem": "부드럽",
+    "en": "soft",
+    "type": "adjective"
+  },
+  {
+    "stem": "딱딱하",
+    "en": "stiff",
+    "type": "adjective"
+  },
+  {
+    "stem": "유연하",
+    "en": "flexible",
+    "type": "adjective"
+  },
+  {
+    "stem": "탄력있",
+    "en": "elastic",
+    "type": "adjective"
+  },
+  {
+    "stem": "질긴",
+    "en": "tough",
+    "type": "adjective"
+  },
+  {
+    "stem": "연하",
+    "en": "tender",
+    "type": "adjective"
+  },
+  {
+    "stem": "굵",
+    "en": "thick",
+    "type": "adjective"
+  },
+  {
+    "stem": "가늘",
+    "en": "thin",
+    "type": "adjective"
+  },
+  {
+    "stem": "광범위하",
+    "en": "extensive",
+    "type": "adjective"
+  },
+  {
+    "stem": "협소하",
+    "en": "limited",
+    "type": "adjective"
+  },
+  {
+    "stem": "광대하",
+    "en": "vast",
+    "type": "adjective"
+  },
+  {
+    "stem": "거대하",
+    "en": "huge",
+    "type": "adjective"
+  },
+  {
+    "stem": "막대하",
+    "en": "enormous",
+    "type": "adjective"
+  },
+  {
+    "stem": "미세하",
+    "en": "minute",
+    "type": "adjective"
+  },
+  {
+    "stem": "극소하",
+    "en": "tiny",
+    "type": "adjective"
+  },
+  {
+    "stem": "충분하",
+    "en": "sufficient",
+    "type": "adjective"
+  },
+  {
+    "stem": "부족하",
+    "en": "insufficient",
+    "type": "adjective"
+  },
+  {
+    "stem": "풍부하",
+    "en": "abundant",
+    "type": "adjective"
+  },
+  {
+    "stem": "빈약하",
+    "en": "poor",
+    "type": "adjective"
+  },
+  {
+    "stem": "빨갛",
+    "en": "red",
+    "type": "adjective"
+  },
+  {
+    "stem": "파랗",
+    "en": "blue",
+    "type": "adjective"
+  },
+  {
+    "stem": "노랗",
+    "en": "yellow",
+    "type": "adjective"
+  },
+  {
+    "stem": "초록",
+    "en": "green",
+    "type": "adjective"
+  },
+  {
+    "stem": "하얗",
+    "en": "white",
+    "type": "adjective"
+  },
+  {
+    "stem": "검",
+    "en": "black",
+    "type": "adjective"
+  },
+  {
+    "stem": "회색",
+    "en": "gray",
+    "type": "adjective"
+  },
+  {
+    "stem": "갈색",
+    "en": "brown",
+    "type": "adjective"
+  },
+  {
+    "stem": "주황",
+    "en": "orange",
+    "type": "adjective"
+  },
+  {
+    "stem": "분홍",
+    "en": "pink",
+    "type": "adjective"
+  },
+  {
+    "stem": "보라",
+    "en": "purple",
+    "type": "adjective"
+  },
+  {
+    "stem": "밝",
+    "en": "bright",
+    "type": "adjective"
+  },
+  {
+    "stem": "어둡",
+    "en": "dark",
+    "type": "adjective"
+  },
+  {
+    "stem": "환하",
+    "en": "light",
+    "type": "adjective"
+  },
+  {
+    "stem": "희미하",
+    "en": "dim",
+    "type": "adjective"
+  },
+  {
+    "stem": "선명하",
+    "en": "vivid",
+    "type": "adjective"
+  },
+  {
+    "stem": "흐릿하",
+    "en": "blurry",
+    "type": "adjective"
+  },
+  {
+    "stem": "투명하",
+    "en": "transparent",
+    "type": "adjective"
+  },
+  {
+    "stem": "불투명하",
+    "en": "opaque",
+    "type": "adjective"
+  },
+  {
+    "stem": "반짝이",
+    "en": "shiny",
+    "type": "adjective"
+  },
+  {
+    "stem": "빛나",
+    "en": "bright",
+    "type": "adjective"
+  },
+  {
+    "stem": "화려하",
+    "en": "colorful",
+    "type": "adjective"
+  },
+  {
+    "stem": "수수하",
+    "en": "plain",
+    "type": "adjective"
+  },
+  {
+    "stem": "아름답",
+    "en": "beautiful",
+    "type": "adjective"
+  },
+  {
+    "stem": "예쁘",
+    "en": "pretty",
+    "type": "adjective"
+  },
+  {
+    "stem": "못생기",
+    "en": "ugly",
+    "type": "adjective"
+  },
+  {
+    "stem": "귀엽",
+    "en": "cute",
+    "type": "adjective"
+  },
+  {
+    "stem": "멋있",
+    "en": "cool",
+    "type": "adjective"
+  },
+  {
+    "stem": "우아하",
+    "en": "elegant",
+    "type": "adjective"
+  },
+  {
+    "stem": "세련되",
+    "en": "sophisticated",
+    "type": "adjective"
+  },
+  {
+    "stem": "촌스럽",
+    "en": "tacky",
+    "type": "adjective"
+  },
+  {
+    "stem": "깔끔하",
+    "en": "neat",
+    "type": "adjective"
+  },
+  {
+    "stem": "지저분하",
+    "en": "messy",
+    "type": "adjective"
+  },
+  {
+    "stem": "깨끗하",
+    "en": "clean",
+    "type": "adjective"
+  },
+  {
+    "stem": "더럽",
+    "en": "dirty",
+    "type": "adjective"
+  },
+  {
+    "stem": "정돈되",
+    "en": "organized",
+    "type": "adjective"
+  },
+  {
+    "stem": "어지럽",
+    "en": "disorganized",
+    "type": "adjective"
+  },
+  {
+    "stem": "단정하",
+    "en": "tidy",
+    "type": "adjective"
+  },
+  {
+    "stem": "헝클어지",
+    "en": "disheveled",
+    "type": "adjective"
+  },
+  {
+    "stem": "새롭",
+    "en": "new",
+    "type": "adjective"
+  },
+  {
+    "stem": "좋",
+    "en": "good",
+    "type": "adjective"
+  },
+  {
+    "stem": "나쁘",
+    "en": "bad",
+    "type": "adjective"
+  },
+  {
+    "stem": "불행하",
+    "en": "unhappy",
+    "type": "adjective"
+  },
+  {
+    "stem": "즐겁",
+    "en": "joyful",
+    "type": "adjective"
+  },
+  {
+    "stem": "슬프",
+    "en": "sad",
+    "type": "adjective"
+  },
+  {
+    "stem": "기쁘",
+    "en": "glad",
+    "type": "adjective"
+  },
+  {
+    "stem": "반갑",
+    "en": "glad to see",
+    "type": "adjective"
+  },
+  {
+    "stem": "우울하",
+    "en": "depressed",
+    "type": "adjective"
+  },
+  {
+    "stem": "화나",
+    "en": "angry",
+    "type": "adjective"
+  },
+  {
+    "stem": "평온하",
+    "en": "calm",
+    "type": "adjective"
+  },
+  {
+    "stem": "불안하",
+    "en": "anxious",
+    "type": "adjective"
+  },
+  {
+    "stem": "만족스럽",
+    "en": "satisfied",
+    "type": "adjective"
+  },
+  {
+    "stem": "불만족스럽",
+    "en": "dissatisfied",
+    "type": "adjective"
+  },
+  {
+    "stem": "흥미롭",
+    "en": "interesting",
+    "type": "adjective"
+  },
+  {
+    "stem": "지루하",
+    "en": "boring",
+    "type": "adjective"
+  },
+  {
+    "stem": "재미있",
+    "en": "fun",
+    "type": "adjective"
+  },
+  {
+    "stem": "재미없",
+    "en": "unfun",
+    "type": "adjective"
+  },
+  {
+    "stem": "신나",
+    "en": "exciting",
+    "type": "adjective"
+  },
+  {
+    "stem": "따분하",
+    "en": "dull",
+    "type": "adjective"
+  },
+  {
+    "stem": "놀랍",
+    "en": "surprising",
+    "type": "adjective"
+  },
+  {
+    "stem": "당연하",
+    "en": "natural",
+    "type": "adjective"
+  },
+  {
+    "stem": "이상하",
+    "en": "strange",
+    "type": "adjective"
+  },
+  {
+    "stem": "평범하",
+    "en": "ordinary",
+    "type": "adjective"
+  },
+  {
+    "stem": "특이하",
+    "en": "peculiar",
+    "type": "adjective"
+  },
+  {
+    "stem": "독특하",
+    "en": "unique",
+    "type": "adjective"
+  },
+  {
+    "stem": "일반적",
+    "en": "common",
+    "type": "adjective"
+  },
+  {
+    "stem": "희귀하",
+    "en": "rare",
+    "type": "adjective"
+  },
+  {
+    "stem": "흔하",
+    "en": "common",
+    "type": "adjective"
+  },
+  {
+    "stem": "드물",
+    "en": "rare",
+    "type": "adjective"
+  },
+  {
+    "stem": "익숙하",
+    "en": "familiar",
+    "type": "adjective"
+  },
+  {
+    "stem": "낯설",
+    "en": "unfamiliar",
+    "type": "adjective"
+  },
+  {
+    "stem": "친숙하",
+    "en": "friendly",
+    "type": "adjective"
+  },
+  {
+    "stem": "어색하",
+    "en": "awkward",
+    "type": "adjective"
+  },
+  {
+    "stem": "자연스럽",
+    "en": "natural",
+    "type": "adjective"
+  },
+  {
+    "stem": "부자연스럽",
+    "en": "unnatural",
+    "type": "adjective"
+  },
+  {
+    "stem": "편하",
+    "en": "comfortable",
+    "type": "adjective"
+  },
+  {
+    "stem": "거북하",
+    "en": "uncomfortable",
+    "type": "adjective"
+  },
+  {
+    "stem": "부끄럽",
+    "en": "shy",
+    "type": "adjective"
+  },
+  {
+    "stem": "떳떳하",
+    "en": "confident",
+    "type": "adjective"
+  },
+  {
+    "stem": "당당하",
+    "en": "proud",
+    "type": "adjective"
+  },
+  {
+    "stem": "겸손하",
+    "en": "humble",
+    "type": "adjective"
+  },
+  {
+    "stem": "오만하",
+    "en": "arrogant",
+    "type": "adjective"
+  },
+  {
+    "stem": "친절하",
+    "en": "kind",
+    "type": "adjective"
+  },
+  {
+    "stem": "불친절하",
+    "en": "unkind",
+    "type": "adjective"
+  },
+  {
+    "stem": "상냥하",
+    "en": "gentle",
+    "type": "adjective"
+  },
+  {
+    "stem": "무뚝뚝하",
+    "en": "blunt",
+    "type": "adjective"
+  },
+  {
+    "stem": "다정하",
+    "en": "affectionate",
+    "type": "adjective"
+  },
+  {
+    "stem": "냉정하",
+    "en": "cold",
+    "type": "adjective"
+  },
+  {
+    "stem": "따뜻하",
+    "en": "warm",
+    "type": "adjective"
+  },
+  {
+    "stem": "차갑",
+    "en": "cold",
+    "type": "adjective"
+  },
+  {
+    "stem": "뜨겁",
+    "en": "hot",
+    "type": "adjective"
+  },
+  {
+    "stem": "미지근하",
+    "en": "lukewarm",
+    "type": "adjective"
+  },
+  {
+    "stem": "시원하",
+    "en": "cool",
+    "type": "adjective"
+  },
+  {
+    "stem": "온화하",
+    "en": "mild",
+    "type": "adjective"
+  },
+  {
+    "stem": "혹독하",
+    "en": "harsh",
+    "type": "adjective"
+  },
+  {
+    "stem": "가혹하",
+    "en": "severe",
+    "type": "adjective"
+  },
+  {
+    "stem": "관대하",
+    "en": "generous",
+    "type": "adjective"
+  },
+  {
+    "stem": "인색하",
+    "en": "stingy",
+    "type": "adjective"
+  },
+  {
+    "stem": "후하",
+    "en": "generous",
+    "type": "adjective"
+  },
+  {
+    "stem": "박하",
+    "en": "stingy",
+    "type": "adjective"
+  },
+  {
+    "stem": "너그럽",
+    "en": "tolerant",
+    "type": "adjective"
+  },
+  {
+    "stem": "엄격하",
+    "en": "strict",
+    "type": "adjective"
+  },
+  {
+    "stem": "느슨하",
+    "en": "loose",
+    "type": "adjective"
+  },
+  {
+    "stem": "긴장되",
+    "en": "tense",
+    "type": "adjective"
+  },
+  {
+    "stem": "여유롭",
+    "en": "relaxed",
+    "type": "adjective"
+  },
+  {
+    "stem": "바쁘",
+    "en": "busy",
+    "type": "adjective"
+  },
+  {
+    "stem": "한가하",
+    "en": "free",
+    "type": "adjective"
+  },
+  {
+    "stem": "서두르",
+    "en": "hurried",
+    "type": "adjective"
+  },
+  {
+    "stem": "느긋하",
+    "en": "leisurely",
+    "type": "adjective"
+  },
+  {
+    "stem": "급하",
+    "en": "urgent",
+    "type": "adjective"
+  },
+  {
+    "stem": "천천히",
+    "en": "slow",
+    "type": "adjective"
+  },
+  {
+    "stem": "빠르",
+    "en": "fast",
+    "type": "adjective"
+  },
+  {
+    "stem": "훌륭하",
+    "en": "excellent",
+    "type": "adjective"
+  },
+  {
+    "stem": "형편없",
+    "en": "terrible",
+    "type": "adjective"
+  },
+  {
+    "stem": "완벽하",
+    "en": "perfect",
+    "type": "adjective"
+  },
+  {
+    "stem": "불완전하",
+    "en": "imperfect",
+    "type": "adjective"
+  },
+  {
+    "stem": "정확하",
+    "en": "accurate",
+    "type": "adjective"
+  },
+  {
+    "stem": "부정확하",
+    "en": "inaccurate",
+    "type": "adjective"
+  },
+  {
+    "stem": "정밀하",
+    "en": "precise",
+    "type": "adjective"
+  },
+  {
+    "stem": "대략적",
+    "en": "approximate",
+    "type": "adjective"
+  },
+  {
+    "stem": "상세하",
+    "en": "detailed",
+    "type": "adjective"
+  },
+  {
+    "stem": "간단하",
+    "en": "simple",
+    "type": "adjective"
+  },
+  {
+    "stem": "복잡하",
+    "en": "complex",
+    "type": "adjective"
+  },
+  {
+    "stem": "쉽",
+    "en": "easy",
+    "type": "adjective"
+  },
+  {
+    "stem": "어렵",
+    "en": "difficult",
+    "type": "adjective"
+  },
+  {
+    "stem": "편리하",
+    "en": "convenient",
+    "type": "adjective"
+  },
+  {
+    "stem": "유용하",
+    "en": "useful",
+    "type": "adjective"
+  },
+  {
+    "stem": "쓸모없",
+    "en": "useless",
+    "type": "adjective"
+  },
+  {
+    "stem": "효과적",
+    "en": "effective",
+    "type": "adjective"
+  },
+  {
+    "stem": "비효율적",
+    "en": "inefficient",
+    "type": "adjective"
+  },
+  {
+    "stem": "실용적",
+    "en": "practical",
+    "type": "adjective"
+  },
+  {
+    "stem": "이론적",
+    "en": "theoretical",
+    "type": "adjective"
+  },
+  {
+    "stem": "현실적",
+    "en": "realistic",
+    "type": "adjective"
+  },
+  {
+    "stem": "비현실적",
+    "en": "unrealistic",
+    "type": "adjective"
+  },
+  {
+    "stem": "가능하",
+    "en": "possible",
+    "type": "adjective"
+  },
+  {
+    "stem": "불가능하",
+    "en": "impossible",
+    "type": "adjective"
+  },
+  {
+    "stem": "확실하",
+    "en": "certain",
+    "type": "adjective"
+  },
+  {
+    "stem": "불확실하",
+    "en": "uncertain",
+    "type": "adjective"
+  },
+  {
+    "stem": "명확하",
+    "en": "clear",
+    "type": "adjective"
+  },
+  {
+    "stem": "애매하",
+    "en": "vague",
+    "type": "adjective"
+  },
+  {
+    "stem": "분명하",
+    "en": "obvious",
+    "type": "adjective"
+  },
+  {
+    "stem": "모호하",
+    "en": "ambiguous",
+    "type": "adjective"
+  },
+  {
+    "stem": "의심스럽",
+    "en": "doubtful",
+    "type": "adjective"
+  },
+  {
+    "stem": "신뢰할만하",
+    "en": "reliable",
+    "type": "adjective"
+  },
+  {
+    "stem": "믿을수없",
+    "en": "unreliable",
+    "type": "adjective"
+  },
+  {
+    "stem": "진실되",
+    "en": "true",
+    "type": "adjective"
+  },
+  {
+    "stem": "거짓되",
+    "en": "false",
+    "type": "adjective"
+  },
+  {
+    "stem": "정직하",
+    "en": "honest",
+    "type": "adjective"
+  },
+  {
+    "stem": "부정직하",
+    "en": "dishonest",
+    "type": "adjective"
+  },
+  {
+    "stem": "성실하",
+    "en": "sincere",
+    "type": "adjective"
+  },
+  {
+    "stem": "불성실하",
+    "en": "insincere",
+    "type": "adjective"
+  },
+  {
+    "stem": "정상적",
+    "en": "normal",
+    "type": "adjective"
+  },
+  {
+    "stem": "비정상적",
+    "en": "abnormal",
+    "type": "adjective"
+  },
+  {
+    "stem": "합법적",
+    "en": "legal",
+    "type": "adjective"
+  },
+  {
+    "stem": "불법적",
+    "en": "illegal",
+    "type": "adjective"
+  },
+  {
+    "stem": "정당하",
+    "en": "legitimate",
+    "type": "adjective"
+  },
+  {
+    "stem": "부당하",
+    "en": "unfair",
+    "type": "adjective"
+  },
+  {
+    "stem": "공정하",
+    "en": "fair",
+    "type": "adjective"
+  },
+  {
+    "stem": "불공정하",
+    "en": "unfair",
+    "type": "adjective"
+  },
+  {
+    "stem": "평등하",
+    "en": "equal",
+    "type": "adjective"
+  },
+  {
+    "stem": "불평등하",
+    "en": "unequal",
+    "type": "adjective"
+  },
+  {
+    "stem": "자유롭",
+    "en": "free",
+    "type": "adjective"
+  },
+  {
+    "stem": "구속되",
+    "en": "restricted",
+    "type": "adjective"
+  },
+  {
+    "stem": "독립적",
+    "en": "independent",
+    "type": "adjective"
+  },
+  {
+    "stem": "의존적",
+    "en": "dependent",
+    "type": "adjective"
+  },
+  {
+    "stem": "주도적",
+    "en": "proactive",
+    "type": "adjective"
+  },
+  {
+    "stem": "소극적",
+    "en": "passive",
+    "type": "adjective"
+  },
+  {
+    "stem": "적극적",
+    "en": "active",
+    "type": "adjective"
+  },
+  {
+    "stem": "긍정적",
+    "en": "positive",
+    "type": "adjective"
+  },
+  {
+    "stem": "부정적",
+    "en": "negative",
+    "type": "adjective"
+  },
+  {
+    "stem": "안전하",
+    "en": "safe",
+    "type": "adjective"
+  },
+  {
+    "stem": "위험하",
+    "en": "dangerous",
+    "type": "adjective"
+  },
+  {
+    "stem": "건강하",
+    "en": "healthy",
+    "type": "adjective"
+  },
+  {
+    "stem": "건강하지않",
+    "en": "unhealthy",
+    "type": "adjective"
+  },
+  {
+    "stem": "튼튼하",
+    "en": "sturdy",
+    "type": "adjective"
+  },
+  {
+    "stem": "병약하",
+    "en": "sickly",
+    "type": "adjective"
+  },
+  {
+    "stem": "생생하",
+    "en": "vivid",
+    "type": "adjective"
+  },
+  {
+    "stem": "활기찬",
+    "en": "lively",
+    "type": "adjective"
+  },
+  {
+    "stem": "활발하",
+    "en": "active",
+    "type": "adjective"
+  },
+  {
+    "stem": "조용하",
+    "en": "quiet",
+    "type": "adjective"
+  },
+  {
+    "stem": "시끄럽",
+    "en": "loud",
+    "type": "adjective"
+  },
+  {
+    "stem": "떠들썩하",
+    "en": "noisy",
+    "type": "adjective"
+  },
+  {
+    "stem": "평화롭",
+    "en": "peaceful",
+    "type": "adjective"
+  },
+  {
+    "stem": "혼란스럽",
+    "en": "chaotic",
+    "type": "adjective"
+  },
+  {
+    "stem": "안정적",
+    "en": "stable",
+    "type": "adjective"
+  },
+  {
+    "stem": "불안정하",
+    "en": "unstable",
+    "type": "adjective"
+  },
+  {
+    "stem": "규칙적",
+    "en": "regular",
+    "type": "adjective"
+  },
+  {
+    "stem": "불규칙하",
+    "en": "irregular",
+    "type": "adjective"
+  },
+  {
+    "stem": "일정하",
+    "en": "constant",
+    "type": "adjective"
+  },
+  {
+    "stem": "변덕스럽",
+    "en": "changeable",
+    "type": "adjective"
+  },
+  {
+    "stem": "지속적",
+    "en": "continuous",
+    "type": "adjective"
+  },
+  {
+    "stem": "간헐적",
+    "en": "intermittent",
+    "type": "adjective"
+  },
+  {
+    "stem": "영구적",
+    "en": "permanent",
+    "type": "adjective"
+  },
+  {
+    "stem": "일시적",
+    "en": "temporary",
+    "type": "adjective"
+  },
+  {
+    "stem": "고정적",
+    "en": "fixed",
+    "type": "adjective"
+  },
+  {
+    "stem": "유동적",
+    "en": "fluid",
+    "type": "adjective"
+  },
+  {
+    "stem": "경직되",
+    "en": "rigid",
+    "type": "adjective"
+  },
+  {
+    "stem": "융통성있",
+    "en": "flexible",
+    "type": "adjective"
+  },
+  {
+    "stem": "보수적",
+    "en": "conservative",
+    "type": "adjective"
+  },
+  {
+    "stem": "진보적",
+    "en": "progressive",
+    "type": "adjective"
+  },
+  {
+    "stem": "전통적",
+    "en": "traditional",
+    "type": "adjective"
+  },
+  {
+    "stem": "현대적",
+    "en": "modern",
+    "type": "adjective"
+  },
+  {
+    "stem": "고전적",
+    "en": "classical",
+    "type": "adjective"
+  },
+  {
+    "stem": "최신",
+    "en": "latest",
+    "type": "adjective"
+  },
+  {
+    "stem": "구식",
+    "en": "old-fashioned",
+    "type": "adjective"
+  },
+  {
+    "stem": "오래되",
+    "en": "old",
+    "type": "adjective"
+  },
+  {
+    "stem": "오래가",
+    "en": "durable",
+    "type": "adjective"
+  },
+  {
+    "stem": "견고하",
+    "en": "solid",
+    "type": "adjective"
+  },
+  {
+    "stem": "취약하",
+    "en": "vulnerable",
+    "type": "adjective"
+  },
+  {
+    "stem": "부서지기쉬운",
+    "en": "brittle",
+    "type": "adjective"
+  },
+  {
+    "stem": "탄탄하",
+    "en": "solid",
+    "type": "adjective"
+  },
+  {
+    "stem": "허술하",
+    "en": "sloppy",
+    "type": "adjective"
+  },
+  {
+    "stem": "빈틈없",
+    "en": "thorough",
+    "type": "adjective"
+  },
+  {
+    "stem": "치밀하",
+    "en": "meticulous",
+    "type": "adjective"
+  },
+  {
+    "stem": "대충하",
+    "en": "careless",
+    "type": "adjective"
+  },
+  {
+    "stem": "신중하",
+    "en": "careful",
+    "type": "adjective"
+  },
+  {
+    "stem": "경솔하",
+    "en": "rash",
+    "type": "adjective"
+  },
+  {
+    "stem": "사려깊",
+    "en": "thoughtful",
+    "type": "adjective"
+  },
+  {
+    "stem": "무심하",
+    "en": "thoughtless",
+    "type": "adjective"
+  },
+  {
+    "stem": "주의깊",
+    "en": "cautious",
+    "type": "adjective"
+  },
+  {
+    "stem": "방심하",
+    "en": "careless",
+    "type": "adjective"
+  },
+  {
+    "stem": "민감하",
+    "en": "sensitive",
+    "type": "adjective"
+  },
+  {
+    "stem": "둔감하",
+    "en": "insensitive",
+    "type": "adjective"
+  },
+  {
+    "stem": "예민하",
+    "en": "sharp",
+    "type": "adjective"
+  },
+  {
+    "stem": "무디",
+    "en": "dull",
+    "type": "adjective"
+  },
+  {
+    "stem": "날카롭",
+    "en": "sharp",
+    "type": "adjective"
+  },
+  {
+    "stem": "뭉툭하",
+    "en": "blunt",
+    "type": "adjective"
+  },
+  {
+    "stem": "뾰족하",
+    "en": "pointed",
+    "type": "adjective"
+  },
+  {
+    "stem": "둥글",
+    "en": "round",
+    "type": "adjective"
+  },
+  {
+    "stem": "평평하",
+    "en": "flat",
+    "type": "adjective"
+  },
+  {
+    "stem": "울퉁불퉁하",
+    "en": "bumpy",
+    "type": "adjective"
+  },
+  {
+    "stem": "매끄럽",
+    "en": "smooth",
+    "type": "adjective"
+  },
+  {
+    "stem": "거칠",
+    "en": "rough",
+    "type": "adjective"
+  },
+  {
+    "stem": "윤기나",
+    "en": "glossy",
+    "type": "adjective"
+  },
+  {
+    "stem": "까칠하",
+    "en": "coarse",
+    "type": "adjective"
+  },
+  {
+    "stem": "온순하",
+    "en": "meek",
+    "type": "adjective"
+  },
+  {
+    "stem": "사납",
+    "en": "fierce",
+    "type": "adjective"
+  },
+  {
+    "stem": "순하",
+    "en": "gentle",
+    "type": "adjective"
+  },
+  {
+    "stem": "포악하",
+    "en": "brutal",
+    "type": "adjective"
+  },
+  {
+    "stem": "격렬하",
+    "en": "violent",
+    "type": "adjective"
+  },
+  {
+    "stem": "차분하",
+    "en": "composed",
+    "type": "adjective"
+  },
+  {
+    "stem": "흥분하",
+    "en": "excited",
+    "type": "adjective"
+  },
+  {
+    "stem": "침착하",
+    "en": "calm",
+    "type": "adjective"
+  },
+  {
+    "stem": "행복",
+    "en": "happiness",
+    "type": "noun"
+  },
+  {
+    "stem": "불행",
+    "en": "unhappiness",
+    "type": "noun"
+  },
+  {
+    "stem": "사랑",
+    "en": "love",
+    "type": "noun"
+  },
+  {
+    "stem": "미움",
+    "en": "hate",
+    "type": "noun"
+  },
+  {
+    "stem": "평화",
+    "en": "peace",
+    "type": "noun"
+  },
+  {
+    "stem": "전쟁",
+    "en": "war",
+    "type": "noun"
+  },
+  {
+    "stem": "자유",
+    "en": "freedom",
+    "type": "noun"
+  },
+  {
+    "stem": "억압",
+    "en": "oppression",
+    "type": "noun"
+  },
+  {
+    "stem": "정의",
+    "en": "justice",
+    "type": "noun"
+  },
+  {
+    "stem": "불의",
+    "en": "injustice",
+    "type": "noun"
+  },
+  {
+    "stem": "진실",
+    "en": "truth",
+    "type": "noun"
+  },
+  {
+    "stem": "거짓",
+    "en": "lie",
+    "type": "noun"
+  },
+  {
+    "stem": "선",
+    "en": "good",
+    "type": "noun"
+  },
+  {
+    "stem": "악",
+    "en": "evil",
+    "type": "noun"
+  },
+  {
+    "stem": "미",
+    "en": "beauty",
+    "type": "noun"
+  },
+  {
+    "stem": "추",
+    "en": "ugliness",
+    "type": "noun"
+  },
+  {
+    "stem": "생명",
+    "en": "life",
+    "type": "noun"
+  },
+  {
+    "stem": "죽음",
+    "en": "death",
+    "type": "noun"
+  },
+  {
+    "stem": "탄생",
+    "en": "birth",
+    "type": "noun"
+  },
+  {
+    "stem": "소멸",
+    "en": "extinction",
+    "type": "noun"
+  },
+  {
+    "stem": "시작",
+    "en": "beginning",
+    "type": "noun"
+  },
+  {
+    "stem": "끝",
+    "en": "end",
+    "type": "noun"
+  },
+  {
+    "stem": "과거",
+    "en": "past",
+    "type": "noun"
+  },
+  {
+    "stem": "현재",
+    "en": "present",
+    "type": "noun"
+  },
+  {
+    "stem": "미래",
+    "en": "future",
+    "type": "noun"
+  },
+  {
+    "stem": "역사",
+    "en": "history",
+    "type": "noun"
+  },
+  {
+    "stem": "전통",
+    "en": "tradition",
+    "type": "noun"
+  },
+  {
+    "stem": "문화",
+    "en": "culture",
+    "type": "noun"
+  },
+  {
+    "stem": "예술",
+    "en": "art",
+    "type": "noun"
+  },
+  {
+    "stem": "과학",
+    "en": "science",
+    "type": "noun"
+  },
+  {
+    "stem": "기술",
+    "en": "technology",
+    "type": "noun"
+  },
+  {
+    "stem": "지식",
+    "en": "knowledge",
+    "type": "noun"
+  },
+  {
+    "stem": "지혜",
+    "en": "wisdom",
+    "type": "noun"
+  },
+  {
+    "stem": "무지",
+    "en": "ignorance",
+    "type": "noun"
+  },
+  {
+    "stem": "교육",
+    "en": "education",
+    "type": "noun"
+  },
+  {
+    "stem": "학습",
+    "en": "learning",
+    "type": "noun"
+  },
+  {
+    "stem": "경험",
+    "en": "experience",
+    "type": "noun"
+  },
+  {
+    "stem": "실험",
+    "en": "experiment",
+    "type": "noun"
+  },
+  {
+    "stem": "이론",
+    "en": "theory",
+    "type": "noun"
+  },
+  {
+    "stem": "실제",
+    "en": "practice",
+    "type": "noun"
+  },
+  {
+    "stem": "성공",
+    "en": "success",
+    "type": "noun"
+  },
+  {
+    "stem": "실패",
+    "en": "failure",
+    "type": "noun"
+  },
+  {
+    "stem": "승리",
+    "en": "victory",
+    "type": "noun"
+  },
+  {
+    "stem": "패배",
+    "en": "defeat",
+    "type": "noun"
+  },
+  {
+    "stem": "희망",
+    "en": "hope",
+    "type": "noun"
+  },
+  {
+    "stem": "절망",
+    "en": "despair",
+    "type": "noun"
+  },
+  {
+    "stem": "꿈",
+    "en": "dream",
+    "type": "noun"
+  },
+  {
+    "stem": "현실",
+    "en": "reality",
+    "type": "noun"
+  },
+  {
+    "stem": "이상",
+    "en": "ideal",
+    "type": "noun"
+  },
+  {
+    "stem": "목표",
+    "en": "goal",
+    "type": "noun"
+  },
+  {
+    "stem": "목적",
+    "en": "purpose",
+    "type": "noun"
+  },
+  {
+    "stem": "의미",
+    "en": "meaning",
+    "type": "noun"
+  },
+  {
+    "stem": "가치",
+    "en": "value",
+    "type": "noun"
+  },
+  {
+    "stem": "중요성",
+    "en": "importance",
+    "type": "noun"
+  },
+  {
+    "stem": "필요성",
+    "en": "necessity",
+    "type": "noun"
+  },
+  {
+    "stem": "가능성",
+    "en": "possibility",
+    "type": "noun"
+  },
+  {
+    "stem": "확실성",
+    "en": "certainty",
+    "type": "noun"
+  },
+  {
+    "stem": "불확실성",
+    "en": "uncertainty",
+    "type": "noun"
+  },
+  {
+    "stem": "위험",
+    "en": "danger",
+    "type": "noun"
+  },
+  {
+    "stem": "안전",
+    "en": "safety",
+    "type": "noun"
+  },
+  {
+    "stem": "건강",
+    "en": "health",
+    "type": "noun"
+  },
+  {
+    "stem": "질병",
+    "en": "disease",
+    "type": "noun"
+  },
+  {
+    "stem": "고통",
+    "en": "pain",
+    "type": "noun"
+  },
+  {
+    "stem": "기쁨",
+    "en": "joy",
+    "type": "noun"
+  },
+  {
+    "stem": "슬픔",
+    "en": "sadness",
+    "type": "noun"
+  },
+  {
+    "stem": "분노",
+    "en": "anger",
+    "type": "noun"
+  },
+  {
+    "stem": "공포",
+    "en": "fear",
+    "type": "noun"
+  },
+  {
+    "stem": "용기",
+    "en": "courage",
+    "type": "noun"
+  },
+  {
+    "stem": "비겁",
+    "en": "cowardice",
+    "type": "noun"
+  },
+  {
+    "stem": "친절",
+    "en": "kindness",
+    "type": "noun"
+  },
+  {
+    "stem": "잔인",
+    "en": "cruelty",
+    "type": "noun"
+  },
+  {
+    "stem": "관대",
+    "en": "generosity",
+    "type": "noun"
+  },
+  {
+    "stem": "인색",
+    "en": "stinginess",
+    "type": "noun"
+  },
+  {
+    "stem": "정직",
+    "en": "honesty",
+    "type": "noun"
+  },
+  {
+    "stem": "부정직",
+    "en": "dishonesty",
+    "type": "noun"
+  },
+  {
+    "stem": "성실",
+    "en": "sincerity",
+    "type": "noun"
+  },
+  {
+    "stem": "불성실",
+    "en": "insincerity",
+    "type": "noun"
+  },
+  {
+    "stem": "신뢰",
+    "en": "trust",
+    "type": "noun"
+  },
+  {
+    "stem": "의심",
+    "en": "doubt",
+    "type": "noun"
+  },
+  {
+    "stem": "믿음",
+    "en": "belief",
+    "type": "noun"
+  },
+  {
+    "stem": "확신",
+    "en": "conviction",
+    "type": "noun"
+  },
+  {
+    "stem": "자신감",
+    "en": "confidence",
+    "type": "noun"
+  },
+  {
+    "stem": "자존감",
+    "en": "self-esteem",
+    "type": "noun"
+  },
+  {
+    "stem": "자부심",
+    "en": "pride",
+    "type": "noun"
+  },
+  {
+    "stem": "겸손",
+    "en": "humility",
+    "type": "noun"
+  },
+  {
+    "stem": "오만",
+    "en": "arrogance",
+    "type": "noun"
+  },
+  {
+    "stem": "존경",
+    "en": "respect",
+    "type": "noun"
+  },
+  {
+    "stem": "경멸",
+    "en": "contempt",
+    "type": "noun"
+  },
+  {
+    "stem": "동정",
+    "en": "sympathy",
+    "type": "noun"
+  },
+  {
+    "stem": "공감",
+    "en": "empathy",
+    "type": "noun"
+  },
+  {
+    "stem": "이해",
+    "en": "understanding",
+    "type": "noun"
+  },
+  {
+    "stem": "오해",
+    "en": "misunderstanding",
+    "type": "noun"
+  },
+  {
+    "stem": "협력",
+    "en": "cooperation",
+    "type": "noun"
+  },
+  {
+    "stem": "경쟁",
+    "en": "competition",
+    "type": "noun"
+  },
+  {
+    "stem": "갈등",
+    "en": "conflict",
+    "type": "noun"
+  },
+  {
+    "stem": "화해",
+    "en": "reconciliation",
+    "type": "noun"
+  },
+  {
+    "stem": "힘",
+    "en": "power",
+    "type": "noun"
+  },
+  {
+    "stem": "에너지",
+    "en": "energy",
+    "type": "noun"
+  },
+  {
+    "stem": "속도",
+    "en": "speed",
+    "type": "noun"
+  },
+  {
+    "stem": "시간",
+    "en": "time",
+    "type": "noun"
+  },
+  {
+    "stem": "공간",
+    "en": "space",
+    "type": "noun"
+  },
+  {
+    "stem": "거리",
+    "en": "distance",
+    "type": "noun"
+  },
+  {
+    "stem": "크기",
+    "en": "size",
+    "type": "noun"
+  },
+  {
+    "stem": "무게",
+    "en": "weight",
+    "type": "noun"
+  },
+  {
+    "stem": "온도",
+    "en": "temperature",
+    "type": "noun"
+  },
+  {
+    "stem": "압력",
+    "en": "pressure",
+    "type": "noun"
+  },
+  {
+    "stem": "밀도",
+    "en": "density",
+    "type": "noun"
+  },
+  {
+    "stem": "농도",
+    "en": "concentration",
+    "type": "noun"
+  },
+  {
+    "stem": "부피",
+    "en": "volume",
+    "type": "noun"
+  },
+  {
+    "stem": "면적",
+    "en": "area",
+    "type": "noun"
+  },
+  {
+    "stem": "길이",
+    "en": "length",
+    "type": "noun"
+  },
+  {
+    "stem": "폭",
+    "en": "width",
+    "type": "noun"
+  },
+  {
+    "stem": "높이",
+    "en": "height",
+    "type": "noun"
+  },
+  {
+    "stem": "깊이",
+    "en": "depth",
+    "type": "noun"
+  },
+  {
+    "stem": "두께",
+    "en": "thickness",
+    "type": "noun"
+  },
+  {
+    "stem": "색",
+    "en": "color",
+    "type": "noun"
+  },
+  {
+    "stem": "소리",
+    "en": "sound",
+    "type": "noun"
+  },
+  {
+    "stem": "빛",
+    "en": "light",
+    "type": "noun"
+  },
+  {
+    "stem": "어둠",
+    "en": "darkness",
+    "type": "noun"
+  },
+  {
+    "stem": "향기",
+    "en": "fragrance",
+    "type": "noun"
+  },
+  {
+    "stem": "냄새",
+    "en": "smell",
+    "type": "noun"
+  },
+  {
+    "stem": "맛",
+    "en": "taste",
+    "type": "noun"
+  },
+  {
+    "stem": "촉감",
+    "en": "touch",
+    "type": "noun"
+  },
+  {
+    "stem": "형태",
+    "en": "shape",
+    "type": "noun"
+  },
+  {
+    "stem": "구조",
+    "en": "structure",
+    "type": "noun"
+  },
+  {
+    "stem": "패턴",
+    "en": "pattern",
+    "type": "noun"
+  },
+  {
+    "stem": "방향",
+    "en": "direction",
+    "type": "noun"
+  },
+  {
+    "stem": "위치",
+    "en": "position",
+    "type": "noun"
+  },
+  {
+    "stem": "장소",
+    "en": "place",
+    "type": "noun"
+  },
+  {
+    "stem": "지역",
+    "en": "region",
+    "type": "noun"
+  },
+  {
+    "stem": "환경",
+    "en": "environment",
+    "type": "noun"
+  },
+  {
+    "stem": "자연",
+    "en": "nature",
+    "type": "noun"
+  },
+  {
+    "stem": "우주",
+    "en": "universe",
+    "type": "noun"
+  },
+  {
+    "stem": "세계",
+    "en": "world",
+    "type": "noun"
+  },
+  {
+    "stem": "지구",
+    "en": "earth",
+    "type": "noun"
+  },
+  {
+    "stem": "땅",
+    "en": "land",
+    "type": "noun"
+  },
+  {
+    "stem": "하늘",
+    "en": "sky",
+    "type": "noun"
+  },
+  {
+    "stem": "바다",
+    "en": "sea",
+    "type": "noun"
+  },
+  {
+    "stem": "산",
+    "en": "mountain",
+    "type": "noun"
+  },
+  {
+    "stem": "강",
+    "en": "river",
+    "type": "noun"
+  },
+  {
+    "stem": "호수",
+    "en": "lake",
+    "type": "noun"
+  },
+  {
+    "stem": "숲",
+    "en": "forest",
+    "type": "noun"
+  },
+  {
+    "stem": "사막",
+    "en": "desert",
+    "type": "noun"
+  },
+  {
+    "stem": "계절",
+    "en": "season",
+    "type": "noun"
+  },
+  {
+    "stem": "날씨",
+    "en": "weather",
+    "type": "noun"
+  },
+  {
+    "stem": "기후",
+    "en": "climate",
+    "type": "noun"
+  },
+  {
+    "stem": "물질",
+    "en": "matter",
+    "type": "noun"
+  },
+  {
+    "stem": "물체",
+    "en": "object",
+    "type": "noun"
+  },
+  {
+    "stem": "사물",
+    "en": "thing",
+    "type": "noun"
+  },
+  {
+    "stem": "재료",
+    "en": "material",
+    "type": "noun"
+  },
+  {
+    "stem": "요소",
+    "en": "element",
+    "type": "noun"
+  },
+  {
+    "stem": "성분",
+    "en": "ingredient",
+    "type": "noun"
+  },
+  {
+    "stem": "부분",
+    "en": "part",
+    "type": "noun"
+  },
+  {
+    "stem": "전체",
+    "en": "whole",
+    "type": "noun"
+  },
+  {
+    "stem": "단위",
+    "en": "unit",
+    "type": "noun"
+  },
+  {
+    "stem": "수량",
+    "en": "quantity",
+    "type": "noun"
+  },
+  {
+    "stem": "품질",
+    "en": "quality",
+    "type": "noun"
+  },
+  {
+    "stem": "등급",
+    "en": "grade",
+    "type": "noun"
+  },
+  {
+    "stem": "수준",
+    "en": "level",
+    "type": "noun"
+  },
+  {
+    "stem": "정도",
+    "en": "degree",
+    "type": "noun"
+  },
+  {
+    "stem": "비율",
+    "en": "ratio",
+    "type": "noun"
+  },
+  {
+    "stem": "비교",
+    "en": "comparison",
+    "type": "noun"
+  },
+  {
+    "stem": "차이",
+    "en": "difference",
+    "type": "noun"
+  },
+  {
+    "stem": "유사성",
+    "en": "similarity",
+    "type": "noun"
+  },
+  {
+    "stem": "관계",
+    "en": "relationship",
+    "type": "noun"
+  },
+  {
+    "stem": "연결",
+    "en": "connection",
+    "type": "noun"
+  },
+  {
+    "stem": "분리",
+    "en": "separation",
+    "type": "noun"
+  },
+  {
+    "stem": "통합",
+    "en": "integration",
+    "type": "noun"
+  },
+  {
+    "stem": "분류",
+    "en": "classification",
+    "type": "noun"
+  },
+  {
+    "stem": "종류",
+    "en": "type",
+    "type": "noun"
+  },
+  {
+    "stem": "범주",
+    "en": "category",
+    "type": "noun"
+  },
+  {
+    "stem": "그룹",
+    "en": "group",
+    "type": "noun"
+  },
+  {
+    "stem": "집단",
+    "en": "collective",
+    "type": "noun"
+  },
+  {
+    "stem": "개인",
+    "en": "individual",
+    "type": "noun"
+  },
+  {
+    "stem": "사회",
+    "en": "society",
+    "type": "noun"
+  },
+  {
+    "stem": "공동체",
+    "en": "community",
+    "type": "noun"
+  },
+  {
+    "stem": "국가",
+    "en": "nation",
+    "type": "noun"
+  },
+  {
+    "stem": "정부",
+    "en": "government",
+    "type": "noun"
+  },
+  {
+    "stem": "법",
+    "en": "law",
+    "type": "noun"
+  },
+  {
+    "stem": "규칙",
+    "en": "rule",
+    "type": "noun"
+  },
+  {
+    "stem": "질서",
+    "en": "order",
+    "type": "noun"
+  },
+  {
+    "stem": "혼돈",
+    "en": "chaos",
+    "type": "noun"
+  },
+  {
+    "stem": "체계",
+    "en": "system",
+    "type": "noun"
+  },
+  {
+    "stem": "방법",
+    "en": "method",
+    "type": "noun"
+  },
+  {
+    "stem": "절차",
+    "en": "procedure",
+    "type": "noun"
+  },
+  {
+    "stem": "과정",
+    "en": "process",
+    "type": "noun"
+  },
+  {
+    "stem": "단계",
+    "en": "stage",
+    "type": "noun"
+  },
+  {
+    "stem": "결과",
+    "en": "result",
+    "type": "noun"
+  },
+  {
+    "stem": "영향",
+    "en": "influence",
+    "type": "noun"
+  },
+  {
+    "stem": "효과",
+    "en": "effect",
+    "type": "noun"
+  },
+  {
+    "stem": "원인",
+    "en": "cause",
+    "type": "noun"
+  },
+  {
+    "stem": "이유",
+    "en": "reason",
+    "type": "noun"
+  }
+]

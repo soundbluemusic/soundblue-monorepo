@@ -472,7 +472,8 @@ function splitKoreanByConnectors(text: string): Segment[] {
 
   // 모든 토큰을 순회하면서 연결어미 찾기
   for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i];
+    // 토큰에서 쉼표 제거 (예: "도착했고," → "도착했고")
+    const token = tokens[i].replace(/,$/g, '');
     if (!token) continue;
 
     let foundEnding = false;
@@ -492,11 +493,11 @@ function splitKoreanByConnectors(text: string): Segment[] {
         // "공부해서" → ending="해서", stem="공부" → "공부하다"
         if (ending.startsWith('해') || ending === '하면' || ending === '하지만') {
           // 하다 동사의 어간이므로 "하" 추가
-          stem = stem + '하';
+          stem = `${stem}하`;
         }
 
         // 어간에 '다' 붙여서 기본형으로 만듦
-        const verbForm = stem + '다';
+        const verbForm = `${stem}다`;
 
         // 현재까지의 토큰들 + 현재 동사 형태로 세그먼트 생성
         const segmentText = [...currentTokens, verbForm].join(' ');

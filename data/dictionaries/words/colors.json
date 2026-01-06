@@ -1,0 +1,1885 @@
+{
+  "koToEn": [
+    {
+      "ko": "빨강",
+      "en": "Red"
+    },
+    {
+      "ko": "빨간색",
+      "en": "Red"
+    },
+    {
+      "ko": "주황",
+      "en": "Orange"
+    },
+    {
+      "ko": "주황색",
+      "en": "Orange"
+    },
+    {
+      "ko": "노랑",
+      "en": "Yellow"
+    },
+    {
+      "ko": "노란색",
+      "en": "Yellow"
+    },
+    {
+      "ko": "초록",
+      "en": "Green"
+    },
+    {
+      "ko": "초록색",
+      "en": "Green"
+    },
+    {
+      "ko": "파랑",
+      "en": "Blue"
+    },
+    {
+      "ko": "파란색",
+      "en": "Blue"
+    },
+    {
+      "ko": "보라",
+      "en": "Purple"
+    },
+    {
+      "ko": "보라색",
+      "en": "Purple"
+    },
+    {
+      "ko": "분홍",
+      "en": "Pink"
+    },
+    {
+      "ko": "분홍색",
+      "en": "Pink"
+    },
+    {
+      "ko": "갈색",
+      "en": "Brown"
+    },
+    {
+      "ko": "검정",
+      "en": "Black"
+    },
+    {
+      "ko": "검은색",
+      "en": "Black"
+    },
+    {
+      "ko": "흰색",
+      "en": "White"
+    },
+    {
+      "ko": "하얀색",
+      "en": "White"
+    },
+    {
+      "ko": "회색",
+      "en": "Gray"
+    },
+    {
+      "ko": "인디언 레드",
+      "en": "IndianRed"
+    },
+    {
+      "ko": "라이트 코랄",
+      "en": "LightCoral"
+    },
+    {
+      "ko": "살몬",
+      "en": "Salmon"
+    },
+    {
+      "ko": "다크 살몬",
+      "en": "DarkSalmon"
+    },
+    {
+      "ko": "라이트 살몬",
+      "en": "LightSalmon"
+    },
+    {
+      "ko": "크림슨",
+      "en": "Crimson"
+    },
+    {
+      "ko": "파이어브릭",
+      "en": "FireBrick"
+    },
+    {
+      "ko": "다크 레드",
+      "en": "DarkRed"
+    },
+    {
+      "ko": "핑크",
+      "en": "Pink"
+    },
+    {
+      "ko": "라이트 핑크",
+      "en": "LightPink"
+    },
+    {
+      "ko": "핫 핑크",
+      "en": "HotPink"
+    },
+    {
+      "ko": "딥 핑크",
+      "en": "DeepPink"
+    },
+    {
+      "ko": "미디엄 바이올렛 레드",
+      "en": "MediumVioletRed"
+    },
+    {
+      "ko": "페일 바이올렛 레드",
+      "en": "PaleVioletRed"
+    },
+    {
+      "ko": "코랄",
+      "en": "Coral"
+    },
+    {
+      "ko": "토마토",
+      "en": "Tomato"
+    },
+    {
+      "ko": "오렌지 레드",
+      "en": "OrangeRed"
+    },
+    {
+      "ko": "다크 오렌지",
+      "en": "DarkOrange"
+    },
+    {
+      "ko": "오렌지",
+      "en": "Orange"
+    },
+    {
+      "ko": "골드",
+      "en": "Gold"
+    },
+    {
+      "ko": "라이트 옐로우",
+      "en": "LightYellow"
+    },
+    {
+      "ko": "레몬 쉬폰",
+      "en": "LemonChiffon"
+    },
+    {
+      "ko": "라이트 골든로드 옐로우",
+      "en": "LightGoldenrodYellow"
+    },
+    {
+      "ko": "파파야 휩",
+      "en": "PapayaWhip"
+    },
+    {
+      "ko": "모카신",
+      "en": "Moccasin"
+    },
+    {
+      "ko": "피치 퍼프",
+      "en": "PeachPuff"
+    },
+    {
+      "ko": "페일 골든로드",
+      "en": "PaleGoldenrod"
+    },
+    {
+      "ko": "카키",
+      "en": "Khaki"
+    },
+    {
+      "ko": "다크 카키",
+      "en": "DarkKhaki"
+    },
+    {
+      "ko": "라벤더",
+      "en": "Lavender"
+    },
+    {
+      "ko": "시슬",
+      "en": "Thistle"
+    },
+    {
+      "ko": "플럼",
+      "en": "Plum"
+    },
+    {
+      "ko": "바이올렛",
+      "en": "Violet"
+    },
+    {
+      "ko": "오키드",
+      "en": "Orchid"
+    },
+    {
+      "ko": "푸시아",
+      "en": "Fuchsia"
+    },
+    {
+      "ko": "마젠타",
+      "en": "Magenta"
+    },
+    {
+      "ko": "미디엄 오키드",
+      "en": "MediumOrchid"
+    },
+    {
+      "ko": "미디엄 퍼플",
+      "en": "MediumPurple"
+    },
+    {
+      "ko": "레베카 퍼플",
+      "en": "RebeccaPurple"
+    },
+    {
+      "ko": "블루 바이올렛",
+      "en": "BlueViolet"
+    },
+    {
+      "ko": "다크 바이올렛",
+      "en": "DarkViolet"
+    },
+    {
+      "ko": "다크 오키드",
+      "en": "DarkOrchid"
+    },
+    {
+      "ko": "다크 마젠타",
+      "en": "DarkMagenta"
+    },
+    {
+      "ko": "퍼플",
+      "en": "Purple"
+    },
+    {
+      "ko": "인디고",
+      "en": "Indigo"
+    },
+    {
+      "ko": "슬레이트 블루",
+      "en": "SlateBlue"
+    },
+    {
+      "ko": "다크 슬레이트 블루",
+      "en": "DarkSlateBlue"
+    },
+    {
+      "ko": "미디엄 슬레이트 블루",
+      "en": "MediumSlateBlue"
+    },
+    {
+      "ko": "그린 옐로우",
+      "en": "GreenYellow"
+    },
+    {
+      "ko": "샤르트뢰즈",
+      "en": "Chartreuse"
+    },
+    {
+      "ko": "론 그린",
+      "en": "LawnGreen"
+    },
+    {
+      "ko": "라임",
+      "en": "Lime"
+    },
+    {
+      "ko": "라임 그린",
+      "en": "LimeGreen"
+    },
+    {
+      "ko": "페일 그린",
+      "en": "PaleGreen"
+    },
+    {
+      "ko": "라이트 그린",
+      "en": "LightGreen"
+    },
+    {
+      "ko": "미디엄 스프링 그린",
+      "en": "MediumSpringGreen"
+    },
+    {
+      "ko": "스프링 그린",
+      "en": "SpringGreen"
+    },
+    {
+      "ko": "미디엄 시 그린",
+      "en": "MediumSeaGreen"
+    },
+    {
+      "ko": "시 그린",
+      "en": "SeaGreen"
+    },
+    {
+      "ko": "포레스트 그린",
+      "en": "ForestGreen"
+    },
+    {
+      "ko": "그린",
+      "en": "Green"
+    },
+    {
+      "ko": "다크 그린",
+      "en": "DarkGreen"
+    },
+    {
+      "ko": "옐로우 그린",
+      "en": "YellowGreen"
+    },
+    {
+      "ko": "올리브 드랩",
+      "en": "OliveDrab"
+    },
+    {
+      "ko": "올리브",
+      "en": "Olive"
+    },
+    {
+      "ko": "다크 올리브 그린",
+      "en": "DarkOliveGreen"
+    },
+    {
+      "ko": "미디엄 아쿠아마린",
+      "en": "MediumAquamarine"
+    },
+    {
+      "ko": "다크 시 그린",
+      "en": "DarkSeaGreen"
+    },
+    {
+      "ko": "라이트 시 그린",
+      "en": "LightSeaGreen"
+    },
+    {
+      "ko": "다크 시안",
+      "en": "DarkCyan"
+    },
+    {
+      "ko": "틸",
+      "en": "Teal"
+    },
+    {
+      "ko": "아쿠아",
+      "en": "Aqua"
+    },
+    {
+      "ko": "시안",
+      "en": "Cyan"
+    },
+    {
+      "ko": "라이트 시안",
+      "en": "LightCyan"
+    },
+    {
+      "ko": "페일 터쿼이즈",
+      "en": "PaleTurquoise"
+    },
+    {
+      "ko": "아쿠아마린",
+      "en": "Aquamarine"
+    },
+    {
+      "ko": "터쿼이즈",
+      "en": "Turquoise"
+    },
+    {
+      "ko": "미디엄 터쿼이즈",
+      "en": "MediumTurquoise"
+    },
+    {
+      "ko": "다크 터쿼이즈",
+      "en": "DarkTurquoise"
+    },
+    {
+      "ko": "카뎃 블루",
+      "en": "CadetBlue"
+    },
+    {
+      "ko": "스틸 블루",
+      "en": "SteelBlue"
+    },
+    {
+      "ko": "라이트 스틸 블루",
+      "en": "LightSteelBlue"
+    },
+    {
+      "ko": "파우더 블루",
+      "en": "PowderBlue"
+    },
+    {
+      "ko": "라이트 블루",
+      "en": "LightBlue"
+    },
+    {
+      "ko": "스카이 블루",
+      "en": "SkyBlue"
+    },
+    {
+      "ko": "라이트 스카이 블루",
+      "en": "LightSkyBlue"
+    },
+    {
+      "ko": "딥 스카이 블루",
+      "en": "DeepSkyBlue"
+    },
+    {
+      "ko": "다저 블루",
+      "en": "DodgerBlue"
+    },
+    {
+      "ko": "콘플라워 블루",
+      "en": "CornflowerBlue"
+    },
+    {
+      "ko": "로열 블루",
+      "en": "RoyalBlue"
+    },
+    {
+      "ko": "블루",
+      "en": "Blue"
+    },
+    {
+      "ko": "미디엄 블루",
+      "en": "MediumBlue"
+    },
+    {
+      "ko": "다크 블루",
+      "en": "DarkBlue"
+    },
+    {
+      "ko": "네이비",
+      "en": "Navy"
+    },
+    {
+      "ko": "미드나잇 블루",
+      "en": "MidnightBlue"
+    },
+    {
+      "ko": "콘실크",
+      "en": "Cornsilk"
+    },
+    {
+      "ko": "블랜치드 아몬드",
+      "en": "BlanchedAlmond"
+    },
+    {
+      "ko": "비스크",
+      "en": "Bisque"
+    },
+    {
+      "ko": "나바호 화이트",
+      "en": "NavajoWhite"
+    },
+    {
+      "ko": "휘트",
+      "en": "Wheat"
+    },
+    {
+      "ko": "벌리우드",
+      "en": "BurlyWood"
+    },
+    {
+      "ko": "탄",
+      "en": "Tan"
+    },
+    {
+      "ko": "로지 브라운",
+      "en": "RosyBrown"
+    },
+    {
+      "ko": "샌디 브라운",
+      "en": "SandyBrown"
+    },
+    {
+      "ko": "골든로드",
+      "en": "Goldenrod"
+    },
+    {
+      "ko": "다크 골든로드",
+      "en": "DarkGoldenrod"
+    },
+    {
+      "ko": "페루",
+      "en": "Peru"
+    },
+    {
+      "ko": "초콜릿",
+      "en": "Chocolate"
+    },
+    {
+      "ko": "새들 브라운",
+      "en": "SaddleBrown"
+    },
+    {
+      "ko": "시에나",
+      "en": "Sienna"
+    },
+    {
+      "ko": "브라운",
+      "en": "Brown"
+    },
+    {
+      "ko": "마룬",
+      "en": "Maroon"
+    },
+    {
+      "ko": "화이트",
+      "en": "White"
+    },
+    {
+      "ko": "스노우",
+      "en": "Snow"
+    },
+    {
+      "ko": "허니듀",
+      "en": "Honeydew"
+    },
+    {
+      "ko": "민트 크림",
+      "en": "MintCream"
+    },
+    {
+      "ko": "애저",
+      "en": "Azure"
+    },
+    {
+      "ko": "앨리스 블루",
+      "en": "AliceBlue"
+    },
+    {
+      "ko": "고스트 화이트",
+      "en": "GhostWhite"
+    },
+    {
+      "ko": "화이트 스모크",
+      "en": "WhiteSmoke"
+    },
+    {
+      "ko": "시쉘",
+      "en": "Seashell"
+    },
+    {
+      "ko": "베이지",
+      "en": "Beige"
+    },
+    {
+      "ko": "올드 레이스",
+      "en": "OldLace"
+    },
+    {
+      "ko": "플로랄 화이트",
+      "en": "FloralWhite"
+    },
+    {
+      "ko": "아이보리",
+      "en": "Ivory"
+    },
+    {
+      "ko": "앤틱 화이트",
+      "en": "AntiqueWhite"
+    },
+    {
+      "ko": "리넨",
+      "en": "Linen"
+    },
+    {
+      "ko": "라벤더 블러쉬",
+      "en": "LavenderBlush"
+    },
+    {
+      "ko": "미스티 로즈",
+      "en": "MistyRose"
+    },
+    {
+      "ko": "게인즈보로",
+      "en": "Gainsboro"
+    },
+    {
+      "ko": "라이트 그레이",
+      "en": "LightGray"
+    },
+    {
+      "ko": "실버",
+      "en": "Silver"
+    },
+    {
+      "ko": "다크 그레이",
+      "en": "DarkGray"
+    },
+    {
+      "ko": "그레이",
+      "en": "Gray"
+    },
+    {
+      "ko": "딤 그레이",
+      "en": "DimGray"
+    },
+    {
+      "ko": "라이트 슬레이트 그레이",
+      "en": "LightSlateGray"
+    },
+    {
+      "ko": "슬레이트 그레이",
+      "en": "SlateGray"
+    },
+    {
+      "ko": "다크 슬레이트 그레이",
+      "en": "DarkSlateGray"
+    },
+    {
+      "ko": "블랙",
+      "en": "Black"
+    },
+    {
+      "ko": "단청 빨강",
+      "en": "Dancheong Red"
+    },
+    {
+      "ko": "오방색 청색",
+      "en": "Obangsaek Blue"
+    },
+    {
+      "ko": "오방색 적색",
+      "en": "Obangsaek Red"
+    },
+    {
+      "ko": "오방색 황색",
+      "en": "Obangsaek Yellow"
+    },
+    {
+      "ko": "오방색 백색",
+      "en": "Obangsaek White"
+    },
+    {
+      "ko": "오방색 흑색",
+      "en": "Obangsaek Black"
+    },
+    {
+      "ko": "노리개 분홍",
+      "en": "Norigae Pink"
+    },
+    {
+      "ko": "청자색",
+      "en": "Celadon Green"
+    },
+    {
+      "ko": "한복 남색",
+      "en": "Hanbok Indigo"
+    },
+    {
+      "ko": "사쿠라",
+      "en": "Sakura"
+    },
+    {
+      "ko": "벚꽃색",
+      "en": "Sakura"
+    },
+    {
+      "ko": "말차색",
+      "en": "Matcha"
+    },
+    {
+      "ko": "와사비색",
+      "en": "Wasabi"
+    },
+    {
+      "ko": "스미",
+      "en": "Sumi"
+    },
+    {
+      "ko": "먹색",
+      "en": "Sumi"
+    },
+    {
+      "ko": "아이색",
+      "en": "Ai"
+    },
+    {
+      "ko": "쪽색",
+      "en": "Ai"
+    },
+    {
+      "ko": "아카네",
+      "en": "Akane"
+    },
+    {
+      "ko": "꼭두서니색",
+      "en": "Akane"
+    },
+    {
+      "ko": "호박색",
+      "en": "Kohaku"
+    },
+    {
+      "ko": "우구이스",
+      "en": "Uguisu"
+    },
+    {
+      "ko": "휘파람새색",
+      "en": "Uguisu"
+    },
+    {
+      "ko": "주사",
+      "en": "Vermillion"
+    },
+    {
+      "ko": "진사",
+      "en": "Cinnabar"
+    },
+    {
+      "ko": "옥색",
+      "en": "Jade Green"
+    },
+    {
+      "ko": "황제 노랑",
+      "en": "Imperial Yellow"
+    },
+    {
+      "ko": "명나라 파랑",
+      "en": "Ming Blue"
+    },
+    {
+      "ko": "루비",
+      "en": "Ruby"
+    },
+    {
+      "ko": "사파이어",
+      "en": "Sapphire"
+    },
+    {
+      "ko": "에메랄드",
+      "en": "Emerald"
+    },
+    {
+      "ko": "자수정",
+      "en": "Amethyst"
+    },
+    {
+      "ko": "토파즈",
+      "en": "Topaz"
+    },
+    {
+      "ko": "진주",
+      "en": "Pearl"
+    },
+    {
+      "ko": "오닉스",
+      "en": "Onyx"
+    },
+    {
+      "ko": "제이드",
+      "en": "Jade"
+    },
+    {
+      "ko": "오팔",
+      "en": "Opal"
+    },
+    {
+      "ko": "가넷",
+      "en": "Garnet"
+    },
+    {
+      "ko": "앰버",
+      "en": "Amber"
+    },
+    {
+      "ko": "흑요석",
+      "en": "Obsidian"
+    },
+    {
+      "ko": "라피스 라줄리",
+      "en": "Lapis Lazuli"
+    },
+    {
+      "ko": "말라카이트",
+      "en": "Malachite"
+    },
+    {
+      "ko": "문스톤",
+      "en": "Moonstone"
+    },
+    {
+      "ko": "페리도트",
+      "en": "Peridot"
+    },
+    {
+      "ko": "로즈 골드",
+      "en": "Rose Gold"
+    },
+    {
+      "ko": "브론즈",
+      "en": "Bronze"
+    },
+    {
+      "ko": "코퍼",
+      "en": "Copper"
+    },
+    {
+      "ko": "플래티넘",
+      "en": "Platinum"
+    },
+    {
+      "ko": "브라스",
+      "en": "Brass"
+    },
+    {
+      "ko": "퓨터",
+      "en": "Pewter"
+    },
+    {
+      "ko": "크롬",
+      "en": "Chrome"
+    },
+    {
+      "ko": "티타늄",
+      "en": "Titanium"
+    },
+    {
+      "ko": "단풍",
+      "en": "Autumn Leaf"
+    },
+    {
+      "ko": "벚꽃",
+      "en": "Cherry Blossom"
+    },
+    {
+      "ko": "석양 오렌지",
+      "en": "Sunset Orange"
+    },
+    {
+      "ko": "바다 파랑",
+      "en": "Ocean Blue"
+    },
+    {
+      "ko": "숲 초록",
+      "en": "Forest Green"
+    },
+    {
+      "ko": "모래색",
+      "en": "Sand"
+    },
+    {
+      "ko": "흙색",
+      "en": "Clay"
+    },
+    {
+      "ko": "폭풍 회색",
+      "en": "Storm Gray"
+    },
+    {
+      "ko": "새벽 분홍",
+      "en": "Dawn Pink"
+    },
+    {
+      "ko": "자정색",
+      "en": "Midnight"
+    },
+    {
+      "ko": "황혼색",
+      "en": "Dusk"
+    },
+    {
+      "ko": "눈 흰색",
+      "en": "Snow White"
+    },
+    {
+      "ko": "얼음 파랑",
+      "en": "Ice Blue"
+    },
+    {
+      "ko": "이끼 초록",
+      "en": "Moss Green"
+    },
+    {
+      "ko": "버섯색",
+      "en": "Mushroom"
+    },
+    {
+      "ko": "나무껍질 갈색",
+      "en": "Bark Brown"
+    },
+    {
+      "ko": "꽃잎 분홍",
+      "en": "Petal Pink"
+    },
+    {
+      "ko": "아보카도",
+      "en": "Avocado"
+    },
+    {
+      "ko": "버터",
+      "en": "Butter"
+    },
+    {
+      "ko": "카라멜",
+      "en": "Caramel"
+    },
+    {
+      "ko": "샴페인",
+      "en": "Champagne"
+    },
+    {
+      "ko": "체리",
+      "en": "Cherry"
+    },
+    {
+      "ko": "밤색",
+      "en": "Chestnut"
+    },
+    {
+      "ko": "시나몬",
+      "en": "Cinnamon"
+    },
+    {
+      "ko": "코코넛",
+      "en": "Coconut"
+    },
+    {
+      "ko": "커피",
+      "en": "Coffee"
+    },
+    {
+      "ko": "크랜베리",
+      "en": "Cranberry"
+    },
+    {
+      "ko": "크림",
+      "en": "Cream"
+    },
+    {
+      "ko": "가지색",
+      "en": "Eggplant"
+    },
+    {
+      "ko": "에스프레소",
+      "en": "Espresso"
+    },
+    {
+      "ko": "생강색",
+      "en": "Ginger"
+    },
+    {
+      "ko": "포도",
+      "en": "Grape"
+    },
+    {
+      "ko": "꿀색",
+      "en": "Honey"
+    },
+    {
+      "ko": "레몬",
+      "en": "Lemon"
+    },
+    {
+      "ko": "망고",
+      "en": "Mango"
+    },
+    {
+      "ko": "멜론",
+      "en": "Melon"
+    },
+    {
+      "ko": "민트",
+      "en": "Mint"
+    },
+    {
+      "ko": "모카",
+      "en": "Mocha"
+    },
+    {
+      "ko": "머스타드",
+      "en": "Mustard"
+    },
+    {
+      "ko": "파프리카",
+      "en": "Paprika"
+    },
+    {
+      "ko": "복숭아",
+      "en": "Peach"
+    },
+    {
+      "ko": "배색",
+      "en": "Pear"
+    },
+    {
+      "ko": "페퍼민트",
+      "en": "Peppermint"
+    },
+    {
+      "ko": "피스타치오",
+      "en": "Pistachio"
+    },
+    {
+      "ko": "자두",
+      "en": "Plum"
+    },
+    {
+      "ko": "호박",
+      "en": "Pumpkin"
+    },
+    {
+      "ko": "라즈베리",
+      "en": "Raspberry"
+    },
+    {
+      "ko": "사프란",
+      "en": "Saffron"
+    },
+    {
+      "ko": "딸기",
+      "en": "Strawberry"
+    },
+    {
+      "ko": "귤색",
+      "en": "Tangerine"
+    },
+    {
+      "ko": "바닐라",
+      "en": "Vanilla"
+    },
+    {
+      "ko": "수박",
+      "en": "Watermelon"
+    },
+    {
+      "ko": "와인",
+      "en": "Wine"
+    },
+    {
+      "ko": "장미",
+      "en": "Rose"
+    },
+    {
+      "ko": "튤립",
+      "en": "Tulip"
+    },
+    {
+      "ko": "라일락",
+      "en": "Lilac"
+    },
+    {
+      "ko": "등나무",
+      "en": "Wisteria"
+    },
+    {
+      "ko": "모란",
+      "en": "Peony"
+    },
+    {
+      "ko": "카네이션",
+      "en": "Carnation"
+    },
+    {
+      "ko": "달리아",
+      "en": "Dahlia"
+    },
+    {
+      "ko": "아이리스",
+      "en": "Iris"
+    },
+    {
+      "ko": "메리골드",
+      "en": "Marigold"
+    },
+    {
+      "ko": "해바라기",
+      "en": "Sunflower"
+    },
+    {
+      "ko": "히비스커스",
+      "en": "Hibiscus"
+    },
+    {
+      "ko": "연꽃",
+      "en": "Lotus"
+    },
+    {
+      "ko": "자스민",
+      "en": "Jasmine"
+    },
+    {
+      "ko": "목련",
+      "en": "Magnolia"
+    },
+    {
+      "ko": "동백",
+      "en": "Camellia"
+    },
+    {
+      "ko": "진달래",
+      "en": "Azalea"
+    },
+    {
+      "ko": "국화",
+      "en": "Chrysanthemum"
+    },
+    {
+      "ko": "양귀비",
+      "en": "Poppy"
+    },
+    {
+      "ko": "히아신스",
+      "en": "Hyacinth"
+    },
+    {
+      "ko": "치자",
+      "en": "Gardenia"
+    },
+    {
+      "ko": "토프",
+      "en": "Taupe"
+    },
+    {
+      "ko": "그레이지",
+      "en": "Greige"
+    },
+    {
+      "ko": "에크루",
+      "en": "Ecru"
+    },
+    {
+      "ko": "본",
+      "en": "Bone"
+    },
+    {
+      "ko": "에그쉘",
+      "en": "Eggshell"
+    },
+    {
+      "ko": "오이스터",
+      "en": "Oyster"
+    },
+    {
+      "ko": "머쉬룸",
+      "en": "Mushroom"
+    },
+    {
+      "ko": "퍼티",
+      "en": "Putty"
+    },
+    {
+      "ko": "스톤",
+      "en": "Stone"
+    },
+    {
+      "ko": "페블",
+      "en": "Pebble"
+    },
+    {
+      "ko": "드리프트우드",
+      "en": "Driftwood"
+    },
+    {
+      "ko": "오트밀",
+      "en": "Oatmeal"
+    },
+    {
+      "ko": "라떼",
+      "en": "Latte"
+    },
+    {
+      "ko": "카멜",
+      "en": "Camel"
+    },
+    {
+      "ko": "폰",
+      "en": "Fawn"
+    },
+    {
+      "ko": "버프",
+      "en": "Buff"
+    },
+    {
+      "ko": "플랙스",
+      "en": "Flax"
+    },
+    {
+      "ko": "헴프",
+      "en": "Hemp"
+    },
+    {
+      "ko": "베이비 블루",
+      "en": "Baby Blue"
+    },
+    {
+      "ko": "베이비 핑크",
+      "en": "Baby Pink"
+    },
+    {
+      "ko": "블러쉬",
+      "en": "Blush"
+    },
+    {
+      "ko": "애프리콧",
+      "en": "Apricot"
+    },
+    {
+      "ko": "캔털루프",
+      "en": "Cantaloupe"
+    },
+    {
+      "ko": "버터크림",
+      "en": "Buttercream"
+    },
+    {
+      "ko": "민트 그린",
+      "en": "Mint Green"
+    },
+    {
+      "ko": "시폼",
+      "en": "Seafoam"
+    },
+    {
+      "ko": "페리윙클",
+      "en": "Periwinkle"
+    },
+    {
+      "ko": "모브",
+      "en": "Mauve"
+    },
+    {
+      "ko": "더스티 로즈",
+      "en": "Dusty Rose"
+    },
+    {
+      "ko": "쉘 핑크",
+      "en": "Shell Pink"
+    },
+    {
+      "ko": "아이스 핑크",
+      "en": "Ice Pink"
+    },
+    {
+      "ko": "소프트 라일락",
+      "en": "Soft Lilac"
+    },
+    {
+      "ko": "네온 핑크",
+      "en": "Neon Pink"
+    },
+    {
+      "ko": "네온 그린",
+      "en": "Neon Green"
+    },
+    {
+      "ko": "네온 옐로우",
+      "en": "Neon Yellow"
+    },
+    {
+      "ko": "네온 오렌지",
+      "en": "Neon Orange"
+    },
+    {
+      "ko": "네온 블루",
+      "en": "Neon Blue"
+    },
+    {
+      "ko": "일렉트릭 블루",
+      "en": "Electric Blue"
+    },
+    {
+      "ko": "일렉트릭 라임",
+      "en": "Electric Lime"
+    },
+    {
+      "ko": "쇼킹 핑크",
+      "en": "Shocking Pink"
+    },
+    {
+      "ko": "형광색",
+      "en": "Fluorescent"
+    },
+    {
+      "ko": "하이라이터 옐로우",
+      "en": "Highlighter Yellow"
+    },
+    {
+      "ko": "테라코타",
+      "en": "Terracotta"
+    },
+    {
+      "ko": "러스트",
+      "en": "Rust"
+    },
+    {
+      "ko": "번트 오렌지",
+      "en": "Burnt Orange"
+    },
+    {
+      "ko": "번트 시에나",
+      "en": "Burnt Sienna"
+    },
+    {
+      "ko": "로 시에나",
+      "en": "Raw Sienna"
+    },
+    {
+      "ko": "로 엄버",
+      "en": "Raw Umber"
+    },
+    {
+      "ko": "번트 엄버",
+      "en": "Burnt Umber"
+    },
+    {
+      "ko": "오커",
+      "en": "Ochre"
+    },
+    {
+      "ko": "세피아",
+      "en": "Sepia"
+    },
+    {
+      "ko": "엄버",
+      "en": "Umber"
+    },
+    {
+      "ko": "마호가니",
+      "en": "Mahogany"
+    },
+    {
+      "ko": "체스트넛",
+      "en": "Chestnut"
+    },
+    {
+      "ko": "진저",
+      "en": "Ginger"
+    },
+    {
+      "ko": "넛맥",
+      "en": "Nutmeg"
+    },
+    {
+      "ko": "월넛",
+      "en": "Walnut"
+    },
+    {
+      "ko": "코코아",
+      "en": "Cocoa"
+    },
+    {
+      "ko": "헤이즐넛",
+      "en": "Hazelnut"
+    },
+    {
+      "ko": "아몬드",
+      "en": "Almond"
+    },
+    {
+      "ko": "캐러멜",
+      "en": "Caramel"
+    },
+    {
+      "ko": "토피",
+      "en": "Toffee"
+    },
+    {
+      "ko": "비스킷",
+      "en": "Biscuit"
+    },
+    {
+      "ko": "샌드스톤",
+      "en": "Sandstone"
+    },
+    {
+      "ko": "어도비",
+      "en": "Adobe"
+    },
+    {
+      "ko": "테라",
+      "en": "Terra"
+    },
+    {
+      "ko": "어스",
+      "en": "Earth"
+    },
+    {
+      "ko": "머드",
+      "en": "Mud"
+    },
+    {
+      "ko": "더트",
+      "en": "Dirt"
+    },
+    {
+      "ko": "소일",
+      "en": "Soil"
+    },
+    {
+      "ko": "클레이",
+      "en": "Clay"
+    },
+    {
+      "ko": "브릭",
+      "en": "Brick"
+    },
+    {
+      "ko": "캐년",
+      "en": "Canyon"
+    },
+    {
+      "ko": "데저트",
+      "en": "Desert"
+    },
+    {
+      "ko": "버건디",
+      "en": "Burgundy"
+    },
+    {
+      "ko": "보르도",
+      "en": "Bordeaux"
+    },
+    {
+      "ko": "멜롯",
+      "en": "Merlot"
+    },
+    {
+      "ko": "클라렛",
+      "en": "Claret"
+    },
+    {
+      "ko": "옥스블러드",
+      "en": "Oxblood"
+    },
+    {
+      "ko": "멀베리",
+      "en": "Mulberry"
+    },
+    {
+      "ko": "오베르진",
+      "en": "Aubergine"
+    },
+    {
+      "ko": "에그플랜트",
+      "en": "Eggplant"
+    },
+    {
+      "ko": "보이즌베리",
+      "en": "Boysenberry"
+    },
+    {
+      "ko": "블랙베리",
+      "en": "Blackberry"
+    },
+    {
+      "ko": "엘더베리",
+      "en": "Elderberry"
+    },
+    {
+      "ko": "커런트",
+      "en": "Currant"
+    },
+    {
+      "ko": "포메그래닛",
+      "en": "Pomegranate"
+    },
+    {
+      "ko": "스트로베리",
+      "en": "Strawberry"
+    },
+    {
+      "ko": "모카 무스",
+      "en": "Mocha Mousse"
+    },
+    {
+      "ko": "피치 퍼즈",
+      "en": "Peach Fuzz"
+    },
+    {
+      "ko": "비바 마젠타",
+      "en": "Viva Magenta"
+    },
+    {
+      "ko": "베리 페리",
+      "en": "Very Peri"
+    },
+    {
+      "ko": "얼티밋 그레이",
+      "en": "Ultimate Gray"
+    },
+    {
+      "ko": "일루미네이팅",
+      "en": "Illuminating"
+    },
+    {
+      "ko": "클래식 블루",
+      "en": "Classic Blue"
+    },
+    {
+      "ko": "리빙 코랄",
+      "en": "Living Coral"
+    },
+    {
+      "ko": "울트라 바이올렛",
+      "en": "Ultra Violet"
+    },
+    {
+      "ko": "그리너리",
+      "en": "Greenery"
+    },
+    {
+      "ko": "로즈 쿼츠",
+      "en": "Rose Quartz"
+    },
+    {
+      "ko": "세러니티",
+      "en": "Serenity"
+    },
+    {
+      "ko": "마르살라",
+      "en": "Marsala"
+    },
+    {
+      "ko": "레디언트 오키드",
+      "en": "Radiant Orchid"
+    },
+    {
+      "ko": "탠저린 탱고",
+      "en": "Tangerine Tango"
+    },
+    {
+      "ko": "허니서클",
+      "en": "Honeysuckle"
+    },
+    {
+      "ko": "코스믹 라떼",
+      "en": "Cosmic Latte"
+    },
+    {
+      "ko": "네뷸라 블루",
+      "en": "Nebula Blue"
+    },
+    {
+      "ko": "갤럭시 퍼플",
+      "en": "Galaxy Purple"
+    },
+    {
+      "ko": "스타더스트",
+      "en": "Stardust"
+    },
+    {
+      "ko": "오로라",
+      "en": "Aurora"
+    },
+    {
+      "ko": "솔라 플레어",
+      "en": "Solar Flare"
+    },
+    {
+      "ko": "루나 그레이",
+      "en": "Lunar Gray"
+    },
+    {
+      "ko": "마션 레드",
+      "en": "Martian Red"
+    },
+    {
+      "ko": "새턴 골드",
+      "en": "Saturn Gold"
+    },
+    {
+      "ko": "넵튠 블루",
+      "en": "Neptune Blue"
+    },
+    {
+      "ko": "CMYK 시안",
+      "en": "CMYK Cyan"
+    },
+    {
+      "ko": "CMYK 마젠타",
+      "en": "CMYK Magenta"
+    },
+    {
+      "ko": "CMYK 옐로우",
+      "en": "CMYK Yellow"
+    },
+    {
+      "ko": "CMYK 블랙",
+      "en": "CMYK Key/Black"
+    },
+    {
+      "ko": "RGB 레드",
+      "en": "RGB Red"
+    },
+    {
+      "ko": "RGB 그린",
+      "en": "RGB Green"
+    },
+    {
+      "ko": "RGB 블루",
+      "en": "RGB Blue"
+    },
+    {
+      "ko": "프린터 블랙",
+      "en": "Printer"
+    },
+    {
+      "ko": "리치 블랙",
+      "en": "Rich Black"
+    },
+    {
+      "ko": "프로세스 블루",
+      "en": "Process Blue"
+    },
+    {
+      "ko": "리플렉스 블루",
+      "en": "Reflex Blue"
+    },
+    {
+      "ko": "웜 레드",
+      "en": "Warm Red"
+    },
+    {
+      "ko": "루빈 레드",
+      "en": "Rubine Red"
+    },
+    {
+      "ko": "아토믹 탠저린",
+      "en": "Atomic Tangerine"
+    },
+    {
+      "ko": "바나나 매니아",
+      "en": "Banana Mania"
+    },
+    {
+      "ko": "비터스위트",
+      "en": "Bittersweet"
+    },
+    {
+      "ko": "블루 벨",
+      "en": "Blue Bell"
+    },
+    {
+      "ko": "브릭 레드",
+      "en": "Brick Red"
+    },
+    {
+      "ko": "카네이션 핑크",
+      "en": "Carnation Pink"
+    },
+    {
+      "ko": "세룰리안",
+      "en": "Cerulean"
+    },
+    {
+      "ko": "코퍼 페니",
+      "en": "Copper Penny"
+    },
+    {
+      "ko": "콘플라워",
+      "en": "Cornflower"
+    },
+    {
+      "ko": "코튼 캔디",
+      "en": "Cotton Candy"
+    },
+    {
+      "ko": "댄들라이언",
+      "en": "Dandelion"
+    },
+    {
+      "ko": "데님",
+      "en": "Denim"
+    },
+    {
+      "ko": "펀",
+      "en": "Fern"
+    },
+    {
+      "ko": "퍼지 워지",
+      "en": "Fuzzy Wuzzy"
+    },
+    {
+      "ko": "그래니 스미스 애플",
+      "en": "Granny Smith Apple"
+    },
+    {
+      "ko": "인치 웜",
+      "en": "Inch Worm"
+    },
+    {
+      "ko": "재즈베리 잼",
+      "en": "Jazzberry Jam"
+    },
+    {
+      "ko": "정글 그린",
+      "en": "Jungle Green"
+    },
+    {
+      "ko": "레이저 레몬",
+      "en": "Laser Lemon"
+    },
+    {
+      "ko": "마카로니 앤 치즈",
+      "en": "Macaroni and Cheese"
+    },
+    {
+      "ko": "매직 민트",
+      "en": "Magic Mint"
+    },
+    {
+      "ko": "매너티",
+      "en": "Manatee"
+    },
+    {
+      "ko": "망고 탱고",
+      "en": "Mango Tango"
+    },
+    {
+      "ko": "마운틴 메도우",
+      "en": "Mountain Meadow"
+    },
+    {
+      "ko": "네온 캐럿",
+      "en": "Neon Carrot"
+    },
+    {
+      "ko": "올리브 그린",
+      "en": "Olive Green"
+    },
+    {
+      "ko": "아우터 스페이스",
+      "en": "Outer Space"
+    },
+    {
+      "ko": "아웃레이저스 오렌지",
+      "en": "Outrageous Orange"
+    },
+    {
+      "ko": "퍼시픽 블루",
+      "en": "Pacific Blue"
+    },
+    {
+      "ko": "피치",
+      "en": "Peach"
+    },
+    {
+      "ko": "피기 핑크",
+      "en": "Piggy Pink"
+    },
+    {
+      "ko": "파인 그린",
+      "en": "Pine Green"
+    },
+    {
+      "ko": "핑크 플라밍고",
+      "en": "Pink Flamingo"
+    },
+    {
+      "ko": "퍼플 하트",
+      "en": "Purple Heart"
+    },
+    {
+      "ko": "퍼플 마운틴스 매저스티",
+      "en": "Purple Mountains Majesty"
+    },
+    {
+      "ko": "래디컬 레드",
+      "en": "Radical Red"
+    },
+    {
+      "ko": "래즐 대즐 로즈",
+      "en": "Razzle Dazzle Rose"
+    },
+    {
+      "ko": "래즈마타즈",
+      "en": "Razzmatazz"
+    },
+    {
+      "ko": "로빈 에그 블루",
+      "en": "Robin Egg Blue"
+    },
+    {
+      "ko": "로열 퍼플",
+      "en": "Royal Purple"
+    },
+    {
+      "ko": "스칼렛",
+      "en": "Scarlet"
+    },
+    {
+      "ko": "스크리밍 그린",
+      "en": "Screamin Green"
+    },
+    {
+      "ko": "섀도우",
+      "en": "Shadow"
+    },
+    {
+      "ko": "샴록",
+      "en": "Shamrock"
+    },
+    {
+      "ko": "선글로우",
+      "en": "Sunglow"
+    },
+    {
+      "ko": "선셋 오렌지",
+      "en": "Sunset Orange"
+    },
+    {
+      "ko": "티클 미 핑크",
+      "en": "Tickle Me Pink"
+    },
+    {
+      "ko": "팀버울프",
+      "en": "Timberwolf"
+    },
+    {
+      "ko": "토치 레드",
+      "en": "Torch Red"
+    },
+    {
+      "ko": "트로피컬 레인 포레스트",
+      "en": "Tropical Rain Forest"
+    },
+    {
+      "ko": "텀블위드",
+      "en": "Tumbleweed"
+    },
+    {
+      "ko": "터쿼이즈 블루",
+      "en": "Turquoise Blue"
+    },
+    {
+      "ko": "언멜로우 옐로우",
+      "en": "Unmellow Yellow"
+    },
+    {
+      "ko": "비비드 탠저린",
+      "en": "Vivid Tangerine"
+    },
+    {
+      "ko": "비비드 바이올렛",
+      "en": "Vivid Violet"
+    },
+    {
+      "ko": "와일드 블루 욘더",
+      "en": "Wild Blue Yonder"
+    },
+    {
+      "ko": "와일드 스트로베리",
+      "en": "Wild Strawberry"
+    },
+    {
+      "ko": "와일드 워터멜론",
+      "en": "Wild Watermelon"
+    },
+    {
+      "ko": "위스테리아",
+      "en": "Wisteria"
+    },
+    {
+      "ko": "옐로우 오렌지",
+      "en": "Yellow Orange"
+    }
+  ],
+  "enToKo": []
+}

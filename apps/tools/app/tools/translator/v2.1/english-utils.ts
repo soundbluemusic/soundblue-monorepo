@@ -91,17 +91,17 @@ export function toGerund(verb: string): string {
 
   // -e로 끝나면 e 제거 + ing (make → making)
   if (v.endsWith('e') && !v.endsWith('ee') && !v.endsWith('ie')) {
-    return v.slice(0, -1) + 'ing';
+    return `${v.slice(0, -1)}ing`;
   }
   // -ie로 끝나면 ie → ying (die → dying)
   if (v.endsWith('ie')) {
-    return v.slice(0, -2) + 'ying';
+    return `${v.slice(0, -2)}ying`;
   }
   // CVC 패턴 (run, stop, swim) → 자음 중복 + ing
   if (/^[a-z]*[bcdfghjklmnpqrstvwxz][aeiou][bcdfghjklmnpqrstvwxz]$/.test(v) && v.length <= 4) {
-    return v + v.slice(-1) + 'ing';
+    return `${v + v.slice(-1)}ing`;
   }
-  return v + 'ing';
+  return `${v}ing`;
 }
 
 /**
@@ -125,7 +125,7 @@ export function toInfinitive(verb: string): string {
 
   // -es로 끝나면 (goes, does는 위에서 처리됨)
   if (v.endsWith('ies')) {
-    return v.slice(0, -3) + 'y';
+    return `${v.slice(0, -3)}y`;
   }
   if (v.endsWith('es')) {
     return v.slice(0, -2);
@@ -247,7 +247,7 @@ export function ppToBase(pp: string): string {
     }
     // -ied → -y: studied → study
     if (pp.endsWith('ied')) {
-      return pp.slice(0, -3) + 'y';
+      return `${pp.slice(0, -3)}y`;
     }
     return pp.slice(0, -2);
   }

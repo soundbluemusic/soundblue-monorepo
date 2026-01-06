@@ -1,0 +1,358 @@
+[
+  {
+    "ko": "보글보글",
+    "en": "bubbling"
+  },
+  {
+    "ko": "뽀글뽀글",
+    "en": "bubbling"
+  },
+  {
+    "ko": "부글부글",
+    "en": "boiling"
+  },
+  {
+    "ko": "졸졸",
+    "en": "trickling"
+  },
+  {
+    "ko": "콸콸",
+    "en": "gushing"
+  },
+  {
+    "ko": "철썩철썩",
+    "en": "splashing"
+  },
+  {
+    "ko": "첨벙첨벙",
+    "en": "splashing"
+  },
+  {
+    "ko": "똑똑",
+    "en": "dripping"
+  },
+  {
+    "ko": "뚝뚝",
+    "en": "dripping"
+  },
+  {
+    "ko": "찰랑찰랑",
+    "en": "sloshing"
+  },
+  {
+    "ko": "쨍그랑",
+    "en": "shattering"
+  },
+  {
+    "ko": "와르르",
+    "en": "crashing"
+  },
+  {
+    "ko": "우당탕",
+    "en": "crashing"
+  },
+  {
+    "ko": "쿵",
+    "en": "thud"
+  },
+  {
+    "ko": "쾅",
+    "en": "bang"
+  },
+  {
+    "ko": "탕",
+    "en": "bang"
+  },
+  {
+    "ko": "펑",
+    "en": "pop"
+  },
+  {
+    "ko": "뻥",
+    "en": "pop"
+  },
+  {
+    "ko": "빵",
+    "en": "bang"
+  },
+  {
+    "ko": "딱",
+    "en": "snap"
+  },
+  {
+    "ko": "뚝",
+    "en": "snap"
+  },
+  {
+    "ko": "찰칵",
+    "en": "click"
+  },
+  {
+    "ko": "철컥",
+    "en": "clank"
+  },
+  {
+    "ko": "덜컹덜컹",
+    "en": "rattling"
+  },
+  {
+    "ko": "덜커덩",
+    "en": "clattering"
+  },
+  {
+    "ko": "털털",
+    "en": "rumbling"
+  },
+  {
+    "ko": "부르릉",
+    "en": "vroom"
+  },
+  {
+    "ko": "부릉부릉",
+    "en": "vroom"
+  },
+  {
+    "ko": "끼익",
+    "en": "screech"
+  },
+  {
+    "ko": "삐걱삐걱",
+    "en": "creaking"
+  },
+  {
+    "ko": "멍멍",
+    "en": "woof"
+  },
+  {
+    "ko": "야옹",
+    "en": "meow"
+  },
+  {
+    "ko": "꿀꿀",
+    "en": "oink"
+  },
+  {
+    "ko": "꼬끼오",
+    "en": "cock-a-doodle-doo"
+  },
+  {
+    "ko": "꽥꽥",
+    "en": "quack"
+  },
+  {
+    "ko": "음매",
+    "en": "moo"
+  },
+  {
+    "ko": "매애",
+    "en": "baa"
+  },
+  {
+    "ko": "짹짹",
+    "en": "chirp"
+  },
+  {
+    "ko": "꾸꾸",
+    "en": "coo"
+  },
+  {
+    "ko": "부엉부엉",
+    "en": "hoot"
+  },
+  {
+    "ko": "개굴개굴",
+    "en": "ribbit"
+  },
+  {
+    "ko": "윙윙",
+    "en": "buzz"
+  },
+  {
+    "ko": "쿨쿨",
+    "en": "snoring"
+  },
+  {
+    "ko": "드르렁",
+    "en": "snoring"
+  },
+  {
+    "ko": "에취",
+    "en": "achoo"
+  },
+  {
+    "ko": "에헴",
+    "en": "ahem"
+  },
+  {
+    "ko": "흠",
+    "en": "hmm"
+  },
+  {
+    "ko": "아하",
+    "en": "aha"
+  },
+  {
+    "ko": "앗",
+    "en": "oops"
+  },
+  {
+    "ko": "어머",
+    "en": "oh my"
+  },
+  {
+    "ko": "헉",
+    "en": "gasp"
+  },
+  {
+    "ko": "훌쩍",
+    "en": "sniff"
+  },
+  {
+    "ko": "꺼억",
+    "en": "burp"
+  },
+  {
+    "ko": "딸꾹",
+    "en": "hiccup"
+  },
+  {
+    "ko": "으앙",
+    "en": "wah"
+  },
+  {
+    "ko": "킥킥",
+    "en": "giggling"
+  },
+  {
+    "ko": "깔깔",
+    "en": "laughing"
+  },
+  {
+    "ko": "하하",
+    "en": "haha"
+  },
+  {
+    "ko": "호호",
+    "en": "hoho"
+  },
+  {
+    "ko": "히히",
+    "en": "hehe"
+  },
+  {
+    "ko": "냠냠",
+    "en": "yum"
+  },
+  {
+    "ko": "쩝쩝",
+    "en": "smacking"
+  },
+  {
+    "ko": "후루룩",
+    "en": "slurping"
+  },
+  {
+    "ko": "꿀꺽",
+    "en": "gulp"
+  },
+  {
+    "ko": "오독오독",
+    "en": "crunching"
+  },
+  {
+    "ko": "아삭아삭",
+    "en": "crunching"
+  },
+  {
+    "ko": "바삭바삭",
+    "en": "crunching"
+  },
+  {
+    "ko": "쫄깃쫄깃",
+    "en": "chewy"
+  },
+  {
+    "ko": "우르르",
+    "en": "rumbling"
+  },
+  {
+    "ko": "쏴",
+    "en": "whoosh"
+  },
+  {
+    "ko": "쌩쌩",
+    "en": "whooshing"
+  },
+  {
+    "ko": "휘이잉",
+    "en": "whistling"
+  },
+  {
+    "ko": "솨",
+    "en": "rushing"
+  },
+  {
+    "ko": "부스럭",
+    "en": "rustling"
+  },
+  {
+    "ko": "사각사각",
+    "en": "rustling"
+  },
+  {
+    "ko": "바스락",
+    "en": "rustling"
+  },
+  {
+    "ko": "쿵쿵",
+    "en": "thumping"
+  },
+  {
+    "ko": "두근",
+    "en": "pounding"
+  },
+  {
+    "ko": "콩닥",
+    "en": "pitter-patter"
+  },
+  {
+    "ko": "콩닥콩닥",
+    "en": "pitter-patter"
+  },
+  {
+    "ko": "꼬르륵",
+    "en": "growling"
+  },
+  {
+    "ko": "꼬르르",
+    "en": "rumbling"
+  },
+  {
+    "ko": "꾸르륵",
+    "en": "growling"
+  },
+  {
+    "ko": "지글지글",
+    "en": "sizzling"
+  },
+  {
+    "ko": "치직치직",
+    "en": "sizzling"
+  },
+  {
+    "ko": "보글",
+    "en": "bubbling"
+  },
+  {
+    "ko": "글글",
+    "en": "boiling"
+  },
+  {
+    "ko": "부글",
+    "en": "boiling"
+  },
+  {
+    "ko": "뽀글",
+    "en": "bubbling"
+  }
+]

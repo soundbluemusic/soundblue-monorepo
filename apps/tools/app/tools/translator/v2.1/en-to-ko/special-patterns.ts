@@ -1462,7 +1462,7 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
       const koVerb = EN_VERBS[baseVerb] || EN_VERBS[`${baseVerb}e`];
       if (koVerb) {
         const stem = koVerb.endsWith('다') ? koVerb.slice(0, -1) : koVerb;
-        return attachPastTense(stem) + '다';
+        return `${attachPastTense(stem)}다`;
       }
     }
   }

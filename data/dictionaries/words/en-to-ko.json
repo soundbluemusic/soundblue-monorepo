@@ -1,0 +1,2354 @@
+[
+  {
+    "ko": "안녕",
+    "en": "hi"
+  },
+  {
+    "ko": "안녕하세요",
+    "en": "hello"
+  },
+  {
+    "ko": "야",
+    "en": "hey"
+  },
+  {
+    "ko": "잘 가",
+    "en": "bye"
+  },
+  {
+    "ko": "안녕히 가세요",
+    "en": "goodbye"
+  },
+  {
+    "ko": "고마워",
+    "en": "thanks"
+  },
+  {
+    "ko": "감사합니다",
+    "en": "thank you"
+  },
+  {
+    "ko": "미안해",
+    "en": "sorry"
+  },
+  {
+    "ko": "실례합니다",
+    "en": "excuse me"
+  },
+  {
+    "ko": "부탁해",
+    "en": "please"
+  },
+  {
+    "ko": "응",
+    "en": "yeah"
+  },
+  {
+    "ko": "응",
+    "en": "yep"
+  },
+  {
+    "ko": "아니",
+    "en": "nope"
+  },
+  {
+    "ko": "알겠어",
+    "en": "ok"
+  },
+  {
+    "ko": "대박",
+    "en": "omg"
+  },
+  {
+    "ko": "응?",
+    "en": "huh"
+  },
+  {
+    "ko": "앗",
+    "en": "oops"
+  },
+  {
+    "ko": "아야",
+    "en": "ouch"
+  },
+  {
+    "ko": "야호",
+    "en": "yay"
+  },
+  {
+    "ko": "음",
+    "en": "hmm"
+  },
+  {
+    "ko": "맞아",
+    "en": "exactly"
+  },
+  {
+    "ko": "당연하지",
+    "en": "absolutely"
+  },
+  {
+    "ko": "확실해",
+    "en": "definitely"
+  },
+  {
+    "ko": "아마",
+    "en": "maybe"
+  },
+  {
+    "ko": "아마도",
+    "en": "perhaps"
+  },
+  {
+    "ko": "환영해",
+    "en": "welcome"
+  },
+  {
+    "ko": "축하해",
+    "en": "congratulations"
+  },
+  {
+    "ko": "좋은 아침",
+    "en": "good morning"
+  },
+  {
+    "ko": "잘 자",
+    "en": "good night"
+  },
+  {
+    "ko": "행운을 빌어",
+    "en": "good luck"
+  },
+  {
+    "ko": "조심해",
+    "en": "take care"
+  },
+  {
+    "ko": "또 봐",
+    "en": "see you"
+  },
+  {
+    "ko": "또 봐",
+    "en": "see ya"
+  },
+  {
+    "ko": "건배",
+    "en": "cheers"
+  },
+  {
+    "ko": "좋아",
+    "en": "nice"
+  },
+  {
+    "ko": "귀여워",
+    "en": "cute"
+  },
+  {
+    "ko": "사랑스러워",
+    "en": "lovely"
+  },
+  {
+    "ko": "끔찍해",
+    "en": "terrible"
+  },
+  {
+    "ko": "끔찍해",
+    "en": "horrible"
+  },
+  {
+    "ko": "최악이야",
+    "en": "awful"
+  },
+  {
+    "ko": "괜찮아",
+    "en": "fine"
+  },
+  {
+    "ko": "나",
+    "en": "i"
+  },
+  {
+    "ko": "당신",
+    "en": "you"
+  },
+  {
+    "ko": "그",
+    "en": "he"
+  },
+  {
+    "ko": "그녀",
+    "en": "she"
+  },
+  {
+    "ko": "그것",
+    "en": "it"
+  },
+  {
+    "ko": "우리",
+    "en": "we"
+  },
+  {
+    "ko": "그들",
+    "en": "they"
+  },
+  {
+    "ko": "나를",
+    "en": "me"
+  },
+  {
+    "ko": "그를",
+    "en": "him"
+  },
+  {
+    "ko": "그녀를",
+    "en": "her"
+  },
+  {
+    "ko": "우리를",
+    "en": "us"
+  },
+  {
+    "ko": "그들을",
+    "en": "them"
+  },
+  {
+    "ko": "나의",
+    "en": "my"
+  },
+  {
+    "ko": "당신의",
+    "en": "your"
+  },
+  {
+    "ko": "그의",
+    "en": "his"
+  },
+  {
+    "ko": "그것의",
+    "en": "its"
+  },
+  {
+    "ko": "우리의",
+    "en": "our"
+  },
+  {
+    "ko": "그들의",
+    "en": "their"
+  },
+  {
+    "ko": "이",
+    "en": "this"
+  },
+  {
+    "ko": "저",
+    "en": "that"
+  },
+  {
+    "ko": "이것들",
+    "en": "these"
+  },
+  {
+    "ko": "저것들",
+    "en": "those"
+  },
+  {
+    "ko": "빨간",
+    "en": "red"
+  },
+  {
+    "ko": "파란",
+    "en": "blue"
+  },
+  {
+    "ko": "노란",
+    "en": "yellow"
+  },
+  {
+    "ko": "흰",
+    "en": "white"
+  },
+  {
+    "ko": "검은",
+    "en": "black"
+  },
+  {
+    "ko": "초록",
+    "en": "green"
+  },
+  {
+    "ko": "분홍",
+    "en": "pink"
+  },
+  {
+    "ko": "보라",
+    "en": "purple"
+  },
+  {
+    "ko": "주황",
+    "en": "orange"
+  },
+  {
+    "ko": "갈색",
+    "en": "brown"
+  },
+  {
+    "ko": "큰",
+    "en": "big"
+  },
+  {
+    "ko": "작은",
+    "en": "small"
+  },
+  {
+    "ko": "낡은",
+    "en": "old"
+  },
+  {
+    "ko": "새로운",
+    "en": "new"
+  },
+  {
+    "ko": "나무",
+    "en": "wooden"
+  },
+  {
+    "ko": "예쁜",
+    "en": "beautiful"
+  },
+  {
+    "ko": "나 자신을",
+    "en": "myself"
+  },
+  {
+    "ko": "너 자신을",
+    "en": "yourself"
+  },
+  {
+    "ko": "그 자신을",
+    "en": "himself"
+  },
+  {
+    "ko": "그녀 자신을",
+    "en": "herself"
+  },
+  {
+    "ko": "그것 자신을",
+    "en": "itself"
+  },
+  {
+    "ko": "우리 자신을",
+    "en": "ourselves"
+  },
+  {
+    "ko": "너희 자신을",
+    "en": "yourselves"
+  },
+  {
+    "ko": "그들 자신을",
+    "en": "themselves"
+  },
+  {
+    "ko": "매",
+    "en": "every"
+  },
+  {
+    "ko": "많은",
+    "en": "many"
+  },
+  {
+    "ko": "많은",
+    "en": "much"
+  },
+  {
+    "ko": "적은",
+    "en": "few"
+  },
+  {
+    "ko": "적은",
+    "en": "little"
+  },
+  {
+    "ko": "약간의",
+    "en": "a few"
+  },
+  {
+    "ko": "약간의",
+    "en": "a little"
+  },
+  {
+    "ko": "약간의",
+    "en": "some"
+  },
+  {
+    "ko": "모든",
+    "en": "all"
+  },
+  {
+    "ko": "어떤",
+    "en": "any"
+  },
+  {
+    "ko": "없다",
+    "en": "none"
+  },
+  {
+    "ko": "여러",
+    "en": "several"
+  },
+  {
+    "ko": "충분한",
+    "en": "enough"
+  },
+  {
+    "ko": "더 많은",
+    "en": "more"
+  },
+  {
+    "ko": "더 적은",
+    "en": "less"
+  },
+  {
+    "ko": "대부분의",
+    "en": "most"
+  },
+  {
+    "ko": "가지다",
+    "en": "have"
+  },
+  {
+    "ko": "가지다",
+    "en": "has"
+  },
+  {
+    "ko": "가졌다",
+    "en": "had"
+  },
+  {
+    "ko": "하다",
+    "en": "do"
+  },
+  {
+    "ko": "하다",
+    "en": "does"
+  },
+  {
+    "ko": "했다",
+    "en": "did"
+  },
+  {
+    "ko": "한",
+    "en": "done"
+  },
+  {
+    "ko": "뛰다",
+    "en": "run"
+  },
+  {
+    "ko": "뛴다",
+    "en": "runs"
+  },
+  {
+    "ko": "뛰었다",
+    "en": "ran"
+  },
+  {
+    "ko": "뛰는",
+    "en": "running"
+  },
+  {
+    "ko": "받다",
+    "en": "get"
+  },
+  {
+    "ko": "받다",
+    "en": "gets"
+  },
+  {
+    "ko": "받았다",
+    "en": "got"
+  },
+  {
+    "ko": "받은",
+    "en": "gotten"
+  },
+  {
+    "ko": "가다",
+    "en": "go"
+  },
+  {
+    "ko": "간다",
+    "en": "goes"
+  },
+  {
+    "ko": "갔다",
+    "en": "went"
+  },
+  {
+    "ko": "간",
+    "en": "gone"
+  },
+  {
+    "ko": "가는",
+    "en": "going"
+  },
+  {
+    "ko": "오다",
+    "en": "come"
+  },
+  {
+    "ko": "온다",
+    "en": "comes"
+  },
+  {
+    "ko": "왔다",
+    "en": "came"
+  },
+  {
+    "ko": "오는",
+    "en": "coming"
+  },
+  {
+    "ko": "만들다",
+    "en": "make"
+  },
+  {
+    "ko": "만든다",
+    "en": "makes"
+  },
+  {
+    "ko": "만들었다",
+    "en": "made"
+  },
+  {
+    "ko": "가져가다",
+    "en": "take"
+  },
+  {
+    "ko": "가져간다",
+    "en": "takes"
+  },
+  {
+    "ko": "가져갔다",
+    "en": "took"
+  },
+  {
+    "ko": "가져간",
+    "en": "taken"
+  },
+  {
+    "ko": "보다",
+    "en": "see"
+  },
+  {
+    "ko": "본다",
+    "en": "sees"
+  },
+  {
+    "ko": "보았다",
+    "en": "saw"
+  },
+  {
+    "ko": "본",
+    "en": "seen"
+  },
+  {
+    "ko": "알다",
+    "en": "know"
+  },
+  {
+    "ko": "안다",
+    "en": "knows"
+  },
+  {
+    "ko": "알았다",
+    "en": "knew"
+  },
+  {
+    "ko": "알려진",
+    "en": "known"
+  },
+  {
+    "ko": "생각하다",
+    "en": "think"
+  },
+  {
+    "ko": "생각한다",
+    "en": "thinks"
+  },
+  {
+    "ko": "생각했다",
+    "en": "thought"
+  },
+  {
+    "ko": "원하다",
+    "en": "want"
+  },
+  {
+    "ko": "원한다",
+    "en": "wants"
+  },
+  {
+    "ko": "원했다",
+    "en": "wanted"
+  },
+  {
+    "ko": "찾다",
+    "en": "find"
+  },
+  {
+    "ko": "찾는다",
+    "en": "finds"
+  },
+  {
+    "ko": "찾았다",
+    "en": "found"
+  },
+  {
+    "ko": "주다",
+    "en": "give"
+  },
+  {
+    "ko": "준다",
+    "en": "gives"
+  },
+  {
+    "ko": "주었다",
+    "en": "gave"
+  },
+  {
+    "ko": "준",
+    "en": "given"
+  },
+  {
+    "ko": "말하다",
+    "en": "tell"
+  },
+  {
+    "ko": "말한다",
+    "en": "tells"
+  },
+  {
+    "ko": "말했다",
+    "en": "told"
+  },
+  {
+    "ko": "말하다",
+    "en": "say"
+  },
+  {
+    "ko": "말한다",
+    "en": "says"
+  },
+  {
+    "ko": "말했다",
+    "en": "said"
+  },
+  {
+    "ko": "말하다",
+    "en": "speak"
+  },
+  {
+    "ko": "말한다",
+    "en": "speaks"
+  },
+  {
+    "ko": "말했다",
+    "en": "spoke"
+  },
+  {
+    "ko": "말한",
+    "en": "spoken"
+  },
+  {
+    "ko": "묻다",
+    "en": "ask"
+  },
+  {
+    "ko": "묻는다",
+    "en": "asks"
+  },
+  {
+    "ko": "물었다",
+    "en": "asked"
+  },
+  {
+    "ko": "느끼다",
+    "en": "feel"
+  },
+  {
+    "ko": "느낀다",
+    "en": "feels"
+  },
+  {
+    "ko": "느꼈다",
+    "en": "felt"
+  },
+  {
+    "ko": "되다",
+    "en": "become"
+  },
+  {
+    "ko": "된다",
+    "en": "becomes"
+  },
+  {
+    "ko": "되었다",
+    "en": "became"
+  },
+  {
+    "ko": "떠나다",
+    "en": "leave"
+  },
+  {
+    "ko": "떠난다",
+    "en": "leaves"
+  },
+  {
+    "ko": "떠났다",
+    "en": "left"
+  },
+  {
+    "ko": "놓다",
+    "en": "put"
+  },
+  {
+    "ko": "놓는다",
+    "en": "puts"
+  },
+  {
+    "ko": "유지하다",
+    "en": "keep"
+  },
+  {
+    "ko": "유지한다",
+    "en": "keeps"
+  },
+  {
+    "ko": "유지했다",
+    "en": "kept"
+  },
+  {
+    "ko": "허락하다",
+    "en": "let"
+  },
+  {
+    "ko": "허락한다",
+    "en": "lets"
+  },
+  {
+    "ko": "시작하다",
+    "en": "begin"
+  },
+  {
+    "ko": "시작한다",
+    "en": "begins"
+  },
+  {
+    "ko": "시작했다",
+    "en": "began"
+  },
+  {
+    "ko": "시작된",
+    "en": "begun"
+  },
+  {
+    "ko": "돕다",
+    "en": "help"
+  },
+  {
+    "ko": "돕는다",
+    "en": "helps"
+  },
+  {
+    "ko": "도왔다",
+    "en": "helped"
+  },
+  {
+    "ko": "보여주다",
+    "en": "show"
+  },
+  {
+    "ko": "보여준다",
+    "en": "shows"
+  },
+  {
+    "ko": "보여주었다",
+    "en": "showed"
+  },
+  {
+    "ko": "보여진",
+    "en": "shown"
+  },
+  {
+    "ko": "듣다",
+    "en": "hear"
+  },
+  {
+    "ko": "듣는다",
+    "en": "hears"
+  },
+  {
+    "ko": "들었다",
+    "en": "heard"
+  },
+  {
+    "ko": "듣다",
+    "en": "listen"
+  },
+  {
+    "ko": "듣는다",
+    "en": "listens"
+  },
+  {
+    "ko": "들었다",
+    "en": "listened"
+  },
+  {
+    "ko": "놀다",
+    "en": "play"
+  },
+  {
+    "ko": "논다",
+    "en": "plays"
+  },
+  {
+    "ko": "놀았다",
+    "en": "played"
+  },
+  {
+    "ko": "살다",
+    "en": "live"
+  },
+  {
+    "ko": "산다",
+    "en": "lives"
+  },
+  {
+    "ko": "살았다",
+    "en": "lived"
+  },
+  {
+    "ko": "믿다",
+    "en": "believe"
+  },
+  {
+    "ko": "믿는다",
+    "en": "believes"
+  },
+  {
+    "ko": "믿었다",
+    "en": "believed"
+  },
+  {
+    "ko": "잡다",
+    "en": "hold"
+  },
+  {
+    "ko": "잡는다",
+    "en": "holds"
+  },
+  {
+    "ko": "잡았다",
+    "en": "held"
+  },
+  {
+    "ko": "가져오다",
+    "en": "bring"
+  },
+  {
+    "ko": "가져온다",
+    "en": "brings"
+  },
+  {
+    "ko": "가져왔다",
+    "en": "brought"
+  },
+  {
+    "ko": "쓰다",
+    "en": "write"
+  },
+  {
+    "ko": "쓴다",
+    "en": "writes"
+  },
+  {
+    "ko": "썼다",
+    "en": "wrote"
+  },
+  {
+    "ko": "쓴",
+    "en": "written"
+  },
+  {
+    "ko": "앉다",
+    "en": "sit"
+  },
+  {
+    "ko": "앉는다",
+    "en": "sits"
+  },
+  {
+    "ko": "앉았다",
+    "en": "sat"
+  },
+  {
+    "ko": "서다",
+    "en": "stand"
+  },
+  {
+    "ko": "선다",
+    "en": "stands"
+  },
+  {
+    "ko": "섰다",
+    "en": "stood"
+  },
+  {
+    "ko": "잃다",
+    "en": "lose"
+  },
+  {
+    "ko": "잃는다",
+    "en": "loses"
+  },
+  {
+    "ko": "잃었다",
+    "en": "lost"
+  },
+  {
+    "ko": "만나다",
+    "en": "meet"
+  },
+  {
+    "ko": "만난다",
+    "en": "meets"
+  },
+  {
+    "ko": "만났다",
+    "en": "met"
+  },
+  {
+    "ko": "배우다",
+    "en": "learn"
+  },
+  {
+    "ko": "배운다",
+    "en": "learns"
+  },
+  {
+    "ko": "배웠다",
+    "en": "learned"
+  },
+  {
+    "ko": "이해하다",
+    "en": "understand"
+  },
+  {
+    "ko": "이해한다",
+    "en": "understands"
+  },
+  {
+    "ko": "이해했다",
+    "en": "understood"
+  },
+  {
+    "ko": "보다",
+    "en": "watch"
+  },
+  {
+    "ko": "본다",
+    "en": "watches"
+  },
+  {
+    "ko": "보았다",
+    "en": "watched"
+  },
+  {
+    "ko": "사다",
+    "en": "buy"
+  },
+  {
+    "ko": "산다",
+    "en": "buys"
+  },
+  {
+    "ko": "샀다",
+    "en": "bought"
+  },
+  {
+    "ko": "기다리다",
+    "en": "wait"
+  },
+  {
+    "ko": "기다린다",
+    "en": "waits"
+  },
+  {
+    "ko": "기다렸다",
+    "en": "waited"
+  },
+  {
+    "ko": "먹다",
+    "en": "eat"
+  },
+  {
+    "ko": "먹는다",
+    "en": "eats"
+  },
+  {
+    "ko": "먹었다",
+    "en": "ate"
+  },
+  {
+    "ko": "먹은",
+    "en": "eaten"
+  },
+  {
+    "ko": "마시다",
+    "en": "drink"
+  },
+  {
+    "ko": "마신다",
+    "en": "drinks"
+  },
+  {
+    "ko": "마셨다",
+    "en": "drank"
+  },
+  {
+    "ko": "마신",
+    "en": "drunk"
+  },
+  {
+    "ko": "자다",
+    "en": "sleep"
+  },
+  {
+    "ko": "잔다",
+    "en": "sleeps"
+  },
+  {
+    "ko": "잤다",
+    "en": "slept"
+  },
+  {
+    "ko": "바라다",
+    "en": "wish"
+  },
+  {
+    "ko": "바란다",
+    "en": "wishes"
+  },
+  {
+    "ko": "바랐다",
+    "en": "wished"
+  },
+  {
+    "ko": "받아들이다",
+    "en": "accept"
+  },
+  {
+    "ko": "받아들인다",
+    "en": "accepts"
+  },
+  {
+    "ko": "받아들였다",
+    "en": "accepted"
+  },
+  {
+    "ko": "돌리다",
+    "en": "turn"
+  },
+  {
+    "ko": "돌린다",
+    "en": "turns"
+  },
+  {
+    "ko": "돌렸다",
+    "en": "turned"
+  },
+  {
+    "ko": "깨다",
+    "en": "break"
+  },
+  {
+    "ko": "깬다",
+    "en": "breaks"
+  },
+  {
+    "ko": "깼다",
+    "en": "broke"
+  },
+  {
+    "ko": "깨진",
+    "en": "broken"
+  },
+  {
+    "ko": "연기하다",
+    "en": "postpone"
+  },
+  {
+    "ko": "연기한다",
+    "en": "postpones"
+  },
+  {
+    "ko": "연기되었다",
+    "en": "postponed"
+  },
+  {
+    "ko": "와우",
+    "en": "wow"
+  },
+  {
+    "ko": "놀라운",
+    "en": "amazing"
+  },
+  {
+    "ko": "멋진",
+    "en": "awesome"
+  },
+  {
+    "ko": "훌륭한",
+    "en": "wonderful"
+  },
+  {
+    "ko": "환상적인",
+    "en": "fantastic"
+  },
+  {
+    "ko": "믿기 어려운",
+    "en": "incredible"
+  },
+  {
+    "ko": "그래",
+    "en": "yes"
+  },
+  {
+    "ko": "큰",
+    "en": "large"
+  },
+  {
+    "ko": "높은",
+    "en": "high"
+  },
+  {
+    "ko": "낮은",
+    "en": "low"
+  },
+  {
+    "ko": "긴",
+    "en": "long"
+  },
+  {
+    "ko": "짧은",
+    "en": "short"
+  },
+  {
+    "ko": "젊은",
+    "en": "young"
+  },
+  {
+    "ko": "맞는",
+    "en": "right"
+  },
+  {
+    "ko": "틀린",
+    "en": "wrong"
+  },
+  {
+    "ko": "진실한",
+    "en": "true"
+  },
+  {
+    "ko": "중요한",
+    "en": "important"
+  },
+  {
+    "ko": "다른",
+    "en": "different"
+  },
+  {
+    "ko": "같은",
+    "en": "same"
+  },
+  {
+    "ko": "쉬운",
+    "en": "easy"
+  },
+  {
+    "ko": "어려운",
+    "en": "hard"
+  },
+  {
+    "ko": "어려운",
+    "en": "difficult"
+  },
+  {
+    "ko": "자유로운",
+    "en": "free"
+  },
+  {
+    "ko": "가득 찬",
+    "en": "full"
+  },
+  {
+    "ko": "비어 있는",
+    "en": "empty"
+  },
+  {
+    "ko": "뜨거운",
+    "en": "hot"
+  },
+  {
+    "ko": "차가운",
+    "en": "cold"
+  },
+  {
+    "ko": "따뜻한",
+    "en": "warm"
+  },
+  {
+    "ko": "시원한",
+    "en": "cool"
+  },
+  {
+    "ko": "빠른",
+    "en": "fast"
+  },
+  {
+    "ko": "느린",
+    "en": "slow"
+  },
+  {
+    "ko": "빠른",
+    "en": "quick"
+  },
+  {
+    "ko": "이른",
+    "en": "early"
+  },
+  {
+    "ko": "늦은",
+    "en": "late"
+  },
+  {
+    "ko": "강한",
+    "en": "strong"
+  },
+  {
+    "ko": "약한",
+    "en": "weak"
+  },
+  {
+    "ko": "행복한",
+    "en": "happy"
+  },
+  {
+    "ko": "슬픈",
+    "en": "sad"
+  },
+  {
+    "ko": "화난",
+    "en": "angry"
+  },
+  {
+    "ko": "예쁜",
+    "en": "pretty"
+  },
+  {
+    "ko": "바쁜",
+    "en": "busy"
+  },
+  {
+    "ko": "피곤한",
+    "en": "tired"
+  },
+  {
+    "ko": "배고픈",
+    "en": "hungry"
+  },
+  {
+    "ko": "맛있는",
+    "en": "delicious"
+  },
+  {
+    "ko": "비싼",
+    "en": "expensive"
+  },
+  {
+    "ko": "싼",
+    "en": "cheap"
+  },
+  {
+    "ko": "유창한",
+    "en": "fluent"
+  },
+  {
+    "ko": "유창하게",
+    "en": "fluently"
+  },
+  {
+    "ko": "서 있는",
+    "en": "standing"
+  },
+  {
+    "ko": "사과",
+    "en": "apple"
+  },
+  {
+    "ko": "고양이",
+    "en": "cat"
+  },
+  {
+    "ko": "강아지",
+    "en": "dog"
+  },
+  {
+    "ko": "새",
+    "en": "bird"
+  },
+  {
+    "ko": "물고기",
+    "en": "fish"
+  },
+  {
+    "ko": "책",
+    "en": "book"
+  },
+  {
+    "ko": "학생",
+    "en": "student"
+  },
+  {
+    "ko": "학생들",
+    "en": "students"
+  },
+  {
+    "ko": "버스",
+    "en": "bus"
+  },
+  {
+    "ko": "버스들",
+    "en": "buses"
+  },
+  {
+    "ko": "공부하다",
+    "en": "study"
+  },
+  {
+    "ko": "공부한다",
+    "en": "studies"
+  },
+  {
+    "ko": "커피",
+    "en": "coffee"
+  },
+  {
+    "ko": "정보",
+    "en": "information"
+  },
+  {
+    "ko": "사람들",
+    "en": "people"
+  },
+  {
+    "ko": "사람",
+    "en": "person"
+  },
+  {
+    "ko": "졸업하다",
+    "en": "graduate"
+  },
+  {
+    "ko": "졸업했다",
+    "en": "graduated"
+  },
+  {
+    "ko": "대학교",
+    "en": "university"
+  },
+  {
+    "ko": "대학",
+    "en": "college"
+  },
+  {
+    "ko": "공부했다",
+    "en": "studied"
+  },
+  {
+    "ko": "공부하고 있다",
+    "en": "studying"
+  },
+  {
+    "ko": "교과서",
+    "en": "textbook"
+  },
+  {
+    "ko": "교과서들",
+    "en": "textbooks"
+  },
+  {
+    "ko": "취업",
+    "en": "employment"
+  },
+  {
+    "ko": "면접",
+    "en": "interview"
+  },
+  {
+    "ko": "회사",
+    "en": "company"
+  },
+  {
+    "ko": "회사들",
+    "en": "companies"
+  },
+  {
+    "ko": "직장",
+    "en": "workplace"
+  },
+  {
+    "ko": "사무실",
+    "en": "office"
+  },
+  {
+    "ko": "선배",
+    "en": "senior"
+  },
+  {
+    "ko": "선배들",
+    "en": "seniors"
+  },
+  {
+    "ko": "후배",
+    "en": "junior"
+  },
+  {
+    "ko": "동료",
+    "en": "colleague"
+  },
+  {
+    "ko": "동료들",
+    "en": "colleagues"
+  },
+  {
+    "ko": "합격했다",
+    "en": "passed"
+  },
+  {
+    "ko": "합격하다",
+    "en": "pass"
+  },
+  {
+    "ko": "떨어졌다",
+    "en": "failed"
+  },
+  {
+    "ko": "떨어지다",
+    "en": "fail"
+  },
+  {
+    "ko": "떨어지는",
+    "en": "failing"
+  },
+  {
+    "ko": "지원했다",
+    "en": "applied"
+  },
+  {
+    "ko": "지원하다",
+    "en": "apply"
+  },
+  {
+    "ko": "준비",
+    "en": "preparation"
+  },
+  {
+    "ko": "준비하다",
+    "en": "prepare"
+  },
+  {
+    "ko": "준비했다",
+    "en": "prepared"
+  },
+  {
+    "ko": "제대로",
+    "en": "properly"
+  },
+  {
+    "ko": "떨리는",
+    "en": "nervous"
+  },
+  {
+    "ko": "다행스러운",
+    "en": "fortunate"
+  },
+  {
+    "ko": "다행히",
+    "en": "fortunately"
+  },
+  {
+    "ko": "적응했다",
+    "en": "adapted"
+  },
+  {
+    "ko": "적응하다",
+    "en": "adapt"
+  },
+  {
+    "ko": "드디어",
+    "en": "finally"
+  },
+  {
+    "ko": "결국",
+    "en": "eventually"
+  },
+  {
+    "ko": "아마",
+    "en": "probably"
+  },
+  {
+    "ko": "계속",
+    "en": "continuously"
+  },
+  {
+    "ko": "즉시",
+    "en": "immediately"
+  },
+  {
+    "ko": "전체",
+    "en": "whole"
+  },
+  {
+    "ko": "하나의",
+    "en": "single"
+  },
+  {
+    "ko": "영어",
+    "en": "english"
+  },
+  {
+    "ko": "발음",
+    "en": "pronunciation"
+  },
+  {
+    "ko": "어휘",
+    "en": "vocabulary"
+  },
+  {
+    "ko": "대화",
+    "en": "conversation"
+  },
+  {
+    "ko": "대화들",
+    "en": "conversations"
+  },
+  {
+    "ko": "소통하다",
+    "en": "communicate"
+  },
+  {
+    "ko": "소통했다",
+    "en": "communicated"
+  },
+  {
+    "ko": "자연스럽게",
+    "en": "naturally"
+  },
+  {
+    "ko": "자연스러운",
+    "en": "natural"
+  },
+  {
+    "ko": "연습했다",
+    "en": "practiced"
+  },
+  {
+    "ko": "연습",
+    "en": "practice"
+  },
+  {
+    "ko": "향상되었다",
+    "en": "improved"
+  },
+  {
+    "ko": "향상하다",
+    "en": "improve"
+  },
+  {
+    "ko": "확장되었다",
+    "en": "expanded"
+  },
+  {
+    "ko": "확장하다",
+    "en": "expand"
+  },
+  {
+    "ko": "원어민",
+    "en": "native speaker"
+  },
+  {
+    "ko": "원어민들",
+    "en": "native speakers"
+  },
+  {
+    "ko": "~이 아니었다",
+    "en": "t"
+  },
+  {
+    "ko": "포기하다",
+    "en": "give up"
+  },
+  {
+    "ko": "포기했다",
+    "en": "gave up"
+  },
+  {
+    "ko": "포기한",
+    "en": "given up"
+  },
+  {
+    "ko": "세상에",
+    "en": "oh my"
+  },
+  {
+    "ko": "하지만",
+    "en": "however"
+  },
+  {
+    "ko": "야",
+    "en": "bruh"
+  },
+  {
+    "ko": "진짜",
+    "en": "literally"
+  },
+  {
+    "ko": "오글거려",
+    "en": "cringe"
+  },
+  {
+    "ko": "못 보겠어",
+    "en": "t even"
+  },
+  {
+    "ko": "여보",
+    "en": "honey"
+  },
+  {
+    "ko": "돈 문제",
+    "en": "finances"
+  },
+  {
+    "ko": "쓰는 것",
+    "en": "spending"
+  },
+  {
+    "ko": "진짜",
+    "en": "seriously"
+  },
+  {
+    "ko": "창피하게 하다",
+    "en": "embarrass"
+  },
+  {
+    "ko": "쪽팔려",
+    "en": "not cool"
+  },
+  {
+    "ko": "지긋지긋해",
+    "en": "so done"
+  },
+  {
+    "ko": "벽보고 얘기하는",
+    "en": "talking to a wall"
+  },
+  {
+    "ko": "벽",
+    "en": "wall"
+  },
+  {
+    "ko": "절대 안 들어",
+    "en": "never listen"
+  },
+  {
+    "ko": "무섭게 하다",
+    "en": "terrifies"
+  },
+  {
+    "ko": "무섭게 하다",
+    "en": "terrify"
+  },
+  {
+    "ko": "멈추게 하다",
+    "en": "stop running"
+  },
+  {
+    "ko": "고통",
+    "en": "pain"
+  },
+  {
+    "ko": "상실",
+    "en": "loss"
+  },
+  {
+    "ko": "아프게 하다",
+    "en": "hurt"
+  },
+  {
+    "ko": "판사님",
+    "en": "your honor"
+  },
+  {
+    "ko": "배심원",
+    "en": "jury"
+  },
+  {
+    "ko": "검찰",
+    "en": "prosecution"
+  },
+  {
+    "ko": "냉혈한",
+    "en": "cold-blooded"
+  },
+  {
+    "ko": "살인자",
+    "en": "killer"
+  },
+  {
+    "ko": "절박함",
+    "en": "desperation"
+  },
+  {
+    "ko": "정의",
+    "en": "justice"
+  },
+  {
+    "ko": "배신하다",
+    "en": "betray"
+  },
+  {
+    "ko": "합리적인",
+    "en": "rational"
+  },
+  {
+    "ko": "잔인한 농담",
+    "en": "cruel joke"
+  },
+  {
+    "ko": "청춘",
+    "en": "youth"
+  },
+  {
+    "ko": "인간관계",
+    "en": "relationships"
+  },
+  {
+    "ko": "결국 ~하게 되다",
+    "en": "end up"
+  },
+  {
+    "ko": "교훈",
+    "en": "lesson"
+  },
+  {
+    "ko": "단지 ~만이 아니라",
+    "en": "not just"
+  },
+  {
+    "ko": "~뿐만 아니라",
+    "en": "not only"
+  },
+  {
+    "ko": "다섯",
+    "en": "five"
+  },
+  {
+    "ko": "여섯",
+    "en": "six"
+  },
+  {
+    "ko": "12개",
+    "en": "dozen"
+  },
+  {
+    "ko": "수십",
+    "en": "dozens"
+  },
+  {
+    "ko": "매우",
+    "en": "very"
+  },
+  {
+    "ko": "정말",
+    "en": "really"
+  },
+  {
+    "ko": "너무",
+    "en": "too"
+  },
+  {
+    "ko": "그래서",
+    "en": "so"
+  },
+  {
+    "ko": "그냥",
+    "en": "just"
+  },
+  {
+    "ko": "오직",
+    "en": "only"
+  },
+  {
+    "ko": "또한",
+    "en": "also"
+  },
+  {
+    "ko": "절대",
+    "en": "never"
+  },
+  {
+    "ko": "항상",
+    "en": "always"
+  },
+  {
+    "ko": "자주",
+    "en": "often"
+  },
+  {
+    "ko": "때때로",
+    "en": "sometimes"
+  },
+  {
+    "ko": "보통",
+    "en": "usually"
+  },
+  {
+    "ko": "다시",
+    "en": "again"
+  },
+  {
+    "ko": "여기",
+    "en": "here"
+  },
+  {
+    "ko": "저기",
+    "en": "there"
+  },
+  {
+    "ko": "밖에",
+    "en": "outside"
+  },
+  {
+    "ko": "안에",
+    "en": "inside"
+  },
+  {
+    "ko": "지금",
+    "en": "now"
+  },
+  {
+    "ko": "그때",
+    "en": "then"
+  },
+  {
+    "ko": "오늘",
+    "en": "today"
+  },
+  {
+    "ko": "어제",
+    "en": "yesterday"
+  },
+  {
+    "ko": "내일",
+    "en": "tomorrow"
+  },
+  {
+    "ko": "곧",
+    "en": "soon"
+  },
+  {
+    "ko": "잘",
+    "en": "well"
+  },
+  {
+    "ko": "천천히",
+    "en": "slowly"
+  },
+  {
+    "ko": "함께",
+    "en": "together"
+  },
+  {
+    "ko": "혼자",
+    "en": "alone"
+  },
+  {
+    "ko": "오디션",
+    "en": "audition"
+  },
+  {
+    "ko": "콘서트",
+    "en": "concert"
+  },
+  {
+    "ko": "공연",
+    "en": "performance"
+  },
+  {
+    "ko": "무대",
+    "en": "stage"
+  },
+  {
+    "ko": "걱정",
+    "en": "worry"
+  },
+  {
+    "ko": "걱정 마",
+    "en": "t worry"
+  },
+  {
+    "ko": "안에",
+    "en": "in"
+  },
+  {
+    "ko": "위에",
+    "en": "on"
+  },
+  {
+    "ko": "에서",
+    "en": "at"
+  },
+  {
+    "ko": "위해",
+    "en": "for"
+  },
+  {
+    "ko": "함께",
+    "en": "with"
+  },
+  {
+    "ko": "부터",
+    "en": "from"
+  },
+  {
+    "ko": "에 의해",
+    "en": "by"
+  },
+  {
+    "ko": "대해",
+    "en": "about"
+  },
+  {
+    "ko": "의",
+    "en": "of"
+  },
+  {
+    "ko": "그리고",
+    "en": "and"
+  },
+  {
+    "ko": "또는",
+    "en": "or"
+  },
+  {
+    "ko": "그러나",
+    "en": "but"
+  },
+  {
+    "ko": "왜냐하면",
+    "en": "because"
+  },
+  {
+    "ko": "만약",
+    "en": "if"
+  },
+  {
+    "ko": "때",
+    "en": "when"
+  },
+  {
+    "ko": "동안",
+    "en": "while"
+  },
+  {
+    "ko": "~할 수 있다",
+    "en": "can"
+  },
+  {
+    "ko": "~할 수 있었다",
+    "en": "could"
+  },
+  {
+    "ko": "~할 것이다",
+    "en": "will"
+  },
+  {
+    "ko": "~할 것이다",
+    "en": "would"
+  },
+  {
+    "ko": "~해야 한다",
+    "en": "should"
+  },
+  {
+    "ko": "~할 수도 있다",
+    "en": "may"
+  },
+  {
+    "ko": "~일 수도 있다",
+    "en": "might"
+  },
+  {
+    "ko": "~해야 한다",
+    "en": "must"
+  },
+  {
+    "ko": "아침",
+    "en": "morning"
+  },
+  {
+    "ko": "오후",
+    "en": "afternoon"
+  },
+  {
+    "ko": "저녁",
+    "en": "evening"
+  },
+  {
+    "ko": "밤",
+    "en": "night"
+  },
+  {
+    "ko": "날",
+    "en": "day"
+  },
+  {
+    "ko": "시간",
+    "en": "time"
+  },
+  {
+    "ko": "삶",
+    "en": "life"
+  },
+  {
+    "ko": "세계",
+    "en": "world"
+  },
+  {
+    "ko": "집",
+    "en": "home"
+  },
+  {
+    "ko": "집",
+    "en": "house"
+  },
+  {
+    "ko": "방",
+    "en": "room"
+  },
+  {
+    "ko": "문",
+    "en": "door"
+  },
+  {
+    "ko": "창문",
+    "en": "window"
+  },
+  {
+    "ko": "물",
+    "en": "water"
+  },
+  {
+    "ko": "음식",
+    "en": "food"
+  },
+  {
+    "ko": "아침",
+    "en": "breakfast"
+  },
+  {
+    "ko": "점심",
+    "en": "lunch"
+  },
+  {
+    "ko": "저녁",
+    "en": "dinner"
+  },
+  {
+    "ko": "돈",
+    "en": "money"
+  },
+  {
+    "ko": "직업",
+    "en": "job"
+  },
+  {
+    "ko": "사업",
+    "en": "business"
+  },
+  {
+    "ko": "단어",
+    "en": "word"
+  },
+  {
+    "ko": "말",
+    "en": "words"
+  },
+  {
+    "ko": "질문",
+    "en": "question"
+  },
+  {
+    "ko": "답",
+    "en": "answer"
+  },
+  {
+    "ko": "문제",
+    "en": "problem"
+  },
+  {
+    "ko": "아이디어",
+    "en": "idea"
+  },
+  {
+    "ko": "방법",
+    "en": "way"
+  },
+  {
+    "ko": "장소",
+    "en": "place"
+  },
+  {
+    "ko": "것",
+    "en": "thing"
+  },
+  {
+    "ko": "남자",
+    "en": "man"
+  },
+  {
+    "ko": "여자",
+    "en": "woman"
+  },
+  {
+    "ko": "아이",
+    "en": "child"
+  },
+  {
+    "ko": "정직한",
+    "en": "honest"
+  },
+  {
+    "ko": "가족",
+    "en": "family"
+  },
+  {
+    "ko": "친구",
+    "en": "friend"
+  },
+  {
+    "ko": "어머니",
+    "en": "mother"
+  },
+  {
+    "ko": "아버지",
+    "en": "father"
+  },
+  {
+    "ko": "자동차",
+    "en": "car"
+  },
+  {
+    "ko": "선물",
+    "en": "gift"
+  },
+  {
+    "ko": "제안",
+    "en": "offer"
+  },
+  {
+    "ko": "회의",
+    "en": "meeting"
+  },
+  {
+    "ko": "사전",
+    "en": "dictionary"
+  },
+  {
+    "ko": "도서관",
+    "en": "library"
+  },
+  {
+    "ko": "꿈",
+    "en": "dream"
+  },
+  {
+    "ko": "꿈들",
+    "en": "dreams"
+  },
+  {
+    "ko": "한국어",
+    "en": "korean"
+  },
+  {
+    "ko": "다리",
+    "en": "leg"
+  },
+  {
+    "ko": "말",
+    "en": "horse"
+  },
+  {
+    "ko": "배",
+    "en": "ship"
+  },
+  {
+    "ko": "배",
+    "en": "boat"
+  },
+  {
+    "ko": "배",
+    "en": "pear"
+  },
+  {
+    "ko": "눈",
+    "en": "eyes"
+  },
+  {
+    "ko": "눈",
+    "en": "eye"
+  },
+  {
+    "ko": "눈",
+    "en": "snow"
+  },
+  {
+    "ko": "눈이 온다",
+    "en": "snowing"
+  },
+  {
+    "ko": "아프다",
+    "en": "hurts"
+  },
+  {
+    "ko": "타다",
+    "en": "ride"
+  },
+  {
+    "ko": "탔다",
+    "en": "rode"
+  },
+  {
+    "ko": "타는",
+    "en": "riding"
+  },
+  {
+    "ko": "아이들",
+    "en": "kids"
+  },
+  {
+    "ko": "그림",
+    "en": "painting"
+  },
+  {
+    "ko": "그림들",
+    "en": "paintings"
+  },
+  {
+    "ko": "기념품",
+    "en": "souvenir"
+  },
+  {
+    "ko": "기념품",
+    "en": "souvenirs"
+  },
+  {
+    "ko": "파스타",
+    "en": "pasta"
+  },
+  {
+    "ko": "완벽하다",
+    "en": "perfect"
+  },
+  {
+    "ko": "날씨",
+    "en": "weather"
+  },
+  {
+    "ko": "방문했다",
+    "en": "visited"
+  },
+  {
+    "ko": "방문하다",
+    "en": "visit"
+  },
+  {
+    "ko": "봤다",
+    "en": "looked"
+  },
+  {
+    "ko": "휴식",
+    "en": "rest"
+  },
+  {
+    "ko": "대신",
+    "en": "instead"
+  },
+  {
+    "ko": "있었다",
+    "en": "stayed"
+  },
+  {
+    "ko": "있다",
+    "en": "stay"
+  },
+  {
+    "ko": "괜찮은",
+    "en": "okay"
+  },
+  {
+    "ko": "필요했다",
+    "en": "needed"
+  },
+  {
+    "ko": "필요하다",
+    "en": "need"
+  },
+  {
+    "ko": "미술관",
+    "en": "art museum"
+  },
+  {
+    "ko": "박물관",
+    "en": "museum"
+  },
+  {
+    "ko": "예술",
+    "en": "art"
+  },
+  {
+    "ko": "새 미술관",
+    "en": "new art museum"
+  },
+  {
+    "ko": "가족",
+    "en": "my family"
+  },
+  {
+    "ko": "외식하다",
+    "en": "eat out"
+  },
+  {
+    "ko": "공원",
+    "en": "park"
+  },
+  {
+    "ko": "열다",
+    "en": "open"
+  },
+  {
+    "ko": "열린",
+    "en": "opened"
+  }
+]

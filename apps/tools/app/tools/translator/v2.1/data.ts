@@ -118,6 +118,305 @@ export const PARTICLES: Array<[string, string, string]> = [
 ];
 
 // ============================================
+// 2.5 담화 연결어 (Discourse Markers)
+// 문장 시작부에서 형태소 분석 전에 분리 처리
+// ============================================
+
+/**
+ * 한국어 담화 연결어 → 영어
+ *
+ * 특징:
+ * - 문장 시작부에서 나타남
+ * - 형태소 분석 전에 분리해야 오역 방지 (그리고 → draw and 방지)
+ * - 긴 것부터 매칭 (순서 중요)
+ */
+export const KO_DISCOURSE_MARKERS: Record<string, string> = {
+  // 접속 (연결)
+  그리고: 'And',
+  그래서: 'So',
+  그런데: 'But',
+  그러나: 'But',
+  하지만: 'However',
+  근데: 'But',
+
+  // 추가
+  또한: 'Also',
+  게다가: 'Besides',
+  더군다나: 'Moreover',
+  뿐만아니라: 'Not only that',
+
+  // 전환
+  아무튼: 'Anyway',
+  어쨌든: 'Anyway',
+  아무래도: 'Anyway',
+  그건그렇고: 'Anyway',
+
+  // 주의: 결국, 마침내, 드디어는 담화 연결어가 아닌 부사
+  // 형태소 분석기가 처리하도록 여기서 제외
+
+  // 예시
+  예를들어: 'For example',
+  예를들면: 'For example',
+
+  // 대조
+  오히려: 'Rather',
+  반면: 'On the other hand',
+  반면에: 'On the other hand',
+};
+
+/**
+ * 한국어 감탄사 → 영어
+ *
+ * 문장 시작부에서 분리 (느낌표 포함/미포함)
+ */
+export const KO_INTERJECTIONS: Record<string, string> = {
+  // 놀람/감탄
+  와: 'Wow',
+  '와!': 'Wow!',
+  우와: 'Wow',
+  '우와!': 'Wow!',
+  대박: 'Amazing',
+  '대박!': 'Amazing!',
+  세상에: 'Oh my',
+  '세상에!': 'Oh my!',
+
+  // 한탄/안타까움
+  아이고: 'Oh my',
+  '아이고!': 'Oh my!',
+  어머: 'Oh my',
+  '어머!': 'Oh my!',
+  어머나: 'Oh dear',
+  '어머나!': 'Oh dear!',
+
+  // 호응
+  아: 'Ah',
+  '아!': 'Ah!',
+  오: 'Oh',
+  '오!': 'Oh!',
+  음: 'Hmm',
+  에: 'Huh',
+
+  // 긍정
+  네: 'Yes',
+  응: 'Yeah',
+  그래: 'Yeah',
+  맞아: 'Right',
+
+  // 부정
+  아니: 'No',
+  아니야: 'No',
+};
+
+/**
+ * 영어 담화 연결어 → 한국어
+ */
+export const EN_DISCOURSE_MARKERS: Record<string, string> = {
+  // 접속
+  and: '그리고',
+  so: '그래서',
+  but: '하지만',
+  however: '하지만',
+  yet: '그러나',
+  or: '또는',
+
+  // 추가
+  also: '또한',
+  besides: '게다가',
+  moreover: '게다가',
+  furthermore: '더욱이',
+
+  // 전환
+  anyway: '아무튼',
+  anyhow: '어쨌든',
+
+  // 결론
+  finally: '마침내',
+  eventually: '결국',
+  'in the end': '결국',
+
+  // 예시
+  'for example': '예를 들어',
+  'for instance': '예를 들어',
+
+  // 대조
+  rather: '오히려',
+  instead: '대신',
+  'on the other hand': '반면에',
+
+  // 감탄
+  wow: '와',
+  'oh my': '세상에',
+  amazing: '대박',
+  'oh no': '아이고',
+};
+
+// ============================================
+// 2.6 시간/장소 부사구 패턴 (Phase 4)
+// 문장 번역 전에 치환하여 자연스러운 번역 유도
+// ============================================
+
+/**
+ * 한국어 시간 부사구 → 영어
+ *
+ * 패턴: [정규식, 영어 번역]
+ * 순서: 긴 패턴부터 매칭
+ */
+export const KO_TIME_ADVERBS: Array<[RegExp, string]> = [
+  // 복합 패턴 (긴 것부터)
+  [/오늘\s*아침에?\s*일찍/g, 'early this morning'],
+  [/어제\s*아침에?\s*일찍/g, 'early yesterday morning'],
+  [/내일\s*아침에?\s*일찍/g, 'early tomorrow morning'],
+  [/오늘\s*아침에?/g, 'this morning'],
+  [/오늘\s*저녁에?/g, 'this evening'],
+  [/오늘\s*밤에?/g, 'tonight'],
+  [/오늘\s*오후에?/g, 'this afternoon'],
+  [/어제\s*아침에?/g, 'yesterday morning'],
+  [/어제\s*저녁에?/g, 'yesterday evening'],
+  [/어제\s*밤에?/g, 'last night'],
+  [/내일\s*아침에?/g, 'tomorrow morning'],
+  [/내일\s*저녁에?/g, 'tomorrow evening'],
+  [/지난\s*주에?/g, 'last week'],
+  [/다음\s*주에?/g, 'next week'],
+  [/지난\s*달에?/g, 'last month'],
+  [/다음\s*달에?/g, 'next month'],
+  [/지난\s*해에?/g, 'last year'],
+  [/다음\s*해에?/g, 'next year'],
+  // 시간 패턴
+  [/(\d+)시에?/g, "at $1 o'clock"],
+  // 주의: "몇 시에"는 의문사이므로 KO_INTERROGATIVES로 이동
+  // 단일 시간 표현 (에 locative particle 필수)
+  // 주의: 단독 단어(오늘, 어제, 내일, 지금, 드디어, 결국 등)는 제외
+  // - 형태소 분석기가 이미 처리함
+  // - 이 리스트는 복합 구문만 처리 ("오늘 아침에" 등)
+  [/아침에(?=\s|$)/g, 'in the morning'],
+  [/저녁에(?=\s|$)/g, 'in the evening'],
+  [/밤에(?=\s|$)/g, 'at night'],
+  [/오후에(?=\s|$)/g, 'in the afternoon'],
+  [/점심에(?=\s|$)/g, 'at lunch'],
+  [/나중에(?=\s|$)/g, 'later'],
+  [/그\s*후에(?=\s|$)/g, 'after that'],
+];
+
+/**
+ * 한국어 장소 부사구 → 영어
+ */
+export const KO_PLACE_ADVERBS: Array<[RegExp, string]> = [
+  // 장소 부사구: 반드시 뒤에 공백이나 문장 끝이 와야 함
+  // "집에 있다"의 "집에"가 아닌 "집에서 일했다"의 "집에서"만 매치
+  // 토픽 마커 "~에는" 포함 (긴 패턴 먼저)
+  [/회사에서는(?=\s|$)/g, 'at work'],
+  [/회사에는(?=\s|$)/g, 'at work'],
+  [/회사에서(?=\s|$)/g, 'at work'],
+  [/회사에(?=\s|$)/g, 'to work'],
+  [/집에서(?=\s|$)/g, 'at home'],
+  [/학교에서(?=\s|$)/g, 'at school'],
+  [/공원에서(?=\s|$)/g, 'in the park'],
+  [/거리에서(?=\s|$)/g, 'on the street'],
+  [/바다에서(?=\s|$)/g, 'at the beach'],
+  [/산에서(?=\s|$)/g, 'on the mountain'],
+  [/병원에서(?=\s|$)/g, 'at the hospital'],
+  [/식당에서(?=\s|$)/g, 'at the restaurant'],
+  [/카페에서(?=\s|$)/g, 'at the cafe'],
+  [/도서관에서(?=\s|$)/g, 'at the library'],
+  [/역에서(?=\s|$)/g, 'at the station'],
+  [/공항에서(?=\s|$)/g, 'at the airport'],
+  // 방향 (에 + 뒤에 조사가 아닌 경우만)
+  [/밖에서(?=\s|$)/g, 'outside'],
+  [/안에서(?=\s|$)/g, 'inside'],
+  [/여기서(?=\s|$)/g, 'here'],
+  [/거기서(?=\s|$)/g, 'there'],
+  // 주의: "어디서?"는 의문사이므로 제외 (잘못된 추출 방지)
+];
+
+/**
+ * 한국어 의문사 패턴 → 영어 Wh-word
+ * 의문사는 문장 앞에 위치해야 함: "몇 시에 갔어?" → "What time did you go?"
+ */
+export const KO_INTERROGATIVES: Array<[RegExp, string]> = [
+  // 시간 의문사
+  [/몇\s*시에?/g, 'what time'],
+  [/언제/g, 'when'],
+  // 장소 의문사
+  [/어디에?서?/g, 'where'],
+  // 방법/상태 의문사
+  [/어떻게/g, 'how'],
+  [/어땠어\??/g, 'how was'], // 어땠어? → how was
+  [/어땠니\??/g, 'how was'], // 어땠니? → how was
+  [/어땠/g, 'how was'], // 어땠 (fallback)
+  // 이유 의문사
+  [/왜/g, 'why'],
+  // 수량 의문사
+  [/얼마나/g, 'how much'],
+  [/몇\s*개/g, 'how many'],
+  [/몇\s*명/g, 'how many people'],
+  // 선택 의문사
+  [/어느/g, 'which'],
+  [/뭐|무엇/g, 'what'],
+  [/누구/g, 'who'],
+];
+
+/**
+ * 영어 시간 부사구 → 한국어
+ */
+export const EN_TIME_ADVERBS: Record<string, string> = {
+  'this morning': '오늘 아침에',
+  'this evening': '오늘 저녁에',
+  tonight: '오늘 밤에',
+  'this afternoon': '오늘 오후에',
+  'yesterday morning': '어제 아침에',
+  'yesterday evening': '어제 저녁에',
+  'last night': '어젯밤에',
+  'tomorrow morning': '내일 아침에',
+  'tomorrow evening': '내일 저녁에',
+  'last week': '지난주에',
+  'next week': '다음 주에',
+  'last month': '지난달에',
+  'next month': '다음 달에',
+  'last year': '작년에',
+  'next year': '내년에',
+  'in the morning': '아침에',
+  'in the evening': '저녁에',
+  'at night': '밤에',
+  'in the afternoon': '오후에',
+  today: '오늘',
+  yesterday: '어제',
+  tomorrow: '내일',
+  now: '지금',
+  later: '나중에',
+  then: '그때',
+  'after that': '그 후에',
+  finally: '드디어',
+  'in the end': '결국',
+  early: '일찍',
+  late: '늦게',
+};
+
+/**
+ * 영어 장소 부사구 → 한국어
+ */
+export const EN_PLACE_ADVERBS: Record<string, string> = {
+  'at work': '회사에서',
+  'at home': '집에서',
+  'at school': '학교에서',
+  'in the park': '공원에서',
+  'on the street': '거리에서',
+  'at the beach': '바다에서',
+  'on the mountain': '산에서',
+  'at the hospital': '병원에서',
+  'at the restaurant': '식당에서',
+  'at the cafe': '카페에서',
+  'at the library': '도서관에서',
+  'at the station': '역에서',
+  'at the airport': '공항에서',
+  home: '집에',
+  outside: '밖에서',
+  inside: '안에서',
+  here: '여기서',
+  there: '거기서',
+  where: '어디서',
+};
+
+// ============================================
 // 3. 어미 (한국어 활용)
 // ============================================
 
@@ -875,6 +1174,9 @@ export const VERB_STEMS: Record<string, string> = {
   배고프: 'be hungry',
   목마르: 'be thirsty',
   아프: 'be sick',
+  // 날씨/온도 형용사 (비인칭)
+  춥: 'cold', // 춥다 → it's cold (IMPERSONAL_ADJECTIVES에서 "it's" 추가)
+  덥: 'hot', // 덥다 → it's hot
 
   // 인지/사고 동사
   알: 'know',
@@ -2078,4 +2380,175 @@ export const KO_NOUNS: Record<string, string> = {
   말: 'word',
   사람: 'person',
   분: 'person',
+};
+
+// ============================================
+// 2.7. 생략문 패턴 (Elliptical Sentences)
+// ============================================
+
+/**
+ * 생략문 패턴 감지 - 명사 + 은/는 + ? 형태
+ * 예: "샤워는?", "아침은?", "회의는?"
+ * 앞 문장의 동사 패턴을 이어받아 "How about X?" 형태로 번역
+ */
+export const ELLIPSIS_TOPIC_PATTERN = /^(.+?)[은는][\s]*\?$/;
+
+/**
+ * 식사 관련 문맥 처리
+ * "아침"이 "먹다" 동사와 함께 오면 "breakfast"로 번역
+ */
+export const MEAL_CONTEXT_MAP: Record<string, string> = {
+  아침: 'breakfast',
+  점심: 'lunch',
+  저녁: 'dinner',
+  밤참: 'late-night snack',
+  간식: 'snack',
+};
+
+/**
+ * 식사 문맥을 나타내는 동사 패턴
+ */
+export const MEAL_VERB_PATTERNS = [
+  '먹', // 먹다, 먹었, 먹니
+  '드셨', // 드시다 (존댓말)
+  '드셔', // 드시다
+  '드실', // 드시다
+  '챙겨', // 챙기다
+  '챙겼', // 챙기다
+  '굶', // 굶다
+];
+
+/**
+ * 일반 명사→영어 매핑 (생략문에서 사용)
+ * 기존 KO_EN 사전과 별도로 생략문에 특화된 매핑
+ */
+export const ELLIPSIS_NOUN_MAP: Record<string, string> = {
+  샤워: 'shower',
+  운동: 'exercise',
+  산책: 'walk',
+  청소: 'cleaning',
+  빨래: 'laundry',
+  설거지: 'dishes',
+  요리: 'cooking',
+  공부: 'study',
+  일: 'work',
+  회의: 'meeting',
+  수업: 'class',
+  숙제: 'homework',
+  과제: 'assignment',
+  시험: 'exam',
+  면접: 'interview',
+  데이트: 'date',
+  약속: 'appointment',
+  여행: 'trip',
+  쇼핑: 'shopping',
+  게임: 'game',
+  영화: 'movie',
+  독서: 'reading',
+  음악: 'music',
+  커피: 'coffee',
+  차: 'tea',
+};
+
+// ============================================
+// 2.8. 관용어/숙어 패턴 (Idioms)
+// ============================================
+
+/**
+ * 한국어 관용어 → 영어
+ * 형태소 분석 전에 관용어를 통째로 인식하여 번역
+ *
+ * 패턴: [정규식, 영어 번역]
+ * 긴 패턴부터 매칭하도록 배열 순서 유지
+ */
+export const KO_IDIOMS: Array<[RegExp, string]> = [
+  // 신체 관련 관용어
+  [/손이\s*컸?[다어]/g, 'was too generous'],
+  [/손이\s*크/g, 'is too generous'],
+  [/손을?\s*놓고\s*있/g, 'is idle'],
+  [/손을?\s*놓/g, 'let go'],
+  [/눈이\s*높/g, 'is picky'],
+  [/눈높이를?\s*(낮추|낮췄)/g, 'lowered standards'],
+  [/발을?\s*빼/g, 'back out'],
+  [/발등에\s*불이?\s*(떨어지|떨어졌)/g, 'in a crisis'],
+  [/귀를?\s*기울이/g, 'pay attention'],
+  [/입을?\s*다물/g, 'keep quiet'],
+  [/코가?\s*높/g, 'is arrogant'],
+
+  // 돈/물질 관련 관용어
+  [/돈을?\s*물\s*쓰듯/g, 'spend money like water'],
+  [/물\s*쓰듯이?/g, 'like water'],
+  [/돈을?\s*펑펑\s*쓰/g, 'spend money freely'],
+
+  // 상황/결과 관련 관용어
+  [/산으로\s*가/g, 'go off the rails'],
+  [/물\s*건너가/g, 'be doomed'],
+  [/삐걱거리/g, 'struggle'],
+  [/갈아엎/g, 'overhaul'],
+  [/갈아치우/g, 'replace'],
+  [/칼을?\s*빼들/g, 'take drastic measures'],
+
+  // 노력/행동 관련 관용어
+  [/최선을?\s*다하/g, "do one's best"],
+  [/포기하지?\s*(않|안)/g, 'not give up'],
+  [/포기\s*(않|안)\s*하/g, 'not give up'],
+
+  // 감정/상태 관련 관용어
+  [/정신\s*차리/g, "come to one's senses"],
+  [/정신이?\s*(번쩍|퍼뜩)\s*들/g, 'snap out of it'],
+  [/까다로운/g, 'picky'],
+  [/까다롭/g, 'picky'],
+
+  // 시간/빈도 관련 관용어
+  [/밤을?\s*새우?[다어]/g, 'stayed up all night'],
+  [/밤새[워우]?\s*(공부|일)/g, 'studied/worked all night'],
+
+  // 성공/실패 관련 관용어
+  [/턱걸이로?\s*붙/g, 'barely passed'],
+  [/겨우\s*턱걸이/g, 'barely made the cut'],
+];
+
+/**
+ * 영어 관용어 → 한국어
+ * 형태소 분석 전에 관용어를 통째로 인식하여 번역
+ */
+export const EN_IDIOMS: Record<string, string> = {
+  // 노력 관련 관용어
+  'burn the midnight oil': '밤새 공부하다',
+  'burned the midnight oil': '밤새 공부했다',
+  'go the extra mile': '최선을 다하다',
+  'went the extra mile': '최선을 다했다',
+  'leave no stone unturned': '안 해본 게 없다',
+  'left no stone unturned': '안 해본 게 없었다',
+  'bend over backwards': '죽도록 노력하다',
+  'bent over backwards': '죽도록 노력했다',
+
+  // 성공/실패 관련 관용어
+  'barely made the cut': '겨우 턱걸이로 붙었다',
+  'barely make the cut': '겨우 턱걸이로 붙다',
+  'made the cut': '통과했다',
+  'make the cut': '통과하다',
+
+  // 주의/깨달음 관련 관용어
+  'wake-up call': '정신 차리는 계기',
+  'a wake-up call': '정신 차리는 계기',
+  'get lost in the weeds': '쓸데없는 데 시간 쓰다',
+  'getting lost in the weeds': '쓸데없는 데 시간 쓰고 있다',
+
+  // 전체 그림 관련 관용어
+  'big picture': '큰 그림',
+  'the big picture': '큰 그림',
+  'focus on the big picture': '중요한 것에 집중하다',
+  'focused on the big picture': '중요한 것에 집중했다',
+
+  // 기타 관용어
+  'step up': '나서다',
+  'stepped up': '나섰다',
+  'stepped in': '나섰다',
+  'back out': '발을 빼다',
+  'backed out': '발을 뺐다',
+  'take the lead': '앞장서다',
+  'took the lead': '앞장섰다',
+  'spare no expense': '돈을 아끼지 않다',
+  'sparing no investment': '투자를 아끼지 않다',
 };

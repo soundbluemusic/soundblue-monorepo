@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Idioms Dictionary",
+  "description": "Korean-English idiom mappings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["ko", "en"],
+    "properties": {
+      "ko": {
+        "type": "string",
+        "description": "Korean idiom"
+      },
+      "en": {
+        "type": "string",
+        "description": "English translation"
+      },
+      "literal": {
+        "type": "string",
+        "description": "Literal translation (optional)"
+      },
+      "category": {
+        "type": "string",
+        "description": "Category (body, animal, food, etc.)"
+      },
+      "variants": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Variant forms"
+      }
+    },
+    "additionalProperties": false
+  }
+}

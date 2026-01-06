@@ -1,0 +1,874 @@
+[
+  {
+    "ko": "한국사람",
+    "en": "Korean"
+  },
+  {
+    "ko": "미국사람",
+    "en": "American"
+  },
+  {
+    "ko": "일본사람",
+    "en": "Japanese"
+  },
+  {
+    "ko": "중국사람",
+    "en": "Chinese"
+  },
+  {
+    "ko": "영국사람",
+    "en": "British"
+  },
+  {
+    "ko": "프랑스사람",
+    "en": "French"
+  },
+  {
+    "ko": "독일사람",
+    "en": "German"
+  },
+  {
+    "ko": "캐나다사람",
+    "en": "Canadian"
+  },
+  {
+    "ko": "호주사람",
+    "en": "Australian"
+  },
+  {
+    "ko": "러시아사람",
+    "en": "Russian"
+  },
+  {
+    "ko": "인도사람",
+    "en": "Indian"
+  },
+  {
+    "ko": "브라질사람",
+    "en": "Brazilian"
+  },
+  {
+    "ko": "스페인사람",
+    "en": "Spanish"
+  },
+  {
+    "ko": "이탈리아사람",
+    "en": "Italian"
+  },
+  {
+    "ko": "베트남사람",
+    "en": "Vietnamese"
+  },
+  {
+    "ko": "태국사람",
+    "en": "Thai"
+  },
+  {
+    "ko": "학교생활",
+    "en": "school life"
+  },
+  {
+    "ko": "회사생활",
+    "en": "work life"
+  },
+  {
+    "ko": "회사일",
+    "en": "work"
+  },
+  {
+    "ko": "집안일",
+    "en": "housework"
+  },
+  {
+    "ko": "가사일",
+    "en": "housework"
+  },
+  {
+    "ko": "오늘밤",
+    "en": "tonight"
+  },
+  {
+    "ko": "오늘아침",
+    "en": "this morning"
+  },
+  {
+    "ko": "오늘저녁",
+    "en": "this evening"
+  },
+  {
+    "ko": "내일아침",
+    "en": "tomorrow morning"
+  },
+  {
+    "ko": "내일저녁",
+    "en": "tomorrow evening"
+  },
+  {
+    "ko": "어제밤",
+    "en": "last night"
+  },
+  {
+    "ko": "어젯밤",
+    "en": "last night"
+  },
+  {
+    "ko": "매일아침",
+    "en": "every morning"
+  },
+  {
+    "ko": "매일저녁",
+    "en": "every evening"
+  },
+  {
+    "ko": "다음주",
+    "en": "next week"
+  },
+  {
+    "ko": "지난주",
+    "en": "last week"
+  },
+  {
+    "ko": "다음달",
+    "en": "next month"
+  },
+  {
+    "ko": "지난달",
+    "en": "last month"
+  },
+  {
+    "ko": "내년",
+    "en": "next year"
+  },
+  {
+    "ko": "작년",
+    "en": "last year"
+  },
+  {
+    "ko": "올해",
+    "en": "this year"
+  },
+  {
+    "ko": "아침밥",
+    "en": "breakfast"
+  },
+  {
+    "ko": "점심밥",
+    "en": "lunch"
+  },
+  {
+    "ko": "저녁밥",
+    "en": "dinner"
+  },
+  {
+    "ko": "아침식사",
+    "en": "breakfast"
+  },
+  {
+    "ko": "점심식사",
+    "en": "lunch"
+  },
+  {
+    "ko": "저녁식사",
+    "en": "dinner"
+  },
+  {
+    "ko": "한식당",
+    "en": "Korean restaurant"
+  },
+  {
+    "ko": "중식당",
+    "en": "Chinese restaurant"
+  },
+  {
+    "ko": "일식당",
+    "en": "Japanese restaurant"
+  },
+  {
+    "ko": "양식당",
+    "en": "Western restaurant"
+  },
+  {
+    "ko": "분식집",
+    "en": "snack bar"
+  },
+  {
+    "ko": "치킨집",
+    "en": "chicken restaurant"
+  },
+  {
+    "ko": "고깃집",
+    "en": "meat restaurant"
+  },
+  {
+    "ko": "술집",
+    "en": "bar"
+  },
+  {
+    "ko": "커피숍",
+    "en": "coffee shop"
+  },
+  {
+    "ko": "서울역",
+    "en": "Seoul Station"
+  },
+  {
+    "ko": "부산역",
+    "en": "Busan Station"
+  },
+  {
+    "ko": "버스정류장",
+    "en": "bus stop"
+  },
+  {
+    "ko": "지하철역",
+    "en": "subway station"
+  },
+  {
+    "ko": "공항버스",
+    "en": "airport bus"
+  },
+  {
+    "ko": "시내버스",
+    "en": "city bus"
+  },
+  {
+    "ko": "고속버스",
+    "en": "express bus"
+  },
+  {
+    "ko": "택시정류장",
+    "en": "taxi stand"
+  },
+  {
+    "ko": "기차역",
+    "en": "train station"
+  },
+  {
+    "ko": "공항철도",
+    "en": "airport railroad"
+  },
+  {
+    "ko": "공기청정기",
+    "en": "air purifier"
+  },
+  {
+    "ko": "로봇청소기",
+    "en": "robot vacuum"
+  },
+  {
+    "ko": "전자레인지",
+    "en": "microwave"
+  },
+  {
+    "ko": "전기밥솥",
+    "en": "rice cooker"
+  },
+  {
+    "ko": "식기세척기",
+    "en": "dishwasher"
+  },
+  {
+    "ko": "커피머신",
+    "en": "coffee machine"
+  },
+  {
+    "ko": "가스레인지",
+    "en": "gas stove"
+  },
+  {
+    "ko": "헤어드라이어",
+    "en": "hair dryer"
+  },
+  {
+    "ko": "블루투스스피커",
+    "en": "Bluetooth speaker"
+  },
+  {
+    "ko": "보조배터리",
+    "en": "power bank"
+  },
+  {
+    "ko": "외장하드",
+    "en": "external hard drive"
+  },
+  {
+    "ko": "휴대전화",
+    "en": "cell phone"
+  },
+  {
+    "ko": "휴대폰",
+    "en": "cell phone"
+  },
+  {
+    "ko": "스마트폰",
+    "en": "smartphone"
+  },
+  {
+    "ko": "컴퓨터게임",
+    "en": "computer game"
+  },
+  {
+    "ko": "비디오게임",
+    "en": "video game"
+  },
+  {
+    "ko": "온라인게임",
+    "en": "online game"
+  },
+  {
+    "ko": "모바일게임",
+    "en": "mobile game"
+  },
+  {
+    "ko": "인터넷뱅킹",
+    "en": "online banking"
+  },
+  {
+    "ko": "모바일뱅킹",
+    "en": "mobile banking"
+  },
+  {
+    "ko": "온라인쇼핑",
+    "en": "online shopping"
+  },
+  {
+    "ko": "온라인강의",
+    "en": "online lecture"
+  },
+  {
+    "ko": "화상회의",
+    "en": "video conference"
+  },
+  {
+    "ko": "화상통화",
+    "en": "video call"
+  },
+  {
+    "ko": "음성통화",
+    "en": "voice call"
+  },
+  {
+    "ko": "문자메시지",
+    "en": "text message"
+  },
+  {
+    "ko": "이메일주소",
+    "en": "email address"
+  },
+  {
+    "ko": "웹사이트주소",
+    "en": "website address"
+  },
+  {
+    "ko": "소셜미디어",
+    "en": "social media"
+  },
+  {
+    "ko": "인공지능",
+    "en": "artificial intelligence"
+  },
+  {
+    "ko": "머신러닝",
+    "en": "machine learning"
+  },
+  {
+    "ko": "빅데이터",
+    "en": "big data"
+  },
+  {
+    "ko": "클라우드서비스",
+    "en": "cloud service"
+  },
+  {
+    "ko": "오픈소스",
+    "en": "open source"
+  },
+  {
+    "ko": "공부방",
+    "en": "study room"
+  },
+  {
+    "ko": "독서실",
+    "en": "reading room"
+  },
+  {
+    "ko": "자습실",
+    "en": "study hall"
+  },
+  {
+    "ko": "운동장",
+    "en": "playground"
+  },
+  {
+    "ko": "수영장",
+    "en": "swimming pool"
+  },
+  {
+    "ko": "체육관",
+    "en": "gymnasium"
+  },
+  {
+    "ko": "도서관",
+    "en": "library"
+  },
+  {
+    "ko": "학생증",
+    "en": "student ID"
+  },
+  {
+    "ko": "졸업증",
+    "en": "diploma"
+  },
+  {
+    "ko": "성적표",
+    "en": "report card"
+  },
+  {
+    "ko": "학교버스",
+    "en": "school bus"
+  },
+  {
+    "ko": "교복바지",
+    "en": "school uniform pants"
+  },
+  {
+    "ko": "교복치마",
+    "en": "school uniform skirt"
+  },
+  {
+    "ko": "학생회장",
+    "en": "student council president"
+  },
+  {
+    "ko": "담임선생님",
+    "en": "homeroom teacher"
+  },
+  {
+    "ko": "영어선생님",
+    "en": "English teacher"
+  },
+  {
+    "ko": "수학선생님",
+    "en": "math teacher"
+  },
+  {
+    "ko": "건강검진",
+    "en": "health checkup"
+  },
+  {
+    "ko": "종합검진",
+    "en": "comprehensive checkup"
+  },
+  {
+    "ko": "혈액검사",
+    "en": "blood test"
+  },
+  {
+    "ko": "소변검사",
+    "en": "urine test"
+  },
+  {
+    "ko": "엑스레이",
+    "en": "X-ray"
+  },
+  {
+    "ko": "CT촬영",
+    "en": "CT scan"
+  },
+  {
+    "ko": "MRI촬영",
+    "en": "MRI scan"
+  },
+  {
+    "ko": "예방접종",
+    "en": "vaccination"
+  },
+  {
+    "ko": "독감예방주사",
+    "en": "flu shot"
+  },
+  {
+    "ko": "응급실",
+    "en": "emergency room"
+  },
+  {
+    "ko": "수술실",
+    "en": "operating room"
+  },
+  {
+    "ko": "대기실",
+    "en": "waiting room"
+  },
+  {
+    "ko": "진료실",
+    "en": "examination room"
+  },
+  {
+    "ko": "입원실",
+    "en": "hospital room"
+  },
+  {
+    "ko": "건강보험",
+    "en": "health insurance"
+  },
+  {
+    "ko": "의료보험",
+    "en": "medical insurance"
+  },
+  {
+    "ko": "회사원",
+    "en": "office worker"
+  },
+  {
+    "ko": "공무원",
+    "en": "civil servant"
+  },
+  {
+    "ko": "택배기사",
+    "en": "delivery driver"
+  },
+  {
+    "ko": "배달기사",
+    "en": "delivery person"
+  },
+  {
+    "ko": "영업사원",
+    "en": "salesperson"
+  },
+  {
+    "ko": "마케팅팀",
+    "en": "marketing team"
+  },
+  {
+    "ko": "개발팀",
+    "en": "development team"
+  },
+  {
+    "ko": "인사팀",
+    "en": "HR team"
+  },
+  {
+    "ko": "재무팀",
+    "en": "finance team"
+  },
+  {
+    "ko": "회의실",
+    "en": "meeting room"
+  },
+  {
+    "ko": "사무실",
+    "en": "office"
+  },
+  {
+    "ko": "작업실",
+    "en": "workshop"
+  },
+  {
+    "ko": "연구실",
+    "en": "laboratory"
+  },
+  {
+    "ko": "백화점",
+    "en": "department store"
+  },
+  {
+    "ko": "할인매장",
+    "en": "discount store"
+  },
+  {
+    "ko": "대형마트",
+    "en": "hypermarket"
+  },
+  {
+    "ko": "편의점",
+    "en": "convenience store"
+  },
+  {
+    "ko": "무인매장",
+    "en": "unmanned store"
+  },
+  {
+    "ko": "면세점",
+    "en": "duty-free shop"
+  },
+  {
+    "ko": "신용카드",
+    "en": "credit card"
+  },
+  {
+    "ko": "체크카드",
+    "en": "debit card"
+  },
+  {
+    "ko": "선불카드",
+    "en": "prepaid card"
+  },
+  {
+    "ko": "기프트카드",
+    "en": "gift card"
+  },
+  {
+    "ko": "포인트적립",
+    "en": "points accumulation"
+  },
+  {
+    "ko": "할인쿠폰",
+    "en": "discount coupon"
+  },
+  {
+    "ko": "무료배송",
+    "en": "free shipping"
+  },
+  {
+    "ko": "당일배송",
+    "en": "same-day delivery"
+  },
+  {
+    "ko": "새벽배송",
+    "en": "dawn delivery"
+  },
+  {
+    "ko": "로켓배송",
+    "en": "rocket delivery"
+  },
+  {
+    "ko": "축구공",
+    "en": "soccer ball"
+  },
+  {
+    "ko": "농구공",
+    "en": "basketball"
+  },
+  {
+    "ko": "야구공",
+    "en": "baseball"
+  },
+  {
+    "ko": "탁구공",
+    "en": "ping pong ball"
+  },
+  {
+    "ko": "골프공",
+    "en": "golf ball"
+  },
+  {
+    "ko": "테니스공",
+    "en": "tennis ball"
+  },
+  {
+    "ko": "야구장",
+    "en": "baseball stadium"
+  },
+  {
+    "ko": "축구장",
+    "en": "soccer stadium"
+  },
+  {
+    "ko": "농구장",
+    "en": "basketball court"
+  },
+  {
+    "ko": "테니스장",
+    "en": "tennis court"
+  },
+  {
+    "ko": "골프장",
+    "en": "golf course"
+  },
+  {
+    "ko": "스키장",
+    "en": "ski resort"
+  },
+  {
+    "ko": "헬스장",
+    "en": "fitness center"
+  },
+  {
+    "ko": "볼링장",
+    "en": "bowling alley"
+  },
+  {
+    "ko": "당구장",
+    "en": "billiard hall"
+  },
+  {
+    "ko": "노래방",
+    "en": "karaoke"
+  },
+  {
+    "ko": "찜질방",
+    "en": "jjimjilbang"
+  },
+  {
+    "ko": "미술관",
+    "en": "art museum"
+  },
+  {
+    "ko": "박물관",
+    "en": "museum"
+  },
+  {
+    "ko": "콘서트홀",
+    "en": "concert hall"
+  },
+  {
+    "ko": "공연장",
+    "en": "performance hall"
+  },
+  {
+    "ko": "전시회",
+    "en": "exhibition"
+  },
+  {
+    "ko": "영화관",
+    "en": "cinema"
+  },
+  {
+    "ko": "연극배우",
+    "en": "theater actor"
+  },
+  {
+    "ko": "영화배우",
+    "en": "movie actor"
+  },
+  {
+    "ko": "팝송",
+    "en": "pop song"
+  },
+  {
+    "ko": "클래식음악",
+    "en": "classical music"
+  },
+  {
+    "ko": "전통음악",
+    "en": "traditional music"
+  },
+  {
+    "ko": "힙합음악",
+    "en": "hip hop music"
+  },
+  {
+    "ko": "침대방",
+    "en": "bedroom"
+  },
+  {
+    "ko": "거실",
+    "en": "living room"
+  },
+  {
+    "ko": "주방",
+    "en": "kitchen"
+  },
+  {
+    "ko": "화장실",
+    "en": "bathroom"
+  },
+  {
+    "ko": "샤워실",
+    "en": "shower room"
+  },
+  {
+    "ko": "세탁실",
+    "en": "laundry room"
+  },
+  {
+    "ko": "다용도실",
+    "en": "utility room"
+  },
+  {
+    "ko": "드레스룸",
+    "en": "dressing room"
+  },
+  {
+    "ko": "작은방",
+    "en": "small room"
+  },
+  {
+    "ko": "큰방",
+    "en": "large room"
+  },
+  {
+    "ko": "안방",
+    "en": "master bedroom"
+  },
+  {
+    "ko": "손님방",
+    "en": "guest room"
+  },
+  {
+    "ko": "시청",
+    "en": "city hall"
+  },
+  {
+    "ko": "구청",
+    "en": "district office"
+  },
+  {
+    "ko": "동사무소",
+    "en": "community center"
+  },
+  {
+    "ko": "주민센터",
+    "en": "community service center"
+  },
+  {
+    "ko": "세무서",
+    "en": "tax office"
+  },
+  {
+    "ko": "등기소",
+    "en": "registry office"
+  },
+  {
+    "ko": "출입국관리사무소",
+    "en": "immigration office"
+  },
+  {
+    "ko": "보건소",
+    "en": "public health center"
+  },
+  {
+    "ko": "복지관",
+    "en": "welfare center"
+  },
+  {
+    "ko": "문화센터",
+    "en": "cultural center"
+  },
+  {
+    "ko": "소방서",
+    "en": "fire station"
+  },
+  {
+    "ko": "경찰서",
+    "en": "police station"
+  },
+  {
+    "ko": "우체국",
+    "en": "post office"
+  },
+  {
+    "ko": "기분좋음",
+    "en": "feeling good"
+  },
+  {
+    "ko": "기분나쁨",
+    "en": "feeling bad"
+  },
+  {
+    "ko": "몸상태",
+    "en": "physical condition"
+  },
+  {
+    "ko": "건강상태",
+    "en": "health condition"
+  },
+  {
+    "ko": "정신건강",
+    "en": "mental health"
+  },
+  {
+    "ko": "마음상태",
+    "en": "state of mind"
+  }
+]

@@ -16,7 +16,23 @@
 // 외부 문장 사전 (대화 예문에서 추출 - 정확히 매칭 시 알고리즘보다 우선)
 import { externalEnToKoSentences, externalKoToEnSentences } from '../dictionary/external';
 import { type ParsedClauses, parseEnglishClauses, parseKoreanClauses } from './clause-parser';
-import { EN_KO, KO_NOUNS, KO_VERBS } from './data';
+import {
+  ELLIPSIS_NOUN_MAP,
+  ELLIPSIS_TOPIC_PATTERN,
+  EN_DISCOURSE_MARKERS,
+  EN_IDIOMS,
+  EN_KO,
+  KO_DISCOURSE_MARKERS,
+  KO_IDIOMS,
+  KO_INTERJECTIONS,
+  KO_INTERROGATIVES,
+  KO_NOUNS,
+  KO_PLACE_ADVERBS,
+  KO_TIME_ADVERBS,
+  KO_VERBS,
+  MEAL_CONTEXT_MAP,
+  MEAL_VERB_PATTERNS,
+} from './data';
 import { generateNounClauseKorean, generateRelativeClauseKorean } from './en-to-ko/clauses';
 import { generateConditionalKorean } from './en-to-ko/conditionals';
 import { handleSpecialEnglishPatterns } from './en-to-ko/special-patterns';
@@ -46,6 +62,413 @@ import { normalizeSpacing } from './spacing-normalizer';
 import { parseEnglish, parseKorean } from './tokenizer';
 import type { Direction, Formality, ParsedSentence, TranslationResult } from './types';
 import { validateWordTranslation } from './validator';
+
+// ============================================
+// 담화 연결어/감탄사 추출 (Phase 3)
+// ============================================
+
+/**
+ * 문장 시작부에서 담화 연결어/감탄사 추출
+ *
+ * 목적: 형태소 분석 전에 담화 연결어를 분리하여 오역 방지
+ * 예: "그리고 아침은..." → { marker: "And", rest: "아침은..." }
+ *
+ * @param text 원본 문장
+ * @param lang 언어 ('ko' | 'en')
+ * @returns { marker: 영어 담화 연결어, rest: 나머지 문장 }
+ */
+function extractDiscourseMarker(
+  text: string,
+  lang: 'ko' | 'en',
+): { marker: string | null; rest: string } {
+  const trimmed = text.trim();
+
+  if (lang === 'ko') {
+    // 1. 감탄사 먼저 체크 (긴 것부터)
+    const interjections = Object.keys(KO_INTERJECTIONS).sort((a, b) => b.length - a.length);
+    for (const interj of interjections) {
+      // 감탄사가 문장 시작에 있고, 뒤에 공백/구두점/끝인 경우만 매치
+      // (다른 단어의 일부가 아닌 독립된 감탄사여야 함)
+      if (trimmed.startsWith(interj)) {
+        const afterInterj = trimmed.slice(interj.length);
+        const firstCharAfter = afterInterj.charAt(0);
+        // 감탄사 뒤에 공백, 구두점(!?.,), 또는 끝이어야 함
+        if (afterInterj === '' || /^[\s!?.,]/.test(firstCharAfter)) {
+          const translated = KO_INTERJECTIONS[interj];
+          return { marker: translated, rest: afterInterj.trim() || trimmed };
+        }
+      }
+    }
+
+    // 2. 담화 연결어 체크 (긴 것부터)
+    const markers = Object.keys(KO_DISCOURSE_MARKERS).sort((a, b) => b.length - a.length);
+    for (const marker of markers) {
+      // 담화 연결어가 문장 시작에 있고, 뒤에 공백이 있는 경우
+      const pattern = new RegExp(`^${marker}\\s+`);
+      if (pattern.test(trimmed)) {
+        const rest = trimmed.slice(marker.length).trim();
+        const translated = KO_DISCOURSE_MARKERS[marker];
+        return { marker: translated, rest };
+      }
+    }
+  } else {
+    // 영어: 담화 연결어 체크 (긴 것부터)
+    const markers = Object.keys(EN_DISCOURSE_MARKERS).sort((a, b) => b.length - a.length);
+    for (const marker of markers) {
+      // 대소문자 무시, 단어 경계 확인
+      const pattern = new RegExp(`^${marker}[,\\s]+`, 'i');
+      if (pattern.test(trimmed)) {
+        const rest = trimmed
+          .slice(marker.length)
+          .replace(/^[,\s]+/, '')
+          .trim();
+        const translated = EN_DISCOURSE_MARKERS[marker.toLowerCase()];
+        return { marker: translated, rest };
+      }
+    }
+  }
+
+  return { marker: null, rest: trimmed };
+}
+
+// ============================================
+// 시간/장소 부사구 전처리 (Phase 4)
+// ============================================
+
+/**
+ * 한국어 시간/장소 부사구를 영어로 치환
+ *
+ * 목적: 복합 시간 부사구를 형태소 분석 전에 통째로 치환
+ * 예: "오늘 아침에 일찍" → "[TIME:early this morning]"
+ *
+ * 마커 형식: [TIME:...], [PLACE:...]
+ * 나중에 번역 결과에서 마커를 실제 영어로 치환
+ *
+ * @param text 한국어 문장
+ * @returns { processed: 마커로 치환된 문장, markers: 마커 매핑 }
+ */
+interface ExtractedAdverbs {
+  timeAdverb: string | null; // 추출된 시간 부사구의 영어 번역
+  placeAdverb: string | null; // 추출된 장소 부사구의 영어 번역
+  interrogative: string | null; // 추출된 의문사 (what time, where, how 등)
+  rest: string; // 부사구가 제거된 나머지 텍스트
+}
+
+/**
+ * 한국어 시간/장소 부사구를 추출하여 분리
+ * Phase 4: 형태소 분석 전에 복합 부사구를 인식하여 올바르게 번역
+ * 마커 방식 대신 추출-분리 방식 사용 (토크나이저가 마커를 인식하지 못하는 문제 해결)
+ *
+ * 주의: 짧은 문장(4어절 미만) 또는 문장에 동사가 없으면 추출하지 않음
+ * - "학교에서" (단독) → 추출 안함 (문법 테스트 케이스)
+ * - "오늘 아침에 일찍 일어났니?" → 추출함 (완전한 문장)
+ */
+function extractKoreanAdverbs(text: string): ExtractedAdverbs {
+  const words = text.trim().split(/\s+/);
+  // "어땠" 패턴은 그 자체가 의문을 나타내므로 의문문으로 간주
+  const hasHowWasInterrogative = /어땠/.test(text);
+  const isQuestion =
+    text.includes('?') || /[니까냐]$/.test(text.replace(/\?$/, '')) || hasHowWasInterrogative;
+
+  // 의문사 추출 허용 조건:
+  // 1. 의문문이면서 3어절 이상 (짧은 "어디 가니?"는 추출하면 안됨)
+  // 2. 또는 "몇 시에" 같은 시간 의문사 (항상 재배치 필요)
+  // 3. 또는 "어땠" 의문사 (주어+동사 결합형이므로 짧은 문장도 OK)
+  //    "회의는 어땠어?" (2어절) → "How was the meeting?"
+  const hasTimeInterrogative = /몇\s*시에?/.test(text);
+  const allowInterrogative =
+    isQuestion && (words.length >= 3 || hasTimeInterrogative || hasHowWasInterrogative);
+  const allowAdverbs = words.length >= 5;
+
+  if (!allowInterrogative && !allowAdverbs) {
+    return { timeAdverb: null, placeAdverb: null, interrogative: null, rest: text };
+  }
+
+  let rest = text;
+  let timeAdverb: string | null = null;
+  let placeAdverb: string | null = null;
+  let interrogative: string | null = null;
+
+  // 0. 의문사 먼저 추출 (의문사는 문장 앞에 와야 함)
+  // 단, 짧은 문장에서 단순 의문사(어디, 뭐, 누구 등)는 추출하지 않음
+  if (allowInterrogative) {
+    for (const [pattern, english] of KO_INTERROGATIVES) {
+      const regex = new RegExp(pattern.source, 'g');
+      const match = rest.match(regex);
+      if (match) {
+        // 짧은 문장(2어절)에서 시간 의문사나 "어땠" 아닌 단순 의문사는 추출하지 않음
+        // 예: "어디 가니?" - 어디를 추출하면 "가니?"만 남아 번역이 망가짐
+        // 예: "회의는 어땠어?" - 어땠을 추출하면 "회의는"만 남지만, "How was the meeting?"으로 번역 가능
+        if (words.length <= 2 && !hasTimeInterrogative && !hasHowWasInterrogative) {
+          break;
+        }
+        interrogative = english;
+        rest = rest.replace(regex, '').replace(/\s+/g, ' ').trim();
+        break; // 첫 번째 매치만
+      }
+    }
+  }
+
+  // 1. 시간 부사구 추출 (긴 패턴부터 - 첫 번째 매치만)
+  if (allowAdverbs) {
+    for (const [pattern, english] of KO_TIME_ADVERBS) {
+      const regex = new RegExp(pattern.source, 'g');
+      const match = rest.match(regex);
+      if (match) {
+        timeAdverb = english;
+        rest = rest.replace(regex, '').replace(/\s+/g, ' ').trim();
+        break; // 첫 번째 매치만
+      }
+    }
+  }
+
+  // 2. 장소 부사구 추출 (긴 패턴부터 - 첫 번째 매치만)
+  if (allowAdverbs) {
+    for (const [pattern, english] of KO_PLACE_ADVERBS) {
+      const regex = new RegExp(pattern.source, 'g');
+      const match = rest.match(regex);
+      if (match) {
+        placeAdverb = english;
+        rest = rest.replace(regex, '').replace(/\s+/g, ' ').trim();
+        break; // 첫 번째 매치만
+      }
+    }
+  }
+
+  return { timeAdverb, placeAdverb, interrogative, rest };
+}
+
+/**
+ * 추출된 부사구를 영어 번역 결과에 삽입
+ * 의문사가 있는 경우: "What time did you arrive?"
+ * 일반 의문문인 경우: "Did you wake up early this morning?"
+ * 평서문인 경우: "Early this morning, I woke up."
+ */
+function insertExtractedAdverbs(
+  translated: string,
+  adverbs: ExtractedAdverbs,
+  isQuestion: boolean,
+): string {
+  // 의문사가 있는 경우: Wh-question 형태로 변환
+  if (adverbs.interrogative && isQuestion) {
+    const trimmed = translated.replace(/\?+$/, '').trim();
+
+    // "how was" 특수 처리: 주어+동사 추출이 어려우므로 단순 결합
+    if (adverbs.interrogative === 'how was') {
+      // "회의는 어땠어?" → rest = "회의는" → translated = "meeting" → "How was the meeting?"
+      // Did/Do 제거하고 주어만 추출
+      const withoutAux = trimmed.replace(/^(Did|Do|Does)\s+/i, '').replace(/\?$/, '');
+      const subject = withoutAux.replace(/^(you|he|she|it|they|we|I)\s+/i, '').trim();
+      if (subject) {
+        return `How was the ${subject.toLowerCase()}?`;
+      }
+      return `How was it?`;
+    }
+
+    // 일반 Wh-question: "Did you arrive" → "What time did you arrive?"
+    // Did/Do/Does를 찾아서 의문사 뒤로 이동
+    const auxMatch = trimmed.match(/^(Did|Do|Does)\s+(.+)/i);
+    if (auxMatch) {
+      const aux = auxMatch[1].toLowerCase();
+      const rest = auxMatch[2];
+      const capitalizedInterrogative =
+        adverbs.interrogative.charAt(0).toUpperCase() + adverbs.interrogative.slice(1);
+      return `${capitalizedInterrogative} ${aux} ${rest}?`;
+    }
+
+    // 조동사가 없는 경우: 의문사 + 문장
+    const capitalizedInterrogative =
+      adverbs.interrogative.charAt(0).toUpperCase() + adverbs.interrogative.slice(1);
+    return `${capitalizedInterrogative} ${trimmed.toLowerCase()}?`;
+  }
+
+  if (!adverbs.timeAdverb && !adverbs.placeAdverb) {
+    return translated;
+  }
+
+  const adverbParts: string[] = [];
+  if (adverbs.timeAdverb) adverbParts.push(adverbs.timeAdverb);
+  if (adverbs.placeAdverb) adverbParts.push(adverbs.placeAdverb);
+  const adverbPhrase = adverbParts.join(' ');
+
+  if (isQuestion) {
+    // 의문문: "Did you wake up" + " early this morning" + "?"
+    // 끝의 물음표 제거 후 부사구 추가하고 다시 물음표
+    const trimmed = translated.replace(/\?+$/, '').trim();
+    return `${trimmed} ${adverbPhrase}?`;
+  }
+
+  // 평서문: "Early this morning, I woke up."
+  // 첫 글자 대문자 처리가 이미 되어 있으므로 소문자로 변경
+  const lowercased = translated.charAt(0).toLowerCase() + translated.slice(1);
+  // 부사구 첫 글자 대문자로
+  const capitalizedAdverb = adverbPhrase.charAt(0).toUpperCase() + adverbPhrase.slice(1);
+  return `${capitalizedAdverb}, ${lowercased}`;
+}
+
+// ============================================
+// 생략문 처리 (Phase 2)
+// ============================================
+
+/**
+ * 생략문 감지 및 변환
+ * "샤워는?" → "How about a shower?"
+ * "아침은?" → "How about breakfast?" (단독)
+ *
+ * 패턴: 명사 + 은/는 + ?
+ *
+ * @param sentence 입력 문장
+ * @returns 영어 번역 또는 null (생략문이 아닌 경우)
+ */
+function translateEllipticalQuestion(sentence: string): string | null {
+  const trimmed = sentence.trim();
+
+  // 패턴: "명사은/는?"
+  const match = trimmed.match(ELLIPSIS_TOPIC_PATTERN);
+  if (!match) {
+    return null;
+  }
+
+  const koreanNoun = match[1].trim();
+
+  // 1. 식사 관련 명사인지 확인 (아침/점심/저녁)
+  const mealTranslation = MEAL_CONTEXT_MAP[koreanNoun];
+  if (mealTranslation) {
+    // 생략문에서 "아침은?" 같은 건 "How about breakfast?"
+    return `How about ${mealTranslation}?`;
+  }
+
+  // 2. 생략문 전용 명사 매핑에서 찾기
+  const nounTranslation = ELLIPSIS_NOUN_MAP[koreanNoun];
+  if (nounTranslation) {
+    // a/an 결정: 모음으로 시작하면 an
+    const article = /^[aeiou]/i.test(nounTranslation) ? 'an' : 'a';
+    return `How about ${article} ${nounTranslation}?`;
+  }
+
+  // 3. 기본 KO_EN 사전에서 찾기
+  const koEnTranslation = KO_NOUNS[koreanNoun] || KO_VERBS[koreanNoun];
+  if (koEnTranslation) {
+    const article = /^[aeiou]/i.test(koEnTranslation) ? 'an' : 'a';
+    return `How about ${article} ${koEnTranslation}?`;
+  }
+
+  // 4. 번역 못 찾으면 원본 명사 사용 (외래어일 수 있음)
+  return `How about ${koreanNoun}?`;
+}
+
+/**
+ * 식사 문맥 감지 및 "아침/점심/저녁" → "breakfast/lunch/dinner" 변환
+ * 문장에 먹다 관련 동사가 있으면 시간대 단어를 식사로 번역
+ *
+ * 예: "아침은 뭘 먹었어?" → "breakfast" (not "morning")
+ * 예: "아침에 일어났어" → "morning" (먹다 없음)
+ *
+ * @param sentence 한국어 문장
+ * @returns { hasMealContext: boolean, convertedSentence: string }
+ */
+function _detectMealContext(sentence: string): {
+  hasMealContext: boolean;
+  mealWord: string | null;
+} {
+  // 먹다 관련 동사가 있는지 확인
+  const hasMealVerb = MEAL_VERB_PATTERNS.some((pattern) => sentence.includes(pattern));
+
+  if (!hasMealVerb) {
+    return { hasMealContext: false, mealWord: null };
+  }
+
+  // 식사 관련 단어가 있는지 확인
+  for (const mealWord of Object.keys(MEAL_CONTEXT_MAP)) {
+    if (sentence.includes(mealWord)) {
+      return { hasMealContext: true, mealWord };
+    }
+  }
+
+  return { hasMealContext: false, mealWord: null };
+}
+
+/**
+ * "아침은 뭘 먹었어?" 형태의 문장 처리
+ * "아침" + "먹다" 문맥에서 "아침" = "breakfast"로 변환
+ *
+ * @param sentence 한국어 문장
+ * @returns 변환된 영어 또는 null
+ */
+function translateMealQuestion(sentence: string): string | null {
+  const trimmed = sentence.trim();
+
+  // "X은/는 뭘 먹었어?" 패턴 감지
+  const whatEatPattern = /^(.+?)[은는]\s*뭘?\s*먹었어\??$/;
+  const match = trimmed.match(whatEatPattern);
+
+  if (match) {
+    const topic = match[1].trim();
+    const mealTranslation = MEAL_CONTEXT_MAP[topic];
+    if (mealTranslation) {
+      return `What did you eat for ${mealTranslation}?`;
+    }
+  }
+
+  // "X에 뭐 먹었어?" 패턴도 체크
+  const whatEatPattern2 = /^(.+?)에\s*뭐?\s*먹었어\??$/;
+  const match2 = trimmed.match(whatEatPattern2);
+
+  if (match2) {
+    const topic = match2[1].trim();
+    const mealTranslation = MEAL_CONTEXT_MAP[topic];
+    if (mealTranslation) {
+      return `What did you eat for ${mealTranslation}?`;
+    }
+  }
+
+  return null;
+}
+
+// ============================================
+// 관용어 전처리 (Phase 5)
+// ============================================
+
+/**
+ * 한국어 관용어를 영어로 치환
+ * 형태소 분석 전에 관용어를 통째로 인식하여 번역
+ *
+ * @param text 한국어 문장
+ * @returns 관용어가 치환된 문장
+ */
+function preprocessKoreanIdioms(text: string): string {
+  let result = text;
+
+  for (const [pattern, english] of KO_IDIOMS) {
+    const regex = new RegExp(pattern.source, 'g');
+    result = result.replace(regex, ` ${english} `);
+  }
+
+  // 연속 공백 정리
+  return result.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * 영어 관용어를 한국어로 치환
+ * 형태소 분석 전에 관용어를 통째로 인식하여 번역
+ *
+ * @param text 영어 문장
+ * @returns 관용어가 치환된 문장
+ */
+function preprocessEnglishIdioms(text: string): string {
+  let result = text;
+
+  // 긴 관용어부터 매칭하도록 정렬
+  const sortedIdioms = Object.entries(EN_IDIOMS).sort(([a], [b]) => b.length - a.length);
+
+  for (const [idiom, korean] of sortedIdioms) {
+    // 대소문자 무시 매칭
+    const regex = new RegExp(idiom.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    result = result.replace(regex, korean);
+  }
+
+  return result;
+}
 
 export interface TranslateOptions {
   formality?: Formality;
@@ -225,30 +648,75 @@ export function translateWithInfo(
  */
 function translateKoreanSentence(sentence: string, _formality: Formality): string {
   // ============================================
+  // Phase 3: 담화 연결어/감탄사 전처리 (형태소 분석 전!)
+  // "그리고 아침은..." → "And" + "아침은..." 분리
+  // ============================================
+  const { marker, rest } = extractDiscourseMarker(sentence, 'ko');
+  const discoursePrefix = marker ? `${marker} ` : '';
+
+  // ============================================
+  // Phase 2: 생략문 및 식사 문맥 처리 (형태소 분석 전!)
+  // "샤워는?" → "How about a shower?"
+  // "아침은 뭘 먹었어?" → "What did you eat for breakfast?"
+  // ============================================
+
+  // 2.1: 생략문 처리 (명사+은/는?)
+  const ellipticalResult = translateEllipticalQuestion(rest);
+  if (ellipticalResult) {
+    return `${discoursePrefix}${ellipticalResult}`;
+  }
+
+  // 2.2: 식사 문맥 의문문 처리 (아침은 뭘 먹었어?)
+  const mealQuestionResult = translateMealQuestion(rest);
+  if (mealQuestionResult) {
+    return `${discoursePrefix}${mealQuestionResult}`;
+  }
+
+  // ============================================
+  // Phase 4: 시간/장소 부사구 추출 (형태소 분석 전!)
+  // "오늘 아침에 일찍 일어났어" → 시간부사 추출 + "일어났어" 분리
+  // ============================================
+  const extractedAdverbs = extractKoreanAdverbs(rest);
+  const isQuestion = sentence.includes('?') || /[니까냐]$/.test(sentence.replace(/\?$/, ''));
+
+  // ============================================
+  // Phase 5: 관용어 전처리 (형태소 분석 전!)
+  // "손이 컸다" → "was too generous"
+  // "물 쓰듯" → "like water"
+  // ============================================
+  const workingSentence = preprocessKoreanIdioms(extractedAdverbs.rest);
+
+  // Helper: 최종 반환 시 담화 연결어 + 추출된 부사구 삽입 적용
+  const finalizeTranslation = (translated: string, suffix = ''): string => {
+    const withAdverbs = insertExtractedAdverbs(translated, extractedAdverbs, isQuestion);
+    return `${discoursePrefix}${withAdverbs}${suffix}`;
+  };
+
+  // ============================================
   // g21-1: SOV → SVO 마커 처리
   // 입력에 "(SOV)" 마커가 있으면 제거하고 번역 후 "(SVO)" 추가
   // ============================================
-  const sovMatch = sentence.match(/^(.+?)\s*\(SOV\)\s*$/i);
+  const sovMatch = workingSentence.match(/^(.+?)\s*\(SOV\)\s*$/i);
   if (sovMatch) {
     const coreSentence = sovMatch[1].trim();
     const translated = translateKoreanSentence(coreSentence, _formality);
-    return `${translated} (SVO)`;
+    return finalizeTranslation(translated, ' (SVO)');
   }
 
   // ============================================
   // Phase g7/g10/g13: 특수 패턴 전처리 (파싱 전에!)
   // 비교급, 부사절, 조사 패턴을 먼저 체크
   // ============================================
-  const specialResult = handleSpecialKoreanPatterns(sentence);
+  const specialResult = handleSpecialKoreanPatterns(workingSentence);
   if (specialResult) {
-    return specialResult;
+    return finalizeTranslation(specialResult);
   }
 
   // 0. 복합어/관용어 우선 체크 (절 분리 전에!)
   // "배고프다", "배가 고프다" 등의 복합어가 절로 잘못 분리되는 것을 방지
-  const parsed = parseKorean(sentence);
+  const parsed = parseKorean(workingSentence);
   if (parsed.tokens.length === 1 && parsed.tokens[0].role === 'compound') {
-    return parsed.tokens[0].translated || sentence;
+    return finalizeTranslation(parsed.tokens[0].translated || workingSentence);
   }
 
   // Phase 0: 보조용언 패턴 우선 체크 (절 분리 전에!)
@@ -256,65 +724,65 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
   if (parsed.auxiliaryPattern) {
     let translated = generateEnglish(parsed);
     translated = validateTranslation(parsed, translated, 'ko-en');
-    return translated;
+    return finalizeTranslation(translated);
   }
 
   // Phase g4: 사동문 패턴 우선 체크 (절 분리 전에!)
   // "아이에게 밥을 먹였다" → "I fed the child"
   // "그를 가게 했다" → "I made him go"
   if (parsed.causative) {
-    return generateEnglish(parsed);
+    return finalizeTranslation(generateEnglish(parsed));
   }
 
   // Phase g4: 피동문 패턴 우선 체크 (절 분리 전에!)
   // "문이 열렸다" → "The door was opened"
   if (parsed.passive) {
-    return generateEnglish(parsed);
+    return finalizeTranslation(generateEnglish(parsed));
   }
 
   // Phase g6: 조건문 패턴 우선 체크 (절 분리 전에!)
   // "비가 오면 땅이 젖는다" → "If it rains, the ground gets wet"
   // "부자라면 여행할 텐데" → "If I were rich, I would travel"
   if (parsed.conditional) {
-    return generateEnglish(parsed);
+    return finalizeTranslation(generateEnglish(parsed));
   }
 
   // Phase g8: 명사절 패턴 우선 체크 (절 분리 전에!)
   // "그가 왔다는 것이 중요하다" → "That he came is important"
   // "그가 간다고 했다" → "He said that he would go"
   if (parsed.nounClause) {
-    return generateEnglish(parsed);
+    return finalizeTranslation(generateEnglish(parsed));
   }
 
   // Phase g9: 관계절 패턴 체크
   // "내가 산 책" → "the book that I bought"
   // "그가 사는 집" → "the home where he lives"
   if (parsed.relativeClause) {
-    return generateRelativeClauseEnglish(parsed);
+    return finalizeTranslation(generateRelativeClauseEnglish(parsed));
   }
 
   // Phase g24: 인용 표현 체크
   // "간다고 했다" → "said that (someone) goes"
   // "가냐고 물었다" → "asked if (someone) goes"
   if (parsed.quotation) {
-    return generateQuotationEnglish(parsed);
+    return finalizeTranslation(generateQuotationEnglish(parsed));
   }
 
   // Phase g23: 추측 표현 체크
   // "갈 것 같다" → "probably will go"
   // "아픈가 보다" → "seems to be sick"
   if (parsed.conjecture) {
-    return generateConjectureEnglish(parsed);
+    return finalizeTranslation(generateConjectureEnglish(parsed));
   }
 
   // 특수 부정 패턴은 검증 없이 바로 반환 (금지/능력 부정)
   // "-지 마" → "Don't eat!", "못 먹는다" → "can't eat"
   if (parsed.prohibitiveNegation || parsed.inabilityNegation) {
-    return generateEnglish(parsed);
+    return finalizeTranslation(generateEnglish(parsed));
   }
 
   // 1. 절 분리
-  const clauseInfo = parseKoreanClauses(sentence);
+  const clauseInfo = parseKoreanClauses(workingSentence);
 
   // 단문인 경우
   if (clauseInfo.structure === 'simple') {
@@ -328,32 +796,63 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
       const conn = singleClause.connector.toLowerCase();
       // 연결어미에 따라 접속사 앞에 붙이기
       if (conn === 'because') {
-        return `because ${translated.toLowerCase()}`;
+        return finalizeTranslation(`because ${translated.toLowerCase()}`);
       }
       if (conn === 'even if') {
-        return `even if ${translated.toLowerCase()}`;
+        return finalizeTranslation(`even if ${translated.toLowerCase()}`);
       }
       if (conn === 'because of') {
-        return `because of ${toGerund(translated).toLowerCase()}`;
+        return finalizeTranslation(`because of ${toGerund(translated).toLowerCase()}`);
       }
       if (conn === 'but/and') {
         // -는데 ending은 상황에 따라 다름
-        return `${translated} and/but`;
+        return finalizeTranslation(`${translated} and/but`);
       }
       // 다른 연결어미도 처리
-      return translated;
+      return finalizeTranslation(translated);
     }
 
     let translated = generateEnglish(parsed);
     translated = validateTranslation(parsed, translated, 'ko-en');
-    return translated;
+    return finalizeTranslation(translated);
   }
 
   // 2. 복문인 경우 절별로 번역
   const translatedClauses: string[] = [];
+  const isLastClauseQuestion = isQuestion; // 마지막 절이 의문문인지 (전체 문장 기준)
 
   for (let i = 0; i < clauseInfo.clauses.length; i++) {
     const clause = clauseInfo.clauses[i];
+    const isLastClause = i === clauseInfo.clauses.length - 1;
+
+    // 마지막 절에 의문사("어땠", "몇 시에" 등)가 있는 경우 별도 처리
+    // 예: "회의는 어땠어?" → "How was the meeting?"
+    if (isLastClause && isLastClauseQuestion) {
+      const clauseAdverbs = extractKoreanAdverbs(clause.text);
+      if (clauseAdverbs.interrogative) {
+        // 의문사가 있는 마지막 절은 의문사 처리 포함하여 번역
+        const restParsed = parseKorean(clauseAdverbs.rest);
+        let translated = generateEnglish(restParsed);
+        translated = validateTranslation(restParsed, translated, 'ko-en');
+        // 의문사 삽입
+        translated = insertExtractedAdverbs(translated, clauseAdverbs, true);
+
+        // 이전 절에 connector가 있으면 접속사 추가 (and, but 등)
+        if (i > 0) {
+          const prevClause = clauseInfo.clauses[i - 1];
+          if (prevClause?.connector && prevClause.connector !== 'undefined') {
+            const conn = prevClause.connector.toLowerCase();
+            if (conn === 'and' || conn === 'but' || conn === 'or') {
+              translated = `${conn} ${translated.charAt(0).toLowerCase()}${translated.slice(1)}`;
+            }
+          }
+        }
+
+        translatedClauses.push(translated);
+        continue;
+      }
+    }
+
     const parsed = parseKorean(clause.text);
     let translated = generateEnglish(parsed);
     translated = validateTranslation(parsed, translated, 'ko-en');
@@ -435,7 +934,8 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
   }
 
   // 3. 절 조합
-  return combineEnglishClauses(translatedClauses, clauseInfo);
+  const combined = combineEnglishClauses(translatedClauses, clauseInfo);
+  return finalizeTranslation(combined);
 }
 
 /**
@@ -453,12 +953,18 @@ const COORDINATING_CONNECTOR_MAP: Record<string, string> = {
  * 영어 문장을 절 단위로 분리하여 한국어로 번역
  */
 function translateEnglishSentence(sentence: string, formality: Formality): string {
+  // ============================================
+  // Phase 5: 관용어 전처리 (형태소 분석 전!)
+  // "burn the midnight oil" → "밤새 공부하다"
+  // ============================================
+  const preprocessedSentence = preprocessEnglishIdioms(sentence);
+
   // g7/g10/g13: 특수 패턴 우선 체크
-  const specialResult = handleSpecialEnglishPatterns(sentence);
+  const specialResult = handleSpecialEnglishPatterns(preprocessedSentence);
   if (specialResult) return specialResult;
 
   // g6: 조건문 패턴 우선 체크 (절 분리 전에!)
-  const parsed = parseEnglish(sentence);
+  const parsed = parseEnglish(preprocessedSentence);
   if (parsed.englishConditional) {
     return generateConditionalKorean(parsed, formality);
   }
@@ -3130,7 +3636,7 @@ function handleSpecialKoreanPatterns(text: string): string | null {
   const pastAdnominalPersonMatch = cleaned.match(/^(.+?)\s+(사람|분)$/);
   if (pastAdnominalPersonMatch) {
     const adnominalForm = pastAdnominalPersonMatch[1];
-    const personNoun = pastAdnominalPersonMatch[2];
+    const _personNoun = pastAdnominalPersonMatch[2];
 
     // 과거 관형형: V + ㄴ/은 (받침 ㄴ 또는 "은"으로 끝남)
     // 간(가+ㄴ받침), 먹은, 본(보+ㄴ받침)

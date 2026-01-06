@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Words Dictionary",
+  "description": "Korean-English word mappings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["ko", "en"],
+    "properties": {
+      "ko": {
+        "type": "string",
+        "description": "Korean word or phrase"
+      },
+      "en": {
+        "type": "string",
+        "description": "English translation"
+      }
+    },
+    "additionalProperties": false
+  }
+}

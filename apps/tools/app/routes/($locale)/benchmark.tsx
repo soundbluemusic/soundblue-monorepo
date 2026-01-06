@@ -21,6 +21,24 @@ type BenchmarkDataModule = {
   benchmarkTestGroups: TestGroup[];
 };
 
+// Official metrics data type
+interface OfficialMetrics {
+  generatedAt: string;
+  testCount: number;
+  koToEn: {
+    meteor: number;
+    chrF: number;
+    bleu: number;
+    ter: number;
+  };
+  enToKo: {
+    meteor: number;
+    chrF: number;
+    bleu: number;
+    ter: number;
+  };
+}
+
 export const meta: MetaFunction = ({ location }) => [
   { title: 'Benchmark | Tools' },
   { name: 'description', content: 'Translator performance benchmark.' },
@@ -98,6 +116,17 @@ export default function Benchmark() {
   const [results, setResults] = useState<Map<string, LevelResult[]>>(new Map());
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+
+  // Official metrics state
+  const [officialMetrics, setOfficialMetrics] = useState<OfficialMetrics | null>(null);
+
+  // Load official metrics
+  useEffect(() => {
+    fetch('/data/official-metrics.json')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setOfficialMetrics(data))
+      .catch(() => setOfficialMetrics(null));
+  }, []);
 
   // Load test data and translate function on mount
   useEffect(() => {
@@ -441,6 +470,71 @@ export default function Benchmark() {
           <p className="mb-4 text-(--muted-foreground)">
             {`Test translation accuracy across ${totalTestCount} test cases`}
           </p>
+
+          {/* Official Metrics Display */}
+          {officialMetrics && (
+            <div className="mb-6 rounded-lg border border-(--border) bg-white p-4 dark:bg-gray-900">
+              <h2 className="mb-3 text-lg font-semibold">Official Metrics (공식 지표)</h2>
+              <p className="mb-4 text-xs text-(--muted-foreground)">
+                {`Evaluated on ${officialMetrics.testCount} sentence pairs • Generated: ${new Date(officialMetrics.generatedAt).toLocaleDateString()}`}
+              </p>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {/* METEOR */}
+                <div className="rounded-md border border-(--border) p-3 text-center">
+                  <div className="mb-1 text-xs font-medium text-(--muted-foreground)">METEOR</div>
+                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {((officialMetrics.koToEn.meteor + officialMetrics.enToKo.meteor) / 2).toFixed(
+                      4,
+                    )}
+                  </div>
+                  <div className="mt-1 text-xs text-(--muted-foreground)">
+                    <span>Ko→En: {officialMetrics.koToEn.meteor.toFixed(4)}</span>
+                    <span className="mx-1">|</span>
+                    <span>En→Ko: {officialMetrics.enToKo.meteor.toFixed(4)}</span>
+                  </div>
+                </div>
+                {/* chrF */}
+                <div className="rounded-md border border-(--border) p-3 text-center">
+                  <div className="mb-1 text-xs font-medium text-(--muted-foreground)">chrF</div>
+                  <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                    {((officialMetrics.koToEn.chrF + officialMetrics.enToKo.chrF) / 2).toFixed(2)}
+                  </div>
+                  <div className="mt-1 text-xs text-(--muted-foreground)">
+                    <span>Ko→En: {officialMetrics.koToEn.chrF.toFixed(2)}</span>
+                    <span className="mx-1">|</span>
+                    <span>En→Ko: {officialMetrics.enToKo.chrF.toFixed(2)}</span>
+                  </div>
+                </div>
+                {/* BLEU */}
+                <div className="rounded-md border border-(--border) p-3 text-center">
+                  <div className="mb-1 text-xs font-medium text-(--muted-foreground)">BLEU</div>
+                  <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                    {((officialMetrics.koToEn.bleu + officialMetrics.enToKo.bleu) / 2).toFixed(2)}
+                  </div>
+                  <div className="mt-1 text-xs text-(--muted-foreground)">
+                    <span>Ko→En: {officialMetrics.koToEn.bleu.toFixed(2)}</span>
+                    <span className="mx-1">|</span>
+                    <span>En→Ko: {officialMetrics.enToKo.bleu.toFixed(2)}</span>
+                  </div>
+                </div>
+                {/* TER */}
+                <div className="rounded-md border border-(--border) p-3 text-center">
+                  <div className="mb-1 text-xs font-medium text-(--muted-foreground)">TER ↓</div>
+                  <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                    {((officialMetrics.koToEn.ter + officialMetrics.enToKo.ter) / 2).toFixed(2)}
+                  </div>
+                  <div className="mt-1 text-xs text-(--muted-foreground)">
+                    <span>Ko→En: {officialMetrics.koToEn.ter.toFixed(2)}</span>
+                    <span className="mx-1">|</span>
+                    <span>En→Ko: {officialMetrics.enToKo.ter.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+              <p className="mt-3 text-xs text-(--muted-foreground)">
+                METEOR/chrF/BLEU: 높을수록 좋음 (↑) • TER: 낮을수록 좋음 (↓)
+              </p>
+            </div>
+          )}
 
           {/* Algorithm Description */}
           <div className="mb-6 rounded-lg border border-blue-500/50 bg-blue-50 p-4 dark:bg-blue-900/20">

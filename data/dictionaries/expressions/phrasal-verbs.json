@@ -1,0 +1,778 @@
+[
+  {
+    "ko": "합산하다",
+    "en": "add up"
+  },
+  {
+    "ko": "데이트 신청하다",
+    "en": "ask out"
+  },
+  {
+    "ko": "물러서다",
+    "en": "back off"
+  },
+  {
+    "ko": "백업하다 / 후진하다",
+    "en": "back up"
+  },
+  {
+    "ko": "폭발하다 / 화내다",
+    "en": "blow up"
+  },
+  {
+    "ko": "고장나다 / 무너지다",
+    "en": "break down"
+  },
+  {
+    "ko": "침입하다 / 길들이다",
+    "en": "break in"
+  },
+  {
+    "ko": "발생하다 / 탈출하다",
+    "en": "break out"
+  },
+  {
+    "ko": "헤어지다 / 깨지다",
+    "en": "break up"
+  },
+  {
+    "ko": "키우다 / 언급하다",
+    "en": "bring up"
+  },
+  {
+    "ko": "지치다 / 타버리다",
+    "en": "burn out"
+  },
+  {
+    "ko": "다시 전화하다",
+    "en": "call back"
+  },
+  {
+    "ko": "취소하다",
+    "en": "call off"
+  },
+  {
+    "ko": "진정하다",
+    "en": "calm down"
+  },
+  {
+    "ko": "계속하다",
+    "en": "carry on"
+  },
+  {
+    "ko": "따라잡다",
+    "en": "catch up"
+  },
+  {
+    "ko": "체크인하다",
+    "en": "check in"
+  },
+  {
+    "ko": "체크아웃하다 / 확인하다",
+    "en": "check out"
+  },
+  {
+    "ko": "기운내다",
+    "en": "cheer up"
+  },
+  {
+    "ko": "청소하다",
+    "en": "clean up"
+  },
+  {
+    "ko": "우연히 만나다",
+    "en": "come across"
+  },
+  {
+    "ko": "돌아오다",
+    "en": "come back"
+  },
+  {
+    "ko": "내려오다",
+    "en": "come down"
+  },
+  {
+    "ko": "들어오다",
+    "en": "come in"
+  },
+  {
+    "ko": "나오다",
+    "en": "come out"
+  },
+  {
+    "ko": "다가오다 / 떠오르다",
+    "en": "come up"
+  },
+  {
+    "ko": "생각해내다",
+    "en": "come up with"
+  },
+  {
+    "ko": "끊다 / 차단하다",
+    "en": "cut off"
+  },
+  {
+    "ko": "가라앉다",
+    "en": "die down"
+  },
+  {
+    "ko": "다시 하다",
+    "en": "do over"
+  },
+  {
+    "ko": "들르다",
+    "en": "drop by"
+  },
+  {
+    "ko": "내려주다 / 떨어지다",
+    "en": "drop off"
+  },
+  {
+    "ko": "중퇴하다 / 포기하다",
+    "en": "drop out"
+  },
+  {
+    "ko": "외식하다",
+    "en": "eat out"
+  },
+  {
+    "ko": "결국 ~하게 되다",
+    "en": "end up"
+  },
+  {
+    "ko": "무너지다",
+    "en": "fall apart"
+  },
+  {
+    "ko": "뒤처지다",
+    "en": "fall behind"
+  },
+  {
+    "ko": "넘어지다",
+    "en": "fall down"
+  },
+  {
+    "ko": "떨어지다 / 사이가 틀어지다",
+    "en": "fall out"
+  },
+  {
+    "ko": "알아내다 / 이해하다",
+    "en": "figure out"
+  },
+  {
+    "ko": "빈칸을 채우다",
+    "en": "fill in"
+  },
+  {
+    "ko": "작성하다",
+    "en": "fill out"
+  },
+  {
+    "ko": "가득 채우다",
+    "en": "fill up"
+  },
+  {
+    "ko": "알아내다",
+    "en": "find out"
+  },
+  {
+    "ko": "어울리다",
+    "en": "fit in"
+  },
+  {
+    "ko": "사이좋게 지내다",
+    "en": "get along"
+  },
+  {
+    "ko": "도망가다 / 휴가가다",
+    "en": "get away"
+  },
+  {
+    "ko": "돌아오다 / 되찾다",
+    "en": "get back"
+  },
+  {
+    "ko": "그럭저럭 살다",
+    "en": "get by"
+  },
+  {
+    "ko": "들어가다 / 타다",
+    "en": "get in"
+  },
+  {
+    "ko": "내리다 / 퇴근하다",
+    "en": "get off"
+  },
+  {
+    "ko": "타다 / 잘 지내다",
+    "en": "get on"
+  },
+  {
+    "ko": "나가다",
+    "en": "get out"
+  },
+  {
+    "ko": "극복하다",
+    "en": "get over"
+  },
+  {
+    "ko": "통과하다 / 연락이 되다",
+    "en": "get through"
+  },
+  {
+    "ko": "일어나다",
+    "en": "get up"
+  },
+  {
+    "ko": "나눠주다 / 누설하다",
+    "en": "give away"
+  },
+  {
+    "ko": "돌려주다",
+    "en": "give back"
+  },
+  {
+    "ko": "굴복하다 / 양보하다",
+    "en": "give in"
+  },
+  {
+    "ko": "포기하다",
+    "en": "give up"
+  },
+  {
+    "ko": "진행하다 / 먼저 하세요",
+    "en": "go ahead"
+  },
+  {
+    "ko": "가버리다",
+    "en": "go away"
+  },
+  {
+    "ko": "돌아가다",
+    "en": "go back"
+  },
+  {
+    "ko": "내려가다",
+    "en": "go down"
+  },
+  {
+    "ko": "울리다 / 폭발하다",
+    "en": "go off"
+  },
+  {
+    "ko": "계속하다",
+    "en": "go on"
+  },
+  {
+    "ko": "나가다 / 사귀다",
+    "en": "go out"
+  },
+  {
+    "ko": "검토하다",
+    "en": "go over"
+  },
+  {
+    "ko": "겪다 / 통과하다",
+    "en": "go through"
+  },
+  {
+    "ko": "올라가다",
+    "en": "go up"
+  },
+  {
+    "ko": "성장하다",
+    "en": "grow up"
+  },
+  {
+    "ko": "제출하다",
+    "en": "hand in"
+  },
+  {
+    "ko": "나눠주다",
+    "en": "hand out"
+  },
+  {
+    "ko": "기다리다 / 매달리다",
+    "en": "hang on"
+  },
+  {
+    "ko": "놀다 / 어울리다",
+    "en": "hang out"
+  },
+  {
+    "ko": "전화를 끊다",
+    "en": "hang up"
+  },
+  {
+    "ko": "출발하다",
+    "en": "head out"
+  },
+  {
+    "ko": "기다리다 / 버티다",
+    "en": "hold on"
+  },
+  {
+    "ko": "서두르다",
+    "en": "hurry up"
+  },
+  {
+    "ko": "계속하다",
+    "en": "keep on"
+  },
+  {
+    "ko": "유지하다 / 따라가다",
+    "en": "keep up"
+  },
+  {
+    "ko": "시작하다",
+    "en": "kick off"
+  },
+  {
+    "ko": "기절시키다",
+    "en": "knock out"
+  },
+  {
+    "ko": "해고하다",
+    "en": "lay off"
+  },
+  {
+    "ko": "빼다 / 제외하다",
+    "en": "leave out"
+  },
+  {
+    "ko": "실망시키다",
+    "en": "let down"
+  },
+  {
+    "ko": "들여보내다",
+    "en": "let in"
+  },
+  {
+    "ko": "내보내다",
+    "en": "let out"
+  },
+  {
+    "ko": "눕다",
+    "en": "lie down"
+  },
+  {
+    "ko": "줄서다",
+    "en": "line up"
+  },
+  {
+    "ko": "기대에 부응하다",
+    "en": "live up to"
+  },
+  {
+    "ko": "로그인하다",
+    "en": "log in"
+  },
+  {
+    "ko": "로그아웃하다",
+    "en": "log out"
+  },
+  {
+    "ko": "돌보다",
+    "en": "look after"
+  },
+  {
+    "ko": "둘러보다",
+    "en": "look around"
+  },
+  {
+    "ko": "뒤돌아보다",
+    "en": "look back"
+  },
+  {
+    "ko": "찾다",
+    "en": "look for"
+  },
+  {
+    "ko": "기대하다",
+    "en": "look forward to"
+  },
+  {
+    "ko": "조사하다",
+    "en": "look into"
+  },
+  {
+    "ko": "조심하다",
+    "en": "look out"
+  },
+  {
+    "ko": "검토하다",
+    "en": "look over"
+  },
+  {
+    "ko": "찾아보다 / 올려다보다",
+    "en": "look up"
+  },
+  {
+    "ko": "이해하다 / 키스하다",
+    "en": "make out"
+  },
+  {
+    "ko": "화해하다 / 구성하다 / 화장하다",
+    "en": "make up"
+  },
+  {
+    "ko": "망치다",
+    "en": "mess up"
+  },
+  {
+    "ko": "혼동하다",
+    "en": "mix up"
+  },
+  {
+    "ko": "이사 들어오다",
+    "en": "move in"
+  },
+  {
+    "ko": "계속하다 / 넘어가다",
+    "en": "move on"
+  },
+  {
+    "ko": "이사 나가다",
+    "en": "move out"
+  },
+  {
+    "ko": "돌아가시다",
+    "en": "pass away"
+  },
+  {
+    "ko": "지나가다",
+    "en": "pass by"
+  },
+  {
+    "ko": "기절하다 / 나눠주다",
+    "en": "pass out"
+  },
+  {
+    "ko": "갚다",
+    "en": "pay back"
+  },
+  {
+    "ko": "성과를 내다 / 완납하다",
+    "en": "pay off"
+  },
+  {
+    "ko": "고르다",
+    "en": "pick out"
+  },
+  {
+    "ko": "줍다 / 데리러 가다 / 배우다",
+    "en": "pick up"
+  },
+  {
+    "ko": "지적하다",
+    "en": "point out"
+  },
+  {
+    "ko": "해내다",
+    "en": "pull off"
+  },
+  {
+    "ko": "차를 세우다",
+    "en": "pull over"
+  },
+  {
+    "ko": "치우다",
+    "en": "put away"
+  },
+  {
+    "ko": "제자리에 놓다",
+    "en": "put back"
+  },
+  {
+    "ko": "내려놓다 / 비하하다",
+    "en": "put down"
+  },
+  {
+    "ko": "미루다",
+    "en": "put off"
+  },
+  {
+    "ko": "입다 / 켜다",
+    "en": "put on"
+  },
+  {
+    "ko": "끄다 / 내놓다",
+    "en": "put out"
+  },
+  {
+    "ko": "조립하다",
+    "en": "put together"
+  },
+  {
+    "ko": "올리다 / 게시하다",
+    "en": "put up"
+  },
+  {
+    "ko": "참다",
+    "en": "put up with"
+  },
+  {
+    "ko": "바가지 씌우다",
+    "en": "rip off"
+  },
+  {
+    "ko": "배제하다",
+    "en": "rule out"
+  },
+  {
+    "ko": "도망가다",
+    "en": "run away"
+  },
+  {
+    "ko": "우연히 만나다",
+    "en": "run into"
+  },
+  {
+    "ko": "다 떨어지다",
+    "en": "run out"
+  },
+  {
+    "ko": "치다 / 넘치다",
+    "en": "run over"
+  },
+  {
+    "ko": "출발하다",
+    "en": "set off"
+  },
+  {
+    "ko": "설치하다 / 설정하다",
+    "en": "set up"
+  },
+  {
+    "ko": "정착하다",
+    "en": "settle down"
+  },
+  {
+    "ko": "자랑하다",
+    "en": "show off"
+  },
+  {
+    "ko": "나타나다",
+    "en": "show up"
+  },
+  {
+    "ko": "닫다 / 종료하다",
+    "en": "shut down"
+  },
+  {
+    "ko": "입 다물다",
+    "en": "shut up"
+  },
+  {
+    "ko": "서명하다 / 로그인하다",
+    "en": "sign in"
+  },
+  {
+    "ko": "로그아웃하다",
+    "en": "sign out"
+  },
+  {
+    "ko": "가입하다",
+    "en": "sign up"
+  },
+  {
+    "ko": "앉다",
+    "en": "sit down"
+  },
+  {
+    "ko": "속도를 줄이다",
+    "en": "slow down"
+  },
+  {
+    "ko": "정리하다 / 해결하다",
+    "en": "sort out"
+  },
+  {
+    "ko": "크게 말하다 / 발언하다",
+    "en": "speak up"
+  },
+  {
+    "ko": "속도를 높이다",
+    "en": "speed up"
+  },
+  {
+    "ko": "대기하다 / 지지하다",
+    "en": "stand by"
+  },
+  {
+    "ko": "눈에 띄다",
+    "en": "stand out"
+  },
+  {
+    "ko": "일어서다",
+    "en": "stand up"
+  },
+  {
+    "ko": "다시 시작하다",
+    "en": "start over"
+  },
+  {
+    "ko": "안 자고 있다",
+    "en": "stay up"
+  },
+  {
+    "ko": "튀어나오다",
+    "en": "stick out"
+  },
+  {
+    "ko": "끄다",
+    "en": "switch off"
+  },
+  {
+    "ko": "켜다",
+    "en": "switch on"
+  },
+  {
+    "ko": "가져가다",
+    "en": "take away"
+  },
+  {
+    "ko": "되돌리다 / 취소하다",
+    "en": "take back"
+  },
+  {
+    "ko": "돌보다",
+    "en": "take care of"
+  },
+  {
+    "ko": "내리다 / 적다",
+    "en": "take down"
+  },
+  {
+    "ko": "받아들이다",
+    "en": "take in"
+  },
+  {
+    "ko": "벗다 / 이륙하다",
+    "en": "take off"
+  },
+  {
+    "ko": "맡다",
+    "en": "take on"
+  },
+  {
+    "ko": "꺼내다 / 데리고 나가다",
+    "en": "take out"
+  },
+  {
+    "ko": "인수하다",
+    "en": "take over"
+  },
+  {
+    "ko": "시작하다 / 차지하다",
+    "en": "take up"
+  },
+  {
+    "ko": "상의하다",
+    "en": "talk over"
+  },
+  {
+    "ko": "헐다",
+    "en": "tear down"
+  },
+  {
+    "ko": "생각하다",
+    "en": "think about"
+  },
+  {
+    "ko": "숙고하다",
+    "en": "think over"
+  },
+  {
+    "ko": "버리다",
+    "en": "throw away"
+  },
+  {
+    "ko": "버리다 / 내쫓다",
+    "en": "throw out"
+  },
+  {
+    "ko": "토하다",
+    "en": "throw up"
+  },
+  {
+    "ko": "입어보다",
+    "en": "try on"
+  },
+  {
+    "ko": "시험해보다",
+    "en": "try out"
+  },
+  {
+    "ko": "돌아서다",
+    "en": "turn around"
+  },
+  {
+    "ko": "되돌아가다",
+    "en": "turn back"
+  },
+  {
+    "ko": "거절하다 / 줄이다",
+    "en": "turn down"
+  },
+  {
+    "ko": "제출하다",
+    "en": "turn in"
+  },
+  {
+    "ko": "변하다",
+    "en": "turn into"
+  },
+  {
+    "ko": "끄다",
+    "en": "turn off"
+  },
+  {
+    "ko": "켜다",
+    "en": "turn on"
+  },
+  {
+    "ko": "~로 드러나다",
+    "en": "turn out"
+  },
+  {
+    "ko": "뒤집다",
+    "en": "turn over"
+  },
+  {
+    "ko": "나타나다 / 올리다",
+    "en": "turn up"
+  },
+  {
+    "ko": "일어나다",
+    "en": "wake up"
+  },
+  {
+    "ko": "준비운동하다 / 데우다",
+    "en": "warm up"
+  },
+  {
+    "ko": "조심하다",
+    "en": "watch out"
+  },
+  {
+    "ko": "작업하다",
+    "en": "work on"
+  },
+  {
+    "ko": "운동하다 / 잘 되다",
+    "en": "work out"
+  },
+  {
+    "ko": "마무리하다",
+    "en": "wrap up"
+  },
+  {
+    "ko": "적다",
+    "en": "write down"
+  },
+  {
+    "ko": "지퍼를 올리다",
+    "en": "zip up"
+  }
+]

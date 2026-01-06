@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Domain Dictionary",
+  "description": "Domain-specific vocabulary",
+  "type": "object",
+  "required": ["koToEn", "enToKo"],
+  "properties": {
+    "koToEn": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ko", "en", "domain"],
+        "properties": {
+          "ko": { "type": "string" },
+          "en": { "type": "string" },
+          "domain": { "type": "string" }
+        }
+      }
+    },
+    "enToKo": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ko", "en", "domain"],
+        "properties": {
+          "ko": { "type": "string" },
+          "en": { "type": "string" },
+          "domain": { "type": "string" }
+        }
+      }
+    }
+  }
+}

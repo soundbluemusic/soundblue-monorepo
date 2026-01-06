@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-01-06T08:17:02.221409Z",
+  "testCount": 30,
+  "koToEn": {
+    "chrF": 20.98,
+    "bleu": 8.75,
+    "ter": 81.53,
+    "meteor": 0.3396
+  },
+  "enToKo": {
+    "chrF": 12.35,
+    "bleu": 1.95,
+    "ter": 112.96,
+    "meteor": 0.3641
+  }
+}

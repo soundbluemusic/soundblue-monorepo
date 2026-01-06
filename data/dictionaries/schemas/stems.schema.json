@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stems Dictionary",
+  "description": "Korean verb/adjective/noun stems",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["stem", "en", "type"],
+    "properties": {
+      "stem": {
+        "type": "string",
+        "description": "Korean stem"
+      },
+      "en": {
+        "type": "string",
+        "description": "English meaning"
+      },
+      "type": {
+        "type": "string",
+        "enum": ["verb", "adjective", "noun"],
+        "description": "Part of speech"
+      }
+    },
+    "additionalProperties": false
+  }
+}

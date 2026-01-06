@@ -1,0 +1,323 @@
+[
+  {
+    "korean": "차",
+    "translations": [
+      {
+        "english": "tea",
+        "category": "food",
+        "priority": 1,
+        "contextHints": [
+          "마시다",
+          "커피",
+          "녹차",
+          "홍차",
+          "따뜻한",
+          "차가운",
+          "음료"
+        ]
+      },
+      {
+        "english": "car",
+        "category": "transportation",
+        "priority": 1,
+        "contextHints": [
+          "타다",
+          "운전",
+          "주차",
+          "도로",
+          "버스",
+          "택시"
+        ]
+      },
+      {
+        "english": "difference",
+        "category": "math",
+        "priority": 0,
+        "contextHints": [
+          "빼다",
+          "계산",
+          "숫자",
+          "수학",
+          "크다",
+          "작다"
+        ]
+      }
+    ]
+  },
+  {
+    "korean": "눈",
+    "translations": [
+      {
+        "english": "eye",
+        "category": "general",
+        "priority": 2,
+        "contextHints": [
+          "보다",
+          "감다",
+          "뜨다",
+          "시력",
+          "얼굴",
+          "아프다"
+        ]
+      },
+      {
+        "english": "snow",
+        "category": "general",
+        "priority": 1,
+        "contextHints": [
+          "오다",
+          "내리다",
+          "겨울",
+          "하얀",
+          "춥다",
+          "날씨"
+        ]
+      }
+    ]
+  },
+  {
+    "korean": "배",
+    "translations": [
+      {
+        "english": "stomach",
+        "category": "general",
+        "priority": 2,
+        "contextHints": [
+          "아프다",
+          "고프다",
+          "부르다",
+          "먹다",
+          "소화"
+        ]
+      },
+      {
+        "english": "ship",
+        "category": "transportation",
+        "priority": 1,
+        "contextHints": [
+          "타다",
+          "바다",
+          "항구",
+          "여행",
+          "선장"
+        ]
+      },
+      {
+        "english": "pear",
+        "category": "food",
+        "priority": 0,
+        "contextHints": [
+          "과일",
+          "먹다",
+          "달다",
+          "맛있다"
+        ]
+      }
+    ]
+  },
+  {
+    "korean": "밤",
+    "translations": [
+      {
+        "english": "night",
+        "category": "time-date",
+        "priority": 2,
+        "contextHints": [
+          "어둡다",
+          "자다",
+          "늦다",
+          "저녁",
+          "달",
+          "별"
+        ]
+      },
+      {
+        "english": "chestnut",
+        "category": "food",
+        "priority": 0,
+        "contextHints": [
+          "먹다",
+          "맛있다",
+          "과일",
+          "굽다",
+          "가을"
+        ]
+      }
+    ]
+  },
+  {
+    "korean": "사과",
+    "translations": [
+      {
+        "english": "apple",
+        "category": "food",
+        "priority": 2,
+        "contextHints": [
+          "먹다",
+          "과일",
+          "빨간",
+          "맛있다",
+          "주스"
+        ]
+      },
+      {
+        "english": "apology",
+        "category": "general",
+        "priority": 1,
+        "contextHints": [
+          "하다",
+          "받다",
+          "미안",
+          "잘못",
+          "용서"
+        ]
+      }
+    ]
+  },
+  {
+    "korean": "말",
+    "translations": [
+      {
+        "english": "horse",
+        "category": "general",
+        "priority": 1,
+        "contextHints": [
+          "타다",
+          "동물",
+          "경마",
+          "달리다",
+          "마굿간"
+        ]
+      },
+      {
+        "english": "word",
+        "category": "general",
+        "priority": 2,
+        "contextHints": [
+          "하다",
+          "듣다",
+          "대화",
+          "언어",
+          "표현",
+          "뜻"
+        ]
+      }
+    ]
+  },
+  {
+    "korean": "다리",
+    "translations": [
+      {
+        "english": "leg",
+        "category": "general",
+        "priority": 2,
+        "contextHints": [
+          "아프다",
+          "걷다",
+          "달리다",
+          "근육",
+          "무릎"
+        ]
+      },
+      {
+        "english": "bridge",
+        "category": "transportation",
+        "priority": 1,
+        "contextHints": [
+          "건너다",
+          "강",
+          "도로",
+          "다리 위",
+          "건설"
+        ]
+      }
+    ]
+  },
+  {
+    "korean": "감",
+    "translations": [
+      {
+        "english": "persimmon",
+        "category": "food",
+        "priority": 1,
+        "contextHints": [
+          "먹다",
+          "과일",
+          "달다",
+          "가을",
+          "익다"
+        ]
+      },
+      {
+        "english": "sense",
+        "category": "general",
+        "priority": 1,
+        "contextHints": [
+          "있다",
+          "없다",
+          "좋다",
+          "나쁘다",
+          "느낌"
+        ]
+      }
+    ]
+  },
+  {
+    "korean": "잠",
+    "translations": [
+      {
+        "english": "sleep",
+        "category": "daily-life",
+        "priority": 2,
+        "contextHints": [
+          "자다",
+          "피곤하다",
+          "꿈",
+          "침대",
+          "늦다",
+          "일어나다"
+        ]
+      },
+      {
+        "english": "lock",
+        "category": "general",
+        "priority": 0,
+        "contextHints": [
+          "잠그다",
+          "문",
+          "열쇠",
+          "안전"
+        ]
+      }
+    ]
+  },
+  {
+    "korean": "볼",
+    "translations": [
+      {
+        "english": "cheek",
+        "category": "general",
+        "priority": 1,
+        "contextHints": [
+          "빨간",
+          "얼굴",
+          "뽀뽀",
+          "부끄럽다"
+        ]
+      },
+      {
+        "english": "ball",
+        "category": "sports",
+        "priority": 1,
+        "contextHints": [
+          "던지다",
+          "차다",
+          "잡다",
+          "축구",
+          "야구",
+          "경기"
+        ]
+      }
+    ]
+  }
+]

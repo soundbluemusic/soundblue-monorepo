@@ -481,6 +481,68 @@ The translator automatically syncs vocabulary from [public-monorepo](https://git
 
 ---
 
+## 📦 Data/Logic Separation (데이터/로직 분리)
+
+> **Logic stays here, Data goes to Context app**
+> **(로직은 여기에, 데이터는 Context 앱으로)**
+
+```
+┌─────────────────────────────────┐     ┌─────────────────────────────────┐
+│  soundblue-monorepo (여기)       │     │  public-monorepo (Context 앱)   │
+├─────────────────────────────────┤     ├─────────────────────────────────┤
+│ ✅ Architecture (아키텍처)       │     │ ✅ Vocabulary (어휘)            │
+│ ✅ Algorithms (알고리즘)         │     │    • Word pairs (단어 쌍)       │
+│ ✅ Grammar Patterns (문법 패턴)  │     │    • Stems (어간)               │
+│ ✅ Translation Pipeline (로직)   │     │    • Idioms (관용어)            │
+│ ✅ Morpheme Rules (형태소 규칙)  │     │                                 │
+│ ✅ Code Structure (설계)         │     │ ✅ Particles/Endings (조사/어미) │
+│                                 │     │ ✅ Domain Terms (도메인 어휘)    │
+│ Examples:                       │     │    • Colors, Countries          │
+│ • SVO↔SOV conversion            │     │    • Professional terms         │
+│ • Morpheme analyzer             │     │                                 │
+│ • Context analyzer              │     │                                 │
+└─────────────────────────────────┘     └─────────────────────────────────┘
+```
+
+### Data Flow (데이터 흐름)
+
+```
+public-monorepo/data/context/
+        │
+        ▼ pnpm sync:context-dict
+        │
+data/dictionaries/*.json          ← Single Source of Truth
+        │
+        ▼ pnpm prebuild
+        │
+dictionary/generated/*.ts         ← Auto-generated TypeScript
+        │
+        ▼ import
+        │
+dictionary/*.ts                   ← Logic only (로직만)
+```
+
+### Key Files (주요 파일)
+
+| Location | Content |
+|----------|---------|
+| `data/dictionaries/*.json` | Pure vocabulary data (JSON) |
+| `dictionary/generated/*.ts` | Auto-generated from JSON (don't edit) |
+| `dictionary/*.ts` | Logic/algorithms only |
+| `dictionary/external/*.ts` | Synced from Context app (don't edit) |
+
+### Commands (명령어)
+
+| Command | Description |
+|---------|-------------|
+| `pnpm prebuild` | Generate TypeScript from JSON |
+| `pnpm sync:context-dict` | Sync vocabulary from Context app |
+| `pnpm build:all` | Full build (prebuild + sync + build) |
+
+📄 **Full documentation:** `CLAUDE.md` → "Data/Logic Separation Architecture"
+
+---
+
 ## ⚠️ Known Issues & Workarounds (알려진 이슈 & 해결책)
 
 ### SSG Hydration Bug (React Router v7 + React 19)

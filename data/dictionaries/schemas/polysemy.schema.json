@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Polysemy Dictionary",
+  "description": "Words with multiple meanings based on context",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["korean", "translations"],
+    "properties": {
+      "korean": {
+        "type": "string",
+        "description": "Korean word"
+      },
+      "translations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["english", "category"],
+          "properties": {
+            "english": {
+              "type": "string",
+              "description": "English translation"
+            },
+            "category": {
+              "type": "string",
+              "description": "Context category"
+            },
+            "priority": {
+              "type": "integer",
+              "description": "Priority (higher = preferred)"
+            },
+            "contextHints": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Context hint words"
+            }
+          }
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

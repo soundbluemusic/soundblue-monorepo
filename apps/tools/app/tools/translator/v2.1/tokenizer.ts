@@ -1069,8 +1069,8 @@ function detectKoreanConditional(text: string): ConditionalMatch | null {
     return {
       conditional: true,
       type: 'type3',
-      conditionClause: type3Match[1] + type3Match[2] + '더라면',
-      resultClause: type3Match[3] + type3Match[4] + '을 텐데',
+      conditionClause: `${type3Match[1] + type3Match[2]}더라면`,
+      resultClause: `${type3Match[3] + type3Match[4]}을 텐데`,
       conditionVerb: type3Match[1].trim(),
       resultVerb: type3Match[3].trim(),
     };
@@ -1086,8 +1086,8 @@ function detectKoreanConditional(text: string): ConditionalMatch | null {
     return {
       conditional: true,
       type: 'type2',
-      conditionClause: condPart + (type2Match[2] || '') + '라면',
-      resultClause: resultPart + ' 텐데',
+      conditionClause: `${condPart + (type2Match[2] || '')}라면`,
+      resultClause: `${resultPart} 텐데`,
       conditionVerb: condPart,
       resultVerb: resultPart,
     };
@@ -1103,7 +1103,7 @@ function detectKoreanConditional(text: string): ConditionalMatch | null {
     return {
       conditional: true,
       type: 'type2',
-      conditionClause: condPart + (type2ExtMatch[2] || '') + '라면',
+      conditionClause: `${condPart + (type2ExtMatch[2] || '')}라면`,
       resultClause: resultPart,
       conditionVerb: condPart,
       resultVerb: resultPart,
@@ -1139,7 +1139,7 @@ function detectKoreanConditional(text: string): ConditionalMatch | null {
   // Type 1: 비가 오면 집에 있을 것이다 (미래형 결과)
   const conditionalMatch = cleaned.match(/^(.+?)(으)?면\s+(.+)$/);
   if (conditionalMatch) {
-    const condClause = conditionalMatch[1] + (conditionalMatch[2] || '') + '면';
+    const condClause = `${conditionalMatch[1] + (conditionalMatch[2] || '')}면`;
     const resultClause = conditionalMatch[3];
 
     // 결과절의 시제로 Type 0 vs Type 1 구분
@@ -1407,12 +1407,12 @@ function detectKoreanRelativeClause(text: string): KoreanRelativeClauseMatch | n
 
     if (endsWithN) {
       // 동사 어간 추출
-      let verbStem = verbPart;
+      let _verbStem = verbPart;
       if (verbPart.endsWith('는') || verbPart.endsWith('은')) {
-        verbStem = verbPart.slice(0, -1);
+        _verbStem = verbPart.slice(0, -1);
       } else if (finalConsonant === 'ㄴ') {
         // ㄴ 받침 제거: 산→사, 만난→만나, 도운→도우
-        verbStem = verbPart.slice(0, -1) + removeFinalConsonant(lastChar);
+        _verbStem = verbPart.slice(0, -1) + removeFinalConsonant(lastChar);
       }
 
       // 선행사 유형에 따라 관계절 유형 결정
@@ -1489,38 +1489,38 @@ function detectKoreanPassive(
     const patterns: string[] = [];
 
     // 기본형 (열리다)
-    patterns.push(passiveStem + '다');
+    patterns.push(`${passiveStem}다`);
 
     // ㄹ 받침 동사의 축약 (열리 + 었다 → 열렸다)
     // 리다, 기다 등 'ㅣ' 모음으로 끝나는 경우
     if (lastChar === '리' || lastChar === '기' || lastChar === '히' || lastChar === '이') {
       // 리 + 었다 → 렸다
       const contracted = passiveStem.slice(0, -1) + contractVowel(lastChar, '었');
-      patterns.push(contracted + '다');
+      patterns.push(`${contracted}다`);
       // 린다 (현재)
-      patterns.push(passiveStem.slice(0, -1) + contractVowel(lastChar, 'ㄴ') + '다');
+      patterns.push(`${passiveStem.slice(0, -1) + contractVowel(lastChar, 'ㄴ')}다`);
       // 리는 (현재 관형)
-      patterns.push(passiveStem + '는');
+      patterns.push(`${passiveStem}는`);
     }
 
     // 되다 동사 (해결되다 → 해결되었다)
     if (lastChar === '되') {
-      patterns.push(passiveStem + '었다');
-      patterns.push(passiveStem + '는');
+      patterns.push(`${passiveStem}었다`);
+      patterns.push(`${passiveStem}는`);
     }
 
     // 받다 동사 (사랑받다 → 사랑받는다, 사랑받았다)
     if (lastChar === '받') {
-      patterns.push(passiveStem + '는다');
-      patterns.push(passiveStem + '았다');
-      patterns.push(passiveStem + '는');
+      patterns.push(`${passiveStem}는다`);
+      patterns.push(`${passiveStem}았다`);
+      patterns.push(`${passiveStem}는`);
     }
 
     // 당하다 동사 (비난당하다 → 비난당했다, 비난당한다)
     if (passiveStem.endsWith('당하')) {
-      patterns.push(passiveStem.slice(0, -1) + '했다'); // 당하 → 당했다
-      patterns.push(passiveStem + 'ㄴ다'); // 당한다
-      patterns.push(passiveStem + '는');
+      patterns.push(`${passiveStem.slice(0, -1)}했다`); // 당하 → 당했다
+      patterns.push(`${passiveStem}ㄴ다`); // 당한다
+      patterns.push(`${passiveStem}는`);
     }
 
     // 패턴 매칭
@@ -1583,7 +1583,7 @@ function detectKoreanCausative(text: string): {
     const tense = ending.includes('했') || ending === '해' ? 'past' : 'present';
 
     // 동사 어간 → 영어 원형 찾기
-    const enVerb = KO_EN[verbStem + '다'] || VERB_STEMS[verbStem] || verbStem;
+    const enVerb = KO_EN[`${verbStem}다`] || VERB_STEMS[verbStem] || verbStem;
 
     return {
       causative: true,
@@ -1605,37 +1605,37 @@ function detectKoreanCausative(text: string): {
     const patterns: { pattern: string; tense: 'past' | 'present' }[] = [];
 
     // 기본형
-    patterns.push({ pattern: causativeStem + '다', tense: 'present' });
+    patterns.push({ pattern: `${causativeStem}다`, tense: 'present' });
 
     // 과거형 축약
     // -이- 어간 + 었다 → -였다 (먹이 + 었다 → 먹였다)
     if (lastChar === '이') {
-      patterns.push({ pattern: causativeStem.slice(0, -1) + '였다', tense: 'past' });
+      patterns.push({ pattern: `${causativeStem.slice(0, -1)}였다`, tense: 'past' });
     }
     // -히- 어간 + 었다 → -혔다
     else if (lastChar === '히') {
-      patterns.push({ pattern: causativeStem.slice(0, -1) + '혔다', tense: 'past' });
+      patterns.push({ pattern: `${causativeStem.slice(0, -1)}혔다`, tense: 'past' });
     }
     // -리- 어간 + 었다 → -렸다
     else if (lastChar === '리') {
-      patterns.push({ pattern: causativeStem.slice(0, -1) + '렸다', tense: 'past' });
+      patterns.push({ pattern: `${causativeStem.slice(0, -1)}렸다`, tense: 'past' });
     }
     // -기- 어간 + 었다 → -겼다
     else if (lastChar === '기') {
-      patterns.push({ pattern: causativeStem.slice(0, -1) + '겼다', tense: 'past' });
+      patterns.push({ pattern: `${causativeStem.slice(0, -1)}겼다`, tense: 'past' });
     }
     // -우- 어간 + 었다 → -웠다
     else if (lastChar === '우') {
-      patterns.push({ pattern: causativeStem.slice(0, -1) + '웠다', tense: 'past' });
+      patterns.push({ pattern: `${causativeStem.slice(0, -1)}웠다`, tense: 'past' });
     }
     // -추- 어간 + 었다 → -췄다
     else if (lastChar === '추') {
-      patterns.push({ pattern: causativeStem.slice(0, -1) + '췄다', tense: 'past' });
+      patterns.push({ pattern: `${causativeStem.slice(0, -1)}췄다`, tense: 'past' });
     }
     // 일반 -었다
-    patterns.push({ pattern: causativeStem + '었다', tense: 'past' });
-    patterns.push({ pattern: causativeStem + '었어', tense: 'past' });
-    patterns.push({ pattern: causativeStem + '었어요', tense: 'past' });
+    patterns.push({ pattern: `${causativeStem}었다`, tense: 'past' });
+    patterns.push({ pattern: `${causativeStem}었어`, tense: 'past' });
+    patterns.push({ pattern: `${causativeStem}었어요`, tense: 'past' });
 
     for (const { pattern, tense } of patterns) {
       if (cleaned.endsWith(pattern)) {
@@ -3253,7 +3253,7 @@ interface EnglishNounClauseMatch {
  */
 function detectEnglishNounClause(text: string): EnglishNounClauseMatch | null {
   const cleaned = text.replace(/[.!?]+$/, '').trim();
-  const lowerCleaned = cleaned.toLowerCase();
+  const _lowerCleaned = cleaned.toLowerCase();
 
   // Pattern 1: That ... is/was ADJ (That-절이 주어)
   // "That she is honest is clear" → 그녀가 정직하다는 것은 분명하다
@@ -3310,7 +3310,7 @@ function detectEnglishNounClause(text: string): EnglishNounClauseMatch | null {
     /^(.+?)\s+(believe|think|know|hope|say|feel|realize|expect|suppose|guess|imagine|understand|remember|forget|notice|discover|learn|hear|see|find|mean|prove|show|suggest|admit|deny|claim|doubt|fear|trust)\s+that\s+(.+)$/i,
   );
   if (thatObjectMatch) {
-    const mainSubject = thatObjectMatch[1].trim();
+    const _mainSubject = thatObjectMatch[1].trim();
     const mainVerb = thatObjectMatch[2].trim();
     const content = thatObjectMatch[3].trim();
     // 내용에서 주어/동사 추출
@@ -3337,7 +3337,7 @@ function detectEnglishNounClause(text: string): EnglishNounClauseMatch | null {
     /^(.+?)\s+(wonder|ask|know|doubt|question)\s+(whether|if)\s+(.+)$/i,
   );
   if (whetherMatch) {
-    const mainSubject = whetherMatch[1].trim();
+    const _mainSubject = whetherMatch[1].trim();
     const mainVerb = whetherMatch[2].trim();
     const content = whetherMatch[4].trim();
     // 내용에서 주어/동사 추출
@@ -3364,7 +3364,7 @@ function detectEnglishNounClause(text: string): EnglishNounClauseMatch | null {
     /^(.+?)\s+(know|understand|wonder|ask|see|tell|remember|forget|learn|discover|decide|explain)\s+(what|where|when|why|how|who|which)\s+(.+)$/i,
   );
   if (whClauseMatch) {
-    const mainSubject = whClauseMatch[1].trim();
+    const _mainSubject = whClauseMatch[1].trim();
     const mainVerb = whClauseMatch[2].trim();
     const whWord = whClauseMatch[3].trim();
     const content = whClauseMatch[4].trim();
