@@ -14,7 +14,8 @@
  */
 
 // 외부 문장 사전 (대화 예문에서 추출 - 정확히 매칭 시 알고리즘보다 우선)
-import { externalEnToKoSentences, externalKoToEnSentences } from '../dictionary/external';
+// lazy loading으로 변경됨 - 동기 조회는 캐시된 경우에만 가능
+import { lookupEnToKoSentence, lookupKoToEnSentence } from '../dictionary/external';
 import { type ParsedClauses, parseEnglishClauses, parseKoreanClauses } from './clause-parser';
 import {
   ELLIPSIS_NOUN_MAP,
@@ -499,13 +500,14 @@ export function translateWithInfo(
 
   // Phase 0: 외부 문장 사전 우선 조회 (정확히 일치하는 경우에만)
   // 대화 예문에서 추출된 문장은 알고리즘보다 정확할 가능성이 높음
+  // lazy loading - 캐시된 경우에만 동기 조회 가능
   if (direction === 'ko-en') {
-    const exactMatch = externalKoToEnSentences[trimmed];
+    const exactMatch = lookupKoToEnSentence(trimmed);
     if (exactMatch) {
       return { translated: exactMatch, original: text };
     }
   } else {
-    const exactMatch = externalEnToKoSentences[trimmed.toLowerCase()];
+    const exactMatch = lookupEnToKoSentence(trimmed);
     if (exactMatch) {
       return { translated: exactMatch, original: text };
     }

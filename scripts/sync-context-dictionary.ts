@@ -24,6 +24,8 @@ const BASE_URL =
 
 // 출력 디렉토리
 const OUTPUT_DIR = join(__dirname, '../apps/tools/app/tools/translator/dictionary/external');
+// JSON 데이터 출력 디렉토리 (public에서 서빙)
+const PUBLIC_DATA_DIR = join(__dirname, '../apps/tools/public/data/sentences');
 
 // 타입 정의
 interface Meta {
@@ -40,11 +42,23 @@ interface Meta {
   };
 }
 
+interface EntryDialogueLine {
+  speaker: string;
+  text: string;
+  translation?: string;
+}
+
+interface EntryDialogue {
+  context?: string;
+  dialogue: EntryDialogueLine[];
+}
+
 interface EntryTranslation {
   word: string;
   explanation?: string;
-  examples?: Record<string, string>;
-  variations?: Record<string, string[]>;
+  examples?: Record<string, string>; // { level: sentence }
+  variations?: Record<string, string[]>; // { type: sentences[] }
+  dialogue?: EntryDialogue;
 }
 
 interface Entry {
@@ -131,12 +145,94 @@ async function syncDictionary(): Promise<void> {
     }
   }
 
-  // 4. 대화에서 문장 사전 생성
-  console.log('📚 Fetching conversations...');
-  const conversations = await fetchJson<Conversation[]>(`${BASE_URL}/${meta.files.conversations}`);
-
+  // 4. 문장 사전 생성 (대화 + 예문)
   const koSentences: Record<string, string> = {};
   const enSentences: Record<string, string> = {};
+
+  // 4-1. entries에서 모든 문장 추출 (examples, variations, dialogue)
+  console.log('📚 Extracting sentences from entries...');
+  let exampleCount = 0;
+  let variationCount = 0;
+  let entryDialogueCount = 0;
+
+  for (const entry of allEntries) {
+    const koTranslation = entry.translations?.ko;
+    const enTranslation = entry.translations?.en;
+
+    // examples: { level: sentence } - ko/en 각각의 예문
+    // ko.examples의 문장은 한국어, en.examples의 문장은 영어
+    if (koTranslation?.examples && enTranslation?.examples) {
+      const levels = ['beginner', 'intermediate', 'advanced', 'master'];
+      for (const level of levels) {
+        const ko = koTranslation.examples[level]?.trim();
+        const en = enTranslation.examples[level]?.trim();
+        if (ko && en) {
+          if (!koSentences[ko]) {
+            koSentences[ko] = en;
+            exampleCount++;
+          }
+          const enLower = en.toLowerCase();
+          if (!enSentences[enLower]) {
+            enSentences[enLower] = ko;
+          }
+        }
+      }
+    }
+
+    // variations: { type: sentences[] } - ko/en 각각의 변형
+    if (koTranslation?.variations && enTranslation?.variations) {
+      const types = ['formal', 'casual', 'short'];
+      for (const type of types) {
+        const koVariations = koTranslation.variations[type] || [];
+        const enVariations = enTranslation.variations[type] || [];
+        // 인덱스별로 매칭 (같은 위치의 문장이 번역 쌍)
+        const minLen = Math.min(koVariations.length, enVariations.length);
+        for (let i = 0; i < minLen; i++) {
+          const ko = koVariations[i]?.trim();
+          const en = enVariations[i]?.trim();
+          if (ko && en) {
+            if (!koSentences[ko]) {
+              koSentences[ko] = en;
+              variationCount++;
+            }
+            const enLower = en.toLowerCase();
+            if (!enSentences[enLower]) {
+              enSentences[enLower] = ko;
+            }
+          }
+        }
+      }
+    }
+
+    // dialogue: 엔트리 내부 대화 (ko.dialogue와 en.dialogue)
+    if (koTranslation?.dialogue?.dialogue && enTranslation?.dialogue?.dialogue) {
+      const koDialogue = koTranslation.dialogue.dialogue;
+      const enDialogue = enTranslation.dialogue.dialogue;
+      const minLen = Math.min(koDialogue.length, enDialogue.length);
+      for (let i = 0; i < minLen; i++) {
+        const ko = koDialogue[i]?.text?.trim();
+        const en = enDialogue[i]?.text?.trim();
+        if (ko && en) {
+          if (!koSentences[ko]) {
+            koSentences[ko] = en;
+            entryDialogueCount++;
+          }
+          const enLower = en.toLowerCase();
+          if (!enSentences[enLower]) {
+            enSentences[enLower] = ko;
+          }
+        }
+      }
+    }
+  }
+  console.log(`   ✅ Extracted ${exampleCount} from examples`);
+  console.log(`   ✅ Extracted ${variationCount} from variations`);
+  console.log(`   ✅ Extracted ${entryDialogueCount} from entry dialogues`);
+
+  // 4-2. 대화에서 문장 추출
+  console.log('📚 Fetching conversations...');
+  const conversations = await fetchJson<Conversation[]>(`${BASE_URL}/${meta.files.conversations}`);
+  let dialogueCount = 0;
 
   for (const conv of conversations) {
     for (const line of conv.dialogue) {
@@ -144,17 +240,20 @@ async function syncDictionary(): Promise<void> {
       const en = line.en?.trim();
       if (!ko || !en) continue;
 
-      // 문장 정규화 (끝 문장부호 통일)
       if (!koSentences[ko]) {
         koSentences[ko] = en;
+        dialogueCount++;
       }
-      if (!enSentences[en.toLowerCase()]) {
-        enSentences[en.toLowerCase()] = ko;
+      const enLower = en.toLowerCase();
+      if (!enSentences[enLower]) {
+        enSentences[enLower] = ko;
       }
     }
   }
-
-  console.log(`✅ Loaded ${Object.keys(koSentences).length} sentence pairs from conversations\n`);
+  console.log(`   ✅ Extracted ${dialogueCount} sentence pairs from conversations`);
+  console.log(
+    `\n✅ Total sentence pairs: ${Object.keys(koSentences).length} ko→en, ${Object.keys(enSentences).length} en→ko\n`,
+  );
 
   // 5. 출력 디렉토리 생성
   if (!existsSync(OUTPUT_DIR)) {
@@ -201,32 +300,84 @@ export const EXTERNAL_WORDS_STATS = {
     `📝 Created external/words.ts (${Object.keys(koToEn).length} ko→en, ${Object.keys(enToKo).length} en→ko)`,
   );
 
-  // 문장 사전 파일
+  // 문장 사전: JSON 파일로 분리 (lazy loading용)
+  if (!existsSync(PUBLIC_DATA_DIR)) {
+    mkdirSync(PUBLIC_DATA_DIR, { recursive: true });
+  }
+
+  // JSON 파일로 저장
+  writeFileSync(join(PUBLIC_DATA_DIR, 'ko-to-en.json'), JSON.stringify(koSentences));
+  writeFileSync(join(PUBLIC_DATA_DIR, 'en-to-ko.json'), JSON.stringify(enSentences));
+  console.log(
+    `📝 Created public/data/sentences/*.json (${Object.keys(koSentences).length} ko→en, ${Object.keys(enSentences).length} en→ko)`,
+  );
+
+  // TypeScript 파일: 통계와 loader 함수만 export
   const sentencesContent = `${header}/**
- * 외부 문장 사전 (ko→en)
- * 대화 예문에서 추출
- * 알고리즘보다 우선 적용됨 (정확한 매칭 시)
+ * 외부 문장 사전 통계
+ * 실제 데이터는 JSON 파일에서 lazy load됨
  */
-export const externalKoToEnSentences: Record<string, string> = ${JSON.stringify(koSentences, null, 2)};
-
-/**
- * 외부 문장 사전 (en→ko)
- * 대화 예문에서 추출
- */
-export const externalEnToKoSentences: Record<string, string> = ${JSON.stringify(enSentences, null, 2)};
-
-// 통계
 export const EXTERNAL_SENTENCES_STATS = {
   koToEnCount: ${Object.keys(koSentences).length},
   enToKoCount: ${Object.keys(enSentences).length},
   generatedAt: '${timestamp}',
 } as const;
+
+// 문장 사전 캐시
+let koToEnCache: Record<string, string> | null = null;
+let enToKoCache: Record<string, string> | null = null;
+
+/**
+ * 한→영 문장 사전 로드 (lazy loading)
+ */
+export async function loadKoToEnSentences(): Promise<Record<string, string>> {
+  if (koToEnCache) return koToEnCache;
+  const response = await fetch('/data/sentences/ko-to-en.json');
+  koToEnCache = await response.json();
+  return koToEnCache!;
+}
+
+/**
+ * 영→한 문장 사전 로드 (lazy loading)
+ */
+export async function loadEnToKoSentences(): Promise<Record<string, string>> {
+  if (enToKoCache) return enToKoCache;
+  const response = await fetch('/data/sentences/en-to-ko.json');
+  enToKoCache = await response.json();
+  return enToKoCache!;
+}
+
+/**
+ * 한→영 문장 조회 (동기, 캐시된 경우만)
+ */
+export function lookupKoToEnSentence(ko: string): string | null {
+  return koToEnCache?.[ko] ?? null;
+}
+
+/**
+ * 영→한 문장 조회 (동기, 캐시된 경우만)
+ */
+export function lookupEnToKoSentence(en: string): string | null {
+  return enToKoCache?.[en.toLowerCase()] ?? null;
+}
+
+/**
+ * 문장 사전 사전 로드 (앱 초기화 시 호출)
+ */
+export async function preloadSentences(): Promise<void> {
+  await Promise.all([loadKoToEnSentences(), loadEnToKoSentences()]);
+}
+
+/**
+ * 캐시 상태 확인
+ */
+export function isSentencesCached(): boolean {
+  return koToEnCache !== null && enToKoCache !== null;
+}
 `;
 
   writeFileSync(join(OUTPUT_DIR, 'sentences.ts'), sentencesContent);
-  console.log(
-    `📝 Created external/sentences.ts (${Object.keys(koSentences).length} ko→en, ${Object.keys(enSentences).length} en→ko)`,
-  );
+  console.log(`📝 Created external/sentences.ts (loader functions)`);
 
   // index.ts 생성
   const indexContent = `${header}// 외부 사전 통합 export
@@ -237,9 +388,13 @@ export {
 } from './words';
 
 export {
-  externalKoToEnSentences,
-  externalEnToKoSentences,
   EXTERNAL_SENTENCES_STATS,
+  loadKoToEnSentences,
+  loadEnToKoSentences,
+  lookupKoToEnSentence,
+  lookupEnToKoSentence,
+  preloadSentences,
+  isSentencesCached,
 } from './sentences';
 `;
 

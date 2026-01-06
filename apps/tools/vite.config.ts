@@ -74,7 +74,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,wasm,json}'],
+        // data/sentences/*.json 제외 (12MB+ 파일 - runtime caching 사용)
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,wasm}'],
+        globIgnores: ['**/data/sentences/**'],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
@@ -93,6 +95,15 @@ export default defineConfig({
             options: {
               cacheName: 'audio-cache',
               expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          {
+            // 문장 사전 JSON - lazy loading + runtime caching
+            urlPattern: /\/data\/sentences\/.*\.json$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'sentences-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 7 },
             },
           },
         ],

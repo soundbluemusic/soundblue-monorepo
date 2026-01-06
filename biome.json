@@ -20,7 +20,9 @@
       "!**/apps/tools/src",
       "!**/apps/sound-blue/src",
       "!**/apps/dialogue/src",
-      "!**/data/**"
+      "!**/data",
+      "!**/dictionary/external",
+      "!**/dictionary/generated"
     ]
   },
   "formatter": {
