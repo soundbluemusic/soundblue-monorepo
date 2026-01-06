@@ -4,7 +4,7 @@
 // 로직: 구동사 번역 함수
 // ========================================
 
-import { externalEnToKoWords } from './external';
+import { lookupExternalEnToKo } from './external';
 
 // 흔한 구동사 패턴 (동사 + 전치사/부사)
 const PHRASAL_VERB_PARTICLES = [
@@ -44,16 +44,15 @@ export function isPhrasalVerb(text: string): boolean {
 }
 
 /**
- * 구동사 조회 (영→한)
+ * 구동사 조회 (영→한, lazy loading)
  */
 export function lookupPhrasalVerb(phrasal: string): string | null {
-  const lower = phrasal.toLowerCase();
-  return externalEnToKoWords[lower] ?? null;
+  return lookupExternalEnToKo(phrasal);
 }
 
 /**
  * 문장에서 구동사 번역
- * external 사전을 사용하여 구동사를 한국어로 변환
+ * external 사전을 사용하여 구동사를 한국어로 변환 (lazy loading)
  */
 export function translatePhrasalVerbs(text: string): { translated: string; found: boolean } {
   let result = text.toLowerCase();
@@ -67,7 +66,7 @@ export function translatePhrasalVerbs(text: string): { translated: string; found
 
     for (const match of matches) {
       const fullPhrasal = match[0].toLowerCase();
-      const translation = externalEnToKoWords[fullPhrasal];
+      const translation = lookupExternalEnToKo(fullPhrasal);
       if (translation) {
         result = result.replace(new RegExp(`\\b${fullPhrasal}\\b`, 'gi'), translation);
         found = true;

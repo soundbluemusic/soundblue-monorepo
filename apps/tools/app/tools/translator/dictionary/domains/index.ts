@@ -2,9 +2,15 @@
 // Domain Dictionaries - 도메인별 사전 통합 export
 // 데이터: external/words.ts에서 통합 (Context 앱에서 동기화)
 // 로직: 하위 호환성을 위한 빈 객체 export
+// 성능 최적화: 외부 사전은 lazy loading (920KB)
 // ========================================
 
-import { externalEnToKoWords, externalKoToEnWords } from '../external';
+import {
+  getExternalEnToKoWords,
+  getExternalKoToEnWords,
+  lookupExternalEnToKo,
+  lookupExternalKoToEn,
+} from '../external';
 
 // 개별 도메인 export (하위 호환성 - 빈 객체)
 export { ARTS_EN_KO, ARTS_KO_EN } from './arts';
@@ -24,8 +30,8 @@ export { SPORTS_EN_KO, SPORTS_KO_EN } from './sports';
 export * from './technology';
 
 /**
- * 모든 도메인 사전 통합 (한→영)
- * 실제 데이터는 external에서 통합됨
+ * 모든 도메인 사전 통합 (한→영) - Proxy로 lazy loading
+ * 실제 데이터는 external에서 통합됨 (lazy loading)
  *
  * 사용법:
  * import { ALL_DOMAINS_KO_EN } from './domains';
@@ -33,17 +39,47 @@ export * from './technology';
  * 또는 개별 import:
  * import { SPORTS_KO_EN, FITNESS_KO_EN } from './domains';
  */
-export const ALL_DOMAINS_KO_EN: Record<string, string> = {
-  ...externalKoToEnWords,
-};
+export const ALL_DOMAINS_KO_EN: Record<string, string> = new Proxy({} as Record<string, string>, {
+  get(_target, prop: string) {
+    return lookupExternalKoToEn(prop) ?? undefined;
+  },
+  has(_target, prop: string) {
+    return lookupExternalKoToEn(prop) !== null;
+  },
+  ownKeys() {
+    return Object.keys(getExternalKoToEnWords());
+  },
+  getOwnPropertyDescriptor(_target, prop: string) {
+    const value = lookupExternalKoToEn(prop);
+    if (value !== null) {
+      return { enumerable: true, configurable: true, value };
+    }
+    return undefined;
+  },
+});
 
 /**
- * 모든 도메인 사전 통합 (영→한)
- * 실제 데이터는 external에서 통합됨
+ * 모든 도메인 사전 통합 (영→한) - Proxy로 lazy loading
+ * 실제 데이터는 external에서 통합됨 (lazy loading)
  */
-export const ALL_DOMAINS_EN_KO: Record<string, string> = {
-  ...externalEnToKoWords,
-};
+export const ALL_DOMAINS_EN_KO: Record<string, string> = new Proxy({} as Record<string, string>, {
+  get(_target, prop: string) {
+    return lookupExternalEnToKo(prop) ?? undefined;
+  },
+  has(_target, prop: string) {
+    return lookupExternalEnToKo(prop) !== null;
+  },
+  ownKeys() {
+    return Object.keys(getExternalEnToKoWords());
+  },
+  getOwnPropertyDescriptor(_target, prop: string) {
+    const value = lookupExternalEnToKo(prop);
+    if (value !== null) {
+      return { enumerable: true, configurable: true, value };
+    }
+    return undefined;
+  },
+});
 
 /**
  * 도메인 사전 통계
@@ -66,6 +102,6 @@ export const DOMAIN_STATS = {
   home: 0,
   hospital: 0,
   get total() {
-    return Object.keys(ALL_DOMAINS_KO_EN).length;
+    return Object.keys(getExternalKoToEnWords()).length;
   },
 };

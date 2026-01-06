@@ -2,19 +2,29 @@
 // Words Dictionary - 단어 사전 (한→영)
 // 기본 어휘 + 도메인 사전 통합
 // i18n 사전 자동 통합 (사이트 성장 = 번역기 성장)
-// 외부 사전 통합 (public-monorepo/data/context)
+// 외부 사전 통합 (public-monorepo/data/context) - LAZY LOADING
 // 문맥 기반 다중 번역 지원 (차 → tea/car/difference)
 //
 // 순수 어휘 데이터는 data/dictionaries/*.json에서 관리
 // prebuild 시 generated/*.ts로 변환되어 import됨
+//
+// 성능 최적화: 외부 사전(920KB)은 lazy loading
+// - 초기 로딩 시 외부 사전 제외한 기본 사전만 로드
+// - 첫 번역 요청 시 외부 사전 비동기 로드
 // ========================================
 
 import { enToKoColors, koToEnColors } from './colors';
 import { enToKoCountries, koToEnCountries } from './countries';
 import { ALL_DOMAINS_EN_KO, ALL_DOMAINS_KO_EN } from './domains';
-// 외부 사전 (public-monorepo에서 동기화됨)
-// 우선순위: 수동 사전 > 외부 사전 (기존 사전이 우선)
-import { externalEnToKoWords, externalKoToEnWords } from './external';
+// 외부 사전 (lazy loading - 동기 조회 함수만 import)
+import {
+  getExternalEnToKoWords,
+  getExternalKoToEnWords,
+  isExternalWordsCached,
+  loadExternalWords,
+  lookupExternalEnToKo,
+  lookupExternalKoToEn,
+} from './external';
 // JSON에서 생성된 순수 어휘 데이터 (Single Source of Truth: data/dictionaries/)
 import { jsonEnToKoWords, jsonKoToEnWords } from './generated';
 import {
@@ -25,12 +35,10 @@ import {
 } from './word-types';
 
 // ========================================
-// 통합 사전 (수동 사전 + 국가명 + 색상)
+// 기본 사전 (외부 사전 제외 - 즉시 로드)
 // ========================================
 
-export const koToEnWords: Record<string, string> = {
-  // 외부 사전 (가장 낮은 우선순위 - public-monorepo에서 동기화)
-  ...externalKoToEnWords,
+const baseKoToEnWords: Record<string, string> = {
   // 도메인 사전
   ...ALL_DOMAINS_KO_EN,
   // 기본 사전 (JSON에서 생성됨)
@@ -40,10 +48,7 @@ export const koToEnWords: Record<string, string> = {
   ...koToEnColors,
 };
 
-// 역방향 사전 (영→한) 자동 생성 + 수동 사전 + 국가명 + 색상 + 도메인 + 외부 사전 병합
-export const enToKoWords: Record<string, string> = {
-  // 외부 사전 (가장 낮은 우선순위 - public-monorepo에서 동기화)
-  ...externalEnToKoWords,
+const baseEnToKoWords: Record<string, string> = {
   // 도메인 사전
   ...ALL_DOMAINS_EN_KO,
   // 기본 사전 역방향 생성
@@ -53,6 +58,88 @@ export const enToKoWords: Record<string, string> = {
   // 수동 영→한 사전이 최우선 (JSON에서 생성됨)
   ...jsonEnToKoWords,
 };
+
+// ========================================
+// 통합 사전 (기본 + 외부 lazy merge)
+// ========================================
+
+// 캐시된 병합 사전
+const _mergedKoToEnWords: Record<string, string> | null = null;
+const _mergedEnToKoWords: Record<string, string> | null = null;
+
+/**
+ * 한→영 통합 사전 반환
+ * 외부 사전이 로드되지 않았으면 기본 사전만 반환
+ */
+export const koToEnWords: Record<string, string> = new Proxy(baseKoToEnWords, {
+  get(target, prop: string) {
+    // 외부 사전 캐시됐으면 외부에서 먼저 조회
+    if (isExternalWordsCached()) {
+      const external = lookupExternalKoToEn(prop);
+      if (external) return external;
+    }
+    return target[prop];
+  },
+  has(target, prop: string) {
+    if (isExternalWordsCached() && lookupExternalKoToEn(prop)) return true;
+    return prop in target;
+  },
+  ownKeys(target) {
+    if (isExternalWordsCached()) {
+      const externalKeys = Object.keys(getExternalKoToEnWords());
+      return [...new Set([...externalKeys, ...Object.keys(target)])];
+    }
+    return Object.keys(target);
+  },
+  getOwnPropertyDescriptor(target, prop: string) {
+    const externalValue = isExternalWordsCached() ? lookupExternalKoToEn(prop) : null;
+    if (externalValue) {
+      return { enumerable: true, configurable: true, value: externalValue };
+    }
+    if (prop in target) {
+      return { enumerable: true, configurable: true, value: target[prop] };
+    }
+    return undefined;
+  },
+});
+
+/**
+ * 영→한 통합 사전 반환
+ */
+export const enToKoWords: Record<string, string> = new Proxy(baseEnToKoWords, {
+  get(target, prop: string) {
+    // 외부 사전 캐시됐으면 외부에서 먼저 조회
+    if (isExternalWordsCached()) {
+      const external = lookupExternalEnToKo(prop);
+      if (external) return external;
+    }
+    return target[prop];
+  },
+  has(target, prop: string) {
+    if (isExternalWordsCached() && lookupExternalEnToKo(prop)) return true;
+    return prop in target;
+  },
+  ownKeys(target) {
+    if (isExternalWordsCached()) {
+      const externalKeys = Object.keys(getExternalEnToKoWords());
+      return [...new Set([...externalKeys, ...Object.keys(target)])];
+    }
+    return Object.keys(target);
+  },
+  getOwnPropertyDescriptor(target, prop: string) {
+    const externalValue = isExternalWordsCached() ? lookupExternalEnToKo(prop) : null;
+    if (externalValue) {
+      return { enumerable: true, configurable: true, value: externalValue };
+    }
+    if (prop in target) {
+      return { enumerable: true, configurable: true, value: target[prop] };
+    }
+    return undefined;
+  },
+});
+
+// 외부 사전 로드 함수 re-export (번역 시작 시 호출용)
+export { loadExternalWords, isExternalWordsCached };
 
 // ========================================
 // 문맥 기반 단어 조회 (Context-Aware Lookup)

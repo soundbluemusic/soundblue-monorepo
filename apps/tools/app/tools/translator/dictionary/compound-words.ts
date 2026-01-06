@@ -4,7 +4,7 @@
 // 로직: 복합어 분해 및 패턴 분석 함수
 // ========================================
 
-import { externalKoToEnWords } from './external';
+import { lookupExternalKoToEn } from './external';
 
 // 복합어 정의 인터페이스
 export interface CompoundWordEntry {
@@ -65,15 +65,15 @@ export const prefixPatterns: Record<string, { meaning: string; type: string }> =
 
 /**
  * 복합어 번역 또는 분해 시도
- * 1. external 사전에서 직접 번역 확인
+ * 1. external 사전에서 직접 번역 확인 (lazy loading)
  * 2. 접미사 패턴 분석
  * 3. 접두사 패턴 분석
  */
 export function tryDecomposeCompound(
   word: string,
 ): { translation: string } | { parts: string[] } | null {
-  // 1. external 사전에서 직접 번역 확인
-  const directTranslation = externalKoToEnWords[word];
+  // 1. external 사전에서 직접 번역 확인 (lazy loading)
+  const directTranslation = lookupExternalKoToEn(word);
   if (directTranslation) {
     return { translation: directTranslation };
   }

@@ -4,7 +4,7 @@
 // 로직: 의성어/의태어 번역 함수
 // ========================================
 
-import { externalKoToEnWords } from './external';
+import { lookupExternalKoToEn } from './external';
 
 // 의성어/의태어 패턴 (빈도가 높은 것들)
 const ONOMATOPOEIA_PATTERNS = [
@@ -25,15 +25,15 @@ export function isOnomatopoeia(word: string): boolean {
 }
 
 /**
- * 의성어/의태어 조회 (한→영)
+ * 의성어/의태어 조회 (한→영, lazy loading)
  */
 export function lookupOnomatopoeia(korean: string): string | null {
-  return externalKoToEnWords[korean] ?? null;
+  return lookupExternalKoToEn(korean);
 }
 
 /**
  * 문장에서 의성어/의태어 번역
- * external 사전을 사용하여 의성어/의태어를 영어로 변환
+ * external 사전을 사용하여 의성어/의태어를 영어로 변환 (lazy loading)
  */
 export function translateOnomatopoeia(text: string): string {
   let result = text;
@@ -41,7 +41,7 @@ export function translateOnomatopoeia(text: string): string {
   // 알려진 의성어/의태어 패턴을 external 사전에서 찾아 번역
   const words = text.split(/\s+/);
   for (const word of words) {
-    const translation = externalKoToEnWords[word];
+    const translation = lookupExternalKoToEn(word);
     if (translation && isOnomatopoeia(word)) {
       result = result.replace(new RegExp(word, 'g'), translation);
     }

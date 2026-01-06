@@ -4,23 +4,22 @@
 // 로직: 국가명 조회 함수
 // ========================================
 
-import { externalEnToKoWords, externalKoToEnWords } from './external';
+import { lookupExternalEnToKo, lookupExternalKoToEn } from './external';
 
 /**
  * 국가명 조회 함수 (한→영)
- * external 사전에서 국가명을 조회
+ * external 사전에서 국가명을 조회 (lazy loading)
  */
 export function lookupCountryKoToEn(korean: string): string | null {
-  return externalKoToEnWords[korean] ?? null;
+  return lookupExternalKoToEn(korean);
 }
 
 /**
  * 국가명 조회 함수 (영→한)
- * external 사전에서 국가명을 조회
+ * external 사전에서 국가명을 조회 (lazy loading)
  */
 export function lookupCountryEnToKo(english: string): string | null {
-  const lower = english.toLowerCase();
-  return externalEnToKoWords[lower] ?? null;
+  return lookupExternalEnToKo(english);
 }
 
 // 하위 호환성을 위한 빈 객체 export (기존 import 유지)

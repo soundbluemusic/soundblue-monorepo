@@ -4,7 +4,7 @@
 // 로직: 문화 특수 표현 번역 함수
 // ========================================
 
-import { externalKoToEnWords } from './external';
+import { lookupExternalKoToEn } from './external';
 
 // 문화 특수 표현 패턴 키워드
 const CULTURAL_KEYWORDS = [
@@ -48,15 +48,15 @@ export function isCulturalExpression(text: string): boolean {
 }
 
 /**
- * 문화 특수 표현 조회 (한→영)
+ * 문화 특수 표현 조회 (한→영, lazy loading)
  */
 export function lookupCultural(korean: string): string | null {
-  return externalKoToEnWords[korean] ?? null;
+  return lookupExternalKoToEn(korean);
 }
 
 /**
  * 문장에서 문화 표현 번역
- * external 사전을 사용하여 문화 특수 표현을 영어로 변환
+ * external 사전을 사용하여 문화 특수 표현을 영어로 변환 (lazy loading)
  */
 export function translateCultural(text: string): { translated: string; found: boolean } {
   let result = text;
@@ -66,7 +66,7 @@ export function translateCultural(text: string): { translated: string; found: bo
   for (const keyword of CULTURAL_KEYWORDS) {
     if (result.includes(keyword)) {
       // 키워드를 포함한 전체 표현 찾기
-      const translation = externalKoToEnWords[keyword];
+      const translation = lookupExternalKoToEn(keyword);
       if (translation) {
         result = result.replace(new RegExp(keyword, 'g'), translation);
         found = true;

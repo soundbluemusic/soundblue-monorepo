@@ -132,6 +132,32 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id: string) => {
+          // ========================================
+          // 번역기 청크 분리 (920KB 외부 사전 lazy loading)
+          // ========================================
+          // 외부 사전 - 가장 큰 파일, 별도 청크로 lazy load
+          if (id.includes('translator/dictionary/external/words')) {
+            return 'translator-external-dict';
+          }
+          // 번역기 v2.1 엔진 - 24K줄, 별도 청크
+          if (id.includes('translator/v2.1')) {
+            return 'translator-engine';
+          }
+          // 번역기 사전 (외부 제외) - generated, domains 등
+          if (id.includes('translator/dictionary')) {
+            return 'translator-dict';
+          }
+          // 벤치마크 데이터 - /benchmark route에서만 필요
+          if (
+            id.includes('translator/benchmark-data') ||
+            id.includes('translator/benchmark-tests')
+          ) {
+            return 'translator-benchmark';
+          }
+
+          // ========================================
+          // node_modules 벤더 청크
+          // ========================================
           if (!id.includes('node_modules')) return undefined;
           // React core stays in main bundle for optimal loading
           if (id.includes('react') || id.includes('react-dom') || id.includes('react-router'))
