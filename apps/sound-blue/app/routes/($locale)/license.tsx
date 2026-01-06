@@ -3,10 +3,10 @@ import { NavigationLayout } from '~/components/layout';
 import m, { getRawMessage } from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'License | Sound Blue' },
   { name: 'description', content: 'Sound recording license information.' },
-  ...getSeoMeta('/license', params),
+  ...getSeoMeta(location),
 ];
 
 export default function License() {

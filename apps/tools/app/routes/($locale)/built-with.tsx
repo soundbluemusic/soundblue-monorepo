@@ -4,13 +4,13 @@ import { Header } from '~/components/layout/Header';
 import m from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Built With | Tools' },
   {
     name: 'description',
     content: 'Technologies used to build Tools - React, TypeScript, SCSS Modules.',
   },
-  ...getSeoMeta('/built-with', params),
+  ...getSeoMeta(location),
 ];
 
 type OpenSourceItem = {

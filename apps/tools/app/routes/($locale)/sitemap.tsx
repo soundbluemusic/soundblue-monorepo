@@ -20,10 +20,10 @@ export async function loader() {
   };
 }
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Sitemap | Tools' },
   { name: 'description', content: 'Complete sitemap of SoundBlueMusic Tools website.' },
-  ...getSeoMeta('/sitemap', params),
+  ...getSeoMeta(location),
 ];
 
 export default function Sitemap() {

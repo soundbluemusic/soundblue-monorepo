@@ -14,10 +14,10 @@ export async function loader() {
   };
 }
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Sitemap - Dialogue' },
   { name: 'description', content: 'Complete sitemap of Dialogue website.' },
-  ...getSeoMeta('/sitemap', params),
+  ...getSeoMeta(location),
 ];
 
 export default function Sitemap() {

@@ -14,10 +14,10 @@ export async function loader() {
   };
 }
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Dialogue - Conversational Learning Tool' },
   { name: 'description', content: 'A conversational learning tool that works 100% offline' },
-  ...getSeoMeta('/', params),
+  ...getSeoMeta(location),
 ];
 
 export default function Home() {

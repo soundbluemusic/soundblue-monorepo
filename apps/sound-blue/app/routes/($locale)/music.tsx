@@ -6,10 +6,10 @@ import { FEATURED_VIDEO, MUSIC_CATEGORIES, type MusicVideo } from '~/data/music-
 import m from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: m['seo.pages.music.title']() },
   { name: 'description', content: m['seo.pages.music.description']() },
-  ...getSeoMeta('/music', params),
+  ...getSeoMeta(location),
 ];
 
 export default function Music() {

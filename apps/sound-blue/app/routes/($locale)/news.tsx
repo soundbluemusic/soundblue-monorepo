@@ -3,10 +3,10 @@ import { NavigationLayout } from '~/components/layout';
 import m from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'News | Sound Blue' },
   { name: 'description', content: 'Latest news and updates from Sound Blue.' },
-  ...getSeoMeta('/news', params),
+  ...getSeoMeta(location),
 ];
 
 export default function News() {

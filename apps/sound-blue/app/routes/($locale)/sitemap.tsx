@@ -5,10 +5,10 @@ import { NavigationLayout } from '~/components/layout';
 import m from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Sitemap | Sound Blue' },
   { name: 'description', content: 'Complete sitemap of Sound Blue website.' },
-  ...getSeoMeta('/sitemap', params),
+  ...getSeoMeta(location),
 ];
 
 export default function Sitemap() {

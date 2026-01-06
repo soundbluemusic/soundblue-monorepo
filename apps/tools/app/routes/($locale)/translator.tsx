@@ -4,13 +4,13 @@ import { MainLayout } from '~/components/layout/MainLayout';
 import { getSeoMeta } from '~/lib/seo';
 import { useToolStore } from '~/stores/tool-store';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Translator - Tools' },
   {
     name: 'description',
     content: 'Korean ↔ English algorithm-based translator - Free browser-based utility.',
   },
-  ...getSeoMeta('/translator', params),
+  ...getSeoMeta(location),
 ];
 
 export default function TranslatorPage() {

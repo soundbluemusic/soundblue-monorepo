@@ -3,9 +3,9 @@ import { NavigationLayout } from '~/components/layout';
 import m from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Offline | Sound Blue' },
-  ...getSeoMeta('/offline', params),
+  ...getSeoMeta(location),
 ];
 
 export default function Offline() {

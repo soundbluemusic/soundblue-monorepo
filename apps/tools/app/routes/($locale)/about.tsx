@@ -4,13 +4,13 @@ import { Header } from '~/components/layout/Header';
 import m from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'About | Tools' },
   {
     name: 'description',
     content: 'We believe powerful tools should be accessible to everyone.',
   },
-  ...getSeoMeta('/about', params),
+  ...getSeoMeta(location),
 ];
 
 export default function About() {

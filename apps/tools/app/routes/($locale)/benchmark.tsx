@@ -21,10 +21,10 @@ type BenchmarkDataModule = {
   benchmarkTestGroups: TestGroup[];
 };
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Benchmark | Tools' },
   { name: 'description', content: 'Translator performance benchmark.' },
-  ...getSeoMeta('/benchmark', params),
+  ...getSeoMeta(location),
 ];
 
 interface TestResult {

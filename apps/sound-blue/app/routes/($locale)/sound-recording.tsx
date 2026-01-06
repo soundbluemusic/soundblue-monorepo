@@ -3,10 +3,10 @@ import { NavigationLayout } from '~/components/layout';
 import m, { getRawMessage } from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Sound Recording | Sound Blue' },
   { name: 'description', content: 'Field recording library by Sound Blue.' },
-  ...getSeoMeta('/sound-recording', params),
+  ...getSeoMeta(location),
 ];
 
 export default function SoundRecording() {

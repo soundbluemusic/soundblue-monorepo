@@ -60,16 +60,21 @@ export function generateSeoMeta(
 }
 
 /**
- * Helper function to get SEO meta from route params
- * Usage in route file:
+ * Get SEO meta for a route based on location
+ * Uses location.pathname to detect locale (works in SSG prerender)
  *
- * export const meta: MetaFunction = ({ params }) => [
+ * @example
+ * export const meta: MetaFunction = ({ location }) => [
  *   { title: 'Page Title' },
- *   { name: 'description', content: 'Page description' },
- *   ...getSeoMeta('/page-path', params),
+ *   ...getSeoMeta(location),
  * ];
  */
-export function getSeoMeta(pathname: string, params: { locale?: string }): MetaDescriptor[] {
-  const locale = (params.locale as Locale) || DEFAULT_LOCALE;
-  return generateSeoMeta(pathname, locale);
+export function getSeoMeta(location: { pathname: string }): MetaDescriptor[] {
+  const isKorean = location.pathname.startsWith('/ko');
+  const locale: Locale = isKorean ? 'ko' : DEFAULT_LOCALE;
+
+  // Extract base pathname without locale prefix
+  const basePath = isKorean ? location.pathname.replace(/^\/ko/, '') || '/' : location.pathname;
+
+  return generateSeoMeta(basePath, locale);
 }

@@ -3,13 +3,13 @@ import { NavigationLayout } from '~/components/layout';
 import m, { getRawMessage } from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = ({ params }) => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'About | Sound Blue' },
   {
     name: 'description',
     content: 'About Sound Blue and SoundBlueMusic. Learn more about the artist, music, and vision.',
   },
-  ...getSeoMeta('/about', params),
+  ...getSeoMeta(location),
 ];
 
 export default function About() {
