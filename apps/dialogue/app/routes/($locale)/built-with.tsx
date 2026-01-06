@@ -1,13 +1,15 @@
 import { getLocaleFromPath } from '@soundblue/i18n';
 import type { MetaFunction } from 'react-router';
 import { Link, useLocation } from 'react-router';
+import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Built With | Dialogue' },
   {
     name: 'description',
     content: 'Technologies used to build Dialogue - A conversational learning tool.',
   },
+  ...getSeoMeta(location),
 ];
 
 type OpenSourceItem = {

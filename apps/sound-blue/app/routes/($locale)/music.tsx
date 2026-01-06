@@ -4,10 +4,12 @@ import { NavigationLayout } from '~/components/layout';
 import { YouTubeEmbed, YouTubeThumbnail } from '~/components/media/YouTubeEmbed';
 import { FEATURED_VIDEO, MUSIC_CATEGORIES, type MusicVideo } from '~/data/music-catalog';
 import m from '~/lib/messages';
+import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction = ({ location }) => [
   { title: m['seo.pages.music.title']() },
   { name: 'description', content: m['seo.pages.music.description']() },
+  ...getSeoMeta(location),
 ];
 
 export default function Music() {

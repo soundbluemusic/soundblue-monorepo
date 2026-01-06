@@ -2,13 +2,15 @@ import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
 import m from '~/lib/messages';
+import { getSeoMeta } from '~/lib/seo';
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'About | Tools' },
   {
     name: 'description',
     content: 'We believe powerful tools should be accessible to everyone.',
   },
+  ...getSeoMeta(location),
 ];
 
 export default function About() {

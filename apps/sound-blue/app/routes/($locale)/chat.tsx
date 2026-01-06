@@ -1,9 +1,12 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
 import m from '~/lib/messages';
-export const meta: MetaFunction = () => [
+import { getSeoMeta } from '~/lib/seo';
+
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Chat | Sound Blue' },
   { name: 'description', content: 'Chat with Sound Blue assistant.' },
+  ...getSeoMeta(location),
 ];
 
 export default function Chat() {

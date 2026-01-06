@@ -335,7 +335,6 @@ function generateRobotsTxt(): string {
 # Default rules for all crawlers
 User-agent: *
 Allow: /
-Crawl-delay: 1
 
 # Disallow build artifacts
 Disallow: /_build/

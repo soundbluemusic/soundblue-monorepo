@@ -1,7 +1,12 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
 import m from '~/lib/messages';
-export const meta: MetaFunction = () => [{ title: 'Offline | Sound Blue' }];
+import { getSeoMeta } from '~/lib/seo';
+
+export const meta: MetaFunction = ({ location }) => [
+  { title: 'Offline | Sound Blue' },
+  ...getSeoMeta(location),
+];
 
 export default function Offline() {
   return (

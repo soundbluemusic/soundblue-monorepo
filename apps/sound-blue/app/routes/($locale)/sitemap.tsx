@@ -3,9 +3,12 @@ import type { MetaFunction } from 'react-router';
 import { Link } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
 import m from '~/lib/messages';
-export const meta: MetaFunction = () => [
+import { getSeoMeta } from '~/lib/seo';
+
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Sitemap | Sound Blue' },
   { name: 'description', content: 'Complete sitemap of Sound Blue website.' },
+  ...getSeoMeta(location),
 ];
 
 export default function Sitemap() {

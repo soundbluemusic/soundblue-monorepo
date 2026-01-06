@@ -1,6 +1,7 @@
 import type { MetaFunction } from 'react-router';
 import { useLoaderData } from 'react-router';
 import { MainLayout } from '~/components';
+import { getSeoMeta } from '~/lib/seo';
 
 /**
  * 빌드 타임에 실행되는 loader
@@ -13,9 +14,10 @@ export async function loader() {
   };
 }
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Dialogue - Conversational Learning Tool' },
   { name: 'description', content: 'A conversational learning tool that works 100% offline' },
+  ...getSeoMeta(location),
 ];
 
 export default function Home() {

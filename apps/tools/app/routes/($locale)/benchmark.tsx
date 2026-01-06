@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
+import { getSeoMeta } from '~/lib/seo';
 import type { TestCase, TestCategory, TestLevel } from '~/tools/translator/benchmark-data';
 
 // Dynamic import types for lazy loading
@@ -20,9 +21,10 @@ type BenchmarkDataModule = {
   benchmarkTestGroups: TestGroup[];
 };
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction = ({ location }) => [
   { title: 'Benchmark | Tools' },
   { name: 'description', content: 'Translator performance benchmark.' },
+  ...getSeoMeta(location),
 ];
 
 interface TestResult {
