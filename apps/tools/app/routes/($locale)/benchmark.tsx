@@ -16,9 +16,15 @@ import type { TestCase, TestCategory, TestLevel } from '~/tools/translator/bench
 
 // Dynamic import types for lazy loading
 type TranslateFn = (input: string, direction: 'ko-en' | 'en-ko') => string;
+type SimilarityFn = (a: string, b: string) => number;
+type LevenshteinFn = (a: string, b: string) => number;
 type TestGroup = { name: string; data: TestLevel[] };
 type BenchmarkDataModule = {
   benchmarkTestGroups: TestGroup[];
+};
+type HangulModule = {
+  similarity: SimilarityFn;
+  levenshteinDistance: LevenshteinFn;
 };
 
 // Official metrics data type
@@ -51,6 +57,7 @@ interface TestResult {
   actual: string;
   expected: string;
   input: string;
+  similarity: number; // 0~100%
 }
 
 interface CategoryResult {
@@ -70,6 +77,7 @@ interface LevelResult {
 // Lazy-loaded test groups and translate function (loaded on demand)
 let cachedTestGroups: TestGroup[] | null = null;
 let cachedTranslateFn: TranslateFn | null = null;
+let cachedHangulModule: HangulModule | null = null;
 
 async function loadBenchmarkData(): Promise<TestGroup[]> {
   if (cachedTestGroups) return cachedTestGroups;
@@ -88,6 +96,39 @@ async function loadTranslate(): Promise<TranslateFn> {
   const translatorModule = await import('~/tools/translator/translator-service');
   cachedTranslateFn = translatorModule.translate;
   return cachedTranslateFn;
+}
+
+async function loadHangul(): Promise<HangulModule> {
+  if (cachedHangulModule) return cachedHangulModule;
+
+  const hangulModule = (await import('@soundblue/hangul')) as HangulModule;
+  cachedHangulModule = hangulModule;
+  return cachedHangulModule;
+}
+
+/**
+ * 문자열 유사도 계산 (0~100%)
+ * - 한글: 자모 기반 유사도 (jamoEditDistance)
+ * - 영어: Levenshtein 기반 유사도
+ */
+function calculateSimilarity(
+  actual: string,
+  expected: string,
+  hangul: HangulModule,
+  isKorean: boolean,
+): number {
+  if (actual === expected) return 100;
+  if (!actual || !expected) return 0;
+
+  if (isKorean) {
+    // 한글: 자모 기반 유사도 (0~1 반환)
+    return Math.round(hangul.similarity(actual, expected) * 100);
+  }
+  // 영어: Levenshtein 기반 유사도
+  const maxLen = Math.max(actual.length, expected.length);
+  if (maxLen === 0) return 100;
+  const distance = hangul.levenshteinDistance(actual.toLowerCase(), expected.toLowerCase());
+  return Math.round((1 - distance / maxLen) * 100);
 }
 
 // Helper function to count tests in a level array
@@ -111,6 +152,7 @@ export default function Benchmark() {
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
   const abortRef = useRef(false);
   const translateFnRef = useRef<TranslateFn | null>(null);
+  const hangulRef = useRef<HangulModule | null>(null);
 
   // Results state for each group
   const [results, setResults] = useState<Map<string, LevelResult[]>>(new Map());
@@ -133,11 +175,12 @@ export default function Benchmark() {
     let mounted = true;
     setIsLoading(true);
 
-    Promise.all([loadBenchmarkData(), loadTranslate()])
-      .then(([groups, translateFn]) => {
+    Promise.all([loadBenchmarkData(), loadTranslate(), loadHangul()])
+      .then(([groups, translateFn, hangulModule]) => {
         if (mounted) {
           setTestGroups(groups);
           translateFnRef.current = translateFn;
+          hangulRef.current = hangulModule;
           setIsLoading(false);
         }
       })
@@ -196,11 +239,18 @@ export default function Benchmark() {
 
     // Compare results
     let passed: boolean;
+    const isKoreanOutput = test.direction === 'en-ko';
     if (test.direction === 'ko-en') {
       passed = normalizeEnglish(actual) === normalizeEnglish(test.expected);
     } else {
       passed = normalizeKorean(actual) === normalizeKorean(test.expected);
     }
+
+    // 유사도 계산
+    const hangul = hangulRef.current;
+    const similarityScore = hangul
+      ? calculateSimilarity(actual, test.expected, hangul, isKoreanOutput)
+      : 0;
 
     return {
       id: test.id,
@@ -208,6 +258,7 @@ export default function Benchmark() {
       actual,
       expected: test.expected,
       input: test.input,
+      similarity: similarityScore,
     };
   }, []);
 
@@ -315,9 +366,23 @@ export default function Benchmark() {
     return { total, passed, percentage: total > 0 ? Math.round((passed / total) * 100) : 0 };
   };
 
+  // Calculate average similarity for failed tests
+  const calcAverageSimilarity = (levelResults: LevelResult[]) => {
+    const allTestResults: TestResult[] = [];
+    for (const level of levelResults) {
+      for (const cat of level.categories) {
+        allTestResults.push(...cat.results);
+      }
+    }
+    if (allTestResults.length === 0) return 0;
+    const totalSimilarity = allTestResults.reduce((sum, r) => sum + r.similarity, 0);
+    return Math.round(totalSimilarity / allTestResults.length);
+  };
+
   // Calculate overall stats
   const allResults = Array.from(results.values()).flat();
   const overallStats = calcTotalStats(allResults);
+  const averageSimilarity = calcAverageSimilarity(allResults);
 
   const getBadgeClass = (percentage: number) => {
     if (percentage === 100)
@@ -440,6 +505,17 @@ export default function Benchmark() {
                                         <div className="break-words text-green-600 dark:text-green-400">
                                           <span className="font-medium">Expected: </span>
                                           {result.expected}
+                                        </div>
+                                        <div
+                                          className={`mt-1 text-xs font-medium ${
+                                            result.similarity >= 80
+                                              ? 'text-yellow-600 dark:text-yellow-400'
+                                              : result.similarity >= 50
+                                                ? 'text-orange-600 dark:text-orange-400'
+                                                : 'text-red-600 dark:text-red-400'
+                                          }`}
+                                        >
+                                          유사도: {result.similarity}%
                                         </div>
                                       </div>
                                     )}
@@ -636,11 +712,28 @@ export default function Benchmark() {
           {/* Overall Stats */}
           {results.size > 0 && (
             <div className="mb-6 rounded-lg border border-(--border) bg-white p-4 dark:bg-gray-900">
-              <div className="text-center">
-                <div className="text-4xl font-bold">{overallStats.percentage}%</div>
-                <div className="text-sm text-(--muted-foreground)">Overall</div>
-                <div className="text-xs text-(--muted-foreground)">
-                  {`${overallStats.passed}/${overallStats.total}`}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className="text-4xl font-bold">{overallStats.percentage}%</div>
+                  <div className="text-sm text-(--muted-foreground)">Pass Rate</div>
+                  <div className="text-xs text-(--muted-foreground)">
+                    {`${overallStats.passed}/${overallStats.total}`}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div
+                    className={`text-4xl font-bold ${
+                      averageSimilarity >= 80
+                        ? 'text-green-600 dark:text-green-400'
+                        : averageSimilarity >= 60
+                          ? 'text-yellow-600 dark:text-yellow-400'
+                          : 'text-orange-600 dark:text-orange-400'
+                    }`}
+                  >
+                    {averageSimilarity}%
+                  </div>
+                  <div className="text-sm text-(--muted-foreground)">Avg Similarity</div>
+                  <div className="text-xs text-(--muted-foreground)">문자열 유사도</div>
                 </div>
               </div>
             </div>
