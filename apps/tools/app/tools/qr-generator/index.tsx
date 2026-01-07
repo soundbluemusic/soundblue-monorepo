@@ -1,16 +1,45 @@
 import { Check, Copy, Download } from 'lucide-react';
 import QRCode from 'qrcode';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import m from '~/lib/messages';
-import { cn } from '~/lib/utils';
 import { defaultQRSettings, type QRSettings } from './settings';
+
+/** classnames 유틸리티 (tailwind-merge 대체) */
+function cn(...classes: (string | undefined | null | false)[]): string {
+  return classes.filter(Boolean).join(' ');
+}
+
+/** i18n 메시지 (외부에서 주입 가능) */
+export interface QRGeneratorMessages {
+  inputPlaceholder?: string;
+  generationFailed?: string;
+  save?: string;
+  copy?: string;
+  foreground?: string;
+  background?: string;
+}
+
+const defaultMessages: QRGeneratorMessages = {
+  inputPlaceholder: 'Enter URL or text...',
+  generationFailed: 'Failed to generate QR code',
+  save: 'Save',
+  copy: 'Copy',
+  foreground: 'Foreground',
+  background: 'Background',
+};
 
 interface QRGeneratorProps {
   settings?: QRSettings;
   onSettingsChange?: (settings: Partial<QRSettings>) => void;
+  /** i18n 메시지 (외부에서 주입 가능, 기본값 제공) */
+  messages?: QRGeneratorMessages;
 }
 
-export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGeneratorProps) {
+export function QRGenerator({
+  settings: propSettings,
+  onSettingsChange,
+  messages: propMessages,
+}: QRGeneratorProps) {
+  const messages = useMemo(() => ({ ...defaultMessages, ...propMessages }), [propMessages]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [internalSettings, setInternalSettings] = useState(defaultQRSettings);
@@ -48,7 +77,7 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
           errorCorrectionLevel: settings.errorCorrection,
         });
       } catch {
-        setError(m['qr_generationFailed']?.() ?? 'Failed to generate QR code');
+        setError(messages.generationFailed ?? 'Failed to generate QR code');
       }
     };
 
@@ -107,7 +136,7 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
       <textarea
         value={settings.text}
         onChange={(e) => handleSettingsChange({ text: e.currentTarget.value })}
-        placeholder={m['qr.inputPlaceholder']?.()}
+        placeholder={messages.inputPlaceholder}
         className={cn(
           'h-16 w-full resize-none rounded border bg-background px-3 py-2 text-sm',
           'transition-all duration-200',
@@ -143,7 +172,7 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
           )}
         >
           <Download className="mr-1 h-4 w-4" />
-          {m['common.save']?.()}
+          {messages.save}
         </button>
         <button
           type="button"
@@ -161,7 +190,7 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
           ) : (
             <Copy className="mr-1 h-4 w-4" />
           )}
-          {m['common.copy']?.()}
+          {messages.copy}
         </button>
       </div>
 
@@ -173,10 +202,10 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
             value={settings.foregroundColor}
             onChange={(e) => handleSettingsChange({ foregroundColor: e.currentTarget.value })}
             className="h-6 w-6 cursor-pointer rounded border transition-all duration-200 hover:border-primary/50 focus:outline-none"
-            aria-label={m['qr.foreground']?.()}
+            aria-label={messages.foreground}
           />
           <span className="transition-colors duration-200 group-hover:text-foreground">
-            {m['qr.foreground']?.()}
+            {messages.foreground}
           </span>
         </label>
         <label className="group flex cursor-pointer items-center gap-1 rounded px-2 py-1 transition-all duration-200 hover:bg-black/8 focus-within:ring-2 focus-within:ring-ring dark:hover:bg-white/12">
@@ -185,10 +214,10 @@ export function QRGenerator({ settings: propSettings, onSettingsChange }: QRGene
             value={settings.backgroundColor}
             onChange={(e) => handleSettingsChange({ backgroundColor: e.currentTarget.value })}
             className="h-6 w-6 cursor-pointer rounded border transition-all duration-200 hover:border-primary/50 focus:outline-none"
-            aria-label={m['qr.background']?.()}
+            aria-label={messages.background}
           />
           <span className="transition-colors duration-200 group-hover:text-foreground">
-            {m['qr.background']?.()}
+            {messages.background}
           </span>
         </label>
       </div>

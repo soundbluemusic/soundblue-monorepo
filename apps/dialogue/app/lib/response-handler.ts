@@ -196,6 +196,78 @@ export function initializeQA(): Promise<void> {
 }
 
 // ========================================
+// Tool Request Detection
+// ========================================
+
+import type { ToolType } from '~/stores/ui-store';
+
+export interface ToolRequestResult {
+  shouldOpenTool: boolean;
+  tool?: ToolType;
+  message?: string;
+}
+
+const TOOL_PATTERNS: Record<ToolType, { ko: RegExp[]; en: RegExp[] }> = {
+  translator: {
+    ko: [
+      /번역기/i,
+      /번역\s*(해|좀|열어|보여|켜)/i,
+      /번역\s*도구/i,
+      /번역\s*기능/i,
+      /통역/i,
+      /영어로\s*(번역|바꿔)/i,
+      /한국어로\s*(번역|바꿔)/i,
+    ],
+    en: [
+      /translator/i,
+      /translate/i,
+      /translation\s*tool/i,
+      /open\s*translator/i,
+      /show\s*translator/i,
+      /need\s*to\s*translate/i,
+    ],
+  },
+  'qr-generator': {
+    ko: [/qr/i, /큐알/i, /qr\s*코드/i, /qr\s*(생성|만들|열어|보여)/i, /큐알\s*코드/i],
+    en: [/qr/i, /qr\s*code/i, /qr\s*generator/i, /generate\s*qr/i, /create\s*qr/i, /make\s*qr/i],
+  },
+};
+
+const TOOL_NAMES: Record<ToolType, { ko: string; en: string }> = {
+  translator: { ko: '번역기', en: 'Translator' },
+  'qr-generator': { ko: 'QR 코드 생성기', en: 'QR Code Generator' },
+};
+
+/**
+ * Detect tool request from user input
+ */
+export function detectToolRequest(question: string, locale: string): ToolRequestResult {
+  const lowerQuestion = question.toLowerCase().trim();
+
+  for (const [tool, patterns] of Object.entries(TOOL_PATTERNS) as [
+    ToolType,
+    { ko: RegExp[]; en: RegExp[] },
+  ][]) {
+    const localePatterns = patterns[locale as 'ko' | 'en'] ?? patterns.en;
+    for (const pattern of localePatterns) {
+      if (pattern.test(lowerQuestion)) {
+        const toolName = TOOL_NAMES[tool][locale as 'ko' | 'en'] ?? TOOL_NAMES[tool].en;
+        return {
+          shouldOpenTool: true,
+          tool,
+          message:
+            locale === 'ko'
+              ? `${toolName}를 열었습니다. 오른쪽 패널을 확인해주세요!`
+              : `Opened ${toolName}. Check the right panel!`,
+        };
+      }
+    }
+  }
+
+  return { shouldOpenTool: false };
+}
+
+// ========================================
 // Language Switch Detection
 // ========================================
 

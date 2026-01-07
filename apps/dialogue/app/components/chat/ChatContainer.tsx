@@ -3,8 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import m from '~/lib/messages';
 import { addToContext, analyzeInput, type ConversationTurn } from '~/lib/nlu';
-import { detectLanguageSwitch, getResponse } from '~/lib/response-handler';
-import { generateId, type Message, useChatStore } from '~/stores';
+import { detectLanguageSwitch, detectToolRequest, getResponse } from '~/lib/response-handler';
+import { generateId, type Message, useChatStore, useUIStore } from '~/stores';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 
@@ -49,6 +49,8 @@ export function ChatContainer() {
     addMessage,
     clearActive,
   } = useChatStore();
+
+  const { setResultContent } = useUIStore();
 
   // Get messages from active conversation or local state (ghost mode)
   const activeConversation = getActiveConversation();
@@ -154,6 +156,46 @@ export function ChatContainer() {
           addMessage(userMessage);
           addMessage(alreadyOnPageMessage);
         }
+        return;
+      }
+
+      // Check for tool request
+      const toolRequest = detectToolRequest(content, locale);
+      if (toolRequest.shouldOpenTool && toolRequest.tool) {
+        const userMessage: Message = {
+          id: generateId(),
+          role: 'user',
+          content,
+          timestamp: Date.now(),
+        };
+
+        const toolMessage: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: toolRequest.message || '',
+          timestamp: Date.now(),
+        };
+
+        if (isGhostMode) {
+          setLocalMessages((prev) => [...prev, userMessage, toolMessage]);
+        } else {
+          addMessage(userMessage);
+          addMessage(toolMessage);
+        }
+
+        // Open tool in result panel
+        const toolNames: Record<string, string> = {
+          translator: locale === 'ko' ? '번역기' : 'Translator',
+          'qr-generator': locale === 'ko' ? 'QR 코드 생성기' : 'QR Code Generator',
+        };
+
+        setResultContent({
+          type: 'tool',
+          title: toolNames[toolRequest.tool] || toolRequest.tool,
+          content: '',
+          tool: toolRequest.tool,
+        });
+
         return;
       }
 

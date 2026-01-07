@@ -1,6 +1,5 @@
 import { ArrowLeftRight, Check, Copy, Info, Share2, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import m from '~/lib/messages';
 import {
   defaultTranslatorSettings,
   FORMALITY_OPTIONS,
@@ -10,6 +9,19 @@ import {
 } from './settings';
 import { detectFormality, translate } from './translator-service';
 import { createShareUrl, getSharedDataFromCurrentUrl, getTextLengthWarning } from './url-sharing';
+
+/** i18n 메시지 (외부에서 주입 가능) */
+export interface TranslatorMessages {
+  copy?: string;
+  shareUrl?: string;
+  urlCopied?: string;
+}
+
+const defaultMessages: TranslatorMessages = {
+  copy: 'Copy',
+  shareUrl: 'Share URL',
+  urlCopied: 'URL Copied!',
+};
 
 /** 입력 타입 분석 결과 */
 type InputType = 'word' | 'sentence' | 'mixed';
@@ -54,9 +66,16 @@ function getFormalityLabel(formality: Formality, direction: TranslationDirection
 interface TranslatorProps {
   settings?: TranslatorSettings;
   onSettingsChange?: (settings: Partial<TranslatorSettings>) => void;
+  /** i18n 메시지 (외부에서 주입 가능, 기본값 제공) */
+  messages?: TranslatorMessages;
 }
 
-export function Translator({ settings: propSettings, onSettingsChange }: TranslatorProps) {
+export function Translator({
+  settings: propSettings,
+  onSettingsChange,
+  messages: propMessages,
+}: TranslatorProps) {
+  const messages = useMemo(() => ({ ...defaultMessages, ...propMessages }), [propMessages]);
   const [internalSettings, setInternalSettings] = useState(defaultTranslatorSettings);
   // Merge order: defaults → internal → props (props have highest priority)
   const settings = useMemo(
@@ -416,7 +435,7 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
             type="button"
             onClick={copyToClipboard}
             className="absolute right-2 top-2 inline-flex size-8 items-center justify-center rounded-lg border border-(--border) bg-white/80 backdrop-blur-sm transition-colors duration-200 hover:bg-black/[0.08] dark:bg-black/80 dark:hover:bg-white/[0.12]"
-            title={m['common.copy']?.()}
+            title={messages.copy}
           >
             {isCopied ? (
               <Check className="size-3.5 text-green-500" />
@@ -449,13 +468,13 @@ export function Translator({ settings: propSettings, onSettingsChange }: Transla
               ? settings.direction === 'ko-en'
                 ? '텍스트가 너무 깁니다'
                 : 'Text too long'
-              : m['tools.shareUrl']?.()
+              : messages.shareUrl
           }
         >
           {shareStatus === 'copied' ? (
             <>
               <Check className="size-3.5" />
-              <span>{m['tools.urlCopied']?.()}</span>
+              <span>{messages.urlCopied}</span>
             </>
           ) : shareStatus === 'error' ? (
             <>

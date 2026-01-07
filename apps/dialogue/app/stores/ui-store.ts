@@ -4,10 +4,15 @@ import { create } from 'zustand';
 // UI Store - 사이드바, 패널 상태 관리
 // ========================================
 
+/** 사용 가능한 도구 타입 */
+export type ToolType = 'translator' | 'qr-generator';
+
 export interface ResultContent {
-  type: 'report' | 'info' | 'help';
+  type: 'report' | 'info' | 'help' | 'tool';
   title: string;
   content: string;
+  /** tool 타입일 때 어떤 도구인지 */
+  tool?: ToolType;
 }
 
 interface UIState {
