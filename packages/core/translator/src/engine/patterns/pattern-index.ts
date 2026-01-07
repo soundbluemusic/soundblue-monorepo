@@ -147,7 +147,7 @@ export class PatternIndex {
 
     // 리터럴 프리픽스 추출 (정규식 시작 부분의 순수 문자열)
     let literalPrefix = '';
-    let firstKeyword = '';
+    let firstKeyword: string = '';
 
     if (hasStartAnchor) {
       // ^를 제외하고 리터럴 부분 추출
@@ -155,7 +155,7 @@ export class PatternIndex {
 
       // 첫 번째 특수문자나 캡처 그룹까지의 문자열
       const literalMatch = withoutAnchor.match(/^([가-힣a-zA-Z0-9]+)/);
-      if (literalMatch) {
+      if (literalMatch?.[1]) {
         literalPrefix = literalMatch[1];
         firstKeyword = literalPrefix;
       }
@@ -165,7 +165,7 @@ export class PatternIndex {
     if (!firstKeyword) {
       // 한글 단어 추출
       const koreanWords = source.match(/[가-힣]+/g);
-      if (koreanWords && koreanWords.length > 0) {
+      if (koreanWords?.[0]) {
         firstKeyword = koreanWords[0];
       }
     }

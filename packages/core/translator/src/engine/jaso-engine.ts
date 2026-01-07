@@ -68,7 +68,7 @@ export function translate(
     if (properNouns.length > 0) {
       // 고유명사는 원문 또는 지정된 표기 사용
       const properNoun = properNouns[0];
-      if (direction === 'ko-en' && properNoun.english) {
+      if (properNoun && direction === 'ko-en' && properNoun.english) {
         return {
           translated: properNoun.english,
           original: text,
@@ -76,7 +76,7 @@ export function translate(
           details: { exceptionType: 'proper-noun' },
         };
       }
-      if (direction === 'en-ko' && properNoun.korean) {
+      if (properNoun && direction === 'en-ko' && properNoun.korean) {
         return {
           translated: properNoun.korean,
           original: text,
@@ -90,12 +90,14 @@ export function translate(
     const idioms = findIdiomsInText(text, direction === 'ko-en' ? 'ko' : 'en');
     if (idioms.length > 0) {
       const idiom = idioms[0];
-      return {
-        translated: idiom.translation,
-        original: text,
-        direction,
-        details: { exceptionType: 'idiom' },
-      };
+      if (idiom) {
+        return {
+          translated: idiom.translation,
+          original: text,
+          direction,
+          details: { exceptionType: 'idiom' },
+        };
+      }
     }
 
     // 3. Check loanwords (외래어는 지정된 표기 사용)

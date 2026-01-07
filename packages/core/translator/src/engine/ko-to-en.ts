@@ -1018,6 +1018,7 @@ function rearrangeToSVO(
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
+    if (!token) continue;
 
     // 연결어미 저장
     if (token.connective) {

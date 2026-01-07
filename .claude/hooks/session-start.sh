@@ -37,3 +37,6 @@ if [ ${#errors[@]} -gt 0 ]; then
   echo ""
   echo "Run 'pnpm install' to fix dependency issues."
 fi
+
+# 토큰 절약 팁 표시
+echo "💡 토큰 절약: 20턴마다 /compact | @파일 직접 지정 | 작업 후 새 세션"

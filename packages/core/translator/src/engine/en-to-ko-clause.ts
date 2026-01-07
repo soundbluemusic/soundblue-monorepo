@@ -314,6 +314,7 @@ export function rearrangeToSOV(tokens: AnalyzedToken[]): string {
   // 2단계: 토큰 분류
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
+    if (!token) continue;
     const nextToken = tokens[i + 1];
 
     // 부정어 감지
@@ -647,6 +648,7 @@ export function rearrangeToSOV(tokens: AnalyzedToken[]): string {
   // 동사 (문장 끝) - 활용형 적용
   if (verbs.length > 0) {
     const lastVerb = verbs[verbs.length - 1];
+    if (!lastVerb) return parts.join(' ');
     let finalVerb = lastVerb.text;
 
     // 부정문 처리

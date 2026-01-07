@@ -449,7 +449,7 @@ export class TranslatorEngine {
     result = result.replace(/\ba ([aeiouAEIOU])/g, 'an $1');
 
     // 첫 글자 대문자
-    if (result.length > 0) {
+    if (result.length > 0 && result[0]) {
       result = result[0].toUpperCase() + result.slice(1);
     }
 
