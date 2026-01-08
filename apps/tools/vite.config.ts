@@ -121,6 +121,7 @@ export default defineConfig({
   ].filter(Boolean) as PluginOption[],
   optimizeDeps: {
     exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+    include: ['lucide-react'],
   },
   worker: { format: 'es' },
   build: {

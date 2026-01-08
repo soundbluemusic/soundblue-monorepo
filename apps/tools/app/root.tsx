@@ -28,10 +28,11 @@ export const links: LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" translate="no" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="google" content="notranslate" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="theme-color" content="#0a0a0a" />
@@ -56,6 +57,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
             __html: `
               (function() {
                 try {
+                  // Set lang attribute based on URL
+                  var path = window.location.pathname;
+                  var lang = path.startsWith('/ko') ? 'ko' : 'en';
+                  document.documentElement.lang = lang;
+                  
+                  // Set theme
                   var theme = localStorage.getItem('tools-theme');
                   if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                     document.documentElement.classList.add('dark');

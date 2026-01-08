@@ -1,5 +1,5 @@
 {
-  "brand": "Tools",
+  "brand": "툴즈",
   "common_error": "오류가 발생했습니다",
   "common_retry": "다시 시도",
   "common_close": "닫기",
@@ -152,6 +152,10 @@
   "shortcuts_categories_general": "일반",
   "home_searchPlaceholder": "도구 검색...",
   "home_noToolsFound": "검색 결과가 없습니다",
+  "home_popularTools": "인기 도구",
+  "home_categories": "카테고리",
+  "home_newUpdated": "새로운 소식 및 업데이트",
+  "home_viewAll": "모두 보기",
   "search_placeholder": "검색...",
   "search_label": "도구 및 페이지 검색",
   "search_clear": "검색어 지우기",
