@@ -15,6 +15,7 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build && tsx scripts/generate-sitemaps.ts",
+    "prebuild": "pnpm --filter @soundblue/ui-components build",
     "start": "npx serve build/client -s -L",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",

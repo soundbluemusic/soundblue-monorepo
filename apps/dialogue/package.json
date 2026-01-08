@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build",
+    "prebuild": "pnpm --filter @soundblue/ui-components build",
     "start": "npx serve build/client -s -L",
     "typecheck": "react-router typegen && tsc --noEmit",
     "lint": "biome lint .",

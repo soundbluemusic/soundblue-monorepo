@@ -26,8 +26,9 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build && node scripts/generate-sitemap.mjs",
+    "prebuild": "pnpm --filter @soundblue/ui-components build",
     "build:analyze": "ANALYZE=true react-router build",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "npx serve build/client -s -L",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
