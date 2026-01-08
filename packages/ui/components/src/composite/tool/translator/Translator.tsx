@@ -404,46 +404,49 @@ export function Translator({
         </div>
       )}
 
-      {/* Input area */}
-      <div className="min-h-[7.5rem] flex-1">
-        <textarea
-          value={inputText}
-          onChange={(e) => setInputText(e.currentTarget.value)}
-          placeholder={
-            settings.direction === 'ko-en'
-              ? '번역할 텍스트를 입력하세요...'
-              : 'Enter text to translate...'
-          }
-          className="size-full resize-none rounded-xl border border-(--border) bg-(--background) p-3 text-sm transition-[border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
-        />
-      </div>
+      {/* Split Panel: Input/Output */}
+      <div className="flex flex-1 flex-col gap-3 md:flex-row">
+        {/* Input area */}
+        <div className="relative flex-1">
+          <textarea
+            value={inputText}
+            onChange={(e) => setInputText(e.currentTarget.value)}
+            placeholder={
+              settings.direction === 'ko-en'
+                ? '번역할 텍스트를 입력하세요...'
+                : 'Enter text to translate...'
+            }
+            className="h-full w-full resize-none rounded-xl border border-(--border) bg-(--background) p-3 text-sm transition-[border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
+          />
+        </div>
 
-      {/* Output area */}
-      <div className="relative min-h-[7.5rem] flex-1">
-        <section
-          className="size-full overflow-auto rounded-xl border border-(--border) bg-black/[0.03] p-3 text-sm dark:bg-white/[0.03]"
-          aria-live="polite"
-          aria-atomic="true"
-          aria-label={settings.direction === 'ko-en' ? '번역 결과' : 'Translation result'}
-        >
-          {outputText}
-        </section>
-
-        {/* Copy button */}
-        {outputText && (
-          <button
-            type="button"
-            onClick={copyToClipboard}
-            className="absolute right-2 top-2 inline-flex size-8 items-center justify-center rounded-lg border border-(--border) bg-white/80 backdrop-blur-sm transition-colors duration-200 hover:bg-black/[0.08] dark:bg-black/80 dark:hover:bg-white/[0.12]"
-            title={messages.copy}
+        {/* Output area */}
+        <div className="relative flex-1">
+          <section
+            className="h-full w-full overflow-auto rounded-xl border border-(--border) bg-black/[0.03] p-3 text-sm dark:bg-white/[0.03]"
+            aria-live="polite"
+            aria-atomic="true"
+            aria-label={settings.direction === 'ko-en' ? '번역 결과' : 'Translation result'}
           >
-            {isCopied ? (
-              <Check className="size-3.5 text-green-500" />
-            ) : (
-              <Copy className="size-3.5" />
-            )}
-          </button>
-        )}
+            {outputText}
+          </section>
+
+          {/* Copy button */}
+          {outputText && (
+            <button
+              type="button"
+              onClick={copyToClipboard}
+              className="absolute right-2 top-2 inline-flex size-8 items-center justify-center rounded-lg border border-(--border) bg-white/80 backdrop-blur-sm transition-colors duration-200 hover:bg-black/[0.08] dark:bg-black/80 dark:hover:bg-white/[0.12]"
+              title={messages.copy}
+            >
+              {isCopied ? (
+                <Check className="size-3.5 text-green-500" />
+              ) : (
+                <Copy className="size-3.5" />
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Footer */}
