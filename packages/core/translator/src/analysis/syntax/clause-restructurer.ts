@@ -238,7 +238,7 @@ function splitByConnectives(text: string): Clause[] {
 
         // 어간에 종결어미 "다"를 붙여서 기본형으로 만듦 (번역을 위해)
         // 예: "먹" → "먹다", "가" → "간다" (동사 기본형)
-        const verbForm = stemPart + '다';
+        const verbForm = `${stemPart}다`;
 
         clauses.push({
           text: clauseText.replace(new RegExp(`${escapeRegex(pattern)}$`), verbForm),

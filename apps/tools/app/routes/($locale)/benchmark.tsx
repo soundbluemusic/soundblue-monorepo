@@ -1,3 +1,4 @@
+import type { TestCase, TestCategory, TestLevel } from '@soundblue/ui-components/composite/tool';
 import {
   CheckCircle2,
   ChevronDown,
@@ -12,7 +13,6 @@ import type { MetaFunction } from 'react-router';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
 import { getSeoMeta } from '~/lib/seo';
-import type { TestCase, TestCategory, TestLevel } from '~/tools/translator/benchmark-data';
 
 // Dynamic import types for lazy loading
 type TranslateFn = (input: string, direction: 'ko-en' | 'en-ko') => string;
@@ -83,18 +83,16 @@ async function loadBenchmarkData(): Promise<TestGroup[]> {
   if (cachedTestGroups) return cachedTestGroups;
 
   // benchmarkTestGroups를 직접 import하여 자동 동기화
-  const benchmarkModule = (await import(
-    '~/tools/translator/benchmark-data'
-  )) as BenchmarkDataModule;
-  cachedTestGroups = benchmarkModule.benchmarkTestGroups;
+  const uiModule = (await import('@soundblue/ui-components/composite/tool')) as BenchmarkDataModule;
+  cachedTestGroups = uiModule.benchmarkTestGroups;
   return cachedTestGroups;
 }
 
 async function loadTranslate(): Promise<TranslateFn> {
   if (cachedTranslateFn) return cachedTranslateFn;
 
-  const translatorModule = await import('~/tools/translator/translator-service');
-  cachedTranslateFn = translatorModule.translate;
+  const uiModule = await import('@soundblue/ui-components/composite/tool');
+  cachedTranslateFn = uiModule.translate;
   return cachedTranslateFn;
 }
 

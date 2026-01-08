@@ -1,11 +1,9 @@
+import type { QRSettings, TranslatorSettings } from '@soundblue/ui-components/composite/tool';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-
 import type { DrumMachineSettings } from '../tools/drum-machine/settings';
 import type { MetronomeSettings } from '../tools/metronome/settings';
-import type { QRSettings } from '../tools/qr-generator/settings';
-import type { TranslatorSettings } from '../tools/translator/settings';
 
 export type ToolType = 'metronome' | 'qr' | 'drumMachine' | 'translator';
 

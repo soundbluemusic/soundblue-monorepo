@@ -499,9 +499,3 @@ export function Translator({
     </div>
   );
 }
-
-export {
-  defaultTranslatorSettings,
-  type TranslationDirection,
-  type TranslatorSettings,
-} from './settings';

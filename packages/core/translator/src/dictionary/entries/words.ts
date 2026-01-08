@@ -2519,7 +2519,7 @@ const manualEnToKoWords: Record<string, string> = {
   outside: '밖에',
   inside: '안에',
   now: '지금',
-  // biome-ignore lint/suspicious/noThenProperty: 'then' is a valid English word meaning '그때', not Promise.then
+
   then: '그때',
   today: '오늘',
   yesterday: '어제',

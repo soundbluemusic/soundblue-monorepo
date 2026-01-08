@@ -3,8 +3,11 @@
   "extends": "../../../tooling/tsconfig/base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
+    "types": ["vite/client"],
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "noUncheckedIndexedAccess": false,
+    "noEmit": false
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "__tests__"]

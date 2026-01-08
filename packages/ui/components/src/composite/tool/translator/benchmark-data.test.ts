@@ -50,14 +50,13 @@ function runTestsForLevel(level: TestLevel) {
             // Compare results
             // 슬래시 대안 지원: 번역 결과가 "A / B"일 때 expected가 A 또는 B와 일치하면 통과
             // 또는 expected가 "A / B"일 때 actual이 그 중 하나와 일치하면 통과
-            let passed: boolean;
 
             // 슬래시로 분리된 대안들
             const actualAlternatives = actual.split(' / ').map((s) => normalize(s.trim()));
             const expectedAlternatives = test.expected.split(' / ').map((s) => normalize(s.trim()));
 
             // 양방향 매칭: actual의 대안 중 하나가 expected의 대안 중 하나와 일치하면 통과
-            passed = actualAlternatives.some((actualAlt) =>
+            const passed = actualAlternatives.some((actualAlt) =>
               expectedAlternatives.some((expectedAlt) => actualAlt === expectedAlt),
             );
 

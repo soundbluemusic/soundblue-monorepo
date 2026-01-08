@@ -15,8 +15,6 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build && tsx scripts/generate-sitemaps.ts",
-    "prebuild": "pnpm run generate:i18n-dict",
-    "generate:i18n-dict": "tsx scripts/generate-i18n-dictionary.ts",
     "start": "npx serve build/client -s -L",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",

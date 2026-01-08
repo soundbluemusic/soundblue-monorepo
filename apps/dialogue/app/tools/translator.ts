@@ -3,5 +3,5 @@
  * Tools 앱의 번역기를 Dialogue 앱에서 사용
  */
 
-export type { TranslatorMessages } from '../../../tools/app/tools/translator';
-export { Translator } from '../../../tools/app/tools/translator';
+export type { TranslatorMessages } from '@soundblue/ui-components/composite/tool';
+export { Translator } from '@soundblue/ui-components/composite/tool';

@@ -82,7 +82,7 @@ export const ENGLISH_CONJUNCTIONS: Record<string, string> = {
   or: '또는',
   because: '왜냐하면',
   so: '그래서',
-  // biome-ignore lint/suspicious/noThenProperty: dictionary key for translation
+
   then: '그리고',
   if: '만약',
   when: '때',

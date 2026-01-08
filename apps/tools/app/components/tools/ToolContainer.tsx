@@ -1,6 +1,12 @@
 'use client';
 
 import { useParaglideI18n } from '@soundblue/i18n';
+import {
+  defaultQRSettings,
+  defaultTranslatorSettings,
+  type QRSettings,
+  type TranslatorSettings,
+} from '@soundblue/ui-components/composite/tool';
 import { Link2, Loader2, X } from 'lucide-react';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -17,8 +23,6 @@ import {
   defaultDrumMachineSettings,
 } from '~/tools/drum-machine/settings';
 import { defaultMetronomeSettings, type MetronomeSettings } from '~/tools/metronome/settings';
-import { defaultQRSettings, type QRSettings } from '~/tools/qr-generator/settings';
-import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator/settings';
 
 // Loading fallback component
 function ToolLoading() {
