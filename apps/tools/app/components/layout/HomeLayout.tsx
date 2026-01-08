@@ -4,7 +4,7 @@ import { useParaglideI18n } from '@soundblue/i18n';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ALL_TOOLS, type ToolInfo } from '~/lib/toolCategories';
-import { type ToolType, useToolStore } from '~/stores/tool-store';
+import { useToolStore } from '~/stores/tool-store';
 import { BottomNavigation } from '../home/BottomNavigation';
 import { CategorySection } from '../home/CategorySection';
 import { HomeHeader } from '../home/HomeHeader';
@@ -125,6 +125,7 @@ export function HomeLayout() {
               ) : (
                 searchResults.map((result, idx) => (
                   <button
+                    type="button"
                     key={idx}
                     onClick={() => {
                       if (result.type === 'tool') {
