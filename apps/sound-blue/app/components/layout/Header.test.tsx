@@ -92,7 +92,7 @@ describe('Header', () => {
 
     it('Language toggle 버튼 렌더링', () => {
       renderWithRouter(<Header />);
-      const langButton = screen.getByLabelText('Switch language');
+      const langButton = screen.getByLabelText('Switch language (EN)');
       expect(langButton).toBeInTheDocument();
       expect(screen.getByText('EN')).toBeInTheDocument();
     });
@@ -164,7 +164,7 @@ describe('Header', () => {
       const user = userEvent.setup();
 
       renderWithRouter(<Header />);
-      const langButton = screen.getByLabelText('Switch language');
+      const langButton = screen.getByLabelText('Switch language (EN)');
       await user.click(langButton);
 
       expect(mockToggleLanguage).toHaveBeenCalledOnce();
@@ -182,7 +182,7 @@ describe('Header', () => {
 
       expect(screen.getByLabelText('Close sidebar')).toBeInTheDocument();
       expect(screen.getByLabelText('Switch to dark mode')).toBeInTheDocument();
-      expect(screen.getByLabelText('Switch language')).toBeInTheDocument();
+      expect(screen.getByLabelText('Switch language (EN)')).toBeInTheDocument();
     });
 
     it('로고 링크는 포커스 가능', () => {

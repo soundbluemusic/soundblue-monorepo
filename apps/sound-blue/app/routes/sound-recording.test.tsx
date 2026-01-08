@@ -102,13 +102,13 @@ describe('SoundRecording Route', () => {
 
   describe('Meta', () => {
     it('meta 함수가 올바른 title 반환', () => {
-      const metaResult = meta({} as Parameters<typeof meta>[0]) as MetaDescriptor[];
+      const metaResult = meta({ location: { pathname: '/' } } as any) as MetaDescriptor[];
       const titleMeta = findMetaTitle(metaResult);
       expect(titleMeta?.title).toBe('Sound Recording | Sound Blue');
     });
 
     it('meta 함수가 올바른 description 반환', () => {
-      const metaResult = meta({} as Parameters<typeof meta>[0]) as MetaDescriptor[];
+      const metaResult = meta({ location: { pathname: '/' } } as any) as MetaDescriptor[];
       const descMeta = findMetaDescription(metaResult);
       expect(descMeta?.content).toBe('Field recording library by Sound Blue.');
     });
