@@ -35,6 +35,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="google" content="notranslate" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="theme-color" content="#0a0a0a" />
         <Meta />
         <Links />
@@ -78,6 +79,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <script src="/registerSW.js" defer />
       </body>
     </html>
   );
