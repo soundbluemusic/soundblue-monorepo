@@ -2794,6 +2794,11 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
   const translatedClauses: string[] = [];
   const isLastClauseQuestion = isQuestion; // 마지막 절이 의문문인지 (전체 문장 기준)
 
+  // 시제 전파: 마지막 절의 시제를 먼저 파악 (한국어에서 마지막 절이 전체 시제 결정)
+  const lastClause = clauseInfo.clauses[clauseInfo.clauses.length - 1];
+  const lastClauseParsed = parseKorean(lastClause?.text || '');
+  const mainTense = lastClauseParsed.tense; // past, present, future 등
+
   for (let i = 0; i < clauseInfo.clauses.length; i++) {
     const clause = clauseInfo.clauses[i];
     const isLastClause = i === clauseInfo.clauses.length - 1;
@@ -2827,6 +2832,11 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
     }
 
     const parsed = parseKorean(clause.text);
+    // 시제 전파: 연결어미로 끝난 절(기본형 변환)은 마지막 절의 시제를 상속
+    // 예: "일찍 일어나다" (present) + "했어" (past) → "woke up early" (past)
+    if (!isLastClause && mainTense && parsed.tense === 'present') {
+      parsed.tense = mainTense;
+    }
     let translated = generateEnglish(parsed);
     translated = validateTranslation(parsed, translated, 'ko-en');
 
@@ -2896,8 +2906,24 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
             const withSubject = addSubjectIfNeeded(prevTranslated, 'I');
             translatedClauses[translatedClauses.length - 1] = `if ${withSubject.toLowerCase()}`;
           }
+        } else if (conn === 'and' || conn === 'or') {
+          // and, or 등 일반 접속사 - 같은 주어면 생략
+          // "I woke up early and I worked" → "I woke up early and worked"
+          const prevTranslated = translatedClauses[translatedClauses.length - 1];
+          // 이전 절 주어 추출 (첫 단어)
+          const prevSubject = prevTranslated?.split(' ')[0]?.toLowerCase();
+          // 현재 절 주어 추출
+          const currWords = translated.split(' ');
+          const currSubject = currWords[0]?.toLowerCase();
+          // 주어가 같으면 현재 절에서 주어 제거
+          if (prevSubject && currSubject && prevSubject === currSubject) {
+            const withoutSubject = currWords.slice(1).join(' ');
+            translated = `${conn} ${withoutSubject.toLowerCase()}`;
+          } else {
+            translated = `${conn} ${translated.toLowerCase()}`;
+          }
         } else {
-          // and, or 등 일반 접속사 (주어 불필요)
+          // 기타 접속사
           translated = `${conn} ${translated.toLowerCase()}`;
         }
       }

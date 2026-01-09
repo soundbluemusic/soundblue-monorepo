@@ -20,6 +20,7 @@ import {
   KO_EN,
   MODAL_VERBS,
   NOUN_CONTEXT,
+  NOUN_TO_VERB,
   VERB_PAST,
   VERB_PREPOSITIONS,
   VERB_STEMS,
@@ -3989,15 +3990,15 @@ export function generateEnglish(parsed: ParsedSentence): string {
       verbText = verb.translated || KO_EN[verb.stem] || verb.stem;
     }
     // 경동사 패턴: "[명사]를 하다" → 목적어를 동사로 변환
-    // 예: "운동을 했다" → "exercised", "샤워를 했다" → "showered"
+    // 예: "운동을 했다" → "exercised", "샤워를 했다" → "showered", "일을 했다" → "worked"
     else if (verb.meta?.isLightVerb && objects.length > 0) {
       isLightVerbPattern = true;
       const obj = objects[0];
-      // 목적어 명사의 동사형 찾기 (exercise → exercise, shower → shower)
+      // 목적어 명사의 동사형 찾기
+      // 우선순위: NOUN_TO_VERB[stem] → obj.translated → KO_EN[stem] → stem
       const nounStem = obj.stem;
-      const nounTranslation = obj.translated || KO_EN[nounStem] || nounStem;
-      // 영어에서 명사 = 동사인 경우가 많음 (exercise, shower, study 등)
-      verbText = nounTranslation;
+      const nounAsVerb = NOUN_TO_VERB[nounStem];
+      verbText = nounAsVerb || obj.translated || KO_EN[nounStem] || nounStem;
     } else {
       // 먼저 다의어 규칙 확인
       const polysemyResult = resolvePolysemy(verb.stem, objects);
@@ -4183,7 +4184,21 @@ function resolveNounContext(noun: string, contextHints: Set<string>): string | n
  */
 function applyTense(verb: string, tense: Tense): string {
   if (tense === 'past') {
-    // 불규칙 동사 확인
+    // 구동사 처리: "wake up" → "woke up", "get out" → "got out"
+    const parts = verb.split(' ');
+    if (parts.length > 1) {
+      const mainVerb = parts[0];
+      const particles = parts.slice(1).join(' ');
+      const mainPast = VERB_PAST.get(mainVerb);
+      if (mainPast) {
+        return `${mainPast} ${particles}`;
+      }
+      // 규칙 동사 구동사
+      if (mainVerb.endsWith('e')) return `${mainVerb}d ${particles}`;
+      if (/[^aeiou]y$/.test(mainVerb)) return `${mainVerb.slice(0, -1)}ied ${particles}`;
+      return `${mainVerb}ed ${particles}`;
+    }
+    // 단일 동사 불규칙 확인
     const irregular = VERB_PAST.get(verb);
     if (irregular) return irregular;
     // 규칙 동사

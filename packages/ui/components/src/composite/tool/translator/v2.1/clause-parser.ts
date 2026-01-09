@@ -106,6 +106,77 @@ function isFinalEndingNotConnective(token: string, ending: string): boolean {
   return false;
 }
 
+/**
+ * 불규칙 활용 어간 복원
+ *
+ * 연결어미 분리 후 어간을 기본형으로 복원
+ *
+ * 주요 불규칙 패턴:
+ * - ㅂ불규칙: 고프+아서 → 고파서, 아프+아서 → 아파서
+ * - ㅗ/ㅜ 축약: 오+아서 → 와서, 주+어서 → 줘서
+ * - ㅡ 탈락: 쓰+어서 → 써서, 크+어서 → 커서
+ */
+function restoreIrregularStem(stem: string, ending: string): string {
+  // 1. 어간이 비어있으면 그대로 반환
+  if (!stem) return stem;
+
+  // 2. ㅂ불규칙 복원: "고" + "파서" → "고프"
+  // 어간 끝이 '고', '아' 등이고 ending이 '파서'이면 ㅂ불규칙
+  if (ending === '파서') {
+    // 고파서 → 고 + 파서 → 고프
+    // 배고파서 → 배고 + 파서 → 배고프
+    return `${stem}프`;
+  }
+
+  // 3. ㅂ불규칙 (아서 어미): stem이 'ㅏ'로 끝나면 + 아서 조합
+  // 아파서 → 아 + 아서 → 아프 (ㅏ + 아 = 아)
+  // 무서워서 → 무서 + 워서 → 무섭
+  if (ending === '아서' || ending === '서') {
+    const lastChar = stem.slice(-1);
+    // "아"로 끝나고 stem이 알려진 ㅂ불규칙 동사 어간인 경우
+    const bIrregularMap: Record<string, string> = {
+      아: '아프', // 아파서 → 아프다
+      무서: '무섭', // 무서워서 → 무섭다
+      어려: '어렵', // 어려워서 → 어렵다
+      고마: '고맙', // 고마워서 → 고맙다
+      더: '덥', // 더워서 → 덥다
+      추: '춥', // 추워서 → 춥다
+    };
+    if (bIrregularMap[stem]) {
+      return bIrregularMap[stem];
+    }
+
+    // 4. ㅗ/ㅜ 축약 복원: "와" → "오", "줘" → "주"
+    // 와서 → 와 + 서 → 오
+    // 가서 → 가 + 서 → 가 (정상)
+    const contractionMap: Record<string, string> = {
+      와: '오', // 와서 → 오다
+      줘: '주', // 줘서 → 주다
+      봐: '보', // 봐서 → 보다
+      돼: '되', // 돼서 → 되다
+    };
+    if (contractionMap[lastChar]) {
+      return stem.slice(0, -1) + contractionMap[lastChar];
+    }
+  }
+
+  // 5. 어서 어미 특별 처리
+  if (ending === '어서') {
+    // 먹어서 → 먹다 (정상)
+    // 써서 → 쓰다 (ㅡ 탈락)
+    const lastChar = stem.slice(-1);
+    const euDropMap: Record<string, string> = {
+      써: '쓰', // 써서 → 쓰다
+      커: '크', // 커서 → 크다
+    };
+    if (euDropMap[lastChar]) {
+      return stem.slice(0, -1) + euDropMap[lastChar];
+    }
+  }
+
+  return stem;
+}
+
 export type ClauseType =
   | 'main' // 주절
   | 'noun' // 명사절 (that-절, if/whether-절, wh-절)
@@ -203,10 +274,16 @@ const KO_CONNECTIVE_ENDINGS: Record<string, { en: string; type: ClauseType }> = 
   ㄴ후에: { en: 'after', type: 'adverbial' },
   은후에: { en: 'after', type: 'adverbial' },
 
-  // 이유 연결
-  아서: { en: 'so', type: 'adverbial' },
-  어서: { en: 'so', type: 'adverbial' },
+  // 이유/순차 연결 (순서 중요: 긴 것부터)
+  // -아서/-어서/-여서/-서 (and/and then)
+  // 긴 것부터: 파서(2) > 해서(2) > 아서(2) > 어서(2) > 서(1)
+  파서: { en: 'so', type: 'adverbial' }, // 고파서 (hungry so)
   해서: { en: 'so', type: 'adverbial' }, // 피곤해서 (because tired)
+  아서: { en: 'and', type: 'adverbial' }, // 봐서, 가서 (형태 유지)
+  어서: { en: 'and', type: 'adverbial' }, // 먹어서
+  여서: { en: 'so', type: 'adverbial' }, // 하여서 (formal)
+  져서: { en: 'and', type: 'adverbial' }, // 좋아져서 (became better and)
+  서: { en: 'and', type: 'adverbial' }, // 일어나서, 와서, 가서 (단일 음절 어미)
   니까: { en: 'because', type: 'adverbial' },
   으니까: { en: 'because', type: 'adverbial' },
   느라고: { en: 'because of', type: 'adverbial' }, // 공부하느라고
@@ -218,16 +295,23 @@ const KO_CONNECTIVE_ENDINGS: Record<string, { en: string; type: ClauseType }> = 
   으면: { en: 'if', type: 'conditional' },
   더라도: { en: 'even if', type: 'adverbial' },
   지만: { en: 'but', type: 'adverbial' },
+  았지만: { en: 'but', type: 'adverbial' }, // 했지만
+  었지만: { en: 'but', type: 'adverbial' }, // 먹었지만
   는데: { en: 'but/and', type: 'adverbial' },
   ㄴ데: { en: 'but/and', type: 'adverbial' },
+  았는데: { en: 'but/and', type: 'adverbial' }, // 했는데
+  었는데: { en: 'but/and', type: 'adverbial' }, // 먹었는데
 
   // 목적/결과
   려고: { en: 'in order to', type: 'adverbial' },
   으려고: { en: 'in order to', type: 'adverbial' },
+  러: { en: 'in order to', type: 'adverbial' }, // 보러 (to see)
   도록: { en: 'so that', type: 'adverbial' },
   게: { en: 'so that', type: 'adverbial' },
 
-  // 나열/선택
+  // 나열/순차 (순서 중요: 긴 것부터)
+  았고: { en: 'and', type: 'main' }, // 했고 (did and)
+  었고: { en: 'and', type: 'main' }, // 먹었고 (ate and)
   고: { en: 'and', type: 'main' },
   거나: { en: 'or', type: 'main' }, // 먹거나 (or eat)
 
@@ -495,6 +579,11 @@ function splitKoreanByConnectors(text: string): Segment[] {
           // 하다 동사의 어간이므로 "하" 추가
           stem = `${stem}하`;
         }
+
+        // 불규칙 활용 어간 복원
+        // ㅂ불규칙: 고프 → 고파서, 아프 → 아파서
+        // ㅗ/ㅜ 불규칙: 오 → 와서, 주 → 줘서
+        stem = restoreIrregularStem(stem, ending);
 
         // 어간에 '다' 붙여서 기본형으로 만듦
         const verbForm = `${stem}다`;

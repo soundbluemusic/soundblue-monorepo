@@ -21,6 +21,7 @@ import {
   IRREGULAR_KO_VERBS,
   KO_EN,
   KO_NUMBERS,
+  KO_SIMPLE_ADVERBS,
   KO_VERB_MAP,
   matchCompoundExpression,
   NOUN_TO_VERB,
@@ -2378,6 +2379,10 @@ function tokenizeKoreanWord(word: string, context?: string): Token {
         contracted.baseMeaning
       : contracted.baseMeaning;
 
+    // 경동사(light verb) 체크: "했어", "해" 등 단독 하다 동사
+    // prefix가 없고 stem이 '하'인 경우 경동사로 표시
+    const isLightVerb = !prefix && contracted.stem === '하';
+
     return {
       text: word,
       stem: verbStem,
@@ -2389,6 +2394,7 @@ function tokenizeKoreanWord(word: string, context?: string): Token {
         tense: contracted.tense as Tense,
         formality: contracted.formality,
         isDescriptive: contracted.isDescriptive,
+        isLightVerb,
       },
     };
   }
@@ -2456,8 +2462,9 @@ function tokenizeKoreanWord(word: string, context?: string): Token {
       }
     }
 
-    // 감탄사는 대문자로 시작
-    const wordRole: Role = /^[A-Z]/.test(directTranslation) ? 'adverb' : 'unknown';
+    // 부사 인식: KO_SIMPLE_ADVERBS에 있거나 대문자로 시작(감탄사)
+    const isAdverb = KO_SIMPLE_ADVERBS[word] !== undefined || /^[A-Z]/.test(directTranslation);
+    const wordRole: Role = isAdverb ? 'adverb' : 'unknown';
     return {
       text: word,
       stem: word,

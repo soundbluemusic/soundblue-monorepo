@@ -396,6 +396,47 @@ export const EN_TIME_ADVERBS: Record<string, string> = {
 };
 
 /**
+ * 한국어 단순 부사 → 영어 (tokenizer에서 부사 역할 인식용)
+ * KO_TIME_ADVERBS는 정규식 패턴이라 단순 조회 불가
+ */
+export const KO_SIMPLE_ADVERBS: Record<string, string> = {
+  // 시간 부사
+  일찍: 'early',
+  늦게: 'late',
+  오늘: 'today',
+  어제: 'yesterday',
+  내일: 'tomorrow',
+  지금: 'now',
+  나중에: 'later',
+  아까: 'earlier',
+  드디어: 'finally',
+  결국: 'finally',
+  항상: 'always',
+  언제나: 'always',
+  자주: 'often',
+  가끔: 'sometimes',
+  매일: 'every day',
+  어서: 'quickly',
+  빨리: 'quickly',
+  천천히: 'slowly',
+  // 방식 부사
+  잘: 'well',
+  많이: 'a lot',
+  조금: 'a little',
+  아주: 'very',
+  매우: 'very',
+  정말: 'really',
+  진짜: 'really',
+  너무: 'too',
+  별로: 'not really',
+  전혀: 'not at all',
+  함께: 'together',
+  같이: 'together',
+  혼자: 'alone',
+  열심히: 'hard',
+};
+
+/**
  * 영어 장소 부사구 → 한국어
  */
 export const EN_PLACE_ADVERBS: Record<string, string> = {
@@ -1767,6 +1808,7 @@ export const IDIOMS_EN_KO: Record<string, FormalityMap> = {
  */
 export const NOUN_TO_VERB: Record<string, string> = {
   // 명사 번역과 동사 번역이 다른 경우만 정의
+  일: 'work', // day/work(n) → work(v) - "일을 하다" = work
   노래: 'sing', // song → sing
   전화: 'call', // phone → call
   춤: 'dance', // dance → dance (같지만 명시)
