@@ -1,7 +1,7 @@
 // ========================================
 // External Dictionary - 외부 사전 (자동 생성)
 // Source: public-monorepo/data/context
-// Generated: 2026-01-07T00:52:21.459Z
+// Generated: 2026-01-09T14:17:39.198Z
 // ========================================
 // ⚠️ 이 파일은 자동 생성됩니다. 직접 수정하지 마세요!
 // ⚠️ This file is auto-generated. Do not edit directly!
@@ -40,9 +40,7 @@ export function getExternalEnToKoWords(): Record<string, string> {
 }
 
 // 단어 조회 함수
-// 1글자 단어는 조회하지 않음 (형태소 오분석 방지: "전" → "jeon" 등)
 export function lookupExternalKoToEn(word: string): string | null {
-  if (word.length < 2) return null;
   return externalKoToEnWords[word] ?? null;
 }
 

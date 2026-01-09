@@ -1,7 +1,7 @@
 // ========================================
 // External Dictionary - 외부 사전 (자동 생성)
 // Source: public-monorepo/data/context
-// Generated: 2026-01-07T00:52:21.459Z
+// Generated: 2026-01-09T14:17:39.198Z
 // ========================================
 // ⚠️ 이 파일은 자동 생성됩니다. 직접 수정하지 마세요!
 // ⚠️ This file is auto-generated. Do not edit directly!
@@ -13,9 +13,9 @@
  * 실제 데이터는 JSON 파일에서 lazy load됨
  */
 export const EXTERNAL_SENTENCES_STATS = {
-  koToEnCount: 159086,
-  enToKoCount: 150976,
-  generatedAt: '2026-01-07T00:52:21.459Z',
+  koToEnCount: 144933,
+  enToKoCount: 139434,
+  generatedAt: '2026-01-09T14:17:39.198Z',
 } as const;
 
 // 문장 사전 캐시
