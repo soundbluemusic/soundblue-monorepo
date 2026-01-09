@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { MetaArgs } from 'react-router';
 
 /**
  * Shared test types for type-safe mocking
@@ -81,9 +82,16 @@ export function findMetaDescription(metas: MetaDescriptor[]): MetaDescription | 
 }
 
 /**
- * Empty meta args for testing meta functions
- * React Router's MetaArgs is complex, but meta functions often don't use the args
+ * Creates test meta args compatible with React Router's MetaArgs
+ * Uses a minimal shape that satisfies type checking for meta function tests
  */
-export const emptyMetaArgs = {} as Parameters<
-  (args: Record<string, unknown>) => MetaDescriptor[]
->[0];
+export function createTestMetaArgs(pathname = '/'): MetaArgs {
+  return {
+    location: { pathname, search: '', hash: '', state: null, key: 'default' },
+    params: {},
+    data: undefined,
+    loaderData: undefined,
+    matches: [] as MetaArgs['matches'],
+    error: undefined,
+  };
+}

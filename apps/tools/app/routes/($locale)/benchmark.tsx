@@ -95,8 +95,9 @@ async function loadTranslate(): Promise<TranslateFn> {
   if (cachedTranslateFn) return cachedTranslateFn;
 
   const uiModule = await import('@soundblue/ui-components/composite/tool');
-  cachedTranslateFn = uiModule.translate;
-  return cachedTranslateFn;
+  const translateFn = uiModule.translate;
+  cachedTranslateFn = translateFn;
+  return translateFn;
 }
 
 async function loadHangul(): Promise<HangulModule> {
@@ -135,7 +136,9 @@ function calculateSimilarity(
 // Helper function to count tests in a level array
 function countTestsInLevels(levels: TestLevel[]): number {
   return levels.reduce(
-    (sum, level) => sum + level.categories.reduce((catSum, cat) => catSum + cat.tests.length, 0),
+    (sum: number, level) =>
+      sum +
+      level.categories.reduce((catSum: number, cat: TestCategory) => catSum + cat.tests.length, 0),
     0,
   );
 }
