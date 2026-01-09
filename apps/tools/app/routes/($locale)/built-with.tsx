@@ -1,8 +1,11 @@
 import type { MetaFunction } from 'react-router';
+import { BottomNavigation } from '~/components/home/BottomNavigation';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
+import { ToolSidebar } from '~/components/sidebar/ToolSidebar';
 import m from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
+import { useToolStore } from '~/stores/tool-store';
 
 export const meta: MetaFunction = ({ location }) => [
   { title: 'Built With | Tools' },
@@ -248,11 +251,18 @@ function LibraryItem({ item }: { item: OpenSourceItem }) {
 
 export default function BuiltWith() {
   const totalCount = Object.values(openSourceLibraries).flat().length;
+  const { sidebarCollapsed } = useToolStore();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
       <Header />
-      <main className="flex-1 p-4 pt-(--header-height) max-md:pt-[52px] sm:p-8 sm:pt-(--header-height)">
+      <ToolSidebar />
+
+      <main
+        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:p-8 sm:pt-(--header-height) ${
+          sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
+        } max-md:pl-0`}
+      >
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-6 text-2xl font-bold sm:text-3xl">{m['navigation_builtWith']?.()}</h1>
           <p className="mb-4 text-(--muted-foreground)">{m['builtWith_intro']?.()}</p>
@@ -296,8 +306,13 @@ export default function BuiltWith() {
             </ul>
           </section>
         </div>
+
+        <div className="hidden md:block">
+          <Footer appName="Built With" />
+        </div>
       </main>
-      <Footer appName="Built With" />
+
+      <BottomNavigation />
     </div>
   );
 }

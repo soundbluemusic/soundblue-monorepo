@@ -1,8 +1,11 @@
 import type { MetaFunction } from 'react-router';
+import { BottomNavigation } from '~/components/home/BottomNavigation';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
+import { ToolSidebar } from '~/components/sidebar/ToolSidebar';
 import m from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
+import { useToolStore } from '~/stores/tool-store';
 
 export const meta: MetaFunction = ({ location }) => [
   { title: 'About | Tools' },
@@ -14,10 +17,18 @@ export const meta: MetaFunction = ({ location }) => [
 ];
 
 export default function About() {
+  const { sidebarCollapsed } = useToolStore();
+
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
       <Header />
-      <main className="flex flex-1 flex-col items-center justify-center p-6 pt-(--header-height) max-md:pt-[52px]">
+      <ToolSidebar />
+
+      <main
+        className={`flex min-h-screen flex-col items-center justify-center p-6 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
+          sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
+        } max-md:pl-0`}
+      >
         <div className="max-w-md text-center">
           <blockquote className="mb-12 text-2xl font-light leading-relaxed tracking-tight text-(--foreground) sm:text-3xl">
             {`"${m['about_missionText']?.()}"`}
@@ -25,8 +36,13 @@ export default function About() {
           <div className="mx-auto mb-12 h-px w-16 bg-(--border)" />
           <p className="text-base text-(--muted-foreground) sm:text-lg">{m['about_intro']?.()}</p>
         </div>
+
+        <div className="hidden md:block w-full mt-auto">
+          <Footer appName="About" />
+        </div>
       </main>
-      <Footer appName="About" />
+
+      <BottomNavigation />
     </div>
   );
 }

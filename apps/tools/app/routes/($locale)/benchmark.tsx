@@ -10,9 +10,12 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MetaFunction } from 'react-router';
+import { BottomNavigation } from '~/components/home/BottomNavigation';
 import { Footer } from '~/components/layout/Footer';
 import { Header } from '~/components/layout/Header';
+import { ToolSidebar } from '~/components/sidebar/ToolSidebar';
 import { getSeoMeta } from '~/lib/seo';
+import { useToolStore } from '~/stores/tool-store';
 
 // Dynamic import types for lazy loading
 type TranslateFn = (input: string, direction: 'ko-en' | 'en-ko') => string;
@@ -535,10 +538,18 @@ export default function Benchmark() {
     );
   };
 
+  const { sidebarCollapsed } = useToolStore();
+
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
       <Header />
-      <main className="flex-1 p-4 pt-(--header-height) max-md:pt-[52px] sm:p-8 sm:pt-(--header-height)">
+      <ToolSidebar />
+
+      <main
+        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:p-8 sm:pt-(--header-height) ${
+          sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
+        } max-md:pl-0`}
+      >
         <div className="mx-auto max-w-4xl">
           <h1 className="mb-2 text-2xl font-bold sm:text-3xl">Translator Benchmark</h1>
           <p className="mb-4 text-(--muted-foreground)">
@@ -780,8 +791,13 @@ export default function Benchmark() {
             </div>
           )}
         </div>
+
+        <div className="hidden md:block">
+          <Footer appName="Translator Benchmark" />
+        </div>
       </main>
-      <Footer appName="Translator Benchmark" />
+
+      <BottomNavigation />
     </div>
   );
 }
