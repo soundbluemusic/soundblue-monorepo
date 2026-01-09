@@ -26,3 +26,20 @@ yarn.lock
 coverage/
 playwright-report/
 test-results/
+*.snap
+
+# 소스맵 및 압축 파일
+*.map
+*.min.js
+*.min.css
+
+# 환경 변수
+.env
+.env.*
+
+# 대용량 데이터
+data/roots/
+
+# 자동 생성 파일
+dictionary/generated/
+dictionary/external/
