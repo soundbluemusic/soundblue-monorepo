@@ -7,12 +7,10 @@ import {
   type QRSettings,
   type TranslatorSettings,
 } from '@soundblue/ui-components/composite/tool';
-import { Link2, Loader2, X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
-// Widget for default view
-import { WorldClockWidget } from '~/components/widgets';
 import m from '~/lib/messages';
 import { getToolComponent, getToolInfo } from '~/lib/toolCategories';
 import { useAudioStore } from '~/stores/audio-store';
@@ -337,60 +335,80 @@ export function ToolContainer() {
     return <LazyComponent settings={config.settings} onSettingsChange={config.onSettingsChange} />;
   };
 
-  return (
-    <div className="flex h-full flex-col bg-(--background)">
-      {/* WorldClockWidget shown only on desktop (md+) when no tool selected */}
-      {!currentTool ? (
-        <div className="hidden h-full md:block">
-          <WorldClockWidget />
-        </div>
-      ) : (
-        <>
-          {/* Tool Header */}
-          <div className="flex items-center justify-between border-b border-(--border) px-4 py-2">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{toolInfo?.icon}</span>
-              <h2 className="text-sm font-semibold">{toolInfo?.name[locale]}</h2>
-            </div>
-            <div className="flex items-center gap-1">
-              {/* Share URL Button */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={copyShareUrl}
-                      className={`cursor-pointer rounded-xl border-none bg-transparent p-1.5 text-inherit transition-all duration-200 ease-out hover:bg-(color-mix(in_srgb,var(--primary)_10%,transparent)) hover:text-(--primary) active:bg-(color-mix(in_srgb,var(--primary)_20%,transparent)) ${
-                        urlCopied ? 'text-(--color-success)' : ''
-                      }`}
-                      aria-label={m['tools.shareUrl']?.()}
-                    >
-                      <Link2 className="size-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {urlCopied ? m['tools.urlCopied']?.() : m['tools.shareUrl']?.()}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={handleClose}
-                className="cursor-pointer rounded-xl border-none bg-transparent p-1.5 text-inherit transition-all duration-200 ease-out hover:bg-(color-mix(in_srgb,var(--destructive)_25%,transparent)) hover:text-(--destructive) active:bg-(color-mix(in_srgb,var(--destructive)_35%,transparent))"
-                aria-label={m['tools.closeTool']?.()}
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-          </div>
+  // 도구가 선택되지 않으면 아무것도 렌더링하지 않음
+  if (!currentTool) {
+    return null;
+  }
 
-          {/* Tool Content */}
-          <div ref={containerRef} className="flex-1 overflow-auto">
-            <Suspense fallback={<ToolLoading />}>{renderToolContent()}</Suspense>
-          </div>
-        </>
-      )}
+  return (
+    <div className="flex h-full flex-col bg-(--color-bg-primary)">
+      {/* Tool Header */}
+      <div className="flex items-center justify-between border-b border-(--color-border-primary) bg-(--color-bg-secondary) px-4 py-3">
+        <div className="flex items-center gap-3">
+          <span className="text-xl">{toolInfo?.icon}</span>
+          <h2 className="text-base font-semibold text-(--color-text-primary)">
+            {toolInfo?.name[locale]}
+          </h2>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Share URL Button */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={copyShareUrl}
+                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border-none bg-transparent cursor-pointer transition-colors duration-150 hover:bg-(--color-interactive-hover) ${
+                    urlCopied
+                      ? 'text-(--color-accent-primary)'
+                      : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
+                  }`}
+                  aria-label={m['tools.shareUrl']?.()}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                    />
+                  </svg>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {urlCopied ? m['tools.urlCopied']?.() : m['tools.shareUrl']?.()}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          {/* Close Button */}
+          <button
+            type="button"
+            onClick={handleClose}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-lg border-none bg-transparent text-(--color-text-secondary) cursor-pointer transition-colors duration-150 hover:bg-(--color-interactive-hover) hover:text-(--color-text-primary)"
+            aria-label={m['tools.closeTool']?.()}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Tool Content */}
+      <div ref={containerRef} className="flex-1 overflow-auto">
+        <Suspense fallback={<ToolLoading />}>{renderToolContent()}</Suspense>
+      </div>
     </div>
   );
 }

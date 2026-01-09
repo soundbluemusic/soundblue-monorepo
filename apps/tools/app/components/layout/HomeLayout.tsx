@@ -7,11 +7,11 @@ import { ALL_TOOLS, type ToolInfo } from '~/lib/toolCategories';
 import { useToolStore } from '~/stores/tool-store';
 import { BottomNavigation } from '../home/BottomNavigation';
 import { CategorySection } from '../home/CategorySection';
-import { HomeHeader } from '../home/HomeHeader';
 import { NewUpdatedSection } from '../home/NewUpdatedSection';
 import { PopularToolsSection } from '../home/PopularToolsSection';
 import { ToolSidebar } from '../sidebar/ToolSidebar';
 import { Footer } from './Footer';
+import { Header } from './Header';
 
 // ========================================
 // 검색 대상 페이지 정의
@@ -34,13 +34,13 @@ const SITE_PAGES: SearchPage[] = [
 type SearchResult = { type: 'page'; data: SearchPage } | { type: 'tool'; data: ToolInfo };
 
 // ========================================
-// HomeLayout Component - Responsive Design
+// HomeLayout Component - uiux-studio Style
 // ========================================
 
 export function HomeLayout() {
   const { locale, localizedPath } = useParaglideI18n();
   const navigate = useNavigate();
-  const { openTool } = useToolStore();
+  const { openTool, sidebarCollapsed } = useToolStore();
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -98,28 +98,52 @@ export function HomeLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-(--background) font-display">
+    <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
+      {/* Fixed Header */}
+      <Header />
+
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex">
-        <ToolSidebar />
-      </div>
+      <ToolSidebar />
 
-      {/* Main Content */}
-      <div className="flex flex-1 flex-col">
-        <HomeHeader
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onSearchKeyDown={handleSearchKeyDown}
-          inputRef={inputRef}
-        />
+      {/* Main Content Area */}
+      <main
+        className={`pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
+          sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
+        } max-md:pl-0`}
+      >
+        <div className="w-full max-w-4xl mx-auto px-4 py-6">
+          {/* Search Bar */}
+          <div className="relative mb-6">
+            <svg
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-text-tertiary)"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder={locale === 'ko' ? '도구 검색... (⌘K)' : 'Search tools... (⌘K)'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              className="w-full h-12 pl-12 pr-4 bg-(--color-bg-secondary) border border-(--color-border-primary) rounded-xl text-sm text-(--color-text-primary) placeholder:text-(--color-text-tertiary) focus:ring-2 focus:ring-(--color-accent-primary)/30 focus:border-(--color-accent-primary)/30 outline-none transition-all"
+            />
+          </div>
 
-        <main className="flex-1 overflow-x-hidden pb-10 md:pb-0">
-          {/* Main Content Sections */}
+          {/* Search Results or Default View */}
           {searchQuery ? (
             // Search Results View
-            <div className="p-4 space-y-4 max-w-7xl mx-auto">
+            <div className="space-y-3">
               {searchResults.length === 0 ? (
-                <p className="text-center text-(--muted-foreground) mt-8">
+                <p className="text-center text-(--color-text-secondary) py-8">
                   {locale === 'ko' ? '검색 결과가 없습니다.' : 'No results found.'}
                 </p>
               ) : (
@@ -134,20 +158,25 @@ export function HomeLayout() {
                       } else {
                         navigate(localizedPath(result.data.path));
                       }
+                      setSearchQuery('');
                     }}
-                    className="w-full text-left p-4 rounded-xl bg-(--card) ring-1 ring-(--border) hover:bg-(--muted)/50"
+                    className="w-full text-left p-4 rounded-xl bg-(--color-bg-secondary) border border-(--color-border-primary) hover:bg-(--color-interactive-hover) active:scale-[0.99] transition-all"
                   >
                     {result.type === 'tool' ? (
                       <div>
-                        <div className="font-bold">{result.data.name[locale]}</div>
-                        <div className="text-sm text-(--muted-foreground)">
+                        <div className="font-medium text-(--color-text-primary)">
+                          {result.data.name[locale]}
+                        </div>
+                        <div className="text-sm text-(--color-text-secondary) mt-0.5">
                           {result.data.description[locale]}
                         </div>
                       </div>
                     ) : (
                       <div>
-                        <div className="font-bold capitalize">{result.data.key}</div>
-                        <div className="text-sm text-(--muted-foreground)">Page</div>
+                        <div className="font-medium text-(--color-text-primary) capitalize">
+                          {result.data.key}
+                        </div>
+                        <div className="text-sm text-(--color-text-secondary) mt-0.5">Page</div>
                       </div>
                     )}
                   </button>
@@ -156,27 +185,25 @@ export function HomeLayout() {
             </div>
           ) : (
             // Default View
-            <>
+            <div className="space-y-6">
               <PopularToolsSection onToolClick={openTool} />
               {/* Mobile only sections */}
-              <div className="md:hidden">
+              <div className="md:hidden space-y-6">
                 <CategorySection />
                 <NewUpdatedSection onToolClick={openTool} />
               </div>
-            </>
+            </div>
           )}
-        </main>
+        </div>
 
         {/* Desktop Footer */}
         <div className="hidden md:block">
           <Footer />
         </div>
-      </div>
+      </main>
 
       {/* Mobile Bottom Navigation */}
-      <div className="md:hidden">
-        <BottomNavigation />
-      </div>
+      <BottomNavigation />
     </div>
   );
 }

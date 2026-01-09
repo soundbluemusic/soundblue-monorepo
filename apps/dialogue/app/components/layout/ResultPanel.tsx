@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import m from '~/lib/messages';
 import { useUIStore } from '~/stores';
+import { WorldClockWidget } from '../widgets';
 
 // Lazy load tools (번들 분리)
 const Translator = lazy(() =>
@@ -67,30 +68,14 @@ export function ResultPanel() {
           </div>
         </>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center text-(--color-text-tertiary) p-6">
-          <DocumentIcon />
-          <p className="mt-4 text-sm text-center">{m['app.resultsPanelEmptyState']()}</p>
-        </div>
+        // 결과가 없을 때 WorldClockWidget 표시
+        <WorldClockWidget />
       )}
     </div>
   );
 }
 
 // Icons
-function DocumentIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      width="48"
-      height="48"
-      className="text-(--color-border-primary)"
-    >
-      <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-    </svg>
-  );
-}
-
 function ReportIcon() {
   return (
     <svg

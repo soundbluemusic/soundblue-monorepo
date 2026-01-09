@@ -1,124 +1,138 @@
 'use client';
 
 import { useParaglideI18n } from '@soundblue/i18n';
-import { Button, useTheme } from '@soundblue/ui-components/base';
-import { Code2, Globe, Home, Menu, Moon, Sun } from 'lucide-react';
-import { Link, useLocation } from 'react-router';
-import { SearchBox } from '~/components/ui/SearchBox';
-import m from '~/lib/messages';
+import { useTheme } from '@soundblue/ui-components/base';
+import { Link } from 'react-router';
 import { useToolStore } from '~/stores/tool-store';
 
-function getPathWithoutLocale(pathname: string): string {
-  if (pathname.startsWith('/ko/')) {
-    return pathname.slice(3);
+// ========================================
+// Header Component - Sound Blue Style
+// ========================================
+
+function ThemeIcon({ theme }: { theme: 'light' | 'dark' }) {
+  if (theme === 'dark') {
+    return (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5" strokeWidth="2" />
+        <path
+          strokeWidth="2"
+          strokeLinecap="round"
+          d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+        />
+      </svg>
+    );
   }
-  if (pathname === '/ko') {
-    return '/';
-  }
-  return pathname;
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+      />
+    </svg>
+  );
+}
+
+function SidebarIcon({ isOpen }: { isOpen: boolean }) {
+  return (
+    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2" />
+      <path strokeWidth="2" d="M9 3v18" />
+      {!isOpen && <path strokeWidth="2" strokeLinecap="round" d="M14 9l3 3-3 3" />}
+    </svg>
+  );
 }
 
 export function Header() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const { locale, toggleLanguage, localizedPath } = useParaglideI18n();
-  const location = useLocation();
-  const { sidebarOpen, setSidebarOpen } = useToolStore();
+  const { toggleLanguage, localizedPath, locale } = useParaglideI18n();
+  const { resolvedTheme, toggleTheme } = useTheme();
+  const { sidebarCollapsed, toggleSidebarCollapse } = useToolStore();
 
-  const isBuiltWithPage = getPathWithoutLocale(location.pathname) === '/built-with';
-  const isAboutPage = getPathWithoutLocale(location.pathname) === '/about';
-  const isSecondaryPage = isBuiltWithPage || isAboutPage;
-
-  const homePath = localizedPath('/');
-  const builtWithPath = localizedPath('/built-with');
-
-  const toggleMobileSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+  const t = {
+    appTitle: 'Tools',
+    sidebarOpen: locale === 'ko' ? '사이드바 열기' : 'Open sidebar',
+    sidebarClose: locale === 'ko' ? '사이드바 닫기' : 'Close sidebar',
+    themeDark: locale === 'ko' ? '다크 모드' : 'Dark mode',
+    themeLight: locale === 'ko' ? '라이트 모드' : 'Light mode',
+    langSwitch: locale === 'ko' ? '영어로 전환' : 'Switch to Korean',
+    langCode: locale === 'ko' ? 'EN' : 'KO',
   };
 
+  const themeTitle = resolvedTheme === 'light' ? t.themeDark : t.themeLight;
+  const sidebarTitle = sidebarCollapsed ? t.sidebarOpen : t.sidebarClose;
+
   return (
-    <header className="relative z-50 flex h-14 items-center gap-4 border-b border-(--border) bg-(--background) px-4 pt-[env(safe-area-inset-top)]">
-      {/* Left: Mobile menu + Logo */}
-      <div className="flex items-center gap-3 shrink-0">
-        {/* Mobile menu toggle - only show on main pages */}
-        {!isSecondaryPage && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleMobileSidebar}
-            className="text-(--muted-foreground) hover:text-(--foreground) md:hidden"
-            aria-label={m['common_menu']?.()}
-          >
-            <Menu className="h-5 w-5 shrink-0" />
-          </Button>
-        )}
+    <header className="fixed inset-x-0 top-0 z-[100] h-(--header-height) bg-(--color-bg-secondary) border-b border-(--color-border-primary) max-md:h-[52px]">
+      <div
+        className={`flex items-center gap-4 w-full h-full px-4 transition-[padding] duration-150 max-md:px-3 max-md:gap-2 max-md:!pl-3 ${
+          sidebarCollapsed
+            ? 'pl-[calc(var(--sidebar-collapsed-width)+16px)]'
+            : 'pl-[calc(var(--sidebar-width)+16px)]'
+        }`}
+      >
+        {/* Sidebar Toggle - Desktop only */}
+        <button
+          type="button"
+          onClick={toggleSidebarCollapse}
+          className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:inline-flex items-center justify-center w-10 h-10 p-0 rounded-xl text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-interactive-hover) active:bg-(--color-interactive-active) transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2"
+          title={sidebarTitle}
+          aria-label={sidebarTitle}
+          aria-expanded={sidebarCollapsed ? 'false' : 'true'}
+        >
+          <SidebarIcon isOpen={!sidebarCollapsed} />
+        </button>
 
-        {/* Logo with page title */}
+        {/* Logo */}
         <Link
-          to={homePath}
-          className="text-lg font-semibold tracking-tight text-(--brand) transition-all duration-200 no-underline rounded-sm hover:opacity-80 active:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
+          to={localizedPath('/')}
+          className="flex items-center gap-1.5 no-underline shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2"
         >
-          {m['brand']?.()}
-          {isBuiltWithPage && (
-            <span className="text-(--muted-foreground) font-normal"> - Built With</span>
-          )}
-          {isAboutPage && (
-            <span className="text-(--muted-foreground) font-normal">
-              {` - ${m['navigation_about']?.()}`}
-            </span>
-          )}
+          <span className="text-xl font-semibold text-(--color-text-primary) tracking-tight max-md:text-lg">
+            {t.appTitle}
+          </span>
         </Link>
-      </div>
 
-      {/* Search Box */}
-      <SearchBox />
+        {/* Spacer */}
+        <div className="flex-1" />
 
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Right: Controls */}
-      <div className="flex items-center gap-1 shrink-0">
-        {/* Navigation Link - contextual */}
-        {isSecondaryPage ? (
-          <Link
-            to={homePath}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-(--muted-foreground) no-underline transition-all duration-200 hover:text-(--foreground) hover:bg-black/8 dark:hover:bg-white/12"
+        {/* Controls */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="inline-flex items-center justify-center min-w-11 min-h-11 w-10 h-10 p-0 rounded-xl text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-interactive-hover) active:bg-(--color-interactive-active) transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 max-md:w-9 max-md:h-9"
+            title={themeTitle}
+            aria-label={themeTitle}
           >
-            <Home className="h-4 w-4 shrink-0" />
-            <span>{m['navigation_home']?.()}</span>
-          </Link>
-        ) : (
-          <Link
-            to={builtWithPath}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-(--muted-foreground) no-underline transition-all duration-200 hover:text-(--foreground) hover:bg-black/8 dark:hover:bg-white/12"
+            <ThemeIcon theme={resolvedTheme as 'light' | 'dark'} />
+          </button>
+
+          {/* Language Toggle */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="inline-flex items-center justify-center gap-1 min-w-11 min-h-11 h-10 px-3 rounded-xl text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-interactive-hover) active:bg-(--color-interactive-active) transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 max-md:h-9 max-md:px-2"
+            title={t.langSwitch}
+            aria-label={`${t.langSwitch} (${t.langCode})`}
           >
-            <Code2 className="h-4 w-4 shrink-0" />
-            <span>Built With</span>
-          </Link>
-        )}
-
-        {/* Theme Toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-          aria-label={resolvedTheme === 'dark' ? m['theme_light']?.() : m['theme_dark']?.()}
-          className="relative text-(--muted-foreground) hover:text-(--foreground)"
-        >
-          <Sun className="h-[1.125rem] w-[1.125rem] rotate-0 scale-100 transition-all duration-200 dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.125rem] w-[1.125rem] rotate-90 scale-0 transition-all duration-200 dark:rotate-0 dark:scale-100" />
-        </Button>
-
-        {/* Language Toggle */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleLanguage}
-          className="flex items-center gap-1.5 px-3 text-(--muted-foreground) hover:text-(--foreground)"
-          aria-label={locale === 'ko' ? 'Switch to English' : '한국어로 전환'}
-        >
-          <Globe className="h-4 w-4 shrink-0" />
-          <span className="text-xs font-semibold">{locale === 'ko' ? 'KO' : 'EN'}</span>
-        </Button>
+            <svg
+              className="w-4 h-4 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            <span className="text-xs font-semibold tracking-wide" aria-hidden="true">
+              {t.langCode}
+            </span>
+          </button>
+        </div>
       </div>
     </header>
   );

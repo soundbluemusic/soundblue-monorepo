@@ -139,10 +139,13 @@ export function WorldClockWidget() {
         {CITIES.map((city) => (
           <div key={city.id} className="flex flex-col items-center gap-1">
             <span className="text-lg">{city.flag}</span>
-            <span className="text-4xl font-light tabular-nums" suppressHydrationWarning>
+            <span
+              className="text-4xl font-light tabular-nums text-(--color-text-primary)"
+              suppressHydrationWarning
+            >
               {getHour(city.timezone)}
             </span>
-            <span className="text-xs text-muted-foreground">{city.city[locale]}</span>
+            <span className="text-xs text-(--color-text-tertiary)">{city.city[locale]}</span>
           </div>
         ))}
       </div>
@@ -150,7 +153,7 @@ export function WorldClockWidget() {
       {/* 공통 분:초 - 크게 표시 */}
       <div className="flex items-baseline gap-1">
         <span
-          className="text-6xl font-extralight tabular-nums tracking-tight text-primary"
+          className="text-6xl font-extralight tabular-nums tracking-tight text-(--color-accent-primary)"
           suppressHydrationWarning
         >
           {`:${getMinuteSecond()}`}
@@ -158,7 +161,7 @@ export function WorldClockWidget() {
       </div>
 
       {/* 날짜 정보 */}
-      <div className="flex gap-4 text-sm text-muted-foreground">
+      <div className="flex gap-4 text-sm text-(--color-text-tertiary)">
         {CITIES.map((city) => (
           <span key={city.id} suppressHydrationWarning>
             {`${city.flag} ${getDate(city.timezone)}`}
@@ -167,19 +170,19 @@ export function WorldClockWidget() {
       </div>
 
       {/* 구분선 */}
-      <div className="w-full max-w-sm h-px bg-border" />
+      <div className="w-full max-w-sm h-px bg-(--color-border-primary)" />
 
       {/* 미니 캘린더 */}
       <div className="flex flex-col items-center gap-3">
         {/* 년월 표시 */}
-        <div className="text-lg font-medium">
+        <div className="text-lg font-medium text-(--color-text-primary)">
           {locale === 'ko'
             ? `${currentDate.year}년 ${monthNames.ko[currentDate.month]}`
             : `${monthNames.en[currentDate.month]} ${currentDate.year}`}
         </div>
 
         {/* 요일 헤더 */}
-        <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
+        <div className="grid grid-cols-7 gap-1 text-center text-xs text-(--color-text-tertiary)">
           {weekdayNames[locale].map((day) => (
             <div key={day} className="w-8 h-6 flex items-center justify-center">
               {day}
@@ -194,9 +197,9 @@ export function WorldClockWidget() {
               key={day ?? `empty-${index}`}
               className={`w-8 h-8 flex items-center justify-center text-sm rounded-full transition-colors ${
                 day === currentDate.day
-                  ? 'bg-primary text-primary-foreground font-semibold'
+                  ? 'bg-(--color-accent-primary) text-white font-semibold'
                   : day
-                    ? 'text-foreground hover:bg-muted'
+                    ? 'text-(--color-text-primary) hover:bg-(--color-bg-tertiary)'
                     : ''
               }`}
             >

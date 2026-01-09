@@ -19,6 +19,36 @@
     'Helvetica Neue', 'Segoe UI', Roboto, system-ui, sans-serif;
 
   /* ========================================
+     Sound Blue Compatible Variables
+     ======================================== */
+  --color-bg-primary: #f9fcfc;
+  --color-bg-secondary: #e8f0ef;
+  --color-bg-tertiary: #d8e5e3;
+  --color-bg-elevated: #ffffff;
+
+  --color-text-primary: #2a3836;
+  --color-text-secondary: #4a5e5a;
+  --color-text-tertiary: #566a65;
+
+  --color-border-primary: #d5e0dd;
+  --color-border-secondary: #e5efec;
+  --color-border-focus: #4a9e95;
+
+  --color-interactive-hover: rgba(74, 158, 149, 0.08);
+  --color-interactive-active: rgba(74, 158, 149, 0.15);
+
+  --color-accent-primary: #4a9e95;
+  --color-accent-secondary: #5daea2;
+  --color-accent-light: rgba(126, 196, 184, 0.18);
+
+  /* Layout Dimensions */
+  --header-height: 56px;
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 64px;
+  --bottom-nav-height: 56px;
+  --touch-target-min: 44px;
+
+  /* ========================================
      Light Mode - "Clean Slate"
      New Design Request
      ======================================== */
@@ -122,6 +152,27 @@
      New Design Request
      ======================================== */
 [data-theme='dark'] {
+  /* Sound Blue Compatible Variables - Dark */
+  --color-bg-primary: #0c1312;
+  --color-bg-secondary: #182220;
+  --color-bg-tertiary: #243331;
+  --color-bg-elevated: #2e3f3d;
+
+  --color-text-primary: #e5f0ee;
+  --color-text-secondary: #b0c5c2;
+  --color-text-tertiary: #a3bdb8;
+
+  --color-border-primary: #2e3e3c;
+  --color-border-secondary: #1e2928;
+  --color-border-focus: #6ecec5;
+
+  --color-interactive-hover: rgba(110, 206, 197, 0.1);
+  --color-interactive-active: rgba(110, 206, 197, 0.18);
+
+  --color-accent-primary: #6ecec5;
+  --color-accent-secondary: #85d8d0;
+  --color-accent-light: rgba(110, 206, 197, 0.2);
+
   --background: 218 36% 10%;
   /* #101622 */
   --foreground: 0 0% 100%;
@@ -310,6 +361,7 @@
   --animate-slide-from-bottom: slideFromBottom 0.15s cubic-bezier(0.32, 0.72, 0, 1);
   --animate-slide-from-left: slideFromLeft 0.15s cubic-bezier(0.32, 0.72, 0, 1);
   --animate-slide-from-right: slideFromRight 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-fade-in-up: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* ========================================
@@ -323,6 +375,18 @@
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

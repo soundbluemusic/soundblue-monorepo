@@ -1,50 +1,112 @@
 'use client';
 
 import { useParaglideI18n } from '@soundblue/i18n';
-import { Grid, Home, Settings, Star } from 'lucide-react';
+import { NavLink } from 'react-router';
+
+// ========================================
+// Icon Components
+// ========================================
+
+function HomeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+      />
+    </svg>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+  );
+}
+
+function ChartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+      />
+    </svg>
+  );
+}
+
+function SitemapIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+      />
+    </svg>
+  );
+}
+
+// ========================================
+// BottomNavigation Component - Sound Blue Style
+// ========================================
 
 export function BottomNavigation() {
-  const { locale } = useParaglideI18n();
+  const { locale, localizedPath } = useParaglideI18n();
 
-  const labels = {
-    home: locale === 'ko' ? '홈' : 'Home',
-    favorites: locale === 'ko' ? '즐겨찾기' : 'Favorites',
-    allTools: locale === 'ko' ? '모든 도구' : 'All Tools',
-    settings: locale === 'ko' ? '설정' : 'Settings',
+  const t = {
+    navHome: locale === 'ko' ? '홈' : 'Home',
+    navAbout: locale === 'ko' ? '소개' : 'About',
+    navBenchmark: locale === 'ko' ? '벤치' : 'Bench',
+    navSitemap: locale === 'ko' ? '맵' : 'Map',
   };
 
+  const items = [
+    { path: localizedPath('/'), icon: HomeIcon, label: t.navHome },
+    { path: localizedPath('/about'), icon: InfoIcon, label: t.navAbout },
+    { path: localizedPath('/benchmark'), icon: ChartIcon, label: t.navBenchmark },
+    { path: localizedPath('/sitemap'), icon: SitemapIcon, label: t.navSitemap },
+  ];
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-(--background)/80 backdrop-blur-xl border-t border-(--border) safe-area-inset">
-      <div className="flex items-center justify-around h-16 pb-2">
-        <button
-          type="button"
-          className="flex flex-col items-center justify-center w-full h-full gap-1 text-(--primary)"
-        >
-          <Home className="h-6 w-6 fill-current" />
-          <span className="text-[10px] font-medium">{labels.home}</span>
-        </button>
-        <button
-          type="button"
-          className="flex flex-col items-center justify-center w-full h-full gap-1 text-(--muted-foreground) hover:text-(--foreground) transition-colors"
-        >
-          <Star className="h-6 w-6" />
-          <span className="text-[10px] font-medium">{labels.favorites}</span>
-        </button>
-        <button
-          type="button"
-          className="flex flex-col items-center justify-center w-full h-full gap-1 text-(--muted-foreground) hover:text-(--foreground) transition-colors"
-        >
-          <Grid className="h-6 w-6" />
-          <span className="text-[10px] font-medium">{labels.allTools}</span>
-        </button>
-        <button
-          type="button"
-          className="flex flex-col items-center justify-center w-full h-full gap-1 text-(--muted-foreground) hover:text-(--foreground) transition-colors"
-        >
-          <Settings className="h-6 w-6" />
-          <span className="text-[10px] font-medium">{labels.settings}</span>
-        </button>
-      </div>
+    <nav
+      className="hidden max-md:block fixed bottom-0 left-0 right-0 h-(--bottom-nav-height) bg-(--color-bg-secondary) border-t border-(--color-border-primary) z-50 pb-[env(safe-area-inset-bottom)]"
+      aria-label="Mobile navigation"
+    >
+      <ul className="flex items-center justify-around h-full m-0 p-0 list-none">
+        {items.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <li key={item.path} className="flex-1 h-full">
+              <NavLink
+                to={item.path}
+                end={item.path === localizedPath('/')}
+                className={({ isActive }) =>
+                  `flex flex-col items-center justify-center gap-1 h-full p-2 no-underline transition-all duration-150 active:scale-95 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 ${
+                    isActive
+                      ? 'text-(--color-accent-primary)'
+                      : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
+                  }`
+                }
+              >
+                <span className="flex items-center justify-center w-6 h-6 [&>svg]:w-full [&>svg]:h-full">
+                  <Icon />
+                </span>
+                <span className="text-[0.6875rem] font-medium">{item.label}</span>
+              </NavLink>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }
