@@ -228,21 +228,21 @@ const sectionTitles: Record<string, string> = {
 
 function LibraryItem({ item }: { item: OpenSourceItem }) {
   return (
-    <li className="flex items-center justify-between py-2 border-b border-(--border) last:border-b-0">
+    <li className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
       <div className="flex items-center gap-3">
         <a
           href={item.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-medium text-(--foreground) hover:text-(--color-accent-primary) hover:underline"
+          className="font-medium text-foreground hover:text-(--color-accent-primary) hover:underline"
         >
           {item.name}
         </a>
         {item.description && (
-          <span className="text-sm text-(--muted-foreground)">- {item.description}</span>
+          <span className="text-sm text-muted-foreground">- {item.description}</span>
         )}
       </div>
-      <span className="text-xs px-2 py-0.5 rounded bg-(--secondary) text-(--muted-foreground)">
+      <span className="text-xs px-2 py-0.5 rounded bg-(--secondary) text-muted-foreground">
         {item.license}
       </span>
     </li>
@@ -265,8 +265,8 @@ export default function BuiltWith() {
       >
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-6 text-2xl font-bold sm:text-3xl">{m['navigation_builtWith']?.()}</h1>
-          <p className="mb-4 text-(--muted-foreground)">{m['builtWith_intro']?.()}</p>
-          <p className="mb-8 text-sm text-(--muted-foreground)">
+          <p className="mb-4 text-muted-foreground">{m['builtWith_intro']?.()}</p>
+          <p className="mb-8 text-sm text-muted-foreground">
             This project uses <strong>{totalCount}</strong> open source libraries. All libraries
             listed below are freely available under open source licenses.
           </p>
@@ -275,9 +275,7 @@ export default function BuiltWith() {
             <section key={category} className="mb-8">
               <h2 className="mb-4 text-xl font-semibold flex items-center gap-2">
                 {sectionTitles[category]}
-                <span className="text-sm font-normal text-(--muted-foreground)">
-                  ({items.length})
-                </span>
+                <span className="text-sm font-normal text-muted-foreground">({items.length})</span>
               </h2>
               <ul className="flex flex-col">
                 {items.map((item) => (
@@ -289,20 +287,20 @@ export default function BuiltWith() {
 
           <section className="mb-8 p-4 rounded-lg bg-(--secondary)">
             <h2 className="mb-2 text-lg font-semibold">Browser APIs</h2>
-            <ul className="flex flex-wrap gap-2 text-sm text-(--muted-foreground)">
-              <li className="px-2 py-1 rounded bg-(--background)">Web Audio API</li>
-              <li className="px-2 py-1 rounded bg-(--background)">Canvas API</li>
-              <li className="px-2 py-1 rounded bg-(--background)">Service Worker</li>
-              <li className="px-2 py-1 rounded bg-(--background)">IndexedDB</li>
-              <li className="px-2 py-1 rounded bg-(--background)">Web Workers</li>
+            <ul className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+              <li className="px-2 py-1 rounded bg-background">Web Audio API</li>
+              <li className="px-2 py-1 rounded bg-background">Canvas API</li>
+              <li className="px-2 py-1 rounded bg-background">Service Worker</li>
+              <li className="px-2 py-1 rounded bg-background">IndexedDB</li>
+              <li className="px-2 py-1 rounded bg-background">Web Workers</li>
             </ul>
           </section>
 
           <section className="mb-8 p-4 rounded-lg bg-(--secondary)">
             <h2 className="mb-2 text-lg font-semibold">Deployment</h2>
-            <ul className="flex flex-wrap gap-2 text-sm text-(--muted-foreground)">
-              <li className="px-2 py-1 rounded bg-(--background)">Cloudflare Pages</li>
-              <li className="px-2 py-1 rounded bg-(--background)">100% SSG</li>
+            <ul className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+              <li className="px-2 py-1 rounded bg-background">Cloudflare Pages</li>
+              <li className="px-2 py-1 rounded bg-background">100% SSG</li>
             </ul>
           </section>
         </div>

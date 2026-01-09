@@ -30,7 +30,7 @@ export function CategorySection() {
 
   return (
     <section className="pt-6 px-4">
-      <h2 className="text-lg font-bold leading-tight mb-3 text-(--foreground)">
+      <h2 className="text-lg font-bold leading-tight mb-3 text-foreground">
         {m['home_categories']?.() ?? (locale === 'ko' ? '카테고리' : 'Categories')}
       </h2>
       <div className="grid grid-cols-2 gap-3">
@@ -39,14 +39,14 @@ export function CategorySection() {
             key={cat.id}
             type="button"
             onClick={() => navigate(localizedPath(`/${cat.tools[0]}`))}
-            className="flex flex-col items-center justify-center gap-3 rounded-xl bg-(--card) p-6 shadow-sm ring-1 ring-(--border) active:scale-95 transition-transform hover:bg-(--muted)/50"
+            className="flex flex-col items-center justify-center gap-3 rounded-xl bg-card p-6 shadow-sm ring-1 ring-border active:scale-95 transition-transform hover:bg-muted/50"
           >
             <div
               className={`flex h-12 w-12 items-center justify-center rounded-full ${cat.bgClass} ${cat.colorClass}`}
             >
               {cat.icon}
             </div>
-            <span className="text-sm font-semibold text-(--foreground)">{cat.name[locale]}</span>
+            <span className="text-sm font-semibold text-foreground">{cat.name[locale]}</span>
           </button>
         ))}
       </div>
