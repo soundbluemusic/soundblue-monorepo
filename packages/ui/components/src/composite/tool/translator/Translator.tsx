@@ -416,7 +416,7 @@ export function Translator({
                 ? '번역할 텍스트를 입력하세요...'
                 : 'Enter text to translate...'
             }
-            className="h-full w-full resize-none rounded-xl border border-border bg-background p-3 text-sm transition-[border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
+            className="h-full w-full resize-none rounded-xl border border-border bg-background p-3 text-sm transition-[border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
 

@@ -242,7 +242,7 @@ function LibraryItem({ item }: { item: OpenSourceItem }) {
           <span className="text-sm text-muted-foreground">- {item.description}</span>
         )}
       </div>
-      <span className="text-xs px-2 py-0.5 rounded bg-(--secondary) text-muted-foreground">
+      <span className="text-xs px-2 py-0.5 rounded bg-secondary text-muted-foreground">
         {item.license}
       </span>
     </li>
@@ -259,7 +259,7 @@ export default function BuiltWith() {
       <ToolSidebar />
 
       <main
-        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:p-8 sm:pt-(--header-height) ${
+        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:pr-8 sm:pb-8 sm:pt-(--header-height) ${
           sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
         } max-md:pl-0`}
       >
@@ -285,7 +285,7 @@ export default function BuiltWith() {
             </section>
           ))}
 
-          <section className="mb-8 p-4 rounded-lg bg-(--secondary)">
+          <section className="mb-8 p-4 rounded-lg bg-secondary">
             <h2 className="mb-2 text-lg font-semibold">Browser APIs</h2>
             <ul className="flex flex-wrap gap-2 text-sm text-muted-foreground">
               <li className="px-2 py-1 rounded bg-background">Web Audio API</li>
@@ -296,7 +296,7 @@ export default function BuiltWith() {
             </ul>
           </section>
 
-          <section className="mb-8 p-4 rounded-lg bg-(--secondary)">
+          <section className="mb-8 p-4 rounded-lg bg-secondary">
             <h2 className="mb-2 text-lg font-semibold">Deployment</h2>
             <ul className="flex flex-wrap gap-2 text-sm text-muted-foreground">
               <li className="px-2 py-1 rounded bg-background">Cloudflare Pages</li>
