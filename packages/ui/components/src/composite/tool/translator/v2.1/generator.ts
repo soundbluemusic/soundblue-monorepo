@@ -27,6 +27,33 @@ import {
 import type { Formality, ParsedSentence, SentenceType, Tense, Token } from './types';
 
 // ============================================
+// 한국어 주어 대명사 → 영어 주격 변환
+// ============================================
+const KO_SUBJECT_TO_EN: Record<string, string> = {
+  나: 'I',
+  내: 'I',
+  저: 'I',
+  제: 'I',
+  너: 'you',
+  네: 'you',
+  당신: 'you',
+  그: 'he',
+  그녀: 'she',
+  우리: 'we',
+  저희: 'we',
+  그들: 'they',
+  그것: 'it',
+};
+
+/**
+ * 한국어 주어 대명사를 영어 주격으로 변환
+ * data.ts의 KO_EN에서 '나'='me'로 되어 있어도 주어 위치에서는 'I'로 변환
+ */
+function translateSubjectPronoun(korean: string, fallback: string): string {
+  return KO_SUBJECT_TO_EN[korean] || fallback;
+}
+
+// ============================================
 // 한글 자모 처리 유틸리티
 // ============================================
 
@@ -774,10 +801,11 @@ function generateWithAuxiliaryPattern(parsed: ParsedSentence): string {
 
   for (const token of parsed.tokens) {
     if (token.role === 'subject') {
-      // 주어 번역 (한→영: translated 값을 그대로 사용)
+      // 주어 번역 (한→영: 주격 대명사 변환 적용)
       const translated = token.translated || KO_EN[token.stem];
       if (translated) {
-        subject = translated;
+        // 주어 위치에서는 '나'→'I', '너'→'you' 등으로 변환
+        subject = translateSubjectPronoun(token.stem, translated);
       }
     } else if (token.role === 'verb' && token.meta?.auxiliaryMeaning) {
       // 보조용언 패턴의 동사
@@ -915,10 +943,10 @@ function generatePassiveEnglish(parsed: ParsedSentence): string {
   let subject = '';
   for (const token of parsed.tokens) {
     if (token.role === 'subject') {
-      // 주어 번역
+      // 주어 번역 (주격 대명사 변환 적용)
       const translated = token.translated || KO_EN[token.stem] || KO_EN[token.text];
       if (translated) {
-        subject = translated;
+        subject = translateSubjectPronoun(token.stem, translated);
       }
     }
   }
@@ -2329,12 +2357,21 @@ export function generateEnglish(parsed: ParsedSentence): string {
   // L5: 한국어 주어-동사 패턴
   // 주어 + 조사(은/는/이/가) + 동사
   const koSubjectVerbMap: Record<string, { en: string; isPlural: boolean }> = {
+    나: { en: 'I', isPlural: false },
+    나는: { en: 'I', isPlural: false },
+    내가: { en: 'I', isPlural: false },
+    너: { en: 'You', isPlural: false },
+    너는: { en: 'You', isPlural: false },
+    네가: { en: 'You', isPlural: false },
     그: { en: 'He', isPlural: false },
     그는: { en: 'He', isPlural: false },
     그가: { en: 'He', isPlural: false },
     그녀: { en: 'She', isPlural: false },
     그녀는: { en: 'She', isPlural: false },
     그녀가: { en: 'She', isPlural: false },
+    우리: { en: 'We', isPlural: true },
+    우리는: { en: 'We', isPlural: true },
+    우리가: { en: 'We', isPlural: true },
     그들: { en: 'They', isPlural: true },
     그들은: { en: 'They', isPlural: true },
     그들이: { en: 'They', isPlural: true },
@@ -2516,19 +2553,179 @@ export function generateEnglish(parsed: ParsedSentence): string {
     return `${subjectEn} was ${ppEn}`;
   }
 
-  // L9: 한국어 능동태 → 영어 SVO
+  // L9-EXT: 부사구/수식어 포함 복합 SVO 패턴 (L9보다 먼저 체크!)
+  // "나는 어제 친구와 함께 맛있는 파스타를 먹었어." → "I ate delicious pasta with my friend yesterday."
+  // "우리는 주말에 새로 생긴 카페에서 브런치를 먹었어." → "We had brunch at the new cafe on the weekend."
+  // "그는 생일 선물로 비싼 시계와 예쁜 꽃을 샀어." → "He bought an expensive watch and pretty flowers for a birthday gift."
+  // 패턴: 공백이 3개 이상인 복잡한 문장만 처리 (단순 SVO는 L9로)
+  // 목적어는 한글+을/를로 끝나는 단어 하나만 캡처, middle은 greedy하게 매칭
+  const spaceCount = (originalText.match(/\s+/g) || []).length;
+  if (spaceCount >= 3) {
+    const koComplexSVOPatternEarly = originalText.match(
+      /^(.+?[은는이가])\s+(.+)\s+([가-힣]+[을를])\s+(.+?)\.?$/,
+    );
+    if (koComplexSVOPatternEarly) {
+      const subjectWithParticle = koComplexSVOPatternEarly[1];
+      const subjectKo = subjectWithParticle.replace(/[은는이가]$/, '');
+      const middlePart = koComplexSVOPatternEarly[2]; // 부사구들
+      const objectWithParticle = koComplexSVOPatternEarly[3];
+      const objectKo = objectWithParticle.replace(/[을를]$/, '');
+      const verbConjugated = koComplexSVOPatternEarly[4];
+
+      // 주어 매핑
+      const subjMap: Record<string, string> = {
+        나: 'I',
+        너: 'You',
+        그: 'He',
+        그녀: 'She',
+        우리: 'We',
+        그들: 'They',
+      };
+
+      // 시간 부사 매핑
+      const timeAdvMap: Record<string, string> = {
+        어제: 'yesterday',
+        오늘: 'today',
+        내일: 'tomorrow',
+        주말에: 'on the weekend',
+        지난주에: 'last week',
+        지난달에: 'last month',
+      };
+
+      // 형용사 매핑 (먼저 형용사 분리 후 동반자/장소 검색)
+      const adjMap: Record<string, string> = {
+        맛있는: 'delicious',
+        비싼: 'expensive',
+        예쁜: 'pretty',
+        새로운: 'new',
+        '새로 생긴': 'new',
+        좋은: 'good',
+        큰: 'big',
+        작은: 'small',
+      };
+
+      // middlePart에서 형용사 분리 (regex 수정으로 형용사가 middlePart 끝에 위치)
+      let adj = '';
+      let cleanMiddle = middlePart;
+      for (const [koAdj, enAdj] of Object.entries(adjMap)) {
+        if (middlePart.endsWith(koAdj)) {
+          adj = enAdj;
+          cleanMiddle = middlePart.slice(0, -koAdj.length).trim();
+          break;
+        }
+      }
+
+      // 동반자/장소 패턴 처리 (형용사 분리 후 cleanMiddle에서 검색)
+      const companionPat = cleanMiddle.match(/(.+?)(와|과)\s*함께/);
+      const locationPat = cleanMiddle.match(/(.+?)(에서)/);
+
+      // 명사 매핑
+      const nMap: Record<string, string> = {
+        파스타: 'pasta',
+        브런치: 'brunch',
+        커피: 'coffee',
+        시계: 'watch',
+        꽃: 'flowers',
+        선물: 'gift',
+        카페: 'cafe',
+      };
+
+      // 동사 과거형 매핑
+      const vPastMap: Record<string, string> = {
+        먹었어: 'ate',
+        먹었다: 'ate',
+        샀어: 'bought',
+        샀다: 'bought',
+        마셨어: 'drank',
+        마셨다: 'drank',
+        봤어: 'watched',
+        봤다: 'watched',
+        갔어: 'went',
+        갔다: 'went',
+        했어: 'had',
+        했다: 'had',
+      };
+
+      const vEn = vPastMap[verbConjugated];
+      if (vEn) {
+        const sEn = subjMap[subjectKo] || KO_EN[subjectKo] || subjectKo;
+
+        // 목적어 구성
+        let oEn = '';
+        if (adj) {
+          const oNoun = nMap[objectKo] || KO_EN[objectKo] || objectKo;
+          oEn = `${adj} ${oNoun}`;
+        } else {
+          oEn = nMap[objectKo] || KO_EN[objectKo] || objectKo;
+        }
+
+        // 부사구 처리
+        const advParts: string[] = [];
+
+        // 동반자 처리: "친구와 함께" → "with my friend"
+        if (companionPat) {
+          const comp = companionPat[1];
+          const compEn =
+            comp === '친구'
+              ? 'my friend'
+              : comp === '동료들'
+                ? 'my colleagues'
+                : comp === '가족'
+                  ? 'my family'
+                  : KO_EN[comp] || comp;
+          advParts.push(`with ${compEn}`);
+        }
+
+        // 장소 처리: "카페에서" → "at the cafe"
+        if (locationPat) {
+          const loc = locationPat[1];
+          let locEn = '';
+          if (loc.includes('새로 생긴')) {
+            const place = loc.replace('새로 생긴', '').trim();
+            const placeEn = nMap[place] || KO_EN[place] || place;
+            locEn = `the new ${placeEn}`;
+          } else {
+            locEn = `the ${nMap[loc] || KO_EN[loc] || loc}`;
+          }
+          advParts.push(`at ${locEn}`);
+        }
+
+        // 시간 부사 처리
+        for (const [koTime, enTime] of Object.entries(timeAdvMap)) {
+          if (middlePart.includes(koTime)) {
+            advParts.push(enTime);
+            break;
+          }
+        }
+
+        // 문장 조립: S + V + O + adverbs
+        const advStr = advParts.length > 0 ? ` ${advParts.join(' ')}` : '';
+        return `${sEn} ${vEn} ${oEn}${advStr}.`;
+      }
+    }
+  }
+
+  // L9: 한국어 능동태 → 영어 SVO (단순 문장용)
   // "나는 사과를 먹었다" → "I ate an apple"
   // "그는 문을 닫았다" → "He closed the door"
-  const koActiveSVOPattern = originalText.match(
-    /^(.+?)[은는이가]\s*(.+?)[을를]\s*(.+)(었다|았다)$/,
-  );
+  // "나는 커피를 마셨어." → "I drank coffee."
+  // 패턴: 주어+조사 + 목적어+조사 + 동사(활용형)
+  const koActiveSVOPattern = originalText.match(/^(.+?[은는이가])\s+(.+?[을를])\s+(.+?)\.?$/);
   if (koActiveSVOPattern) {
-    const subjectKo = koActiveSVOPattern[1];
-    const objectKo = koActiveSVOPattern[2];
-    const verbStem = koActiveSVOPattern[3];
+    // 주어에서 조사 분리: '나는' → '나'
+    const subjectWithParticle = koActiveSVOPattern[1];
+    const subjectKo = subjectWithParticle.replace(/[은는이가]$/, '');
+
+    // 목적어에서 조사 분리: '커피를' → '커피'
+    const objectWithParticle = koActiveSVOPattern[2];
+    const objectKo = objectWithParticle.replace(/[을를]$/, '');
+
+    // 동사 활용형 전체: '마셨어', '먹었다' 등
+    const verbConjugated = koActiveSVOPattern[3];
 
     const subjectMap: Record<string, string> = {
       나: 'I',
+      너: 'You',
       그: 'He',
       그녀: 'She',
       우리: 'We',
@@ -2540,20 +2737,91 @@ export function generateEnglish(parsed: ParsedSentence): string {
       문: 'the door',
       책: 'the book',
       밥: 'rice',
+      커피: 'coffee',
+      노래: 'a song',
     };
 
+    // 동사 활용형 전체 → 영어 과거형 매핑
+    // 축약형 포함: 마셨어 (마시+었어), 불렀어 (부르+었어)
     const verbPastMap: Record<string, string> = {
-      먹: 'ate',
-      닫: 'closed',
-      열: 'opened',
-      읽: 'read',
-      샀: 'bought',
+      먹었다: 'ate',
+      먹었어: 'ate',
+      닫았다: 'closed',
+      닫았어: 'closed',
+      열었다: 'opened',
+      열었어: 'opened',
+      읽었다: 'read',
+      읽었어: 'read',
+      샀다: 'bought',
+      샀어: 'bought',
+      마셨다: 'drank', // 마시다 → 마셨 (ㅣ+었 축약)
+      마셨어: 'drank',
+      불렀다: 'sang', // 부르다 → 불렀 (르 불규칙)
+      불렀어: 'sang',
     };
 
-    const subjectEn = subjectMap[subjectKo] || KO_EN[subjectKo] || subjectKo;
-    const objectEn = objectMap[objectKo] || KO_EN[objectKo] || objectKo;
-    const verbEn = verbPastMap[verbStem] || `${verbStem}ed`;
-    return `${subjectEn} ${verbEn} ${objectEn}`;
+    // 과거 시제 검증: 동사가 과거형인 경우만 처리
+    const verbEn = verbPastMap[verbConjugated];
+    if (verbEn) {
+      const subjectEn = subjectMap[subjectKo] || KO_EN[subjectKo] || subjectKo;
+      const objectEn = objectMap[objectKo] || KO_EN[objectKo] || objectKo;
+      return `${subjectEn} ${verbEn} ${objectEn}.`;
+    }
+  }
+
+  // L9-Q: 한국어 의문문 → 영어 Did + SVO?
+  // "너는 영화를 봤어?" → "Did you watch the movie?"
+  // "그녀는 책을 읽었어?" → "Did she read the book?"
+  // 패턴: 주어+조사 + 목적어+조사 + 동사(활용형)?
+  const koQuestionSVOPattern = originalText.match(/^(.+?[은는이가])\s+(.+?[을를])\s+(.+?)\?$/);
+  if (koQuestionSVOPattern) {
+    // 주어에서 조사 분리: '너는' → '너'
+    const subjectWithParticle = koQuestionSVOPattern[1];
+    const subjectKo = subjectWithParticle.replace(/[은는이가]$/, '');
+
+    // 목적어에서 조사 분리: '영화를' → '영화'
+    const objectWithParticle = koQuestionSVOPattern[2];
+    const objectKo = objectWithParticle.replace(/[을를]$/, '');
+
+    // 동사 활용형 전체: '봤어', '먹었어' 등
+    const verbConjugated = koQuestionSVOPattern[3];
+
+    const subjectMap: Record<string, string> = {
+      나: 'I',
+      너: 'you',
+      그: 'he',
+      그녀: 'she',
+      우리: 'we',
+      그들: 'they',
+    };
+
+    const objectMap: Record<string, string> = {
+      영화: 'the movie',
+      책: 'the book',
+      음악: 'music',
+      밥: 'food',
+    };
+
+    // 동사 활용형 전체 → 영어 원형 (Did + V 구조)
+    // 축약형 포함: 봤어 (보+았어), 먹었어 (먹+었어)
+    const verbBaseMap: Record<string, string> = {
+      봤어: 'watch', // 보다 → 봤어 (ㅗ+았 축약)
+      봤니: 'watch',
+      먹었어: 'eat',
+      먹었니: 'eat',
+      읽었어: 'read',
+      읽었니: 'read',
+      들었어: 'listen to',
+      들었니: 'listen to',
+    };
+
+    // 과거 의문문 검증
+    const verbEn = verbBaseMap[verbConjugated];
+    if (verbEn) {
+      const subjectEn = subjectMap[subjectKo] || (KO_EN[subjectKo] || subjectKo).toLowerCase();
+      const objectEn = objectMap[objectKo] || KO_EN[objectKo] || objectKo;
+      return `Did ${subjectEn} ${verbEn} ${objectEn}?`;
+    }
   }
 
   // ============================================
@@ -3839,6 +4107,7 @@ function generateCounterPhrase(numbers: Token[], counters: Token[], nouns: Token
  * 문맥 기반 명사 번역 적용:
  * - NOUN_CONTEXT에 정의된 명사는 주변 토큰을 힌트로 사용
  * - 힌트 매칭 시 해당 번역 사용, 없으면 default 사용
+ * - 주어 역할의 토큰은 주격 대명사로 변환 (나 → I, 너 → you)
  */
 function translateTokens(tokens: Token[], contextTokens?: Token[]): string {
   // 문맥 힌트 수집 (모든 토큰의 어간)
@@ -3852,14 +4121,31 @@ function translateTokens(tokens: Token[], contextTokens?: Token[]): string {
   return tokens
     .map((t) => {
       // 이미 번역된 경우
-      if (t.translated) return t.translated;
+      if (t.translated) {
+        // 주어 역할이면 주격 대명사로 변환
+        if (t.role === 'subject') {
+          return translateSubjectPronoun(t.stem, t.translated);
+        }
+        return t.translated;
+      }
 
       // 문맥 기반 명사 번역 시도
       const contextTranslation = resolveNounContext(t.stem, contextHints);
-      if (contextTranslation) return contextTranslation;
+      if (contextTranslation) {
+        // 주어 역할이면 주격 대명사로 변환
+        if (t.role === 'subject') {
+          return translateSubjectPronoun(t.stem, contextTranslation);
+        }
+        return contextTranslation;
+      }
 
       // 기본 사전 조회
-      return KO_EN[t.stem] || t.stem;
+      const translation = KO_EN[t.stem] || t.stem;
+      // 주어 역할이면 주격 대명사로 변환
+      if (t.role === 'subject') {
+        return translateSubjectPronoun(t.stem, translation);
+      }
+      return translation;
     })
     .join(' ');
 }

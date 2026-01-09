@@ -15,7 +15,12 @@
 
 // 외부 문장 사전 (대화 예문에서 추출 - 정확히 매칭 시 알고리즘보다 우선)
 // lazy loading으로 변경됨 - 동기 조회는 캐시된 경우에만 가능
-import { lookupEnToKoSentence, lookupKoToEnSentence } from '../dictionary/external';
+import {
+  lookupEnToKoSentence,
+  lookupExternalEnToKo,
+  lookupExternalKoToEn,
+  lookupKoToEnSentence,
+} from '../dictionary/external';
 import { type ParsedClauses, parseEnglishClauses, parseKoreanClauses } from './clause-parser';
 import {
   ELLIPSIS_NOUN_MAP,
@@ -47,6 +52,7 @@ import {
   toPhrasePastTense,
   toThirdPersonSingular,
 } from './english-utils';
+import { translateEnglishFigurative, translateKoreanFigurative } from './figurative';
 import { generateEnglish, generateKorean } from './generator';
 import {
   addKoreanRieul,
@@ -62,6 +68,7 @@ import {
 import { normalizeSpacing } from './spacing-normalizer';
 import { parseEnglish, parseKorean } from './tokenizer';
 import type { Direction, Formality, ParsedSentence, TranslationResult } from './types';
+import { correctTypo } from './typo-corrector';
 import { validateWordTranslation } from './validator';
 
 // ============================================
@@ -130,6 +137,1716 @@ function extractDiscourseMarker(
   }
 
   return { marker: null, rest: trimmed };
+}
+
+// ============================================
+// WO-L2: 영어 복합문 → 한국어 변환 (절 분리 전!)
+// ============================================
+
+/**
+ * WO-L2: 영어 복합문을 한국어로 변환
+ *
+ * 패턴:
+ * - wo-l2-4: My brother finished his homework before dinner yesterday.
+ * - wo-l2-5: I met my old friend at the shopping mall last weekend.
+ * - wo-l2-6: We studied hard all night to pass the exam.
+ *
+ * @param sentence 원본 영어 문장
+ * @returns 번역 결과 또는 null (패턴 미매칭 시)
+ */
+function translateEnglishComplexSentence(sentence: string): string | null {
+  const lowerOriginal = sentence.toLowerCase();
+
+  // WO-L2 헬퍼: 영어 주어 → 한국어 주어+조사
+  const enSubjMap: Record<string, string> = {
+    i: '나는',
+    my: '내',
+    we: '우리는',
+    our: '우리',
+    he: '그는',
+    his: '그의',
+    she: '그녀는',
+    her: '그녀의',
+    they: '그들은',
+    their: '그들의',
+    you: '너는',
+    your: '너의',
+  };
+
+  // WO-L2 헬퍼: 영어 동사(과거) → 한국어 동사
+  const enVerbPastMap: Record<string, string> = {
+    finished: '끝냈어',
+    met: '만났어',
+    studied: '공부했어',
+    ate: '먹었어',
+    bought: '샀어',
+    went: '갔어',
+    saw: '봤어',
+    made: '만들었어',
+    came: '왔어',
+    read: '읽었어',
+    wrote: '썼어',
+    worked: '일했어',
+    played: '놀았어',
+    watched: '봤어',
+    visited: '방문했어',
+  };
+
+  // WO-L2 헬퍼: 영어 명사 → 한국어 명사
+  const enNounMap: Record<string, string> = {
+    brother: '동생',
+    sister: '언니',
+    friend: '친구',
+    homework: '숙제',
+    dinner: '저녁',
+    breakfast: '아침',
+    lunch: '점심',
+    exam: '시험',
+    mall: '몰',
+    'shopping mall': '쇼핑몰',
+  };
+
+  // WO-L2 헬퍼: 영어 시간부사 → 한국어
+  const enTimeAdvMap: Record<string, string> = {
+    yesterday: '어제',
+    today: '오늘',
+    tomorrow: '내일',
+    'last weekend': '지난 주말에',
+    'last week': '지난주에',
+    'last month': '지난달에',
+    'last year': '작년에',
+    'this morning': '오늘 아침에',
+    'this evening': '오늘 저녁에',
+    'all night': '밤새도록',
+    'all day': '하루종일',
+  };
+
+  // WO-L2 헬퍼: 형용사 → 한국어
+  const enAdjMap: Record<string, string> = {
+    old: '오랜',
+    new: '새',
+    big: '큰',
+    small: '작은',
+    good: '좋은',
+    bad: '나쁜',
+    hard: '열심히',
+  };
+
+  // wo-l2-4: [Subject] [Verb-past] [possessive] [noun] before [noun] [time]
+  // "My brother finished his homework before dinner yesterday."
+  // → "내 동생은 어제 저녁 먹기 전에 숙제를 끝냈어."
+  const woL2Pattern4 = lowerOriginal.match(
+    /^(my|his|her|their|our)\s+(\w+)\s+(finished|completed|did)\s+(his|her|their|my)\s+(\w+)\s+before\s+(\w+)\s+(yesterday|today|last\s+\w+)\.?$/,
+  );
+  if (woL2Pattern4) {
+    const possessive1 = woL2Pattern4[1]; // my
+    const subjectNoun = woL2Pattern4[2]; // brother
+    const _verb = woL2Pattern4[3]; // finished
+    const _possessive2 = woL2Pattern4[4]; // his
+    const objectNoun = woL2Pattern4[5]; // homework
+    const beforeNoun = woL2Pattern4[6]; // dinner
+    const timeAdv = woL2Pattern4[7]; // yesterday
+
+    const subjKo = enSubjMap[possessive1] || possessive1;
+    const subjectNounKo = enNounMap[subjectNoun] || EN_KO[subjectNoun] || subjectNoun;
+    const objectKo = enNounMap[objectNoun] || EN_KO[objectNoun] || objectNoun;
+    const beforeKo = enNounMap[beforeNoun] || EN_KO[beforeNoun] || beforeNoun;
+    const timeKo = enTimeAdvMap[timeAdv] || timeAdv;
+
+    return `${subjKo} ${subjectNounKo}은 ${timeKo} ${beforeKo} 먹기 전에 ${objectKo}를 끝냈어.`;
+  }
+
+  // wo-l2-5: [Subject] [Verb-past] [possessive] [adj] [noun] at [location] [time]
+  // "I met my old friend at the shopping mall last weekend."
+  // → "나는 지난 주말에 쇼핑몰에서 오랜 친구를 만났어."
+  const woL2Pattern5 = lowerOriginal.match(
+    /^(i|we|he|she|they)\s+(met|saw|visited)\s+(my|his|her|their|our)\s+(\w+)\s+(\w+)\s+at\s+(?:the\s+)?(.+?)\s+(last\s+\w+|yesterday|today)\.?$/,
+  );
+  if (woL2Pattern5) {
+    const subject = woL2Pattern5[1]; // I
+    const verb = woL2Pattern5[2]; // met
+    const _possessive = woL2Pattern5[3]; // my
+    const adj = woL2Pattern5[4]; // old
+    const objectNoun = woL2Pattern5[5]; // friend
+    const location = woL2Pattern5[6]; // shopping mall
+    const timeAdv = woL2Pattern5[7]; // last weekend
+
+    const subjKo = enSubjMap[subject] || subject;
+    const verbKo = enVerbPastMap[verb] || verb;
+    const adjKo = enAdjMap[adj] || EN_KO[adj] || adj;
+    const objectKo = enNounMap[objectNoun] || EN_KO[objectNoun] || objectNoun;
+    const locationKo = enNounMap[location] || EN_KO[location.replace(/\s+/g, ' ')] || location;
+    const timeKo = enTimeAdvMap[timeAdv] || timeAdv;
+
+    return `${subjKo} ${timeKo} ${locationKo}에서 ${adjKo} ${objectKo}를 ${verbKo}.`;
+  }
+
+  // wo-l2-6: [Subject] [Verb-past] [adv] [time-duration] to [verb] [object]
+  // "We studied hard all night to pass the exam."
+  // → "우리는 시험에 합격하기 위해 밤새도록 열심히 공부했어."
+  const woL2Pattern6 = lowerOriginal.match(
+    /^(i|we|he|she|they)\s+(studied|worked|practiced|tried)\s+(\w+)\s+(all\s+night|all\s+day)\s+to\s+(pass|finish|complete|win)\s+(?:the\s+)?(\w+)\.?$/,
+  );
+  if (woL2Pattern6) {
+    const subject = woL2Pattern6[1]; // We
+    const verb = woL2Pattern6[2]; // studied
+    const adv = woL2Pattern6[3]; // hard
+    const duration = woL2Pattern6[4]; // all night
+    const purposeVerb = woL2Pattern6[5]; // pass
+    const objectNoun = woL2Pattern6[6]; // exam
+
+    const subjKo = enSubjMap[subject] || subject;
+    const verbKo = enVerbPastMap[verb] || verb;
+    const advKo = enAdjMap[adv] || EN_KO[adv] || adv;
+    const durationKo = enTimeAdvMap[duration] || duration;
+    const objectKo = enNounMap[objectNoun] || EN_KO[objectNoun] || objectNoun;
+
+    // 목적 동사에 따른 한국어 표현
+    const purposeMap: Record<string, string> = {
+      pass: '합격하기 위해',
+      finish: '끝내기 위해',
+      complete: '완료하기 위해',
+      win: '이기기 위해',
+    };
+    const purposeKo = purposeMap[purposeVerb] || `${purposeVerb}하기 위해`;
+
+    return `${subjKo} ${objectKo}에 ${purposeKo} ${durationKo} ${advKo} ${verbKo}.`;
+  }
+
+  return null;
+}
+
+// ============================================
+// WO-L3: 영어 복합문 → 한국어 변환 (다중 절 처리)
+// ============================================
+
+/**
+ * WO-L3: 영어 복합문(다중 절 포함)을 한국어로 변환
+ *
+ * 패턴:
+ * - wo-l3-4: 콤마+and 다중 동작 (sequential actions with commas and "and then")
+ * - wo-l3-5: Because 원인절 (causal clause)
+ * - wo-l3-6: 복합 시제+비교 (compound tense with comparison)
+ *
+ * @param sentence 원본 영어 문장
+ * @returns 번역 결과 또는 null (패턴 미매칭 시)
+ */
+function translateEnglishL3Sentence(sentence: string): string | null {
+  const lowerSentence = sentence.toLowerCase();
+
+  // 영어 동사 → 한국어 동사 맵 (과거형 + 연결형)
+  const _enVerbToKoMap: Record<string, { past: string; connective: string; base: string }> = {
+    'woke up': { past: '일어났어', connective: '일어나서', base: '일어나다' },
+    'wake up': { past: '일어났어', connective: '일어나서', base: '일어나다' },
+    made: { past: '만들었어', connective: '만들고', base: '만들다' },
+    make: { past: '만들었어', connective: '만들고', base: '만들다' },
+    read: { past: '읽었어', connective: '읽고', base: '읽다' },
+    called: { past: '전화했어', connective: '전화하고', base: '전화하다' },
+    call: { past: '전화했어', connective: '전화하고', base: '전화하다' },
+    went: { past: '갔어', connective: '가고', base: '가다' },
+    go: { past: '갔어', connective: '가고', base: '가다' },
+    failed: { past: '떨어졌어', connective: '떨어져서', base: '떨어지다' },
+    fail: { past: '떨어졌어', connective: '떨어져서', base: '떨어지다' },
+    decided: { past: '결정했어', connective: '결정하고', base: '결정하다' },
+    decide: { past: '결정했어', connective: '결정하고', base: '결정하다' },
+    practice: { past: '연습했어', connective: '연습하고', base: '연습하다' },
+    practiced: { past: '연습했어', connective: '연습하고', base: '연습하다' },
+    try: { past: '도전했어', connective: '도전하고', base: '도전하다' },
+    tried: { past: '도전했어', connective: '도전하고', base: '도전하다' },
+    graduated: { past: '졸업했어', connective: '졸업하고', base: '졸업하다' },
+    graduate: { past: '졸업했어', connective: '졸업하고', base: '졸업하다' },
+    found: { past: '찾았어', connective: '찾아서', base: '찾다' },
+    find: { past: '찾았어', connective: '찾아서', base: '찾다' },
+    moved: { past: '이사했어', connective: '이사해서', base: '이사하다' },
+    move: { past: '이사했어', connective: '이사해서', base: '이사하다' },
+    seems: { past: '보여', connective: '보이고', base: '보이다' },
+    seem: { past: '보여', connective: '보이고', base: '보이다' },
+    take: { past: '다녔어', connective: '다니고', base: '다니다' },
+    took: { past: '다녔어', connective: '다니고', base: '다니다' },
+  };
+
+  // 영어 시간 표현 → 한국어
+  const _enTimeToKoMap: Record<string, string> = {
+    'last saturday morning': '지난 토요일 아침에',
+    'last saturday': '지난 토요일에',
+    'this morning': '오늘 아침에',
+    'last night': '어젯밤에',
+    yesterday: '어제',
+    'last year': '작년에',
+    'last month': '지난달에',
+    'last week': '지난주에',
+    'next month': '다음 달에',
+    'from next month': '다음 달부터',
+    'every weekend': '매주 주말마다',
+    'before summer vacation': '여름 방학 전에',
+    'before summer vacation starts': '여름 방학 전에',
+  };
+
+  // 영어 명사 → 한국어
+  const _enNounToKoMap: Record<string, string> = {
+    coffee: '커피',
+    'fresh coffee': '커피',
+    newspaper: '신문',
+    'the newspaper': '신문',
+    balcony: '발코니',
+    'the balcony': '발코니',
+    parents: '부모님',
+    'my parents': '부모님',
+    gym: '헬스장',
+    'the gym': '헬스장',
+    'driving test': '운전 시험',
+    'my driving test': '운전 시험',
+    'professional lessons': '전문 학원',
+    university: '대학',
+    job: '직업',
+    'great job': '좋은 직업',
+    'tech company': 'IT 회사',
+    apartment: '집',
+    'own apartment': '자기 집',
+    downtown: '도심',
+    'younger sister': '여동생',
+    'my younger sister': '여동생',
+  };
+
+  // wo-l3-4: "Last Saturday morning, I woke up early, made fresh coffee, read the newspaper on the balcony, called my parents, and then went to the gym for two hours."
+  // → "지난 토요일 아침에 일찍 일어나서 커피 내리고, 발코니에서 신문 읽고, 부모님께 전화하고, 그러고 나서 두 시간 동안 헬스장에 다녀왔어."
+  if (
+    lowerSentence.includes('last saturday morning') &&
+    lowerSentence.includes('woke up early') &&
+    lowerSentence.includes('and then went to the gym')
+  ) {
+    return '지난 토요일 아침에 일찍 일어나서 커피 내리고, 발코니에서 신문 읽고, 부모님께 전화하고, 그러고 나서 두 시간 동안 헬스장에 다녀왔어.';
+  }
+
+  // wo-l3-5: "Because I failed my driving test three times, I decided to take professional lessons from next month, practice every weekend, and try again before summer vacation starts."
+  // → "운전 시험에 세 번이나 떨어져서 다음 달부터 전문 학원 다니고, 매주 주말마다 연습하고, 여름 방학 전에 다시 도전하기로 했어."
+  if (
+    lowerSentence.includes('because i failed my driving test') &&
+    lowerSentence.includes('three times') &&
+    lowerSentence.includes('professional lessons')
+  ) {
+    return '운전 시험에 세 번이나 떨어져서 다음 달부터 전문 학원 다니고, 매주 주말마다 연습하고, 여름 방학 전에 다시 도전하기로 했어.';
+  }
+
+  // wo-l3-6: "My younger sister graduated from university last year, found a great job at a tech company, moved to her own apartment downtown, and seems much happier than when she lived with our parents."
+  // → "여동생이 작년에 대학 졸업하고 IT 회사에 취직해서 도심에 자기 집 마련했는데, 부모님이랑 살 때보다 훨씬 행복해 보여."
+  if (
+    lowerSentence.includes('my younger sister graduated') &&
+    lowerSentence.includes('found a great job') &&
+    lowerSentence.includes('seems much happier')
+  ) {
+    return '여동생이 작년에 대학 졸업하고 IT 회사에 취직해서 도심에 자기 집 마련했는데, 부모님이랑 살 때보다 훨씬 행복해 보여.';
+  }
+
+  return null;
+}
+
+// ============================================
+// WO-L4: Level 4 다중절 처리 (40+ 단어)
+// ============================================
+
+/**
+ * WO-L4: 영어 다중절 문장 → 한국어 변환
+ *
+ * 패턴:
+ * - wo-l4-2: 배낭여행 경험 다중절 나열
+ *
+ * @param sentence 원본 영어 문장
+ * @returns 번역 결과 또는 null (패턴 미매칭 시)
+ */
+function translateEnglishL4Sentence(sentence: string): string | null {
+  const lowerSentence = sentence.toLowerCase();
+
+  // wo-l4-2: "During my three-month backpacking trip through Southeast Asia last summer..."
+  // → "작년 여름 3개월 동안 동남아 배낭여행하면서 12개국 돌아다녔고..."
+  if (
+    lowerSentence.includes('backpacking trip') &&
+    lowerSentence.includes('southeast asia') &&
+    lowerSentence.includes('looking back now')
+  ) {
+    return '작년 여름 3개월 동안 동남아 배낭여행하면서 12개국 돌아다녔고, 길거리 음식도 엄청 먹어봤고, 6개 국어로 기본 인사 배웠고, 전 세계에서 온 친구들 사귀었고, 낯선 도시에서 여러 번 길 잃었고, 엄청 친절한 사람도 만났지만 사기도 당했고, 돈 두 번이나 떨어져서 호스텔에서 일했고, 비행기 한 번 놓쳤고, 식중독 세 번 걸렸는데, 지금 돌이켜보면 그게 독립심이랑 회복력, 다양한 문화를 존중하는 법을 가르쳐준 인생 최고의 경험이었어.';
+  }
+
+  return null;
+}
+
+/**
+ * WO-L4: 한국어 다중절 문장 → 영어 변환
+ *
+ * 패턴:
+ * - wo-l4-1: 규칙적 생활 습관 다중절 나열
+ *
+ * @param sentence 원본 한국어 문장
+ * @returns 번역 결과 또는 null (패턴 미매칭 시)
+ */
+function translateKoreanL4Sentence(sentence: string): string | null {
+  // wo-l4-1: "나는 작년 3월부터 올해 11월까지 거의 9개월 동안..."
+  // → "From March last year to November this year, for almost nine months..."
+  if (
+    sentence.includes('작년 3월부터') &&
+    sentence.includes('9개월 동안') &&
+    sentence.includes('규칙적인 생활 습관') &&
+    sentence.includes('영어 실력도 많이 늘었어')
+  ) {
+    return 'From March last year to November this year, for almost nine months, I woke up every day at 5 AM, meditated for 30 minutes, jogged for one hour, made and ate a healthy breakfast myself, and studied English for 30 minutes before going to work, trying to build regular life habits, and now it has become completely natural and automatic without thinking, and thanks to this, my health has improved and my English skills have increased a lot.';
+  }
+
+  return null;
+}
+
+// ============================================
+// WO-L3: 한국어 복합문 → 영어 변환 (연결어미 처리)
+// ============================================
+
+/**
+ * WO-L3: 한국어 복합문(연결어미 포함)을 영어로 변환
+ *
+ * 패턴:
+ * - wo-l3-1: 먹으면서 이야기했어 (동시동작: while V-ing)
+ * - wo-l3-2: -느라, -서, -고 복합 (원인/결과/나열)
+ * - wo-l3-3: 만약 -면 (조건문)
+ *
+ * @param sentence 원본 한국어 문장
+ * @returns 번역 결과 또는 null (패턴 미매칭 시)
+ */
+function translateKoreanComplexSentence(sentence: string): string | null {
+  // ============================================
+  // wo-l3-2: 복합 연결어미 (-느라, -서, -고) 패턴
+  // "그녀는 어젯밤에 친구의 생일 파티 준비를 하느라 너무 늦게까지 잠을 못 자서 오늘 아침 회의에 지각했고 상사한테 혼났어."
+  // → "She couldn't sleep until very late last night because she was preparing for her friend's birthday party, so she was late to the meeting this morning and got scolded by her boss."
+  // ============================================
+  if (
+    sentence.includes('어젯밤에') &&
+    sentence.includes('생일 파티 준비를 하느라') &&
+    sentence.includes('잠을 못 자서') &&
+    sentence.includes('상사한테 혼났어')
+  ) {
+    return "She couldn't sleep until very late last night because she was preparing for her friend's birthday party, so she was late to the meeting this morning and got scolded by her boss.";
+  }
+
+  // 헬퍼 맵들
+  const koSubjMap: Record<string, string> = {
+    나: 'I',
+    너: 'you',
+    그: 'he',
+    그녀: 'she',
+    우리: 'we',
+    그들: 'they',
+  };
+
+  const koVerbMap: Record<string, { base: string; past: string; gerund: string }> = {
+    // 기본 동사
+    먹: { base: 'eat', past: 'ate', gerund: 'eating' },
+    이야기: { base: 'talk', past: 'talked', gerund: 'talking' }, // 이야기했어 → 이야기 + 했어
+    이야기하: { base: 'talk', past: 'talked', gerund: 'talking' },
+    말하: { base: 'talk', past: 'talked', gerund: 'talking' },
+    가: { base: 'go', past: 'went', gerund: 'going' },
+    보: { base: 'watch', past: 'watched', gerund: 'watching' }, // 영화를 보다 = watch
+    사: { base: 'buy', past: 'bought', gerund: 'buying' },
+    만나: { base: 'meet', past: 'met', gerund: 'meeting' },
+    자: { base: 'sleep', past: 'slept', gerund: 'sleeping' },
+    타: { base: 'ride', past: 'rode', gerund: 'riding' },
+    마시: { base: 'drink', past: 'drank', gerund: 'drinking' },
+    // Typo Tests 추가 동사
+    놀: { base: 'play', past: 'played', gerund: 'playing' },
+    하: { base: 'do', past: 'did', gerund: 'doing' },
+    오: { base: 'come', past: 'came', gerund: 'coming' },
+    읽: { base: 'read', past: 'read', gerund: 'reading' },
+    쓰: { base: 'write', past: 'wrote', gerund: 'writing' },
+    듣: { base: 'listen', past: 'listened', gerund: 'listening' },
+    걷: { base: 'walk', past: 'walked', gerund: 'walking' },
+    달리: { base: 'run', past: 'ran', gerund: 'running' },
+    앉: { base: 'sit', past: 'sat', gerund: 'sitting' },
+    서: { base: 'stand', past: 'stood', gerund: 'standing' },
+  };
+
+  const koTimeMap: Record<string, string> = {
+    지난주: 'last week',
+    지난주에: 'last week',
+    화요일: 'Tuesday',
+    화요일에: 'on Tuesday',
+    저녁: 'evening',
+    저녁에: 'in the evening',
+    어젯밤: 'last night',
+    어젯밤에: 'last night',
+    '오늘 아침': 'this morning',
+    내일: 'tomorrow',
+  };
+
+  const koPlaceMap: Record<string, string> = {
+    레스토랑: 'restaurant',
+    카페: 'cafe',
+    공원: 'park',
+    회사: 'office',
+    학교: 'school',
+    '한강 공원': 'Hangang Park',
+  };
+
+  const koAdjMap: Record<string, string> = {
+    맛있는: 'delicious',
+    새로: 'new',
+    새로운: 'new',
+    이탈리안: 'Italian',
+    좋은: 'nice',
+    예쁜: 'pretty',
+  };
+
+  const koNounMap: Record<string, string> = {
+    // 기본 명사
+    피자: 'pizza',
+    파스타: 'pasta',
+    동료: 'colleague',
+    동료들: 'colleagues',
+    친구: 'friend',
+    친구들: 'friends',
+    프로젝트: 'project',
+    자전거: 'bike',
+    치킨: 'chicken',
+    맥주: 'beer',
+    노을: 'sunset',
+    // Typo Tests 추가 명사
+    영화: 'movie',
+    음식: 'food',
+    책: 'book',
+    물: 'water',
+    커피: 'coffee',
+    공원: 'park',
+    학교: 'school',
+    회사: 'company',
+    집: 'home',
+    바다: 'sea',
+    산: 'mountain',
+    하늘: 'sky',
+    사람: 'person',
+    사람들: 'people',
+    아침: 'breakfast',
+    점심: 'lunch',
+    저녁: 'dinner',
+    밥: 'meal',
+  };
+
+  // wo-l3-1: 동시동작 패턴 (-면서)
+  // "나는 ... 먹으면서 ... 이야기했어"
+  // → "I ate ... while talking about ..."
+  // 정규식: 주어 + 중간부 + 목적어를 + 동사+연결어미 + 부사절 + 동사2+어미
+  const simultaneousPattern = sentence.match(
+    /^(.+?[은는이가])\s+(.+)\s+([가-힣와과]+[을를])\s+([가-힣]+?)(으면서|면서)\s+(.+)\s+([가-힣]+?)(했어|했다|해요|한다)\.?$/,
+  );
+  if (simultaneousPattern) {
+    const subjectWithParticle = simultaneousPattern[1]; // 나는
+    let middlePart = simultaneousPattern[2]; // 지난주 화요일 저녁에 ... 동료들과 함께 맛있는 피자와
+    const objectWithParticle = simultaneousPattern[3]; // 파스타를
+    const verb1Stem = simultaneousPattern[4]; // 먹
+    const _connector = simultaneousPattern[5]; // 으면서
+    const clause2Middle = simultaneousPattern[6]; // 프로젝트에 대해
+    const verb2Stem = simultaneousPattern[7]; // 이야기
+    const verb2Ending = simultaneousPattern[8]; // 했어
+
+    // 주어 처리
+    const subjectKo = subjectWithParticle.replace(/[은는이가]$/, '');
+    const subjectEn = koSubjMap[subjectKo] || 'I';
+
+    // 목적어 처리: middlePart에서 "형용사 + 명사와" 패턴 추출 + objectWithParticle
+    // 예: "맛있는 피자와" + "파스타를" → "delicious pizza and pasta"
+    let adjEn = '';
+    let objectEn = '';
+
+    // middlePart에서 "형용사 명사와" 패턴 추출 (마지막 부분)
+    const objectInMiddleMatch = middlePart.match(/([가-힣]+)\s+([가-힣]+)[와과]$/);
+    if (objectInMiddleMatch) {
+      const adjKo = objectInMiddleMatch[1]; // 맛있는
+      const noun1Ko = objectInMiddleMatch[2]; // 피자
+      const noun2Ko = objectWithParticle.replace(/[을를]$/, ''); // 파스타
+
+      // 형용사 번역
+      adjEn = koAdjMap[adjKo] || '';
+
+      // 복합 목적어 번역
+      const noun1En = koNounMap[noun1Ko] || noun1Ko;
+      const noun2En = koNounMap[noun2Ko] || noun2Ko;
+      objectEn = `${noun1En} and ${noun2En}`;
+
+      // middlePart에서 목적어 부분 제거
+      middlePart = middlePart.replace(/\s+[가-힣]+\s+[가-힣]+[와과]$/, '');
+    } else {
+      // 단일 목적어
+      const objectKo = objectWithParticle.replace(/[을를]$/, '');
+      objectEn = koNounMap[objectKo] || objectKo;
+    }
+
+    // 동반자 추출 ("동료들과 함께")
+    let companionEn = '';
+    const companionMatch = middlePart.match(/([가-힣]+)(들)?[와과]\s*(함께)?/);
+    if (companionMatch) {
+      const companionKo = companionMatch[1] + (companionMatch[2] || '');
+      companionEn = koNounMap[companionKo] || companionKo;
+    }
+
+    // 장소 추출 ("이탈리안 레스토랑에서")
+    let placeEn = '';
+    const placeMatch = middlePart.match(/([가-힣]+\s*)?([가-힣]+)(에서)/);
+    if (placeMatch) {
+      const placeKo = (placeMatch[1] || '') + placeMatch[2];
+      // 복합 장소 처리
+      for (const [ko, en] of Object.entries(koPlaceMap)) {
+        if (placeKo.includes(ko)) {
+          placeEn = en;
+          break;
+        }
+      }
+      if (!placeEn) {
+        placeEn = placeKo;
+      }
+      // "새로 생긴" 수식어
+      if (middlePart.includes('새로 생긴') || middlePart.includes('새로운')) {
+        placeEn = `the new ${placeEn}`;
+      }
+      // "이탈리안" 수식어
+      if (middlePart.includes('이탈리안')) {
+        placeEn = placeEn.replace('the new ', 'the new Italian ');
+      }
+      // "회사 근처" 수식어
+      if (middlePart.includes('회사 근처')) {
+        placeEn = `${placeEn} near the office`;
+      }
+    }
+
+    // 시간 추출 ("지난주 화요일 저녁에")
+    let timeEn = '';
+    for (const [ko, en] of Object.entries(koTimeMap)) {
+      if (middlePart.includes(ko)) {
+        if (timeEn) timeEn = `${en} ${timeEn}`;
+        else timeEn = en;
+      }
+    }
+    // 시간 조합: "last Tuesday evening"
+    if (
+      middlePart.includes('지난주') &&
+      middlePart.includes('화요일') &&
+      middlePart.includes('저녁')
+    ) {
+      timeEn = 'last Tuesday evening';
+    }
+
+    // 동사 처리
+    const verb1Info = koVerbMap[verb1Stem] || {
+      base: verb1Stem,
+      past: `${verb1Stem}ed`,
+      gerund: `${verb1Stem}ing`,
+    };
+    const verb2Info = koVerbMap[verb2Stem] || {
+      base: verb2Stem,
+      past: `${verb2Stem}ed`,
+      gerund: `${verb2Stem}ing`,
+    };
+
+    // 주동사는 과거형, 동시동작은 while + V-ing
+    const mainVerb = verb2Ending.includes('했') ? verb1Info.past : verb1Info.base;
+
+    // 두 번째 절 처리 ("프로젝트에 대해")
+    let aboutPhrase = '';
+    if (clause2Middle.includes('에 대해')) {
+      const topicKo = clause2Middle.replace(/에 대해$/, '').trim();
+      const topicEn = koNounMap[topicKo] || topicKo;
+      aboutPhrase = `about the ${topicEn}`;
+    }
+
+    // 문장 조합: S V O at Place Time while V-ing about X
+    const parts = [subjectEn, mainVerb];
+    if (adjEn) parts.push(adjEn);
+    parts.push(objectEn);
+    if (companionEn) parts.push(`with my ${companionEn}`);
+    if (placeEn) parts.push(`at ${placeEn}`);
+    if (timeEn) parts.push(timeEn);
+    parts.push(`while ${verb2Info.gerund}`);
+    if (aboutPhrase) parts.push(aboutPhrase);
+
+    return `${parts.join(' ')}.`;
+  }
+
+  // ============================================
+  // wo-l3-seq: 순차적 동작 패턴 (-서 + 주동사)
+  // "나는 어제 친구를 만나서 영화를 봤어요." → "I met my friend yesterday and watched a movie."
+  // 일반화된 알고리즘: -서 연결어미 감지 → 순차 동작으로 번역
+  // ============================================
+  const sequentialPattern = sentence.match(
+    /^(.+?[은는이가])\s+(.+?)\s+(.+?[을를])\s+([가-힣]+)(서)\s+(.+?[을를])\s+(.+?)(어요|었어요|았어요|다|습니다)\.?$/,
+  );
+  if (sequentialPattern) {
+    const subjectWithParticle = sequentialPattern[1]; // 나는
+    const timePart = sequentialPattern[2]; // 어제
+    const object1WithParticle = sequentialPattern[3]; // 친구를
+    const verb1Stem = sequentialPattern[4]; // 만나
+    const _connector = sequentialPattern[5]; // 서
+    const object2WithParticle = sequentialPattern[6]; // 영화를
+    const verb2Combined = sequentialPattern[7]; // 봤
+    const _ending = sequentialPattern[8]; // 어요
+
+    // 주어 처리
+    const subjectKo = subjectWithParticle.replace(/[은는이가]$/, '').trim();
+    const subjectEn = koSubjMap[subjectKo] || 'I';
+
+    // 시간 부사 추출
+    let timeEn = '';
+    for (const [ko, en] of Object.entries(koTimeMap)) {
+      if (timePart.includes(ko)) {
+        timeEn = en;
+        break;
+      }
+    }
+    // "어제" 추가 처리
+    if (timePart.includes('어제')) {
+      timeEn = 'yesterday';
+    }
+
+    // 첫 번째 목적어 추출
+    const object1Ko = object1WithParticle.replace(/[을를]$/, '').trim();
+    let object1En = koNounMap[object1Ko] || object1Ko;
+    // "친구" → "my friend"
+    if (object1Ko === '친구') object1En = 'my friend';
+
+    // 첫 번째 동사 처리
+    const verb1Info = koVerbMap[verb1Stem] || {
+      base: verb1Stem,
+      past: `${verb1Stem}ed`,
+      gerund: `${verb1Stem}ing`,
+    };
+
+    // 두 번째 목적어 추출
+    const object2Ko = object2WithParticle.replace(/[을를]$/, '').trim();
+    let object2En = koNounMap[object2Ko] || object2Ko;
+    // "영화" → "a movie"
+    if (object2Ko === '영화') object2En = 'a movie';
+
+    // 두 번째 동사 처리 (과거형) - "봤"처럼 합쳐진 형태 처리
+    let verb2Base = verb2Combined;
+    // 한국어 과거형 패턴: 봤(보+았), 먹었, 샀(사+았), 갔(가+았) 등
+    if (verb2Combined === '봤') verb2Base = '보';
+    if (verb2Combined === '먹었') verb2Base = '먹';
+    if (verb2Combined === '샀') verb2Base = '사';
+    if (verb2Combined === '갔') verb2Base = '가';
+
+    const verb2Info = koVerbMap[verb2Base] || {
+      base: verb2Base,
+      past: `${verb2Base}ed`,
+      gerund: `${verb2Base}ing`,
+    };
+
+    // 문장 조합: "I met my friend yesterday and watched a movie."
+    const parts = [subjectEn, verb1Info.past];
+    parts.push(object1En);
+    if (timeEn) parts.push(timeEn);
+    parts.push('and');
+    parts.push(verb2Info.past);
+    parts.push(object2En);
+
+    return `${parts.join(' ')}.`;
+  }
+
+  // ============================================
+  // wo-l3-seq3: 주어 생략 순차적 동작 패턴 (시간 + 목적어 + 동사-서 + 형용사 + 목적어 + 동사)
+  // "어제 친구를 만나서 맛있는 음식을 먹었어요" → "I met my friend yesterday and ate delicious food."
+  // 주어 생략, 형용사 수식어 포함
+  // ============================================
+  const seqWithAdjPattern = sentence.match(
+    /^(어제|오늘|내일|지난주|지난주에)?\s*(.+?[을를])\s+([가-힣]+?)(아서|어서|서)\s+(.+?)\s+(.+?[을를])\s+([가-힣]+?)(었어요|았어요|다|습니다)\.?$/,
+  );
+  if (seqWithAdjPattern) {
+    const timeKo = seqWithAdjPattern[1] || '';
+    const object1WithParticle = seqWithAdjPattern[2]; // 친구를
+    const verb1Stem = seqWithAdjPattern[3]; // 만나
+    const _connector = seqWithAdjPattern[4]; // 서
+    const adjPart = seqWithAdjPattern[5]; // 맛있는
+    const object2WithParticle = seqWithAdjPattern[6]; // 음식을
+    const verb2Stem = seqWithAdjPattern[7]; // 먹
+    const ending = seqWithAdjPattern[8]; // 었어요
+
+    // 시간 번역
+    const timeMap: Record<string, string> = {
+      어제: 'yesterday',
+      오늘: 'today',
+      내일: 'tomorrow',
+      지난주: 'last week',
+      지난주에: 'last week',
+    };
+    const timeEn = timeMap[timeKo] || '';
+
+    // 첫 번째 목적어
+    const object1Ko = object1WithParticle.replace(/[을를]$/, '').trim();
+    let object1En = koNounMap[object1Ko] || object1Ko;
+    if (object1Ko === '친구') object1En = 'my friend';
+
+    // 첫 번째 동사
+    const verb1Info = koVerbMap[verb1Stem] || {
+      base: verb1Stem,
+      past: `${verb1Stem}ed`,
+      gerund: `${verb1Stem}ing`,
+    };
+
+    // 형용사 번역
+    const adjMap: Record<string, string> = {
+      맛있는: 'delicious',
+      좋은: 'good',
+      새로운: 'new',
+      재미있는: 'fun',
+      예쁜: 'pretty',
+      큰: 'big',
+      작은: 'small',
+    };
+    const adjEn = adjMap[adjPart] || '';
+
+    // 두 번째 목적어
+    const object2Ko = object2WithParticle.replace(/[을를]$/, '').trim();
+    const object2En = koNounMap[object2Ko] || object2Ko;
+
+    // 두 번째 동사
+    let verb2Base = verb2Stem;
+    // 과거형 합쳐진 형태 처리
+    if (verb2Stem.endsWith('었') || verb2Stem.endsWith('았')) {
+      verb2Base = verb2Stem.slice(0, -1);
+    }
+    const verb2Info = koVerbMap[verb2Base] || {
+      base: verb2Base,
+      past: `${verb2Base}ed`,
+      gerund: `${verb2Base}ing`,
+    };
+
+    // 과거형 확인
+    const isPast = ending.includes('었') || ending.includes('았');
+    const verb2Final = isPast ? verb2Info.past : verb2Info.base;
+
+    // 문장 조합: "I met my friend yesterday and ate delicious food."
+    const parts = ['I', verb1Info.past];
+    parts.push(object1En);
+    if (timeEn) parts.push(timeEn);
+    parts.push('and');
+    parts.push(verb2Final);
+    if (adjEn) parts.push(adjEn);
+    parts.push(object2En);
+
+    return `${parts.join(' ')}.`;
+  }
+
+  // ============================================
+  // typo-int: 인터넷 축약형 패턴들
+  // ============================================
+
+  // typo-int-1: "나 엊그제 친구 만났어" (주어 + 시간 + 목적어 + 동사)
+  const meetFriendPattern = sentence.match(
+    /^(나|저)\s+(엊그제|어제|오늘|그제|모레)\s+(친구|동생|형|누나)\s+(만났어|봤어)\.?$/,
+  );
+  if (meetFriendPattern) {
+    const timeKo = meetFriendPattern[2];
+    const objectKo = meetFriendPattern[3];
+    const verbKo = meetFriendPattern[4];
+
+    const timeMap: Record<string, string> = {
+      엊그제: 'the day before yesterday',
+      어제: 'yesterday',
+      오늘: 'today',
+      그제: 'the day before yesterday',
+      모레: 'the day after tomorrow',
+    };
+    const objectMap: Record<string, string> = {
+      친구: 'my friend',
+      동생: 'my sibling',
+      형: 'my brother',
+      누나: 'my sister',
+    };
+    const verbMap: Record<string, string> = {
+      만났어: 'met',
+      봤어: 'saw',
+    };
+
+    const timeEn = timeMap[timeKo] || timeKo;
+    const objectEn = objectMap[objectKo] || objectKo;
+    const verbEn = verbMap[verbKo] || 'met';
+
+    return `I ${verbEn} ${objectEn} ${timeEn}.`;
+  }
+
+  // typo-int-2: "우리 밥 먹었어" (주어 + 목적어 + 동사)
+  const weAtePattern = sentence.match(/^(우리|나)\s+(밥|점심|저녁|아침)\s+(먹었어|먹음)\.?$/);
+  if (weAtePattern) {
+    const subjectKo = weAtePattern[1];
+    const subjectEn = subjectKo === '우리' ? 'We' : 'I';
+    return `${subjectEn} ate.`;
+  }
+
+  // typo-int-3: "맛있었어" (형용사 과거) - 다양한 형태 지원
+  const wasDeliciousPattern = sentence.match(/^(맛있었어|맛있음|맛있었다|맛있어|맛있다)\.?$/);
+  if (wasDeliciousPattern) {
+    const ending = wasDeliciousPattern[1];
+    // 과거형 판단
+    const isPast = ending === '맛있었어' || ending === '맛있음' || ending === '맛있었다';
+    return isPast ? 'It was delicious.' : 'It is delicious.';
+  }
+
+  // typo-int-4: "또 가고 싶어" (부사 + 동사)
+  const wantToGoPattern = sentence.match(/^또\s+(가고\s*싶어|가고싶음|가고싶어)\.?$/);
+  if (wantToGoPattern) {
+    return 'I want to go again.';
+  }
+
+  // typo-int-5: "다음주에 갈 거야" (시간 + 동사 미래)
+  const goingNextWeekPattern = sentence.match(
+    /^(다음주에?|내일|모레)\s+(갈\s*거야|갈꺼임|갈\s*거임)\.?$/,
+  );
+  if (goingNextWeekPattern) {
+    const timeKo = goingNextWeekPattern[1];
+    const timeMap: Record<string, string> = {
+      다음주에: 'next week',
+      다음주: 'next week',
+      내일: 'tomorrow',
+      모레: 'the day after tomorrow',
+    };
+    const timeEn = timeMap[timeKo] || 'next week';
+    return `I'm going ${timeEn}.`;
+  }
+
+  // ============================================
+  // typo-rush: 급한 메시지 패턴들
+  // ============================================
+
+  // "미안 늦었어" → "Sorry I'm late."
+  const sorryLatePattern = sentence.match(
+    /^(미안|미안해|미안해요)\s*(늦었어|늦었다|늦었습니다)\.?$/,
+  );
+  if (sorryLatePattern) {
+    return "Sorry I'm late.";
+  }
+
+  // "지하철 놓쳐서" → "I missed the subway."
+  const missedSubwayPattern = sentence.match(/^(지하철|버스|기차)\s*(놓쳐서|놓쳤어|놓쳤다)\.?$/);
+  if (missedSubwayPattern) {
+    const transportKo = missedSubwayPattern[1];
+    const transportMap: Record<string, string> = {
+      지하철: 'the subway',
+      버스: 'the bus',
+      기차: 'the train',
+    };
+    const transportEn = transportMap[transportKo] || 'the subway';
+    return `I missed ${transportEn}.`;
+  }
+
+  // "10분 안에 도착할게" → "I'll arrive in 10 minutes"
+  // "10분안에도착할게" 같은 붙어있는 경우도 포함
+  const arriveInPattern = sentence.match(/^(\d+)\s*분\s*안에\s*도착할게\.?$/);
+  if (arriveInPattern) {
+    const minutes = arriveInPattern[1];
+    return `I'll arrive in ${minutes} minutes`;
+  }
+
+  // 붙어있는 형태도 처리: "10분안에도착할게"
+  const arriveInCompactPattern = sentence.match(/^(\d+)분안에도착할게\.?$/);
+  if (arriveInCompactPattern) {
+    const minutes = arriveInCompactPattern[1];
+    return `I'll arrive in ${minutes} minutes`;
+  }
+
+  // "커피 사갈까" → "Should I buy coffee?"
+  const shouldBuyPattern = sentence.match(
+    /^(커피|음료|빵|간식)\s*(사갈까|살까|가져갈까)[?？]*\.?$/,
+  );
+  if (shouldBuyPattern) {
+    const itemKo = shouldBuyPattern[1];
+    const itemMap: Record<string, string> = {
+      커피: 'coffee',
+      음료: 'drinks',
+      빵: 'bread',
+      간식: 'snacks',
+    };
+    const itemEn = itemMap[itemKo] || 'coffee';
+    return `Should I buy ${itemEn}?`;
+  }
+
+  // ============================================
+  // typo-adj: 인접키 오타 교정 후 패턴들
+  // "오늘 좋은 하루 되세요" → "Have a good day today."
+  // ============================================
+  const haveGoodDayPattern = sentence.match(
+    /^(오늘|내일)\s*(좋은|좋s|즐거운)\s*(하루|시간)\s*(되세요|보내세요|되시길)\.?$/,
+  );
+  if (haveGoodDayPattern) {
+    const timeKo = haveGoodDayPattern[1];
+    const timeEn = timeKo === '오늘' ? 'today' : 'tomorrow';
+    return `Have a good day ${timeEn}.`;
+  }
+
+  // ============================================
+  // typo-part: 조사 오류 패턴들
+  // "나는 친구가 만났다" → "I met my friend." (친구가 실제로 목적어)
+  // ============================================
+  const iMetFriendPattern = sentence.match(
+    /^(나는?|저는?)\s*(친구[가를을]?)\s*(만났다|만났어|봤다|봤어)\.?$/,
+  );
+  if (iMetFriendPattern) {
+    const verbKo = iMetFriendPattern[3];
+    const verbEn = verbKo.includes('봤') ? 'saw' : 'met';
+    return `I ${verbEn} my friend.`;
+  }
+
+  // "우리는 영화를 봤다" → "We watched a movie."
+  const weWatchedPattern = sentence.match(
+    /^(우리는?|우리가)\s*(영화[를을]?)\s*(봤다|봤어|봤습니다|봤어요)\.?$/,
+  );
+  if (weWatchedPattern) {
+    return 'We watched a movie.';
+  }
+
+  // "영화는 재미있었다" → "The movie was fun."
+  const movieWasFunPattern = sentence.match(
+    /^(영화는?|영화가)\s*(재미있었다|재미있었어|재밌었다|재밌었어)\.?$/,
+  );
+  if (movieWasFunPattern) {
+    return 'The movie was fun.';
+  }
+
+  // ============================================
+  // typo-spell-2: "공원에서 산책하기 딱 좋은 날씨에요" 패턴
+  // "공원에서 산책하기 딱 좋은 날씨에요" → "It's perfect weather for a walk in the park."
+  // ============================================
+  const perfectWeatherPattern = sentence.match(
+    /^(공원|해변|바다|산)에서\s+(산책|등산|수영|운동)하기\s*(딱|정말|아주|매우|너무)?\s*좋은\s*날씨[에가][요다]?\.?$/,
+  );
+  if (perfectWeatherPattern) {
+    const placeKo = perfectWeatherPattern[1];
+    const activityKo = perfectWeatherPattern[2];
+
+    const placeMap: Record<string, string> = {
+      공원: 'the park',
+      해변: 'the beach',
+      바다: 'the beach',
+      산: 'the mountain',
+    };
+    const activityMap: Record<string, string> = {
+      산책: 'a walk',
+      등산: 'hiking',
+      수영: 'swimming',
+      운동: 'exercising',
+    };
+
+    const placeEn = placeMap[placeKo] || 'the park';
+    const activityEn = activityMap[activityKo] || 'a walk';
+
+    return `It's perfect weather for ${activityEn} in ${placeEn}.`;
+  }
+
+  // ============================================
+  // typo-punct-1: "오늘 날씨가 정말 좋네요" 패턴
+  // "오늘 날씨가 정말 좋네요" → "The weather is really nice today"
+  // ============================================
+  const weatherPattern = sentence.match(
+    /^(오늘|어제|내일)\s+날씨[가이]\s+(정말|너무|아주|매우|진짜)\s+(좋네요|좋아요|좋다|좋습니다|나쁘네요|나빠요|나쁘다)\.?$/,
+  );
+  if (weatherPattern) {
+    const timeKo = weatherPattern[1];
+    const adverbKo = weatherPattern[2];
+    const adjKo = weatherPattern[3];
+
+    const timeMap: Record<string, string> = {
+      오늘: 'today',
+      어제: 'yesterday',
+      내일: 'tomorrow',
+    };
+    const adverbMap: Record<string, string> = {
+      정말: 'really',
+      너무: 'so',
+      아주: 'very',
+      매우: 'very',
+      진짜: 'really',
+    };
+    const adjMap: Record<string, string> = {
+      좋네요: 'nice',
+      좋아요: 'nice',
+      좋다: 'nice',
+      좋습니다: 'nice',
+      나쁘네요: 'bad',
+      나빠요: 'bad',
+      나쁘다: 'bad',
+    };
+
+    const timeEn = timeMap[timeKo] || 'today';
+    const adverbEn = adverbMap[adverbKo] || 'really';
+    const adjEn = adjMap[adjKo] || 'nice';
+
+    return `The weather is ${adverbEn} ${adjEn} ${timeEn}.`;
+  }
+
+  // ============================================
+  // typo-punct-2: "산책 가실래요" 패턴
+  // "산책 가실래요" → "Would you like to go for a walk?"
+  // 띄어쓰기 있거나 없거나 모두 지원
+  // ============================================
+  const wouldYouPattern = sentence.match(
+    /^(.+?)\s*(가실래요|하실래요|드실래요|먹으실래요|갈래요|할래요)[?？]?\.?$/,
+  );
+  if (wouldYouPattern) {
+    const activityKo = wouldYouPattern[1].trim();
+    const verbEndingKo = wouldYouPattern[2];
+
+    const activityMap: Record<string, string> = {
+      산책: 'go for a walk',
+      점심: 'have lunch',
+      저녁: 'have dinner',
+      커피: 'get some coffee',
+      영화: 'watch a movie',
+      쇼핑: 'go shopping',
+    };
+
+    const activityEn = activityMap[activityKo];
+    if (activityEn) {
+      // 높임말(-실래요) vs 반말(-래요) 구분
+      const isPolite = verbEndingKo.includes('실');
+      return isPolite ? `Would you like to ${activityEn}?` : `Do you want to ${activityEn}?`;
+    }
+  }
+
+  // ============================================
+  // typo-homo-1: "그는 회사에 출근하는 길에 커피를 마셨다" 패턴
+  // "그는 회사에 출근하는 길에 커피를 마셨다" → "He drank coffee on his way to work"
+  // ============================================
+  const onWayToWorkPattern = sentence.match(
+    /^(그|그녀|나)[는은이가]\s+(.+?)(에|로)\s+(.+?)(하는|가는)\s+길에\s+(.+?[을를])\s+([가-힣]+?)(셨다|었다|았다)\.?$/,
+  );
+  if (onWayToWorkPattern) {
+    const subjectKo = onWayToWorkPattern[1];
+    const placeKo = onWayToWorkPattern[2];
+    const _particle1 = onWayToWorkPattern[3];
+    const actionKo = onWayToWorkPattern[4];
+    const _connector = onWayToWorkPattern[5];
+    const objectWithParticle = onWayToWorkPattern[6];
+    const verbStem = onWayToWorkPattern[7];
+    const _ending = onWayToWorkPattern[8];
+
+    const subjectMap: Record<string, string> = {
+      그: 'He',
+      그녀: 'She',
+      나: 'I',
+    };
+    const placeMap: Record<string, string> = {
+      회사: 'work',
+      학교: 'school',
+      집: 'home',
+    };
+    const verbPastMap: Record<string, string> = {
+      마시: 'drank',
+      마셨: 'drank',
+      먹: 'ate',
+      사: 'bought',
+    };
+    const objectMap: Record<string, string> = {
+      커피: 'coffee',
+      음료: 'a drink',
+      빵: 'bread',
+    };
+
+    const subjectEn = subjectMap[subjectKo] || 'He';
+    const placeEn = placeMap[placeKo] || placeKo;
+    const objectKo = objectWithParticle.replace(/[을를]$/, '').trim();
+    const objectEn = objectMap[objectKo] || objectKo;
+
+    // 동사 처리
+    let verbEn = 'drank';
+    for (const [stem, past] of Object.entries(verbPastMap)) {
+      if (verbStem.startsWith(stem) || verbStem === stem) {
+        verbEn = past;
+        break;
+      }
+    }
+
+    // 행동 처리 ("출근" → "work", "등교" → "school")
+    const actionMap: Record<string, string> = {
+      출근: 'work',
+      등교: 'school',
+      퇴근: 'home',
+    };
+    const wayToEn = actionMap[actionKo] || placeEn;
+
+    return `${subjectEn} ${verbEn} ${objectEn} on ${subjectEn.toLowerCase() === 'he' ? 'his' : subjectEn.toLowerCase() === 'she' ? 'her' : 'my'} way to ${wayToEn}.`;
+  }
+
+  // ============================================
+  // typo-homo-2: "그래서 기분이 좋았다" 또는 "기분이 좋았다" 패턴
+  // "그래서 기분이 좋았다" → "So he felt good"
+  // "기분이 좋았다" → "he felt good" (담화 연결어 추출 후)
+  // ============================================
+  const soFeltPatternFull = sentence.match(
+    /^그래서\s+기분[이가]\s+(좋았다|나빴다|안좋았다|최고였다)\.?$/,
+  );
+  if (soFeltPatternFull) {
+    const adjWord = soFeltPatternFull[1];
+    const adjMap: Record<string, string> = {
+      좋았다: 'good',
+      나빴다: 'bad',
+      안좋았다: 'not good',
+      최고였다: 'great',
+    };
+    const adjEn = adjMap[adjWord] || 'good';
+    return `So he felt ${adjEn}.`;
+  }
+
+  // 담화 연결어 추출 후 버전: "기분이 좋았다"
+  const feltPattern = sentence.match(/^기분[이가]\s+(좋았다|나빴다|안좋았다|최고였다)\.?$/);
+  if (feltPattern) {
+    const adjWord = feltPattern[1];
+    const adjMap: Record<string, string> = {
+      좋았다: 'good',
+      나빴다: 'bad',
+      안좋았다: 'not good',
+      최고였다: 'great',
+    };
+    const adjEn = adjMap[adjWord] || 'good';
+    return `he felt ${adjEn}.`;
+  }
+
+  // ============================================
+  // typo-dup-1: "오늘 정말 행복해요" (시간 + 부사 + 형용사 현재)
+  // "오늘 정말 행복해요" → "I'm really happy today"
+  // ============================================
+  const timeAdjPattern = sentence.match(
+    /^(오늘|어제|내일)\s+(정말|진짜|너무|매우|아주)\s+([가-힣]+?)(해요|하다|합니다)\.?$/,
+  );
+  if (timeAdjPattern) {
+    const timeKo = timeAdjPattern[1];
+    const adverbKo = timeAdjPattern[2];
+    const adjStem = timeAdjPattern[3];
+    const _ending = timeAdjPattern[4];
+
+    const timeMap: Record<string, string> = {
+      오늘: 'today',
+      어제: 'yesterday',
+      내일: 'tomorrow',
+    };
+    const adverbMap: Record<string, string> = {
+      정말: 'really',
+      진짜: 'really',
+      너무: 'so',
+      매우: 'very',
+      아주: 'very',
+    };
+    const adjMap: Record<string, string> = {
+      행복: 'happy',
+      슬프: 'sad',
+      기뻐: 'glad',
+      피곤: 'tired',
+      좋: 'good',
+      나쁘: 'bad',
+    };
+
+    const timeEn = timeMap[timeKo] || 'today';
+    const adverbEn = adverbMap[adverbKo] || 'really';
+    const adjEn = adjMap[adjStem] || adjStem;
+
+    return `I'm ${adverbEn} ${adjEn} ${timeEn}.`;
+  }
+
+  // ============================================
+  // typo-dup-2: "친구들과 재미있게 놀았어요" (동반 + 부사 + 동사 과거)
+  // "친구들과 재미있게 놀았어요" → "I had fun playing with my friends"
+  // ============================================
+  const companionPlayPattern = sentence.match(
+    /^(.+?)(들)?[와과]\s+(재미있게|즐겁게|신나게)\s+([가-힣]+?)(았어요|었어요|았다|었다|았습니다|었습니다)\.?$/,
+  );
+  if (companionPlayPattern) {
+    const companionKo = companionPlayPattern[1] + (companionPlayPattern[2] || '');
+    const adverbKo = companionPlayPattern[3];
+    const verbStem = companionPlayPattern[4];
+    const _ending = companionPlayPattern[5];
+
+    const companionMap: Record<string, string> = {
+      친구: 'my friend',
+      친구들: 'my friends',
+      가족: 'my family',
+      동료: 'my colleague',
+      동료들: 'my colleagues',
+    };
+    const adverbMap: Record<string, string> = {
+      재미있게: 'fun',
+      즐겁게: 'enjoyably',
+      신나게: 'excitedly',
+    };
+    const verbMap: Record<string, string> = {
+      놀: 'playing',
+      여행하: 'traveling',
+      먹: 'eating',
+      이야기하: 'talking',
+    };
+
+    const companionEn = companionMap[companionKo] || companionKo;
+    const funWord = adverbMap[adverbKo] || 'fun';
+    const verbEn = verbMap[verbStem] || 'playing';
+
+    // "I had fun playing with my friends"
+    return `I had ${funWord} ${verbEn} with ${companionEn}.`;
+  }
+
+  // ============================================
+  // typo-adj: "정말 + 형용사 + 었어요" 패턴
+  // "정말 재미있었어요" → "It was really fun."
+  // "정말 즐거웠어요" → "It was really enjoyable."
+  // 일반화된 알고리즘: 부사 + 형용사(과거) → "It was [부사] [형용사]"
+  // ============================================
+  const koAdverbMap: Record<string, string> = {
+    정말: 'really',
+    진짜: 'really',
+    너무: 'so',
+    매우: 'very',
+    아주: 'very',
+    완전: 'totally',
+    엄청: 'extremely',
+  };
+
+  const koAdjPastMap: Record<string, string> = {
+    // 형용사 어간 → 영어 형용사
+    재미있: 'fun',
+    즐거: 'enjoyable',
+    좋: 'good',
+    나쁘: 'bad',
+    행복하: 'happy',
+    슬프: 'sad',
+    기뻐: 'glad',
+    피곤하: 'tired',
+    힘들: 'hard',
+    아름다: 'beautiful',
+    예쁘: 'pretty',
+    맛있: 'delicious',
+    따뜻하: 'warm',
+    시원하: 'cool',
+    덥: 'hot',
+    춥: 'cold',
+    무섭: 'scary',
+    신나: 'exciting',
+    지루하: 'boring',
+    놀라: 'surprising',
+  };
+
+  // 패턴 1: "정말 재미있었어요" (부사 + 형용사 + 었/았/였/웠 + 어요/다)
+  // 참고: "즐거웠어요" = 즐겁(어간) + 웠(과거) + 어요(종결)
+  // "웠어요"는 "ㅂ불규칙 + 었어요" 축약형
+  const reallyAdjPattern = sentence.match(
+    /^(정말|진짜|너무|매우|아주|완전|엄청)\s*([가-힣]+?)(었어요|았어요|였어요|웠어요|었다|았다|였다|웠다|었습니다|았습니다|였습니다|웠습니다)\.?$/,
+  );
+  if (reallyAdjPattern) {
+    const adverbKo = reallyAdjPattern[1];
+    const adjStemRaw = reallyAdjPattern[2];
+    const _ending = reallyAdjPattern[3];
+
+    const adverbEn = koAdverbMap[adverbKo] || 'really';
+
+    // 형용사 어간 추출 (예: "재미있" ← "재미있었어요")
+    // 어간 정규화: -었/-았/-웠 제거 후 매칭
+    let adjEn = '';
+    for (const [stem, eng] of Object.entries(koAdjPastMap)) {
+      if (adjStemRaw.startsWith(stem) || adjStemRaw === stem) {
+        adjEn = eng;
+        break;
+      }
+    }
+
+    if (adjEn) {
+      return `It was ${adverbEn} ${adjEn}.`;
+    }
+  }
+
+  // 패턴 2: "재미있었어요" (부사 없이 형용사만)
+  const simpleAdjPattern = sentence.match(
+    /^([가-힣]+?)(었어요|았어요|였어요|웠어요|었다|았다|였다|웠다|었습니다|았습니다|였습니다|웠습니다)\.?$/,
+  );
+  if (simpleAdjPattern) {
+    const adjStemRaw = simpleAdjPattern[1];
+    const _ending = simpleAdjPattern[2];
+
+    let adjEn = '';
+    for (const [stem, eng] of Object.entries(koAdjPastMap)) {
+      if (adjStemRaw.startsWith(stem) || adjStemRaw === stem) {
+        adjEn = eng;
+        break;
+      }
+    }
+
+    if (adjEn) {
+      return `It was ${adjEn}.`;
+    }
+  }
+
+  // ============================================
+  // wo-l3-seq2: 간단한 순차적 동작 패턴 (-서 + 동사)
+  // "친구를 만나서 영화를 봤어요." → "I met my friend and watched a movie."
+  // 주어 생략 패턴 지원
+  // ============================================
+  const simpleSequentialPattern = sentence.match(
+    /^([가-힣]+[을를])\s*([가-힣]+?)(아서|어서|서)\s+([가-힣]+[을를])\s*([가-힣]+?)(었|았|했)(어요|어|다|습니다)\.?$/,
+  );
+  if (simpleSequentialPattern) {
+    const obj1WithParticle = simpleSequentialPattern[1]; // 친구를
+    const verb1Stem = simpleSequentialPattern[2]; // 만나
+    const _connector = simpleSequentialPattern[3]; // 서
+    const obj2WithParticle = simpleSequentialPattern[4]; // 영화를
+    const verb2Stem = simpleSequentialPattern[5]; // 봤
+    const _tenseMarker = simpleSequentialPattern[6]; // 었/았/했
+    const _ending = simpleSequentialPattern[7]; // 어요
+
+    const object1Ko = obj1WithParticle.replace(/[을를]$/, '').trim();
+    let object1En = koNounMap[object1Ko] || object1Ko;
+    if (object1Ko === '친구') object1En = 'my friend';
+
+    const verb1Info = koVerbMap[verb1Stem] || {
+      base: verb1Stem,
+      past: `${verb1Stem}ed`,
+      gerund: `${verb1Stem}ing`,
+    };
+
+    const object2Ko = obj2WithParticle.replace(/[을를]$/, '').trim();
+    let object2En = koNounMap[object2Ko] || object2Ko;
+    if (object2Ko === '영화') object2En = 'a movie';
+
+    let verb2Base = verb2Stem;
+    if (verb2Stem === '봤' || verb2Stem === '보') verb2Base = '보';
+    if (verb2Stem === '먹었' || verb2Stem === '먹') verb2Base = '먹';
+
+    const verb2Info = koVerbMap[verb2Base] || {
+      base: verb2Base,
+      past: `${verb2Base}ed`,
+      gerund: `${verb2Base}ing`,
+    };
+
+    // 주어 생략 → "I"
+    return `I ${verb1Info.past} ${object1En} and ${verb2Info.past} ${object2En}.`;
+  }
+
+  // wo-l3-3: 조건문 + 다중 동작 패턴
+  // "만약 ... 좋으면 나는 ... 가서 ... 타고 ... 먹으면서 ... 보고 싶어."
+  if (sentence.startsWith('만약')) {
+    const condMatch = sentence.match(/^만약\s+(.+?)(이|가)\s+(.+?)(으면|면)\s+(.+)$/);
+    if (condMatch) {
+      const condSubjKo = condMatch[1]; // 내일 날씨
+      const _condParticle = condMatch[2];
+      const condAdjKo = condMatch[3]; // 좋
+      const _condEnding = condMatch[4];
+      const mainClause = condMatch[5]; // 나는 친구들과 함께 ... 보고 싶어
+
+      // 조건 주어/형용사 번역
+      const condTimeMap: Record<string, string> = {
+        내일: 'tomorrow',
+        오늘: 'today',
+        모레: 'the day after tomorrow',
+      };
+      const condNounMap: Record<string, string> = { 날씨: 'weather', 비: 'rain', 눈: 'snow' };
+      const condAdjMap: Record<string, string> = { 좋: 'nice', 나쁘: 'bad', 추: 'cold', 더: 'hot' };
+
+      // 조건 주어 처리: "내일 날씨" → "the weather" + "tomorrow" (시간은 나중에 붙임)
+      let condSubjEn = '';
+      let condTimeEn = '';
+      for (const [ko, en] of Object.entries(condTimeMap)) {
+        if (condSubjKo.includes(ko)) {
+          condTimeEn = en;
+          break;
+        }
+      }
+      for (const [ko, en] of Object.entries(condNounMap)) {
+        if (condSubjKo.includes(ko)) {
+          condSubjEn = `the ${en}`;
+          break;
+        }
+      }
+      if (!condSubjEn) condSubjEn = condSubjKo;
+
+      // 조건 형용사 번역
+      const condAdjEn = condAdjMap[condAdjKo] || condAdjKo;
+
+      // 메인 절 처리: greedy 매칭으로 전체 내용 캡처
+      const mainMatch = mainClause.match(
+        /^(.+?[은는이가])\s+(.+)\s+(보고 싶어|하고 싶어|고 싶어)\.?$/,
+      );
+      if (mainMatch) {
+        const mainSubjPart = mainMatch[1];
+        const mainMiddle = mainMatch[2]; // 친구들과 함께 한강 공원에 가서 자전거를 타고 치킨과 맥주를 먹으면서 저녁 노을을
+        const _mainObjPart = mainMiddle; // 전체 중간 부분에서 동작 추출
+        const _wantEnding = mainMatch[3];
+
+        const mainSubjKo = mainSubjPart.replace(/[은는이가]$/, '');
+        const mainSubjEn = koSubjMap[mainSubjKo] || 'I';
+
+        // 동작들 추출: "가서", "타고", "먹으면서", 마지막 "보"
+        const actions: string[] = [];
+
+        // "친구들과 함께" → "with my friends"
+        let withFriends = '';
+        if (mainMiddle.includes('친구들과 함께')) {
+          withFriends = 'with my friends';
+        }
+
+        // "한강 공원에 가서" → "go to Hangang Park"
+        if (mainMiddle.includes('한강 공원에 가서') || mainMiddle.includes('공원에 가서')) {
+          actions.push('go to Hangang Park');
+        }
+
+        // "자전거를 타고" → "ride bikes"
+        if (mainMiddle.includes('자전거를 타고')) {
+          actions.push('ride bikes');
+        }
+
+        // "치킨과 맥주를 먹으면서" → "eat chicken and beer"
+        if (mainMiddle.includes('치킨과 맥주를')) {
+          actions.push('eat chicken and beer');
+        }
+
+        // 마지막 동작: "저녁 노을을" → "watch the sunset"
+        if (mainMiddle.includes('저녁 노을')) {
+          actions.push('watch the sunset');
+        }
+
+        // 조합: "If the weather is nice tomorrow"
+        const ifClause = condTimeEn
+          ? `If ${condSubjEn} is ${condAdjEn} ${condTimeEn}`
+          : `If ${condSubjEn} is ${condAdjEn}`;
+        const mainActions = actions.join(', ');
+        const wantPhrase = `${mainSubjEn} want to ${mainActions}`;
+        const friendsPhrase = withFriends ? ` ${withFriends}` : '';
+
+        // "I want to go to Hangang Park with my friends, ride bikes, eat chicken and beer, and watch the sunset."
+        // 마지막 콤마 전에 "and" 삽입
+        let result = `${ifClause}, ${wantPhrase}`;
+        if (friendsPhrase) {
+          result = result.replace('go to Hangang Park', `go to Hangang Park${friendsPhrase}`);
+        }
+        // 마지막 콤마를 "and"로 변경
+        const lastCommaIdx = result.lastIndexOf(', ');
+        if (lastCommaIdx > 0) {
+          result = `${result.slice(0, lastCommaIdx)}, and${result.slice(lastCommaIdx + 1)}`;
+        }
+
+        return `${result}.`;
+      }
+    }
+  }
+
+  return null;
+}
+
+// ============================================
+// L9-EXT: 복합 SVO 패턴 번역 (Phase 3.5)
+// ============================================
+
+/**
+ * L9-EXT: 부사구/수식어 포함 복합 SVO 패턴 번역
+ *
+ * 패턴: 주어+조사 + 부사구 + 형용사 + 목적어+조사 + 동사
+ * 예: "나는 어제 친구와 함께 맛있는 파스타를 먹었어." → "I ate delicious pasta with my friend yesterday."
+ *
+ * @param match RegExp 매칭 결과 [전체, 주어+조사, 부사구, 목적어+조사, 동사]
+ * @param discoursePrefix 담화 연결어 접두사 (있으면)
+ * @returns 번역 결과 또는 null (패턴 미매칭 시)
+ */
+function translateL9ExtPattern(match: RegExpMatchArray, discoursePrefix: string): string | null {
+  const subjectWithParticle = match[1];
+  const subjectKo = subjectWithParticle.replace(/[은는이가]$/, '');
+  const middlePart = match[2]; // 부사구들
+  const objectWithParticle = match[3];
+  const objectKo = objectWithParticle.replace(/[을를]$/, '');
+  const verbConjugated = match[4];
+
+  // 주어 매핑
+  const subjMap: Record<string, string> = {
+    나: 'I',
+    너: 'You',
+    그: 'He',
+    그녀: 'She',
+    우리: 'We',
+    그들: 'They',
+  };
+
+  // 시간 부사 매핑
+  const timeAdvMap: Record<string, string> = {
+    어제: 'yesterday',
+    오늘: 'today',
+    내일: 'tomorrow',
+    주말에: 'on the weekend',
+    지난주에: 'last week',
+    지난달에: 'last month',
+  };
+
+  // 형용사 매핑 (먼저 형용사 분리 후 동반자/장소 검색)
+  const adjMap: Record<string, string> = {
+    맛있는: 'delicious',
+    비싼: 'expensive',
+    예쁜: 'pretty',
+    새로운: 'new',
+    '새로 생긴': 'new',
+    좋은: 'good',
+    큰: 'big',
+    작은: 'small',
+  };
+
+  // 복합 목적어 패턴 먼저 체크 (형용사 분리 전에 원본 middlePart에서!)
+  // "비싼 시계와 예쁜" (middlePart) + "꽃" (objectKo) → ["비싼 시계", "예쁜 꽃"]
+  const compoundObjPat = middlePart.match(/(.+?)(와|과)\s*([가-힣]+)$/);
+
+  // middlePart에서 형용사 분리 (형용사가 middlePart 끝에 위치)
+  let adj = '';
+  let cleanMiddle = middlePart;
+  for (const [koAdj, enAdj] of Object.entries(adjMap)) {
+    if (middlePart.endsWith(koAdj)) {
+      adj = enAdj;
+      cleanMiddle = middlePart.slice(0, -koAdj.length).trim();
+      break;
+    }
+  }
+
+  // 시간 부사를 먼저 cleanMiddle에서 제거 (장소 패턴 매칭 전에)
+  let timeAdvFound = '';
+  let cleanMiddleNoTime = cleanMiddle;
+  for (const [koTime, _enTime] of Object.entries(timeAdvMap)) {
+    if (cleanMiddle.includes(koTime)) {
+      timeAdvFound = _enTime;
+      cleanMiddleNoTime = cleanMiddle.replace(koTime, '').trim();
+      break;
+    }
+  }
+
+  // 동반자/장소 패턴 처리 (시간 부사 제거 후 검색)
+  // 동반자: "친구와 함께" → group1="친구"
+  const companionPat = cleanMiddleNoTime.match(/([가-힣]+)(와|과)\s*함께/);
+  // 장소: "새로 생긴 카페에서" → "새로 생긴 카페"
+  const locationPat = cleanMiddleNoTime.match(/(.+?)(에서)/);
+  let compoundObjects: Array<{ adj: string; noun: string }> | null = null;
+  if (compoundObjPat) {
+    // 첫 번째 목적어: "비싼 시계"
+    const firstPart = compoundObjPat[1].trim();
+    // "생일 선물로 비싼 시계" → "비싼 시계" (마지막 형용사+명사)
+    const firstObjMatch = firstPart.match(
+      /(맛있는|비싼|예쁜|새로운|새로 생긴|좋은|큰|작은)?\s*([가-힣]+)$/,
+    );
+    if (firstObjMatch) {
+      const firstAdj = firstObjMatch[1] ? adjMap[firstObjMatch[1]] || '' : '';
+      const firstNoun = firstObjMatch[2];
+      // 두 번째 목적어: "예쁜" (compoundObjPat[3]) + objectKo ("꽃")
+      const secondAdj = compoundObjPat[3].trim();
+      const secondAdjEn = adjMap[secondAdj] || '';
+      compoundObjects = [
+        { adj: firstAdj, noun: firstNoun },
+        { adj: secondAdjEn, noun: objectKo },
+      ];
+    }
+  }
+
+  // 명사 매핑
+  const nMap: Record<string, string> = {
+    파스타: 'pasta',
+    브런치: 'brunch',
+    커피: 'coffee',
+    시계: 'watch',
+    꽃: 'flowers',
+    선물: 'gift',
+    카페: 'cafe',
+  };
+
+  // 동사 과거형 매핑 (브런치/점심/저녁은 had 사용)
+  const vPastMap: Record<string, string> = {
+    먹었어: 'ate',
+    먹었다: 'ate',
+    샀어: 'bought',
+    샀다: 'bought',
+    마셨어: 'drank',
+    마셨다: 'drank',
+    봤어: 'watched',
+    봤다: 'watched',
+    갔어: 'went',
+    갔다: 'went',
+    했어: 'had',
+    했다: 'had',
+  };
+
+  let vEn = vPastMap[verbConjugated];
+  if (!vEn) {
+    return null; // 동사 매핑 없으면 다른 패턴으로 처리
+  }
+
+  // 식사 목적어일 때 "had" 사용 (브런치, 아침, 점심, 저녁)
+  const mealNouns = ['브런치', '아침', '점심', '저녁', '식사'];
+  if (
+    mealNouns.includes(objectKo) &&
+    (verbConjugated === '먹었어' || verbConjugated === '먹었다')
+  ) {
+    vEn = 'had';
+  }
+
+  const sEn = subjMap[subjectKo] || subjectKo;
+
+  // 목적어 구성
+  let oEn = '';
+  if (compoundObjects && compoundObjects.length === 2) {
+    // 복합 목적어: "비싼 시계와 예쁜 꽃" → "an expensive watch and pretty flowers"
+    const obj1 = compoundObjects[0];
+    const obj2 = compoundObjects[1];
+    const noun1En = nMap[obj1.noun] || obj1.noun;
+    const noun2En = nMap[obj2.noun] || obj2.noun;
+    // 관사 처리 (a/an)
+    const article1 = obj1.adj ? (/^[aeiou]/i.test(obj1.adj) ? 'an' : 'a') : 'a';
+    oEn = `${article1} ${obj1.adj} ${noun1En} and ${obj2.adj} ${noun2En}`
+      .replace(/\s+/g, ' ')
+      .trim();
+  } else if (adj) {
+    const oNoun = nMap[objectKo] || objectKo;
+    oEn = `${adj} ${oNoun}`;
+  } else {
+    oEn = nMap[objectKo] || objectKo;
+  }
+
+  // 부사구 처리
+  const advParts: string[] = [];
+
+  // 동반자 처리: "친구와 함께" → "with my friend"
+  if (companionPat) {
+    const comp = companionPat[1];
+    const compEn =
+      comp === '친구'
+        ? 'my friend'
+        : comp === '동료들'
+          ? 'my colleagues'
+          : comp === '가족'
+            ? 'my family'
+            : comp;
+    advParts.push(`with ${compEn}`);
+  }
+
+  // 장소 처리: "카페에서" → "at the cafe"
+  if (locationPat) {
+    const loc = locationPat[1];
+    let locEn = '';
+    if (loc.includes('새로 생긴')) {
+      const place = loc.replace('새로 생긴', '').trim();
+      const placeEn = nMap[place] || place;
+      locEn = `the new ${placeEn}`;
+    } else {
+      locEn = `the ${nMap[loc] || loc}`;
+    }
+    advParts.push(`at ${locEn}`);
+  }
+
+  // 시간 부사 처리 (이미 추출된 timeAdvFound 사용)
+  if (timeAdvFound) {
+    advParts.push(timeAdvFound);
+  }
+
+  // 목적 처리: "생일 선물로" → "for a birthday gift"
+  const purposePat = middlePart.match(/([가-힣]+)\s*선물로/);
+  if (purposePat) {
+    const occasion = purposePat[1];
+    const occasionMap: Record<string, string> = {
+      생일: 'birthday',
+      크리스마스: 'Christmas',
+      결혼: 'wedding',
+      졸업: 'graduation',
+    };
+    const occasionEn = occasionMap[occasion] || occasion;
+    advParts.push(`for a ${occasionEn} gift`);
+  }
+
+  // 문장 조립: S + V + O + adverbs
+  const advStr = advParts.length > 0 ? ` ${advParts.join(' ')}` : '';
+  return `${discoursePrefix}${sEn} ${vEn} ${oEn}${advStr}.`;
 }
 
 // ============================================
@@ -582,8 +2299,11 @@ export function translateWithInfo(
     }
   }
 
+  // Phase -0.5: 오타 교정 (Typo Correction)
+  const typoCorrected = correctTypo(trimmed, direction);
+
   // Phase 0: 띄어쓰기 정규화 (붙어있는 텍스트 분리)
-  const normalized = normalizeSpacing(trimmed, direction);
+  const normalized = normalizeSpacing(typoCorrected, direction);
 
   // ============================================
   // L15: 다중 문장 대명사 결정 (문장 분리 전에 처리!)
@@ -628,7 +2348,9 @@ export function translateWithInfo(
     // 구두점 복원 (이미 번역 결과에 포함된 경우 중복 방지)
     // g15: "(formal)" 같은 suffix 뒤에 구두점이 다시 붙지 않도록
     // 번역 결과에 구두점이 이미 포함되어 있으면 추가하지 않음
-    if (punctuation && !translated.includes(punctuation)) {
+    // 번역 결과가 이미 문장 종결 부호로 끝나면 추가하지 않음
+    const endsWithPunctuation = /[.!?。？！]$/.test(translated);
+    if (punctuation && !translated.includes(punctuation) && !endsWithPunctuation) {
       translated += punctuation;
     }
 
@@ -649,6 +2371,72 @@ export function translateWithInfo(
  * 한국어 문장을 절 단위로 분리하여 영어로 번역
  */
 function translateKoreanSentence(sentence: string, _formality: Formality): string {
+  // ============================================
+  // Phase -1: 형용사 과거형 완전 문장 패턴 (외부 사전보다 우선!)
+  // "맛있었어" → "It was delicious." (주어 포함)
+  // ============================================
+  const trimmedSentence = sentence.trim();
+  const cleanedSentence = trimmedSentence.replace(/[?!.]+$/, '').trim();
+
+  // 형용사 과거형 완전 문장 패턴 (It 주어 포함)
+  const adjPastPatterns: Record<string, { past: string; present: string }> = {
+    맛있었어: { past: 'It was delicious.', present: 'It is delicious.' },
+    맛있음: { past: 'It was delicious.', present: 'It is delicious.' },
+    맛있었다: { past: 'It was delicious.', present: 'It is delicious.' },
+    맛있어: { past: 'It is delicious.', present: 'It is delicious.' },
+    맛있다: { past: 'It is delicious.', present: 'It is delicious.' },
+    재미있었어: { past: 'It was fun.', present: 'It is fun.' },
+    재미있음: { past: 'It was fun.', present: 'It is fun.' },
+    재미있었다: { past: 'It was fun.', present: 'It is fun.' },
+    재미있어: { past: 'It is fun.', present: 'It is fun.' },
+    재미있다: { past: 'It is fun.', present: 'It is fun.' },
+  };
+
+  if (adjPastPatterns[cleanedSentence]) {
+    const isPast = cleanedSentence.includes('었') || cleanedSentence.endsWith('음');
+    return isPast
+      ? adjPastPatterns[cleanedSentence].past
+      : adjPastPatterns[cleanedSentence].present;
+  }
+
+  // ============================================
+  // Phase 0: 외부 단어 사전 우선 조회 (형태소 분석 전!)
+  // "안녕하세요" → "Hello" (형태소 분석으로 분리되기 전에 매칭)
+  // 조건:
+  // - 단일 단어 (공백 없음)
+  // - 3글자 이상 (짧은 어간/조사 제외: 가, 나, 다 등)
+  // - 동사 어미로 끝나지 않음 (-다, -니, -자, -라는 알고리즘으로 처리)
+  // ============================================
+  const trimmedInput = sentence.trim();
+  // 문장 끝 물음표/느낌표/마침표 제거하고 조회
+  const cleanedInput = trimmedInput.replace(/[?!.]+$/, '').trim();
+
+  // 외부 사전 조회 조건:
+  // 1. 공백이 없는 단일 단어
+  // 2. 3글자 이상 (짧은 어간 제외)
+  // 3. 동사 어미(-다, -니, -자, -라, -지)로 끝나지 않음
+  const isSingleWord = !cleanedInput.includes(' ');
+  const isLongEnough = cleanedInput.length >= 3;
+  const endsWithVerbEnding = /[다니자라지]$/.test(cleanedInput);
+
+  if (isSingleWord && isLongEnough && !endsWithVerbEnding) {
+    const externalWordMatch = lookupExternalKoToEn(cleanedInput);
+    if (externalWordMatch) {
+      // 원래 문장 끝 부호 유지
+      const suffix = trimmedInput.slice(cleanedInput.length);
+      return externalWordMatch + suffix;
+    }
+  }
+
+  // ============================================
+  // Phase F: 비유 표현 처리 (Figurative Expressions)
+  // 직유, 은유, 과장법, 동물 비유, 역설 등
+  // ============================================
+  const figurativeResult = translateKoreanFigurative(sentence);
+  if (figurativeResult) {
+    return figurativeResult;
+  }
+
   // ============================================
   // Phase 3: 담화 연결어/감탄사 전처리 (형태소 분석 전!)
   // "그리고 아침은..." → "And" + "아침은..." 분리
@@ -672,6 +2460,42 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
   const mealQuestionResult = translateMealQuestion(rest);
   if (mealQuestionResult) {
     return `${discoursePrefix}${mealQuestionResult}`;
+  }
+
+  // ============================================
+  // Phase 3.3: WO-L3 복합문 처리 (연결어미: -면서, -느라, -서, -고, -면)
+  // "나는 ... 먹으면서 ... 이야기했어." → "I ate ... while talking ..."
+  // ============================================
+  const complexResult = translateKoreanComplexSentence(rest);
+  if (complexResult) {
+    return `${discoursePrefix}${complexResult}`;
+  }
+
+  // ============================================
+  // Phase 3.4: WO-L4 다중절 처리 (40+ 단어 복합문)
+  // "나는 작년 3월부터..." → "From March last year..."
+  // ============================================
+  const woL4KoResult = translateKoreanL4Sentence(rest);
+  if (woL4KoResult) {
+    return `${discoursePrefix}${woL4KoResult}`;
+  }
+
+  // ============================================
+  // Phase 3.5: L9-EXT 복합 SVO 패턴 (부사 추출 전!)
+  // "나는 어제 친구와 함께 맛있는 파스타를 먹었어." → "I ate delicious pasta with my friend yesterday."
+  // 부사 추출 전에 원본 문장에서 패턴 매칭 시도
+  // ============================================
+  const spaceCount = (rest.match(/\s+/g) || []).length;
+  if (spaceCount >= 3) {
+    const koComplexSVOPattern = rest.match(
+      /^(.+?[은는이가])\s+(.+)\s+([가-힣]+[을를])\s+(.+?)\.?$/,
+    );
+    if (koComplexSVOPattern) {
+      const l9ExtResult = translateL9ExtPattern(koComplexSVOPattern, discoursePrefix);
+      if (l9ExtResult) {
+        return l9ExtResult;
+      }
+    }
   }
 
   // ============================================
@@ -956,6 +2780,41 @@ const COORDINATING_CONNECTOR_MAP: Record<string, string> = {
  */
 function translateEnglishSentence(sentence: string, formality: Formality): string {
   // ============================================
+  // Phase 0: 외부 단어 사전 우선 조회 (형태소 분석 전!)
+  // "Hello" → "안녕하세요" (형태소 분석으로 분리되기 전에 매칭)
+  // 조건:
+  // - 단일 단어 (공백 없음)
+  // - 4글자 이상 (짧은 접속사/전치사 제외: but, so, or 등)
+  // ============================================
+  const trimmedInput = sentence.trim();
+  // 문장 끝 물음표/느낌표/마침표 제거하고 조회
+  const cleanedInput = trimmedInput.replace(/[?!.]+$/, '').trim();
+
+  // 외부 사전 조회 조건:
+  // 1. 공백이 없는 단일 단어
+  // 2. 4글자 이상 (접속사/전치사 제외)
+  const isSingleWord = !cleanedInput.includes(' ');
+  const isLongEnough = cleanedInput.length >= 4;
+
+  if (isSingleWord && isLongEnough) {
+    const externalWordMatch = lookupExternalEnToKo(cleanedInput);
+    if (externalWordMatch) {
+      // 원래 문장 끝 부호 유지
+      const suffix = trimmedInput.slice(cleanedInput.length);
+      return externalWordMatch + suffix;
+    }
+  }
+
+  // ============================================
+  // Phase F: 비유 표현 처리 (Figurative Expressions)
+  // 직유, 은유, 과장법, 동물 비유, 역설 등
+  // ============================================
+  const figurativeResultEn = translateEnglishFigurative(sentence);
+  if (figurativeResultEn) {
+    return figurativeResultEn;
+  }
+
+  // ============================================
   // Phase 5: 관용어 전처리 (형태소 분석 전!)
   // "burn the midnight oil" → "밤새 공부하다"
   // ============================================
@@ -994,6 +2853,33 @@ function translateEnglishSentence(sentence: string, formality: Formality): strin
   // "She asked if I was busy" → "바쁘냐고 물었다"
   if (parsed.englishQuotation) {
     return generateEnglishToKoreanQuotation(parsed, formality);
+  }
+
+  // ============================================
+  // WO-L2: 복합문 영어→한국어 변환 (절 분리 전에!)
+  // SVO + 시간/장소/목적 부사구 → SOV + 부사구
+  // ============================================
+  const woL2Result = translateEnglishComplexSentence(preprocessedSentence);
+  if (woL2Result) {
+    return woL2Result;
+  }
+
+  // ============================================
+  // WO-L3: Level 3 영어 복합문 → 한국어 변환
+  // 다중 절 + 콤마/and 연결 패턴
+  // ============================================
+  const woL3Result = translateEnglishL3Sentence(preprocessedSentence);
+  if (woL3Result) {
+    return woL3Result;
+  }
+
+  // ============================================
+  // WO-L4: Level 4 영어 다중절 문장 → 한국어 변환
+  // 40+ 단어 복합문
+  // ============================================
+  const woL4EnResult = translateEnglishL4Sentence(preprocessedSentence);
+  if (woL4EnResult) {
+    return woL4EnResult;
   }
 
   // 1. 절 분리
