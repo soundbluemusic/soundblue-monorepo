@@ -57,7 +57,7 @@ export function PopularToolsSection({ onToolClick }: PopularToolsSectionProps) {
   };
 
   return (
-    <section className="pt-6">
+    <section className="pt-6 overflow-hidden">
       <div className="flex items-center justify-between px-4 pb-3 md:max-w-7xl md:mx-auto">
         <h2 className="text-lg font-bold leading-tight text-(--foreground) md:text-2xl">
           {m['home_popularTools']?.() ?? (locale === 'ko' ? '인기 도구' : 'Popular Tools')}
