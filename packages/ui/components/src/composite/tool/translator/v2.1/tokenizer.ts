@@ -11,10 +11,13 @@
  */
 
 import { decompose, getBatchim } from '@soundblue/hangul';
-import { disambiguate, isPolysemous, koToEnWords } from '@soundblue/translator';
-// morphology 모듈 통합 (리팩토링)
-import { tryExtractContracted } from '../dictionary/morphology/korean-contracted';
-import { tryExtractCopula } from '../dictionary/morphology/korean-copulas';
+import {
+  disambiguate,
+  isPolysemous,
+  koToEnWords,
+  tryExtractContracted,
+  tryExtractCopula,
+} from '@soundblue/translator';
 import {
   COUNTERS,
   ENDINGS,

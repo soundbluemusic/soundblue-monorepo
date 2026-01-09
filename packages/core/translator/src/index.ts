@@ -46,17 +46,44 @@ export { onomatopoeia, translateOnomatopoeia } from './dictionary/entries/onomat
 export { phrasalVerbs, translatePhrasalVerbs } from './dictionary/entries/phrasal-verbs';
 // Dictionary Access
 export { enToKoWords, koToEnWords } from './dictionary/entries/words';
+// Morphology - Korean Connective Endings
 export {
+  type ConnectiveEndingInfo,
+  connectiveEndingList,
   connectiveEndings,
   extractConnectiveEnding,
+  restoreStemFromConnective,
 } from './dictionary/morphology/korean-connective';
+// Morphology - Korean Contracted Forms
+export {
+  type ContractedEndingInfo,
+  contractedFormList,
+  contractedForms,
+  tryExtractContracted,
+} from './dictionary/morphology/korean-contracted';
+// Morphology - Korean Copulas
+export {
+  type CopulaInfo,
+  copulaList,
+  copulas,
+  selectBeVerb,
+  tryExtractCopula,
+} from './dictionary/morphology/korean-copulas';
+// Morphology - Korean Endings
 export {
   type EndingPattern,
   getEnglishTense,
   matchEnding,
 } from './dictionary/morphology/korean-endings';
-// Morphology
-export { endings, particles } from './dictionary/morphology/korean-morphemes';
+// Morphology - Korean Morphemes
+export {
+  endingList,
+  endings,
+  particleList,
+  particles,
+} from './dictionary/morphology/korean-morphemes';
+// Morphology - Patterns
+export { enToKoPatterns, koToEnPatterns } from './dictionary/morphology/patterns';
 // Detailed Translation (for advanced use)
 export {
   type EnToKoResult,

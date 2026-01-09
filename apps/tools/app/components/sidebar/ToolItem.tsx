@@ -23,10 +23,8 @@ export function ToolItem({ tool, onClick, collapsed }: ToolItemProps) {
     <button
       type="button"
       onClick={() => onClick(tool.id)}
-      className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-none bg-transparent text-sm transition-all duration-200 ease-out hover:bg-black/8 hover:text-(--foreground) active:scale-98 active:bg-black/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary) dark:hover:bg-white/12 dark:active:bg-white/18 ${
-        isActive
-          ? 'bg-(color-mix(in_srgb,var(--brand)_15%,transparent)) text-(--brand) font-medium shadow-sm'
-          : ''
+      className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-none bg-transparent text-sm transition-all duration-200 ease-out hover:bg-black/8 hover:text-foreground active:scale-98 active:bg-black/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:hover:bg-white/12 dark:active:bg-white/18 ${
+        isActive ? 'bg-brand/15 text-brand font-medium shadow-sm' : ''
       } ${collapsed ? 'justify-center p-2' : 'px-3 py-2'}`}
       title={collapsed ? tool.name[locale] : undefined}
     >

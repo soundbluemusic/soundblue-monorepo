@@ -316,7 +316,7 @@ export function Translator({
       'inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs bg-transparent border-none cursor-pointer transition-colors duration-200 hover:bg-black/[0.08] dark:hover:bg-white/[0.12] disabled:opacity-50 disabled:cursor-not-allowed';
     if (shareStatus === 'copied') return `${base} text-green-600 dark:text-green-400`;
     if (shareStatus === 'error') return `${base} text-red-600 dark:text-red-400`;
-    return `${base} text-(--muted-foreground) hover:text-(--foreground)`;
+    return `${base} text-muted-foreground hover:text-foreground`;
   };
 
   return (
@@ -327,7 +327,7 @@ export function Translator({
         <button
           type="button"
           onClick={toggleDirection}
-          className="inline-flex size-9 items-center justify-center rounded-lg border border-(--border) bg-transparent transition-all duration-200 hover:scale-105 hover:bg-black/[0.08] active:scale-95 dark:hover:bg-white/[0.12]"
+          className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-transparent transition-all duration-200 hover:scale-105 hover:bg-black/[0.08] active:scale-95 dark:hover:bg-white/[0.12]"
           title="Switch direction"
         >
           <ArrowLeftRight className="size-4" />
@@ -340,7 +340,7 @@ export function Translator({
         <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
           {/* 입력 타입 표시 */}
           <span className="inline-flex items-center gap-1 rounded-full bg-black/[0.05] px-2 py-0.5 dark:bg-white/[0.08]">
-            <span className="text-(--muted-foreground)">{getInputTypeLabel()}</span>
+            <span className="text-muted-foreground">{getInputTypeLabel()}</span>
           </span>
 
           {/* 감지된 어투 표시 */}
@@ -376,7 +376,7 @@ export function Translator({
       {/* isMounted 체크로 hydration 불일치 방지 (SSG prerender vs client state) */}
       {isMounted && settings.direction === 'en-ko' && (
         <div className="space-y-1.5">
-          <div className="flex items-center justify-center gap-1 text-xs text-(--muted-foreground)">
+          <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
             <Info className="size-3" />
             <span>Choose output tone</span>
           </div>
@@ -394,7 +394,7 @@ export function Translator({
                 className={`inline-flex h-7 items-center justify-center rounded-full px-3 text-xs transition-colors duration-200 ${
                   settings.formality === option.value
                     ? 'bg-blue-500 text-white'
-                    : 'bg-black/[0.05] text-(--muted-foreground) hover:bg-black/[0.1] dark:bg-white/[0.08] dark:hover:bg-white/[0.12]'
+                    : 'bg-black/[0.05] text-muted-foreground hover:bg-black/[0.1] dark:bg-white/[0.08] dark:hover:bg-white/[0.12]'
                 }`}
               >
                 {option.labelEn}
@@ -416,14 +416,14 @@ export function Translator({
                 ? '번역할 텍스트를 입력하세요...'
                 : 'Enter text to translate...'
             }
-            className="h-full w-full resize-none rounded-xl border border-(--border) bg-(--background) p-3 text-sm transition-[border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
+            className="h-full w-full resize-none rounded-xl border border-border bg-background p-3 text-sm transition-[border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
 
         {/* Output area */}
         <div className="relative flex-1">
           <section
-            className="h-full w-full overflow-auto rounded-xl border border-(--border) bg-black/[0.03] p-3 text-sm dark:bg-white/[0.03]"
+            className="h-full w-full overflow-auto rounded-xl border border-border bg-black/[0.03] p-3 text-sm dark:bg-white/[0.03]"
             aria-live="polite"
             aria-atomic="true"
             aria-label={settings.direction === 'ko-en' ? '번역 결과' : 'Translation result'}
@@ -436,7 +436,7 @@ export function Translator({
             <button
               type="button"
               onClick={copyToClipboard}
-              className="absolute right-2 top-2 inline-flex size-8 items-center justify-center rounded-lg border border-(--border) bg-white/80 backdrop-blur-sm transition-colors duration-200 hover:bg-black/[0.08] dark:bg-black/80 dark:hover:bg-white/[0.12]"
+              className="absolute right-2 top-2 inline-flex size-8 items-center justify-center rounded-lg border border-border bg-white/80 backdrop-blur-sm transition-colors duration-200 hover:bg-black/[0.08] dark:bg-black/80 dark:hover:bg-white/[0.12]"
               title={messages.copy}
             >
               {isCopied ? (
@@ -454,7 +454,7 @@ export function Translator({
         <button
           type="button"
           onClick={clearAll}
-          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-transparent px-3 text-xs text-(--muted-foreground) transition-colors duration-200 hover:bg-black/[0.08] hover:text-(--foreground) dark:hover:bg-white/[0.12]"
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-transparent px-3 text-xs text-muted-foreground transition-colors duration-200 hover:bg-black/[0.08] hover:text-foreground dark:hover:bg-white/[0.12]"
         >
           <Trash2 className="size-3.5" />
           <span>{settings.direction === 'ko-en' ? '지우기' : 'Clear'}</span>
@@ -492,7 +492,7 @@ export function Translator({
           )}
         </button>
 
-        <div className="flex items-center gap-1.5 text-xs text-(--muted-foreground)">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <div className="size-2 rounded-full bg-blue-500" />
           <span>
             {settings.direction === 'ko-en' ? '알고리즘 번역' : 'Algorithm-based Translation'}

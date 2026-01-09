@@ -28,7 +28,7 @@ export function ToolCategory({ category, onToolClick, collapsed }: ToolCategoryP
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex w-full cursor-pointer items-center justify-between rounded-md border-none bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-wide text-(--muted-foreground) transition-colors duration-150 hover:text-(--foreground) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
+          className="flex w-full cursor-pointer items-center justify-between rounded-md border-none bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           <span>{category.name[locale]}</span>
           <ChevronDown

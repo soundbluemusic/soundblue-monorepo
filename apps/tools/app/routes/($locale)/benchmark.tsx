@@ -95,8 +95,9 @@ async function loadTranslate(): Promise<TranslateFn> {
   if (cachedTranslateFn) return cachedTranslateFn;
 
   const uiModule = await import('@soundblue/ui-components/composite/tool');
-  cachedTranslateFn = uiModule.translate;
-  return cachedTranslateFn;
+  const translateFn = uiModule.translate;
+  cachedTranslateFn = translateFn;
+  return translateFn;
 }
 
 async function loadHangul(): Promise<HangulModule> {
@@ -135,7 +136,9 @@ function calculateSimilarity(
 // Helper function to count tests in a level array
 function countTestsInLevels(levels: TestLevel[]): number {
   return levels.reduce(
-    (sum, level) => sum + level.categories.reduce((catSum, cat) => catSum + cat.tests.length, 0),
+    (sum: number, level) =>
+      sum +
+      level.categories.reduce((catSum: number, cat: TestCategory) => catSum + cat.tests.length, 0),
     0,
   );
 }
@@ -415,7 +418,7 @@ export default function Benchmark() {
           const levelPercentage = Math.round((levelResult.passed / levelResult.total) * 100);
 
           return (
-            <div key={level.id} className="overflow-hidden rounded-lg border border-(--border)">
+            <div key={level.id} className="overflow-hidden rounded-lg border border-border">
               <button
                 type="button"
                 onClick={() => toggleLevel(levelId)}
@@ -430,7 +433,7 @@ export default function Benchmark() {
                   <span className="font-medium">{level.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-(--muted-foreground)">
+                  <span className="text-sm text-muted-foreground">
                     {`${levelResult.passed}/${levelResult.total}`}
                   </span>
                   <span
@@ -442,7 +445,7 @@ export default function Benchmark() {
               </button>
 
               {isLevelExpanded && (
-                <div className="border-t border-(--border) p-3 pt-2">
+                <div className="border-t border-border p-3 pt-2">
                   {level.categories.map((category: TestCategory, catIdx: number) => {
                     const catResult = levelResult.categories[catIdx];
                     if (!catResult) return null;
@@ -467,7 +470,7 @@ export default function Benchmark() {
                             <span className="text-sm">{category.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-(--muted-foreground)">
+                            <span className="text-xs text-muted-foreground">
                               {`${catResult.passed}/${catResult.total}`}
                             </span>
                             <span className={`text-xs ${getPercentageClass(catPercentage)}`}>
@@ -494,7 +497,7 @@ export default function Benchmark() {
                                     <XCircle className="mt-0.5 size-3 shrink-0 text-red-600 dark:text-red-400" />
                                   )}
                                   <div className="min-w-0 flex-1">
-                                    <div className="mb-1 break-words font-mono text-(--muted-foreground)">
+                                    <div className="mb-1 break-words font-mono text-muted-foreground">
                                       {result.input}
                                     </div>
                                     {!result.passed && (
@@ -546,76 +549,76 @@ export default function Benchmark() {
       <ToolSidebar />
 
       <main
-        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:p-8 sm:pt-(--header-height) ${
+        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:pr-8 sm:pb-8 sm:pt-(--header-height) ${
           sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
         } max-md:pl-0`}
       >
         <div className="mx-auto max-w-4xl">
           <h1 className="mb-2 text-2xl font-bold sm:text-3xl">Translator Benchmark</h1>
-          <p className="mb-4 text-(--muted-foreground)">
+          <p className="mb-4 text-muted-foreground">
             {`Test translation accuracy across ${totalTestCount} test cases`}
           </p>
 
           {/* Official Metrics Display */}
           {officialMetrics && (
-            <div className="mb-6 rounded-lg border border-(--border) bg-white p-4 dark:bg-gray-900">
+            <div className="mb-6 rounded-lg border border-border bg-white p-4 dark:bg-gray-900">
               <h2 className="mb-3 text-lg font-semibold">Official Metrics (공식 지표)</h2>
-              <p className="mb-4 text-xs text-(--muted-foreground)">
+              <p className="mb-4 text-xs text-muted-foreground">
                 {`Evaluated on ${officialMetrics.testCount} sentence pairs • Generated: ${new Date(officialMetrics.generatedAt).toLocaleDateString()}`}
               </p>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {/* METEOR */}
-                <div className="rounded-md border border-(--border) p-3 text-center">
-                  <div className="mb-1 text-xs font-medium text-(--muted-foreground)">METEOR</div>
+                <div className="rounded-md border border-border p-3 text-center">
+                  <div className="mb-1 text-xs font-medium text-muted-foreground">METEOR</div>
                   <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
                     {((officialMetrics.koToEn.meteor + officialMetrics.enToKo.meteor) / 2).toFixed(
                       4,
                     )}
                   </div>
-                  <div className="mt-1 text-xs text-(--muted-foreground)">
+                  <div className="mt-1 text-xs text-muted-foreground">
                     <span>Ko→En: {officialMetrics.koToEn.meteor.toFixed(4)}</span>
                     <span className="mx-1">|</span>
                     <span>En→Ko: {officialMetrics.enToKo.meteor.toFixed(4)}</span>
                   </div>
                 </div>
                 {/* chrF */}
-                <div className="rounded-md border border-(--border) p-3 text-center">
-                  <div className="mb-1 text-xs font-medium text-(--muted-foreground)">chrF</div>
+                <div className="rounded-md border border-border p-3 text-center">
+                  <div className="mb-1 text-xs font-medium text-muted-foreground">chrF</div>
                   <div className="text-lg font-bold text-green-600 dark:text-green-400">
                     {((officialMetrics.koToEn.chrF + officialMetrics.enToKo.chrF) / 2).toFixed(2)}
                   </div>
-                  <div className="mt-1 text-xs text-(--muted-foreground)">
+                  <div className="mt-1 text-xs text-muted-foreground">
                     <span>Ko→En: {officialMetrics.koToEn.chrF.toFixed(2)}</span>
                     <span className="mx-1">|</span>
                     <span>En→Ko: {officialMetrics.enToKo.chrF.toFixed(2)}</span>
                   </div>
                 </div>
                 {/* BLEU */}
-                <div className="rounded-md border border-(--border) p-3 text-center">
-                  <div className="mb-1 text-xs font-medium text-(--muted-foreground)">BLEU</div>
+                <div className="rounded-md border border-border p-3 text-center">
+                  <div className="mb-1 text-xs font-medium text-muted-foreground">BLEU</div>
                   <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
                     {((officialMetrics.koToEn.bleu + officialMetrics.enToKo.bleu) / 2).toFixed(2)}
                   </div>
-                  <div className="mt-1 text-xs text-(--muted-foreground)">
+                  <div className="mt-1 text-xs text-muted-foreground">
                     <span>Ko→En: {officialMetrics.koToEn.bleu.toFixed(2)}</span>
                     <span className="mx-1">|</span>
                     <span>En→Ko: {officialMetrics.enToKo.bleu.toFixed(2)}</span>
                   </div>
                 </div>
                 {/* TER */}
-                <div className="rounded-md border border-(--border) p-3 text-center">
-                  <div className="mb-1 text-xs font-medium text-(--muted-foreground)">TER ↓</div>
+                <div className="rounded-md border border-border p-3 text-center">
+                  <div className="mb-1 text-xs font-medium text-muted-foreground">TER ↓</div>
                   <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
                     {((officialMetrics.koToEn.ter + officialMetrics.enToKo.ter) / 2).toFixed(2)}
                   </div>
-                  <div className="mt-1 text-xs text-(--muted-foreground)">
+                  <div className="mt-1 text-xs text-muted-foreground">
                     <span>Ko→En: {officialMetrics.koToEn.ter.toFixed(2)}</span>
                     <span className="mx-1">|</span>
                     <span>En→Ko: {officialMetrics.enToKo.ter.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
-              <p className="mt-3 text-xs text-(--muted-foreground)">
+              <p className="mt-3 text-xs text-muted-foreground">
                 METEOR/chrF/BLEU: 높을수록 좋음 (↑) • TER: 낮을수록 좋음 (↓)
               </p>
             </div>
@@ -677,22 +680,22 @@ export default function Benchmark() {
 
           {/* Current Test Display */}
           {currentTest && (
-            <div className="mb-6 rounded-lg border border-(--border) bg-gray-50 p-4 dark:bg-gray-800/50">
-              <div className="mb-2 text-sm font-medium text-(--muted-foreground)">
+            <div className="mb-6 rounded-lg border border-border bg-gray-50 p-4 dark:bg-gray-800/50">
+              <div className="mb-2 text-sm font-medium text-muted-foreground">
                 현재 테스트 중...
               </div>
               <div className="mb-3 rounded-md bg-white p-3 dark:bg-gray-900">
-                <div className="mb-1 text-xs text-(--muted-foreground)">입력</div>
+                <div className="mb-1 text-xs text-muted-foreground">입력</div>
                 <div className="font-mono text-sm">{currentTest.input}</div>
               </div>
               <div className="mb-3 rounded-md bg-white p-3 dark:bg-gray-900">
-                <div className="mb-1 text-xs text-(--muted-foreground)">번역 결과</div>
+                <div className="mb-1 text-xs text-muted-foreground">번역 결과</div>
                 <div className="font-mono text-sm text-blue-600 dark:text-blue-400">
                   {currentTest.output}
                 </div>
               </div>
               <div className="rounded-md bg-white p-3 dark:bg-gray-900">
-                <div className="mb-1 text-xs text-(--muted-foreground)">예상 결과</div>
+                <div className="mb-1 text-xs text-muted-foreground">예상 결과</div>
                 <div className="font-mono text-sm text-green-600 dark:text-green-400">
                   {currentTest.expected}
                 </div>
@@ -704,7 +707,7 @@ export default function Benchmark() {
           {isRunning && progress.total > 0 && (
             <div className="mb-6">
               <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="text-(--muted-foreground)">{progress.phase}</span>
+                <span className="text-muted-foreground">{progress.phase}</span>
                 <span className="font-mono">
                   {`${progress.current}/${progress.total} (${Math.round((progress.current / progress.total) * 100)}%)`}
                 </span>
@@ -720,12 +723,12 @@ export default function Benchmark() {
 
           {/* Overall Stats */}
           {results.size > 0 && (
-            <div className="mb-6 rounded-lg border border-(--border) bg-white p-4 dark:bg-gray-900">
+            <div className="mb-6 rounded-lg border border-border bg-white p-4 dark:bg-gray-900">
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
                   <div className="text-4xl font-bold">{overallStats.percentage}%</div>
-                  <div className="text-sm text-(--muted-foreground)">Pass Rate</div>
-                  <div className="text-xs text-(--muted-foreground)">
+                  <div className="text-sm text-muted-foreground">Pass Rate</div>
+                  <div className="text-xs text-muted-foreground">
                     {`${overallStats.passed}/${overallStats.total}`}
                   </div>
                 </div>
@@ -741,8 +744,8 @@ export default function Benchmark() {
                   >
                     {averageSimilarity}%
                   </div>
-                  <div className="text-sm text-(--muted-foreground)">Avg Similarity</div>
-                  <div className="text-xs text-(--muted-foreground)">문자열 유사도</div>
+                  <div className="text-sm text-muted-foreground">Avg Similarity</div>
+                  <div className="text-xs text-muted-foreground">문자열 유사도</div>
                 </div>
               </div>
             </div>
@@ -774,7 +777,7 @@ export default function Benchmark() {
 
           {/* Empty State */}
           {results.size === 0 && !isRunning && !isLoading && (
-            <div className="rounded-lg border border-dashed border-(--border) p-8 text-center text-(--muted-foreground)">
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
               <p>Run All Tests 버튼을 클릭하여 벤치마크를 시작하세요.</p>
               <p className="mt-2 text-sm">
                 각 테스트가 순차적으로 실행되며 결과를 실시간으로 확인할 수 있습니다.
@@ -784,7 +787,7 @@ export default function Benchmark() {
 
           {/* Loading State */}
           {isLoading && (
-            <div className="rounded-lg border border-dashed border-(--border) p-8 text-center text-(--muted-foreground)">
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
               <Loader2 className="mx-auto mb-4 size-8 animate-spin" />
               <p>벤치마크 데이터 로딩 중...</p>
               <p className="mt-2 text-sm">번역기와 테스트 데이터를 불러오고 있습니다.</p>

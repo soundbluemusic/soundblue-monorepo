@@ -26,7 +26,7 @@ import { defaultMetronomeSettings, type MetronomeSettings } from '~/tools/metron
 function ToolLoading() {
   return (
     <div className="flex h-full items-center justify-center">
-      <Loader2 className="size-8 animate-spin text-(--primary)" />
+      <Loader2 className="size-8 animate-spin text-primary" />
     </div>
   );
 }

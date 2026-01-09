@@ -50,7 +50,7 @@ export default function Sitemap() {
       <ToolSidebar />
 
       <main
-        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:p-8 sm:pt-(--header-height) ${
+        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:pr-8 sm:pb-8 sm:pt-(--header-height) ${
           sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
         } max-md:pl-0`}
       >
@@ -58,27 +58,27 @@ export default function Sitemap() {
           {/* 타이틀 섹션 */}
           <div className="mb-8 text-center">
             <h1 className="mb-2 text-2xl font-bold sm:text-3xl">{m['sitemap_title']?.()}</h1>
-            <p className="text-sm text-(--muted-foreground)">
+            <p className="text-sm text-muted-foreground">
               {locale === 'ko' ? '사이트의 모든 페이지를 한눈에' : 'All pages at a glance'}
             </p>
           </div>
 
           {/* 메인 페이지 섹션 */}
           <section className="mb-6">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-medium uppercase tracking-wider text-(--muted-foreground)">
-              <span className="h-px flex-1 bg-(--border)" />
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
               <span>{m['sitemap_sections_main']?.()}</span>
-              <span className="h-px flex-1 bg-(--border)" />
+              <span className="h-px flex-1 bg-border" />
             </h2>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {mainPages.map((page) => (
                 <Link
                   key={page.path}
                   to={localizedPath(page.path)}
-                  className="group flex items-center gap-3 rounded-lg border border-(--border) bg-(--secondary)/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-(--secondary)"
+                  className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-secondary"
                 >
                   <span className="text-lg">{page.icon}</span>
-                  <span className="font-medium text-(--foreground) group-hover:text-(--color-accent-primary)">
+                  <span className="font-medium text-foreground group-hover:text-(--color-accent-primary)">
                     {m[page.messageKey]?.()}
                   </span>
                 </Link>
@@ -88,28 +88,28 @@ export default function Sitemap() {
 
           {/* 도구 섹션 */}
           <section className="mb-6">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-medium uppercase tracking-wider text-(--muted-foreground)">
-              <span className="h-px flex-1 bg-(--border)" />
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
               <span>
                 {m['sitemap_sections_tools']?.()} ({ALL_TOOLS.length})
               </span>
-              <span className="h-px flex-1 bg-(--border)" />
+              <span className="h-px flex-1 bg-border" />
             </h2>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {ALL_TOOLS.map((tool) => (
                 <Link
                   key={tool.id}
                   to={localizedPath(`/${tool.slug}`)}
-                  className="group flex items-center gap-3 rounded-lg border border-(--border) bg-(--secondary)/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-(--secondary)"
+                  className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-secondary"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-(--background) text-base">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-base">
                     {tool.icon}
                   </span>
                   <div className="flex flex-col">
-                    <span className="font-medium text-(--foreground) group-hover:text-(--color-accent-primary)">
+                    <span className="font-medium text-foreground group-hover:text-(--color-accent-primary)">
                       {tool.name[locale]}
                     </span>
-                    <span className="text-xs text-(--muted-foreground) line-clamp-1">
+                    <span className="text-xs text-muted-foreground line-clamp-1">
                       {tool.description[locale]}
                     </span>
                   </div>
@@ -120,20 +120,20 @@ export default function Sitemap() {
 
           {/* 기타 섹션 */}
           <section className="mb-6">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-medium uppercase tracking-wider text-(--muted-foreground)">
-              <span className="h-px flex-1 bg-(--border)" />
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
               <span>{m['sitemap_sections_other']?.()}</span>
-              <span className="h-px flex-1 bg-(--border)" />
+              <span className="h-px flex-1 bg-border" />
             </h2>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {otherPages.map((page) => (
                 <Link
                   key={page.path}
                   to={localizedPath(page.path)}
-                  className="group flex items-center gap-3 rounded-lg border border-(--border) bg-(--secondary)/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-(--secondary)"
+                  className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-secondary"
                 >
                   <span className="text-lg">{page.icon}</span>
-                  <span className="font-medium text-(--foreground) group-hover:text-(--color-accent-primary)">
+                  <span className="font-medium text-foreground group-hover:text-(--color-accent-primary)">
                     {m[page.messageKey]?.()}
                   </span>
                 </Link>
@@ -142,15 +142,15 @@ export default function Sitemap() {
                 href="/sitemap.xml"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-3 rounded-lg border border-(--border) bg-(--secondary)/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-(--secondary)"
+                className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-secondary"
               >
                 <span className="text-lg">📄</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-(--foreground) group-hover:text-(--color-accent-primary)">
+                  <span className="font-medium text-foreground group-hover:text-(--color-accent-primary)">
                     {m['sitemap_xml']?.()}
                   </span>
                   <svg
-                    className="h-3 w-3 text-(--muted-foreground)"
+                    className="h-3 w-3 text-muted-foreground"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -168,11 +168,11 @@ export default function Sitemap() {
           </section>
 
           {/* 푸터 정보 */}
-          <div className="mt-8 flex items-center justify-center gap-2 text-xs text-(--muted-foreground)">
-            <span className="h-1 w-1 rounded-full bg-(--muted-foreground)/50" />
+          <div className="mt-8 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <span className="h-1 w-1 rounded-full bg-muted-foreground/50" />
             <span>{m['sitemap_lastUpdated']?.()}</span>
             <span>{locale === 'ko' ? lastUpdated.ko : lastUpdated.en}</span>
-            <span className="h-1 w-1 rounded-full bg-(--muted-foreground)/50" />
+            <span className="h-1 w-1 rounded-full bg-muted-foreground/50" />
           </div>
         </div>
 

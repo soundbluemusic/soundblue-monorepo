@@ -27,7 +27,7 @@ const toolMeta: Record<
     bgClass: 'bg-red-100 dark:bg-red-500/20',
     textClass: 'text-red-600 dark:text-red-400',
     tag: 'new',
-    tagClass: 'bg-(--primary)/20 text-(--primary)',
+    tagClass: 'bg-primary/20 text-primary',
   },
   qr: {
     icon: <QrCode className="h-6 w-6" />,
@@ -56,7 +56,7 @@ export function NewUpdatedSection({ onToolClick }: NewUpdatedSectionProps) {
 
   return (
     <section className="pt-6 px-4 mb-24">
-      <h2 className="text-lg font-bold leading-tight mb-3 text-(--foreground)">
+      <h2 className="text-lg font-bold leading-tight mb-3 text-foreground">
         {m['home_newUpdated']?.() ??
           (locale === 'ko' ? '새로운 소식 및 업데이트' : 'New & Updated')}
       </h2>
@@ -71,7 +71,7 @@ export function NewUpdatedSection({ onToolClick }: NewUpdatedSectionProps) {
               key={tool.id}
               type="button"
               onClick={() => handleClick(tool.id, tool.slug)}
-              className="flex items-center gap-4 rounded-xl bg-(--card) p-3 shadow-sm ring-1 ring-(--border) hover:bg-(--muted)/50 cursor-pointer transition-colors text-left"
+              className="flex items-center gap-4 rounded-xl bg-card p-3 shadow-sm ring-1 ring-border hover:bg-muted/50 cursor-pointer transition-colors text-left"
             >
               <div
                 className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${meta.bgClass} ${meta.textClass}`}
@@ -80,7 +80,7 @@ export function NewUpdatedSection({ onToolClick }: NewUpdatedSectionProps) {
               </div>
               <div className="flex flex-col flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-bold text-(--foreground) truncate">
+                  <h4 className="text-sm font-bold text-foreground truncate">
                     {tool.name[locale]}
                   </h4>
                   <span
@@ -89,11 +89,9 @@ export function NewUpdatedSection({ onToolClick }: NewUpdatedSectionProps) {
                     {tagLabels[meta.tag]}
                   </span>
                 </div>
-                <p className="text-xs text-(--muted-foreground) truncate">
-                  {tool.description[locale]}
-                </p>
+                <p className="text-xs text-muted-foreground truncate">{tool.description[locale]}</p>
               </div>
-              <div className="text-(--muted-foreground)">
+              <div className="text-muted-foreground">
                 <ChevronRight className="h-5 w-5" />
               </div>
             </button>

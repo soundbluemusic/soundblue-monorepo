@@ -172,8 +172,8 @@ export function SearchBox() {
           role="option"
           tabIndex={0}
           aria-selected={isSelected}
-          className={`flex items-center gap-3 py-2.5 px-3 no-underline rounded-lg transition-all duration-150 hover:bg-(--muted)/50 focus-visible:outline-2 focus-visible:outline-(--primary) focus-visible:outline-offset-2 ${
-            isSelected ? 'bg-(--muted)/50' : ''
+          className={`flex items-center gap-3 py-2.5 px-3 no-underline rounded-lg transition-all duration-150 hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
+            isSelected ? 'bg-muted/50' : ''
           }`}
           onClick={() => {
             setIsOpen(false);
@@ -182,8 +182,8 @@ export function SearchBox() {
         >
           <span className="text-lg">{tool.icon}</span>
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-(--foreground)">{tool.name[locale]}</span>
-            <span className="text-xs text-(--muted-foreground)">{tool.description[locale]}</span>
+            <span className="text-sm font-medium text-foreground">{tool.name[locale]}</span>
+            <span className="text-xs text-muted-foreground">{tool.description[locale]}</span>
           </div>
         </Link>
       );
@@ -197,16 +197,16 @@ export function SearchBox() {
         role="option"
         tabIndex={0}
         aria-selected={isSelected}
-        className={`flex flex-col gap-0.5 py-2.5 px-3 no-underline rounded-lg transition-all duration-150 hover:bg-(--muted)/50 focus-visible:outline-2 focus-visible:outline-(--primary) focus-visible:outline-offset-2 ${
-          isSelected ? 'bg-(--muted)/50' : ''
+        className={`flex flex-col gap-0.5 py-2.5 px-3 no-underline rounded-lg transition-all duration-150 hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
+          isSelected ? 'bg-muted/50' : ''
         }`}
         onClick={() => {
           setIsOpen(false);
           setQuery('');
         }}
       >
-        <span className="text-sm font-medium text-(--foreground)">{getPageTitle(page.key)}</span>
-        <span className="text-xs text-(--muted-foreground)">{getPageDesc(page.key)}</span>
+        <span className="text-sm font-medium text-foreground">{getPageTitle(page.key)}</span>
+        <span className="text-xs text-muted-foreground">{getPageDesc(page.key)}</span>
       </Link>
     );
   };
@@ -218,7 +218,7 @@ export function SearchBox() {
     >
       <div className="relative flex items-center">
         <svg
-          className="absolute left-2.5 w-4 h-4 text-(--muted-foreground) pointer-events-none"
+          className="absolute left-2.5 w-4 h-4 text-muted-foreground pointer-events-none"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -232,7 +232,7 @@ export function SearchBox() {
           ref={inputRef}
           type="search"
           role="combobox"
-          className="w-full h-9 pl-8.5 pr-8 text-sm text-(--foreground) bg-(--muted)/30 border border-(--border) rounded-xl outline-none transition-[border-color,background-color] duration-150 placeholder:text-(--muted-foreground) focus:border-(--primary) focus:bg-(--background) [&::-webkit-search-cancel-button]:hidden"
+          className="w-full h-9 pl-8.5 pr-8 text-sm text-foreground bg-muted/30 border border-border rounded-xl outline-none transition-[border-color,background-color] duration-150 placeholder:text-muted-foreground focus:border-primary focus:bg-background [&::-webkit-search-cancel-button]:hidden"
           placeholder={m['search_placeholder']?.() ?? 'Search...'}
           value={query}
           onChange={(e) => {
@@ -252,14 +252,14 @@ export function SearchBox() {
           aria-autocomplete="list"
         />
         {!isFocused && !query && (
-          <span className="absolute right-2 flex items-center px-1.5 py-0.5 text-[0.625rem] font-medium text-(--muted-foreground) bg-(--muted)/50 border border-(--border) rounded pointer-events-none max-md:hidden">
+          <span className="absolute right-2 flex items-center px-1.5 py-0.5 text-[0.625rem] font-medium text-muted-foreground bg-muted/50 border border-border rounded pointer-events-none max-md:hidden">
             {isMac ? '\u2318K' : 'Ctrl+K'}
           </span>
         )}
         {query && (
           <button
             type="button"
-            className="absolute right-1.5 flex items-center justify-center w-6 h-6 p-0 bg-transparent border-none rounded text-(--muted-foreground) cursor-pointer transition-all duration-150 hover:text-(--foreground) active:scale-90 focus-visible:outline-2 focus-visible:outline-(--primary) focus-visible:outline-offset-2"
+            className="absolute right-1.5 flex items-center justify-center w-6 h-6 p-0 bg-transparent border-none rounded text-muted-foreground cursor-pointer transition-all duration-150 hover:text-foreground active:scale-90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
             onClick={handleClear}
             aria-label={m['search_clear']?.() ?? 'Clear'}
           >
@@ -287,7 +287,7 @@ export function SearchBox() {
 
       {isOpen && results.length > 0 && (
         <div
-          className="absolute top-[calc(100%+4px)] left-0 right-0 z-70 max-h-80 overflow-y-auto bg-(--background) border border-(--border) rounded-xl shadow-lg m-0 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-(--border) [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-(--muted-foreground)"
+          className="absolute top-[calc(100%+4px)] left-0 right-0 z-70 max-h-80 overflow-y-auto bg-background border border-border rounded-xl shadow-lg m-0 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-muted-foreground"
           role="listbox"
         >
           {results.map((result, index) => renderResult(result, index))}
@@ -295,7 +295,7 @@ export function SearchBox() {
       )}
 
       {isOpen && query.trim() && results.length === 0 && (
-        <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-70 bg-(--background) border border-(--border) rounded-xl shadow-lg p-4 text-center text-sm text-(--muted-foreground)">
+        <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-70 bg-background border border-border rounded-xl shadow-lg p-4 text-center text-sm text-muted-foreground">
           {m['search_noResults']?.() ?? 'No results found'}
         </div>
       )}

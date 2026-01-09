@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import type { CnFunction, MetaDescriptor, MockBottomSheetProps, MockLinkProps } from '~/test/types';
-import { findMetaDescription, findMetaTitle } from '~/test/types';
+import { createTestMetaArgs, findMetaDescription, findMetaTitle } from '~/test/types';
 import Sitemap, { meta } from './($locale)/sitemap';
 
 // Mock dependencies
@@ -103,13 +103,13 @@ describe('Sitemap Route', () => {
 
   describe('Meta', () => {
     it('meta 함수가 올바른 title 반환', () => {
-      const metaResult = meta({ location: { pathname: '/' } } as any) as MetaDescriptor[];
+      const metaResult = meta(createTestMetaArgs()) as MetaDescriptor[];
       const titleMeta = findMetaTitle(metaResult);
       expect(titleMeta?.title).toBe('Sitemap | Sound Blue');
     });
 
     it('meta 함수가 올바른 description 반환', () => {
-      const metaResult = meta({ location: { pathname: '/' } } as any) as MetaDescriptor[];
+      const metaResult = meta(createTestMetaArgs()) as MetaDescriptor[];
       const descMeta = findMetaDescription(metaResult);
       expect(descMeta?.content).toBe('Complete sitemap of Sound Blue website.');
     });
