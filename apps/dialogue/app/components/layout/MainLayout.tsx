@@ -11,7 +11,7 @@ import { Sidebar } from './Sidebar';
 // MainLayout Component - 메인 3열 레이아웃
 // ========================================
 
-const BREAKPOINTS = { mobile: 768 };
+const BREAKPOINTS = { mobile: 768, tablet: 1024 };
 
 // Chat panel resize limits (px)
 const CHAT_WIDTH = {
@@ -20,8 +20,18 @@ const CHAT_WIDTH = {
   default: 360,
 } as const;
 
+// Result panel minimum width (px)
+const RESULT_MIN_WIDTH = 280;
+
+// Sidebar widths (px)
+const SIDEBAR_WIDTH = {
+  collapsed: 56,
+  expanded: 208,
+} as const;
+
 export function MainLayout() {
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'history' | 'result'>('chat');
 
@@ -29,12 +39,31 @@ export function MainLayout() {
   const [chatWidth, setChatWidth] = useState<number>(CHAT_WIDTH.default);
   const [isResizing, setIsResizing] = useState(false);
 
+  // Container width for dynamic calculations
+  const [containerWidth, setContainerWidth] = useState(0);
+  const mainRef = useRef<HTMLDivElement>(null);
+
   const { sidebarOpen, sidebarCollapsed, resultPanelOpen, setSidebarOpen } = useUIStore();
   const { clearActive, createConversation } = useChatStore();
 
   // Check screen size
   const checkScreenSize = useCallback(() => {
-    setIsMobile(window.innerWidth < BREAKPOINTS.mobile);
+    const width = window.innerWidth;
+    setIsMobile(width < BREAKPOINTS.mobile);
+    setIsTablet(width >= BREAKPOINTS.mobile && width < BREAKPOINTS.tablet);
+  }, []);
+
+  // Track container width for dynamic chat max width calculation
+  useEffect(() => {
+    const updateContainerWidth = () => {
+      if (mainRef.current) {
+        setContainerWidth(mainRef.current.offsetWidth);
+      }
+    };
+
+    updateContainerWidth();
+    window.addEventListener('resize', updateContainerWidth);
+    return () => window.removeEventListener('resize', updateContainerWidth);
   }, []);
 
   useEffect(() => {
@@ -43,6 +72,20 @@ export function MainLayout() {
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
   }, [checkScreenSize]);
+
+  // Calculate dynamic max chat width to ensure Result Panel has minimum space
+  const availableWidth = containerWidth > 0 ? containerWidth : 800; // fallback
+  const dynamicMaxChatWidth = Math.min(
+    CHAT_WIDTH.max,
+    Math.max(CHAT_WIDTH.min, availableWidth - RESULT_MIN_WIDTH - 20), // 20px buffer
+  );
+
+  // Clamp current chatWidth if it exceeds new max
+  useEffect(() => {
+    if (chatWidth > dynamicMaxChatWidth) {
+      setChatWidth(dynamicMaxChatWidth);
+    }
+  }, [dynamicMaxChatWidth, chatWidth]);
 
   // Close sidebar when switching to mobile
   useEffect(() => {
@@ -67,15 +110,12 @@ export function MainLayout() {
   useEffect(() => {
     if (!isResizing) return;
 
-    const SIDEBAR_WIDTH = {
-      collapsed: 56,
-      expanded: 208,
-    };
-
     const handleResizeMove = (e: MouseEvent) => {
-      const sidebarWidth = sidebarCollapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded;
-      const newWidth = e.clientX - sidebarWidth;
-      const clampedWidth = Math.max(CHAT_WIDTH.min, Math.min(CHAT_WIDTH.max, newWidth));
+      const currentSidebarWidth = sidebarCollapsed
+        ? SIDEBAR_WIDTH.collapsed
+        : SIDEBAR_WIDTH.expanded;
+      const newWidth = e.clientX - currentSidebarWidth;
+      const clampedWidth = Math.max(CHAT_WIDTH.min, Math.min(dynamicMaxChatWidth, newWidth));
       setChatWidth(clampedWidth);
     };
 
@@ -92,7 +132,7 @@ export function MainLayout() {
       window.removeEventListener('mousemove', handleResizeMove);
       window.removeEventListener('mouseup', handleResizeEnd);
     };
-  }, [isResizing, sidebarCollapsed]);
+  }, [isResizing, sidebarCollapsed, dynamicMaxChatWidth]);
 
   // Switch to result tab when content is shown
   useEffect(() => {
@@ -156,7 +196,7 @@ export function MainLayout() {
         </div>
 
         {/* Main Area (Chat + Result Panel) */}
-        <div className="flex flex-1 overflow-hidden">
+        <div ref={mainRef} className="flex flex-1 overflow-hidden">
           {/* Mobile: Tab-based view */}
           <div className="flex flex-col flex-1 min-h-[200px] md:hidden">
             {/* Tab Switcher */}
@@ -223,24 +263,19 @@ export function MainLayout() {
 
           {/* Desktop: 2 columns with resizable chat */}
           <div className="hidden md:flex md:flex-1">
-            {/* Chat Area */}
+            {/* Chat Area - width controlled by chatWidth state */}
             <div
               className="relative shrink-0 border-r border-(--color-border-primary) min-h-[200px]"
-              style={{ width: `${chatWidth}px` }}
+              style={{ width: chatWidth }}
             >
               <ChatContainer />
 
               {/* Resize Handle */}
-              <div
+              <button
+                type="button"
                 onMouseDown={handleResizeStart}
-                role="slider"
-                aria-orientation="vertical"
                 aria-label={m['app.resizeChatPanel']()}
-                aria-valuenow={chatWidth}
-                aria-valuemin={CHAT_WIDTH.min}
-                aria-valuemax={CHAT_WIDTH.max}
-                tabIndex={0}
-                className="absolute -right-1 top-0 h-full w-3 cursor-col-resize flex items-center justify-center group"
+                className="absolute -right-1 top-0 h-full w-3 cursor-col-resize flex items-center justify-center group bg-transparent border-none p-0"
               >
                 <div
                   className={[
@@ -251,12 +286,12 @@ export function MainLayout() {
                     .filter(Boolean)
                     .join(' ')}
                 />
-              </div>
+              </button>
             </div>
 
             {/* Result Panel Area */}
-            <div className="flex-1">
-              <ResultPanel />
+            <div className="flex-1 min-w-[280px]">
+              <ResultPanel isCompact={isTablet} />
             </div>
           </div>
         </div>

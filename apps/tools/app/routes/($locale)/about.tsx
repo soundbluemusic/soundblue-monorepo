@@ -17,7 +17,7 @@ export default function About() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex flex-1 flex-col items-center justify-center p-6">
+      <main className="flex flex-1 flex-col items-center justify-center p-6 pt-(--header-height) max-md:pt-[52px]">
         <div className="max-w-md text-center">
           <blockquote className="mb-12 text-2xl font-light leading-relaxed tracking-tight text-(--foreground) sm:text-3xl">
             {`"${m['about_missionText']?.()}"`}

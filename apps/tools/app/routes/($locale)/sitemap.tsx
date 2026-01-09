@@ -33,7 +33,7 @@ export default function Sitemap() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 p-4 sm:p-8">
+      <main className="flex-1 p-4 pt-(--header-height) max-md:pt-[52px] sm:p-8 sm:pt-(--header-height)">
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-8 text-2xl font-bold sm:text-3xl">{m['sitemap_title']?.()}</h1>
 

@@ -9,6 +9,10 @@ import { useEffect, useMemo, useState } from 'react';
 // 세계시간 (서울, 뉴욕, 런던) + 현재 날짜 표시
 // 시(hour)만 도시별로, 분:초는 통합 표시
 
+interface WorldClockWidgetProps {
+  isCompact?: boolean;
+}
+
 interface CityTime {
   id: string;
   city: { ko: string; en: string };
@@ -67,7 +71,7 @@ const weekdayNames = {
   en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 } as const;
 
-export function WorldClockWidget() {
+export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
   const { locale } = useParaglideI18n();
 
   // 하이드레이션 후에만 시간 표시 (SSG 빌드 시간 불일치 방지)
@@ -133,14 +137,16 @@ export function WorldClockWidget() {
   }, [currentDate.year, currentDate.month]);
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
+    <div
+      className={`flex h-full flex-col items-center justify-center p-4 ${isCompact ? 'gap-3' : 'gap-6 p-6'}`}
+    >
       {/* 세계시간 - 시(hour)만 도시별로 */}
-      <div className="flex items-end justify-center gap-4">
+      <div className={`flex items-end justify-center ${isCompact ? 'gap-2' : 'gap-4'}`}>
         {CITIES.map((city) => (
           <div key={city.id} className="flex flex-col items-center gap-1">
-            <span className="text-lg">{city.flag}</span>
+            <span className={isCompact ? 'text-base' : 'text-lg'}>{city.flag}</span>
             <span
-              className="text-4xl font-light tabular-nums text-(--color-text-primary)"
+              className={`font-light tabular-nums text-(--color-text-primary) ${isCompact ? 'text-2xl' : 'text-4xl'}`}
               suppressHydrationWarning
             >
               {getHour(city.timezone)}
@@ -153,7 +159,7 @@ export function WorldClockWidget() {
       {/* 공통 분:초 - 크게 표시 */}
       <div className="flex items-baseline gap-1">
         <span
-          className="text-6xl font-extralight tabular-nums tracking-tight text-(--color-accent-primary)"
+          className={`font-extralight tabular-nums tracking-tight text-(--color-accent-primary) ${isCompact ? 'text-4xl' : 'text-6xl'}`}
           suppressHydrationWarning
         >
           {`:${getMinuteSecond()}`}
@@ -161,7 +167,9 @@ export function WorldClockWidget() {
       </div>
 
       {/* 날짜 정보 */}
-      <div className="flex gap-4 text-sm text-(--color-text-tertiary)">
+      <div
+        className={`text-(--color-text-tertiary) ${isCompact ? 'flex flex-col items-center gap-1 text-xs' : 'flex gap-4 text-sm'}`}
+      >
         {CITIES.map((city) => (
           <span key={city.id} suppressHydrationWarning>
             {`${city.flag} ${getDate(city.timezone)}`}
@@ -173,29 +181,36 @@ export function WorldClockWidget() {
       <div className="w-full max-w-sm h-px bg-(--color-border-primary)" />
 
       {/* 미니 캘린더 */}
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-2">
         {/* 년월 표시 */}
-        <div className="text-lg font-medium text-(--color-text-primary)">
+        <div
+          className={`font-medium text-(--color-text-primary) ${isCompact ? 'text-base' : 'text-lg'}`}
+        >
           {locale === 'ko'
             ? `${currentDate.year}년 ${monthNames.ko[currentDate.month]}`
             : `${monthNames.en[currentDate.month]} ${currentDate.year}`}
         </div>
 
         {/* 요일 헤더 */}
-        <div className="grid grid-cols-7 gap-1 text-center text-xs text-(--color-text-tertiary)">
+        <div
+          className={`grid grid-cols-7 text-center text-xs text-(--color-text-tertiary) ${isCompact ? 'gap-0.5' : 'gap-1'}`}
+        >
           {weekdayNames[locale].map((day) => (
-            <div key={day} className="w-8 h-6 flex items-center justify-center">
+            <div
+              key={day}
+              className={`flex items-center justify-center ${isCompact ? 'w-6 h-5' : 'w-8 h-6'}`}
+            >
               {day}
             </div>
           ))}
         </div>
 
         {/* 날짜 그리드 */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className={`grid grid-cols-7 ${isCompact ? 'gap-0.5' : 'gap-1'}`}>
           {calendarDays.map((day, index) => (
             <div
               key={day ?? `empty-${index}`}
-              className={`w-8 h-8 flex items-center justify-center text-sm rounded-full transition-colors ${
+              className={`flex items-center justify-center rounded-full transition-colors ${isCompact ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-sm'} ${
                 day === currentDate.day
                   ? 'bg-(--color-accent-primary) text-white font-semibold'
                   : day

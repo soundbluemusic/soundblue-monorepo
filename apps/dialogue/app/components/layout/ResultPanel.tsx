@@ -15,7 +15,11 @@ const QRGenerator = lazy(() =>
 // ResultPanel Component - 오른쪽 결과 패널
 // ========================================
 
-export function ResultPanel() {
+interface ResultPanelProps {
+  isCompact?: boolean;
+}
+
+export function ResultPanel({ isCompact = false }: ResultPanelProps) {
   const { resultContent, closeResultPanel } = useUIStore();
 
   return (
@@ -69,7 +73,7 @@ export function ResultPanel() {
         </>
       ) : (
         // 결과가 없을 때 WorldClockWidget 표시
-        <WorldClockWidget />
+        <WorldClockWidget isCompact={isCompact} />
       )}
     </div>
   );
