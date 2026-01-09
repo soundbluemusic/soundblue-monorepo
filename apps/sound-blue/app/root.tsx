@@ -49,6 +49,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#4A9E95" />
+        <meta
+          name="google-site-verification"
+          content="mw0M1q-2K63FX-NZCL5AetN7V6VI6cXY5ItnMXyl85A"
+        />
+        <meta name="naver-site-verification" content="d2e5722513ceb03e1afeac65bab53416c217ca72" />
         <Meta />
         <Links />
         {/* JSON-LD Structured Data for SEO */}
