@@ -23,6 +23,16 @@ import {
 } from '../dictionary/external';
 import { type ParsedClauses, parseEnglishClauses, parseKoreanClauses } from './clause-parser';
 import {
+  ContextTracker,
+  CULTURAL_EXPRESSIONS_EN_TO_KO,
+  CULTURAL_EXPRESSIONS_KO_TO_EN,
+  ENGLISH_NAMES,
+  KOREAN_NAMES,
+  replaceKoreanNames,
+  replaceKoreanPronouns,
+  replacePhrasalVerbs,
+} from './context-tracker';
+import {
   ELLIPSIS_NOUN_MAP,
   ELLIPSIS_TOPIC_PATTERN,
   EN_DISCOURSE_MARKERS,
@@ -1896,9 +1906,11 @@ function extractKoreanAdverbs(text: string): ExtractedAdverbs {
   const hasTimeInterrogative = /몇\s*시에?/.test(text);
   const allowInterrogative =
     isQuestion && (words.length >= 3 || hasTimeInterrogative || hasHowWasInterrogative);
-  const allowAdverbs = words.length >= 5;
+  // 시간 부사 추출은 3어절 이상에서 허용 (장소 부사는 5어절 이상)
+  const allowTimeAdverbs = words.length >= 3;
+  const allowPlaceAdverbs = words.length >= 5;
 
-  if (!allowInterrogative && !allowAdverbs) {
+  if (!allowInterrogative && !allowTimeAdverbs && !allowPlaceAdverbs) {
     return { timeAdverb: null, placeAdverb: null, interrogative: null, rest: text };
   }
 
@@ -1928,7 +1940,7 @@ function extractKoreanAdverbs(text: string): ExtractedAdverbs {
   }
 
   // 1. 시간 부사구 추출 (긴 패턴부터 - 첫 번째 매치만)
-  if (allowAdverbs) {
+  if (allowTimeAdverbs) {
     for (const [pattern, english] of KO_TIME_ADVERBS) {
       const regex = new RegExp(pattern.source, 'g');
       const match = rest.match(regex);
@@ -1941,7 +1953,7 @@ function extractKoreanAdverbs(text: string): ExtractedAdverbs {
   }
 
   // 2. 장소 부사구 추출 (긴 패턴부터 - 첫 번째 매치만)
-  if (allowAdverbs) {
+  if (allowPlaceAdverbs) {
     for (const [pattern, english] of KO_PLACE_ADVERBS) {
       const regex = new RegExp(pattern.source, 'g');
       const match = rest.match(regex);
@@ -2305,44 +2317,113 @@ export function translateWithInfo(
   // Phase 0: 띄어쓰기 정규화 (붙어있는 텍스트 분리)
   const normalized = normalizeSpacing(typoCorrected, direction);
 
-  // ============================================
-  // L15: 다중 문장 대명사 결정 (문장 분리 전에 처리!)
-  // Multi-sentence pronoun resolution must happen BEFORE splitting
-  // ============================================
-  if (direction === 'ko-en') {
-    // 철수는 사과를 샀다. 그것은 빨갛다. → Chulsoo bought an apple. It is red.
-    if (normalized.match(/^철수는?\s*사과를?\s*샀다\.?\s*그것은?\s*빨갛다\.?$/)) {
-      return { translated: 'Chulsoo bought an apple. It is red.', original: text };
-    }
-    // 영희는 학교에 갔다. 그녀는 학생이다. → Younghee went to school. She is a student.
-    if (normalized.match(/^영희는?\s*학교에?\s*갔다\.?\s*그녀는?\s*학생이다\.?$/)) {
-      return { translated: 'Younghee went to school. She is a student.', original: text };
-    }
-  } else {
-    // Chulsoo bought an apple. It is red. → 철수는 사과를 샀다. 그것은 빨갛다.
-    if (normalized.match(/^chulsoo\s+bought\s+an\s+apple\.?\s*it\s+is\s+red\.?$/i)) {
-      return { translated: '철수는 사과를 샀다. 그것은 빨갛다.', original: text };
-    }
-    // Younghee went to school. She is a student. → 영희는 학교에 갔다. 그녀는 학생이다.
-    if (normalized.match(/^younghee\s+went\s+to\s+school\.?\s*she\s+is\s+a\s+student\.?$/i)) {
-      return { translated: '영희는 학교에 갔다. 그녀는 학생이다.', original: text };
-    }
-  }
-
   // 문장 분리 (?, !, . 기준)
   const sentences = splitSentences(normalized);
   const results: string[] = [];
+
+  // 다문장 문맥 추적 시스템 초기화
+  const contextTracker = new ContextTracker();
 
   for (const { sentence, punctuation } of sentences) {
     let translated: string;
     // 파싱 시 구두점 정보 포함 (의문문 감지용)
     const sentenceWithPunctuation = punctuation ? sentence + punctuation : sentence;
 
-    // Phase 7: 절 분리 시스템
+    // ============================================
+    // 다문장 문맥 처리 (Context Processing)
+    // ============================================
+    let processedSentence = sentenceWithPunctuation;
+
     if (direction === 'ko-en') {
-      translated = translateKoreanSentence(sentenceWithPunctuation, formality);
+      // 1. 한국어 이름 추출 및 등록
+      for (const [koName, _enName] of Object.entries(KOREAN_NAMES)) {
+        // 조사 패턴: 이름 + 조사
+        const patterns = [
+          `${koName}가`,
+          `${koName}이`,
+          `${koName}는`,
+          `${koName}은`,
+          `${koName}를`,
+          `${koName}을`,
+          `${koName}의`,
+          `${koName}에게`,
+          `${koName}와`,
+          `${koName}과`,
+          `${koName}한테`,
+          koName,
+        ];
+        for (const pattern of patterns) {
+          if (processedSentence.includes(pattern)) {
+            // 주어/목적어 역할 결정
+            const role =
+              pattern.endsWith('가') ||
+              pattern.endsWith('이') ||
+              pattern.endsWith('는') ||
+              pattern.endsWith('은')
+                ? 'subject'
+                : 'object';
+            contextTracker.registerEntity(koName, role);
+            break;
+          }
+        }
+      }
+
+      // 2. 문화 표현 전처리
+      for (const [ko, en] of Object.entries(CULTURAL_EXPRESSIONS_KO_TO_EN)) {
+        if (processedSentence.includes(ko)) {
+          processedSentence = processedSentence.replace(
+            new RegExp(ko, 'g'),
+            `__CULTURAL_${en.replace(/[^a-zA-Z]/g, '_')}__`,
+          );
+        }
+      }
+
+      // 3. 한국어 이름 → 영어 음역 전처리
+      processedSentence = replaceKoreanNames(processedSentence);
+
+      // 4. 한국어 대명사 → 영어 대명사 전처리
+      processedSentence = replaceKoreanPronouns(processedSentence);
+
+      translated = translateKoreanSentence(processedSentence, formality);
+
+      // 문화 표현 후처리 (마커 → 실제 영어 표현)
+      for (const [_ko, en] of Object.entries(CULTURAL_EXPRESSIONS_KO_TO_EN)) {
+        const marker = `__CULTURAL_${en.replace(/[^a-zA-Z]/g, '_')}__`;
+        translated = translated.replace(new RegExp(marker, 'g'), en);
+      }
     } else {
-      translated = translateEnglishSentence(sentenceWithPunctuation, formality);
+      // en-ko 방향
+
+      // 1. 영어 이름 추출 및 등록
+      for (const [enName, _koName] of Object.entries(ENGLISH_NAMES)) {
+        const regex = new RegExp(`\\b${enName}\\b`, 'gi');
+        if (regex.test(processedSentence)) {
+          // 문장에서 위치로 역할 결정 (대략적 추정)
+          const role = processedSentence.toLowerCase().startsWith(enName.toLowerCase())
+            ? 'subject'
+            : 'object';
+          contextTracker.registerEntity(enName, role);
+        }
+      }
+
+      // 2. 구동사 전처리
+      processedSentence = replacePhrasalVerbs(processedSentence);
+
+      // 3. 문화 표현 전처리
+      for (const [en, ko] of Object.entries(CULTURAL_EXPRESSIONS_EN_TO_KO)) {
+        const regex = new RegExp(`\\b${en}\\b`, 'gi');
+        if (regex.test(processedSentence)) {
+          processedSentence = processedSentence.replace(regex, `__CULTURAL_${ko}__`);
+        }
+      }
+
+      translated = translateEnglishSentence(processedSentence, formality);
+
+      // 문화 표현 후처리
+      for (const [_en, ko] of Object.entries(CULTURAL_EXPRESSIONS_EN_TO_KO)) {
+        const marker = `__CULTURAL_${ko}__`;
+        translated = translated.replace(new RegExp(marker, 'g'), ko);
+      }
     }
 
     // 구두점 복원 (이미 번역 결과에 포함된 경우 중복 방지)
@@ -2390,6 +2471,15 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
     재미있었다: { past: 'It was fun.', present: 'It is fun.' },
     재미있어: { past: 'It is fun.', present: 'It is fun.' },
     재미있다: { past: 'It is fun.', present: 'It is fun.' },
+    // 부사 + 형용사 패턴
+    '정말 재미있었어': { past: 'It was really fun.', present: 'It was really fun.' },
+    '정말 재미있었다': { past: 'It was really fun.', present: 'It was really fun.' },
+    '정말 재미있어': { past: 'It is really fun.', present: 'It is really fun.' },
+    '진짜 재미있었어': { past: 'It was really fun.', present: 'It was really fun.' },
+    '너무 재미있었어': { past: 'It was so fun.', present: 'It was so fun.' },
+    '정말 맛있었어': { past: 'It was really delicious.', present: 'It was really delicious.' },
+    '진짜 맛있었어': { past: 'It was really delicious.', present: 'It was really delicious.' },
+    '너무 맛있었어': { past: 'It was so delicious.', present: 'It was so delicious.' },
   };
 
   if (adjPastPatterns[cleanedSentence]) {
@@ -2435,6 +2525,63 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
   const figurativeResult = translateKoreanFigurative(sentence);
   if (figurativeResult) {
     return figurativeResult;
+  }
+
+  // ============================================
+  // Phase L: 형용사+명사+동사 패턴 처리 (일반화된 규칙)
+  // "나는 뜨거운 커피를 좋아한다" → "I like hot coffee"
+  // 패턴: 주어 + 형용사 + 명사 + 를/을 + 동사
+  // ============================================
+  const adjNounVerbPatterns: Array<{
+    pattern: RegExp;
+    handler: (match: RegExpMatchArray) => string | null;
+  }> = [
+    // 나는/I [형용사] [명사]를 좋아한다
+    {
+      pattern: /^(나는?|저는?|I)\s*(.+?[운은])\s*(.+?)([를을])\s*(좋아한다|좋아해|좋아해요)\.?$/,
+      handler: (m) => {
+        const adj = KO_ADJECTIVES[m[2]] || KO_ADJECTIVES[m[2].replace(/운$/, '')] || m[2];
+        const noun = lookupExternalKoToEn(m[3]) || m[3];
+        return `I like ${adj} ${noun}.`;
+      },
+    },
+    // 나는/I [형용사] [명사]를 싫어한다
+    {
+      pattern: /^(나는?|저는?|I)\s*(.+?[운은])\s*(.+?)([를을])\s*(싫어한다|싫어해|싫어해요)\.?$/,
+      handler: (m) => {
+        const adj = KO_ADJECTIVES[m[2]] || KO_ADJECTIVES[m[2].replace(/운$/, '')] || m[2];
+        const noun = lookupExternalKoToEn(m[3]) || m[3];
+        return `I hate ${adj} ${noun}.`;
+      },
+    },
+    // 나는/I [형용사] [명사]를 마신다/마셨다
+    {
+      pattern: /^(나는?|저는?|I)\s*(.+?[운은])\s*(.+?)([를을])\s*(마신다|마셔|마셨어|마셨다)\.?$/,
+      handler: (m) => {
+        const adj = KO_ADJECTIVES[m[2]] || KO_ADJECTIVES[m[2].replace(/운$/, '')] || m[2];
+        const noun = lookupExternalKoToEn(m[3]) || m[3];
+        const isPast = m[5].includes('셨') || m[5].includes('었');
+        return isPast ? `I drank ${adj} ${noun}.` : `I drink ${adj} ${noun}.`;
+      },
+    },
+    // 나는/I [형용사] [명사]를 먹는다/먹었다
+    {
+      pattern: /^(나는?|저는?|I)\s*(.+?[운은])\s*(.+?)([를을])\s*(먹는다|먹어|먹었어|먹었다)\.?$/,
+      handler: (m) => {
+        const adj = KO_ADJECTIVES[m[2]] || KO_ADJECTIVES[m[2].replace(/운$/, '')] || m[2];
+        const noun = lookupExternalKoToEn(m[3]) || m[3];
+        const isPast = m[5].includes('었');
+        return isPast ? `I ate ${adj} ${noun}.` : `I eat ${adj} ${noun}.`;
+      },
+    },
+  ];
+
+  for (const { pattern, handler } of adjNounVerbPatterns) {
+    const match = cleanedInput.match(pattern);
+    if (match) {
+      const result = handler(match);
+      if (result) return result;
+    }
   }
 
   // ============================================
@@ -2802,6 +2949,75 @@ function translateEnglishSentence(sentence: string, formality: Formality): strin
       // 원래 문장 끝 부호 유지
       const suffix = trimmedInput.slice(cleanedInput.length);
       return externalWordMatch + suffix;
+    }
+  }
+
+  // ============================================
+  // Phase P: 소유격 대명사 + 명사 패턴 (일반화된 규칙)
+  // "I saw her duck" → "나는 그녀의 오리를 봤다"
+  // 패턴: I + 동사(과거) + her/his/my/your + 명사
+  // ============================================
+  const possessiveNounPatterns: Array<{
+    pattern: RegExp;
+    handler: (match: RegExpMatchArray) => string | null;
+  }> = [
+    // I saw her/his [명사]
+    {
+      pattern: /^I\s+saw\s+(her|his|my|your|their)\s+(\w+)\.?$/i,
+      handler: (m) => {
+        const possessive = m[1].toLowerCase();
+        const possessiveMap: Record<string, string> = {
+          her: '그녀의',
+          his: '그의',
+          my: '나의',
+          your: '너의',
+          their: '그들의',
+        };
+        const noun = m[2].toLowerCase();
+        const nounMap: Record<string, string> = {
+          duck: '오리',
+          dog: '개',
+          cat: '고양이',
+          book: '책',
+          car: '차',
+          house: '집',
+          phone: '휴대폰',
+          bag: '가방',
+        };
+        const koNoun = nounMap[noun] || lookupExternalEnToKo(noun) || noun;
+        return `나는 ${possessiveMap[possessive]} ${koNoun}를 봤다.`;
+      },
+    },
+    // I like her/his [명사]
+    {
+      pattern: /^I\s+like\s+(her|his|my|your|their)\s+(\w+)\.?$/i,
+      handler: (m) => {
+        const possessive = m[1].toLowerCase();
+        const possessiveMap: Record<string, string> = {
+          her: '그녀의',
+          his: '그의',
+          my: '나의',
+          your: '너의',
+          their: '그들의',
+        };
+        const noun = m[2].toLowerCase();
+        const nounMap: Record<string, string> = {
+          style: '스타일',
+          hair: '머리',
+          smile: '미소',
+          voice: '목소리',
+        };
+        const koNoun = nounMap[noun] || lookupExternalEnToKo(noun) || noun;
+        return `나는 ${possessiveMap[possessive]} ${koNoun}를 좋아한다.`;
+      },
+    },
+  ];
+
+  for (const { pattern, handler } of possessiveNounPatterns) {
+    const match = cleanedInput.match(pattern);
+    if (match) {
+      const result = handler(match);
+      if (result) return result;
     }
   }
 
@@ -3739,42 +3955,81 @@ function generateEnglishToKoreanQuotation(parsed: ParsedSentence, _formality: Fo
 const KO_ADJECTIVES: Record<string, string> = {
   크다: 'big',
   크: 'big',
+  큰: 'big',
   작다: 'small',
   작: 'small',
+  작은: 'small',
   좋다: 'good',
   좋: 'good',
+  좋은: 'good',
   나쁘다: 'bad',
   나쁘: 'bad',
+  나쁜: 'bad',
   중요하다: 'important',
   중요: 'important',
+  중요한: 'important',
   빠르다: 'fast',
   빠르: 'fast',
+  빠른: 'fast',
   느리다: 'slow',
   느리: 'slow',
+  느린: 'slow',
   피곤하다: 'tired',
   피곤: 'tired',
+  피곤한: 'tired',
   예쁘다: 'beautiful',
   예쁘: 'beautiful',
+  예쁜: 'beautiful',
   높다: 'tall',
   높: 'tall',
+  높은: 'tall',
   낮다: 'low',
   낮: 'low',
+  낮은: 'low',
   길다: 'long',
   길: 'long',
+  긴: 'long',
   짧다: 'short',
   짧: 'short',
+  짧은: 'short',
   아름답다: 'beautiful',
   아름답: 'beautiful',
+  아름다운: 'beautiful',
   행복하다: 'happy',
   행복: 'happy',
+  행복한: 'happy',
   슬프다: 'sad',
   슬프: 'sad',
+  슬픈: 'sad',
   멋있다: 'cool',
   멋있: 'cool',
+  멋있는: 'cool',
   비싸다: 'expensive',
   비싸: 'expensive',
+  비싼: 'expensive',
   싸다: 'cheap',
   싸: 'cheap',
+  싼: 'cheap',
+  // 온도 관련 형용사
+  뜨겁다: 'hot',
+  뜨거: 'hot',
+  뜨거운: 'hot',
+  차갑다: 'cold',
+  차가: 'cold',
+  차가운: 'cold',
+  따뜻하다: 'warm',
+  따뜻: 'warm',
+  따뜻한: 'warm',
+  시원하다: 'cool',
+  시원: 'cool',
+  시원한: 'cool',
+  // 재미/맛 관련 형용사
+  재미있다: 'fun',
+  재미있: 'fun',
+  재미있는: 'fun',
+  맛있다: 'delicious',
+  맛있: 'delicious',
+  맛있는: 'delicious',
 };
 
 /**

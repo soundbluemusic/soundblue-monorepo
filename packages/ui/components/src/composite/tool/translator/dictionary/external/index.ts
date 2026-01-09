@@ -40,7 +40,9 @@ export function getExternalEnToKoWords(): Record<string, string> {
 }
 
 // 단어 조회 함수
+// 1글자 단어는 조회하지 않음 (형태소 오분석 방지: "전" → "jeon" 등)
 export function lookupExternalKoToEn(word: string): string | null {
+  if (word.length < 2) return null;
   return externalKoToEnWords[word] ?? null;
 }
 
