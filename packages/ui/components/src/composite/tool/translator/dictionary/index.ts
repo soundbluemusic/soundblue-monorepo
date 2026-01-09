@@ -2,6 +2,34 @@
 // Dictionary Index - 사전 통합 export
 // ========================================
 
+// === Morphology (형태소 관련) - @soundblue/translator에서 re-export ===
+export {
+  // 연결어미 (아서, 면서, 고 등)
+  type ConnectiveEndingInfo,
+  // 축약형 어미 (가요, 와요, 해요 등)
+  type ContractedEndingInfo,
+  // 서술격 조사 (이다/아니다)
+  type CopulaInfo,
+  connectiveEndingList,
+  connectiveEndings,
+  contractedFormList,
+  contractedForms,
+  copulaList,
+  copulas,
+  // 형태소 (조사/어미)
+  endingList,
+  endings,
+  // 패턴 사전
+  enToKoPatterns,
+  extractConnectiveEnding,
+  koToEnPatterns,
+  particleList,
+  particles,
+  restoreStemFromConnective,
+  selectBeVerb,
+  tryExtractContracted,
+  tryExtractCopula,
+} from '@soundblue/translator';
 // 복합어 분석
 export {
   compoundWords,
@@ -34,34 +62,6 @@ export {
   matchEnIdioms,
   matchKoIdioms,
 } from './idioms';
-// === Morphology (형태소 관련) ===
-// 연결어미 (아서, 면서, 고 등)
-export {
-  type ConnectiveEndingInfo,
-  connectiveEndingList,
-  connectiveEndings,
-  extractConnectiveEnding,
-  restoreStemFromConnective,
-} from './morphology/korean-connective';
-// 축약형 어미 (가요, 와요, 해요 등)
-export {
-  type ContractedEndingInfo,
-  contractedFormList,
-  contractedForms,
-  tryExtractContracted,
-} from './morphology/korean-contracted';
-// 서술격 조사 (이다/아니다)
-export {
-  type CopulaInfo,
-  copulaList,
-  copulas,
-  selectBeVerb,
-  tryExtractCopula,
-} from './morphology/korean-copulas';
-// 형태소 (조사/어미)
-export { endingList, endings, particleList, particles } from './morphology/korean-morphemes';
-// 패턴 사전
-export { enToKoPatterns, koToEnPatterns } from './morphology/patterns';
 // 의성어/의태어
 export {
   koOnomatopoeia,
