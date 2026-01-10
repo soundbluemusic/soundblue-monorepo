@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
-import { LazyMainLayout } from '~/components/layout';
+import { MainLayout } from '~/components/layout';
 import { getSeoMeta } from '~/lib/seo';
 import { useToolStore } from '~/stores/tool-store';
 
@@ -17,5 +17,5 @@ export default function DrumMachinePage() {
     openTool('drumMachine');
   }, [openTool]);
 
-  return <LazyMainLayout />;
+  return <MainLayout />;
 }
