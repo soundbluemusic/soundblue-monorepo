@@ -91,6 +91,14 @@ export {
   translateEnToKoDetailed,
   translateEnToKoMultiple,
 } from './engine/en-to-ko';
+// Grammar-Aware Translation (9품사 + 7문장성분 + 5문장종류)
+export {
+  generateBySentenceType,
+  rearrangeByConstituents,
+  type TranslationResult as GrammarAwareTranslationResult,
+  translateByPartOfSpeech,
+  translateKoToEnGrammarAware,
+} from './engine/grammar-aware-translator';
 // Core Translation Functions
 export {
   autoTranslate,
