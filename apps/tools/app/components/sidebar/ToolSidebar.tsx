@@ -92,6 +92,7 @@ export function ToolSidebar() {
               <li key={item.path} className="mb-1 px-3">
                 <NavLink
                   to={item.path}
+                  prefetch="intent"
                   end={item.path === localizedPath('/')}
                   className={({ isActive }) =>
                     `flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-medium no-underline transition-all duration-150 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 ${

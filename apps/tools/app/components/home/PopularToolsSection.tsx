@@ -1,7 +1,7 @@
 'use client';
 
 import { useParaglideI18n } from '@soundblue/i18n';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { ALL_TOOLS } from '~/lib/toolCategories';
 import type { ToolType } from '~/stores/tool-store';
 
@@ -15,16 +15,10 @@ interface PopularToolsSectionProps {
 
 export function PopularToolsSection({ onToolClick }: PopularToolsSectionProps) {
   const { locale, localizedPath } = useParaglideI18n();
-  const navigate = useNavigate();
 
   const t = {
     popularTitle: locale === 'ko' ? '도구' : 'Tools',
     popularDesc: locale === 'ko' ? '자주 사용하는 도구들' : 'Your frequently used tools',
-  };
-
-  const handleCardClick = (id: ToolType, slug: string) => {
-    onToolClick(id);
-    navigate(localizedPath(`/${slug}`));
   };
 
   return (
@@ -40,11 +34,12 @@ export function PopularToolsSection({ onToolClick }: PopularToolsSectionProps) {
       {/* Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {ALL_TOOLS.map((tool) => (
-          <button
+          <Link
             key={tool.id}
-            type="button"
-            onClick={() => handleCardClick(tool.id, tool.slug)}
-            className="flex items-center gap-4 p-4 bg-(--color-bg-secondary) border border-(--color-border-primary) rounded-xl text-left hover:bg-(--color-interactive-hover) active:scale-[0.98] transition-all duration-150 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2"
+            to={localizedPath(`/${tool.slug}`)}
+            prefetch="intent"
+            onClick={() => onToolClick(tool.id)}
+            className="flex items-center gap-4 p-4 bg-(--color-bg-secondary) border border-(--color-border-primary) rounded-xl text-left hover:bg-(--color-interactive-hover) active:scale-[0.98] transition-all duration-150 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 no-underline"
           >
             {/* Icon */}
             <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-(--color-bg-tertiary) shrink-0">
@@ -73,7 +68,7 @@ export function PopularToolsSection({ onToolClick }: PopularToolsSectionProps) {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </Link>
         ))}
       </div>
     </section>
