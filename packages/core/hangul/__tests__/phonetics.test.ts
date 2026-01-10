@@ -3,6 +3,10 @@ import {
   applyFinalConsonantRule,
   applyInitialLaw,
   applyRyeolYul,
+  applySiot,
+  getSiotCompounds,
+  needsSiot,
+  removeSiot,
   reverseInitialLaw,
   selectAOrEo,
   toPronunciation,
@@ -167,6 +171,89 @@ describe('phonetics', () => {
     it('should return 률 after consonant', () => {
       expect(applyRyeolYul('확', '률')).toBe('률');
       expect(applyRyeolYul('백', '렬')).toBe('렬');
+    });
+  });
+
+  describe('사이시옷 (맞춤법 제30항)', () => {
+    describe('needsSiot', () => {
+      it('should return true for 된소리화 cases', () => {
+        // 뒷말 첫소리가 ㄱ,ㄷ,ㅂ,ㅅ,ㅈ인 경우
+        expect(needsSiot('나무', '가지')).toBe(true);
+        expect(needsSiot('바다', '가')).toBe(true);
+        expect(needsSiot('배', '길')).toBe(true);
+      });
+
+      it('should return true for ㄴ/ㅁ cases', () => {
+        // 뒷말 첫소리가 ㄴ,ㅁ인 경우
+        expect(needsSiot('아래', '니')).toBe(true);
+        expect(needsSiot('비', '물')).toBe(true);
+      });
+
+      it('should return true for vowel (ㄴㄴ) cases', () => {
+        // 뒷말 첫소리가 모음인 경우
+        expect(needsSiot('나무', '잎')).toBe(true);
+      });
+
+      it('should return false when first word has batchim', () => {
+        // 앞말에 받침이 있으면 사이시옷 불필요
+        expect(needsSiot('산', '길')).toBe(false); // 산 has ㄴ batchim
+        expect(needsSiot('강', '가')).toBe(false); // 강 has ㅇ batchim
+        expect(needsSiot('집', '안')).toBe(false); // 집 has ㅂ batchim
+      });
+    });
+
+    describe('applySiot', () => {
+      it('should apply siot to compound words', () => {
+        expect(applySiot('나무', '잎')).toBe('나뭇잎');
+        expect(applySiot('바다', '가')).toBe('바닷가');
+        expect(applySiot('배', '길')).toBe('뱃길');
+        expect(applySiot('코', '등')).toBe('콧등');
+      });
+
+      it('should use registered compounds when available', () => {
+        expect(applySiot('해', '볕')).toBe('햇볕');
+        expect(applySiot('해', '살')).toBe('햇살');
+        expect(applySiot('깨', '잎')).toBe('깻잎');
+      });
+
+      it('should not apply siot when not needed', () => {
+        // 앞말에 받침이 있으면 사이시옷 불필요
+        expect(applySiot('산', '길')).toBe('산길'); // 산 has ㄴ batchim
+        expect(applySiot('강', '가')).toBe('강가'); // 강 has ㅇ batchim
+      });
+    });
+
+    describe('removeSiot', () => {
+      it('should restore original words from siot compound', () => {
+        const result1 = removeSiot('나뭇잎');
+        expect(result1).toEqual({ first: '나무', second: '잎' });
+
+        const result2 = removeSiot('바닷가');
+        expect(result2).toEqual({ first: '바다', second: '가' });
+      });
+
+      it('should return null for non-siot words', () => {
+        expect(removeSiot('학교')).toBeNull();
+        expect(removeSiot('사과')).toBeNull();
+      });
+    });
+
+    describe('getSiotCompounds', () => {
+      it('should return compound dictionary', () => {
+        const compounds = getSiotCompounds();
+        expect(compounds['나무잎']).toBe('나뭇잎');
+        expect(compounds['바다가']).toBe('바닷가');
+      });
+
+      it('should include 6 한자어 exceptions', () => {
+        const compounds = getSiotCompounds();
+        expect(compounds['곳간']).toBe('곳간');
+        expect(compounds['셋방']).toBe('셋방');
+        expect(compounds['숫자']).toBe('숫자');
+        expect(compounds['찻간']).toBe('찻간');
+        expect(compounds['툇간']).toBe('툇간');
+        expect(compounds['횟수']).toBe('횟수');
+      });
     });
   });
 });

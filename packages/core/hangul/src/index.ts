@@ -391,6 +391,14 @@ export {
   applyPalatalization,
   /** Apply 열/률 규칙 (렬→열, 률→율) - 맞춤법 제11항 붙임 */
   applyRyeolYul,
+  /** Apply 사이시옷 to compound words - 맞춤법 제30항 */
+  applySiot,
+  /** Get dictionary of 사이시옷 compound words */
+  getSiotCompounds,
+  /** Check if 사이시옷 is needed between two words */
+  needsSiot,
+  /** Remove 사이시옷 and restore original words */
+  removeSiot,
   /** Reverse 두음법칙 (표준어 → 한자 원음) - 번역용 */
   reverseInitialLaw,
   /** Select 아(ㅏ) or 어(ㅓ) based on vowel harmony */
