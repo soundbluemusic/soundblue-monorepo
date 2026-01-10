@@ -49,6 +49,14 @@
       "types": "./dist/composite/tool/index.d.ts",
       "import": "./dist/composite/tool/index.js"
     },
+    "./composite/tool/qr-generator": {
+      "types": "./dist/composite/tool/qr-generator/index.d.ts",
+      "import": "./dist/composite/tool/qr-generator/index.js"
+    },
+    "./composite/tool/translator": {
+      "types": "./dist/composite/tool/translator/index.d.ts",
+      "import": "./dist/composite/tool/translator/index.js"
+    },
     "./composite/audio": {
       "types": "./dist/composite/audio/index.d.ts",
       "import": "./dist/composite/audio/index.js"

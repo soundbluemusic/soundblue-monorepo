@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
-import { HomeLayout } from '~/components/layout/HomeLayout';
+import { LazyHomeLayout } from '~/components/layout';
 import { getSeoMeta } from '~/lib/seo';
 import { useToolStore } from '~/stores/tool-store';
 
@@ -22,5 +22,5 @@ export default function Home() {
     closeTool();
   }, [closeTool]);
 
-  return <HomeLayout />;
+  return <LazyHomeLayout />;
 }
