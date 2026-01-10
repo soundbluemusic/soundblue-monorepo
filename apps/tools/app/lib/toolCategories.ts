@@ -316,11 +316,16 @@ export const getToolName = (id: ToolType, locale: 'ko' | 'en' = 'ko'): string =>
 export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
   metronome: lazy(() => import('~/tools/metronome').then((m) => ({ default: m.Metronome }))),
   drumMachine: lazy(() => import('~/tools/drum-machine').then((m) => ({ default: m.DrumMachine }))),
+  // Use individual entry points to avoid loading entire ui-components bundle
   qr: lazy(() =>
-    import('@soundblue/ui-components/composite/tool').then((m) => ({ default: m.QRGenerator })),
+    import('@soundblue/ui-components/composite/tool/qr-generator').then((m) => ({
+      default: m.QRGenerator,
+    })),
   ),
   translator: lazy(() =>
-    import('@soundblue/ui-components/composite/tool').then((m) => ({ default: m.Translator })),
+    import('@soundblue/ui-components/composite/tool/translator').then((m) => ({
+      default: m.Translator,
+    })),
   ),
 };
 

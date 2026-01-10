@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
-import { MainLayout } from '~/components/layout/MainLayout';
+import { LazyMainLayout } from '~/components/layout';
 import { getSeoMeta } from '~/lib/seo';
 import { useToolStore } from '~/stores/tool-store';
 
@@ -17,5 +17,5 @@ export default function QRGeneratorPage() {
     openTool('qr');
   }, [openTool]);
 
-  return <MainLayout />;
+  return <LazyMainLayout />;
 }

@@ -89,6 +89,7 @@ export function BottomNavigation() {
             <li key={item.path} className="flex-1 h-full">
               <NavLink
                 to={item.path}
+                prefetch="intent"
                 end={item.path === localizedPath('/')}
                 className={({ isActive }) =>
                   `flex flex-col items-center justify-center gap-1 h-full p-2 no-underline transition-all duration-150 active:scale-95 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 ${
