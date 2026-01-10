@@ -304,10 +304,9 @@ const INTERJECTIONS = new Set([
   '에잇',
   '에헴',
   '에휴',
-  '이런',
+  // 이런/저런은 관형사로 주로 사용되므로 DETERMINERS에서 처리
   '이럴수가',
   '세상에',
-  '저런',
   '저기',
   '우와',
   '우와아',
@@ -413,10 +412,9 @@ export const INTERJECTION_TRANSLATIONS: Record<string, string> = {
   에잇: 'darn',
   에헴: 'ahem',
   에휴: 'sigh',
-  이런: 'oh no',
+  // 이런/저런은 관형사로 주로 사용되므로 DETERMINERS에서 처리
   이럴수가: 'unbelievable',
   세상에: 'oh my god',
-  저런: 'oh dear',
   저기: 'um',
   우와: 'wow',
   우와아: 'wow',
@@ -492,6 +490,270 @@ export const INTERJECTION_TRANSLATIONS: Record<string, string> = {
   쯧쯧: 'tsk tsk',
   쯧: 'tsk',
   쉿: 'shh',
+};
+
+// ========================================
+// 수사 사전 (9품사 중 하나)
+// 수량이나 순서를 나타내는 품사
+// ========================================
+
+// 기수사 (양수사) - 수량을 나타냄
+const CARDINAL_NUMERALS = new Set([
+  // 고유어 수사 (1~99, 단위 없이 사용)
+  '하나',
+  '둘',
+  '셋',
+  '넷',
+  '다섯',
+  '여섯',
+  '일곱',
+  '여덟',
+  '아홉',
+  '열',
+  '열하나',
+  '열둘',
+  '열셋',
+  '스물',
+  '서른',
+  '마흔',
+  '쉰',
+  '예순',
+  '일흔',
+  '여든',
+  '아흔',
+  // 한자어 수사 (큰 수, 계산용)
+  '일',
+  '이',
+  '삼',
+  '사',
+  '오',
+  '육',
+  '칠',
+  '팔',
+  '구',
+  '십',
+  '백',
+  '천',
+  '만',
+  '억',
+  '조',
+  '영',
+  '공',
+  // 불확정 수사
+  '몇',
+  '여러',
+  '수',
+  '몇몇',
+]);
+
+// 서수사 - 순서를 나타냄
+const ORDINAL_NUMERALS = new Set([
+  '첫째',
+  '둘째',
+  '셋째',
+  '넷째',
+  '다섯째',
+  '여섯째',
+  '일곱째',
+  '여덟째',
+  '아홉째',
+  '열째',
+  '제일',
+  '제이',
+  '제삼',
+  '제사',
+  '제오',
+  '첫번째',
+  '두번째',
+  '세번째',
+  '네번째',
+  '다섯번째',
+]);
+
+// 수사 전체 (기수+서수)
+const NUMERALS = new Set([...CARDINAL_NUMERALS, ...ORDINAL_NUMERALS]);
+
+// 수사 영어 번역
+export const NUMERAL_TRANSLATIONS: Record<string, string> = {
+  // 고유어 기수사
+  하나: 'one',
+  둘: 'two',
+  셋: 'three',
+  넷: 'four',
+  다섯: 'five',
+  여섯: 'six',
+  일곱: 'seven',
+  여덟: 'eight',
+  아홉: 'nine',
+  열: 'ten',
+  열하나: 'eleven',
+  열둘: 'twelve',
+  열셋: 'thirteen',
+  스물: 'twenty',
+  서른: 'thirty',
+  마흔: 'forty',
+  쉰: 'fifty',
+  예순: 'sixty',
+  일흔: 'seventy',
+  여든: 'eighty',
+  아흔: 'ninety',
+  // 한자어 기수사
+  일: 'one',
+  이: 'two',
+  삼: 'three',
+  사: 'four',
+  오: 'five',
+  육: 'six',
+  칠: 'seven',
+  팔: 'eight',
+  구: 'nine',
+  십: 'ten',
+  백: 'hundred',
+  천: 'thousand',
+  만: 'ten thousand',
+  억: 'hundred million',
+  조: 'trillion',
+  영: 'zero',
+  공: 'zero',
+  // 불확정 수사
+  몇: 'several',
+  여러: 'several',
+  수: 'number of',
+  몇몇: 'some',
+  // 서수사
+  첫째: 'first',
+  둘째: 'second',
+  셋째: 'third',
+  넷째: 'fourth',
+  다섯째: 'fifth',
+  여섯째: 'sixth',
+  일곱째: 'seventh',
+  여덟째: 'eighth',
+  아홉째: 'ninth',
+  열째: 'tenth',
+  제일: 'first',
+  제이: 'second',
+  제삼: 'third',
+  제사: 'fourth',
+  제오: 'fifth',
+  첫번째: 'first',
+  두번째: 'second',
+  세번째: 'third',
+  네번째: 'fourth',
+  다섯번째: 'fifth',
+};
+
+// ========================================
+// 관형사 사전 (9품사 중 하나)
+// 체언 앞에서 그 체언의 내용을 꾸며주는 품사
+// 조사 없이 항상 명사를 수식 (활용하지 않음)
+// ========================================
+
+// 지시 관형사 (사물/장소/방향 지시)
+const DEMONSTRATIVE_DETERMINERS = new Set([
+  '이', // this (가까운 것)
+  '그', // that (중간/언급된 것)
+  '저', // that (먼 것)
+  '이런', // this kind of
+  '그런', // that kind of
+  '저런', // that kind of (far)
+  '어떤', // what kind of, some
+  '아무', // any, no (with 도)
+  '무슨', // what (의문)
+  '웬', // what (놀람)
+]);
+
+// 성상 관형사 (성질/상태 지시)
+const DESCRIPTIVE_DETERMINERS = new Set([
+  '새', // new
+  '헌', // old, worn
+  '옛', // old, former
+  '첫', // first
+  '맨', // very, bare
+  '순', // pure
+  '참', // true
+  '막', // last, random
+  '외', // sole
+  '홑', // single
+  '겹', // double
+]);
+
+// 수 관형사 (수량 한정)
+// 명사 앞에서 수량을 나타냄 (단위명사와 결합)
+const NUMERAL_DETERMINERS = new Set([
+  // 고유어 수 관형사 (명사 수식용)
+  '한', // one (하나→한)
+  '두', // two (둘→두)
+  '세', // three (셋→세)
+  '네', // four (넷→네)
+  '대여섯', // five or six
+  '서너', // three or four
+  '두세', // two or three
+  '너댓', // four or five
+  '예닐곱', // six or seven
+  // 불확정 수 관형사
+  '몇', // several, some
+  '모든', // all
+  '온', // all, whole
+  '온갖', // all kinds of
+  '각', // each
+  '양', // both
+  '매', // every
+  '전', // whole, all
+  '총', // total
+]);
+
+// 관형사 전체 (지시+성상+수)
+const DETERMINERS = new Set([
+  ...DEMONSTRATIVE_DETERMINERS,
+  ...DESCRIPTIVE_DETERMINERS,
+  ...NUMERAL_DETERMINERS,
+]);
+
+// 관형사 영어 번역
+export const DETERMINER_TRANSLATIONS: Record<string, string> = {
+  // 지시 관형사
+  이: 'this',
+  그: 'that',
+  저: 'that',
+  이런: 'this kind of',
+  그런: 'that kind of',
+  저런: 'that kind of',
+  어떤: 'what kind of',
+  아무: 'any',
+  무슨: 'what',
+  웬: 'what',
+  // 성상 관형사
+  새: 'new',
+  헌: 'old',
+  옛: 'old',
+  첫: 'first',
+  맨: 'very',
+  순: 'pure',
+  참: 'true',
+  막: 'last',
+  외: 'sole',
+  홑: 'single',
+  겹: 'double',
+  // 수 관형사
+  한: 'one',
+  두: 'two',
+  세: 'three',
+  네: 'four',
+  대여섯: 'five or six',
+  서너: 'three or four',
+  두세: 'two or three',
+  너댓: 'four or five',
+  예닐곱: 'six or seven',
+  몇: 'several',
+  모든: 'all',
+  온: 'all',
+  온갖: 'all kinds of',
+  각: 'each',
+  양: 'both',
+  매: 'every',
+  전: 'whole',
+  총: 'total',
 };
 
 // ========================================
@@ -1602,6 +1864,24 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
     result.stem = cleanWord;
     result.pos = 'interjection';
     result.role = 'independent';
+    return result;
+  }
+
+  // 1.5.6. 수사 확인 (수량/순서 표현)
+  if (NUMERALS.has(cleanWord)) {
+    result.stem = cleanWord;
+    result.pos = 'number';
+    // 수사는 주어, 목적어, 서술어 등 다양한 역할 가능
+    // 문맥에 따라 결정되므로 기본값은 unknown
+    result.role = 'unknown';
+    return result;
+  }
+
+  // 1.5.7. 관형사 확인 (명사 수식어)
+  if (DETERMINERS.has(cleanWord)) {
+    result.stem = cleanWord;
+    result.pos = 'determiner';
+    result.role = 'modifier'; // 관형사는 항상 수식어(관형어) 역할
     return result;
   }
 

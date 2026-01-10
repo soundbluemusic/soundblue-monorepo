@@ -138,6 +138,66 @@ describe('morpheme-analyzer', () => {
         expect(analyzeMorpheme('너').pos).toBe('pronoun');
       });
     });
+
+    describe('수사 (number/numeral)', () => {
+      it('should detect native Korean cardinal numerals', () => {
+        expect(analyzeMorpheme('하나').pos).toBe('number');
+        expect(analyzeMorpheme('둘').pos).toBe('number');
+        expect(analyzeMorpheme('셋').pos).toBe('number');
+        expect(analyzeMorpheme('열').pos).toBe('number');
+        expect(analyzeMorpheme('스물').pos).toBe('number');
+      });
+
+      it('should detect Sino-Korean cardinal numerals', () => {
+        expect(analyzeMorpheme('일').pos).toBe('number');
+        expect(analyzeMorpheme('십').pos).toBe('number');
+        expect(analyzeMorpheme('백').pos).toBe('number');
+        expect(analyzeMorpheme('천').pos).toBe('number');
+        expect(analyzeMorpheme('만').pos).toBe('number');
+      });
+
+      it('should detect ordinal numerals', () => {
+        expect(analyzeMorpheme('첫째').pos).toBe('number');
+        expect(analyzeMorpheme('둘째').pos).toBe('number');
+        expect(analyzeMorpheme('셋째').pos).toBe('number');
+      });
+
+      it('should detect indefinite numerals', () => {
+        expect(analyzeMorpheme('몇몇').pos).toBe('number');
+        expect(analyzeMorpheme('여러').pos).toBe('number');
+      });
+    });
+
+    describe('관형사 (determiner)', () => {
+      it('should detect demonstrative determiners', () => {
+        expect(analyzeMorpheme('이런').pos).toBe('determiner');
+        expect(analyzeMorpheme('그런').pos).toBe('determiner');
+        expect(analyzeMorpheme('저런').pos).toBe('determiner');
+        expect(analyzeMorpheme('어떤').pos).toBe('determiner');
+        expect(analyzeMorpheme('무슨').pos).toBe('determiner');
+      });
+
+      it('should detect descriptive determiners', () => {
+        expect(analyzeMorpheme('새').pos).toBe('determiner');
+        expect(analyzeMorpheme('헌').pos).toBe('determiner');
+        expect(analyzeMorpheme('옛').pos).toBe('determiner');
+        expect(analyzeMorpheme('첫').pos).toBe('determiner');
+      });
+
+      it('should detect numeral determiners', () => {
+        expect(analyzeMorpheme('한').pos).toBe('determiner');
+        expect(analyzeMorpheme('두').pos).toBe('determiner');
+        expect(analyzeMorpheme('세').pos).toBe('determiner');
+        expect(analyzeMorpheme('모든').pos).toBe('determiner');
+        expect(analyzeMorpheme('온갖').pos).toBe('determiner');
+      });
+
+      it('should have modifier role for determiners', () => {
+        expect(analyzeMorpheme('새').role).toBe('modifier');
+        expect(analyzeMorpheme('모든').role).toBe('modifier');
+        expect(analyzeMorpheme('이런').role).toBe('modifier');
+      });
+    });
   });
 
   describe('문장종류 어미 (SentenceKind)', () => {
