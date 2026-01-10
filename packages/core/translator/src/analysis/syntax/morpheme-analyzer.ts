@@ -38,7 +38,11 @@ function buildConjugationIndex(): ConjugationIndex {
 
 const IRREGULAR_CONJUGATION_INDEX = buildConjugationIndex();
 
-// 품사 타입
+// 품사 타입 (9품사)
+// - noun: 명사, verb: 동사, adjective: 형용사
+// - adverb: 부사, pronoun: 대명사, number: 수사
+// - determiner: 관형사, interjection: 감탄사
+// - unknown: 미분류
 export type PartOfSpeech =
   | 'noun'
   | 'verb'
@@ -47,6 +51,7 @@ export type PartOfSpeech =
   | 'pronoun'
   | 'number'
   | 'determiner'
+  | 'interjection'
   | 'unknown';
 
 // 시제 타입
@@ -55,7 +60,16 @@ export type Tense = 'present' | 'past' | 'future' | 'progressive';
 // 높임 타입
 export type Formality = 'formal' | 'polite' | 'casual';
 
-// 문장 성분 역할
+// 문장 성분 역할 (7문장성분)
+// - subject: 주어 (-가, -이, -은, -는)
+// - object: 목적어 (-를, -을)
+// - topic: 주제 (-은, -는) - 주어와 구별
+// - complement: 보어 (-이/가 되다, -로서)
+// - adverbial: 부사어 (-에, -에서, -로)
+// - predicate: 서술어 (동사/형용사)
+// - modifier: 관형어/수식어
+// - independent: 독립어 (감탄사, 호격 조사)
+// - unknown: 미분류
 export type Role =
   | 'subject'
   | 'object'
@@ -64,6 +78,7 @@ export type Role =
   | 'adverbial'
   | 'predicate'
   | 'modifier'
+  | 'independent'
   | 'unknown';
 
 // 형태소 분석 결과
@@ -76,6 +91,7 @@ export interface MorphemeAnalysis {
   ending?: string; // 어미
   tense?: Tense; // 시제
   formality?: Formality; // 높임
+  sentenceKind?: SentenceKind; // 문장 종류 (평서/의문/명령/청유/감탄)
   isNegative?: boolean; // 부정
   negationType?: 'did_not' | 'could_not'; // 부정 유형: 안 했다 vs 못 했다
   isQuestion?: boolean; // 의문
@@ -145,6 +161,13 @@ export const PARTICLES: Record<string, { role: Role; en: string }> = {
   밖에: { role: 'topic', en: 'only' }, // + 부정
   조차: { role: 'topic', en: 'even' },
   마저: { role: 'topic', en: 'even' },
+
+  // 호격 조사 (독립어 - 부름말)
+  야: { role: 'independent', en: '' }, // 받침 없는 명사 뒤 (철수야)
+  아: { role: 'independent', en: '' }, // 받침 있는 명사 뒤 (선생아)
+  여: { role: 'independent', en: '' }, // 모음 뒤 존칭 (하늘이여)
+  이여: { role: 'independent', en: '' }, // 자음 뒤 존칭 (님이여)
+  이시여: { role: 'independent', en: '' }, // 자음 뒤 존칭 강조 (주여)
 };
 
 // 조사 목록 (길이순 - 긴 것 먼저)
@@ -253,11 +276,239 @@ const PURE_ADVERBS = new Set([
 ]);
 
 // ========================================
+// 감탄사 사전 (9품사 중 하나)
+// 독립어로서 문장 성분에서 독립적으로 사용
+// ========================================
+const INTERJECTIONS = new Set([
+  // 감정 표현 (기쁨, 슬픔, 놀람, 분노)
+  '아',
+  '아이',
+  '아이고',
+  '아이구',
+  '아차',
+  '아야',
+  '아아',
+  '아하',
+  '아하하',
+  '와',
+  '와아',
+  '와우',
+  '오',
+  '오오',
+  '오호',
+  '어',
+  '어머',
+  '어머나',
+  '에',
+  '에이',
+  '에잇',
+  '에헴',
+  '에휴',
+  '이런',
+  '이럴수가',
+  '세상에',
+  '저런',
+  '저기',
+  '우와',
+  '우와아',
+  '헉',
+  '헐',
+  '흐흐',
+  '흥',
+  '휴',
+  '쳇',
+  // 대답/응답
+  '네',
+  '예',
+  '응',
+  '음',
+  '아니',
+  '아니요',
+  '아뇨',
+  '글쎄',
+  '글쎄요',
+  '그래',
+  '그래요',
+  '그럼',
+  '그럼요',
+  '알겠어',
+  '알겠습니다',
+  '물론',
+  '당연',
+  '당연하지',
+  // 부름/호출
+  '여보',
+  '여보세요',
+  '야',
+  '얘',
+  '이봐',
+  '이봐요',
+  '저기요',
+  // 인사
+  '안녕',
+  '안녕하세요',
+  '안녕하십니까',
+  '안녕히',
+  '안녕히가세요',
+  '안녕히계세요',
+  '반갑습니다',
+  '반가워',
+  '감사합니다',
+  '감사해요',
+  '고마워',
+  '고맙습니다',
+  '죄송합니다',
+  '죄송해요',
+  '미안',
+  '미안해',
+  '미안합니다',
+  '실례합니다',
+  '어서오세요',
+  '환영합니다',
+  // 추임새/맞장구
+  '맞아',
+  '맞아요',
+  '그렇지',
+  '그렇죠',
+  '정말',
+  '진짜',
+  '대박',
+  '짱',
+  // 의성어 감탄
+  '아이쿠',
+  '아이씨',
+  '어휴',
+  '음음',
+  '흠',
+  '흠흠',
+  '쯧쯧',
+  '쯧',
+  '싸',
+  '쉿',
+]);
+
+// 감탄사 영어 번역 매핑
+export const INTERJECTION_TRANSLATIONS: Record<string, string> = {
+  // 감정 표현
+  아: 'ah',
+  아이: 'oh my',
+  아이고: 'oh dear',
+  아이구: 'oh dear',
+  아차: 'oops',
+  아야: 'ouch',
+  아아: 'ah',
+  아하: 'aha',
+  아하하: 'ahaha',
+  와: 'wow',
+  와아: 'wow',
+  와우: 'wow',
+  오: 'oh',
+  오오: 'oh',
+  오호: 'oho',
+  어: 'uh',
+  어머: 'oh my',
+  어머나: 'oh my goodness',
+  에: 'huh',
+  에이: 'aw',
+  에잇: 'darn',
+  에헴: 'ahem',
+  에휴: 'sigh',
+  이런: 'oh no',
+  이럴수가: 'unbelievable',
+  세상에: 'oh my god',
+  저런: 'oh dear',
+  저기: 'um',
+  우와: 'wow',
+  우와아: 'wow',
+  헉: 'gasp',
+  헐: 'what',
+  흐흐: 'hehe',
+  흥: 'hmph',
+  휴: 'phew',
+  쳇: 'tsk',
+  // 대답/응답
+  네: 'yes',
+  예: 'yes',
+  응: 'yeah',
+  음: 'um',
+  아니: 'no',
+  아니요: 'no',
+  아뇨: 'no',
+  글쎄: 'well',
+  글쎄요: 'well',
+  그래: 'okay',
+  그래요: 'okay',
+  그럼: 'of course',
+  그럼요: 'of course',
+  알겠어: 'got it',
+  알겠습니다: 'understood',
+  물론: 'of course',
+  당연: 'of course',
+  당연하지: 'of course',
+  // 부름
+  여보: 'honey',
+  여보세요: 'hello',
+  야: 'hey',
+  얘: 'hey',
+  이봐: 'hey',
+  이봐요: 'excuse me',
+  저기요: 'excuse me',
+  // 인사
+  안녕: 'hi',
+  안녕하세요: 'hello',
+  안녕하십니까: 'hello',
+  안녕히가세요: 'goodbye',
+  안녕히계세요: 'goodbye',
+  반갑습니다: 'nice to meet you',
+  반가워: 'nice to meet you',
+  감사합니다: 'thank you',
+  감사해요: 'thank you',
+  고마워: 'thanks',
+  고맙습니다: 'thank you',
+  죄송합니다: 'sorry',
+  죄송해요: 'sorry',
+  미안: 'sorry',
+  미안해: 'sorry',
+  미안합니다: 'sorry',
+  실례합니다: 'excuse me',
+  어서오세요: 'welcome',
+  환영합니다: 'welcome',
+  // 추임새
+  맞아: 'right',
+  맞아요: 'right',
+  그렇지: 'right',
+  그렇죠: 'right',
+  정말: 'really',
+  진짜: 'really',
+  대박: 'awesome',
+  짱: 'cool',
+  // 의성어
+  아이쿠: 'oops',
+  아이씨: 'damn',
+  어휴: 'sigh',
+  음음: 'mm-hmm',
+  흠: 'hmm',
+  흠흠: 'hmm',
+  쯧쯧: 'tsk tsk',
+  쯧: 'tsk',
+  쉿: 'shh',
+};
+
+// ========================================
 // 어미 사전 (확장)
 // ========================================
+// 문장 종류 타입 (청유문 포함)
+export type SentenceKind =
+  | 'declarative' // 평서문
+  | 'interrogative' // 의문문
+  | 'imperative' // 명령문
+  | 'cohortative' // 청유문
+  | 'exclamatory'; // 감탄문
+
 export interface EndingInfo {
   tense: Tense;
   formality: Formality;
+  sentenceKind?: SentenceKind; // 문장 종류 (기본값: declarative)
   isQuestion?: boolean;
   isNegative?: boolean;
   isHonorable?: boolean;
@@ -435,6 +686,81 @@ export const ENDINGS: Record<string, EndingInfo> = {
   // ~하지 않았다면 (if hadn't)
   '지 않았다면': { tense: 'past', formality: 'casual', isNegative: true, isConditional: true },
   '지 않았으면': { tense: 'past', formality: 'casual', isNegative: true, isConditional: true },
+
+  // ========================================
+  // 청유문 어미 (Cohortative) - 맞춤법 문장종류
+  // ========================================
+  // 격식체 (-읍시다, -ㅂ시다)
+  읍시다: { tense: 'present', formality: 'formal', sentenceKind: 'cohortative' },
+  ㅂ시다: { tense: 'present', formality: 'formal', sentenceKind: 'cohortative' },
+  합시다: { tense: 'present', formality: 'formal', sentenceKind: 'cohortative' },
+  갑시다: { tense: 'present', formality: 'formal', sentenceKind: 'cohortative' },
+  봅시다: { tense: 'present', formality: 'formal', sentenceKind: 'cohortative' },
+  먹읍시다: { tense: 'present', formality: 'formal', sentenceKind: 'cohortative' },
+
+  // 반말 (-자)
+  자: { tense: 'present', formality: 'casual', sentenceKind: 'cohortative' },
+  하자: { tense: 'present', formality: 'casual', sentenceKind: 'cohortative' },
+  가자: { tense: 'present', formality: 'casual', sentenceKind: 'cohortative' },
+  보자: { tense: 'present', formality: 'casual', sentenceKind: 'cohortative' },
+  먹자: { tense: 'present', formality: 'casual', sentenceKind: 'cohortative' },
+  만나자: { tense: 'present', formality: 'casual', sentenceKind: 'cohortative' },
+
+  // ========================================
+  // 명령문 어미 (Imperative)
+  // ========================================
+  // 격식체 (-십시오, -시오)
+  십시오: { tense: 'present', formality: 'formal', sentenceKind: 'imperative' },
+  시오: { tense: 'present', formality: 'formal', sentenceKind: 'imperative' },
+  하십시오: { tense: 'present', formality: 'formal', sentenceKind: 'imperative' },
+  가십시오: { tense: 'present', formality: 'formal', sentenceKind: 'imperative' },
+
+  // 해요체 (-세요, -으세요)
+  // 세요, 으세요는 이미 위에 정의됨 (isHonorable)
+  // 명령/요청 의미 추가를 위해 별도 항목
+  하세요: { tense: 'present', formality: 'polite', sentenceKind: 'imperative', isHonorable: true },
+  가세요: { tense: 'present', formality: 'polite', sentenceKind: 'imperative', isHonorable: true },
+  드세요: { tense: 'present', formality: 'polite', sentenceKind: 'imperative', isHonorable: true },
+  주세요: { tense: 'present', formality: 'polite', sentenceKind: 'imperative', isHonorable: true },
+  보세요: { tense: 'present', formality: 'polite', sentenceKind: 'imperative', isHonorable: true },
+
+  // 반말 (-아라/-어라, -아/-어)
+  아라: { tense: 'present', formality: 'casual', sentenceKind: 'imperative' },
+  어라: { tense: 'present', formality: 'casual', sentenceKind: 'imperative' },
+  해라: { tense: 'present', formality: 'casual', sentenceKind: 'imperative' },
+  가라: { tense: 'present', formality: 'casual', sentenceKind: 'imperative' },
+  와라: { tense: 'present', formality: 'casual', sentenceKind: 'imperative' },
+  먹어라: { tense: 'present', formality: 'casual', sentenceKind: 'imperative' },
+  봐라: { tense: 'present', formality: 'casual', sentenceKind: 'imperative' },
+
+  // ========================================
+  // 감탄문 어미 (Exclamatory)
+  // ========================================
+  // -구나, -군, -군요 (깨달음/놀람)
+  구나: { tense: 'present', formality: 'casual', sentenceKind: 'exclamatory' },
+  군: { tense: 'present', formality: 'casual', sentenceKind: 'exclamatory' },
+  군요: { tense: 'present', formality: 'polite', sentenceKind: 'exclamatory' },
+  았구나: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  었구나: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  였구나: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  했구나: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+
+  // -네, -네요 (새로운 발견/감탄)
+  네: { tense: 'present', formality: 'casual', sentenceKind: 'exclamatory' },
+  네요: { tense: 'present', formality: 'polite', sentenceKind: 'exclamatory' },
+  았네: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  었네: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  였네: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  했네: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  았네요: { tense: 'past', formality: 'polite', sentenceKind: 'exclamatory' },
+  었네요: { tense: 'past', formality: 'polite', sentenceKind: 'exclamatory' },
+
+  // -다니 (놀람/감탄)
+  다니: { tense: 'present', formality: 'casual', sentenceKind: 'exclamatory' },
+  았다니: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  었다니: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  였다니: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
+  했다니: { tense: 'past', formality: 'casual', sentenceKind: 'exclamatory' },
 };
 
 // 어미 목록 (길이순)
@@ -1271,6 +1597,14 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
     return result;
   }
 
+  // 1.5.5. 감탄사 확인 (독립어로 사용)
+  if (INTERJECTIONS.has(cleanWord)) {
+    result.stem = cleanWord;
+    result.pos = 'interjection';
+    result.role = 'independent';
+    return result;
+  }
+
   // 1.6. 순수 부사 확인 (조사 없이 단독으로 부사어 역할)
   if (PURE_ADVERBS.has(cleanWord)) {
     result.stem = cleanWord;
@@ -1279,7 +1613,7 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
     return result;
   }
 
-  // 1.6. 대명사 확인 (조사 없이도 주어 역할)
+  // 1.7. 대명사 확인 (조사 없이도 주어 역할)
   if (SUBJECT_PRONOUNS.has(cleanWord)) {
     result.stem = cleanWord;
     result.pos = 'pronoun';
@@ -1368,6 +1702,7 @@ export function analyzeMorpheme(word: string): MorphemeAnalysis {
         result.isSpeculative = endingInfo.isSpeculative;
         result.isConditional = endingInfo.isConditional;
         result.isHypothetical = endingInfo.isHypothetical;
+        result.sentenceKind = endingInfo.sentenceKind;
       }
       return result;
     }

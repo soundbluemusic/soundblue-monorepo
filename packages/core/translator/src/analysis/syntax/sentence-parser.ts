@@ -6,8 +6,18 @@
 import type { Formality, Role, Tense, TokenAnalysis } from './morpheme-analyzer';
 import { analyzeTokens } from './morpheme-analyzer';
 
-// 문장 구조 타입
-export type SentenceType = 'declarative' | 'interrogative' | 'imperative' | 'exclamatory';
+// 문장 구조 타입 (5가지 문장 종류)
+// - declarative: 평서문 (-다, -습니다)
+// - interrogative: 의문문 (-니?, -습니까?)
+// - imperative: 명령문 (-라, -세요)
+// - cohortative: 청유문 (-자, -읍시다)
+// - exclamatory: 감탄문 (-구나, -네)
+export type SentenceType =
+  | 'declarative'
+  | 'interrogative'
+  | 'imperative'
+  | 'cohortative'
+  | 'exclamatory';
 
 // 문장 패턴 (한국어 기본 어순)
 export type SentencePattern =
@@ -37,6 +47,7 @@ export interface ParsedSentence {
   predicate?: Constituent;
   adverbials: Constituent[];
   modifiers: Constituent[];
+  independents: Constituent[]; // 독립어 (감탄사, 호격)
   sentenceType: SentenceType;
   pattern: SentencePattern;
   tense: Tense;
@@ -257,6 +268,7 @@ export function parseSentence(text: string): ParsedSentence {
   let predicate: Constituent | undefined;
   const adverbials: Constituent[] = [];
   const modifiers: Constituent[] = [];
+  const independents: Constituent[] = [];
 
   for (const constituent of constituents) {
     switch (constituent.role) {
@@ -279,6 +291,9 @@ export function parseSentence(text: string): ParsedSentence {
         break;
       case 'modifier':
         modifiers.push(constituent);
+        break;
+      case 'independent':
+        independents.push(constituent);
         break;
     }
   }
@@ -307,9 +322,11 @@ export function parseSentence(text: string): ParsedSentence {
     }
   }
 
-  // 문장 유형 결정
-  let sentenceType: SentenceType = 'declarative';
-  if (isQuestion) sentenceType = 'interrogative';
+  // 문장 유형 결정 (서술어의 sentenceKind 우선, 없으면 기본값)
+  // 청유문(-자, -읍시다), 명령문(-아라, -세요), 감탄문(-구나, -네) 등
+  let sentenceType: SentenceType = predicateToken?.sentenceKind || 'declarative';
+  // 의문문은 isQuestion 플래그로도 판단 (물음표나 의문형 어미)
+  if (isQuestion && sentenceType === 'declarative') sentenceType = 'interrogative';
 
   // 문장 패턴 결정
   const pattern = determineSentencePattern(subject, object, predicate, adverbials);
@@ -326,6 +343,7 @@ export function parseSentence(text: string): ParsedSentence {
     predicate,
     adverbials,
     modifiers,
+    independents,
     sentenceType,
     pattern,
     tense,

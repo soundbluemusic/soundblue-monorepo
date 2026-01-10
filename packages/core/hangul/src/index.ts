@@ -381,12 +381,18 @@ export {
   applyFinalConsonantRule,
   /** Apply fortition (경음화) - tensing of consonants */
   applyFortition,
+  /** Apply 두음법칙 (Initial Sound Law) - 맞춤법 제10~12항 */
+  applyInitialLaw,
   /** Apply lateralization (유음화) - ㄴ↔ㄹ assimilation */
   applyLiquidization,
   /** Apply nasalization (비음화) - consonant → nasal */
   applyNasalization,
   /** Apply palatalization (구개음화) - ㄷ,ㅌ + 이 → 지,치 */
   applyPalatalization,
+  /** Apply 열/률 규칙 (렬→열, 률→율) - 맞춤법 제11항 붙임 */
+  applyRyeolYul,
+  /** Reverse 두음법칙 (표준어 → 한자 원음) - 번역용 */
+  reverseInitialLaw,
   /** Select 아(ㅏ) or 어(ㅓ) based on vowel harmony */
   selectAOrEo,
   /** Convert written text to pronunciation (applies all rules) */
