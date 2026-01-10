@@ -188,6 +188,11 @@ export default defineConfig({
           if (id.includes('lucide-react')) {
             return 'icons-vendor';
           }
+          // Tone.js - audio library, only for metronome/drum-machine
+          // Separate chunk to prevent duplication across audio tools
+          if (id.includes('tone')) {
+            return 'tone-vendor';
+          }
           return undefined;
         },
       },
