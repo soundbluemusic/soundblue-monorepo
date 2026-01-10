@@ -2287,6 +2287,36 @@ function detectSentenceType(text: string): SentenceType {
  * @param context 문맥 (원문 문장) - WSD에 사용
  */
 function tokenizeKoreanWord(word: string, context?: string): Token {
+  // 0.5. 영어 대명사 인식 (replaceKoreanPronouns로 미리 변환된 경우)
+  // "그는" → "he", "그녀는" → "she" 등의 변환 후 토큰화
+  const englishPronouns: Record<string, { translated: string; is3ps: boolean }> = {
+    I: { translated: 'I', is3ps: false },
+    you: { translated: 'you', is3ps: false },
+    You: { translated: 'You', is3ps: false },
+    he: { translated: 'he', is3ps: true },
+    He: { translated: 'He', is3ps: true },
+    she: { translated: 'she', is3ps: true },
+    She: { translated: 'She', is3ps: true },
+    it: { translated: 'it', is3ps: true },
+    It: { translated: 'It', is3ps: true },
+    we: { translated: 'we', is3ps: false },
+    We: { translated: 'We', is3ps: false },
+    they: { translated: 'they', is3ps: false },
+    They: { translated: 'They', is3ps: false },
+  };
+
+  const pronounInfo = englishPronouns[word];
+  if (pronounInfo) {
+    return {
+      text: word,
+      stem: word,
+      role: 'subject',
+      translated: pronounInfo.translated,
+      confidence: CONFIDENCE_DICTIONARY,
+      meta: { strategy: 'dictionary', is3ps: pronounInfo.is3ps },
+    };
+  }
+
   // 1. 숫자 체크
   if (/^\d+$/.test(word)) {
     return {
@@ -2462,6 +2492,55 @@ function tokenizeKoreanWord(word: string, context?: string): Token {
           confidence: CONFIDENCE_DICTIONARY,
           meta: { strategy: 'dictionary' },
         };
+      }
+    }
+
+    // 동사 현재형 활용 (-는다 패턴) - 외부 사전보다 규칙 기반 우선
+    // "먹는다", "읽는다" 등 현재형 활용은 원형(eat, read)으로 반환
+    // 외부 사전에 활용형(eats)이 있어도 무시하고 원형 사용
+    if (word.endsWith('는다') && word.length >= 3) {
+      const stemOnly = word.slice(0, -2); // 는다 제거 → 먹, 읽
+      const verbEn = VERB_STEMS[stemOnly] || KO_EN[stemOnly];
+      if (verbEn) {
+        return {
+          text: word,
+          stem: stemOnly,
+          role: 'verb',
+          translated: verbEn,
+          confidence: CONFIDENCE_DICTIONARY,
+          meta: { strategy: 'rule', tense: 'present' as Tense },
+        };
+      }
+    }
+
+    // 동사 현재형 활용 (-ㄴ다 패턴) - 받침 없는 어간
+    // "간다" (가+ㄴ다), "본다" (보+ㄴ다) 등
+    if (word.endsWith('다') && word.length >= 2) {
+      const beforeDa = word.slice(0, -1);
+      const lastChar = beforeDa[beforeDa.length - 1];
+      if (lastChar) {
+        // 마지막 글자에 ㄴ 받침이 있으면 제거하여 어간 추출
+        const code = lastChar.charCodeAt(0);
+        if (code >= 0xac00 && code <= 0xd7a3) {
+          const offset = code - 0xac00;
+          const jongIndex = offset % 28;
+          // ㄴ 받침 (index 4)
+          if (jongIndex === 4) {
+            const stemChar = String.fromCharCode(code - 4); // ㄴ 받침 제거
+            const stem = beforeDa.slice(0, -1) + stemChar;
+            const verbEn = VERB_STEMS[stem] || KO_EN[stem];
+            if (verbEn) {
+              return {
+                text: word,
+                stem: stem,
+                role: 'verb',
+                translated: verbEn,
+                confidence: CONFIDENCE_DICTIONARY,
+                meta: { strategy: 'rule', tense: 'present' as Tense },
+              };
+            }
+          }
+        }
       }
     }
 

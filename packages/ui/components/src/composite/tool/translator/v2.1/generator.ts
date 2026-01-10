@@ -2355,39 +2355,55 @@ export function generateEnglish(parsed: ParsedSentence): string {
     return `${lower}s`;
   };
 
-  // L5: 한국어 주어-동사 패턴
-  // 주어 + 조사(은/는/이/가) + 동사
-  const koSubjectVerbMap: Record<string, { en: string; isPlural: boolean }> = {
-    나: { en: 'I', isPlural: false },
-    나는: { en: 'I', isPlural: false },
-    내가: { en: 'I', isPlural: false },
-    너: { en: 'You', isPlural: false },
-    너는: { en: 'You', isPlural: false },
-    네가: { en: 'You', isPlural: false },
-    그: { en: 'He', isPlural: false },
-    그는: { en: 'He', isPlural: false },
-    그가: { en: 'He', isPlural: false },
-    그녀: { en: 'She', isPlural: false },
-    그녀는: { en: 'She', isPlural: false },
-    그녀가: { en: 'She', isPlural: false },
-    우리: { en: 'We', isPlural: true },
-    우리는: { en: 'We', isPlural: true },
-    우리가: { en: 'We', isPlural: true },
-    그들: { en: 'They', isPlural: true },
-    그들은: { en: 'They', isPlural: true },
-    그들이: { en: 'They', isPlural: true },
-    고양이: { en: 'The cat', isPlural: false },
-    고양이가: { en: 'The cat', isPlural: false },
-    고양이는: { en: 'The cat', isPlural: false },
-    고양이들: { en: 'The cats', isPlural: true },
-    고양이들이: { en: 'The cats', isPlural: true },
-    고양이들은: { en: 'The cats', isPlural: true },
-    학생: { en: 'The student', isPlural: false },
-    학생이: { en: 'The student', isPlural: false },
-    학생은: { en: 'The student', isPlural: false },
-    버스: { en: 'The bus', isPlural: false },
-    버스가: { en: 'The bus', isPlural: false },
-    버스는: { en: 'The bus', isPlural: false },
+  // L5: 한국어/영어 주어 → 영어 주어 + 3인칭 단수 여부
+  // is3ps: 3인칭 단수 (he, she, it, 단수명사)만 true
+  // I, you, we, they 및 복수명사는 false
+  const koSubjectVerbMap: Record<string, { en: string; is3ps: boolean }> = {
+    // 한국어 주어
+    나: { en: 'I', is3ps: false },
+    나는: { en: 'I', is3ps: false },
+    내가: { en: 'I', is3ps: false },
+    너: { en: 'You', is3ps: false },
+    너는: { en: 'You', is3ps: false },
+    네가: { en: 'You', is3ps: false },
+    그: { en: 'He', is3ps: true },
+    그는: { en: 'He', is3ps: true },
+    그가: { en: 'He', is3ps: true },
+    그녀: { en: 'She', is3ps: true },
+    그녀는: { en: 'She', is3ps: true },
+    그녀가: { en: 'She', is3ps: true },
+    우리: { en: 'We', is3ps: false },
+    우리는: { en: 'We', is3ps: false },
+    우리가: { en: 'We', is3ps: false },
+    그들: { en: 'They', is3ps: false },
+    그들은: { en: 'They', is3ps: false },
+    그들이: { en: 'They', is3ps: false },
+    고양이: { en: 'The cat', is3ps: true },
+    고양이가: { en: 'The cat', is3ps: true },
+    고양이는: { en: 'The cat', is3ps: true },
+    고양이들: { en: 'The cats', is3ps: false },
+    고양이들이: { en: 'The cats', is3ps: false },
+    고양이들은: { en: 'The cats', is3ps: false },
+    학생: { en: 'The student', is3ps: true },
+    학생이: { en: 'The student', is3ps: true },
+    학생은: { en: 'The student', is3ps: true },
+    버스: { en: 'The bus', is3ps: true },
+    버스가: { en: 'The bus', is3ps: true },
+    버스는: { en: 'The bus', is3ps: true },
+    // 영어 주어 (replaceKoreanPronouns로 미리 변환된 경우)
+    I: { en: 'I', is3ps: false },
+    you: { en: 'You', is3ps: false },
+    You: { en: 'You', is3ps: false },
+    he: { en: 'He', is3ps: true },
+    He: { en: 'He', is3ps: true },
+    she: { en: 'She', is3ps: true },
+    She: { en: 'She', is3ps: true },
+    it: { en: 'It', is3ps: true },
+    It: { en: 'It', is3ps: true },
+    we: { en: 'We', is3ps: false },
+    We: { en: 'We', is3ps: false },
+    they: { en: 'They', is3ps: false },
+    They: { en: 'They', is3ps: false },
   };
 
   // L5: 한국어 동사 → 영어 동사 원형
@@ -2396,6 +2412,8 @@ export function generateEnglish(parsed: ParsedSentence): string {
     잔다: 'sleep',
     공부한다: 'study',
     간다: 'go',
+    먹는다: 'eat',
+    마신다: 'drink',
   };
 
   // L5 Ko→En 패턴 매칭: "주어+조사 동사" 또는 "주어 동사"
@@ -2408,12 +2426,12 @@ export function generateEnglish(parsed: ParsedSentence): string {
     const verbEn = koVerbToEn[verbPart];
 
     if (subjectInfo && verbEn) {
-      if (subjectInfo.isPlural) {
-        // 복수: 원형 그대로
-        return `${subjectInfo.en} ${verbEn}`;
+      if (subjectInfo.is3ps) {
+        // 3인칭 단수: -s/-es 추가
+        return `${subjectInfo.en} ${addThirdPersonS(verbEn)}`;
       }
-      // 단수 3인칭: -s 추가
-      return `${subjectInfo.en} ${addThirdPersonS(verbEn)}`;
+      // I, you, we, they 또는 복수명사: 원형 그대로
+      return `${subjectInfo.en} ${verbEn}`;
     }
   }
 
