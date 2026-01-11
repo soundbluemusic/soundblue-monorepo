@@ -164,8 +164,117 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
   }
 
   // ============================================
+  // L19: 재귀대명사 (Reflexive Pronouns) English → Korean
+  // "myself" → "나 자신을", "yourself" → "너 자신을"
+  // ============================================
+  const reflexiveMap: Record<string, string> = {
+    myself: '나 자신을',
+    yourself: '너 자신을',
+    himself: '그 자신을',
+    herself: '그녀 자신을',
+    itself: '그것 자신을',
+    ourselves: '우리 자신을',
+    yourselves: '너희 자신을',
+    themselves: '그들 자신을',
+  };
+  if (reflexiveMap[cleaned]) {
+    return reflexiveMap[cleaned];
+  }
+
+  // ============================================
   // g7: 비교급 패턴 (English → Korean)
   // ============================================
+
+  // L7: 단일 비교급/최상급 단어 → 한국어 변환
+  // "bigger" → "더 크다", "biggest" → "가장 크다"
+  // 불규칙 비교급/최상급 매핑
+  const irregularComparatives: Record<
+    string,
+    { base: string; type: 'comparative' | 'superlative' }
+  > = {
+    better: { base: 'good', type: 'comparative' },
+    best: { base: 'good', type: 'superlative' },
+    worse: { base: 'bad', type: 'comparative' },
+    worst: { base: 'bad', type: 'superlative' },
+    more: { base: 'much', type: 'comparative' },
+    most: { base: 'much', type: 'superlative' },
+    less: { base: 'little', type: 'comparative' },
+    least: { base: 'little', type: 'superlative' },
+    farther: { base: 'far', type: 'comparative' },
+    farthest: { base: 'far', type: 'superlative' },
+  };
+
+  // 불규칙 비교급/최상급 체크
+  if (irregularComparatives[cleaned]) {
+    const info = irregularComparatives[cleaned];
+    const koAdj = EN_ADJECTIVES[info.base];
+    if (koAdj) {
+      const prefix = info.type === 'comparative' ? '더 ' : '가장 ';
+      return `${prefix}${koAdj}다`;
+    }
+  }
+
+  // 규칙적 최상급 (-est) 단일 단어
+  if (cleaned.endsWith('est') && !cleaned.includes(' ')) {
+    let base = '';
+    // -iest → -y (happiest → happy)
+    if (cleaned.endsWith('iest')) {
+      base = cleaned.slice(0, -4) + 'y';
+    }
+    // -est (doubled consonant: biggest → big)
+    else if (/(.)\1est$/.test(cleaned)) {
+      base = cleaned.slice(0, -4);
+    }
+    // -est (regular: tallest → tall)
+    else {
+      base = cleaned.slice(0, -3);
+    }
+    const koAdj = EN_ADJECTIVES[base];
+    if (koAdj) {
+      return `가장 ${koAdj}다`;
+    }
+  }
+
+  // 규칙적 비교급 (-er) 단일 단어
+  if (cleaned.endsWith('er') && !cleaned.includes(' ') && cleaned.length > 3) {
+    let base = '';
+    // -ier → -y (happier → happy)
+    if (cleaned.endsWith('ier')) {
+      base = cleaned.slice(0, -3) + 'y';
+    }
+    // -er (doubled consonant: bigger → big)
+    else if (/(.)\1er$/.test(cleaned)) {
+      base = cleaned.slice(0, -3);
+    }
+    // -er (regular: taller → tall)
+    else {
+      base = cleaned.slice(0, -2);
+    }
+    const koAdj = EN_ADJECTIVES[base];
+    if (koAdj) {
+      return `더 ${koAdj}다`;
+    }
+  }
+
+  // "more ADJ" → "더 ADJ-다"
+  const moreAdjMatch = cleaned.match(/^more\s+(\w+)$/);
+  if (moreAdjMatch) {
+    const adj = moreAdjMatch[1];
+    const koAdj = EN_ADJECTIVES[adj];
+    if (koAdj) {
+      return `더 ${koAdj}다`;
+    }
+  }
+
+  // "most ADJ" → "가장 ADJ-다"
+  const mostAdjMatch = cleaned.match(/^most\s+(\w+)$/);
+  if (mostAdjMatch) {
+    const adj = mostAdjMatch[1];
+    const koAdj = EN_ADJECTIVES[adj];
+    if (koAdj) {
+      return `가장 ${koAdj}다`;
+    }
+  }
 
   // g7-9: "as tall as me" → "나만큼 키가 크다"
   const asAsMatch = cleaned.match(/^as\s+(\w+)\s+as\s+(\w+)$/);

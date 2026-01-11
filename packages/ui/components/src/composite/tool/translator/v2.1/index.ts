@@ -2335,6 +2335,32 @@ export function translateWithInfo(
     let processedSentence = sentenceWithPunctuation;
 
     if (direction === 'ko-en') {
+      // 0. 재귀대명사 최우선 처리 (L19) - 모든 전처리 전에!
+      const cleanedForReflexive = processedSentence.replace(/[?!.]+$/, '').trim();
+      const koReflexiveMapEarly: Record<string, string> = {
+        '나 자신을': 'myself',
+        '나 자신': 'myself',
+        '내 자신을': 'myself',
+        '내 자신': 'myself',
+        '너 자신을': 'yourself',
+        '너 자신': 'yourself',
+        '네 자신을': 'yourself',
+        '네 자신': 'yourself',
+        '그 자신을': 'himself',
+        '그 자신': 'himself',
+        '그녀 자신을': 'herself',
+        '그녀 자신': 'herself',
+        '우리 자신을': 'ourselves',
+        '우리 자신': 'ourselves',
+        '그들 자신을': 'themselves',
+        '그들 자신': 'themselves',
+      };
+      if (koReflexiveMapEarly[cleanedForReflexive]) {
+        translated = koReflexiveMapEarly[cleanedForReflexive];
+        results.push(translated + (punctuation || ''));
+        continue;
+      }
+
       // 1. 한국어 이름 추출 및 등록
       for (const [koName, _enName] of Object.entries(KOREAN_NAMES)) {
         // 조사 패턴: 이름 + 조사
@@ -2452,12 +2478,15 @@ export function translateWithInfo(
  * 한국어 문장을 절 단위로 분리하여 영어로 번역
  */
 function translateKoreanSentence(sentence: string, _formality: Formality): string {
+  // NOTE: L19 재귀대명사는 translate() 함수에서 replaceKoreanPronouns 호출 전에 처리됨
+
+  const trimmedSentence = sentence.trim();
+  const cleanedSentence = trimmedSentence.replace(/[?!.]+$/, '').trim();
+
   // ============================================
   // Phase -1: 형용사 과거형 완전 문장 패턴 (외부 사전보다 우선!)
   // "맛있었어" → "It was delicious." (주어 포함)
   // ============================================
-  const trimmedSentence = sentence.trim();
-  const cleanedSentence = trimmedSentence.replace(/[?!.]+$/, '').trim();
 
   // 형용사 과거형 완전 문장 패턴 (It 주어 포함)
   const adjPastPatterns: Record<string, { past: string; present: string }> = {
@@ -2962,6 +2991,26 @@ function translateEnglishSentence(sentence: string, formality: Formality): strin
   const trimmedInput = sentence.trim();
   // 문장 끝 물음표/느낌표/마침표 제거하고 조회
   const cleanedInput = trimmedInput.replace(/[?!.]+$/, '').trim();
+  const lowerCleaned = cleanedInput.toLowerCase();
+
+  // ============================================
+  // Phase -1: 재귀대명사 우선 처리 (외부 사전보다 먼저!)
+  // myself → 나 자신을 (외부 사전의 "나 자신"을 덮어씀)
+  // ============================================
+  const enReflexiveMap: Record<string, string> = {
+    myself: '나 자신을',
+    yourself: '너 자신을',
+    himself: '그 자신을',
+    herself: '그녀 자신을',
+    itself: '그것 자신을',
+    ourselves: '우리 자신을',
+    yourselves: '너희 자신을',
+    themselves: '그들 자신을',
+  };
+  if (enReflexiveMap[lowerCleaned]) {
+    const suffix = trimmedInput.slice(cleanedInput.length);
+    return enReflexiveMap[lowerCleaned] + suffix;
+  }
 
   // 외부 사전 조회 조건:
   // 1. 공백이 없는 단일 단어
@@ -4076,6 +4125,8 @@ const KO_ADJECTIVES: Record<string, string> = {
  */
 function handleSpecialKoreanPatterns(text: string): string | null {
   const cleaned = text.replace(/[.!?？！。]+$/, '').trim();
+
+  // NOTE: L19 재귀대명사는 translate() 함수 초반에서 먼저 처리됨 (replaceKoreanPronouns 전에)
 
   // ============================================
   // g14-8: 단순 조건-결과 패턴 (소문자 if, 콤마 없음)
@@ -5492,20 +5543,28 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     if (adj) return `by far the ${toSuperlative(adj)}`;
   }
 
-  // 더 + 형용사 → {adj:comparative}/more
-  // g7-3: "더 크다" → "bigger/more", "더 행복하다" → "happier/more"
+  // 더 + 형용사 → {adj:comparative}
+  // g7-3: "더 크다" → "bigger", "더 행복하다" → "happier"
   const comparativeMatch = cleaned.match(/^더\s+(.+)$/);
   if (comparativeMatch) {
     const adj = extractKoAdjective(comparativeMatch[1]);
-    if (adj) return `${toComparative(adj)}/more`;
+    if (adj) {
+      const comparative = toComparative(adj);
+      // "more beautiful" 같이 이미 "more"가 포함된 경우 그대로 반환
+      return comparative;
+    }
   }
 
-  // 가장 + 형용사 → the {adj:superlative}/most
-  // g7-4: "가장 크다" → "the biggest/most", "가장 행복하다" → "the happiest/most"
+  // 가장 + 형용사 → {adj:superlative}
+  // g7-4: "가장 크다" → "biggest", "가장 행복하다" → "happiest"
   const superlativeMatch = cleaned.match(/^가장\s+(.+)$/);
   if (superlativeMatch) {
     const adj = extractKoAdjective(superlativeMatch[1]);
-    if (adj) return `the ${toSuperlative(adj)}/most`;
+    if (adj) {
+      const superlative = toSuperlative(adj);
+      // "most beautiful" 같이 이미 "most"가 포함된 경우 그대로 반환
+      return superlative;
+    }
   }
 
   // ============================================
