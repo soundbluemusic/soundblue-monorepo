@@ -3012,6 +3012,24 @@ function translateEnglishSentence(sentence: string, formality: Formality): strin
     return enReflexiveMap[lowerCleaned] + suffix;
   }
 
+  // ============================================
+  // Phase Q: 단일 의문사 우선 처리 (L12)
+  // "When?" → "언제?" (외부 사전 "때"보다 우선)
+  // ============================================
+  if (trimmedInput.endsWith('?')) {
+    const questionWordMapQ: Record<string, string> = {
+      who: '누구',
+      what: '뭐',
+      when: '언제',
+      where: '어디',
+      why: '왜',
+      how: '어떻게',
+    };
+    if (questionWordMapQ[lowerCleaned]) {
+      return `${questionWordMapQ[lowerCleaned]}?`;
+    }
+  }
+
   // 외부 사전 조회 조건:
   // 1. 공백이 없는 단일 단어
   // 2. 4글자 이상 (접속사/전치사 제외)

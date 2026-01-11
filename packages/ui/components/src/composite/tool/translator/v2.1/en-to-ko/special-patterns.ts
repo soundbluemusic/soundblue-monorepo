@@ -65,6 +65,81 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
   }
 
   // ============================================
+  // L12: 단일 의문사 번역 (Question words)
+  // ============================================
+  const questionWordMap: Record<string, string> = {
+    who: '누구',
+    what: '뭐',
+    when: '언제',
+    where: '어디',
+    why: '왜',
+    how: '어떻게',
+  };
+  // "When?" → "언제?" (with question mark preserved)
+  if (trimmed.endsWith('?')) {
+    const questionWord = cleaned; // cleaned removes the ?
+    if (questionWordMap[questionWord]) {
+      return `${questionWordMap[questionWord]}?`;
+    }
+  }
+
+  // ============================================
+  // L1: 숫자 + 복수형 명사 패턴 (Number + Plural Noun)
+  // "2 apples" → "사과 2개", "5 cats" → "고양이 5마리"
+  // ============================================
+  const numberPluralMatch = cleaned.match(/^(\d+)\s+(\w+s?)$/);
+  if (numberPluralMatch) {
+    const numStr = numberPluralMatch[1];
+    const nounEn = numberPluralMatch[2].toLowerCase();
+    const num = Number.parseInt(numStr, 10);
+    // 복수형에서 단수형 추출
+    const getSingular = (word: string): string => {
+      const irregulars: Record<string, string> = {
+        people: 'person',
+        children: 'child',
+        men: 'man',
+        women: 'woman',
+      };
+      if (irregulars[word]) return irregulars[word];
+      if (word.endsWith('ies')) return `${word.slice(0, -3)}y`;
+      if (word.endsWith('ves')) return `${word.slice(0, -3)}f`;
+      if (
+        word.endsWith('es') &&
+        (word.endsWith('shes') || word.endsWith('ches') || word.endsWith('xes'))
+      ) {
+        return word.slice(0, -2);
+      }
+      if (word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
+      return word;
+    };
+    const singular = getSingular(nounEn);
+    // 명사 → 한국어
+    const nounKoMap: Record<string, string> = {
+      apple: '사과',
+      cat: '고양이',
+      dog: '개',
+      bird: '새',
+      book: '책',
+      person: '사람',
+      child: '아이',
+      car: '자동차',
+      house: '집',
+      tree: '나무',
+    };
+    const nounKo = nounKoMap[singular] || EN_NOUNS[singular] || singular;
+    // 분류사 결정
+    const counterMap: Record<string, string> = {
+      cat: '마리',
+      dog: '마리',
+      bird: '마리',
+      person: '명',
+      child: '명',
+    };
+    const counter = counterMap[singular] || '개';
+    return `${nounKo} ${num}${counter}`;
+  }
+
+  // ============================================
   // Exclamation mark patterns (before removing punctuation)
   // ============================================
 

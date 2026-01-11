@@ -833,12 +833,24 @@ function splitEnglishStuckSentences(text: string): string {
 function correctEnglishSpelling(text: string): string {
   let result = text;
 
+  // 숫자+명사 패턴 보호: "2 apples", "4 cats" 등은 교정하지 않음
+  // "2" → "to", "4" → "for" 교정이 숫자+명사 패턴을 깨뜨리는 것을 방지
+  const numberNounExclusions = new Set(['2', '4']);
+
   // 철자 오류 교정 (긴 것부터)
   const sortedKeys = Object.keys(EN_SPELLING_CORRECTIONS).sort((a, b) => b.length - a.length);
   for (const wrong of sortedKeys) {
     const correct = EN_SPELLING_CORRECTIONS[wrong];
-    const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
-    result = result.replace(regex, correct);
+    // 숫자 교정의 경우, 숫자+명사 패턴인지 확인
+    if (numberNounExclusions.has(wrong)) {
+      // 숫자 뒤에 공백+단어가 오는 경우는 교정하지 않음 (숫자+명사 패턴)
+      // 예: "2 apples" → 교정 안 함, "want 2 go" → "want to go"
+      const regex = new RegExp(`\\b${wrong}(?!\\s+\\w+s?\\b)\\b`, 'gi');
+      result = result.replace(regex, correct);
+    } else {
+      const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
+      result = result.replace(regex, correct);
+    }
   }
 
   // 인접 키 오타 교정
@@ -882,12 +894,24 @@ function correctEnglishGrammar(text: string): string {
 function expandEnglishAbbreviations(text: string): string {
   let result = text;
 
+  // 숫자+명사 패턴 보호: "2 apples", "4 cats" 등은 교정하지 않음
+  // "2" → "to", "4" → "for" 교정이 숫자+명사 패턴을 깨뜨리는 것을 방지
+  const numberNounExclusions = new Set(['2', '4']);
+
   // 긴 것부터 교체
   const sortedKeys = Object.keys(EN_INTERNET_ABBREV).sort((a, b) => b.length - a.length);
   for (const abbrev of sortedKeys) {
     const full = EN_INTERNET_ABBREV[abbrev];
-    const regex = new RegExp(`\\b${abbrev}\\b`, 'gi');
-    result = result.replace(regex, full);
+    // 숫자 교정의 경우, 숫자+명사 패턴인지 확인
+    if (numberNounExclusions.has(abbrev)) {
+      // 숫자 뒤에 공백+단어가 오는 경우는 교정하지 않음 (숫자+명사 패턴)
+      // 예: "2 apples" → 교정 안 함, "want 2 go" → "want to go"
+      const regex = new RegExp(`\\b${abbrev}(?!\\s+\\w+s?\\b)\\b`, 'gi');
+      result = result.replace(regex, full);
+    } else {
+      const regex = new RegExp(`\\b${abbrev}\\b`, 'gi');
+      result = result.replace(regex, full);
+    }
   }
 
   return result;

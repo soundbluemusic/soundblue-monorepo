@@ -2310,7 +2310,7 @@ export const EN_ADJECTIVES: Record<string, string> = {
   slow: '느리',
   expensive: '비싸',
   cheap: '싸',
-  beautiful: '아름다',
+  beautiful: '아름답',
   happy: '행복하',
   tired: '피곤하',
   important: '중요하',
