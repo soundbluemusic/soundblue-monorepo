@@ -3030,6 +3030,37 @@ function translateEnglishSentence(sentence: string, formality: Formality): strin
     }
   }
 
+  // ============================================
+  // Phase V: 불규칙 과거형 동사 우선 처리 (L21)
+  // "thought" → "생각했다" (외부 사전 "생각"보다 우선)
+  // ============================================
+  const enIrregularPastMapEarly: Record<string, string> = {
+    thought: '생각했다',
+    went: '갔다',
+    ate: '먹었다',
+    saw: '봤다',
+    bought: '샀다',
+    wrote: '썼다',
+    came: '왔다',
+    did: '했다',
+    made: '만들었다',
+    knew: '알았다',
+    slept: '잤다',
+    said: '말했다',
+    heard: '들었다',
+    taught: '가르쳤다',
+    caught: '잡았다',
+    brought: '가져왔다',
+    felt: '느꼈다',
+    left: '떠났다',
+    met: '만났다',
+    told: '말했다',
+  };
+  if (enIrregularPastMapEarly[lowerCleaned]) {
+    const suffix = trimmedInput.slice(cleanedInput.length);
+    return enIrregularPastMapEarly[lowerCleaned] + suffix;
+  }
+
   // 외부 사전 조회 조건:
   // 1. 공백이 없는 단일 단어
   // 2. 4글자 이상 (접속사/전치사 제외)
