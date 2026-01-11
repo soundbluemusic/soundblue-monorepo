@@ -31,6 +31,7 @@ import {
   PARTICLES,
   VERB_STEMS,
 } from './data';
+import { addKoreanRieul } from './korean-utils';
 import type { ParsedSentence, Role, SentenceType, Tense, Token, TokenStrategy } from './types';
 
 // ============================================
@@ -1308,8 +1309,12 @@ interface KoreanRelativeClauseMatch {
   clauseContent: string;
   /** 관계절 주어 */
   clauseSubject?: string;
-  /** 관계절 동사 */
+  /** 관계절 동사 (원형) */
   clauseVerb?: string;
+  /** 관계절 동사 어간 (번역용) */
+  clauseVerbStem?: string;
+  /** 관계절 동사 시제 */
+  clauseVerbTense?: 'past' | 'present' | 'future';
   /** 관계절 목적어 */
   clauseObject?: string;
 }
@@ -1396,29 +1401,72 @@ function detectKoreanRelativeClause(text: string): KoreanRelativeClauseMatch | n
   const timeNouns = ['날', '때', '순간', '시간', '해', '달', '주'];
   const personNouns = ['사람', '분', '친구', '남자', '여자', '아이', '사람들'];
 
+  /**
+   * 관형형에서 동사 어간 추출 및 시제 판별
+   *
+   * -는: 현재 (사는 → 살, 먹는 → 먹)
+   * -은: 과거 (먹은 → 먹)
+   * -ㄴ 받침: 과거 (산 → 사, 만난 → 만나)
+   * -ㄹ 받침: 미래 (살 → 살, 먹을 → 먹)
+   */
+  function extractVerbStemAndTense(verbPart: string): {
+    stem: string;
+    tense: 'past' | 'present' | 'future';
+  } | null {
+    const lastChar = verbPart[verbPart.length - 1];
+    const finalConsonant = getFinalConsonant(lastChar);
+
+    // -는 (현재): 사는→살, 먹는→먹
+    if (verbPart.endsWith('는')) {
+      const stem = verbPart.slice(0, -1);
+      // ㄹ 탈락 동사 복원: 사→살 (사다 vs 살다)
+      // 사는 집 → 살다 (to live), not 사다 (to buy)
+      const stemWithRieul = addKoreanRieul(stem);
+      // ㄹ 탈락 동사 확인: 살다, 알다, 놀다 등
+      if (VERB_STEMS[stemWithRieul] || KO_EN[`${stemWithRieul}다`]) {
+        return { stem: stemWithRieul, tense: 'present' };
+      }
+      return { stem, tense: 'present' };
+    }
+
+    // -은 (과거): 먹은→먹
+    if (verbPart.endsWith('은')) {
+      return { stem: verbPart.slice(0, -1), tense: 'past' };
+    }
+
+    // -ㄴ 받침 (과거): 산→사, 만난→만나, 간→가
+    if (finalConsonant === 'ㄴ') {
+      const stemChar = removeFinalConsonant(lastChar);
+      const stem = verbPart.slice(0, -1) + stemChar;
+      return { stem, tense: 'past' };
+    }
+
+    // -ㄹ 받침 (미래): 살→살, 갈→가
+    if (finalConsonant === 'ㄹ') {
+      // ㄹ은 탈락하지 않음, 그대로 어간
+      return { stem: verbPart, tense: 'future' };
+    }
+
+    return null;
+  }
+
   // 패턴 1: [S-가/이 V] N - 주어가 있는 관계절
   // 예: 내가 산 책, 그가 사는 집, 우리가 만난 날
   const pattern1 = cleaned.match(/^(.+?)(?:가|이)\s+(\S+)\s+(\S+)$/);
-  if (pattern1) {
-    const subject = pattern1[1].trim();
-    const verbPart = pattern1[2].trim();
-    const noun = pattern1[3].trim();
 
-    // 관형형 어미 확인: ㄴ 받침 또는 -는으로 끝나는지
-    const lastChar = verbPart[verbPart.length - 1];
-    const finalConsonant = getFinalConsonant(lastChar);
-    const endsWithN = finalConsonant === 'ㄴ' || verbPart.endsWith('는') || verbPart.endsWith('은');
+  // 패턴 1b: [영어대명사 V] N - 대명사가 영어로 치환된 관계절
+  // replaceKoreanPronouns() 처리 후: "I 산 책", "he 사는 집"
+  const pattern1b = cleaned.match(/^(I|you|he|she|we|they)\s+(\S+)\s+(\S+)$/i);
 
-    if (endsWithN) {
-      // 동사 어간 추출
-      let _verbStem = verbPart;
-      if (verbPart.endsWith('는') || verbPart.endsWith('은')) {
-        _verbStem = verbPart.slice(0, -1);
-      } else if (finalConsonant === 'ㄴ') {
-        // ㄴ 받침 제거: 산→사, 만난→만나, 도운→도우
-        _verbStem = verbPart.slice(0, -1) + removeFinalConsonant(lastChar);
-      }
+  if (pattern1 || pattern1b) {
+    const match = pattern1 || pattern1b;
+    const subject = match![1].trim();
+    const verbPart = match![2].trim();
+    const noun = match![3].trim();
 
+    const verbInfo = extractVerbStemAndTense(verbPart);
+
+    if (verbInfo) {
       // 선행사 유형에 따라 관계절 유형 결정
       let type: 'who' | 'where' | 'when' | 'that' = 'that';
       if (placeNouns.includes(noun)) {
@@ -1432,7 +1480,9 @@ function detectKoreanRelativeClause(text: string): KoreanRelativeClauseMatch | n
         antecedent: noun,
         clauseContent: `${subject} ${verbPart}`,
         clauseSubject: subject,
-        clauseVerb: verbPart, // 원형 그대로 전달 (생성 함수에서 처리)
+        clauseVerb: verbPart,
+        clauseVerbStem: verbInfo.stem,
+        clauseVerbTense: verbInfo.tense,
       };
     }
   }
@@ -1445,12 +1495,8 @@ function detectKoreanRelativeClause(text: string): KoreanRelativeClauseMatch | n
     const verbPart = pattern2[2].trim();
     const noun = pattern2[3].trim();
 
-    // 관형형 어미 확인
-    const lastChar = verbPart[verbPart.length - 1];
-    const finalConsonant = getFinalConsonant(lastChar);
-    const endsWithN = finalConsonant === 'ㄴ' || verbPart.endsWith('은');
-
-    if (endsWithN) {
+    const verbInfo = extractVerbStemAndTense(verbPart);
+    if (verbInfo) {
       // 사람 명사면 who, 아니면 that
       const type: 'who' | 'that' = personNouns.includes(noun) ? 'who' : 'that';
 
@@ -1460,6 +1506,8 @@ function detectKoreanRelativeClause(text: string): KoreanRelativeClauseMatch | n
         clauseContent: `${object} ${verbPart}`,
         clauseObject: object,
         clauseVerb: verbPart,
+        clauseVerbStem: verbInfo.stem,
+        clauseVerbTense: verbInfo.tense,
       };
     }
   }
@@ -1997,6 +2045,7 @@ export function parseKorean(text: string): ParsedSentence {
   // "그가 사는 집" → "the home where he lives"
   // ============================================
   const relativeClauseMatch = detectKoreanRelativeClause(cleanedForDetection);
+
   if (relativeClauseMatch) {
     const type = detectSentenceType(original);
     const tokens: Token[] = [];
@@ -2030,16 +2079,29 @@ export function parseKorean(text: string): ParsedSentence {
     }
 
     // 관계절 동사 토큰
+    // 어간(clauseVerbStem)을 사용하여 올바른 동사 번역 (산→사→buy, 사는→살→live)
     if (relativeClauseMatch.clauseVerb) {
+      const verbStem = relativeClauseMatch.clauseVerbStem || relativeClauseMatch.clauseVerb;
+      // 동사 어간 + 다 = 사전형 (사 → 사다)
+      const dictForm = `${verbStem}다`;
+      // 동사 어간 또는 사전형으로 번역 조회
+      const verbTranslation =
+        VERB_STEMS[verbStem] ||
+        KO_EN[dictForm] ||
+        translateWithWSD(verbStem, original) ||
+        translateWithWSD(dictForm, original) ||
+        verbStem;
+
       tokens.push({
         text: relativeClauseMatch.clauseVerb,
-        stem: relativeClauseMatch.clauseVerb,
+        stem: verbStem,
         role: 'verb',
-        translated:
-          translateWithWSD(relativeClauseMatch.clauseVerb, original) ||
-          relativeClauseMatch.clauseVerb,
+        translated: verbTranslation,
         confidence: 0.9,
-        meta: { strategy: 'relative-clause-verb' as TokenStrategy },
+        meta: {
+          strategy: 'relative-clause-verb' as TokenStrategy,
+          tense: relativeClauseMatch.clauseVerbTense,
+        },
       });
     }
 
@@ -2055,11 +2117,19 @@ export function parseKorean(text: string): ParsedSentence {
       meta: { strategy: 'relative-clause-antecedent' as TokenStrategy },
     });
 
+    // 시제는 관형형 어미에서 추출 (clauseVerbTense 사용)
+    const detectedTense = relativeClauseMatch.clauseVerbTense || 'present';
+    const tenseMapping: Record<string, 'past' | 'present' | 'future'> = {
+      past: 'past',
+      present: 'present',
+      future: 'future',
+    };
+
     return {
       original,
       tokens,
       type,
-      tense: /는$/.test(relativeClauseMatch.clauseContent) ? 'present' : 'past',
+      tense: tenseMapping[detectedTense] || 'present',
       negated: false,
       relativeClause: true,
       relativeClauseType: relativeClauseMatch.type,

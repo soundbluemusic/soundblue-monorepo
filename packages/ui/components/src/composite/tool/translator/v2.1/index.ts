@@ -3191,8 +3191,9 @@ function generateRelativeClauseEnglish(parsed: ParsedSentence): string {
     } else if (token.meta?.strategy === 'relative-clause-object') {
       object = getKoreanToEnglishObject(token.text);
     } else if (token.meta?.strategy === 'relative-clause-verb') {
-      // 동사는 한국어 원형을 translateVerb로 처리 (token.translated는 WSD 결과이므로 부적합)
-      verb = token.text;
+      // 동사 어간(stem)을 사용: 산→사, 사는→살
+      // token.stem은 tokenizer에서 관형형 어미를 제거한 어간
+      verb = token.stem;
     } else if (token.meta?.strategy === 'relative-clause-antecedent') {
       antecedentEn = translateAntecedent(token.text);
     }
@@ -3225,10 +3226,12 @@ function generateRelativeClauseEnglish(parsed: ParsedSentence): string {
 }
 
 /**
- * 한국어 주어 → 영어 주어 변환
+ * 한국어/영어 주어 → 영어 주어 변환
+ * replaceKoreanPronouns() 처리 후 영어 대명사가 올 수 있음
  */
-function getKoreanToEnglishSubject(ko: string): string {
+function getKoreanToEnglishSubject(input: string): string {
   const subjMap: Record<string, string> = {
+    // 한국어 대명사
     나: 'I',
     내: 'I',
     저: 'I',
@@ -3237,9 +3240,18 @@ function getKoreanToEnglishSubject(ko: string): string {
     그: 'he',
     그녀: 'she',
     우리: 'we',
+    저희: 'we',
     그들: 'they',
+    // 영어 대명사 (replaceKoreanPronouns 처리 후)
+    I: 'I',
+    you: 'you',
+    he: 'he',
+    she: 'she',
+    we: 'we',
+    they: 'they',
   };
-  return subjMap[ko] || EN_KO[ko] || ko;
+  // 먼저 subjMap에서 찾고, 없으면 그대로 반환 (EN_KO는 사용하지 않음)
+  return subjMap[input] || subjMap[input.toLowerCase()] || input;
 }
 
 /**
