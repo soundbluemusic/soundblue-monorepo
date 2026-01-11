@@ -336,41 +336,48 @@ export function Translator({
       </div>
 
       {/* Input analysis indicator + Formality hint */}
-      {inputText.trim() && (
-        <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
-          {/* 입력 타입 표시 */}
-          <span className="inline-flex items-center gap-1 rounded-full bg-black/[0.05] px-2 py-0.5 dark:bg-white/[0.08]">
-            <span className="text-muted-foreground">{getInputTypeLabel()}</span>
-          </span>
+      {/* 고정 높이로 공간 예약하여 레이아웃 시프트(CLS) 방지 */}
+      <div
+        className={`flex min-h-[1.625rem] flex-wrap items-center justify-center gap-2 text-xs transition-opacity duration-150 ${
+          inputText.trim() ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+      >
+        {/* 입력 타입 표시 */}
+        <span className="inline-flex items-center gap-1 rounded-full bg-black/[0.05] px-2 py-0.5 dark:bg-white/[0.08]">
+          <span className="text-muted-foreground">{getInputTypeLabel() || '\u00A0'}</span>
+        </span>
 
-          {/* 감지된 어투 표시 */}
-          {inputAnalysis.detectedFormality && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-              <span>
-                {settings.direction === 'ko-en' ? '감지된 어투:' : 'Detected:'}{' '}
-                {getFormalityLabel(inputAnalysis.detectedFormality, settings.direction)}
-              </span>
-            </span>
-          )}
-
-          {/* 자동/수동 모드 표시 */}
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 ${
-              isAutoFormality
-                ? 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
-            }`}
-          >
-            {isAutoFormality
-              ? settings.direction === 'ko-en'
-                ? '자동 선택'
-                : 'Auto'
-              : settings.direction === 'ko-en'
-                ? '수동 선택'
-                : 'Manual'}
+        {/* 감지된 어투 표시 */}
+        <span
+          className={`inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-blue-600 transition-opacity duration-150 dark:bg-blue-900/30 dark:text-blue-400 ${
+            inputAnalysis.detectedFormality ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <span>
+            {settings.direction === 'ko-en' ? '감지된 어투:' : 'Detected:'}{' '}
+            {inputAnalysis.detectedFormality
+              ? getFormalityLabel(inputAnalysis.detectedFormality, settings.direction)
+              : '\u00A0\u00A0\u00A0\u00A0'}
           </span>
-        </div>
-      )}
+        </span>
+
+        {/* 자동/수동 모드 표시 */}
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 ${
+            isAutoFormality
+              ? 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+              : 'bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
+          }`}
+        >
+          {isAutoFormality
+            ? settings.direction === 'ko-en'
+              ? '자동 선택'
+              : 'Auto'
+            : settings.direction === 'ko-en'
+              ? '수동 선택'
+              : 'Manual'}
+        </span>
+      </div>
 
       {/* Formality selector - 출력 어투 선택 (en→ko only, 영어에는 존댓말/반말 없음) */}
       {/* isMounted 체크로 hydration 불일치 방지 (SSG prerender vs client state) */}
