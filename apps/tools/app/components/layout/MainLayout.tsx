@@ -4,6 +4,9 @@ import { ToolSidebar } from '~/components/sidebar';
 import { ToolContainer } from '~/components/tools';
 import { useToolStore } from '~/stores/tool-store';
 import { BottomNavigation } from '../home/BottomNavigation';
+import { CategorySection } from '../home/CategorySection';
+import { NewUpdatedSection } from '../home/NewUpdatedSection';
+import { PopularToolsSection } from '../home/PopularToolsSection';
 import { Footer } from './Footer';
 import { Header } from './Header';
 
@@ -12,7 +15,7 @@ import { Header } from './Header';
 // ========================================
 
 export function MainLayout() {
-  const { sidebarCollapsed } = useToolStore();
+  const { sidebarCollapsed, currentTool, openTool } = useToolStore();
 
   return (
     <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
@@ -28,9 +31,24 @@ export function MainLayout() {
           sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
         } max-md:pl-0`}
       >
-        <div className="h-[calc(100vh-var(--header-height)-16px)] max-md:h-[calc(100vh-52px-var(--bottom-nav-height)-16px)]">
-          <ToolContainer />
-        </div>
+        {currentTool ? (
+          // Tool is open - show ToolContainer
+          <div className="h-[calc(100vh-var(--header-height)-16px)] max-md:h-[calc(100vh-52px-var(--bottom-nav-height)-16px)]">
+            <ToolContainer />
+          </div>
+        ) : (
+          // No tool open - show tool list (for when X button is clicked)
+          <div className="w-full max-w-4xl mx-auto px-4 py-6">
+            <div className="space-y-6">
+              <PopularToolsSection onToolClick={openTool} />
+              {/* Mobile only sections */}
+              <div className="md:hidden space-y-6">
+                <CategorySection />
+                <NewUpdatedSection onToolClick={openTool} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Desktop Footer */}
         <div className="hidden md:block">
