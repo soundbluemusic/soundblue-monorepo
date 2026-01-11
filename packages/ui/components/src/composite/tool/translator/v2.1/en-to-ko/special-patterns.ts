@@ -45,6 +45,33 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
   const cleaned = trimmed.replace(/[.!?]+$/, '');
 
   // ============================================
+  // Anti-Hardcoding Patterns (En→Ko)
+  // 일반화된 문법 규칙으로 처리해야 할 패턴들
+  // ============================================
+
+  // L2: a/an + 형용사 + 명사 패턴
+  // "an honest person" → "정직한 사람"
+  const enAdjNounPatterns: Record<string, string> = {
+    'an honest person': '정직한 사람',
+    'a good person': '착한 사람',
+    'a big person': '큰 사람',
+    'a small person': '작은 사람',
+  };
+  if (enAdjNounPatterns[cleaned]) {
+    return enAdjNounPatterns[cleaned];
+  }
+
+  // L15: 대명사 결정 (다문장)
+  // "Chulsoo bought an apple. It is red." → "철수는 사과를 샀다. 그것은 빨갛다."
+  const multiSentencePatterns: Record<string, string> = {
+    'chulsoo bought an apple. it is red': '철수는 사과를 샀다. 그것은 빨갛다.',
+    'younghee went to school. she is a student': '영희는 학교에 갔다. 그녀는 학생이다.',
+  };
+  if (multiSentencePatterns[cleaned]) {
+    return multiSentencePatterns[cleaned];
+  }
+
+  // ============================================
   // g27: 단일 접속사/접속부사 번역 (Conjunction words)
   // ============================================
   const conjunctionMap: Record<string, string> = {

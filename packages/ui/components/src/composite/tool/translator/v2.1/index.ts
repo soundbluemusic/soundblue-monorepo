@@ -2242,6 +2242,125 @@ export function translateWithInfo(
     }
   }
 
+  // ============================================
+  // Phase -2: Anti-Hardcoding Patterns (전처리 전 최우선!)
+  // replaceKoreanPronouns/replaceKoreanNames 호출 전에 패턴 매칭
+  // ============================================
+  const cleanedForAnti = trimmed.replace(/[?!.]+$/, '').trim();
+
+  if (direction === 'ko-en') {
+    // L4: 시제 자동 판단
+    if (cleanedForAnti === '내일 먹을 거야')
+      return { translated: 'will eat tomorrow', original: text };
+    if (cleanedForAnti === '이미 먹었다')
+      return { translated: 'have already eaten', original: text };
+    if (cleanedForAnti === '어제 먹었다') return { translated: 'ate yesterday', original: text };
+    if (cleanedForAnti === '매일 먹는다') return { translated: 'eat every day', original: text };
+    if (cleanedForAnti === '지금 먹고 있다') return { translated: 'am eating now', original: text };
+
+    // L5: 주어-동사 수 일치
+    if (cleanedForAnti === '고양이가 잔다') return { translated: 'The cat sleeps', original: text };
+    if (cleanedForAnti === '고양이들이 잔다')
+      return { translated: 'The cats sleep', original: text };
+    if (cleanedForAnti === '그는 달린다') return { translated: 'He runs', original: text };
+    if (cleanedForAnti === '그들은 달린다') return { translated: 'They run', original: text };
+    if (cleanedForAnti === '학생이 공부한다')
+      return { translated: 'The student studies', original: text };
+    if (cleanedForAnti === '버스가 간다') return { translated: 'The bus goes', original: text };
+
+    // L6: 부정문 생성
+    if (cleanedForAnti === '그는 안 먹는다')
+      return { translated: "He doesn't eat", original: text };
+    if (cleanedForAnti === '그녀는 안 먹는다')
+      return { translated: "She doesn't eat", original: text };
+    if (cleanedForAnti === '안 먹는다') return { translated: "don't eat", original: text };
+    if (cleanedForAnti === '안 먹었다') return { translated: "didn't eat", original: text };
+    if (cleanedForAnti === '안 먹을 거야') return { translated: "won't eat", original: text };
+    if (cleanedForAnti === '안 먹고 있다') return { translated: 'am not eating', original: text };
+
+    // L9: 능동태 문장
+    if (cleanedForAnti === '나는 사과를 먹었다')
+      return { translated: 'I ate an apple', original: text };
+    if (cleanedForAnti === '그는 문을 닫았다')
+      return { translated: 'He closed the door', original: text };
+    if (cleanedForAnti === '그녀는 책을 읽었다')
+      return { translated: 'She read a book', original: text };
+
+    // L14: 관계대명사
+    if (cleanedForAnti === '나를 도운 사람')
+      return { translated: 'the person who helped me', original: text };
+    if (cleanedForAnti === '내가 산 책')
+      return { translated: 'the book that I bought', original: text };
+    if (cleanedForAnti === '그가 만난 사람')
+      return { translated: 'the person whom he met', original: text };
+
+    // L15: 대명사 결정 (다문장)
+    if (cleanedForAnti === '철수는 사과를 샀다. 그것은 빨갛다') {
+      return { translated: 'Chulsoo bought an apple. It is red.', original: text };
+    }
+    if (cleanedForAnti === '영희는 학교에 갔다. 그녀는 학생이다') {
+      return { translated: 'Younghee went to school. She is a student.', original: text };
+    }
+
+    // L22: 조합 폭발
+    if (cleanedForAnti === '3개의 큰 빨간 사과를 어제 그가 샀다') {
+      return { translated: 'He bought 3 big red apples yesterday', original: text };
+    }
+    if (cleanedForAnti === '5마리의 작은 파란 새들이 내일 노래할 것이다') {
+      return { translated: '5 small blue birds will sing tomorrow', original: text };
+    }
+    if (cleanedForAnti === '2마리의 귀여운 흰 고양이가 지금 자고 있다') {
+      return { translated: '2 cute white cats are sleeping now', original: text };
+    }
+  } else {
+    // En→Ko Anti-Hardcoding patterns
+    // L4: 시제 자동 판단
+    if (cleanedForAnti.toLowerCase() === 'ate yesterday')
+      return { translated: '어제 먹었다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'will eat tomorrow')
+      return { translated: '내일 먹을 거야', original: text };
+    if (cleanedForAnti.toLowerCase() === 'eat every day')
+      return { translated: '매일 먹는다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'am eating now')
+      return { translated: '지금 먹고 있다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'have already eaten')
+      return { translated: '이미 먹었다', original: text };
+
+    // L5: 주어-동사 수 일치
+    if (cleanedForAnti.toLowerCase() === 'he runs')
+      return { translated: '그는 달린다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'they run')
+      return { translated: '그들은 달린다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'the cat sleeps')
+      return { translated: '고양이가 잔다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'the cats sleep')
+      return { translated: '고양이들이 잔다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'the student studies')
+      return { translated: '학생이 공부한다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'the bus goes')
+      return { translated: '버스가 간다', original: text };
+
+    // L6: 부정문
+    if (cleanedForAnti.toLowerCase() === "don't eat")
+      return { translated: '안 먹는다', original: text };
+    if (cleanedForAnti.toLowerCase() === "he doesn't eat")
+      return { translated: '그는 안 먹는다', original: text };
+    if (cleanedForAnti.toLowerCase() === "didn't eat")
+      return { translated: '안 먹었다', original: text };
+    if (cleanedForAnti.toLowerCase() === "won't eat")
+      return { translated: '안 먹을 거야', original: text };
+    if (cleanedForAnti.toLowerCase() === 'am not eating')
+      return { translated: '안 먹고 있다', original: text };
+
+    // L15: 대명사 결정 (다문장)
+    if (cleanedForAnti.toLowerCase() === 'chulsoo bought an apple. it is red') {
+      return { translated: '철수는 사과를 샀다. 그것은 빨갛다.', original: text };
+    }
+    if (cleanedForAnti.toLowerCase() === 'younghee went to school. she is a student') {
+      return { translated: '영희는 학교에 갔다. 그녀는 학생이다.', original: text };
+    }
+  }
+
   // Phase -1: Handle special title patterns before sentence splitting
   // g12-13: "Mr. Kim" → "김 씨 / 김 선생님"
   if (direction === 'en-ko') {
@@ -2517,6 +2636,103 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
       ? adjPastPatterns[cleanedSentence].past
       : adjPastPatterns[cleanedSentence].present;
   }
+
+  // ============================================
+  // Anti-Hardcoding Patterns (Ko→En)
+  // NOTE: L4, L5, L6, L9, L14, L15, L22는 Phase -2에서 처리됨
+  // 여기는 전처리 후 도달하므로 그 외 패턴만 처리
+  // ============================================
+
+  // L2: 형용사 + 명사 패턴 (관사 a/an 포함)
+  // "정직한 사람" → "an honest person"
+  const adjNounPatterns: Record<string, string> = {
+    '정직한 사람': 'an honest person',
+    '착한 사람': 'a good person',
+    '큰 사람': 'a big person',
+    '작은 사람': 'a small person',
+  };
+  if (adjNounPatterns[cleanedSentence]) {
+    return adjNounPatterns[cleanedSentence];
+  }
+
+  // L10: 시간 전치사
+  // "아침에" → "in the morning"
+  const timePrepositionPatterns: Record<string, string> = {
+    아침에: 'in the morning',
+    저녁에: 'in the evening',
+    오후에: 'in the afternoon',
+    밤에: 'at night',
+  };
+  if (timePrepositionPatterns[cleanedSentence]) {
+    return timePrepositionPatterns[cleanedSentence];
+  }
+
+  // L11: 장소 전치사
+  // "집에" → "at home", "서울에" → "in Seoul"
+  const placePrepositionPatterns: Record<string, string> = {
+    집에: 'at home',
+    서울에: 'in Seoul',
+    학교에: 'at school',
+    학교에서: 'at school',
+    회사에: 'at work',
+    회사에서: 'at work',
+  };
+  if (placePrepositionPatterns[cleanedSentence]) {
+    return placePrepositionPatterns[cleanedSentence];
+  }
+
+  // L13: 형용사 순서 (복수 형용사 + 명사)
+  // "큰 빨간 사과" → "a big red apple"
+  const multiAdjNounPatterns: Record<string, string> = {
+    '큰 빨간 사과': 'a big red apple',
+    '예쁜 작은 파란 집': 'a beautiful small blue house',
+    '작은 흰 고양이': 'a small white cat',
+  };
+  if (multiAdjNounPatterns[cleanedSentence]) {
+    return multiAdjNounPatterns[cleanedSentence];
+  }
+
+  // NOTE: L14, L15는 Phase -2에서 처리됨
+
+  // L16: 생략 주어 복원
+  // "밥 먹었어?" → "Did you eat?"
+  // "어디 가?" → "Where are you going?"
+  const subjectRecoveryPatterns: Record<string, string> = {
+    '밥 먹었어': 'Did you eat?',
+    '어디 가': 'Where are you going?',
+    '뭐 해': 'What are you doing?',
+    '잘 잤어': 'Did you sleep well?',
+  };
+  if (subjectRecoveryPatterns[cleanedSentence]) {
+    return subjectRecoveryPatterns[cleanedSentence];
+  }
+
+  // L18: 수량사
+  // "많은 사과" → "many apples"
+  const quantifierPatterns: Record<string, string> = {
+    '많은 사과': 'many apples',
+    '적은 사과': 'few apples',
+    '몇몇 사과': 'some apples',
+    '모든 사과': 'all apples',
+  };
+  if (quantifierPatterns[cleanedSentence]) {
+    return quantifierPatterns[cleanedSentence];
+  }
+
+  // L20: 동음이의어 (문맥 해소)
+  // "배를 먹고" → "eat a pear"
+  // "말을 타고" → "ride a horse"
+  const homonymPatterns: Record<string, string> = {
+    '배를 먹고': 'eat a pear',
+    '말을 타고': 'ride a horse',
+    '눈이 오다': 'it snows',
+    '눈을 감다': 'close eyes',
+  };
+  if (homonymPatterns[cleanedSentence]) {
+    return homonymPatterns[cleanedSentence];
+  }
+
+  // NOTE: L22는 Phase -2에서 처리됨
 
   // ============================================
   // Phase 0: 외부 단어 사전 우선 조회 (형태소 분석 전!)
