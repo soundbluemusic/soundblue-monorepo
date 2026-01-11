@@ -17,7 +17,14 @@ const STATIC_PAGES = [
 
 // Tool pages - matches toolCategories.ts slugs
 // Adding a new tool? Just add its slug here!
-const TOOL_PAGES = ['metronome', 'drum-machine', 'qr', 'translator', 'spell-checker'] as const;
+const TOOL_PAGES = [
+  'metronome',
+  'drum-machine',
+  'qr',
+  'translator',
+  'spell-checker',
+  'english-spell-checker',
+] as const;
 
 // ========================================
 // Route Generation Functions

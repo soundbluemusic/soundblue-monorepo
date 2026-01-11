@@ -186,5 +186,20 @@
   "spellChecker_grammar": "Grammar",
   "spellChecker_copy": "Copy",
   "spellChecker_copied": "Copied",
-  "spellChecker_apply": "Apply"
+  "spellChecker_apply": "Apply",
+  "tools_englishSpellChecker": "English Spell Checker",
+  "englishSpellChecker_inputLabel": "Text to check",
+  "englishSpellChecker_placeholder": "Enter English text...",
+  "englishSpellChecker_check": "Check",
+  "englishSpellChecker_ignoreNumbers": "Ignore numbers",
+  "englishSpellChecker_loadingDictionary": "Loading dictionary...",
+  "englishSpellChecker_resultTitle": "Results",
+  "englishSpellChecker_misspelled": "Misspelled",
+  "englishSpellChecker_noErrors": "No errors found",
+  "englishSpellChecker_words": "words",
+  "englishSpellChecker_errorList": "Corrections",
+  "englishSpellChecker_otherSuggestions": "Other",
+  "englishSpellChecker_copy": "Copy corrected",
+  "englishSpellChecker_copied": "Copied!",
+  "englishSpellChecker_applyAll": "Apply all"
 }

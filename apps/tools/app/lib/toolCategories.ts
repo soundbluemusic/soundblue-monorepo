@@ -200,6 +200,16 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
           en: 'Check Korean spelling, spacing, and grammar',
         },
       },
+      {
+        id: 'englishSpellChecker',
+        slug: 'english-spell-checker',
+        name: { ko: '영어 맞춤법 검사기', en: 'English Spell Checker' },
+        icon: '\uD83D\uDCD6',
+        description: {
+          ko: '영어 철자 검사 및 수정 제안',
+          en: 'Check English spelling with suggestions',
+        },
+      },
     ],
   },
 ];
@@ -339,6 +349,9 @@ export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
   ),
   spellChecker: lazy(() =>
     import('~/tools/spell-checker').then((m) => ({ default: m.SpellChecker })),
+  ),
+  englishSpellChecker: lazy(() =>
+    import('~/tools/english-spell-checker').then((m) => ({ default: m.EnglishSpellChecker })),
   ),
 };
 

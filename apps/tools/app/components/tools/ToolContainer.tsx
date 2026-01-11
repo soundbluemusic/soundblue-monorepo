@@ -14,6 +14,10 @@ import {
   type DrumMachineSettings,
   defaultDrumMachineSettings,
 } from '~/tools/drum-machine/settings';
+import {
+  defaultEnglishSpellCheckerSettings,
+  type EnglishSpellCheckerSettings,
+} from '~/tools/english-spell-checker/settings';
 import { defaultMetronomeSettings, type MetronomeSettings } from '~/tools/metronome/settings';
 import { defaultQRSettings, type QRSettings } from '~/tools/qr/settings';
 import {
@@ -42,6 +46,7 @@ const URL_PARAMS = {
   qr: ['size', 'fgColor', 'bgColor'] as const,
   translator: ['direction'] as const,
   spellChecker: [] as const,
+  englishSpellChecker: [] as const,
 };
 
 // 보존해야 할 특수 파라미터 (각 도구에서 직접 관리)
@@ -265,6 +270,13 @@ export function ToolContainer() {
     [updateToolSettings],
   );
 
+  const handleEnglishSpellCheckerSettingsChange = useCallback(
+    (settings: Partial<EnglishSpellCheckerSettings>) => {
+      updateToolSettings('englishSpellChecker', settings);
+    },
+    [updateToolSettings],
+  );
+
   // Merged settings for each tool
   const metronomeSettings = useMemo(
     () => ({
@@ -314,6 +326,14 @@ export function ToolContainer() {
     [toolSettings.spellChecker],
   );
 
+  const englishSpellCheckerSettings = useMemo(
+    () => ({
+      ...defaultEnglishSpellCheckerSettings,
+      ...toolSettings.englishSpellChecker,
+    }),
+    [toolSettings.englishSpellChecker],
+  );
+
   // Settings registry for each tool type
   const toolSettingsRegistry = useMemo(
     () => ({
@@ -331,6 +351,10 @@ export function ToolContainer() {
         settings: spellCheckerSettings,
         onSettingsChange: handleSpellCheckerSettingsChange,
       },
+      englishSpellChecker: {
+        settings: englishSpellCheckerSettings,
+        onSettingsChange: handleEnglishSpellCheckerSettingsChange,
+      },
     }),
     [
       metronomeSettings,
@@ -343,6 +367,8 @@ export function ToolContainer() {
       handleTranslatorSettingsChange,
       spellCheckerSettings,
       handleSpellCheckerSettingsChange,
+      englishSpellCheckerSettings,
+      handleEnglishSpellCheckerSettingsChange,
     ],
   );
 

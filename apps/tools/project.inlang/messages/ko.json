@@ -186,5 +186,20 @@
   "spellChecker_grammar": "문법",
   "spellChecker_copy": "복사",
   "spellChecker_copied": "복사됨",
-  "spellChecker_apply": "적용"
+  "spellChecker_apply": "적용",
+  "tools_englishSpellChecker": "영어 맞춤법 검사기",
+  "englishSpellChecker_inputLabel": "검사할 텍스트",
+  "englishSpellChecker_placeholder": "영어 텍스트를 입력하세요...",
+  "englishSpellChecker_check": "검사하기",
+  "englishSpellChecker_ignoreNumbers": "숫자 무시",
+  "englishSpellChecker_loadingDictionary": "사전 로딩 중...",
+  "englishSpellChecker_resultTitle": "검사 결과",
+  "englishSpellChecker_misspelled": "오타",
+  "englishSpellChecker_noErrors": "오류 없음",
+  "englishSpellChecker_words": "단어",
+  "englishSpellChecker_errorList": "수정 제안",
+  "englishSpellChecker_otherSuggestions": "기타 제안",
+  "englishSpellChecker_copy": "수정된 텍스트 복사",
+  "englishSpellChecker_copied": "복사됨!",
+  "englishSpellChecker_applyAll": "모두 적용"
 }
