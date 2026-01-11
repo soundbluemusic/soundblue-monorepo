@@ -509,7 +509,7 @@ const COMMON_VERB_STEMS = new Set([
 const DP_COSTS = {
   DICTIONARY_WORD: 0, // 사전에 있는 단어
   PARTICLE_ATTACHED: 0, // 조사가 붙은 명사
-  VERB_WITH_ENDING: 0.5, // 동사+어미
+  VERB_WITH_ENDING: 0, // 동사+어미 (분리하면 안됨, Maximal Munch로 선택)
   UNKNOWN_CHAR: 2, // 미등록 문자
   UNKNOWN_WORD_PER_CHAR: 1.5, // 미등록 단어 (글자당)
   SPLIT_BONUS: -0.1, // 적절한 분리점에서 보너스
@@ -677,8 +677,8 @@ export function dpWordSplit(text: string): DpSplitResult {
   dp[0] = 0;
 
   for (let i = 1; i <= n; i++) {
-    // 모든 가능한 마지막 단어 길이를 시도
-    for (let len = 1; len <= Math.min(i, MAX_WORD_LENGTH); len++) {
+    // 모든 가능한 마지막 단어 길이를 시도 (긴 것부터 - Maximal Munch)
+    for (let len = Math.min(i, MAX_WORD_LENGTH); len >= 1; len--) {
       const start = i - len;
       const word = text.slice(start, i);
 

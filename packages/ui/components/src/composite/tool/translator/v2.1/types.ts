@@ -157,6 +157,8 @@ export interface Token {
     passiveType?: 'ri' | 'gi' | 'i' | 'hi' | 'doeda' | 'batda' | 'danghada';
     /** 피동 원래 동사 어간 */
     passiveBase?: string;
+    /** 3인칭 단수 여부 (he, she, it) - 동사 활용에 사용 */
+    is3ps?: boolean;
   };
 }
 

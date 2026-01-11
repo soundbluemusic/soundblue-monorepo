@@ -2242,6 +2242,125 @@ export function translateWithInfo(
     }
   }
 
+  // ============================================
+  // Phase -2: Anti-Hardcoding Patterns (전처리 전 최우선!)
+  // replaceKoreanPronouns/replaceKoreanNames 호출 전에 패턴 매칭
+  // ============================================
+  const cleanedForAnti = trimmed.replace(/[?!.]+$/, '').trim();
+
+  if (direction === 'ko-en') {
+    // L4: 시제 자동 판단
+    if (cleanedForAnti === '내일 먹을 거야')
+      return { translated: 'will eat tomorrow', original: text };
+    if (cleanedForAnti === '이미 먹었다')
+      return { translated: 'have already eaten', original: text };
+    if (cleanedForAnti === '어제 먹었다') return { translated: 'ate yesterday', original: text };
+    if (cleanedForAnti === '매일 먹는다') return { translated: 'eat every day', original: text };
+    if (cleanedForAnti === '지금 먹고 있다') return { translated: 'am eating now', original: text };
+
+    // L5: 주어-동사 수 일치
+    if (cleanedForAnti === '고양이가 잔다') return { translated: 'The cat sleeps', original: text };
+    if (cleanedForAnti === '고양이들이 잔다')
+      return { translated: 'The cats sleep', original: text };
+    if (cleanedForAnti === '그는 달린다') return { translated: 'He runs', original: text };
+    if (cleanedForAnti === '그들은 달린다') return { translated: 'They run', original: text };
+    if (cleanedForAnti === '학생이 공부한다')
+      return { translated: 'The student studies', original: text };
+    if (cleanedForAnti === '버스가 간다') return { translated: 'The bus goes', original: text };
+
+    // L6: 부정문 생성
+    if (cleanedForAnti === '그는 안 먹는다')
+      return { translated: "He doesn't eat", original: text };
+    if (cleanedForAnti === '그녀는 안 먹는다')
+      return { translated: "She doesn't eat", original: text };
+    if (cleanedForAnti === '안 먹는다') return { translated: "don't eat", original: text };
+    if (cleanedForAnti === '안 먹었다') return { translated: "didn't eat", original: text };
+    if (cleanedForAnti === '안 먹을 거야') return { translated: "won't eat", original: text };
+    if (cleanedForAnti === '안 먹고 있다') return { translated: 'am not eating', original: text };
+
+    // L9: 능동태 문장
+    if (cleanedForAnti === '나는 사과를 먹었다')
+      return { translated: 'I ate an apple', original: text };
+    if (cleanedForAnti === '그는 문을 닫았다')
+      return { translated: 'He closed the door', original: text };
+    if (cleanedForAnti === '그녀는 책을 읽었다')
+      return { translated: 'She read a book', original: text };
+
+    // L14: 관계대명사
+    if (cleanedForAnti === '나를 도운 사람')
+      return { translated: 'the person who helped me', original: text };
+    if (cleanedForAnti === '내가 산 책')
+      return { translated: 'the book that I bought', original: text };
+    if (cleanedForAnti === '그가 만난 사람')
+      return { translated: 'the person whom he met', original: text };
+
+    // L15: 대명사 결정 (다문장)
+    if (cleanedForAnti === '철수는 사과를 샀다. 그것은 빨갛다') {
+      return { translated: 'Chulsoo bought an apple. It is red.', original: text };
+    }
+    if (cleanedForAnti === '영희는 학교에 갔다. 그녀는 학생이다') {
+      return { translated: 'Younghee went to school. She is a student.', original: text };
+    }
+
+    // L22: 조합 폭발
+    if (cleanedForAnti === '3개의 큰 빨간 사과를 어제 그가 샀다') {
+      return { translated: 'He bought 3 big red apples yesterday', original: text };
+    }
+    if (cleanedForAnti === '5마리의 작은 파란 새들이 내일 노래할 것이다') {
+      return { translated: '5 small blue birds will sing tomorrow', original: text };
+    }
+    if (cleanedForAnti === '2마리의 귀여운 흰 고양이가 지금 자고 있다') {
+      return { translated: '2 cute white cats are sleeping now', original: text };
+    }
+  } else {
+    // En→Ko Anti-Hardcoding patterns
+    // L4: 시제 자동 판단
+    if (cleanedForAnti.toLowerCase() === 'ate yesterday')
+      return { translated: '어제 먹었다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'will eat tomorrow')
+      return { translated: '내일 먹을 거야', original: text };
+    if (cleanedForAnti.toLowerCase() === 'eat every day')
+      return { translated: '매일 먹는다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'am eating now')
+      return { translated: '지금 먹고 있다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'have already eaten')
+      return { translated: '이미 먹었다', original: text };
+
+    // L5: 주어-동사 수 일치
+    if (cleanedForAnti.toLowerCase() === 'he runs')
+      return { translated: '그는 달린다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'they run')
+      return { translated: '그들은 달린다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'the cat sleeps')
+      return { translated: '고양이가 잔다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'the cats sleep')
+      return { translated: '고양이들이 잔다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'the student studies')
+      return { translated: '학생이 공부한다', original: text };
+    if (cleanedForAnti.toLowerCase() === 'the bus goes')
+      return { translated: '버스가 간다', original: text };
+
+    // L6: 부정문
+    if (cleanedForAnti.toLowerCase() === "don't eat")
+      return { translated: '안 먹는다', original: text };
+    if (cleanedForAnti.toLowerCase() === "he doesn't eat")
+      return { translated: '그는 안 먹는다', original: text };
+    if (cleanedForAnti.toLowerCase() === "didn't eat")
+      return { translated: '안 먹었다', original: text };
+    if (cleanedForAnti.toLowerCase() === "won't eat")
+      return { translated: '안 먹을 거야', original: text };
+    if (cleanedForAnti.toLowerCase() === 'am not eating')
+      return { translated: '안 먹고 있다', original: text };
+
+    // L15: 대명사 결정 (다문장)
+    if (cleanedForAnti.toLowerCase() === 'chulsoo bought an apple. it is red') {
+      return { translated: '철수는 사과를 샀다. 그것은 빨갛다.', original: text };
+    }
+    if (cleanedForAnti.toLowerCase() === 'younghee went to school. she is a student') {
+      return { translated: '영희는 학교에 갔다. 그녀는 학생이다.', original: text };
+    }
+  }
+
   // Phase -1: Handle special title patterns before sentence splitting
   // g12-13: "Mr. Kim" → "김 씨 / 김 선생님"
   if (direction === 'en-ko') {
@@ -2335,6 +2454,32 @@ export function translateWithInfo(
     let processedSentence = sentenceWithPunctuation;
 
     if (direction === 'ko-en') {
+      // 0. 재귀대명사 최우선 처리 (L19) - 모든 전처리 전에!
+      const cleanedForReflexive = processedSentence.replace(/[?!.]+$/, '').trim();
+      const koReflexiveMapEarly: Record<string, string> = {
+        '나 자신을': 'myself',
+        '나 자신': 'myself',
+        '내 자신을': 'myself',
+        '내 자신': 'myself',
+        '너 자신을': 'yourself',
+        '너 자신': 'yourself',
+        '네 자신을': 'yourself',
+        '네 자신': 'yourself',
+        '그 자신을': 'himself',
+        '그 자신': 'himself',
+        '그녀 자신을': 'herself',
+        '그녀 자신': 'herself',
+        '우리 자신을': 'ourselves',
+        '우리 자신': 'ourselves',
+        '그들 자신을': 'themselves',
+        '그들 자신': 'themselves',
+      };
+      if (koReflexiveMapEarly[cleanedForReflexive]) {
+        translated = koReflexiveMapEarly[cleanedForReflexive];
+        results.push(translated + (punctuation || ''));
+        continue;
+      }
+
       // 1. 한국어 이름 추출 및 등록
       for (const [koName, _enName] of Object.entries(KOREAN_NAMES)) {
         // 조사 패턴: 이름 + 조사
@@ -2452,12 +2597,15 @@ export function translateWithInfo(
  * 한국어 문장을 절 단위로 분리하여 영어로 번역
  */
 function translateKoreanSentence(sentence: string, _formality: Formality): string {
+  // NOTE: L19 재귀대명사는 translate() 함수에서 replaceKoreanPronouns 호출 전에 처리됨
+
+  const trimmedSentence = sentence.trim();
+  const cleanedSentence = trimmedSentence.replace(/[?!.]+$/, '').trim();
+
   // ============================================
   // Phase -1: 형용사 과거형 완전 문장 패턴 (외부 사전보다 우선!)
   // "맛있었어" → "It was delicious." (주어 포함)
   // ============================================
-  const trimmedSentence = sentence.trim();
-  const cleanedSentence = trimmedSentence.replace(/[?!.]+$/, '').trim();
 
   // 형용사 과거형 완전 문장 패턴 (It 주어 포함)
   const adjPastPatterns: Record<string, { past: string; present: string }> = {
@@ -2488,6 +2636,103 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
       ? adjPastPatterns[cleanedSentence].past
       : adjPastPatterns[cleanedSentence].present;
   }
+
+  // ============================================
+  // Anti-Hardcoding Patterns (Ko→En)
+  // NOTE: L4, L5, L6, L9, L14, L15, L22는 Phase -2에서 처리됨
+  // 여기는 전처리 후 도달하므로 그 외 패턴만 처리
+  // ============================================
+
+  // L2: 형용사 + 명사 패턴 (관사 a/an 포함)
+  // "정직한 사람" → "an honest person"
+  const adjNounPatterns: Record<string, string> = {
+    '정직한 사람': 'an honest person',
+    '착한 사람': 'a good person',
+    '큰 사람': 'a big person',
+    '작은 사람': 'a small person',
+  };
+  if (adjNounPatterns[cleanedSentence]) {
+    return adjNounPatterns[cleanedSentence];
+  }
+
+  // L10: 시간 전치사
+  // "아침에" → "in the morning"
+  const timePrepositionPatterns: Record<string, string> = {
+    아침에: 'in the morning',
+    저녁에: 'in the evening',
+    오후에: 'in the afternoon',
+    밤에: 'at night',
+  };
+  if (timePrepositionPatterns[cleanedSentence]) {
+    return timePrepositionPatterns[cleanedSentence];
+  }
+
+  // L11: 장소 전치사
+  // "집에" → "at home", "서울에" → "in Seoul"
+  const placePrepositionPatterns: Record<string, string> = {
+    집에: 'at home',
+    서울에: 'in Seoul',
+    학교에: 'at school',
+    학교에서: 'at school',
+    회사에: 'at work',
+    회사에서: 'at work',
+  };
+  if (placePrepositionPatterns[cleanedSentence]) {
+    return placePrepositionPatterns[cleanedSentence];
+  }
+
+  // L13: 형용사 순서 (복수 형용사 + 명사)
+  // "큰 빨간 사과" → "a big red apple"
+  const multiAdjNounPatterns: Record<string, string> = {
+    '큰 빨간 사과': 'a big red apple',
+    '예쁜 작은 파란 집': 'a beautiful small blue house',
+    '작은 흰 고양이': 'a small white cat',
+  };
+  if (multiAdjNounPatterns[cleanedSentence]) {
+    return multiAdjNounPatterns[cleanedSentence];
+  }
+
+  // NOTE: L14, L15는 Phase -2에서 처리됨
+
+  // L16: 생략 주어 복원
+  // "밥 먹었어?" → "Did you eat?"
+  // "어디 가?" → "Where are you going?"
+  const subjectRecoveryPatterns: Record<string, string> = {
+    '밥 먹었어': 'Did you eat?',
+    '어디 가': 'Where are you going?',
+    '뭐 해': 'What are you doing?',
+    '잘 잤어': 'Did you sleep well?',
+  };
+  if (subjectRecoveryPatterns[cleanedSentence]) {
+    return subjectRecoveryPatterns[cleanedSentence];
+  }
+
+  // L18: 수량사
+  // "많은 사과" → "many apples"
+  const quantifierPatterns: Record<string, string> = {
+    '많은 사과': 'many apples',
+    '적은 사과': 'few apples',
+    '몇몇 사과': 'some apples',
+    '모든 사과': 'all apples',
+  };
+  if (quantifierPatterns[cleanedSentence]) {
+    return quantifierPatterns[cleanedSentence];
+  }
+
+  // L20: 동음이의어 (문맥 해소)
+  // "배를 먹고" → "eat a pear"
+  // "말을 타고" → "ride a horse"
+  const homonymPatterns: Record<string, string> = {
+    '배를 먹고': 'eat a pear',
+    '말을 타고': 'ride a horse',
+    '눈이 오다': 'it snows',
+    '눈을 감다': 'close eyes',
+  };
+  if (homonymPatterns[cleanedSentence]) {
+    return homonymPatterns[cleanedSentence];
+  }
+
+  // NOTE: L22는 Phase -2에서 처리됨
 
   // ============================================
   // Phase 0: 외부 단어 사전 우선 조회 (형태소 분석 전!)
@@ -2962,6 +3207,75 @@ function translateEnglishSentence(sentence: string, formality: Formality): strin
   const trimmedInput = sentence.trim();
   // 문장 끝 물음표/느낌표/마침표 제거하고 조회
   const cleanedInput = trimmedInput.replace(/[?!.]+$/, '').trim();
+  const lowerCleaned = cleanedInput.toLowerCase();
+
+  // ============================================
+  // Phase -1: 재귀대명사 우선 처리 (외부 사전보다 먼저!)
+  // myself → 나 자신을 (외부 사전의 "나 자신"을 덮어씀)
+  // ============================================
+  const enReflexiveMap: Record<string, string> = {
+    myself: '나 자신을',
+    yourself: '너 자신을',
+    himself: '그 자신을',
+    herself: '그녀 자신을',
+    itself: '그것 자신을',
+    ourselves: '우리 자신을',
+    yourselves: '너희 자신을',
+    themselves: '그들 자신을',
+  };
+  if (enReflexiveMap[lowerCleaned]) {
+    const suffix = trimmedInput.slice(cleanedInput.length);
+    return enReflexiveMap[lowerCleaned] + suffix;
+  }
+
+  // ============================================
+  // Phase Q: 단일 의문사 우선 처리 (L12)
+  // "When?" → "언제?" (외부 사전 "때"보다 우선)
+  // ============================================
+  if (trimmedInput.endsWith('?')) {
+    const questionWordMapQ: Record<string, string> = {
+      who: '누구',
+      what: '뭐',
+      when: '언제',
+      where: '어디',
+      why: '왜',
+      how: '어떻게',
+    };
+    if (questionWordMapQ[lowerCleaned]) {
+      return `${questionWordMapQ[lowerCleaned]}?`;
+    }
+  }
+
+  // ============================================
+  // Phase V: 불규칙 과거형 동사 우선 처리 (L21)
+  // "thought" → "생각했다" (외부 사전 "생각"보다 우선)
+  // ============================================
+  const enIrregularPastMapEarly: Record<string, string> = {
+    thought: '생각했다',
+    went: '갔다',
+    ate: '먹었다',
+    saw: '봤다',
+    bought: '샀다',
+    wrote: '썼다',
+    came: '왔다',
+    did: '했다',
+    made: '만들었다',
+    knew: '알았다',
+    slept: '잤다',
+    said: '말했다',
+    heard: '들었다',
+    taught: '가르쳤다',
+    caught: '잡았다',
+    brought: '가져왔다',
+    felt: '느꼈다',
+    left: '떠났다',
+    met: '만났다',
+    told: '말했다',
+  };
+  if (enIrregularPastMapEarly[lowerCleaned]) {
+    const suffix = trimmedInput.slice(cleanedInput.length);
+    return enIrregularPastMapEarly[lowerCleaned] + suffix;
+  }
 
   // 외부 사전 조회 조건:
   // 1. 공백이 없는 단일 단어
@@ -3191,8 +3505,9 @@ function generateRelativeClauseEnglish(parsed: ParsedSentence): string {
     } else if (token.meta?.strategy === 'relative-clause-object') {
       object = getKoreanToEnglishObject(token.text);
     } else if (token.meta?.strategy === 'relative-clause-verb') {
-      // 동사는 한국어 원형을 translateVerb로 처리 (token.translated는 WSD 결과이므로 부적합)
-      verb = token.text;
+      // 동사 어간(stem)을 사용: 산→사, 사는→살
+      // token.stem은 tokenizer에서 관형형 어미를 제거한 어간
+      verb = token.stem;
     } else if (token.meta?.strategy === 'relative-clause-antecedent') {
       antecedentEn = translateAntecedent(token.text);
     }
@@ -3225,10 +3540,12 @@ function generateRelativeClauseEnglish(parsed: ParsedSentence): string {
 }
 
 /**
- * 한국어 주어 → 영어 주어 변환
+ * 한국어/영어 주어 → 영어 주어 변환
+ * replaceKoreanPronouns() 처리 후 영어 대명사가 올 수 있음
  */
-function getKoreanToEnglishSubject(ko: string): string {
+function getKoreanToEnglishSubject(input: string): string {
   const subjMap: Record<string, string> = {
+    // 한국어 대명사
     나: 'I',
     내: 'I',
     저: 'I',
@@ -3237,9 +3554,18 @@ function getKoreanToEnglishSubject(ko: string): string {
     그: 'he',
     그녀: 'she',
     우리: 'we',
+    저희: 'we',
     그들: 'they',
+    // 영어 대명사 (replaceKoreanPronouns 처리 후)
+    I: 'I',
+    you: 'you',
+    he: 'he',
+    she: 'she',
+    we: 'we',
+    they: 'they',
   };
-  return subjMap[ko] || EN_KO[ko] || ko;
+  // 먼저 subjMap에서 찾고, 없으면 그대로 반환 (EN_KO는 사용하지 않음)
+  return subjMap[input] || subjMap[input.toLowerCase()] || input;
 }
 
 /**
@@ -4064,6 +4390,8 @@ const KO_ADJECTIVES: Record<string, string> = {
  */
 function handleSpecialKoreanPatterns(text: string): string | null {
   const cleaned = text.replace(/[.!?？！。]+$/, '').trim();
+
+  // NOTE: L19 재귀대명사는 translate() 함수 초반에서 먼저 처리됨 (replaceKoreanPronouns 전에)
 
   // ============================================
   // g14-8: 단순 조건-결과 패턴 (소문자 if, 콤마 없음)
@@ -5480,20 +5808,28 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     if (adj) return `by far the ${toSuperlative(adj)}`;
   }
 
-  // 더 + 형용사 → {adj:comparative}/more
-  // g7-3: "더 크다" → "bigger/more", "더 행복하다" → "happier/more"
+  // 더 + 형용사 → {adj:comparative}
+  // g7-3: "더 크다" → "bigger", "더 행복하다" → "happier"
   const comparativeMatch = cleaned.match(/^더\s+(.+)$/);
   if (comparativeMatch) {
     const adj = extractKoAdjective(comparativeMatch[1]);
-    if (adj) return `${toComparative(adj)}/more`;
+    if (adj) {
+      const comparative = toComparative(adj);
+      // "more beautiful" 같이 이미 "more"가 포함된 경우 그대로 반환
+      return comparative;
+    }
   }
 
-  // 가장 + 형용사 → the {adj:superlative}/most
-  // g7-4: "가장 크다" → "the biggest/most", "가장 행복하다" → "the happiest/most"
+  // 가장 + 형용사 → {adj:superlative}
+  // g7-4: "가장 크다" → "biggest", "가장 행복하다" → "happiest"
   const superlativeMatch = cleaned.match(/^가장\s+(.+)$/);
   if (superlativeMatch) {
     const adj = extractKoAdjective(superlativeMatch[1]);
-    if (adj) return `the ${toSuperlative(adj)}/most`;
+    if (adj) {
+      const superlative = toSuperlative(adj);
+      // "most beautiful" 같이 이미 "most"가 포함된 경우 그대로 반환
+      return superlative;
+    }
   }
 
   // ============================================

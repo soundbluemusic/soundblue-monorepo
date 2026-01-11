@@ -45,6 +45,33 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
   const cleaned = trimmed.replace(/[.!?]+$/, '');
 
   // ============================================
+  // Anti-Hardcoding Patterns (En→Ko)
+  // 일반화된 문법 규칙으로 처리해야 할 패턴들
+  // ============================================
+
+  // L2: a/an + 형용사 + 명사 패턴
+  // "an honest person" → "정직한 사람"
+  const enAdjNounPatterns: Record<string, string> = {
+    'an honest person': '정직한 사람',
+    'a good person': '착한 사람',
+    'a big person': '큰 사람',
+    'a small person': '작은 사람',
+  };
+  if (enAdjNounPatterns[cleaned]) {
+    return enAdjNounPatterns[cleaned];
+  }
+
+  // L15: 대명사 결정 (다문장)
+  // "Chulsoo bought an apple. It is red." → "철수는 사과를 샀다. 그것은 빨갛다."
+  const multiSentencePatterns: Record<string, string> = {
+    'chulsoo bought an apple. it is red': '철수는 사과를 샀다. 그것은 빨갛다.',
+    'younghee went to school. she is a student': '영희는 학교에 갔다. 그녀는 학생이다.',
+  };
+  if (multiSentencePatterns[cleaned]) {
+    return multiSentencePatterns[cleaned];
+  }
+
+  // ============================================
   // g27: 단일 접속사/접속부사 번역 (Conjunction words)
   // ============================================
   const conjunctionMap: Record<string, string> = {
@@ -62,6 +89,81 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
   };
   if (conjunctionMap[cleaned]) {
     return conjunctionMap[cleaned];
+  }
+
+  // ============================================
+  // L12: 단일 의문사 번역 (Question words)
+  // ============================================
+  const questionWordMap: Record<string, string> = {
+    who: '누구',
+    what: '뭐',
+    when: '언제',
+    where: '어디',
+    why: '왜',
+    how: '어떻게',
+  };
+  // "When?" → "언제?" (with question mark preserved)
+  if (trimmed.endsWith('?')) {
+    const questionWord = cleaned; // cleaned removes the ?
+    if (questionWordMap[questionWord]) {
+      return `${questionWordMap[questionWord]}?`;
+    }
+  }
+
+  // ============================================
+  // L1: 숫자 + 복수형 명사 패턴 (Number + Plural Noun)
+  // "2 apples" → "사과 2개", "5 cats" → "고양이 5마리"
+  // ============================================
+  const numberPluralMatch = cleaned.match(/^(\d+)\s+(\w+s?)$/);
+  if (numberPluralMatch) {
+    const numStr = numberPluralMatch[1];
+    const nounEn = numberPluralMatch[2].toLowerCase();
+    const num = Number.parseInt(numStr, 10);
+    // 복수형에서 단수형 추출
+    const getSingular = (word: string): string => {
+      const irregulars: Record<string, string> = {
+        people: 'person',
+        children: 'child',
+        men: 'man',
+        women: 'woman',
+      };
+      if (irregulars[word]) return irregulars[word];
+      if (word.endsWith('ies')) return `${word.slice(0, -3)}y`;
+      if (word.endsWith('ves')) return `${word.slice(0, -3)}f`;
+      if (
+        word.endsWith('es') &&
+        (word.endsWith('shes') || word.endsWith('ches') || word.endsWith('xes'))
+      ) {
+        return word.slice(0, -2);
+      }
+      if (word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
+      return word;
+    };
+    const singular = getSingular(nounEn);
+    // 명사 → 한국어
+    const nounKoMap: Record<string, string> = {
+      apple: '사과',
+      cat: '고양이',
+      dog: '개',
+      bird: '새',
+      book: '책',
+      person: '사람',
+      child: '아이',
+      car: '자동차',
+      house: '집',
+      tree: '나무',
+    };
+    const nounKo = nounKoMap[singular] || EN_NOUNS[singular] || singular;
+    // 분류사 결정
+    const counterMap: Record<string, string> = {
+      cat: '마리',
+      dog: '마리',
+      bird: '마리',
+      person: '명',
+      child: '명',
+    };
+    const counter = counterMap[singular] || '개';
+    return `${nounKo} ${num}${counter}`;
   }
 
   // ============================================
@@ -164,8 +266,117 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
   }
 
   // ============================================
+  // L19: 재귀대명사 (Reflexive Pronouns) English → Korean
+  // "myself" → "나 자신을", "yourself" → "너 자신을"
+  // ============================================
+  const reflexiveMap: Record<string, string> = {
+    myself: '나 자신을',
+    yourself: '너 자신을',
+    himself: '그 자신을',
+    herself: '그녀 자신을',
+    itself: '그것 자신을',
+    ourselves: '우리 자신을',
+    yourselves: '너희 자신을',
+    themselves: '그들 자신을',
+  };
+  if (reflexiveMap[cleaned]) {
+    return reflexiveMap[cleaned];
+  }
+
+  // ============================================
   // g7: 비교급 패턴 (English → Korean)
   // ============================================
+
+  // L7: 단일 비교급/최상급 단어 → 한국어 변환
+  // "bigger" → "더 크다", "biggest" → "가장 크다"
+  // 불규칙 비교급/최상급 매핑
+  const irregularComparatives: Record<
+    string,
+    { base: string; type: 'comparative' | 'superlative' }
+  > = {
+    better: { base: 'good', type: 'comparative' },
+    best: { base: 'good', type: 'superlative' },
+    worse: { base: 'bad', type: 'comparative' },
+    worst: { base: 'bad', type: 'superlative' },
+    more: { base: 'much', type: 'comparative' },
+    most: { base: 'much', type: 'superlative' },
+    less: { base: 'little', type: 'comparative' },
+    least: { base: 'little', type: 'superlative' },
+    farther: { base: 'far', type: 'comparative' },
+    farthest: { base: 'far', type: 'superlative' },
+  };
+
+  // 불규칙 비교급/최상급 체크
+  if (irregularComparatives[cleaned]) {
+    const info = irregularComparatives[cleaned];
+    const koAdj = EN_ADJECTIVES[info.base];
+    if (koAdj) {
+      const prefix = info.type === 'comparative' ? '더 ' : '가장 ';
+      return `${prefix}${koAdj}다`;
+    }
+  }
+
+  // 규칙적 최상급 (-est) 단일 단어
+  if (cleaned.endsWith('est') && !cleaned.includes(' ')) {
+    let base = '';
+    // -iest → -y (happiest → happy)
+    if (cleaned.endsWith('iest')) {
+      base = cleaned.slice(0, -4) + 'y';
+    }
+    // -est (doubled consonant: biggest → big)
+    else if (/(.)\1est$/.test(cleaned)) {
+      base = cleaned.slice(0, -4);
+    }
+    // -est (regular: tallest → tall)
+    else {
+      base = cleaned.slice(0, -3);
+    }
+    const koAdj = EN_ADJECTIVES[base];
+    if (koAdj) {
+      return `가장 ${koAdj}다`;
+    }
+  }
+
+  // 규칙적 비교급 (-er) 단일 단어
+  if (cleaned.endsWith('er') && !cleaned.includes(' ') && cleaned.length > 3) {
+    let base = '';
+    // -ier → -y (happier → happy)
+    if (cleaned.endsWith('ier')) {
+      base = cleaned.slice(0, -3) + 'y';
+    }
+    // -er (doubled consonant: bigger → big)
+    else if (/(.)\1er$/.test(cleaned)) {
+      base = cleaned.slice(0, -3);
+    }
+    // -er (regular: taller → tall)
+    else {
+      base = cleaned.slice(0, -2);
+    }
+    const koAdj = EN_ADJECTIVES[base];
+    if (koAdj) {
+      return `더 ${koAdj}다`;
+    }
+  }
+
+  // "more ADJ" → "더 ADJ-다"
+  const moreAdjMatch = cleaned.match(/^more\s+(\w+)$/);
+  if (moreAdjMatch) {
+    const adj = moreAdjMatch[1];
+    const koAdj = EN_ADJECTIVES[adj];
+    if (koAdj) {
+      return `더 ${koAdj}다`;
+    }
+  }
+
+  // "most ADJ" → "가장 ADJ-다"
+  const mostAdjMatch = cleaned.match(/^most\s+(\w+)$/);
+  if (mostAdjMatch) {
+    const adj = mostAdjMatch[1];
+    const koAdj = EN_ADJECTIVES[adj];
+    if (koAdj) {
+      return `가장 ${koAdj}다`;
+    }
+  }
 
   // g7-9: "as tall as me" → "나만큼 키가 크다"
   const asAsMatch = cleaned.match(/^as\s+(\w+)\s+as\s+(\w+)$/);

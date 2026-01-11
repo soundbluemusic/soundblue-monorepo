@@ -1,15 +1,16 @@
 /**
  * 띄어쓰기 정규화 모듈
  *
- * 최대 매칭 알고리즘 + 조사/어미 패턴을 사용하여
+ * core/translator의 DP 기반 알고리즘을 사용하여
  * 붙어있는 텍스트를 적절히 분리합니다.
  *
- * 한계:
- * - 사전에 없는 단어는 분리 불가
- * - 중의성이 있는 경우 최장 매칭 우선
- * - 100% 정확도는 아님 (추정 70-80%)
+ * 핵심 원칙:
+ * - 하드코딩 금지, 일반화된 규칙 사용
+ * - DP 기반 최적 분리점 탐색
+ * - 조사/어미/동사어간 패턴 활용
  */
 
+import { recoverSpacing as recoverSpacingCore } from '@soundblue/translator';
 import { EN_KO, KO_EN } from './data';
 
 // ============================================
@@ -1555,24 +1556,12 @@ export function normalizeKoreanSpacing(text: string): string {
     return text;
   }
 
-  const result: string[] = [];
-  let remaining = text;
-
-  while (remaining.length > 0) {
-    const match = findLongestKoreanMatch(remaining);
-
-    if (match) {
-      result.push(match.word);
-      remaining = remaining.slice(match.length);
-    } else {
-      // 매칭 실패시 한 글자씩 이동
-      result.push(remaining[0]);
-      remaining = remaining.slice(1);
-    }
-  }
-
-  // 연속된 단일 문자들 합치기 (사전에 없는 단어)
-  return mergeUnknownTokens(result);
+  // core/translator의 DP 기반 알고리즘 사용 (일반화된 규칙)
+  // - 조사/어미/동사어간 패턴 자동 인식
+  // - 사전 기반 최적 분리점 탐색
+  // - 하드코딩 없이 모든 한국어 문장 처리
+  const { recovered } = recoverSpacingCore(text);
+  return recovered;
 }
 
 /**
@@ -1592,8 +1581,9 @@ function isKnownVerbStem(stem: string): boolean {
 /**
  * 가장 긴 한국어 단어 매칭 찾기
  * 복합 표현은 분리된 형태로 반환 (번역 파이프라인이 인식할 수 있도록)
+ * @deprecated core의 DP 알고리즘(recoverSpacing)으로 대체됨
  */
-function findLongestKoreanMatch(text: string): { word: string; length: number } | null {
+function _findLongestKoreanMatch(text: string): { word: string; length: number } | null {
   // 1. 복합 표현 우선 체크 (가장 긴 것부터)
   const sortedCompounds = [...KO_COMPOUNDS].sort((a, b) => b.length - a.length);
   for (const compound of sortedCompounds) {
@@ -1659,8 +1649,9 @@ function findLongestKoreanMatch(text: string): { word: string; length: number } 
 
 /**
  * 연속된 단일 문자들을 합침 (사전에 없는 단어 처리)
+ * @deprecated core의 DP 알고리즘으로 대체됨
  */
-function mergeUnknownTokens(tokens: string[]): string {
+function _mergeUnknownTokens(tokens: string[]): string {
   const merged: string[] = [];
   let current = '';
 
