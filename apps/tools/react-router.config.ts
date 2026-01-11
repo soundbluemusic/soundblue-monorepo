@@ -15,6 +15,7 @@ const BASE_PATHS = [
   '/drum-machine',
   '/qr',
   '/translator',
+  '/spell-checker',
 ];
 
 // 로케일별 경로 생성

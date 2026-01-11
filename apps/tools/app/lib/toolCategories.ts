@@ -190,6 +190,16 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
           en: 'Korean ↔ English algorithm-based translation',
         },
       },
+      {
+        id: 'spellChecker',
+        slug: 'spell-checker',
+        name: { ko: '한국어 맞춤법 검사기', en: 'Korean Spell Checker' },
+        icon: '\u270F\uFE0F',
+        description: {
+          ko: '한국어 맞춤법, 띄어쓰기, 문법 검사',
+          en: 'Check Korean spelling, spacing, and grammar',
+        },
+      },
     ],
   },
 ];
@@ -326,6 +336,9 @@ export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
     import('@soundblue/ui-components/composite/tool/translator').then((m) => ({
       default: m.Translator,
     })),
+  ),
+  spellChecker: lazy(() =>
+    import('~/tools/spell-checker').then((m) => ({ default: m.SpellChecker })),
   ),
 };
 

@@ -38,6 +38,7 @@ const TOOLS: UrlDef[] = [
   { path: 'drum-machine', priority: '0.9', changefreq: 'weekly' },
   { path: 'qr', priority: '0.8', changefreq: 'monthly' },
   { path: 'translator', priority: '0.9', changefreq: 'weekly' },
+  { path: 'spell-checker', priority: '0.8', changefreq: 'weekly' },
 ];
 
 // Generate URL (no trailing slash for cleaner URLs)

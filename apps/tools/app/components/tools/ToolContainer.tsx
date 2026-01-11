@@ -16,6 +16,10 @@ import {
 } from '~/tools/drum-machine/settings';
 import { defaultMetronomeSettings, type MetronomeSettings } from '~/tools/metronome/settings';
 import { defaultQRSettings, type QRSettings } from '~/tools/qr/settings';
+import {
+  defaultSpellCheckerSettings,
+  type SpellCheckerSettings,
+} from '~/tools/spell-checker/settings';
 import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator/settings';
 
 // Loading fallback component
@@ -37,6 +41,7 @@ const URL_PARAMS = {
   drumMachine: ['bpm', 'swing', 'volume'] as const,
   qr: ['size', 'fgColor', 'bgColor'] as const,
   translator: ['direction'] as const,
+  spellChecker: [] as const,
 };
 
 // 보존해야 할 특수 파라미터 (각 도구에서 직접 관리)
@@ -253,6 +258,13 @@ export function ToolContainer() {
     [updateToolSettings],
   );
 
+  const handleSpellCheckerSettingsChange = useCallback(
+    (settings: Partial<SpellCheckerSettings>) => {
+      updateToolSettings('spellChecker', settings);
+    },
+    [updateToolSettings],
+  );
+
   // Merged settings for each tool
   const metronomeSettings = useMemo(
     () => ({
@@ -294,6 +306,14 @@ export function ToolContainer() {
     [toolSettings.translator],
   );
 
+  const spellCheckerSettings = useMemo(
+    () => ({
+      ...defaultSpellCheckerSettings,
+      ...toolSettings.spellChecker,
+    }),
+    [toolSettings.spellChecker],
+  );
+
   // Settings registry for each tool type
   const toolSettingsRegistry = useMemo(
     () => ({
@@ -307,6 +327,10 @@ export function ToolContainer() {
         settings: translatorSettings,
         onSettingsChange: handleTranslatorSettingsChange,
       },
+      spellChecker: {
+        settings: spellCheckerSettings,
+        onSettingsChange: handleSpellCheckerSettingsChange,
+      },
     }),
     [
       metronomeSettings,
@@ -317,6 +341,8 @@ export function ToolContainer() {
       handleQRSettingsChange,
       translatorSettings,
       handleTranslatorSettingsChange,
+      spellCheckerSettings,
+      handleSpellCheckerSettingsChange,
     ],
   );
 

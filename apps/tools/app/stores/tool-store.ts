@@ -4,14 +4,16 @@ import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import type { DrumMachineSettings } from '../tools/drum-machine/settings';
 import type { MetronomeSettings } from '../tools/metronome/settings';
+import type { SpellCheckerSettings } from '../tools/spell-checker/settings';
 
-export type ToolType = 'metronome' | 'qr' | 'drumMachine' | 'translator';
+export type ToolType = 'metronome' | 'qr' | 'drumMachine' | 'translator' | 'spellChecker';
 
 interface ToolSettings {
   metronome: Partial<MetronomeSettings>;
   qr: Partial<QRSettings>;
   drumMachine: Partial<DrumMachineSettings>;
   translator: Partial<TranslatorSettings>;
+  spellChecker: Partial<SpellCheckerSettings>;
 }
 
 interface ToolState {
@@ -38,6 +40,7 @@ export const useToolStore = create<ToolState>()(
         qr: {},
         drumMachine: {},
         translator: {},
+        spellChecker: {},
       },
       sidebarOpen: true,
       sidebarCollapsed: false,

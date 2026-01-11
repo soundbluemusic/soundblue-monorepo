@@ -122,12 +122,23 @@ export function parseYouTubeUrl(url: string): ParsedYouTubeUrl {
       const videoId = searchParams.get('v');
       const playlistId = searchParams.get('list');
 
-      // If has playlist, prefer playlist embed
-      if (playlistId) {
+      // If has both videoId and playlist, use videoId + list parameter
+      // This is more reliable than videoseries and shows the specific video's thumbnail
+      if (videoId && videoId.length === 11 && playlistId) {
         return {
           type: 'playlist',
           playlistId,
-          videoId: videoId || undefined,
+          videoId,
+          embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?list=${playlistId}`,
+          isValid: true,
+        };
+      }
+
+      // Playlist only (no videoId)
+      if (playlistId && !videoId) {
+        return {
+          type: 'playlist',
+          playlistId,
           embedUrl: `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}`,
           isValid: true,
         };

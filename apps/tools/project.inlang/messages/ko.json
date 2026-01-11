@@ -169,5 +169,22 @@
   "sitemap_sections_tools": "도구",
   "sitemap_sections_other": "기타",
   "sitemap_xml": "XML 사이트맵 (검색 엔진용)",
-  "sitemap_lastUpdated": "마지막 업데이트"
+  "sitemap_lastUpdated": "마지막 업데이트",
+  "tools_spellChecker": "한국어 맞춤법 검사기",
+  "spellChecker_inputLabel": "검사할 텍스트",
+  "spellChecker_placeholder": "한국어 텍스트를 입력하세요...",
+  "spellChecker_check": "검사하기",
+  "spellChecker_checkSpacing": "띄어쓰기",
+  "spellChecker_checkTypo": "오타",
+  "spellChecker_checkGrammar": "문법",
+  "spellChecker_resultTitle": "검사 결과",
+  "spellChecker_correctedText": "수정된 텍스트",
+  "spellChecker_errorList": "수정 사항",
+  "spellChecker_noErrors": "오류 없음",
+  "spellChecker_spacing": "띄어쓰기",
+  "spellChecker_typo": "오타",
+  "spellChecker_grammar": "문법",
+  "spellChecker_copy": "복사",
+  "spellChecker_copied": "복사됨",
+  "spellChecker_apply": "적용"
 }

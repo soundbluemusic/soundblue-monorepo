@@ -169,5 +169,22 @@
   "sitemap_sections_tools": "Tools",
   "sitemap_sections_other": "Other",
   "sitemap_xml": "XML Sitemap (for search engines)",
-  "sitemap_lastUpdated": "Last updated"
+  "sitemap_lastUpdated": "Last updated",
+  "tools_spellChecker": "Korean Spell Checker",
+  "spellChecker_inputLabel": "Text to check",
+  "spellChecker_placeholder": "Enter Korean text...",
+  "spellChecker_check": "Check",
+  "spellChecker_checkSpacing": "Spacing",
+  "spellChecker_checkTypo": "Typo",
+  "spellChecker_checkGrammar": "Grammar",
+  "spellChecker_resultTitle": "Results",
+  "spellChecker_correctedText": "Corrected text",
+  "spellChecker_errorList": "Corrections",
+  "spellChecker_noErrors": "No errors",
+  "spellChecker_spacing": "Spacing",
+  "spellChecker_typo": "Typo",
+  "spellChecker_grammar": "Grammar",
+  "spellChecker_copy": "Copy",
+  "spellChecker_copied": "Copied",
+  "spellChecker_apply": "Apply"
 }
