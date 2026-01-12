@@ -1,4 +1,4 @@
-import { Check, Copy, RotateCcw, Sparkles } from 'lucide-react';
+import { AlertTriangle, Check, Copy, RotateCcw, Sparkles } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import m from '~/lib/messages';
 import { checkSpelling } from './engine';
@@ -26,6 +26,7 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
   const [inputText, setInputText] = useState(settings.lastInput || '');
   const [result, setResult] = useState<SpellCheckResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   const handleSettingsChange = useCallback(
     (partial: Partial<SpellCheckerSettings>) => {
@@ -63,9 +64,13 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
     try {
       await navigator.clipboard.writeText(result.corrected);
       setCopied(true);
+      setCopyFailed(false);
       setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // 클립보드 접근 실패
+    } catch (error) {
+      // 클립보드 접근 실패 - 사용자에게 피드백 제공
+      console.warn('[clipboard] Copy failed:', error);
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 2000);
     }
   }, [result]);
 
@@ -236,12 +241,24 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs transition-colors hover:bg-black/8 dark:hover:bg-white/12"
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors ${
+                    copyFailed
+                      ? 'border-red-300 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950/50 dark:text-red-400'
+                      : 'border-border hover:bg-black/8 dark:hover:bg-white/12'
+                  }`}
                 >
-                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied
-                    ? (m['spellChecker.copied']?.() ?? '복사됨')
-                    : (m['spellChecker.copy']?.() ?? '복사')}
+                  {copyFailed ? (
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                  ) : copied ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                  {copyFailed
+                    ? (m['spellChecker.copyFailed']?.() ?? '복사 실패')
+                    : copied
+                      ? (m['spellChecker.copied']?.() ?? '복사됨')
+                      : (m['spellChecker.copy']?.() ?? '복사')}
                 </button>
                 <button
                   type="button"

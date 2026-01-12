@@ -185,7 +185,7 @@ importers:
         version: 27.4.0
       rollup-plugin-visualizer:
         specifier: ^6.0.5
-        version: 6.0.5(rollup@4.54.0)
+        version: 6.0.5(rollup@2.79.2)
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
@@ -514,7 +514,7 @@ importers:
         version: 27.4.0
       rollup-plugin-visualizer:
         specifier: ^6.0.5
-        version: 6.0.5(rollup@2.79.2)
+        version: 6.0.5(rollup@4.54.0)
       sharp:
         specifier: ^0.34.5
         version: 0.34.5

@@ -1,8 +1,9 @@
 'use client';
 
 import { useParaglideI18n } from '@soundblue/i18n';
-import { Loader2 } from 'lucide-react';
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
+import type { ErrorInfo, ReactNode } from 'react';
+import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import m from '~/lib/messages';
@@ -35,6 +36,85 @@ function ToolLoading() {
   );
 }
 
+// Error fallback component for tool loading failures
+function ToolErrorFallback({ error, onRetry }: { error: Error; onRetry: () => void }) {
+  const isChunkError =
+    error.message.includes('Failed to fetch') ||
+    error.message.includes('Loading chunk') ||
+    error.message.includes('dynamically imported module');
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
+      <AlertTriangle className="size-12 text-amber-500" />
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold text-(--color-text-primary)">
+          {isChunkError
+            ? (m['tools.loadError_network']?.() ?? 'Network Error')
+            : (m['tools.loadError_title']?.() ?? 'Failed to load tool')}
+        </h3>
+        <p className="text-sm text-(--color-text-secondary) max-w-md">
+          {isChunkError
+            ? (m['tools.loadError_networkDesc']?.() ??
+              'Please check your internet connection and try again.')
+            : (m['tools.loadError_desc']?.() ??
+              'An unexpected error occurred while loading the tool.')}
+        </p>
+        {import.meta.env.DEV && (
+          <pre className="mt-2 text-xs text-red-500 bg-red-50 dark:bg-red-950 p-2 rounded max-w-md overflow-auto">
+            {error.message}
+          </pre>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+      >
+        <RefreshCw className="size-4" />
+        {m['tools.retry']?.() ?? 'Retry'}
+      </button>
+    </div>
+  );
+}
+
+// Error Boundary for tool lazy loading failures
+interface ToolErrorBoundaryProps {
+  children: ReactNode;
+  onReset?: () => void;
+}
+
+interface ToolErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ToolErrorBoundary extends Component<ToolErrorBoundaryProps, ToolErrorBoundaryState> {
+  constructor(props: ToolErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ToolErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    console.error('Tool loading error:', error, errorInfo);
+  }
+
+  handleRetry = (): void => {
+    this.setState({ hasError: false, error: null });
+    this.props.onReset?.();
+  };
+
+  render(): ReactNode {
+    if (this.state.hasError && this.state.error) {
+      return <ToolErrorFallback error={this.state.error} onRetry={this.handleRetry} />;
+    }
+    return this.props.children;
+  }
+}
+
 // ========================================
 // ToolContainer Component - 도구 렌더링 영역
 // ========================================
@@ -60,6 +140,7 @@ export function ToolContainer() {
   const isPlaying = useAudioStore((state) => state.transport.isPlaying);
 
   const [urlCopied, setUrlCopied] = useState(false);
+  const [urlCopyFailed, setUrlCopyFailed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const urlCopiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -218,10 +299,15 @@ export function ToolContainer() {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setUrlCopied(true);
+      setUrlCopyFailed(false);
       if (urlCopiedTimeoutRef.current) clearTimeout(urlCopiedTimeoutRef.current);
       urlCopiedTimeoutRef.current = setTimeout(() => setUrlCopied(false), 2000);
-    } catch {
-      // Clipboard API failed - silent fail in production
+    } catch (error) {
+      // Clipboard API failed - show error feedback to user
+      console.warn('[clipboard] URL copy failed:', error);
+      setUrlCopyFailed(true);
+      if (urlCopiedTimeoutRef.current) clearTimeout(urlCopiedTimeoutRef.current);
+      urlCopiedTimeoutRef.current = setTimeout(() => setUrlCopyFailed(false), 2000);
     }
   }, []);
 
@@ -407,29 +493,39 @@ export function ToolContainer() {
                   type="button"
                   onClick={copyShareUrl}
                   className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border-none bg-transparent cursor-pointer transition-colors duration-150 hover:bg-(--color-interactive-hover) ${
-                    urlCopied
-                      ? 'text-(--color-accent-primary)'
-                      : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
+                    urlCopyFailed
+                      ? 'text-red-500 dark:text-red-400'
+                      : urlCopied
+                        ? 'text-(--color-accent-primary)'
+                        : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
                   }`}
                   aria-label={m['tools.shareUrl']?.()}
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                    />
-                  </svg>
+                  {urlCopyFailed ? (
+                    <AlertTriangle className="w-5 h-5" />
+                  ) : (
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                      />
+                    </svg>
+                  )}
                 </button>
               </TooltipTrigger>
               <TooltipContent>
-                {urlCopied ? m['tools.urlCopied']?.() : m['tools.shareUrl']?.()}
+                {urlCopyFailed
+                  ? (m['tools.urlCopyFailed']?.() ?? 'Copy failed')
+                  : urlCopied
+                    ? m['tools.urlCopied']?.()
+                    : m['tools.shareUrl']?.()}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -455,7 +551,9 @@ export function ToolContainer() {
 
       {/* Tool Content */}
       <div ref={containerRef} className="flex-1 overflow-auto">
-        <Suspense fallback={<ToolLoading />}>{renderToolContent()}</Suspense>
+        <ToolErrorBoundary>
+          <Suspense fallback={<ToolLoading />}>{renderToolContent()}</Suspense>
+        </ToolErrorBoundary>
       </div>
     </div>
   );

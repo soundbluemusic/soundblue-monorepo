@@ -69,7 +69,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     document.documentElement.classList.add('dark');
                     document.documentElement.setAttribute('data-theme', 'dark');
                   }
-                } catch (e) {}
+                } catch (e) { console.warn('[theme-init]', e); }
               })();
             `,
           }}

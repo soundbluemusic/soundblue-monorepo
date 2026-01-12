@@ -5,7 +5,15 @@
  * nspell (Hunspell 호환) 라이브러리를 사용하여
  * 영어 철자 검사를 수행합니다.
  * 추가로 띄어쓰기, 문법 검사를 자체 구현합니다.
+ *
+ * Note: dictionary-en package uses Node.js fs API which is not browser-compatible.
+ * Dictionary files are copied to public/dictionaries/ via prebuild script
+ * and fetched at runtime for browser compatibility.
  */
+
+// Dictionary file paths (copied to public folder by scripts/copy-dictionaries.ts)
+const DICTIONARY_AFF_URL = '/dictionaries/en.aff';
+const DICTIONARY_DIC_URL = '/dictionaries/en.dic';
 
 import type {
   EnglishSpellCheckOptions,
@@ -22,34 +30,76 @@ let spellChecker: {
 let isLoading = false;
 let loadPromise: Promise<void> | null = null;
 
+// Error state management
+let loadError: Error | null = null;
+
+/**
+ * Get the current error state
+ */
+export function getSpellCheckerError(): Error | null {
+  return loadError;
+}
+
+/**
+ * Check if spell checker has an error
+ */
+export function hasSpellCheckerError(): boolean {
+  return loadError !== null;
+}
+
+/**
+ * Reset the spell checker (for retry)
+ */
+export function resetSpellChecker(): void {
+  spellChecker = null;
+  isLoading = false;
+  loadPromise = null;
+  loadError = null;
+}
+
 /**
  * Initialize the spell checker (lazy load)
+ * Uses fetch to load dictionary files for browser compatibility
  */
 async function initSpellChecker(): Promise<void> {
   if (spellChecker) return;
+  if (loadError) throw loadError;
   if (loadPromise) return loadPromise;
 
   isLoading = true;
+  loadError = null;
 
   loadPromise = (async () => {
     try {
-      // Dynamic import for code splitting
-      const [nspellModule, dictionary] = await Promise.all([
-        import('nspell'),
-        import('dictionary-en'),
-      ]);
-
+      // Dynamic import nspell
+      const nspellModule = await import('nspell');
       const nspell = nspellModule.default;
 
-      // dictionary-en exports a function that takes a callback
-      const { aff, dic } = await new Promise<{ aff: Buffer; dic: Buffer }>((resolve, reject) => {
-        dictionary.default((err: Error | null, result: { aff: Buffer; dic: Buffer }) => {
-          if (err) reject(err);
-          else resolve(result);
-        });
-      });
+      // Fetch dictionary files from public folder
+      const [affResponse, dicResponse] = await Promise.all([
+        fetch(DICTIONARY_AFF_URL),
+        fetch(DICTIONARY_DIC_URL),
+      ]);
 
-      spellChecker = nspell(aff, dic);
+      if (!affResponse.ok) {
+        throw new Error(
+          `Failed to load dictionary: ${affResponse.status} ${affResponse.statusText}`,
+        );
+      }
+      if (!dicResponse.ok) {
+        throw new Error(
+          `Failed to load dictionary: ${dicResponse.status} ${dicResponse.statusText}`,
+        );
+      }
+
+      const [affText, dicText] = await Promise.all([affResponse.text(), dicResponse.text()]);
+
+      // Create spell checker with text content
+      spellChecker = nspell(affText, dicText);
+    } catch (error) {
+      loadError = error instanceof Error ? error : new Error('Failed to initialize spell checker');
+      loadPromise = null;
+      throw loadError;
     } finally {
       isLoading = false;
     }
@@ -488,9 +538,14 @@ export async function checkWord(word: string): Promise<{
 
 /**
  * Preload the spell checker (call on component mount)
+ * Returns a promise that resolves when ready or rejects on error
  */
-export function preloadSpellChecker(): void {
-  initSpellChecker().catch(() => {
-    // Silently ignore preload errors
-  });
+export async function preloadSpellChecker(): Promise<void> {
+  try {
+    await initSpellChecker();
+  } catch (error) {
+    // Error is stored in loadError, re-throw for caller handling
+    console.error('Spell checker preload failed:', error);
+    throw error;
+  }
 }

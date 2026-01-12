@@ -154,6 +154,8 @@ export interface AudioEngineState {
   latency: number;
   transport: TransportState;
   masterMeter: MeterState;
+  /** Error that occurred during initialization, if any */
+  initError: string | null;
 }
 
 /**
@@ -315,6 +317,7 @@ export const useAudioStore = create<AudioEngineState & AudioActions>()(
     latency: 0,
     transport: initialTransport,
     masterMeter: initialMeter,
+    initError: null,
 
     // Actions
     initialize: async (): Promise<void> => {
@@ -353,6 +356,13 @@ export const useAudioStore = create<AudioEngineState & AudioActions>()(
         // Store audioContext reference for later use
         (window as Window & { __audioContext?: AudioContext }).__audioContext = audioContext;
       } catch (error: unknown) {
+        // Store error state for UI to display
+        const errorMessage =
+          error instanceof Error ? error.message : 'Audio engine initialization failed';
+        set((state) => {
+          state.initError = errorMessage;
+        });
+
         // Log error in development, report to monitoring in production
         if (import.meta.env.DEV) {
           console.error('Audio engine initialization failed:', error);
@@ -558,3 +568,32 @@ export const useBpm = (): number => useAudioStore((state) => state.transport.bpm
  * ```
  */
 export const useIsInitialized = (): boolean => useAudioStore((state) => state.isInitialized);
+
+/**
+ * Selector hook for audio engine initialization error.
+ *
+ * Returns the error message if initialization failed, null otherwise.
+ * Useful for showing error messages to users when audio fails to initialize.
+ *
+ * @returns {string | null} Error message if initialization failed, null otherwise
+ *
+ * @example
+ * ```tsx
+ * function AudioStatus() {
+ *   const initError = useInitError();
+ *   const { initialize } = useAudioStore();
+ *
+ *   if (initError) {
+ *     return (
+ *       <div className="text-red-500">
+ *         Audio Error: {initError}
+ *         <button onClick={initialize}>Retry</button>
+ *       </div>
+ *     );
+ *   }
+ *
+ *   return <span>Audio Ready ✓</span>;
+ * }
+ * ```
+ */
+export const useInitError = (): string | null => useAudioStore((state) => state.initError);
