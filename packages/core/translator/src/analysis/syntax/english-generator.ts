@@ -5,6 +5,7 @@
 
 import { koToEnWords } from '../../dictionary/entries';
 import { disambiguate, extractContext, isPolysemous } from '../../nlp/wsd';
+import { quickValidate } from './english-validator';
 import type { Tense, TokenAnalysis } from './morpheme-analyzer';
 import { PARTICLES } from './morpheme-analyzer';
 import type { Constituent, ParsedSentence } from './sentence-parser';
@@ -2279,17 +2280,11 @@ export function generateEnglish(
     parts.push(adv.text);
   }
 
-  // 6. 후처리
+  // 6. 후처리 - 영어 문법 검증 및 교정
   let mainSentence = parts.join(' ');
 
-  // 첫 글자 대문자
-  mainSentence = mainSentence.charAt(0).toUpperCase() + mainSentence.slice(1);
-
-  // a/an 수정
-  mainSentence = mainSentence.replace(/\ba ([aeiouAEIOU])/g, 'an $1');
-
-  // 중복 공백 제거
-  mainSentence = mainSentence.replace(/\s+/g, ' ').trim();
+  // quickValidate: 대문자, a/an, 공백, I 대문자 등 자동 교정
+  mainSentence = quickValidate(mainSentence);
 
   // 의문문이면 물음표 추가
   if (parsed.isQuestion && !mainSentence.endsWith('?')) {
@@ -2309,7 +2304,7 @@ export function generateEnglish(
       // 독립적 표현: 마침표로 분리
       // 본문 첫 글자 대문자 유지
       return {
-        translation: `${capitalizedPrefix}. ${mainSentence}`,
+        translation: quickValidate(`${capitalizedPrefix}. ${mainSentence}`),
         detectedSubject,
       };
     } else {
@@ -2317,7 +2312,7 @@ export function generateEnglish(
       // 메인 문장 첫 글자 소문자
       const mainLower = mainSentence.charAt(0).toLowerCase() + mainSentence.slice(1);
       return {
-        translation: `${capitalizedPrefix} ${mainLower}`,
+        translation: quickValidate(`${capitalizedPrefix} ${mainLower}`),
         detectedSubject,
       };
     }

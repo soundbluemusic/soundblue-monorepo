@@ -4,5 +4,6 @@
 
 export * from './clause-restructurer';
 export * from './english-generator';
+export * from './english-validator';
 export * from './morpheme-analyzer';
 export * from './sentence-parser';

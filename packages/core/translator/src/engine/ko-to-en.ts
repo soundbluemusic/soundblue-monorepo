@@ -34,6 +34,7 @@ import {
   restructureConditional,
   splitIntoClauses,
 } from '../analysis/syntax/clause-restructurer';
+import { quickValidate } from '../analysis/syntax/english-validator';
 import { conjugateEnglishVerb } from '../dictionary/entries/english-verbs';
 import { isAdjective, translateStemKoToEn } from '../dictionary/entries/stems';
 import { koToEnWords } from '../dictionary/entries/words';
@@ -513,7 +514,7 @@ export function translateKoToEn(text: string): string {
 function translateSentenceKoToEn(text: string): string {
   // 복합 문장인지 확인
   if (isCompoundSentence(text)) {
-    return translateCompoundSentence(text);
+    return quickValidate(translateCompoundSentence(text));
   }
 
   // 단순 문장 (쉼표로만 분리)
@@ -526,8 +527,8 @@ function translateSentenceKoToEn(text: string): string {
     translatedClauses.push(translatedClause);
   }
 
-  // 절들을 적절한 접속사로 연결
-  return translatedClauses.join(', ');
+  // 절들을 적절한 접속사로 연결 + 영어 문법 검증
+  return quickValidate(translatedClauses.join(', '));
 }
 
 /**
@@ -536,14 +537,6 @@ function translateSentenceKoToEn(text: string): string {
 function translateCompoundSentence(text: string): string {
   // 1. 절 분리 (연결어미 기반)
   const clauses = splitIntoClauses(text);
-
-  // DEBUG: 절 분리 결과 확인
-  console.log(
-    '[DEBUG translateCompoundSentence] input:',
-    text,
-    'clauses:',
-    JSON.stringify(clauses),
-  );
 
   // 2. 각 절 번역
   const translatedClauses: Array<{ text: string; connective?: ConnectiveInfo }> = [];

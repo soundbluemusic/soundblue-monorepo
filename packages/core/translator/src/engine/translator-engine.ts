@@ -4,6 +4,7 @@
 // SSG 최적화, 10,000+ 단어 규모 지원
 // ========================================
 
+import { conjugateEnglishVerb } from '../dictionary/entries/english-verbs';
 import { LRUCache } from './cache/lru-cache';
 import { type DictionaryEntry, DictionaryIndex } from './dictionary/dictionary-index';
 import { PatternIndex } from './patterns/pattern-index';
@@ -387,7 +388,13 @@ export class TranslatorEngine {
     const endingResult = this.endingTrie.splitSuffix(word);
     if (endingResult) {
       const stem = this.koToEnDict.get(endingResult.stem) || endingResult.stem;
-      // TODO: 시제 적용
+      const info = endingResult.info as SuffixInfo | null;
+      const tense = info?.tense as 'past' | 'present' | 'future' | 'progressive' | undefined;
+
+      // 시제 적용: 동사인 경우에만 활용
+      if (tense && tense !== 'present') {
+        return conjugateEnglishVerb(stem, tense);
+      }
       return stem;
     }
 
