@@ -74,20 +74,26 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // SSG: 모든 라우트 HTML + assets 캐싱
-        globPatterns: [
-          '**/*.html', // 모든 SSG 라우트의 HTML
-          'assets/**/*.{js,css}', // JS/CSS 번들
-          '**/*.{ico,png,svg,woff,woff2,wasm}', // 정적 자산
-        ],
-        // data/sentences/*.json 제외 (12MB+ 파일 - runtime caching 사용)
+        // SSG: HTML은 Prerender 후에 생성되므로 runtime caching 사용
+        // (VitePWA는 Vite 빌드 시점에 manifest 생성 → SSG HTML 포함 불가)
+        globPatterns: ['assets/**/*.{js,css}', '**/*.{ico,png,svg,woff,woff2,wasm}'],
         globIgnores: ['**/data/sentences/**'],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
-        // SSG: navigateFallback 비활성화 - 각 라우트가 자체 HTML 파일 사용
+        // SSG: navigateFallback 완전 비활성화
         navigateFallback: null,
+        navigateFallbackDenylist: [/.*/],
         runtimeCaching: [
+          {
+            // SSG HTML 페이지 - NetworkFirst로 최신 버전 우선, 오프라인 시 캐시 사용
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
+            },
+          },
           {
             urlPattern: /\.(?:wasm)$/,
             handler: 'CacheFirst',
