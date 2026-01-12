@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE, type Locale, parseLocalePath, SUPPORTED_LOCALES } from '@soundblue/locale';
 import type { MetaDescriptor } from 'react-router';
 
 /**
@@ -9,10 +10,6 @@ import type { MetaDescriptor } from 'react-router';
  */
 
 const SITE_URL = 'https://dialogue.soundbluemusic.com';
-const SUPPORTED_LOCALES = ['en', 'ko'] as const;
-const DEFAULT_LOCALE = 'en';
-
-type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 /**
  * Generate canonical URL and hreflang meta tags for SEO
@@ -79,11 +76,6 @@ export function generateSeoMeta(
  * ];
  */
 export function getSeoMeta(location: { pathname: string }): MetaDescriptor[] {
-  const isKorean = location.pathname.startsWith('/ko');
-  const locale: Locale = isKorean ? 'ko' : DEFAULT_LOCALE;
-
-  // Extract base pathname without locale prefix
-  const basePath = isKorean ? location.pathname.replace(/^\/ko/, '') || '/' : location.pathname;
-
+  const { locale, basePath } = parseLocalePath(location.pathname);
   return generateSeoMeta(basePath, locale);
 }

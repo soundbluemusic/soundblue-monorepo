@@ -60,7 +60,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 try {
                   // Set lang attribute based on URL
                   var path = window.location.pathname;
-                  var lang = path.startsWith('/ko') ? 'ko' : 'en';
+                  var lang = (path.startsWith('/ko/') || path === '/ko') ? 'ko' : 'en';
                   document.documentElement.lang = lang;
                   
                   // Set theme

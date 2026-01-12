@@ -17,7 +17,9 @@ export {
   getLocaleFromPath,
   getLocalizedPath,
   getOppositeLocale,
+  isKoreanPath,
   isValidLocale,
+  parseLocalePath,
   removeLocaleFromPath,
 } from './path';
 // Types

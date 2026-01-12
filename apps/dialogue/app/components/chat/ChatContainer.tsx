@@ -1,4 +1,5 @@
 import { getLocalizedPath } from '@soundblue/i18n';
+import { getLocaleFromPath } from '@soundblue/locale';
 import { addToContext, analyzeInput, type ConversationTurn } from '@soundblue/nlu';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -90,7 +91,7 @@ export function ChatContainer() {
   }, [messages]);
 
   // Extract locale from pathname to ensure it's tracked as dependency
-  const locale = location.pathname.startsWith('/ko') ? 'ko' : 'en';
+  const locale = getLocaleFromPath(location.pathname);
 
   // Handle sending a message with advanced NLU
   const handleSend = useCallback(

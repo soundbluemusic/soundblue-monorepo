@@ -81,7 +81,9 @@ export function getOppositeLocale(currentLocale: Locale): Locale {
  */
 export function getLocalizedPath(path: string, locale: Locale): string {
   // Remove any existing locale prefix
-  const basePath = path.replace(/^\/(ko|en)/, '') || '/';
+  // Use lookahead (?=\/|$) to only match /ko or /en when followed by / or end of string
+  // This prevents matching /english-spell-checker as /en + glish-spell-checker
+  const basePath = path.replace(/^\/(ko|en)(?=\/|$)/, '') || '/';
 
   // For English (default), no prefix needed
   if (locale === 'en') {
@@ -90,4 +92,42 @@ export function getLocalizedPath(path: string, locale: Locale): string {
 
   // For Korean, add /ko prefix
   return basePath === '/' ? '/ko' : `/ko${basePath}`;
+}
+
+/**
+ * Parse locale and base path from a pathname.
+ * Combines getLocaleFromPath and removeLocaleFromPath for convenience.
+ *
+ * @param pathname - URL pathname (e.g., "/ko/about" or "/about")
+ * @returns Object with locale and basePath
+ *
+ * @example
+ * parseLocalePath('/ko/about') // { locale: 'ko', basePath: '/about' }
+ * parseLocalePath('/about')    // { locale: 'en', basePath: '/about' }
+ * parseLocalePath('/ko')       // { locale: 'ko', basePath: '/' }
+ */
+export function parseLocalePath(pathname: string): {
+  locale: Locale;
+  basePath: string;
+} {
+  const locale = getLocaleFromPath(pathname);
+  const basePath = removeLocaleFromPath(pathname);
+  return { locale, basePath: basePath || '/' };
+}
+
+/**
+ * Check if a path is a Korean locale path.
+ * Safe version that correctly handles paths like /korean-food.
+ *
+ * @param pathname - URL pathname to check
+ * @returns true if path starts with /ko/ or equals /ko
+ *
+ * @example
+ * isKoreanPath('/ko/about')  // true
+ * isKoreanPath('/ko')        // true
+ * isKoreanPath('/korean')    // false (not a locale prefix)
+ * isKoreanPath('/about')     // false
+ */
+export function isKoreanPath(pathname: string): boolean {
+  return pathname.startsWith('/ko/') || pathname === '/ko';
 }
