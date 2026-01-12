@@ -31,7 +31,8 @@ export const colorPaletteTexts = {
     hsl: 'HSL',
     reset: '초기화',
     randomize: '랜덤',
-    palette: '팔레트',
+    palette: '색상 설정',
+    preview: '팔레트 미리보기',
   },
   en: {
     title: 'Color Palette',
@@ -45,7 +46,8 @@ export const colorPaletteTexts = {
     hsl: 'HSL',
     reset: 'Reset',
     randomize: 'Random',
-    palette: 'Palette',
+    palette: 'Color Settings',
+    preview: 'Palette Preview',
   },
 } as const;
 

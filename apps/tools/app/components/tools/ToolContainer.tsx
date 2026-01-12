@@ -11,6 +11,10 @@ import { getToolComponent, getToolInfo } from '~/lib/toolCategories';
 import { getToolGuide } from '~/lib/toolGuides';
 import { useAudioStore } from '~/stores/audio-store';
 import { useToolStore } from '~/stores/tool-store';
+import {
+  type ColorDecomposerSettings,
+  defaultColorDecomposerSettings,
+} from '~/tools/color-decomposer/settings';
 // Import tool types and default settings from local files (avoids loading heavy @soundblue/ui-components bundle)
 import {
   type ColorHarmonySettings,
@@ -146,6 +150,7 @@ const URL_PARAMS = {
   englishSpellChecker: [] as const,
   colorHarmony: ['baseColor', 'mode'] as const,
   colorPalette: ['size'] as const,
+  colorDecomposer: ['size'] as const,
 };
 
 // 보존해야 할 특수 파라미터 (각 도구에서 직접 관리)
@@ -420,6 +425,13 @@ export function ToolContainer() {
     [updateToolSettings],
   );
 
+  const handleColorDecomposerSettingsChange = useCallback(
+    (settings: Partial<ColorDecomposerSettings>) => {
+      updateToolSettings('colorDecomposer', settings);
+    },
+    [updateToolSettings],
+  );
+
   // Merged settings for each tool
   const metronomeSettings = useMemo(
     () => ({
@@ -509,6 +521,14 @@ export function ToolContainer() {
     [toolSettings.colorPalette],
   );
 
+  const colorDecomposerSettings = useMemo(
+    () => ({
+      ...defaultColorDecomposerSettings,
+      ...toolSettings.colorDecomposer,
+    }),
+    [toolSettings.colorDecomposer],
+  );
+
   // Settings registry for each tool type
   const toolSettingsRegistry = useMemo(
     () => ({
@@ -546,6 +566,10 @@ export function ToolContainer() {
         settings: colorPaletteSettings,
         onSettingsChange: handleColorPaletteSettingsChange,
       },
+      colorDecomposer: {
+        settings: colorDecomposerSettings,
+        onSettingsChange: handleColorDecomposerSettingsChange,
+      },
     }),
     [
       metronomeSettings,
@@ -568,6 +592,8 @@ export function ToolContainer() {
       handleColorHarmonySettingsChange,
       colorPaletteSettings,
       handleColorPaletteSettingsChange,
+      colorDecomposerSettings,
+      handleColorDecomposerSettingsChange,
     ],
   );
 

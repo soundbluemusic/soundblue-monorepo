@@ -21,6 +21,7 @@ const BASE_PATHS = [
   '/english-spell-checker',
   '/color-harmony',
   '/color-palette',
+  '/color-decomposer',
 ];
 
 // 로케일별 경로 생성

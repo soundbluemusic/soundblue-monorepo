@@ -589,6 +589,64 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       ],
     },
   },
+
+  // ========================================
+  // 11. Color Decomposer (색상 분해)
+  // ========================================
+  colorDecomposer: {
+    ko: {
+      title: '사용 안내',
+      sections: [
+        {
+          title: '이 도구는',
+          items: [
+            '목표 색상이 어떤 색상들로 조합되는지 보여주는 도구',
+            '색상 혼합 원리를 학습하는 데 유용',
+          ],
+        },
+        {
+          title: '사용 방법',
+          items: ['목표 색상 선택', '구성 색상 개수(2~5) 선택', '각 색상의 비율 슬라이더로 조절'],
+        },
+        {
+          title: '버튼 설명',
+          items: [
+            'Random: 무작위 구성 색상 생성',
+            'Reset: 기본값으로 복원',
+            '비율 슬라이더: 색상 혼합 비율 조절',
+          ],
+        },
+      ],
+    },
+    en: {
+      title: 'How to Use',
+      sections: [
+        {
+          title: 'About this tool',
+          items: [
+            'Shows how a target color can be composed from other colors',
+            'Useful for learning color mixing principles',
+          ],
+        },
+        {
+          title: 'How to use',
+          items: [
+            'Select a target color',
+            'Choose component count (2-5)',
+            'Adjust ratio sliders for each color',
+          ],
+        },
+        {
+          title: 'Button guide',
+          items: [
+            'Random: Generate random component colors',
+            'Reset: Restore defaults',
+            'Ratio slider: Adjust color mixing ratio',
+          ],
+        },
+      ],
+    },
+  },
 };
 
 /**

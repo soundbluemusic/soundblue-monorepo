@@ -316,7 +316,21 @@ export function ColorPalette({ settings: propSettings, onSettingsChange }: Color
         </div>
       </div>
 
-      {/* Palette Display */}
+      {/* Combined Palette Preview */}
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <h3 className="text-sm font-medium text-foreground mb-3">{texts.preview}</h3>
+        <div className="flex h-24 sm:h-32 rounded-xl overflow-hidden shadow-inner">
+          {colorInfos.map((color, idx) => (
+            <div
+              key={idx}
+              className="flex-1 transition-all duration-200"
+              style={{ backgroundColor: color.hex }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Color Cards */}
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <h3 className="text-sm font-medium text-foreground mb-3">{texts.palette}</h3>
         <div

@@ -250,6 +250,16 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
           en: 'Create custom color palettes with 2-5 colors',
         },
       },
+      {
+        id: 'colorDecomposer',
+        slug: 'color-decomposer',
+        name: { ko: '색상 분해', en: 'Color Decomposer' },
+        icon: '\uD83D\uDD0D',
+        description: {
+          ko: '색상 혼합 원리를 배우는 분해 도구',
+          en: 'Learn color mixing by decomposing colors into components',
+        },
+      },
     ],
   },
 ];
@@ -402,6 +412,9 @@ export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
   ),
   colorPalette: lazy(() =>
     import('~/tools/color-palette').then((m) => ({ default: m.ColorPalette })),
+  ),
+  colorDecomposer: lazy(() =>
+    import('~/tools/color-decomposer').then((m) => ({ default: m.ColorDecomposer })),
   ),
 };
 

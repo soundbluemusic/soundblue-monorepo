@@ -28,6 +28,7 @@ const TOOL_PAGES = [
   'english-spell-checker',
   'color-harmony',
   'color-palette',
+  'color-decomposer',
 ] as const;
 
 // ========================================
