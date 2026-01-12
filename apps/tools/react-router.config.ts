@@ -13,6 +13,7 @@ const BASE_PATHS = [
   '/sitemap',
   '/metronome',
   '/drum-machine',
+  '/delay-calculator',
   '/qr',
   '/translator',
   '/spell-checker',

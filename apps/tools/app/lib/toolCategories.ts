@@ -161,6 +161,16 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         icon: '\uD83E\uDD41',
         description: { ko: '16스텝 드럼 패턴 시퀀서', en: '16-step drum pattern sequencer' },
       },
+      {
+        id: 'delayCalculator',
+        slug: 'delay-calculator',
+        name: { ko: '딜레이 계산기', en: 'Delay Calculator' },
+        icon: '\u23F1\uFE0F',
+        description: {
+          ko: 'BPM 기반 딜레이 타임 계산',
+          en: 'Calculate delay times based on BPM',
+        },
+      },
     ],
   },
   {
@@ -336,6 +346,9 @@ export const getToolName = (id: ToolType, locale: 'ko' | 'en' = 'ko'): string =>
 export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
   metronome: lazy(() => import('~/tools/metronome').then((m) => ({ default: m.Metronome }))),
   drumMachine: lazy(() => import('~/tools/drum-machine').then((m) => ({ default: m.DrumMachine }))),
+  delayCalculator: lazy(() =>
+    import('~/tools/delay-calculator').then((m) => ({ default: m.DelayCalculator })),
+  ),
   // Use individual entry points to avoid loading entire ui-components bundle
   qr: lazy(() =>
     import('@soundblue/ui-components/composite/tool/qr-generator').then((m) => ({

@@ -20,6 +20,7 @@ const STATIC_PAGES = [
 const TOOL_PAGES = [
   'metronome',
   'drum-machine',
+  'delay-calculator',
   'qr',
   'translator',
   'spell-checker',

@@ -12,6 +12,10 @@ import { useAudioStore } from '~/stores/audio-store';
 import { useToolStore } from '~/stores/tool-store';
 // Import tool types and default settings from local files (avoids loading heavy @soundblue/ui-components bundle)
 import {
+  type DelayCalculatorSettings,
+  defaultDelayCalculatorSettings,
+} from '~/tools/delay-calculator/settings';
+import {
   type DrumMachineSettings,
   defaultDrumMachineSettings,
 } from '~/tools/drum-machine/settings';
@@ -123,6 +127,7 @@ class ToolErrorBoundary extends Component<ToolErrorBoundaryProps, ToolErrorBound
 const URL_PARAMS = {
   metronome: ['bpm', 'beatsPerMeasure', 'volume'] as const,
   drumMachine: ['bpm', 'swing', 'volume'] as const,
+  delayCalculator: ['bpm'] as const,
   qr: ['size', 'fgColor', 'bgColor'] as const,
   translator: ['direction'] as const,
   spellChecker: [] as const,
@@ -242,6 +247,16 @@ export function ToolContainer() {
         }
       }
       if (hasUrlSettings) updateToolSettings('qr', settings);
+    } else if (currentTool === 'delayCalculator') {
+      const settings: Partial<DelayCalculatorSettings> = {};
+      for (const param of params) {
+        const parsed = parseUrlValue(param, searchParams.get(param));
+        if (parsed) {
+          hasUrlSettings = true;
+          if (parsed.key === 'bpm') settings.bpm = parsed.value as number;
+        }
+      }
+      if (hasUrlSettings) updateToolSettings('delayCalculator', settings);
     } else if (currentTool === 'translator') {
       const settings: Partial<TranslatorSettings> = {};
       for (const param of params) {
@@ -363,6 +378,13 @@ export function ToolContainer() {
     [updateToolSettings],
   );
 
+  const handleDelayCalculatorSettingsChange = useCallback(
+    (settings: Partial<DelayCalculatorSettings>) => {
+      updateToolSettings('delayCalculator', settings);
+    },
+    [updateToolSettings],
+  );
+
   // Merged settings for each tool
   const metronomeSettings = useMemo(
     () => ({
@@ -420,6 +442,14 @@ export function ToolContainer() {
     [toolSettings.englishSpellChecker],
   );
 
+  const delayCalculatorSettings = useMemo(
+    () => ({
+      ...defaultDelayCalculatorSettings,
+      ...toolSettings.delayCalculator,
+    }),
+    [toolSettings.delayCalculator],
+  );
+
   // Settings registry for each tool type
   const toolSettingsRegistry = useMemo(
     () => ({
@@ -427,6 +457,10 @@ export function ToolContainer() {
       drumMachine: {
         settings: drumMachineSettings,
         onSettingsChange: handleDrumMachineSettingsChange,
+      },
+      delayCalculator: {
+        settings: delayCalculatorSettings,
+        onSettingsChange: handleDelayCalculatorSettingsChange,
       },
       qr: { settings: qrSettings, onSettingsChange: handleQRSettingsChange },
       translator: {
@@ -447,6 +481,8 @@ export function ToolContainer() {
       handleMetronomeSettingsChange,
       drumMachineSettings,
       handleDrumMachineSettingsChange,
+      delayCalculatorSettings,
+      handleDelayCalculatorSettingsChange,
       qrSettings,
       handleQRSettingsChange,
       translatorSettings,
