@@ -8,7 +8,7 @@ import {
   preloadSpellChecker,
 } from './engine';
 import { defaultEnglishSpellCheckerSettings, type EnglishSpellCheckerSettings } from './settings';
-import type { EnglishSpellCheckResult } from './types';
+import type { EnglishSpellCheckResult, EnglishSpellError } from './types';
 
 // ========================================
 // English Spell Checker Tool
@@ -69,6 +69,8 @@ export function EnglishSpellChecker({
       const checkResult = await checkEnglishSpelling(inputText, {
         maxSuggestions: settings.maxSuggestions,
         ignoreNumbers: settings.ignoreNumbers,
+        checkSpacing: settings.checkSpacing,
+        checkGrammar: settings.checkGrammar,
       });
 
       setResult(checkResult);
@@ -77,6 +79,46 @@ export function EnglishSpellChecker({
       setIsChecking(false);
     }
   }, [inputText, settings, handleSettingsChange]);
+
+  // Error type colors
+  const getErrorBadgeColor = (type: EnglishSpellError['type']) => {
+    switch (type) {
+      case 'spelling':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300';
+      case 'spacing':
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300';
+      case 'grammar':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300';
+      default:
+        return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  const getErrorColor = (type: EnglishSpellError['type']) => {
+    switch (type) {
+      case 'spelling':
+        return 'text-red-600 dark:text-red-400';
+      case 'spacing':
+        return 'text-blue-600 dark:text-blue-400';
+      case 'grammar':
+        return 'text-amber-600 dark:text-amber-400';
+      default:
+        return 'text-muted-foreground';
+    }
+  };
+
+  const getErrorTypeLabel = (type: EnglishSpellError['type']) => {
+    switch (type) {
+      case 'spelling':
+        return m['englishSpellChecker.spelling']?.() ?? 'Spelling';
+      case 'spacing':
+        return m['englishSpellChecker.spacing']?.() ?? 'Spacing';
+      case 'grammar':
+        return m['englishSpellChecker.grammar']?.() ?? 'Grammar';
+      default:
+        return type;
+    }
+  };
 
   // Reset
   const handleReset = useCallback(() => {
@@ -164,6 +206,33 @@ export function EnglishSpellChecker({
           <label className="flex cursor-pointer items-center gap-2 text-sm">
             <input
               type="checkbox"
+              checked={settings.checkSpelling}
+              onChange={(e) => handleSettingsChange({ checkSpelling: e.target.checked })}
+              className="h-4 w-4 rounded border-border accent-primary"
+            />
+            <span>{m['englishSpellChecker.checkSpelling']?.() ?? 'Spelling'}</span>
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={settings.checkSpacing}
+              onChange={(e) => handleSettingsChange({ checkSpacing: e.target.checked })}
+              className="h-4 w-4 rounded border-border accent-primary"
+            />
+            <span>{m['englishSpellChecker.checkSpacing']?.() ?? 'Spacing'}</span>
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={settings.checkGrammar}
+              onChange={(e) => handleSettingsChange({ checkGrammar: e.target.checked })}
+              className="h-4 w-4 rounded border-border accent-primary"
+            />
+            <span>{m['englishSpellChecker.checkGrammar']?.() ?? 'Grammar'}</span>
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
               checked={settings.ignoreNumbers}
               onChange={(e) => handleSettingsChange({ ignoreNumbers: e.target.checked })}
               className="h-4 w-4 rounded border-border accent-primary"
@@ -206,11 +275,28 @@ export function EnglishSpellChecker({
               {m['englishSpellChecker.resultTitle']?.() ?? 'Results'}
             </span>
             <div className="flex flex-wrap gap-2">
-              {result.errors.length > 0 ? (
-                <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700 dark:bg-red-900/50 dark:text-red-300">
-                  {m['englishSpellChecker.misspelled']?.() ?? 'Misspelled'} {result.errors.length}
+              {result.stats.spellingErrors > 0 && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs ${getErrorBadgeColor('spelling')}`}
+                >
+                  {getErrorTypeLabel('spelling')} {result.stats.spellingErrors}
                 </span>
-              ) : (
+              )}
+              {result.stats.spacingErrors > 0 && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs ${getErrorBadgeColor('spacing')}`}
+                >
+                  {getErrorTypeLabel('spacing')} {result.stats.spacingErrors}
+                </span>
+              )}
+              {result.stats.grammarErrors > 0 && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs ${getErrorBadgeColor('grammar')}`}
+                >
+                  {getErrorTypeLabel('grammar')} {result.stats.grammarErrors}
+                </span>
+              )}
+              {result.errors.length === 0 && (
                 <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900/50 dark:text-green-300">
                   {m['englishSpellChecker.noErrors']?.() ?? 'No errors'}
                 </span>
@@ -221,50 +307,16 @@ export function EnglishSpellChecker({
             </div>
           </div>
 
-          {/* Error List */}
-          {result.errors.length > 0 && (
-            <>
-              <div className="mb-4">
-                <div className="mb-2 text-sm font-medium text-foreground">
-                  {m['englishSpellChecker.errorList']?.() ?? 'Corrections'}
-                </div>
-                <div className="space-y-2">
-                  {result.errors.map((error, idx) => (
-                    <div
-                      key={`${error.word}-${error.start}-${idx}`}
-                      className="rounded-lg border border-border bg-background p-3 text-sm"
-                    >
-                      <div className="flex items-start gap-2">
-                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700 dark:bg-red-900/50 dark:text-red-300">
-                          {m['englishSpellChecker.misspelled']?.() ?? 'Misspelled'}
-                        </span>
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="line-through decoration-red-500">{error.word}</span>
-                            {error.suggestions.length > 0 && (
-                              <>
-                                <span className="text-muted-foreground">→</span>
-                                <span className="text-green-600 dark:text-green-400">
-                                  {error.suggestions[0]}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                          {error.suggestions.length > 1 && (
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              {m['englishSpellChecker.otherSuggestions']?.() ?? 'Other'}:{' '}
-                              {error.suggestions.slice(1).join(', ')}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          {/* Corrected Text */}
+          {result.corrected !== result.original && (
+            <div className="mb-4">
+              <div className="mb-2 text-sm font-medium text-foreground">
+                {m['englishSpellChecker.correctedText']?.() ?? 'Corrected text'}
               </div>
-
-              {/* Action buttons */}
-              <div className="flex gap-2">
+              <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm leading-relaxed dark:border-green-800 dark:bg-green-950/50 sm:text-base">
+                {result.corrected}
+              </div>
+              <div className="mt-2 flex gap-2">
                 <button
                   type="button"
                   onClick={handleCopy}
@@ -273,17 +325,66 @@ export function EnglishSpellChecker({
                   {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                   {copied
                     ? (m['englishSpellChecker.copied']?.() ?? 'Copied')
-                    : (m['englishSpellChecker.copy']?.() ?? 'Copy corrected')}
+                    : (m['englishSpellChecker.copy']?.() ?? 'Copy')}
                 </button>
                 <button
                   type="button"
                   onClick={handleApplyAll}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-primary bg-primary/10 px-3 py-1.5 text-xs text-primary transition-colors hover:bg-primary/20"
                 >
-                  {m['englishSpellChecker.applyAll']?.() ?? 'Apply all'}
+                  {m['englishSpellChecker.apply']?.() ?? 'Apply'}
                 </button>
               </div>
-            </>
+            </div>
+          )}
+
+          {/* Error List */}
+          {result.errors.length > 0 && (
+            <div>
+              <div className="mb-2 text-sm font-medium text-foreground">
+                {m['englishSpellChecker.errorList']?.() ?? 'Corrections'}
+              </div>
+              <div className="space-y-2">
+                {result.errors.map((error, idx) => (
+                  <div
+                    key={`${error.word}-${error.start}-${idx}`}
+                    className="rounded-lg border border-border bg-background p-3 text-sm"
+                  >
+                    <div className="flex items-start gap-2">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${getErrorBadgeColor(error.type)}`}
+                      >
+                        {getErrorTypeLabel(error.type)}
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="line-through decoration-red-500">
+                            {error.word.replace(/ /g, '␣')}
+                          </span>
+                          {error.suggestions.length > 0 && (
+                            <>
+                              <span className="text-muted-foreground">→</span>
+                              <span className={getErrorColor(error.type)}>
+                                {error.suggestions[0].replace(/ /g, '␣')}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                        {error.message && (
+                          <p className="mt-1 text-xs text-muted-foreground">{error.message}</p>
+                        )}
+                        {error.suggestions.length > 1 && (
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {m['englishSpellChecker.otherSuggestions']?.() ?? 'Other'}:{' '}
+                            {error.suggestions.slice(1).join(', ')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       )}

@@ -7,6 +7,9 @@ export interface EnglishSpellCheckerSettings {
   maxSuggestions: number;
   ignoreCase: boolean;
   ignoreNumbers: boolean;
+  checkSpelling: boolean;
+  checkSpacing: boolean;
+  checkGrammar: boolean;
   lastInput?: string;
 }
 
@@ -14,5 +17,8 @@ export const defaultEnglishSpellCheckerSettings: EnglishSpellCheckerSettings = {
   maxSuggestions: 5,
   ignoreCase: false,
   ignoreNumbers: true,
+  checkSpelling: true,
+  checkSpacing: true,
+  checkGrammar: true,
   lastInput: '',
 };

@@ -4,6 +4,7 @@
  *
  * nspell (Hunspell 호환) 라이브러리를 사용하여
  * 영어 철자 검사를 수행합니다.
+ * 추가로 띄어쓰기, 문법 검사를 자체 구현합니다.
  */
 
 import type {
@@ -108,6 +109,284 @@ function shouldIgnoreWord(word: string, options: EnglishSpellCheckOptions): bool
   return false;
 }
 
+// ========================================
+// Spacing Check (띄어쓰기 검사)
+// ========================================
+
+/**
+ * Check spacing errors
+ */
+function checkSpacing(text: string): EnglishSpellError[] {
+  const errors: EnglishSpellError[] = [];
+
+  // 1. Multiple spaces (이중 공백)
+  const multipleSpaces = / {2,}/g;
+  let match: RegExpExecArray | null = multipleSpaces.exec(text);
+  while (match !== null) {
+    errors.push({
+      type: 'spacing',
+      word: match[0],
+      start: match.index,
+      end: match.index + match[0].length,
+      suggestions: [' '],
+      message: 'Multiple spaces should be single space',
+    });
+    match = multipleSpaces.exec(text);
+  }
+
+  // 2. Space before punctuation (문장부호 앞 공백)
+  const spaceBeforePunct = / +([.!?,;:])/g;
+  match = spaceBeforePunct.exec(text);
+  while (match !== null) {
+    errors.push({
+      type: 'spacing',
+      word: match[0],
+      start: match.index,
+      end: match.index + match[0].length,
+      suggestions: [match[1]],
+      message: 'No space before punctuation',
+    });
+    match = spaceBeforePunct.exec(text);
+  }
+
+  // 3. Missing space after punctuation (문장부호 뒤 공백 없음)
+  // Exclude URLs, numbers with decimals, abbreviations
+  const missingSpaceAfterPunct = /([.!?])([A-Za-z])/g;
+  match = missingSpaceAfterPunct.exec(text);
+  while (match !== null) {
+    // Skip common abbreviations like "Dr.", "Mr.", "vs."
+    const before = text.slice(Math.max(0, match.index - 3), match.index + 1);
+    if (!/(?:Dr|Mr|Ms|Mrs|vs|etc|e\.g|i\.e)\.$/i.test(before)) {
+      errors.push({
+        type: 'spacing',
+        word: match[0],
+        start: match.index,
+        end: match.index + match[0].length,
+        suggestions: [`${match[1]} ${match[2]}`],
+        message: 'Add space after punctuation',
+      });
+    }
+    match = missingSpaceAfterPunct.exec(text);
+  }
+
+  // 4. Missing space after comma (쉼표 뒤 공백 없음)
+  const missingSpaceAfterComma = /,([A-Za-z])/g;
+  match = missingSpaceAfterComma.exec(text);
+  while (match !== null) {
+    errors.push({
+      type: 'spacing',
+      word: match[0],
+      start: match.index,
+      end: match.index + match[0].length,
+      suggestions: [`, ${match[1]}`],
+      message: 'Add space after comma',
+    });
+    match = missingSpaceAfterComma.exec(text);
+  }
+
+  return errors;
+}
+
+// ========================================
+// Grammar Check (문법 검사)
+// ========================================
+
+// Vowel sounds for a/an rule (모음 소리)
+const vowelSoundWords = new Set([
+  // Words starting with silent 'h'
+  'hour',
+  'hours',
+  'honest',
+  'honestly',
+  'honor',
+  'honour',
+  'heir',
+  'heiress',
+  // Acronyms pronounced with vowel sound
+  'fbi',
+  'html',
+  'http',
+  'mba',
+  'mri',
+  'nba',
+  'sql',
+]);
+
+const consonantSoundWords = new Set([
+  // Words starting with 'u' but consonant sound (like "you")
+  'user',
+  'users',
+  'union',
+  'unions',
+  'united',
+  'unit',
+  'units',
+  'university',
+  'universities',
+  'unique',
+  'uniform',
+  'uniforms',
+  'universal',
+  'useful',
+  'usual',
+  'usually',
+  'utility',
+  'utilities',
+  'utensil',
+  'utensils',
+  // Words starting with 'eu'
+  'european',
+  'euro',
+  'euros',
+  // Words starting with 'ew'
+  'ewe',
+  'ewes',
+  // One as "won"
+  'one',
+  'once',
+]);
+
+/**
+ * Check if word starts with vowel sound
+ */
+function startsWithVowelSound(word: string): boolean {
+  const lower = word.toLowerCase();
+
+  // Check exception lists first
+  if (vowelSoundWords.has(lower)) return true;
+  if (consonantSoundWords.has(lower)) return false;
+
+  // Default: check first letter
+  return /^[aeiou]/i.test(word);
+}
+
+/**
+ * Check grammar errors
+ */
+function checkGrammar(text: string): EnglishSpellError[] {
+  const errors: EnglishSpellError[] = [];
+
+  // 1. a/an article agreement (관사 a/an 일치)
+  // "a" before vowel sound
+  const wrongA = /\b(a)\s+([a-zA-Z]+)/gi;
+  let match: RegExpExecArray | null = wrongA.exec(text);
+  while (match !== null) {
+    const article = match[1];
+    const nextWord = match[2];
+
+    if (startsWithVowelSound(nextWord)) {
+      const correctArticle = article === 'A' ? 'An' : 'an';
+      errors.push({
+        type: 'grammar',
+        word: match[0],
+        start: match.index,
+        end: match.index + match[0].length,
+        suggestions: [`${correctArticle} ${nextWord}`],
+        message: `Use "${correctArticle}" before vowel sounds`,
+      });
+    }
+    match = wrongA.exec(text);
+  }
+
+  // "an" before consonant sound
+  const wrongAn = /\b(an)\s+([a-zA-Z]+)/gi;
+  match = wrongAn.exec(text);
+  while (match !== null) {
+    const article = match[1];
+    const nextWord = match[2];
+
+    if (!startsWithVowelSound(nextWord)) {
+      const correctArticle = article === 'An' ? 'A' : 'a';
+      errors.push({
+        type: 'grammar',
+        word: match[0],
+        start: match.index,
+        end: match.index + match[0].length,
+        suggestions: [`${correctArticle} ${nextWord}`],
+        message: `Use "${correctArticle}" before consonant sounds`,
+      });
+    }
+    match = wrongAn.exec(text);
+  }
+
+  // 2. Repeated words (반복 단어)
+  const repeatedWords = /\b(\w+)\s+\1\b/gi;
+  match = repeatedWords.exec(text);
+  while (match !== null) {
+    // Skip intentional repetitions like "very very"
+    const word = match[1].toLowerCase();
+    if (!['very', 'really', 'so', 'had', 'that'].includes(word)) {
+      errors.push({
+        type: 'grammar',
+        word: match[0],
+        start: match.index,
+        end: match.index + match[0].length,
+        suggestions: [match[1]],
+        message: 'Repeated word',
+      });
+    }
+    match = repeatedWords.exec(text);
+  }
+
+  // 3. Capitalization after sentence end (문장 끝 뒤 대문자)
+  const missingCapital = /([.!?]\s+)([a-z])/g;
+  match = missingCapital.exec(text);
+  while (match !== null) {
+    errors.push({
+      type: 'grammar',
+      word: match[0],
+      start: match.index,
+      end: match.index + match[0].length,
+      suggestions: [`${match[1]}${match[2].toUpperCase()}`],
+      message: 'Capitalize first letter after sentence end',
+    });
+    match = missingCapital.exec(text);
+  }
+
+  // 4. First letter of text should be capitalized (첫 글자 대문자)
+  const firstLetter = text.match(/^(\s*)([a-z])/);
+  if (firstLetter) {
+    errors.push({
+      type: 'grammar',
+      word: firstLetter[0],
+      start: 0,
+      end: firstLetter[0].length,
+      suggestions: [`${firstLetter[1]}${firstLetter[2].toUpperCase()}`],
+      message: 'Capitalize first letter',
+    });
+  }
+
+  return errors;
+}
+
+// ========================================
+// Apply corrections (수정 적용)
+// ========================================
+
+/**
+ * Apply all corrections to text
+ */
+function applyCorrections(text: string, errors: EnglishSpellError[]): string {
+  if (errors.length === 0) return text;
+
+  // Sort by position (descending) to preserve indices
+  const sorted = [...errors].sort((a, b) => b.start - a.start);
+
+  let corrected = text;
+  for (const error of sorted) {
+    if (error.suggestions.length > 0) {
+      corrected =
+        corrected.slice(0, error.start) + error.suggestions[0] + corrected.slice(error.end);
+    }
+  }
+
+  return corrected;
+}
+
+// ========================================
+// Main function (메인 함수)
+// ========================================
+
 /**
  * Main spell check function
  */
@@ -115,48 +394,76 @@ export async function checkEnglishSpelling(
   text: string,
   options: EnglishSpellCheckOptions = {},
 ): Promise<EnglishSpellCheckResult> {
-  const { maxSuggestions = 5, ignoreNumbers = true } = options;
+  const {
+    maxSuggestions = 5,
+    ignoreNumbers = true,
+    checkSpacing: doCheckSpacing = true,
+    checkGrammar: doCheckGrammar = true,
+  } = options;
 
   // Initialize spell checker if needed
   await initSpellChecker();
 
-  if (!spellChecker) {
-    return {
-      original: text,
-      errors: [],
-      stats: { totalWords: 0, misspelledWords: 0 },
-    };
+  const allErrors: EnglishSpellError[] = [];
+
+  // 1. Spelling check (철자 검사)
+  if (spellChecker) {
+    const tokens = tokenize(text);
+
+    for (const token of tokens) {
+      if (shouldIgnoreWord(token.word, { ignoreNumbers })) {
+        continue;
+      }
+
+      const isCorrect = spellChecker.correct(token.word);
+
+      if (!isCorrect) {
+        const suggestions = spellChecker.suggest(token.word).slice(0, maxSuggestions);
+
+        allErrors.push({
+          type: 'spelling',
+          word: token.word,
+          start: token.start,
+          end: token.end,
+          suggestions,
+          message: 'Misspelled word',
+        });
+      }
+    }
   }
 
+  // 2. Spacing check (띄어쓰기 검사)
+  if (doCheckSpacing) {
+    const spacingErrors = checkSpacing(text);
+    allErrors.push(...spacingErrors);
+  }
+
+  // 3. Grammar check (문법 검사)
+  if (doCheckGrammar) {
+    const grammarErrors = checkGrammar(text);
+    allErrors.push(...grammarErrors);
+  }
+
+  // Sort errors by position
+  allErrors.sort((a, b) => a.start - b.start);
+
+  // Build corrected text
+  const corrected = applyCorrections(text, allErrors);
+
+  // Calculate stats
   const tokens = tokenize(text);
-  const errors: EnglishSpellError[] = [];
-
-  for (const token of tokens) {
-    if (shouldIgnoreWord(token.word, { ignoreNumbers })) {
-      continue;
-    }
-
-    const isCorrect = spellChecker.correct(token.word);
-
-    if (!isCorrect) {
-      const suggestions = spellChecker.suggest(token.word).slice(0, maxSuggestions);
-
-      errors.push({
-        word: token.word,
-        start: token.start,
-        end: token.end,
-        suggestions,
-      });
-    }
-  }
+  const stats = {
+    totalWords: tokens.filter((t) => !shouldIgnoreWord(t.word, { ignoreNumbers })).length,
+    spellingErrors: allErrors.filter((e) => e.type === 'spelling').length,
+    spacingErrors: allErrors.filter((e) => e.type === 'spacing').length,
+    grammarErrors: allErrors.filter((e) => e.type === 'grammar').length,
+  };
 
   return {
     original: text,
-    errors,
-    stats: {
-      totalWords: tokens.filter((t) => !shouldIgnoreWord(t.word, { ignoreNumbers })).length,
-      misspelledWords: errors.length,
-    },
+    corrected,
+    errors: allErrors,
+    stats,
   };
 }
 
