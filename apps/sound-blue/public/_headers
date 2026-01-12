@@ -14,9 +14,9 @@
   X-XSS-Protection: 1; mode=block
   # Referrer Policy
   Referrer-Policy: strict-origin-when-cross-origin
-  # Cross-Origin Isolation (credentialless allows external iframes like YouTube)
-  Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: credentialless
+  # Cross-Origin Isolation
+  # Note: COEP disabled to allow YouTube embeds (YouTube doesn't send CORP headers)
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
   # Permissions Policy
   Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
   # Content Security Policy
