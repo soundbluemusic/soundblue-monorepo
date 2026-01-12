@@ -1,7 +1,18 @@
 /**
  * English Spell Checker Types
  * 영어 맞춤법 검사기 타입 정의
+ *
+ * Uses unified types from @soundblue/text-processor
  */
+
+// Re-export unified types for new code
+export type {
+  TextCheckOptions,
+  TextCheckResult,
+  TextCheckStats,
+  TextError,
+  TextErrorType,
+} from '@soundblue/text-processor';
 
 /** 에러 유형 */
 export type EnglishSpellErrorType = 'spelling' | 'spacing' | 'grammar';

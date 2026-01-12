@@ -1,0 +1,27 @@
+{
+  "name": "@soundblue/text-processor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Common text processing utilities for language tools (no browser APIs)",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts",
+    "./corrections": "./src/corrections.ts",
+    "./stats": "./src/stats.ts",
+    "./tokenizer": "./src/tokenizer.ts",
+    "./grammar-en": "./src/grammar-en.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  }
+}

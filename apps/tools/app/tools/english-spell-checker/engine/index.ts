@@ -15,10 +15,17 @@
 const DICTIONARY_AFF_URL = '/dictionaries/en.aff';
 const DICTIONARY_DIC_URL = '/dictionaries/en.dic';
 
+import {
+  applyCorrections,
+  checkEnglishGrammar,
+  detectScatteredLetters,
+  scatteredLettersToErrors,
+} from '@soundblue/text-processor';
 import type {
   EnglishSpellCheckOptions,
   EnglishSpellCheckResult,
   EnglishSpellError,
+  EnglishSpellErrorType,
 } from '../types';
 
 // Lazy-loaded spell checker instance
@@ -312,6 +319,7 @@ function startsWithVowelSound(word: string): boolean {
 
 /**
  * Check grammar errors
+ * Combines local checks with advanced grammar checks from text-processor
  */
 function checkGrammar(text: string): EnglishSpellError[] {
   const errors: EnglishSpellError[] = [];
@@ -406,35 +414,35 @@ function checkGrammar(text: string): EnglishSpellError[] {
     });
   }
 
+  // 5. Advanced grammar checks from text-processor
+  // Subject-verb agreement, tense consistency, articles, prepositions
+  const advancedErrors = checkEnglishGrammar(text);
+
+  // Convert TextError to EnglishSpellError and add to errors
+  // Avoid duplicates by checking position overlap
+  const existingPositions = new Set(errors.map((e) => `${e.start}-${e.end}`));
+
+  for (const err of advancedErrors) {
+    const posKey = `${err.start}-${err.end}`;
+    if (!existingPositions.has(posKey)) {
+      errors.push({
+        type: 'grammar',
+        word: err.original,
+        start: err.start,
+        end: err.end,
+        suggestions: err.suggestions,
+        message: err.message,
+      });
+      existingPositions.add(posKey);
+    }
+  }
+
   return errors;
 }
 
 // ========================================
-// Apply corrections (수정 적용)
-// ========================================
-
-/**
- * Apply all corrections to text
- */
-function applyCorrections(text: string, errors: EnglishSpellError[]): string {
-  if (errors.length === 0) return text;
-
-  // Sort by position (descending) to preserve indices
-  const sorted = [...errors].sort((a, b) => b.start - a.start);
-
-  let corrected = text;
-  for (const error of sorted) {
-    if (error.suggestions.length > 0) {
-      corrected =
-        corrected.slice(0, error.start) + error.suggestions[0] + corrected.slice(error.end);
-    }
-  }
-
-  return corrected;
-}
-
-// ========================================
 // Main function (메인 함수)
+// Note: applyCorrections is imported from @soundblue/text-processor
 // ========================================
 
 /**
@@ -456,11 +464,45 @@ export async function checkEnglishSpelling(
 
   const allErrors: EnglishSpellError[] = [];
 
+  // 0. Scattered letters check (분리된 글자 검사) - "h e llo" → "hello"
+  // Must run before spelling check to avoid false positives on single letters
+  // Capture spellChecker in a local variable for TypeScript null safety
+  const checker = spellChecker;
+  const scatteredResults = detectScatteredLetters(
+    text,
+    checker ? (word) => checker.correct(word) : undefined,
+  );
+  const scatteredTextErrors = scatteredLettersToErrors(scatteredResults);
+  // Convert TextError to EnglishSpellError (original → word)
+  const scatteredErrors: EnglishSpellError[] = scatteredTextErrors.map((e) => ({
+    type: e.type as EnglishSpellErrorType,
+    word: e.original,
+    start: e.start,
+    end: e.end,
+    suggestions: e.suggestions,
+    message: e.message,
+  }));
+  allErrors.push(...scatteredErrors);
+
+  // Create a set of positions covered by scattered letters errors
+  // to avoid duplicate spelling errors for the same range
+  const scatteredRanges = new Set<string>();
+  for (const error of scatteredErrors) {
+    for (let i = error.start; i < error.end; i++) {
+      scatteredRanges.add(String(i));
+    }
+  }
+
   // 1. Spelling check (철자 검사)
   if (spellChecker) {
     const tokens = tokenize(text);
 
     for (const token of tokens) {
+      // Skip tokens that are part of scattered letters
+      if (scatteredRanges.has(String(token.start))) {
+        continue;
+      }
+
       if (shouldIgnoreWord(token.word, { ignoreNumbers })) {
         continue;
       }

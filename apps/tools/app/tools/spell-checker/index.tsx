@@ -293,7 +293,7 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="line-through decoration-red-500">{error.original}</span>
                           <span className="text-muted-foreground">→</span>
-                          <span className={getErrorColor(error.type)}>{error.suggestion}</span>
+                          <span className={getErrorColor(error.type)}>{error.suggestions[0]}</span>
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">{error.message}</p>
                       </div>

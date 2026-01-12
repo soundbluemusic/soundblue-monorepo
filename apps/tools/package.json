@@ -51,6 +51,7 @@
     "@react-router/serve": "^7.12.0",
     "@soundblue/audio-engine": "workspace:*",
     "@soundblue/hangul": "workspace:*",
+    "@soundblue/text-processor": "workspace:*",
     "@soundblue/i18n": "workspace:*",
     "@soundblue/locale": "workspace:*",
     "@soundblue/pwa": "workspace:*",

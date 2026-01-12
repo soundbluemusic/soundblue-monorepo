@@ -7,6 +7,7 @@
  */
 
 import { hasBatchim } from '@soundblue/hangul';
+import { applyCorrections } from '@soundblue/text-processor';
 import { type CorrectionResult, correctSpacing, correctTypos } from '@soundblue/translator';
 import type { SpellCheckOptions, SpellCheckResult, SpellError } from '../types';
 
@@ -45,12 +46,13 @@ function checkParticleAgreement(text: string): SpellError[] {
         // 받침이 없는데 받침용 조사 사용 → 에러
         const start = match.index;
         const end = start + match[0].length;
+        const suggestion = `${prevChar}${pair.withoutBatchim}`;
         errors.push({
           type: 'grammar',
           start,
           end,
           original: match[0],
-          suggestion: `${prevChar}${pair.withoutBatchim}`,
+          suggestions: [suggestion],
           message: `'${prevChar}'는 받침이 없으므로 '${pair.withoutBatchim}'를 사용해야 합니다 (${pair.description})`,
           confidence: 0.95,
         });
@@ -81,12 +83,13 @@ function checkParticleAgreement(text: string): SpellError[] {
         // 받침이 있는데 받침 없는용 조사 사용 → 에러
         const start = match.index;
         const end = start + match[0].length;
+        const suggestion = `${prevChar}${pair.withBatchim}`;
         errors.push({
           type: 'grammar',
           start,
           end,
           original: match[0],
-          suggestion: `${prevChar}${pair.withBatchim}`,
+          suggestions: [suggestion],
           message: `'${prevChar}'는 받침이 있으므로 '${pair.withBatchim}'를 사용해야 합니다 (${pair.description})`,
           confidence: 0.95,
         });
@@ -113,7 +116,7 @@ function convertSpacingErrors(original: string, corrected: string): SpellError[]
     start: 0,
     end: original.length,
     original,
-    suggestion: corrected,
+    suggestions: [corrected],
     message: '띄어쓰기를 수정해야 합니다',
     confidence: 0.9,
   });
@@ -137,7 +140,7 @@ function convertTypoErrors(result: CorrectionResult): SpellError[] {
           start,
           end: start + correction.original.length,
           original: correction.original,
-          suggestion: correction.corrected,
+          suggestions: [correction.corrected],
           message: `'${correction.original}'은(는) '${correction.corrected}'의 오타입니다`,
           confidence: correction.confidence,
         });
@@ -150,7 +153,7 @@ function convertTypoErrors(result: CorrectionResult): SpellError[] {
           start,
           end: start + correction.original.length,
           original: correction.original,
-          suggestion: correction.corrected,
+          suggestions: [correction.corrected],
           message: `'${correction.original}'을(를) '${correction.corrected}'(으)로 수정하시겠습니까?`,
           confidence: correction.confidence,
         });
@@ -197,9 +200,9 @@ export function checkSpelling(text: string, options: SpellCheckOptions = {}): Sp
   // 3. 문법 검사 (조사 호응)
   if (doCheckGrammar) {
     const grammarErrors = checkParticleAgreement(corrected);
-    // 문법 에러가 있으면 수정 적용
-    for (const error of grammarErrors) {
-      corrected = corrected.slice(0, error.start) + error.suggestion + corrected.slice(error.end);
+    // 문법 에러가 있으면 수정 적용 (applyCorrections 사용)
+    if (grammarErrors.length > 0) {
+      corrected = applyCorrections(corrected, grammarErrors);
     }
     errors.push(...grammarErrors);
   }
