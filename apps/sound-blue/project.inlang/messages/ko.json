@@ -179,6 +179,8 @@
   "sitemap_links_license": "음원 라이선스",
   "sitemap_links_soundRecording": "사운드 레코딩",
   "sitemap_links_builtWith": "Built With",
+  "sitemap_sections_other": "기타",
+  "sitemap_xml": "XML 사이트맵 (검색 엔진용)",
   "builtWith_title": "Built With",
   "builtWith_sections_frameworks": "프레임워크",
   "builtWith_sections_deployment": "배포",

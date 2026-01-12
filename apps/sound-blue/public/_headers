@@ -104,7 +104,7 @@
 
 /sitemap.xsl
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
-  Content-Type: application/xslt+xml; charset=utf-8
+  Content-Type: text/xsl; charset=utf-8
 
 /og-image.png
   Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
