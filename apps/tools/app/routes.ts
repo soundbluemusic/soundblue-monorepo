@@ -21,6 +21,7 @@ const TOOL_PAGES = [
   'metronome',
   'drum-machine',
   'delay-calculator',
+  'tap-tempo',
   'qr',
   'translator',
   'spell-checker',

@@ -171,6 +171,16 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
           en: 'Calculate delay times based on BPM',
         },
       },
+      {
+        id: 'tapTempo',
+        slug: 'tap-tempo',
+        name: { ko: '탭 템포', en: 'TAP Tempo' },
+        icon: '\uD83D\uDC4B',
+        description: {
+          ko: '박자에 맞춰 탭하여 BPM 감지',
+          en: 'Tap to detect BPM',
+        },
+      },
     ],
   },
   {
@@ -349,6 +359,7 @@ export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
   delayCalculator: lazy(() =>
     import('~/tools/delay-calculator').then((m) => ({ default: m.DelayCalculator })),
   ),
+  tapTempo: lazy(() => import('~/tools/tap-tempo').then((m) => ({ default: m.TapTempo }))),
   // Use individual entry points to avoid loading entire ui-components bundle
   qr: lazy(() =>
     import('@soundblue/ui-components/composite/tool/qr-generator').then((m) => ({

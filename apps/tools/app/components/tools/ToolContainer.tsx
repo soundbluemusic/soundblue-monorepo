@@ -30,6 +30,7 @@ import {
   defaultSpellCheckerSettings,
   type SpellCheckerSettings,
 } from '~/tools/spell-checker/settings';
+import { defaultTapTempoSettings, type TapTempoSettings } from '~/tools/tap-tempo/settings';
 import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator/settings';
 import { ToolGuide } from './ToolGuide';
 
@@ -130,6 +131,7 @@ const URL_PARAMS = {
   metronome: ['bpm', 'beatsPerMeasure', 'volume'] as const,
   drumMachine: ['bpm', 'swing', 'volume'] as const,
   delayCalculator: ['bpm'] as const,
+  tapTempo: ['soundEnabled', 'volume'] as const,
   qr: ['size', 'fgColor', 'bgColor'] as const,
   translator: ['direction'] as const,
   spellChecker: [] as const,
@@ -387,6 +389,13 @@ export function ToolContainer() {
     [updateToolSettings],
   );
 
+  const handleTapTempoSettingsChange = useCallback(
+    (settings: Partial<TapTempoSettings>) => {
+      updateToolSettings('tapTempo', settings);
+    },
+    [updateToolSettings],
+  );
+
   // Merged settings for each tool
   const metronomeSettings = useMemo(
     () => ({
@@ -452,6 +461,14 @@ export function ToolContainer() {
     [toolSettings.delayCalculator],
   );
 
+  const tapTempoSettings = useMemo(
+    () => ({
+      ...defaultTapTempoSettings,
+      ...toolSettings.tapTempo,
+    }),
+    [toolSettings.tapTempo],
+  );
+
   // Settings registry for each tool type
   const toolSettingsRegistry = useMemo(
     () => ({
@@ -463,6 +480,10 @@ export function ToolContainer() {
       delayCalculator: {
         settings: delayCalculatorSettings,
         onSettingsChange: handleDelayCalculatorSettingsChange,
+      },
+      tapTempo: {
+        settings: tapTempoSettings,
+        onSettingsChange: handleTapTempoSettingsChange,
       },
       qr: { settings: qrSettings, onSettingsChange: handleQRSettingsChange },
       translator: {
@@ -485,6 +506,8 @@ export function ToolContainer() {
       handleDrumMachineSettingsChange,
       delayCalculatorSettings,
       handleDelayCalculatorSettingsChange,
+      tapTempoSettings,
+      handleTapTempoSettingsChange,
       qrSettings,
       handleQRSettingsChange,
       translatorSettings,

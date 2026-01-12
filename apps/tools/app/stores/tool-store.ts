@@ -7,6 +7,7 @@ import type { DrumMachineSettings } from '../tools/drum-machine/settings';
 import type { EnglishSpellCheckerSettings } from '../tools/english-spell-checker/settings';
 import type { MetronomeSettings } from '../tools/metronome/settings';
 import type { SpellCheckerSettings } from '../tools/spell-checker/settings';
+import type { TapTempoSettings } from '../tools/tap-tempo/settings';
 
 export type ToolType =
   | 'metronome'
@@ -15,7 +16,8 @@ export type ToolType =
   | 'delayCalculator'
   | 'translator'
   | 'spellChecker'
-  | 'englishSpellChecker';
+  | 'englishSpellChecker'
+  | 'tapTempo';
 
 interface ToolSettings {
   metronome: Partial<MetronomeSettings>;
@@ -25,6 +27,7 @@ interface ToolSettings {
   translator: Partial<TranslatorSettings>;
   spellChecker: Partial<SpellCheckerSettings>;
   englishSpellChecker: Partial<EnglishSpellCheckerSettings>;
+  tapTempo: Partial<TapTempoSettings>;
 }
 
 interface ToolState {
@@ -54,6 +57,7 @@ export const useToolStore = create<ToolState>()(
         translator: {},
         spellChecker: {},
         englishSpellChecker: {},
+        tapTempo: {},
       },
       sidebarOpen: true,
       sidebarCollapsed: false,

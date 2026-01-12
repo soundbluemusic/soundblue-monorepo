@@ -382,7 +382,66 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
   },
 
   // ========================================
-  // 7. Translator (번역기)
+  // 7. TAP Tempo (탭 템포)
+  // ========================================
+  tapTempo: {
+    ko: {
+      title: '사용 안내',
+      sections: [
+        {
+          title: '이 도구는',
+          items: ['박자에 맞춰 탭하면 BPM을 자동 감지', '메트로놈 소리를 켜서 리듬 확인 가능'],
+        },
+        {
+          title: '사용 방법',
+          items: [
+            'TAP 버튼을 박자에 맞춰 여러 번 클릭',
+            '스페이스바로도 탭 가능',
+            '2초 이상 멈추면 자동으로 리셋',
+          ],
+        },
+        {
+          title: '버튼 설명',
+          items: [
+            'TAP: 박자에 맞춰 클릭 (스페이스바도 가능)',
+            'Sound ON/OFF: 탭할 때 메트로놈 소리 재생',
+            'Reset: BPM 및 탭 기록 초기화',
+          ],
+        },
+      ],
+    },
+    en: {
+      title: 'How to Use',
+      sections: [
+        {
+          title: 'About this tool',
+          items: [
+            'Tap to the beat to detect BPM automatically',
+            'Enable metronome sound to hear the rhythm',
+          ],
+        },
+        {
+          title: 'How to use',
+          items: [
+            'Click TAP button multiple times to the beat',
+            'You can also use spacebar to tap',
+            'Auto-resets after 2 seconds of inactivity',
+          ],
+        },
+        {
+          title: 'Button guide',
+          items: [
+            'TAP: Click to the beat (spacebar also works)',
+            'Sound ON/OFF: Play metronome sound on each tap',
+            'Reset: Clear BPM and tap history',
+          ],
+        },
+      ],
+    },
+  },
+
+  // ========================================
+  // 8. Translator (번역기)
   // ========================================
   translator: {
     ko: {
