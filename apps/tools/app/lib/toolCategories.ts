@@ -230,6 +230,16 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
           en: 'Check English spelling with suggestions',
         },
       },
+      {
+        id: 'colorPalette',
+        slug: 'color-palette',
+        name: { ko: '컬러 팔레트', en: 'Color Palette' },
+        icon: '\uD83C\uDFA8',
+        description: {
+          ko: '조화로운 색상 팔레트 생성',
+          en: 'Generate harmonious color palettes',
+        },
+      },
     ],
   },
 ];
@@ -376,6 +386,9 @@ export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
   ),
   englishSpellChecker: lazy(() =>
     import('~/tools/english-spell-checker').then((m) => ({ default: m.EnglishSpellChecker })),
+  ),
+  colorPalette: lazy(() =>
+    import('~/tools/color-palette').then((m) => ({ default: m.ColorPalette })),
   ),
 };
 

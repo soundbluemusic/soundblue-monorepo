@@ -19,6 +19,7 @@ const BASE_PATHS = [
   '/translator',
   '/spell-checker',
   '/english-spell-checker',
+  '/color-palette',
 ];
 
 // 로케일별 경로 생성

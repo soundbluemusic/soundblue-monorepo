@@ -2,6 +2,7 @@ import type { QRSettings, TranslatorSettings } from '@soundblue/ui-components/co
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import type { ColorPaletteSettings } from '../tools/color-palette/settings';
 import type { DelayCalculatorSettings } from '../tools/delay-calculator/settings';
 import type { DrumMachineSettings } from '../tools/drum-machine/settings';
 import type { EnglishSpellCheckerSettings } from '../tools/english-spell-checker/settings';
@@ -17,7 +18,8 @@ export type ToolType =
   | 'translator'
   | 'spellChecker'
   | 'englishSpellChecker'
-  | 'tapTempo';
+  | 'tapTempo'
+  | 'colorPalette';
 
 interface ToolSettings {
   metronome: Partial<MetronomeSettings>;
@@ -28,6 +30,7 @@ interface ToolSettings {
   spellChecker: Partial<SpellCheckerSettings>;
   englishSpellChecker: Partial<EnglishSpellCheckerSettings>;
   tapTempo: Partial<TapTempoSettings>;
+  colorPalette: Partial<ColorPaletteSettings>;
 }
 
 interface ToolState {
@@ -58,6 +61,7 @@ export const useToolStore = create<ToolState>()(
         spellChecker: {},
         englishSpellChecker: {},
         tapTempo: {},
+        colorPalette: {},
       },
       sidebarOpen: true,
       sidebarCollapsed: false,

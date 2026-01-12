@@ -13,6 +13,10 @@ import { useAudioStore } from '~/stores/audio-store';
 import { useToolStore } from '~/stores/tool-store';
 // Import tool types and default settings from local files (avoids loading heavy @soundblue/ui-components bundle)
 import {
+  type ColorPaletteSettings,
+  defaultColorPaletteSettings,
+} from '~/tools/color-palette/settings';
+import {
   type DelayCalculatorSettings,
   defaultDelayCalculatorSettings,
 } from '~/tools/delay-calculator/settings';
@@ -136,6 +140,7 @@ const URL_PARAMS = {
   translator: ['direction'] as const,
   spellChecker: [] as const,
   englishSpellChecker: [] as const,
+  colorPalette: ['baseColor', 'mode'] as const,
 };
 
 // 보존해야 할 특수 파라미터 (각 도구에서 직접 관리)
@@ -396,6 +401,13 @@ export function ToolContainer() {
     [updateToolSettings],
   );
 
+  const handleColorPaletteSettingsChange = useCallback(
+    (settings: Partial<ColorPaletteSettings>) => {
+      updateToolSettings('colorPalette', settings);
+    },
+    [updateToolSettings],
+  );
+
   // Merged settings for each tool
   const metronomeSettings = useMemo(
     () => ({
@@ -469,6 +481,14 @@ export function ToolContainer() {
     [toolSettings.tapTempo],
   );
 
+  const colorPaletteSettings = useMemo(
+    () => ({
+      ...defaultColorPaletteSettings,
+      ...toolSettings.colorPalette,
+    }),
+    [toolSettings.colorPalette],
+  );
+
   // Settings registry for each tool type
   const toolSettingsRegistry = useMemo(
     () => ({
@@ -498,6 +518,10 @@ export function ToolContainer() {
         settings: englishSpellCheckerSettings,
         onSettingsChange: handleEnglishSpellCheckerSettingsChange,
       },
+      colorPalette: {
+        settings: colorPaletteSettings,
+        onSettingsChange: handleColorPaletteSettingsChange,
+      },
     }),
     [
       metronomeSettings,
@@ -516,6 +540,8 @@ export function ToolContainer() {
       handleSpellCheckerSettingsChange,
       englishSpellCheckerSettings,
       handleEnglishSpellCheckerSettingsChange,
+      colorPaletteSettings,
+      handleColorPaletteSettingsChange,
     ],
   );
 

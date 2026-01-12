@@ -498,6 +498,68 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       ],
     },
   },
+
+  // ========================================
+  // 9. Color Palette (컬러 팔레트)
+  // ========================================
+  colorPalette: {
+    ko: {
+      title: '사용 안내',
+      sections: [
+        {
+          title: '이 도구는',
+          items: [
+            '조화로운 색상 팔레트를 생성',
+            '보색, 유사색, 삼원색, 단색 계열 등 다양한 모드 지원',
+          ],
+        },
+        {
+          title: '사용 방법',
+          items: [
+            '기준 색상 선택 또는 HEX 코드 입력',
+            '원하는 팔레트 모드 선택',
+            '생성된 색상 코드를 클릭하여 복사',
+          ],
+        },
+        {
+          title: '버튼 설명',
+          items: [
+            'Random: 무작위 기준 색상 생성',
+            'Reset: 기본 색상으로 초기화',
+            '색상 카드 클릭: HEX/RGB/HSL 값 복사',
+          ],
+        },
+      ],
+    },
+    en: {
+      title: 'How to Use',
+      sections: [
+        {
+          title: 'About this tool',
+          items: [
+            'Generate harmonious color palettes',
+            'Supports complementary, analogous, triadic, and monochromatic modes',
+          ],
+        },
+        {
+          title: 'How to use',
+          items: [
+            'Select a base color or enter HEX code',
+            'Choose your desired palette mode',
+            'Click generated color codes to copy',
+          ],
+        },
+        {
+          title: 'Button guide',
+          items: [
+            'Random: Generate a random base color',
+            'Reset: Reset to default color',
+            'Click color card: Copy HEX/RGB/HSL values',
+          ],
+        },
+      ],
+    },
+  },
 };
 
 /**
