@@ -211,7 +211,8 @@ export function useParaglideI18n() {
   const toggleLanguage = useCallback(() => {
     const newLocale = getOppositeLocale(locale);
     const currentPath = location.pathname;
-    const basePath = currentPath.replace(/^\/(ko|en)/, '') || '/';
+    // Fix: locale prefix 뒤에 / 또는 문자열 끝이 와야 함 (e.g., /english-spell-checker 오탐 방지)
+    const basePath = currentPath.replace(/^\/(ko|en)(?=\/|$)/, '') || '/';
     const newPath = getLocalizedPath(basePath, newLocale);
     navigate(newPath);
   }, [locale, location.pathname, navigate]);
