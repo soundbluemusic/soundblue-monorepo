@@ -19,6 +19,7 @@ const BASE_PATHS = [
   '/translator',
   '/spell-checker',
   '/english-spell-checker',
+  '/color-harmony',
   '/color-palette',
 ];
 

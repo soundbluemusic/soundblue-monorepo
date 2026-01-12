@@ -5,20 +5,20 @@ import { getSeoMeta } from '~/lib/seo';
 import { useToolStore } from '~/stores/tool-store';
 
 export const meta: MetaFunction = ({ location }) => [
-  { title: 'Color Palette - Tools' },
+  { title: 'Color Harmony - Tools' },
   {
     name: 'description',
     content:
-      'Create custom color palettes with 2-5 colors. Pick colors visually and copy color codes in HEX, RGB, or HSL format.',
+      'Generate harmonious color schemes based on color wheel theory - complementary, analogous, triadic, and monochromatic.',
   },
   ...getSeoMeta(location),
 ];
 
-export default function ColorPalettePage() {
+export default function ColorHarmonyPage() {
   const { openTool } = useToolStore();
 
   useEffect(() => {
-    openTool('colorPalette');
+    openTool('colorHarmony');
   }, [openTool]);
 
   return <MainLayout />;

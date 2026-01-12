@@ -26,6 +26,7 @@
 ## 상세 규칙 (필요시 참조)
 - 번역기: `.claude/rules/translator.md`
 - 품질: `.claude/rules/quality.md`
+- 도구 개발: `.claude/rules/tools.md`
 
 ---
 
@@ -76,6 +77,15 @@ setTimeout(() => {
   }
 }, 100);
 ```
+
+### 4. Tools 앱 - ToolGuide 필수 (CRITICAL)
+```
+❌ 사용 안내 없는 도구 배포
+✅ 모든 도구는 반드시 ToolGuide 컴포넌트 포함
+```
+- 위치: `apps/tools/app/lib/toolGuides.ts`
+- 구조: 이 도구는 / 사용 방법 / 버튼 설명 (ko/en)
+- 상세: `.claude/rules/tools.md` 참조
 
 ---
 

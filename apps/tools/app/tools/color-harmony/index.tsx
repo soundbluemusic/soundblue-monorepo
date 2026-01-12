@@ -3,8 +3,8 @@ import { Check, Copy, RefreshCw, Shuffle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
 import { getToolGuide } from '~/lib/toolGuides';
-import { colorPaletteTexts, DEFAULT_COLORS, defaultColorPaletteSettings } from './settings';
-import type { ColorInfo, ColorPaletteProps, PaletteSize } from './types';
+import { colorHarmonyTexts, defaultColorHarmonySettings } from './settings';
+import type { ColorHarmonyProps, ColorInfo, HarmonyMode } from './types';
 
 // ========================================
 // Color Utility Functions
@@ -100,6 +100,48 @@ function hexToColorInfo(hex: string): ColorInfo {
   return { hex: hex.toUpperCase(), rgb, hsl };
 }
 
+function hslToColorInfo(h: number, s: number, l: number): ColorInfo {
+  const rgb = hslToRgb(h, s, l);
+  const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+  return { hex: hex.toUpperCase(), rgb, hsl: { h, s, l } };
+}
+
+// ========================================
+// Harmony Generation Functions
+// ========================================
+
+function generateHarmony(baseColor: string, mode: HarmonyMode): ColorInfo[] {
+  const base = hexToColorInfo(baseColor);
+  const { h, s, l } = base.hsl;
+
+  switch (mode) {
+    case 'complementary':
+      return [base, hslToColorInfo((h + 180) % 360, s, l)];
+
+    case 'analogous':
+      return [
+        hslToColorInfo((h - 30 + 360) % 360, s, l),
+        base,
+        hslToColorInfo((h + 30) % 360, s, l),
+      ];
+
+    case 'triadic':
+      return [base, hslToColorInfo((h + 120) % 360, s, l), hslToColorInfo((h + 240) % 360, s, l)];
+
+    case 'monochromatic':
+      return [
+        hslToColorInfo(h, s, Math.max(10, l - 30)),
+        hslToColorInfo(h, s, Math.max(20, l - 15)),
+        base,
+        hslToColorInfo(h, s, Math.min(80, l + 15)),
+        hslToColorInfo(h, s, Math.min(90, l + 30)),
+      ];
+
+    default:
+      return [base];
+  }
+}
+
 function generateRandomColor(): string {
   const h = Math.floor(Math.random() * 360);
   const s = Math.floor(Math.random() * 40) + 50; // 50-90%
@@ -114,14 +156,10 @@ function generateRandomColor(): string {
 
 function ColorCard({
   color,
-  index,
   texts,
-  onColorChange,
 }: {
   color: ColorInfo;
-  index: number;
-  texts: (typeof colorPaletteTexts)['ko'] | (typeof colorPaletteTexts)['en'];
-  onColorChange: (index: number, hex: string) => void;
+  texts: (typeof colorHarmonyTexts)['ko'] | (typeof colorHarmonyTexts)['en'];
 }) {
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -144,33 +182,21 @@ function ColorCard({
 
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-      {/* Color Preview with Picker */}
+      {/* Color Preview */}
       <div
-        className={`relative h-28 sm:h-36 flex items-center justify-center ${textColor}`}
+        className={`h-24 sm:h-32 flex items-center justify-center ${textColor}`}
         style={{ backgroundColor: color.hex }}
       >
-        <input
-          type="color"
-          value={color.hex}
-          onChange={(e) => onColorChange(index, e.target.value)}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          title={texts.colorN.replace('{n}', String(index + 1))}
-        />
-        <div className="text-center pointer-events-none">
-          <span className="text-xs font-medium opacity-70 block mb-1">
-            {texts.colorN.replace('{n}', String(index + 1))}
-          </span>
-          <span className="text-lg font-bold">{color.hex}</span>
-        </div>
+        <span className="text-lg font-bold opacity-90">{color.hex}</span>
       </div>
 
       {/* Color Values */}
-      <div className="p-3 space-y-1.5">
+      <div className="p-3 space-y-2">
         {/* HEX */}
         <button
           type="button"
           onClick={() => copyToClipboard(color.hex, 'hex')}
-          className="w-full flex items-center justify-between px-2 py-1 rounded-lg hover:bg-muted transition-colors text-left group"
+          className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted transition-colors text-left group"
         >
           <span className="text-xs font-medium text-muted-foreground">{texts.hex}</span>
           <span className="flex items-center gap-1.5 text-sm font-mono">
@@ -187,7 +213,7 @@ function ColorCard({
         <button
           type="button"
           onClick={() => copyToClipboard(rgbString, 'rgb')}
-          className="w-full flex items-center justify-between px-2 py-1 rounded-lg hover:bg-muted transition-colors text-left group"
+          className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted transition-colors text-left group"
         >
           <span className="text-xs font-medium text-muted-foreground">{texts.rgb}</span>
           <span className="flex items-center gap-1.5 text-sm font-mono">
@@ -204,7 +230,7 @@ function ColorCard({
         <button
           type="button"
           onClick={() => copyToClipboard(hslString, 'hsl')}
-          className="w-full flex items-center justify-between px-2 py-1 rounded-lg hover:bg-muted transition-colors text-left group"
+          className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted transition-colors text-left group"
         >
           <span className="text-xs font-medium text-muted-foreground">{texts.hsl}</span>
           <span className="flex items-center gap-1.5 text-sm font-mono">
@@ -225,16 +251,16 @@ function ColorCard({
 // Main Component
 // ========================================
 
-export function ColorPalette({ settings: propSettings, onSettingsChange }: ColorPaletteProps) {
+export function ColorHarmony({ settings: propSettings, onSettingsChange }: ColorHarmonyProps) {
   const { locale } = useParaglideI18n();
   const currentLocale = locale === 'ko' ? 'ko' : 'en';
-  const texts = colorPaletteTexts[currentLocale];
-  const guide = getToolGuide('colorPalette', currentLocale);
+  const texts = colorHarmonyTexts[currentLocale];
+  const guide = getToolGuide('colorHarmony', currentLocale);
 
   // Merge settings
-  const [internalSettings, setInternalSettings] = useState(defaultColorPaletteSettings);
+  const [internalSettings, setInternalSettings] = useState(defaultColorHarmonySettings);
   const settings = useMemo(
-    () => ({ ...defaultColorPaletteSettings, ...propSettings, ...internalSettings }),
+    () => ({ ...defaultColorHarmonySettings, ...propSettings, ...internalSettings }),
     [propSettings, internalSettings],
   );
 
@@ -246,98 +272,107 @@ export function ColorPalette({ settings: propSettings, onSettingsChange }: Color
     [onSettingsChange],
   );
 
-  // Convert colors to ColorInfo
-  const colorInfos = useMemo(
-    () => settings.colors.slice(0, settings.size).map((hex) => hexToColorInfo(hex)),
-    [settings.colors, settings.size],
+  // Generate harmony
+  const harmony = useMemo(
+    () => generateHarmony(settings.baseColor, settings.mode),
+    [settings.baseColor, settings.mode],
   );
 
   // Handlers
-  const handleSizeChange = useCallback(
-    (size: PaletteSize) => {
-      const currentColors = settings.colors;
-      let newColors: string[];
-
-      if (size > currentColors.length) {
-        // Add more colors from defaults
-        newColors = [...currentColors, ...DEFAULT_COLORS.slice(currentColors.length, size)];
-      } else {
-        newColors = currentColors.slice(0, size);
-      }
-
-      handleSettingsChange({ size, colors: newColors });
+  const handleColorChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      handleSettingsChange({ baseColor: e.target.value });
     },
-    [handleSettingsChange, settings.colors],
+    [handleSettingsChange],
   );
 
-  const handleColorChange = useCallback(
-    (index: number, hex: string) => {
-      const newColors = [...settings.colors];
-      newColors[index] = hex;
-      handleSettingsChange({ colors: newColors });
+  const handleModeChange = useCallback(
+    (mode: HarmonyMode) => {
+      handleSettingsChange({ mode });
     },
-    [handleSettingsChange, settings.colors],
+    [handleSettingsChange],
   );
 
   const handleReset = useCallback(() => {
-    handleSettingsChange(defaultColorPaletteSettings);
+    handleSettingsChange(defaultColorHarmonySettings);
   }, [handleSettingsChange]);
 
   const handleRandomize = useCallback(() => {
-    const newColors = Array.from({ length: settings.size }, () => generateRandomColor());
-    handleSettingsChange({ colors: newColors });
-  }, [handleSettingsChange, settings.size]);
+    handleSettingsChange({ baseColor: generateRandomColor() });
+  }, [handleSettingsChange]);
 
-  const sizes: PaletteSize[] = [2, 3, 4, 5];
+  const modes: { value: HarmonyMode; label: string }[] = [
+    { value: 'complementary', label: texts.complementary },
+    { value: 'analogous', label: texts.analogous },
+    { value: 'triadic', label: texts.triadic },
+    { value: 'monochromatic', label: texts.monochromatic },
+  ];
 
   return (
     <div className="flex h-full flex-col gap-4 overflow-auto p-4">
       {/* Controls Card */}
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-        {/* Size Selector */}
+        {/* Base Color Picker */}
+        <div className="flex items-center gap-4 mb-4">
+          <label className="text-sm font-medium text-foreground">{texts.baseColor}</label>
+          <div className="flex items-center gap-2 flex-1">
+            <input
+              type="color"
+              value={settings.baseColor}
+              onChange={handleColorChange}
+              className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-transparent"
+            />
+            <input
+              type="text"
+              value={settings.baseColor.toUpperCase()}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                  handleSettingsChange({ baseColor: val });
+                }
+              }}
+              className="flex-1 h-10 px-3 rounded-lg border border-border bg-background text-sm font-mono uppercase"
+              maxLength={7}
+            />
+          </div>
+        </div>
+
+        {/* Mode Selector */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">{texts.paletteSize}</label>
+          <label className="text-sm font-medium text-foreground">{texts.mode}</label>
           <div className="flex flex-wrap gap-2">
-            {sizes.map((size) => (
+            {modes.map((m) => (
               <button
-                key={size}
+                key={m.value}
                 type="button"
-                onClick={() => handleSizeChange(size)}
-                className={`w-12 h-10 text-sm font-medium rounded-lg transition-colors ${
-                  settings.size === size
+                onClick={() => handleModeChange(m.value)}
+                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  settings.mode === m.value
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
-                {size}
+                {m.label}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Palette Display */}
+      {/* Harmony Display */}
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <h3 className="text-sm font-medium text-foreground mb-3">{texts.palette}</h3>
         <div
           className={`grid gap-4 ${
-            settings.size === 2
-              ? 'grid-cols-2'
-              : settings.size === 3
+            harmony.length <= 2
+              ? 'grid-cols-1 sm:grid-cols-2'
+              : harmony.length === 3
                 ? 'grid-cols-1 sm:grid-cols-3'
-                : settings.size === 4
-                  ? 'grid-cols-2 sm:grid-cols-4'
-                  : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
+                : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
           }`}
         >
-          {colorInfos.map((color, idx) => (
-            <ColorCard
-              key={idx}
-              color={color}
-              index={idx}
-              texts={texts}
-              onColorChange={handleColorChange}
-            />
+          {harmony.map((color, idx) => (
+            <ColorCard key={`${color.hex}-${idx}`} color={color} texts={texts} />
           ))}
         </div>
       </div>
@@ -368,5 +403,5 @@ export function ColorPalette({ settings: propSettings, onSettingsChange }: Color
   );
 }
 
-export { type ColorPaletteSettings, defaultColorPaletteSettings } from './settings';
-export type { ColorPaletteProps } from './types';
+export { type ColorHarmonySettings, defaultColorHarmonySettings } from './settings';
+export type { ColorHarmonyProps } from './types';

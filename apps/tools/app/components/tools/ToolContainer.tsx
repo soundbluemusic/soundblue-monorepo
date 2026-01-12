@@ -13,6 +13,10 @@ import { useAudioStore } from '~/stores/audio-store';
 import { useToolStore } from '~/stores/tool-store';
 // Import tool types and default settings from local files (avoids loading heavy @soundblue/ui-components bundle)
 import {
+  type ColorHarmonySettings,
+  defaultColorHarmonySettings,
+} from '~/tools/color-harmony/settings';
+import {
   type ColorPaletteSettings,
   defaultColorPaletteSettings,
 } from '~/tools/color-palette/settings';
@@ -140,7 +144,8 @@ const URL_PARAMS = {
   translator: ['direction'] as const,
   spellChecker: [] as const,
   englishSpellChecker: [] as const,
-  colorPalette: ['baseColor', 'mode'] as const,
+  colorHarmony: ['baseColor', 'mode'] as const,
+  colorPalette: ['size'] as const,
 };
 
 // 보존해야 할 특수 파라미터 (각 도구에서 직접 관리)
@@ -401,6 +406,13 @@ export function ToolContainer() {
     [updateToolSettings],
   );
 
+  const handleColorHarmonySettingsChange = useCallback(
+    (settings: Partial<ColorHarmonySettings>) => {
+      updateToolSettings('colorHarmony', settings);
+    },
+    [updateToolSettings],
+  );
+
   const handleColorPaletteSettingsChange = useCallback(
     (settings: Partial<ColorPaletteSettings>) => {
       updateToolSettings('colorPalette', settings);
@@ -481,6 +493,14 @@ export function ToolContainer() {
     [toolSettings.tapTempo],
   );
 
+  const colorHarmonySettings = useMemo(
+    () => ({
+      ...defaultColorHarmonySettings,
+      ...toolSettings.colorHarmony,
+    }),
+    [toolSettings.colorHarmony],
+  );
+
   const colorPaletteSettings = useMemo(
     () => ({
       ...defaultColorPaletteSettings,
@@ -518,6 +538,10 @@ export function ToolContainer() {
         settings: englishSpellCheckerSettings,
         onSettingsChange: handleEnglishSpellCheckerSettingsChange,
       },
+      colorHarmony: {
+        settings: colorHarmonySettings,
+        onSettingsChange: handleColorHarmonySettingsChange,
+      },
       colorPalette: {
         settings: colorPaletteSettings,
         onSettingsChange: handleColorPaletteSettingsChange,
@@ -540,6 +564,8 @@ export function ToolContainer() {
       handleSpellCheckerSettingsChange,
       englishSpellCheckerSettings,
       handleEnglishSpellCheckerSettingsChange,
+      colorHarmonySettings,
+      handleColorHarmonySettingsChange,
       colorPaletteSettings,
       handleColorPaletteSettingsChange,
     ],

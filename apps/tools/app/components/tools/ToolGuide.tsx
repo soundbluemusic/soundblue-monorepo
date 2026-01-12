@@ -55,16 +55,16 @@ export function ToolGuide({ title, sections, className, defaultOpen = false }: T
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+        className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-base font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
         aria-expanded={isOpen}
         aria-controls="tool-guide-content"
       >
         <span className="flex items-center gap-2">
-          <HelpCircle className="h-4 w-4" />
+          <HelpCircle className="h-5 w-5" />
           {title}
         </span>
         <ChevronDown
-          className={cn('h-4 w-4 transition-transform duration-200', isOpen && 'rotate-180')}
+          className={cn('h-5 w-5 transition-transform duration-200', isOpen && 'rotate-180')}
         />
       </button>
 
@@ -77,17 +77,17 @@ export function ToolGuide({ title, sections, className, defaultOpen = false }: T
         )}
       >
         <div className="overflow-hidden">
-          <div className="space-y-4 px-3 pb-2 pt-3">
+          <div className="space-y-5 px-3 pb-3 pt-4">
             {sections.map((section, sectionIndex) => (
               <div key={sectionIndex}>
-                <h4 className="mb-1.5 text-xs font-medium text-foreground">{section.title}</h4>
-                <ul className="space-y-1">
+                <h4 className="mb-2 text-sm font-semibold text-foreground">{section.title}</h4>
+                <ul className="space-y-1.5">
                   {section.items.map((item, itemIndex) => (
                     <li
                       key={itemIndex}
-                      className="flex items-start gap-2 text-xs text-muted-foreground"
+                      className="flex items-start gap-2.5 text-sm text-muted-foreground leading-relaxed"
                     >
-                      <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-muted-foreground/50" />
+                      <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary/60" />
                       <span>{item}</span>
                     </li>
                   ))}

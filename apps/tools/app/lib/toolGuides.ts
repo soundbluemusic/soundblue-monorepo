@@ -1,9 +1,18 @@
 /**
  * @fileoverview Tool Guide Content Data
  *
- * Localized guide content for all 7 tools in the Tools app.
+ * ⚠️ CRITICAL RULE: 모든 도구는 반드시 ToolGuide를 포함해야 합니다.
+ * 새 도구 추가 시 이 파일에 해당 도구의 ko/en 가이드를 등록하세요.
+ *
+ * Localized guide content for all tools in the Tools app.
  * Each guide includes: purpose, usage instructions, and button descriptions.
  *
+ * 필수 섹션 구조:
+ * 1. 이 도구는 (About this tool) - 도구의 목적/용도
+ * 2. 사용 방법 (How to use) - 단계별 사용 지침
+ * 3. 버튼 설명 (Button guide) - 각 버튼/기능 설명
+ *
+ * @see .claude/rules/tools.md - 상세 규칙 문서
  * @module lib/toolGuides
  */
 
@@ -41,23 +50,22 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: '이 도구는',
-          items: ['정확한 템포로 연습할 수 있는 메트로놈', '음악 연습 시 박자 감각 훈련에 유용'],
+          items: [
+            '일정한 박자를 소리로 알려주는 메트로놈',
+            '악기 연습이나 노래 연습 시 박자 맞추기에 유용',
+          ],
         },
         {
           title: '사용 방법',
           items: [
-            'BPM 슬라이더로 원하는 속도 설정',
-            '재생 버튼으로 메트로놈 시작/정지',
-            '박자 설정으로 비트 구성 변경 (4/4, 3/4 등)',
+            '슬라이더로 빠르기(BPM) 조절',
+            '재생 버튼으로 시작/정지',
+            '박자 숫자로 한 마디당 비트 수 설정',
           ],
         },
         {
           title: '버튼 설명',
-          items: [
-            'Play/Pause: 메트로놈 재생/정지',
-            'Reset: BPM과 박자를 기본값으로 복원',
-            '박자 선택: 한 마디의 비트 수 설정',
-          ],
+          items: ['▶ 재생: 메트로놈 시작', '⏸ 정지: 메트로놈 멈춤', '초기화: 기본값으로 복원'],
         },
       ],
     },
@@ -67,25 +75,21 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
         {
           title: 'About this tool',
           items: [
-            'A metronome for practicing with precise tempo',
-            'Useful for rhythm training during music practice',
+            'A metronome that keeps steady beats with sound',
+            'Useful for practicing instruments or singing in time',
           ],
         },
         {
           title: 'How to use',
           items: [
-            'Set your desired speed with the BPM slider',
-            'Start/stop the metronome with the play button',
-            'Change beat configuration with time signature (4/4, 3/4, etc.)',
+            'Use the slider to adjust speed (BPM)',
+            'Press play to start/stop',
+            'Change the number to set beats per bar',
           ],
         },
         {
           title: 'Button guide',
-          items: [
-            'Play/Pause: Start or stop the metronome',
-            'Reset: Restore BPM and time signature to defaults',
-            'Time signature: Set beats per measure',
-          ],
+          items: ['▶ Play: Start metronome', '⏸ Pause: Stop metronome', 'Reset: Restore defaults'],
         },
       ],
     },
@@ -100,23 +104,22 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: '이 도구는',
-          items: ['16스텝 드럼 패턴을 만드는 시퀀서', '비트메이킹 연습 및 아이디어 스케치에 유용'],
+          items: ['드럼 비트를 직접 만드는 도구', '격자에 소리를 배치해서 리듬 패턴 생성'],
         },
         {
           title: '사용 방법',
           items: [
-            '그리드의 셀을 클릭하여 드럼 사운드 배치',
-            'BPM 슬라이더로 템포 조절',
-            '프리셋을 선택하여 빠르게 시작',
+            '격자의 칸을 클릭하여 소리 배치',
+            '슬라이더로 빠르기(BPM) 조절',
+            '프리셋으로 예시 패턴 불러오기',
           ],
         },
         {
           title: '버튼 설명',
           items: [
-            'Play/Stop: 패턴 재생/정지',
-            'Clear: 현재 패턴 모두 지우기',
-            'Preset: 미리 만들어진 패턴 불러오기',
-            'Synth: 사운드 설정 패널 열기',
+            '▶ 재생: 만든 패턴 재생',
+            '지우기: 모든 소리 제거',
+            '프리셋: 미리 만든 패턴 선택',
           ],
         },
       ],
@@ -126,26 +129,22 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: 'About this tool',
-          items: [
-            'A 16-step drum pattern sequencer',
-            'Useful for beatmaking practice and idea sketching',
-          ],
+          items: ['Create your own drum beats', 'Place sounds on a grid to make rhythm patterns'],
         },
         {
           title: 'How to use',
           items: [
-            'Click grid cells to place drum sounds',
-            'Adjust tempo with the BPM slider',
-            'Select a preset to get started quickly',
+            'Click grid cells to place sounds',
+            'Adjust speed with the slider',
+            'Load example patterns from presets',
           ],
         },
         {
           title: 'Button guide',
           items: [
-            'Play/Stop: Play or stop the pattern',
-            'Clear: Clear all sounds from the pattern',
-            'Preset: Load pre-made patterns',
-            'Synth: Open sound settings panel',
+            '▶ Play: Play your pattern',
+            'Clear: Remove all sounds',
+            'Preset: Choose a pre-made pattern',
           ],
         },
       ],
@@ -161,22 +160,25 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: '이 도구는',
-          items: ['BPM에 맞는 딜레이 타임(ms)을 계산', 'DAW의 딜레이/리버브 플러그인 설정 시 유용'],
+          items: [
+            'BPM에 맞는 딜레이/에코 시간을 계산하는 도구',
+            '음악 제작 시 박자에 맞는 효과 설정에 유용',
+          ],
         },
         {
           title: '사용 방법',
           items: [
-            'BPM을 직접 입력하거나 TAP으로 감지',
-            '음표별 딜레이 시간(ms) 확인',
-            '값을 클릭하면 클립보드에 복사됨',
+            'BPM 숫자 입력 또는 TAP으로 측정',
+            '표에서 필요한 딜레이 값 확인',
+            '값을 클릭하면 복사됨',
           ],
         },
         {
           title: '버튼 설명',
           items: [
-            'TAP: 박자에 맞춰 탭하면 BPM 자동 감지',
-            'Reset: BPM을 기본값(120)으로 초기화',
-            '키보드 Space: TAP 버튼과 동일',
+            'TAP: 박자에 맞춰 클릭하여 BPM 측정',
+            '초기화: 기본값으로 복원',
+            '스페이스바: TAP 버튼과 동일',
           ],
         },
       ],
@@ -187,24 +189,24 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
         {
           title: 'About this tool',
           items: [
-            'Calculate delay time (ms) based on BPM',
-            'Useful for setting up delay/reverb plugins in your DAW',
+            'Calculate delay/echo times based on BPM',
+            'Useful for setting effects that match the beat',
           ],
         },
         {
           title: 'How to use',
           items: [
-            'Enter BPM directly or detect it with TAP',
-            'Check delay times (ms) for each note value',
-            'Click a value to copy it to clipboard',
+            'Enter BPM or measure with TAP',
+            'Find the delay value you need in the table',
+            'Click a value to copy it',
           ],
         },
         {
           title: 'Button guide',
           items: [
-            'TAP: Tap along to the beat to detect BPM',
-            'Reset: Reset BPM to default (120)',
-            'Keyboard Space: Same as TAP button',
+            'TAP: Click to the beat to measure BPM',
+            'Reset: Restore defaults',
+            'Spacebar: Same as TAP button',
           ],
         },
       ],
@@ -220,22 +222,18 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: '이 도구는',
-          items: ['한국어 맞춤법을 검사하는 도구', '띄어쓰기, 오타, 문법 오류를 찾아 수정 제안'],
+          items: ['한글 맞춤법을 검사하는 도구', '띄어쓰기, 오타 등을 찾아 수정 제안'],
         },
         {
           title: '사용 방법',
-          items: [
-            '검사할 한국어 텍스트 입력',
-            '검사하기 버튼 클릭',
-            '오류 목록에서 수정 제안 확인 후 적용',
-          ],
+          items: ['검사할 텍스트 입력', '검사하기 버튼 클릭', '표시된 오류를 클릭하여 수정'],
         },
         {
           title: '버튼 설명',
           items: [
-            '검사하기: 맞춤법 검사 실행',
-            '초기화: 입력 텍스트 모두 지우기',
-            '복사: 수정된 텍스트를 클립보드에 복사',
+            '검사하기: 맞춤법 오류 찾기',
+            '초기화: 입력 내용 삭제',
+            '복사: 수정된 텍스트 복사',
           ],
         },
       ],
@@ -245,26 +243,19 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: 'About this tool',
-          items: [
-            'A Korean spell checker',
-            'Finds and suggests corrections for spacing, typos, and grammar errors',
-          ],
+          items: ['Check Korean spelling', 'Find spacing and typing errors with suggestions'],
         },
         {
           title: 'How to use',
           items: [
-            'Enter the Korean text you want to check',
+            'Enter text to check',
             'Click the Check button',
-            'Review suggestions in the error list and apply corrections',
+            'Click highlighted errors to fix them',
           ],
         },
         {
           title: 'Button guide',
-          items: [
-            'Check: Run the spell check',
-            'Reset: Clear all input text',
-            'Copy: Copy corrected text to clipboard',
-          ],
+          items: ['Check: Find spelling errors', 'Reset: Clear input', 'Copy: Copy corrected text'],
         },
       ],
     },
@@ -279,19 +270,15 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: '이 도구는',
-          items: ['영어 철자를 검사하는 도구', '오타를 찾아 수정 제안을 제공'],
+          items: ['영어 철자를 검사하는 도구', '오타를 찾아 올바른 단어 제안'],
         },
         {
           title: '사용 방법',
-          items: ['검사할 영어 텍스트 입력', 'Check 버튼 클릭', '제안 목록에서 올바른 철자 선택'],
+          items: ['검사할 영어 텍스트 입력', 'Check 버튼 클릭', '표시된 오류를 클릭하여 수정'],
         },
         {
           title: '버튼 설명',
-          items: [
-            'Check: 철자 검사 실행',
-            'Reset: 입력 텍스트 모두 지우기',
-            '제안 클릭: 해당 단어로 자동 교체',
-          ],
+          items: ['Check: 철자 검사 실행', 'Reset: 입력 내용 삭제', '제안 클릭: 해당 단어로 교체'],
         },
       ],
     },
@@ -300,22 +287,22 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: 'About this tool',
-          items: ['An English spell checker', 'Finds typos and provides correction suggestions'],
+          items: ['Check English spelling', 'Find typos and suggest correct words'],
         },
         {
           title: 'How to use',
           items: [
-            'Enter the English text you want to check',
+            'Enter English text to check',
             'Click the Check button',
-            'Select the correct spelling from the suggestions',
+            'Click highlighted errors to fix them',
           ],
         },
         {
           title: 'Button guide',
           items: [
-            'Check: Run the spell check',
-            'Reset: Clear all input text',
-            'Click suggestion: Auto-replace with that word',
+            'Check: Run spell check',
+            'Reset: Clear input',
+            'Click suggestion: Replace with that word',
           ],
         },
       ],
@@ -331,22 +318,22 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: '이 도구는',
-          items: ['URL이나 텍스트를 QR 코드로 변환', '명함, 링크 공유, 이벤트 홍보 등에 유용'],
+          items: ['링크나 글자를 QR 코드로 만드는 도구', '명함, 링크 공유, 홍보 등에 유용'],
         },
         {
           title: '사용 방법',
           items: [
-            'URL 또는 텍스트 입력',
-            '필요시 색상과 크기 커스터마이즈',
-            '이미지 저장 또는 클립보드 복사',
+            '링크(URL) 또는 텍스트 입력',
+            '원하면 색상과 크기 변경',
+            '저장 또는 복사 버튼으로 사용',
           ],
         },
         {
           title: '버튼 설명',
           items: [
-            'Save: QR 코드를 PNG 이미지로 다운로드',
-            'Copy: QR 코드 이미지를 클립보드에 복사',
-            '색상 선택: 전경색/배경색 변경',
+            'Save: 이미지 파일로 저장',
+            'Copy: 이미지를 복사',
+            '색상 선택: QR 코드 색상 변경',
           ],
         },
       ],
@@ -357,24 +344,24 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
         {
           title: 'About this tool',
           items: [
-            'Convert URL or text to QR code',
-            'Useful for business cards, link sharing, event promotion, etc.',
+            'Create QR codes from links or text',
+            'Useful for business cards, sharing links, promotions',
           ],
         },
         {
           title: 'How to use',
           items: [
             'Enter a URL or text',
-            'Customize colors and size if needed',
-            'Save the image or copy to clipboard',
+            'Change colors and size if needed',
+            'Save or copy the QR code',
           ],
         },
         {
           title: 'Button guide',
           items: [
-            'Save: Download QR code as PNG image',
-            'Copy: Copy QR code image to clipboard',
-            'Color picker: Change foreground/background colors',
+            'Save: Download as image file',
+            'Copy: Copy the image',
+            'Color picker: Change QR code colors',
           ],
         },
       ],
@@ -390,22 +377,22 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: '이 도구는',
-          items: ['박자에 맞춰 탭하면 BPM을 자동 감지', '메트로놈 소리를 켜서 리듬 확인 가능'],
+          items: ['박자에 맞춰 클릭하여 BPM 측정', '측정한 빠르기로 소리 재생 가능'],
         },
         {
           title: '사용 방법',
           items: [
             'TAP 버튼을 박자에 맞춰 여러 번 클릭',
-            '스페이스바로도 탭 가능',
-            '2초 이상 멈추면 자동으로 리셋',
+            '스페이스바로도 클릭 가능',
+            '2초 이상 멈추면 자동 초기화',
           ],
         },
         {
           title: '버튼 설명',
           items: [
-            'TAP: 박자에 맞춰 클릭 (스페이스바도 가능)',
-            'Sound ON/OFF: 탭할 때 메트로놈 소리 재생',
-            'Reset: BPM 및 탭 기록 초기화',
+            'TAP: 박자에 맞춰 클릭',
+            'Sound ON/OFF: 클릭할 때 소리 재생',
+            'Reset: 측정값 초기화',
           ],
         },
       ],
@@ -415,25 +402,22 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: 'About this tool',
-          items: [
-            'Tap to the beat to detect BPM automatically',
-            'Enable metronome sound to hear the rhythm',
-          ],
+          items: ['Click to the beat to measure BPM', 'Play sound at the measured tempo'],
         },
         {
           title: 'How to use',
           items: [
-            'Click TAP button multiple times to the beat',
-            'You can also use spacebar to tap',
-            'Auto-resets after 2 seconds of inactivity',
+            'Click TAP button to the beat several times',
+            'You can also use spacebar',
+            'Auto-resets after 2 seconds of no activity',
           ],
         },
         {
           title: 'Button guide',
           items: [
-            'TAP: Click to the beat (spacebar also works)',
-            'Sound ON/OFF: Play metronome sound on each tap',
-            'Reset: Clear BPM and tap history',
+            'TAP: Click to the beat',
+            'Sound ON/OFF: Play sound on each click',
+            'Reset: Clear measured values',
           ],
         },
       ],
@@ -449,23 +433,19 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: '이 도구는',
-          items: ['한국어 ↔ 영어 양방향 번역기', '알고리즘 기반 번역 (AI가 아닌 규칙 기반)'],
+          items: ['한국어와 영어를 서로 번역하는 도구', '입력하면 바로 번역 결과 표시'],
         },
         {
           title: '사용 방법',
           items: [
-            '텍스트 입력 시 자동으로 번역됨',
-            '방향 전환 버튼으로 입출력 언어 변경',
-            '어투 선택으로 번역 스타일 조절',
+            '번역할 글 입력',
+            '방향 버튼으로 한→영 또는 영→한 변경',
+            '어투 선택으로 말투 조절',
           ],
         },
         {
           title: '버튼 설명',
-          items: [
-            '방향 전환 (↔): 번역 방향 변경 (한→영 / 영→한)',
-            '지우기: 입력 텍스트 초기화',
-            '공유: 현재 번역 URL을 클립보드에 복사',
-          ],
+          items: ['↔ 버튼: 번역 방향 바꾸기', '지우기: 입력 내용 삭제', '공유: 번역 링크 복사'],
         },
       ],
     },
@@ -474,25 +454,22 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
       sections: [
         {
           title: 'About this tool',
-          items: [
-            'Bidirectional Korean ↔ English translator',
-            'Algorithm-based translation (rule-based, not AI)',
-          ],
+          items: ['Translate between Korean and English', 'Shows translation as you type'],
         },
         {
           title: 'How to use',
           items: [
-            'Text is translated automatically as you type',
-            'Switch direction button to change input/output language',
-            'Select formality to adjust translation style',
+            'Enter text to translate',
+            'Use direction button to switch Ko→En or En→Ko',
+            'Select tone to adjust formality',
           ],
         },
         {
           title: 'Button guide',
           items: [
-            'Direction switch (↔): Change translation direction (Ko→En / En→Ko)',
-            'Clear: Reset input text',
-            'Share: Copy current translation URL to clipboard',
+            '↔ button: Switch translation direction',
+            'Clear: Delete input',
+            'Share: Copy translation link',
           ],
         },
       ],
@@ -500,33 +477,33 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
   },
 
   // ========================================
-  // 9. Color Palette (컬러 팔레트)
+  // 9. Color Harmony (컬러 하모니)
   // ========================================
-  colorPalette: {
+  colorHarmony: {
     ko: {
       title: '사용 안내',
       sections: [
         {
           title: '이 도구는',
           items: [
-            '조화로운 색상 팔레트를 생성',
-            '보색, 유사색, 삼원색, 단색 계열 등 다양한 모드 지원',
+            '기준 색상에서 어울리는 색상 조합 생성',
+            '보색, 유사색, 삼원색, 단색 계열 4가지 모드 지원',
           ],
         },
         {
           title: '사용 방법',
           items: [
-            '기준 색상 선택 또는 HEX 코드 입력',
-            '원하는 팔레트 모드 선택',
+            '기준 색상 선택',
+            '원하는 조합 방식(모드) 선택',
             '생성된 색상 코드를 클릭하여 복사',
           ],
         },
         {
           title: '버튼 설명',
           items: [
-            'Random: 무작위 기준 색상 생성',
-            'Reset: 기본 색상으로 초기화',
-            '색상 카드 클릭: HEX/RGB/HSL 값 복사',
+            'Random: 무작위 색상 생성',
+            'Reset: 기본값으로 복원',
+            '색상 클릭: 색상 코드 복사',
           ],
         },
       ],
@@ -537,24 +514,76 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
         {
           title: 'About this tool',
           items: [
-            'Generate harmonious color palettes',
-            'Supports complementary, analogous, triadic, and monochromatic modes',
+            'Create matching color combinations from a base color',
+            'Supports 4 modes: complementary, analogous, triadic, monochromatic',
           ],
         },
         {
           title: 'How to use',
+          items: ['Pick a base color', 'Choose a harmony mode', 'Click color codes to copy'],
+        },
+        {
+          title: 'Button guide',
           items: [
-            'Select a base color or enter HEX code',
-            'Choose your desired palette mode',
-            'Click generated color codes to copy',
+            'Random: Generate random color',
+            'Reset: Restore defaults',
+            'Click color: Copy color code',
+          ],
+        },
+      ],
+    },
+  },
+
+  // ========================================
+  // 10. Color Palette (컬러 팔레트)
+  // ========================================
+  colorPalette: {
+    ko: {
+      title: '사용 안내',
+      sections: [
+        {
+          title: '이 도구는',
+          items: ['2~5개 색상을 자유롭게 조합하는 도구', '원하는 색상을 직접 선택하여 팔레트 생성'],
+        },
+        {
+          title: '사용 방법',
+          items: [
+            '색상 개수(2~5) 선택',
+            '각 색상 칸을 클릭하여 색상 변경',
+            '색상 코드를 클릭하여 복사',
+          ],
+        },
+        {
+          title: '버튼 설명',
+          items: [
+            'Random: 무작위 색상 생성',
+            'Reset: 기본값으로 복원',
+            '색상 칸 클릭: 색상 선택 창 열기',
+          ],
+        },
+      ],
+    },
+    en: {
+      title: 'How to Use',
+      sections: [
+        {
+          title: 'About this tool',
+          items: ['Combine 2-5 colors freely', 'Pick colors to create your own palette'],
+        },
+        {
+          title: 'How to use',
+          items: [
+            'Select number of colors (2-5)',
+            'Click each color box to change color',
+            'Click color codes to copy',
           ],
         },
         {
           title: 'Button guide',
           items: [
-            'Random: Generate a random base color',
-            'Reset: Reset to default color',
-            'Click color card: Copy HEX/RGB/HSL values',
+            'Random: Generate random colors',
+            'Reset: Restore defaults',
+            'Click color box: Open color picker',
           ],
         },
       ],

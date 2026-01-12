@@ -26,6 +26,7 @@ const TOOL_PAGES = [
   'translator',
   'spell-checker',
   'english-spell-checker',
+  'color-harmony',
   'color-palette',
 ] as const;
 

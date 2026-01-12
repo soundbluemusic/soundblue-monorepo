@@ -1,14 +1,15 @@
 /**
  * Color Palette Generator Types
+ * 색상 조합 도구 타입 정의
  */
 
-export type PaletteMode = 'complementary' | 'analogous' | 'triadic' | 'monochromatic';
+export type PaletteSize = 2 | 3 | 4 | 5;
 
 export interface ColorPaletteSettings {
-  /** Base color in HEX format */
-  baseColor: string;
-  /** Palette generation mode */
-  mode: PaletteMode;
+  /** Number of colors in the palette */
+  size: PaletteSize;
+  /** Array of HEX colors */
+  colors: string[];
 }
 
 export interface ColorPaletteProps {

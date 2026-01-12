@@ -231,13 +231,23 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         },
       },
       {
+        id: 'colorHarmony',
+        slug: 'color-harmony',
+        name: { ko: '컬러 하모니', en: 'Color Harmony' },
+        icon: '\uD83C\uDFA8',
+        description: {
+          ko: '색상환 기반 조화로운 배색 생성',
+          en: 'Generate harmonious color schemes based on color wheel',
+        },
+      },
+      {
         id: 'colorPalette',
         slug: 'color-palette',
         name: { ko: '컬러 팔레트', en: 'Color Palette' },
-        icon: '\uD83C\uDFA8',
+        icon: '\uD83C\uDF08',
         description: {
-          ko: '조화로운 색상 팔레트 생성',
-          en: 'Generate harmonious color palettes',
+          ko: '2~5개 색상 조합 팔레트 생성',
+          en: 'Create custom color palettes with 2-5 colors',
         },
       },
     ],
@@ -386,6 +396,9 @@ export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
   ),
   englishSpellChecker: lazy(() =>
     import('~/tools/english-spell-checker').then((m) => ({ default: m.EnglishSpellChecker })),
+  ),
+  colorHarmony: lazy(() =>
+    import('~/tools/color-harmony').then((m) => ({ default: m.ColorHarmony })),
   ),
   colorPalette: lazy(() =>
     import('~/tools/color-palette').then((m) => ({ default: m.ColorPalette })),

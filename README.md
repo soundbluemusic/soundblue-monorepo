@@ -34,6 +34,10 @@
 - ⏱️ Metronome (메트로놈)
 - 📱 QR Code Generator (QR 코드 생성기)
 - 🌐 Translator (번역기) - Ko↔En bidirectional (한영 양방향)
+- 🎨 Color Harmony (컬러 하모니) - Color wheel theory (색상환 이론)
+- 🌈 Color Palette (컬러 팔레트) - Custom color combinations (색상 조합)
+
+> ⚠️ **모든 도구는 ToolGuide(사용 안내) 필수** - `.claude/rules/tools.md` 참조
 
 <br>
 
