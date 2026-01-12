@@ -8,6 +8,7 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import m from '~/lib/messages';
 import { getToolComponent, getToolInfo } from '~/lib/toolCategories';
+import { getToolGuide } from '~/lib/toolGuides';
 import { useAudioStore } from '~/stores/audio-store';
 import { useToolStore } from '~/stores/tool-store';
 // Import tool types and default settings from local files (avoids loading heavy @soundblue/ui-components bundle)
@@ -30,6 +31,7 @@ import {
   type SpellCheckerSettings,
 } from '~/tools/spell-checker/settings';
 import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator/settings';
+import { ToolGuide } from './ToolGuide';
 
 // Loading fallback component
 function ToolLoading() {
@@ -494,6 +496,9 @@ export function ToolContainer() {
     ],
   );
 
+  // Get current locale for tool guide
+  const currentLocale = locale === 'ko' ? 'ko' : 'en';
+
   // Render tool content using registry pattern (no switch statement)
   const renderToolContent = () => {
     if (!currentTool) return null;
@@ -502,6 +507,19 @@ export function ToolContainer() {
     if (!LazyComponent) return null;
 
     const config = toolSettingsRegistry[currentTool];
+
+    // For external package tools (qr, translator), inject guideSlot
+    if (currentTool === 'qr' || currentTool === 'translator') {
+      const guide = getToolGuide(currentTool, currentLocale);
+      return (
+        <LazyComponent
+          settings={config.settings}
+          onSettingsChange={config.onSettingsChange}
+          guideSlot={<ToolGuide title={guide.title} sections={guide.sections} />}
+        />
+      );
+    }
+
     return <LazyComponent settings={config.settings} onSettingsChange={config.onSettingsChange} />;
   };
 

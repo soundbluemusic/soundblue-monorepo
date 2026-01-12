@@ -1,8 +1,11 @@
+import { useParaglideI18n } from '@soundblue/i18n';
 import { Pause, Play, RotateCcw } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { ToolGuide } from '~/components/tools/ToolGuide';
 import { Slider } from '~/components/ui/slider';
 import { useMetronome } from '~/hooks/useMetronome';
 import m from '~/lib/messages';
+import { getToolGuide } from '~/lib/toolGuides';
 import { BPM_RANGE, defaultMetronomeSettings, type MetronomeSettings } from './settings';
 
 // ========================================
@@ -15,6 +18,10 @@ interface MetronomeProps {
 }
 
 export function Metronome({ settings: propSettings, onSettingsChange }: MetronomeProps) {
+  const { locale } = useParaglideI18n();
+  const currentLocale = locale === 'ko' ? 'ko' : 'en';
+  const guide = getToolGuide('metronome', currentLocale);
+
   // Merge provided settings with defaults
   const [internalSettings, setInternalSettings] = useState(defaultMetronomeSettings);
   const settings = useMemo(
@@ -275,6 +282,9 @@ export function Metronome({ settings: propSettings, onSettingsChange }: Metronom
           <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
       </div>
+
+      {/* Tool Guide */}
+      <ToolGuide title={guide.title} sections={guide.sections} />
     </div>
   );
 }

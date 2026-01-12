@@ -1,5 +1,8 @@
+import { useParaglideI18n } from '@soundblue/i18n';
 import { useCallback, useState } from 'react';
+import { ToolGuide } from '~/components/tools/ToolGuide';
 import { useDrumMachine } from '~/hooks/useDrumMachine';
+import { getToolGuide } from '~/lib/toolGuides';
 import { DrumControls } from './DrumControls';
 import { DrumGrid } from './DrumGrid';
 import { DrumPresetPanel } from './DrumPresetPanel';
@@ -17,6 +20,10 @@ interface DrumMachineProps {
 }
 
 export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMachineProps) {
+  const { locale } = useParaglideI18n();
+  const currentLocale = locale === 'ko' ? 'ko' : 'en';
+  const guide = getToolGuide('drumMachine', currentLocale);
+
   const [showSynth, setShowSynth] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
 
@@ -136,6 +143,9 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
         onParamReset={handleSynthParamReset}
         onPreviewSound={handlePreviewSound}
       />
+
+      {/* Tool Guide */}
+      <ToolGuide title={guide.title} sections={guide.sections} />
     </div>
   );
 }

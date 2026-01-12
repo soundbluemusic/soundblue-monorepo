@@ -1,7 +1,9 @@
 import { useParaglideI18n } from '@soundblue/i18n';
 import { Check, Copy, RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ToolGuide } from '~/components/tools/ToolGuide';
 import { Slider } from '~/components/ui/slider';
+import { getToolGuide } from '~/lib/toolGuides';
 import {
   calculateAllDelayTimes,
   calculateTapTempo,
@@ -21,7 +23,9 @@ export function DelayCalculator({
   onSettingsChange,
 }: DelayCalculatorProps) {
   const { locale } = useParaglideI18n();
-  const texts = delayCalculatorTexts[locale === 'ko' ? 'ko' : 'en'];
+  const currentLocale = locale === 'ko' ? 'ko' : 'en';
+  const texts = delayCalculatorTexts[currentLocale];
+  const guide = getToolGuide('delayCalculator', currentLocale);
 
   // Merge provided settings with defaults
   const [internalSettings, setInternalSettings] = useState(defaultDelayCalculatorSettings);
@@ -272,6 +276,9 @@ export function DelayCalculator({
           texts.copyTip
         )}
       </p>
+
+      {/* Tool Guide */}
+      <ToolGuide title={guide.title} sections={guide.sections} />
     </div>
   );
 }

@@ -1,6 +1,9 @@
+import { useParaglideI18n } from '@soundblue/i18n';
 import { AlertTriangle, Check, Copy, Loader2, RefreshCw, RotateCcw, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ToolGuide } from '~/components/tools/ToolGuide';
 import m from '~/lib/messages';
+import { getToolGuide } from '~/lib/toolGuides';
 import {
   checkEnglishSpelling,
   getSpellCheckerError,
@@ -27,6 +30,10 @@ export function EnglishSpellChecker({
   settings: propSettings,
   onSettingsChange,
 }: EnglishSpellCheckerProps) {
+  const { locale } = useParaglideI18n();
+  const currentLocale = locale === 'ko' ? 'ko' : 'en';
+  const guide = getToolGuide('englishSpellChecker', currentLocale);
+
   // Merge provided settings with defaults
   const [internalSettings, setInternalSettings] = useState(defaultEnglishSpellCheckerSettings);
   const settings = useMemo(
@@ -460,6 +467,9 @@ export function EnglishSpellChecker({
           )}
         </div>
       )}
+
+      {/* Tool Guide */}
+      <ToolGuide title={guide.title} sections={guide.sections} />
     </div>
   );
 }

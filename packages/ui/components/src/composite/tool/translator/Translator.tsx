@@ -68,12 +68,15 @@ interface TranslatorProps {
   onSettingsChange?: (settings: Partial<TranslatorSettings>) => void;
   /** i18n 메시지 (외부에서 주입 가능, 기본값 제공) */
   messages?: TranslatorMessages;
+  /** 사용 안내 슬롯 (외부에서 주입, 하단에 렌더링) */
+  guideSlot?: React.ReactNode;
 }
 
 export function Translator({
   settings: propSettings,
   onSettingsChange,
   messages: propMessages,
+  guideSlot,
 }: TranslatorProps) {
   const messages = useMemo(() => ({ ...defaultMessages, ...propMessages }), [propMessages]);
   const [internalSettings, setInternalSettings] = useState(defaultTranslatorSettings);
@@ -506,6 +509,9 @@ export function Translator({
           </span>
         </div>
       </div>
+
+      {/* Guide Slot */}
+      {guideSlot}
     </div>
   );
 }

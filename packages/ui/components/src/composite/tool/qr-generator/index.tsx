@@ -32,12 +32,15 @@ interface QRGeneratorProps {
   onSettingsChange?: (settings: Partial<QRSettings>) => void;
   /** i18n 메시지 (외부에서 주입 가능, 기본값 제공) */
   messages?: QRGeneratorMessages;
+  /** 사용 안내 슬롯 (외부에서 주입, 하단에 렌더링) */
+  guideSlot?: React.ReactNode;
 }
 
 export function QRGenerator({
   settings: propSettings,
   onSettingsChange,
   messages: propMessages,
+  guideSlot,
 }: QRGeneratorProps) {
   const messages = useMemo(() => ({ ...defaultMessages, ...propMessages }), [propMessages]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -221,6 +224,9 @@ export function QRGenerator({
           </span>
         </label>
       </div>
+
+      {/* Guide Slot */}
+      {guideSlot}
     </div>
   );
 }

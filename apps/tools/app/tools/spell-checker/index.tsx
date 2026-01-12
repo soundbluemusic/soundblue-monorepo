@@ -1,6 +1,9 @@
+import { useParaglideI18n } from '@soundblue/i18n';
 import { AlertTriangle, Check, Copy, RotateCcw, Sparkles } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { ToolGuide } from '~/components/tools/ToolGuide';
 import m from '~/lib/messages';
+import { getToolGuide } from '~/lib/toolGuides';
 import { checkSpelling } from './engine';
 import { defaultSpellCheckerSettings, type SpellCheckerSettings } from './settings';
 import type { SpellCheckResult, SpellError } from './types';
@@ -16,6 +19,10 @@ interface SpellCheckerProps {
 }
 
 export function SpellChecker({ settings: propSettings, onSettingsChange }: SpellCheckerProps) {
+  const { locale } = useParaglideI18n();
+  const currentLocale = locale === 'ko' ? 'ko' : 'en';
+  const guide = getToolGuide('spellChecker', currentLocale);
+
   // Merge provided settings with defaults
   const [internalSettings, setInternalSettings] = useState(defaultSpellCheckerSettings);
   const settings = useMemo(
@@ -305,6 +312,9 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
           )}
         </div>
       )}
+
+      {/* Tool Guide */}
+      <ToolGuide title={guide.title} sections={guide.sections} />
     </div>
   );
 }
