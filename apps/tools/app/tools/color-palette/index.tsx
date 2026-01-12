@@ -1,6 +1,8 @@
 import { useParaglideI18n } from '@soundblue/i18n';
 import { Check, Copy, RefreshCw, Shuffle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { ToolGuide } from '~/components/tools/ToolGuide';
+import { getToolGuide } from '~/lib/toolGuides';
 import { colorPaletteTexts, defaultColorPaletteSettings } from './settings';
 import type { ColorInfo, ColorPaletteProps, PaletteMode } from './types';
 
@@ -253,6 +255,7 @@ export function ColorPalette({ settings: propSettings, onSettingsChange }: Color
   const { locale } = useParaglideI18n();
   const currentLocale = locale === 'ko' ? 'ko' : 'en';
   const texts = colorPaletteTexts[currentLocale];
+  const guide = getToolGuide('colorPalette', currentLocale);
 
   // Merge settings
   const [internalSettings, setInternalSettings] = useState(defaultColorPaletteSettings);
@@ -393,6 +396,9 @@ export function ColorPalette({ settings: propSettings, onSettingsChange }: Color
           {texts.reset}
         </button>
       </div>
+
+      {/* Tool Guide */}
+      <ToolGuide title={guide.title} sections={guide.sections} />
     </div>
   );
 }
