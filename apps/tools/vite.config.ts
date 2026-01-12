@@ -74,12 +74,19 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // SSG: 모든 라우트 HTML + assets 캐싱
+        globPatterns: [
+          '**/*.html', // 모든 SSG 라우트의 HTML
+          'assets/**/*.{js,css}', // JS/CSS 번들
+          '**/*.{ico,png,svg,woff,woff2,wasm}', // 정적 자산
+        ],
         // data/sentences/*.json 제외 (12MB+ 파일 - runtime caching 사용)
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,wasm}'],
         globIgnores: ['**/data/sentences/**'],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
+        // SSG: navigateFallback 비활성화 - 각 라우트가 자체 HTML 파일 사용
+        navigateFallback: null,
         runtimeCaching: [
           {
             urlPattern: /\.(?:wasm)$/,
