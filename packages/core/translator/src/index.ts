@@ -29,9 +29,11 @@ export {
   correctDependencyNounSpacing,
   correctParticleSpacing,
   correctSpacing,
+  correctSpacingFull,
   dpWordSplit,
+  mergeWrongSpacing,
   recoverSpacing,
-} from './correction/spacing-rules';
+} from './correction';
 // Typo Correction
 export {
   type CorrectionResult,

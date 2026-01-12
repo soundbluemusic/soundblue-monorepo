@@ -5,7 +5,8 @@
 
 import { correctAllCommonTypos, isCommonTypo } from './common-typos';
 import { calculateKeyboardSimilarity, jamoEditDistance } from './jamo-edit-distance';
-import { correctSpacing, correctSpacingFull } from './spacing-rules';
+import { correctSpacingFull } from './spacing-full';
+import { correctSpacing } from './spacing-rules';
 
 /**
  * 교정 결과 인터페이스

@@ -1,8 +1,8 @@
 import { getLocalizedPath } from '@soundblue/i18n';
+import { addToContext, analyzeInput, type ConversationTurn } from '@soundblue/nlu';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import m from '~/lib/messages';
-import { addToContext, analyzeInput, type ConversationTurn } from '~/lib/nlu';
 import { detectLanguageSwitch, detectToolRequest, getResponse } from '~/lib/response-handler';
 import { generateId, type Message, useChatStore, useUIStore } from '~/stores';
 import { ChatInput } from './ChatInput';

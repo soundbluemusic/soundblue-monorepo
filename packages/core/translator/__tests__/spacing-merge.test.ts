@@ -4,7 +4,7 @@ import {
   correctSpacingFull,
   mergeWrongSpacing,
   recoverSpacing,
-} from '../src/correction/spacing-rules';
+} from '../src/correction';
 
 describe('mergeWrongSpacing - 잘못 띄어쓴 텍스트 합치기', () => {
   it('안 녕 하 세 요 → 안녕하세요', () => {

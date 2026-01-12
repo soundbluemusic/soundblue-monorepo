@@ -3,6 +3,8 @@
 // Public API
 // ========================================
 
+// Main entry point - unified analysis pipeline
+export * from './analyze';
 export * from './dialogue/context-aware-response';
 // Dialogue Context Management
 export * from './dialogue/context-manager';

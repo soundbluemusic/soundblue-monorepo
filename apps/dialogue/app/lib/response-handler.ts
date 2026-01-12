@@ -6,17 +6,17 @@
  * - Context-aware responses
  */
 
-import { getLocale } from '~/paraglide/runtime';
-// 동기 import로 Q&A 데이터 번들에 포함 (런타임 async 로드 제거)
-import enData from '../data/qa-en.json';
-import koData from '../data/qa-ko.json';
-import { type FuzzyQAMatchOptions, fuzzySearchQA } from './fuzzy-qa-matcher';
 import {
   detectContextReference,
   enhanceResponseWithContext,
   getContextSummary,
   resolveEntityReference,
-} from './nlu';
+} from '@soundblue/nlu';
+import { getLocale } from '~/paraglide/runtime';
+// 동기 import로 Q&A 데이터 번들에 포함 (런타임 async 로드 제거)
+import enData from '../data/qa-en.json';
+import koData from '../data/qa-ko.json';
+import { type FuzzyQAMatchOptions, fuzzySearchQA } from './fuzzy-qa-matcher';
 
 // ========================================
 // Time/Date Response Handler

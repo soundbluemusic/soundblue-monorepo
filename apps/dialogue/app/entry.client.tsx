@@ -3,6 +3,14 @@
 // React Router v7 SSG hydration bug workaround
 // ============================================================================
 //
+// ⚠️ SYNC REQUIRED: This file must be identical across all 3 apps:
+// - apps/sound-blue/app/entry.client.tsx
+// - apps/tools/app/entry.client.tsx
+// - apps/dialogue/app/entry.client.tsx
+// When modifying, update ALL files together!
+//
+// ----------------------------------------------------------------------------
+//
 // Problem: After SSG build, buttons don't work (bookmark, download, etc.)
 // Cause: When hydration fails, React creates new DOM but doesn't remove
 //        the original server-rendered HTML, causing DOM duplication
