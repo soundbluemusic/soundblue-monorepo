@@ -77,6 +77,21 @@ export default function Sitemap() {
             </li>
           </ul>
         </section>
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">{m['sitemap.sections.other']()}</h2>
+          <ul className="space-y-2">
+            <li>
+              <a
+                href="/sitemap.xml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-(--color-link) hover:underline"
+              >
+                {m['sitemap.xml']()}
+              </a>
+            </li>
+          </ul>
+        </section>
       </div>
     </NavigationLayout>
   );

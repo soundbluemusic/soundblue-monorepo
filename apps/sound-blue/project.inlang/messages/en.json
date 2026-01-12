@@ -179,6 +179,8 @@
   "sitemap_links_license": "Sound Recording License",
   "sitemap_links_soundRecording": "Sound Recording",
   "sitemap_links_builtWith": "Built With",
+  "sitemap_sections_other": "Other",
+  "sitemap_xml": "XML Sitemap (for search engines)",
   "builtWith_title": "Built With",
   "builtWith_sections_frameworks": "Frameworks",
   "builtWith_sections_deployment": "Deployment",
