@@ -229,7 +229,22 @@ export default function Benchmark() {
     // Run translation using dynamically loaded translate function
     const translateFn = translateFnRef.current;
     if (!translateFn) {
-      throw new Error('Translate function not loaded');
+      // Return failed result instead of throwing (graceful degradation)
+      const errorMessage = 'Error: Translate function not loaded';
+      setCurrentTest({
+        input: test.input,
+        output: errorMessage,
+        expected: test.expected,
+        testId: test.id,
+      });
+      return {
+        id: test.id,
+        passed: false,
+        actual: errorMessage,
+        expected: test.expected,
+        input: test.input,
+        similarity: 0,
+      };
     }
     const actual = translateFn(test.input, test.direction);
 

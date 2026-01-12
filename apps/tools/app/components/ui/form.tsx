@@ -49,12 +49,15 @@ const useFormField = () => {
   const itemContext = useContext(FormItemContext);
   const { getFieldState, formState } = useFormContext();
 
-  const fieldState = getFieldState(fieldContext.name, formState);
-
-  if (!fieldContext) {
-    throw new Error('useFormField should be used within <FormField>');
+  // Validate context after all hooks are called (maintains hooks order)
+  if (!fieldContext.name) {
+    throw new Error(
+      'useFormField must be used within a <FormField> component. ' +
+        'Make sure the component calling useFormField is wrapped in <FormField>.',
+    );
   }
 
+  const fieldState = getFieldState(fieldContext.name, formState);
   const { id } = itemContext;
 
   return {

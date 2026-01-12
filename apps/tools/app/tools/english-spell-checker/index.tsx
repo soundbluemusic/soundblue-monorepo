@@ -1,11 +1,14 @@
-import { Check, Copy, Loader2, RotateCcw, Sparkles } from 'lucide-react';
+import { AlertTriangle, Check, Copy, Loader2, RefreshCw, RotateCcw, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import m from '~/lib/messages';
 import {
   checkEnglishSpelling,
+  getSpellCheckerError,
+  hasSpellCheckerError,
   isSpellCheckerLoading,
   isSpellCheckerReady,
   preloadSpellChecker,
+  resetSpellChecker,
 } from './engine';
 import { defaultEnglishSpellCheckerSettings, type EnglishSpellCheckerSettings } from './settings';
 import type { EnglishSpellCheckResult, EnglishSpellError } from './types';
@@ -36,20 +39,47 @@ export function EnglishSpellChecker({
   const [copied, setCopied] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Preload spell checker on mount
   useEffect(() => {
-    preloadSpellChecker();
+    const loadDictionary = async () => {
+      setLoadError(null);
+      try {
+        await preloadSpellChecker();
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to load dictionary';
+        setLoadError(errorMsg);
+      }
+    };
+
+    loadDictionary();
 
     // Update loading state
     const checkLoading = () => {
       setIsLoading(isSpellCheckerLoading() && !isSpellCheckerReady());
+      if (hasSpellCheckerError() && !loadError) {
+        const err = getSpellCheckerError();
+        setLoadError(err?.message || 'Unknown error');
+      }
     };
 
     checkLoading();
     const interval = setInterval(checkLoading, 100);
 
     return () => clearInterval(interval);
+  }, [loadError]);
+
+  // Retry loading dictionary
+  const handleRetryLoad = useCallback(async () => {
+    setLoadError(null);
+    resetSpellChecker();
+    try {
+      await preloadSpellChecker();
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load dictionary';
+      setLoadError(errorMsg);
+    }
   }, []);
 
   const handleSettingsChange = useCallback(
@@ -60,11 +90,15 @@ export function EnglishSpellChecker({
     [onSettingsChange],
   );
 
+  // State for check errors
+  const [checkError, setCheckError] = useState<string | null>(null);
+
   // Run spell check
   const handleCheck = useCallback(async () => {
     if (!inputText.trim()) return;
 
     setIsChecking(true);
+    setCheckError(null);
     try {
       const checkResult = await checkEnglishSpelling(inputText, {
         maxSuggestions: settings.maxSuggestions,
@@ -75,6 +109,13 @@ export function EnglishSpellChecker({
 
       setResult(checkResult);
       handleSettingsChange({ lastInput: inputText });
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to check spelling';
+      setCheckError(errorMsg);
+      // Also update load error if it's a dictionary loading issue
+      if (hasSpellCheckerError()) {
+        setLoadError(getSpellCheckerError()?.message || 'Dictionary error');
+      }
     } finally {
       setIsChecking(false);
     }
@@ -177,10 +218,41 @@ export function EnglishSpellChecker({
   return (
     <div className="flex h-full flex-col gap-3 overflow-auto p-3 sm:gap-4 sm:p-4">
       {/* Loading indicator for dictionary */}
-      {isLoading && (
+      {isLoading && !loadError && (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300">
           <Loader2 className="h-4 w-4 animate-spin" />
           {m['englishSpellChecker.loadingDictionary']?.() ?? 'Loading dictionary...'}
+        </div>
+      )}
+
+      {/* Error indicator for dictionary loading */}
+      {loadError && (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm dark:border-red-800 dark:bg-red-950/50">
+          <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+            <AlertTriangle className="h-5 w-5" />
+            <span className="font-medium">
+              {m['englishSpellChecker.loadError']?.() ?? 'Failed to load dictionary'}
+            </span>
+          </div>
+          {import.meta.env.DEV && (
+            <p className="text-xs text-red-600 dark:text-red-400">{loadError}</p>
+          )}
+          <button
+            type="button"
+            onClick={handleRetryLoad}
+            className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            {m['englishSpellChecker.retry']?.() ?? 'Retry'}
+          </button>
+        </div>
+      )}
+
+      {/* Error indicator for check errors */}
+      {checkError && !loadError && (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300">
+          <AlertTriangle className="h-4 w-4" />
+          {m['englishSpellChecker.checkError']?.() ?? 'Failed to check spelling. Please try again.'}
         </div>
       )}
 
