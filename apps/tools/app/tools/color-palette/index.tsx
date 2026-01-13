@@ -1,10 +1,15 @@
 import { useParaglideI18n } from '@soundblue/i18n';
-import { Check, Copy, RefreshCw, Shuffle } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { Check, Copy, RefreshCw, RotateCcw, Shuffle } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
 import { getToolGuide } from '~/lib/toolGuides';
-import { colorPaletteTexts, DEFAULT_COLORS, defaultColorPaletteSettings } from './settings';
-import type { ColorInfo, ColorPaletteProps, PaletteSize } from './types';
+import {
+  colorPaletteTexts,
+  DEFAULT_COLORS,
+  defaultColorPaletteSettings,
+  generateDefaultBlockPositions,
+} from './settings';
+import type { BlockPosition, ColorInfo, ColorPaletteProps, PaletteSize } from './types';
 
 // ========================================
 // Color Utility Functions
@@ -222,6 +227,312 @@ function ColorCard({
 }
 
 // ========================================
+// Draggable Preview Component
+// ========================================
+
+const SNAP_THRESHOLD = 15; // px - distance for snapping
+const MIN_BLOCK_SIZE = 40;
+const MAX_BLOCK_SIZE = 200;
+
+interface DraggablePreviewProps {
+  colors: ColorInfo[];
+  positions: BlockPosition[];
+  onPositionsChange: (positions: BlockPosition[]) => void;
+  onResetLayout: () => void;
+  texts: (typeof colorPaletteTexts)['ko'] | (typeof colorPaletteTexts)['en'];
+}
+
+function DraggablePreview({
+  colors,
+  positions,
+  onPositionsChange,
+  onResetLayout,
+  texts,
+}: DraggablePreviewProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [resizingIndex, setResizingIndex] = useState<number | null>(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+
+  // Get container bounds
+  const getContainerBounds = useCallback(() => {
+    if (!containerRef.current) return { width: 400, height: 200 };
+    const rect = containerRef.current.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  }, []);
+
+  // Calculate snap position
+  const calculateSnap = useCallback(
+    (
+      currentIndex: number,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+    ): { x: number; y: number } => {
+      let snappedX = x;
+      let snappedY = y;
+
+      const currentRight = x + width;
+      const currentBottom = y + height;
+
+      // Check against other blocks
+      for (let i = 0; i < positions.length; i++) {
+        if (i === currentIndex) continue;
+
+        const other = positions[i];
+        const otherRight = other.x + other.width;
+        const otherBottom = other.y + other.height;
+
+        // Snap to left edge of other block
+        if (Math.abs(currentRight - other.x) < SNAP_THRESHOLD) {
+          snappedX = other.x - width;
+        }
+        // Snap to right edge of other block
+        if (Math.abs(x - otherRight) < SNAP_THRESHOLD) {
+          snappedX = otherRight;
+        }
+        // Snap to top edge of other block
+        if (Math.abs(currentBottom - other.y) < SNAP_THRESHOLD) {
+          snappedY = other.y - height;
+        }
+        // Snap to bottom edge of other block
+        if (Math.abs(y - otherBottom) < SNAP_THRESHOLD) {
+          snappedY = otherBottom;
+        }
+
+        // Align edges horizontally
+        if (Math.abs(x - other.x) < SNAP_THRESHOLD) {
+          snappedX = other.x;
+        }
+        if (Math.abs(currentRight - otherRight) < SNAP_THRESHOLD) {
+          snappedX = otherRight - width;
+        }
+
+        // Align edges vertically
+        if (Math.abs(y - other.y) < SNAP_THRESHOLD) {
+          snappedY = other.y;
+        }
+        if (Math.abs(currentBottom - otherBottom) < SNAP_THRESHOLD) {
+          snappedY = otherBottom - height;
+        }
+      }
+
+      // Snap to container edges
+      const bounds = getContainerBounds();
+      if (Math.abs(x) < SNAP_THRESHOLD) snappedX = 0;
+      if (Math.abs(y) < SNAP_THRESHOLD) snappedY = 0;
+      if (Math.abs(currentRight - bounds.width) < SNAP_THRESHOLD) {
+        snappedX = bounds.width - width;
+      }
+      if (Math.abs(currentBottom - bounds.height) < SNAP_THRESHOLD) {
+        snappedY = bounds.height - height;
+      }
+
+      return { x: snappedX, y: snappedY };
+    },
+    [positions, getContainerBounds],
+  );
+
+  // Handle mouse/touch move
+  const handleMove = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const bounds = getContainerBounds();
+
+      if (draggingIndex !== null) {
+        const block = positions[draggingIndex];
+        let newX = clientX - rect.left - dragOffset.x;
+        let newY = clientY - rect.top - dragOffset.y;
+
+        // Constrain to container bounds
+        newX = Math.max(0, Math.min(newX, bounds.width - block.width));
+        newY = Math.max(0, Math.min(newY, bounds.height - block.height));
+
+        // Apply snap
+        const snapped = calculateSnap(draggingIndex, newX, newY, block.width, block.height);
+
+        const newPositions = [...positions];
+        newPositions[draggingIndex] = { ...block, x: snapped.x, y: snapped.y };
+        onPositionsChange(newPositions);
+      }
+
+      if (resizingIndex !== null) {
+        const deltaX = clientX - resizeStart.x;
+        const deltaY = clientY - resizeStart.y;
+
+        let newWidth = Math.max(
+          MIN_BLOCK_SIZE,
+          Math.min(MAX_BLOCK_SIZE, resizeStart.width + deltaX),
+        );
+        let newHeight = Math.max(
+          MIN_BLOCK_SIZE,
+          Math.min(MAX_BLOCK_SIZE, resizeStart.height + deltaY),
+        );
+
+        const block = positions[resizingIndex];
+        // Ensure block doesn't exceed container
+        newWidth = Math.min(newWidth, bounds.width - block.x);
+        newHeight = Math.min(newHeight, bounds.height - block.y);
+
+        const newPositions = [...positions];
+        newPositions[resizingIndex] = { ...block, width: newWidth, height: newHeight };
+        onPositionsChange(newPositions);
+      }
+    },
+    [
+      draggingIndex,
+      resizingIndex,
+      dragOffset,
+      resizeStart,
+      positions,
+      calculateSnap,
+      getContainerBounds,
+      onPositionsChange,
+    ],
+  );
+
+  // Handle mouse/touch end
+  const handleEnd = useCallback(() => {
+    setDraggingIndex(null);
+    setResizingIndex(null);
+  }, []);
+
+  // Mouse events
+  useEffect(() => {
+    if (draggingIndex === null && resizingIndex === null) return;
+
+    const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
+    const onMouseUp = () => handleEnd();
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [draggingIndex, resizingIndex, handleMove, handleEnd]);
+
+  // Touch events
+  useEffect(() => {
+    if (draggingIndex === null && resizingIndex === null) return;
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    };
+    const onTouchEnd = () => handleEnd();
+
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [draggingIndex, resizingIndex, handleMove, handleEnd]);
+
+  // Start drag
+  const handleDragStart = useCallback(
+    (index: number, clientX: number, clientY: number) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const block = positions[index];
+      setDragOffset({
+        x: clientX - rect.left - block.x,
+        y: clientY - rect.top - block.y,
+      });
+      setDraggingIndex(index);
+    },
+    [positions],
+  );
+
+  // Start resize
+  const handleResizeStart = useCallback(
+    (index: number, clientX: number, clientY: number, e: React.MouseEvent | React.TouchEvent) => {
+      e.stopPropagation();
+      const block = positions[index];
+      setResizeStart({
+        x: clientX,
+        y: clientY,
+        width: block.width,
+        height: block.height,
+      });
+      setResizingIndex(index);
+    },
+    [positions],
+  );
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium text-foreground">{texts.preview}</h3>
+        <button
+          type="button"
+          onClick={onResetLayout}
+          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          title={texts.resetLayout}
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          {texts.resetLayout}
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground">{texts.dragHint}</p>
+      <div
+        ref={containerRef}
+        className="relative h-48 sm:h-56 rounded-xl border-2 border-dashed border-border bg-muted/30 overflow-hidden"
+      >
+        {colors.map((color, idx) => {
+          const pos = positions[idx] || { x: idx * 84, y: 0, width: 80, height: 80 };
+          const isDragging = draggingIndex === idx;
+          const isResizing = resizingIndex === idx;
+
+          return (
+            <div
+              key={idx}
+              className={`absolute rounded-lg shadow-md cursor-move transition-shadow ${
+                isDragging || isResizing ? 'shadow-lg ring-2 ring-primary z-10' : 'hover:shadow-lg'
+              }`}
+              style={{
+                left: pos.x,
+                top: pos.y,
+                width: pos.width,
+                height: pos.height,
+                backgroundColor: color.hex,
+              }}
+              onMouseDown={(e) => handleDragStart(idx, e.clientX, e.clientY)}
+              onTouchStart={(e) => {
+                if (e.touches.length === 1) {
+                  handleDragStart(idx, e.touches[0].clientX, e.touches[0].clientY);
+                }
+              }}
+            >
+              {/* Resize handle */}
+              <div
+                className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-0 hover:opacity-100 transition-opacity"
+                style={{
+                  background: 'linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.5) 50%)',
+                }}
+                onMouseDown={(e) => handleResizeStart(idx, e.clientX, e.clientY, e)}
+                onTouchStart={(e) => {
+                  if (e.touches.length === 1) {
+                    handleResizeStart(idx, e.touches[0].clientX, e.touches[0].clientY, e);
+                  }
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ========================================
 // Main Component
 // ========================================
 
@@ -252,6 +563,17 @@ export function ColorPalette({ settings: propSettings, onSettingsChange }: Color
     [settings.colors, settings.size],
   );
 
+  // Block positions (ensure we have positions for all colors)
+  const blockPositions = useMemo(() => {
+    const existingPositions = settings.blockPositions || [];
+    if (existingPositions.length >= settings.size) {
+      return existingPositions.slice(0, settings.size);
+    }
+    // Generate missing positions
+    const defaultPositions = generateDefaultBlockPositions(settings.size);
+    return [...existingPositions, ...defaultPositions.slice(existingPositions.length)];
+  }, [settings.blockPositions, settings.size]);
+
   // Handlers
   const handleSizeChange = useCallback(
     (size: PaletteSize) => {
@@ -265,10 +587,24 @@ export function ColorPalette({ settings: propSettings, onSettingsChange }: Color
         newColors = currentColors.slice(0, size);
       }
 
-      handleSettingsChange({ size, colors: newColors });
+      // Update block positions for new size
+      const newBlockPositions = generateDefaultBlockPositions(size);
+      handleSettingsChange({ size, colors: newColors, blockPositions: newBlockPositions });
     },
     [handleSettingsChange, settings.colors],
   );
+
+  const handlePositionsChange = useCallback(
+    (positions: BlockPosition[]) => {
+      handleSettingsChange({ blockPositions: positions });
+    },
+    [handleSettingsChange],
+  );
+
+  const handleResetLayout = useCallback(() => {
+    const newBlockPositions = generateDefaultBlockPositions(settings.size);
+    handleSettingsChange({ blockPositions: newBlockPositions });
+  }, [handleSettingsChange, settings.size]);
 
   const handleColorChange = useCallback(
     (index: number, hex: string) => {
@@ -316,18 +652,15 @@ export function ColorPalette({ settings: propSettings, onSettingsChange }: Color
         </div>
       </div>
 
-      {/* Combined Palette Preview */}
+      {/* Draggable Palette Preview */}
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-        <h3 className="text-sm font-medium text-foreground mb-3">{texts.preview}</h3>
-        <div className="flex h-24 sm:h-32 rounded-xl overflow-hidden shadow-inner">
-          {colorInfos.map((color, idx) => (
-            <div
-              key={idx}
-              className="flex-1 transition-all duration-200"
-              style={{ backgroundColor: color.hex }}
-            />
-          ))}
-        </div>
+        <DraggablePreview
+          colors={colorInfos}
+          positions={blockPositions}
+          onPositionsChange={handlePositionsChange}
+          onResetLayout={handleResetLayout}
+          texts={texts}
+        />
       </div>
 
       {/* Color Cards */}
