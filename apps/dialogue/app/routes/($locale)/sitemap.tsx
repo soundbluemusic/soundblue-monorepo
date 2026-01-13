@@ -54,6 +54,14 @@ export default function Sitemap() {
                 {m['app.about']()}
               </Link>
             </li>
+            <li>
+              <Link
+                to={getLocalizedPath('/built-with', locale)}
+                className="text-(--color-accent-primary) no-underline transition-all duration-200 hover:underline"
+              >
+                {m['app.openSourceLicenses']()}
+              </Link>
+            </li>
           </ul>
         </section>
 

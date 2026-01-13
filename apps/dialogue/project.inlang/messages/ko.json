@@ -76,5 +76,6 @@
   "app_confirm": "삭제",
   "app_export": "내보내기",
   "app_copy": "복사",
-  "app_copied": "복사됨"
+  "app_copied": "복사됨",
+  "app_openSourceLicenses": "오픈소스 라이센스"
 }

@@ -76,5 +76,6 @@
   "app_confirm": "Delete",
   "app_export": "Export",
   "app_copy": "Copy",
-  "app_copied": "Copied"
+  "app_copied": "Copied",
+  "app_openSourceLicenses": "Open Source Licenses"
 }

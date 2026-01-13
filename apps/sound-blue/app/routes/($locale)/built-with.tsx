@@ -1,159 +1,55 @@
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
-import m from '~/lib/messages';
 import { getSeoMeta } from '~/lib/seo';
 
 export const meta: MetaFunction = ({ location }) => [
-  { title: 'Built With | Sound Blue' },
-  { name: 'description', content: 'Technologies used to build Sound Blue website.' },
+  { title: 'Open Source Licenses | Sound Blue' },
+  { name: 'description', content: 'Open source libraries used to build Sound Blue website.' },
   ...getSeoMeta(location),
 ];
 
 type OpenSourceItem = {
   name: string;
   url: string;
-  license: string;
-  description?: string;
 };
 
 const openSourceLibraries: Record<string, OpenSourceItem[]> = {
   framework: [
-    { name: 'React', url: 'https://react.dev', license: 'MIT', description: 'UI library' },
-    {
-      name: 'React Router',
-      url: 'https://reactrouter.com',
-      license: 'MIT',
-      description: 'Routing',
-    },
-    {
-      name: 'TypeScript',
-      url: 'https://www.typescriptlang.org',
-      license: 'Apache-2.0',
-      description: 'Type safety',
-    },
-    {
-      name: 'Tailwind CSS',
-      url: 'https://tailwindcss.com',
-      license: 'MIT',
-      description: 'Styling',
-    },
+    { name: 'React', url: 'https://react.dev' },
+    { name: 'React Router', url: 'https://reactrouter.com' },
+    { name: 'TypeScript', url: 'https://www.typescriptlang.org' },
+    { name: 'Tailwind CSS', url: 'https://tailwindcss.com' },
   ],
   ui: [
-    {
-      name: 'Framer Motion',
-      url: 'https://www.framer.com/motion',
-      license: 'MIT',
-      description: 'Animation',
-    },
-    {
-      name: 'class-variance-authority',
-      url: 'https://cva.style',
-      license: 'Apache-2.0',
-      description: 'Variant styling',
-    },
-    {
-      name: 'clsx',
-      url: 'https://github.com/lukeed/clsx',
-      license: 'MIT',
-      description: 'Class utilities',
-    },
-    {
-      name: 'tailwind-merge',
-      url: 'https://github.com/dcastil/tailwind-merge',
-      license: 'MIT',
-      description: 'Merge Tailwind classes',
-    },
-    {
-      name: '@tailwindcss/typography',
-      url: 'https://tailwindcss.com/docs/typography-plugin',
-      license: 'MIT',
-      description: 'Typography styling',
-    },
+    { name: 'Framer Motion', url: 'https://www.framer.com/motion' },
+    { name: 'class-variance-authority', url: 'https://cva.style' },
+    { name: 'clsx', url: 'https://github.com/lukeed/clsx' },
+    { name: 'tailwind-merge', url: 'https://github.com/dcastil/tailwind-merge' },
+    { name: '@tailwindcss/typography', url: 'https://tailwindcss.com/docs/typography-plugin' },
   ],
   state: [
-    {
-      name: 'Zustand',
-      url: 'https://zustand-demo.pmnd.rs',
-      license: 'MIT',
-      description: 'State management',
-    },
-    {
-      name: 'Immer',
-      url: 'https://immerjs.github.io/immer',
-      license: 'MIT',
-      description: 'Immutable state',
-    },
-    {
-      name: 'Dexie.js',
-      url: 'https://dexie.org',
-      license: 'Apache-2.0',
-      description: 'IndexedDB wrapper',
-    },
+    { name: 'Zustand', url: 'https://zustand-demo.pmnd.rs' },
+    { name: 'Immer', url: 'https://immerjs.github.io/immer' },
+    { name: 'Dexie.js', url: 'https://dexie.org' },
   ],
-  validation: [
-    {
-      name: 'Valibot',
-      url: 'https://valibot.dev',
-      license: 'MIT',
-      description: 'Schema validation',
-    },
-  ],
-  utilities: [
-    {
-      name: 'date-fns',
-      url: 'https://date-fns.org',
-      license: 'MIT',
-      description: 'Date utilities',
-    },
-  ],
+  validation: [{ name: 'Valibot', url: 'https://valibot.dev' }],
+  utilities: [{ name: 'date-fns', url: 'https://date-fns.org' }],
   build: [
-    { name: 'Vite', url: 'https://vitejs.dev', license: 'MIT', description: 'Build tool' },
-    { name: 'pnpm', url: 'https://pnpm.io', license: 'MIT', description: 'Package manager' },
-    { name: 'Turbo', url: 'https://turbo.build', license: 'MIT', description: 'Monorepo tool' },
+    { name: 'Vite', url: 'https://vitejs.dev' },
+    { name: 'pnpm', url: 'https://pnpm.io' },
+    { name: 'Turbo', url: 'https://turbo.build' },
   ],
   testing: [
-    { name: 'Vitest', url: 'https://vitest.dev', license: 'MIT', description: 'Unit testing' },
-    {
-      name: 'Playwright',
-      url: 'https://playwright.dev',
-      license: 'Apache-2.0',
-      description: 'E2E testing',
-    },
-    {
-      name: 'Testing Library',
-      url: 'https://testing-library.com',
-      license: 'MIT',
-      description: 'Component testing',
-    },
+    { name: 'Vitest', url: 'https://vitest.dev' },
+    { name: 'Playwright', url: 'https://playwright.dev' },
+    { name: 'Testing Library', url: 'https://testing-library.com' },
   ],
   quality: [
-    {
-      name: 'Biome',
-      url: 'https://biomejs.dev',
-      license: 'MIT',
-      description: 'Linting & formatting',
-    },
-    {
-      name: 'Storybook',
-      url: 'https://storybook.js.org',
-      license: 'MIT',
-      description: 'UI documentation',
-    },
-    {
-      name: 'Lighthouse',
-      url: 'https://developer.chrome.com/docs/lighthouse',
-      license: 'Apache-2.0',
-      description: 'Performance audit',
-    },
+    { name: 'Biome', url: 'https://biomejs.dev' },
+    { name: 'Storybook', url: 'https://storybook.js.org' },
+    { name: 'Lighthouse', url: 'https://developer.chrome.com/docs/lighthouse' },
   ],
-  ai: [
-    {
-      name: 'Claude Code',
-      url: 'https://docs.anthropic.com/en/docs/claude-code',
-      license: 'Anthropic',
-      description: 'AI coding assistant',
-    },
-  ],
+  ai: [{ name: 'Claude Code', url: 'https://docs.anthropic.com/en/docs/claude-code' }],
 };
 
 const sectionTitles: Record<string, string> = {
@@ -168,74 +64,60 @@ const sectionTitles: Record<string, string> = {
   ai: 'AI Tools',
 };
 
+function ChevronRight() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+      <path d="M9 18l6-6-6-6" />
+    </svg>
+  );
+}
+
 function LibraryItem({ item }: { item: OpenSourceItem }) {
   return (
-    <li className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
-      <div className="flex items-center gap-3">
-        <a
-          href={item.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-medium text-content hover:text-accent hover:underline"
-        >
-          {item.name}
-        </a>
-        {item.description && (
-          <span className="text-sm text-content-muted">- {item.description}</span>
-        )}
-      </div>
-      <span className="text-xs px-2 py-0.5 rounded bg-surface-secondary text-content-muted">
-        {item.license}
-      </span>
+    <li className="border-b border-border last:border-b-0">
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-between py-4 px-4 hover:bg-surface-secondary/50 transition-colors"
+      >
+        <span className="font-medium text-content">{item.name}</span>
+        <ChevronRight />
+      </a>
     </li>
   );
 }
 
 export default function BuiltWith() {
-  const totalCount = Object.values(openSourceLibraries).flat().length;
-
   return (
     <NavigationLayout>
       <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">{m['builtWith.title']()}</h1>
-        <p className="mb-4 text-content-muted">
-          This website is built with modern web technologies and open source libraries.
-        </p>
-        <p className="mb-8 text-sm text-content-muted">
-          This project uses <strong>{totalCount}</strong> open source libraries. All libraries
-          listed below are freely available under open source licenses.
-        </p>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold">Open Source Licenses</h1>
+          <button
+            type="button"
+            onClick={() => window.history.back()}
+            className="p-2 rounded-lg hover:bg-surface-secondary transition-colors"
+            aria-label="Close"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </svg>
+          </button>
+        </div>
 
         {Object.entries(openSourceLibraries).map(([category, items]) => (
-          <section key={category} className="mb-8">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <section key={category} className="mb-6">
+            <h2 className="text-sm font-semibold text-content-muted uppercase tracking-wider mb-2 px-2">
               {sectionTitles[category]}
-              <span className="text-sm font-normal text-content-muted">({items.length})</span>
             </h2>
-            <ul className="flex flex-col">
+            <ul className="bg-surface rounded-lg border border-border">
               {items.map((item) => (
                 <LibraryItem key={item.name} item={item} />
               ))}
             </ul>
           </section>
         ))}
-
-        <section className="mb-8 p-4 rounded-lg bg-surface-secondary">
-          <h2 className="mb-2 text-lg font-semibold">Browser APIs</h2>
-          <ul className="flex flex-wrap gap-2 text-sm text-content-muted">
-            <li className="px-2 py-1 rounded bg-surface">Service Worker</li>
-            <li className="px-2 py-1 rounded bg-surface">IndexedDB</li>
-            <li className="px-2 py-1 rounded bg-surface">localStorage</li>
-          </ul>
-        </section>
-
-        <section className="mb-8 p-4 rounded-lg bg-surface-secondary">
-          <h2 className="mb-2 text-lg font-semibold">Deployment</h2>
-          <ul className="flex flex-wrap gap-2 text-sm text-content-muted">
-            <li className="px-2 py-1 rounded bg-surface">Cloudflare Pages</li>
-            <li className="px-2 py-1 rounded bg-surface">100% SSG</li>
-          </ul>
-        </section>
       </div>
     </NavigationLayout>
   );

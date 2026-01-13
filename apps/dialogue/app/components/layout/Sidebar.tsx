@@ -244,6 +244,19 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             <InfoIcon />
             {!sidebarCollapsed && <span>{m['app.about']()}</span>}
           </Link>
+          <Link
+            to={getLocalizedPath('/built-with', locale)}
+            className={[
+              'flex w-full items-center gap-4 py-2 px-4 rounded-lg text-sm bg-none border-none cursor-pointer text-(--color-text-secondary) no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+              sidebarCollapsed && 'justify-center',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            title={sidebarCollapsed ? m['app.openSourceLicenses']() : undefined}
+          >
+            <CodeIcon />
+            {!sidebarCollapsed && <span>{m['app.openSourceLicenses']()}</span>}
+          </Link>
 
           {/* Offline Badge */}
           <div
@@ -374,6 +387,14 @@ function OfflineIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+    </svg>
+  );
+}
+
+function CodeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
     </svg>
   );
 }
