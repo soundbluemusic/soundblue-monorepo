@@ -31,6 +31,9 @@ export const colorDecomposerTexts = {
     hex: 'HEX',
     rgb: 'RGB',
     copied: '복사됨!',
+    lock: '고정',
+    unlock: '고정 해제',
+    locked: '고정됨',
   },
   en: {
     title: 'Color Decomposer',
@@ -46,6 +49,9 @@ export const colorDecomposerTexts = {
     hex: 'HEX',
     rgb: 'RGB',
     copied: 'Copied!',
+    lock: 'Lock',
+    unlock: 'Unlock',
+    locked: 'Locked',
   },
 } as const;
 

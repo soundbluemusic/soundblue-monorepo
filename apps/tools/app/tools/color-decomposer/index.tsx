@@ -1,11 +1,17 @@
 import { useParaglideI18n } from '@soundblue/i18n';
-import { Check, Copy, RefreshCw, Shuffle } from 'lucide-react';
+import { Check, Copy, Lock, RefreshCw, Shuffle, Unlock } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
 import { getToolGuide } from '~/lib/toolGuides';
 import { colorDecomposerTexts, defaultColorDecomposerSettings } from './settings';
 import type { ColorDecomposerProps, ComponentColor, DecomposeSize } from './types';
-import { decomposeColor, generateRandomColor, hexToRgb, mixColors } from './utils';
+import {
+  decomposeColor,
+  generateRandomColor,
+  hexToRgb,
+  mixColors,
+  recalculateUnlockedColors,
+} from './utils';
 
 // ========================================
 // Component Color Card
@@ -17,12 +23,14 @@ function ComponentColorCard({
   texts,
   onColorChange,
   onRatioChange,
+  onLockToggle,
 }: {
   component: ComponentColor;
   index: number;
   texts: (typeof colorDecomposerTexts)['ko'] | (typeof colorDecomposerTexts)['en'];
   onColorChange: (index: number, hex: string) => void;
   onRatioChange: (index: number, ratio: number) => void;
+  onLockToggle: (index: number) => void;
 }) {
   const [copied, setCopied] = useState(false);
   const rgb = hexToRgb(component.hex);
@@ -42,12 +50,27 @@ function ComponentColorCard({
   const textColor = luminance > 0.5 ? 'text-gray-900' : 'text-white';
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+    <div
+      className={`rounded-xl border bg-card overflow-hidden shadow-sm ${component.locked ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`}
+    >
       {/* Color Preview with Picker */}
       <div
         className={`relative h-20 flex flex-col items-center justify-center ${textColor}`}
         style={{ backgroundColor: component.hex }}
       >
+        {/* Lock Button - top right */}
+        <button
+          type="button"
+          onClick={() => onLockToggle(index)}
+          className={`absolute top-2 right-2 p-1.5 rounded-md transition-colors ${
+            component.locked
+              ? 'bg-white/30 hover:bg-white/40'
+              : 'bg-black/10 hover:bg-black/20 opacity-50 hover:opacity-100'
+          }`}
+          title={component.locked ? texts.unlock : texts.lock}
+        >
+          {component.locked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+        </button>
         {/* Color Picker - covers top area */}
         <label className="absolute inset-x-0 top-0 h-12 cursor-pointer">
           <input
@@ -59,6 +82,9 @@ function ComponentColorCard({
           />
           <span className="text-xs font-medium opacity-70 block text-center mt-2">
             {texts.colorN.replace('{n}', String(index + 1))}
+            {component.locked && (
+              <span className="ml-1 text-[10px] opacity-80">({texts.locked})</span>
+            )}
           </span>
         </label>
         {/* Copy Button - separate clickable area */}
@@ -160,11 +186,40 @@ export function ColorDecomposer({
 
   const handleComponentColorChange = useCallback(
     (index: number, hex: string) => {
+      // Update the changed color and mark it as locked
       const newComponents = [...settings.components];
-      newComponents[index] = { ...newComponents[index], hex };
-      handleSettingsChange({ components: newComponents });
+      newComponents[index] = { ...newComponents[index], hex, locked: true };
+
+      // Recalculate unlocked colors to match target
+      const recalculatedComponents = recalculateUnlockedColors(
+        settings.targetColor,
+        newComponents,
+        settings.size,
+      );
+
+      handleSettingsChange({ components: recalculatedComponents });
     },
-    [handleSettingsChange, settings.components],
+    [handleSettingsChange, settings.components, settings.targetColor, settings.size],
+  );
+
+  const handleLockToggle = useCallback(
+    (index: number) => {
+      const newComponents = [...settings.components];
+      newComponents[index] = { ...newComponents[index], locked: !newComponents[index].locked };
+
+      // If unlocking, recalculate unlocked colors
+      if (!newComponents[index].locked) {
+        const recalculatedComponents = recalculateUnlockedColors(
+          settings.targetColor,
+          newComponents,
+          settings.size,
+        );
+        handleSettingsChange({ components: recalculatedComponents });
+      } else {
+        handleSettingsChange({ components: newComponents });
+      }
+    },
+    [handleSettingsChange, settings.components, settings.targetColor, settings.size],
   );
 
   const handleRatioChange = useCallback(
@@ -202,9 +257,28 @@ export function ColorDecomposer({
         }
       }
 
-      // Recalculate component colors with new ratios to maintain Preview = Target
-      const newComponents = decomposeColor(settings.targetColor, settings.size, newRatios);
-      handleSettingsChange({ components: newComponents });
+      // Check if any colors are locked
+      const hasLockedColors = currentComponents.some((comp) => comp.locked);
+
+      if (hasLockedColors) {
+        // Keep locked colors, update ratios, recalculate unlocked
+        const newComponents = settings.components.map((comp, i) => {
+          if (i < settings.size) {
+            return { ...comp, ratio: newRatios[i] };
+          }
+          return comp;
+        });
+        const recalculatedComponents = recalculateUnlockedColors(
+          settings.targetColor,
+          newComponents,
+          settings.size,
+        );
+        handleSettingsChange({ components: recalculatedComponents });
+      } else {
+        // No locked colors - recalculate all component colors with new ratios
+        const newComponents = decomposeColor(settings.targetColor, settings.size, newRatios);
+        handleSettingsChange({ components: newComponents });
+      }
     },
     [handleSettingsChange, settings.targetColor, settings.size, settings.components],
   );
@@ -353,6 +427,7 @@ export function ColorDecomposer({
               texts={texts}
               onColorChange={handleComponentColorChange}
               onRatioChange={handleRatioChange}
+              onLockToggle={handleLockToggle}
             />
           ))}
         </div>

@@ -228,3 +228,119 @@ export function decomposeColor(
 
   return components;
 }
+
+// ========================================
+// Recalculate Unlocked Colors
+// ========================================
+
+/**
+ * Recalculate unlocked component colors to match the target color
+ * Given locked colors (fixed), calculate what unlocked colors should be
+ *
+ * Formula: target = Σ(locked × ratio) + Σ(unlocked × ratio)
+ * So: Σ(unlocked × ratio) = target - Σ(locked × ratio)
+ *
+ * For single unlocked: unlocked = (target - Σ(locked × ratio)) / unlocked_ratio
+ * For multiple unlocked: distribute the remainder proportionally
+ */
+export function recalculateUnlockedColors(
+  targetHex: string,
+  components: ComponentColor[],
+  size: DecomposeSize,
+): ComponentColor[] {
+  const target = hexToRgb(targetHex);
+  const activeComponents = components.slice(0, size);
+
+  // Find locked and unlocked indices
+  const lockedIndices: number[] = [];
+  const unlockedIndices: number[] = [];
+
+  activeComponents.forEach((comp, idx) => {
+    if (comp.locked) {
+      lockedIndices.push(idx);
+    } else {
+      unlockedIndices.push(idx);
+    }
+  });
+
+  // If all locked or none unlocked, cannot recalculate
+  if (unlockedIndices.length === 0) {
+    return components;
+  }
+
+  // Calculate contribution from locked colors
+  let lockedR = 0;
+  let lockedG = 0;
+  let lockedB = 0;
+
+  for (const idx of lockedIndices) {
+    const rgb = hexToRgb(activeComponents[idx].hex);
+    const weight = activeComponents[idx].ratio / 100;
+    lockedR += rgb.r * weight;
+    lockedG += rgb.g * weight;
+    lockedB += rgb.b * weight;
+  }
+
+  // Remaining color that unlocked components must produce
+  const remainingR = target.r - lockedR;
+  const remainingG = target.g - lockedG;
+  const remainingB = target.b - lockedB;
+
+  // Total weight of unlocked components
+  const unlockedTotalRatio = unlockedIndices.reduce(
+    (sum, idx) => sum + activeComponents[idx].ratio,
+    0,
+  );
+
+  // Create new components array
+  const newComponents = [...components];
+
+  if (unlockedIndices.length === 1) {
+    // Single unlocked: exact calculation
+    const idx = unlockedIndices[0];
+    const ratio = activeComponents[idx].ratio / 100;
+
+    if (ratio > 0) {
+      const newR = Math.round(remainingR / ratio);
+      const newG = Math.round(remainingG / ratio);
+      const newB = Math.round(remainingB / ratio);
+
+      // Clamp to valid RGB range
+      newComponents[idx] = {
+        ...newComponents[idx],
+        hex: rgbToHex(
+          Math.max(0, Math.min(255, newR)),
+          Math.max(0, Math.min(255, newG)),
+          Math.max(0, Math.min(255, newB)),
+        ),
+      };
+    }
+  } else {
+    // Multiple unlocked: distribute based on their ratio proportions
+    // Each unlocked color gets a share of the remaining based on its ratio weight
+    for (const idx of unlockedIndices) {
+      const ratio = activeComponents[idx].ratio;
+      const proportion = ratio / unlockedTotalRatio;
+
+      // This unlocked component needs to contribute (remaining × proportion) / ratio
+      // Simplified: (remaining × proportion) / (ratio / 100) = (remaining × proportion × 100) / ratio
+      if (ratio > 0) {
+        const weight = ratio / 100;
+        const targetR = (remainingR * proportion) / weight;
+        const targetG = (remainingG * proportion) / weight;
+        const targetB = (remainingB * proportion) / weight;
+
+        newComponents[idx] = {
+          ...newComponents[idx],
+          hex: rgbToHex(
+            Math.max(0, Math.min(255, Math.round(targetR))),
+            Math.max(0, Math.min(255, Math.round(targetG))),
+            Math.max(0, Math.min(255, Math.round(targetB))),
+          ),
+        };
+      }
+    }
+  }
+
+  return newComponents;
+}

@@ -615,6 +615,15 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
           ],
         },
         {
+          title: '색상 고정 기능',
+          items: [
+            '구성 색상을 변경하면 자동으로 고정(Lock)됨',
+            '고정된 색상은 다른 색상 변경 시에도 유지됨',
+            '잠금 아이콘 클릭으로 고정/해제 가능',
+            '고정 해제 시 다른 색상들과 함께 자동 재계산됨',
+          ],
+        },
+        {
           title: '버튼 설명',
           items: [
             'Random: 무작위 구성 색상 생성 (목표 색상과 달라질 수 있음)',
@@ -643,6 +652,15 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
             'Choose component count (2-5) to auto-decompose',
             'Adjust ratio sliders to change mixing proportions',
             'Check Preview to verify the mix matches the target',
+          ],
+        },
+        {
+          title: 'Color Lock Feature',
+          items: [
+            'Changing a component color automatically locks it',
+            'Locked colors are preserved when others change',
+            'Click the lock icon to toggle lock/unlock',
+            'Unlocking recalculates the color with others',
           ],
         },
         {
