@@ -121,6 +121,29 @@ function decomposeColor(targetHex: string, size: DecomposeSize): ComponentColor[
   const targetRgb = hexToRgb(targetHex);
   const targetHsl = rgbToHsl(targetRgb.r, targetRgb.g, targetRgb.b);
 
+  // Handle extreme colors (near white or near black)
+  // These colors cannot be meaningfully decomposed into different components
+  const isExtreme = targetHsl.l >= 98 || targetHsl.l <= 2;
+
+  if (isExtreme) {
+    const baseRatio = Math.floor(100 / size);
+    const components: ComponentColor[] = [];
+    let remainingRatio = 100;
+
+    for (let i = 0; i < size; i++) {
+      const ratio = i === size - 1 ? remainingRatio : baseRatio;
+      remainingRatio -= ratio;
+      components.push({ hex: targetHex, ratio });
+    }
+
+    // Pad to 5 components
+    while (components.length < 5) {
+      components.push({ hex: '#808080', ratio: 0 });
+    }
+
+    return components;
+  }
+
   const components: ComponentColor[] = [];
   const baseRatio = Math.floor(100 / size);
   let remainingRatio = 100;
