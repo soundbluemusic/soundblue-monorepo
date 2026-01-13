@@ -139,7 +139,8 @@ class ToolErrorBoundary extends Component<ToolErrorBoundaryProps, ToolErrorBound
 // ========================================
 
 // Filter out undefined values from an object to prevent overwriting defaults
-function filterUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
+function filterUndefined<T extends Record<string, unknown>>(obj: T | undefined | null): Partial<T> {
+  if (!obj) return {} as Partial<T>;
   return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
 }
 
