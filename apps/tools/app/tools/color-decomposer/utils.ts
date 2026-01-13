@@ -233,15 +233,21 @@ export function decomposeColor(
 // Recalculate Unlocked Colors
 // ========================================
 
+interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
+
 /**
  * Recalculate unlocked component colors to match the target color
  * Given locked colors (fixed), calculate what unlocked colors should be
  *
+ * Key improvement: Unlocked colors work TOGETHER to achieve the target.
+ * When one color hits RGB limits (0-255), others compensate.
+ *
  * Formula: target = Σ(locked × ratio) + Σ(unlocked × ratio)
  * So: Σ(unlocked × ratio) = target - Σ(locked × ratio)
- *
- * For single unlocked: unlocked = (target - Σ(locked × ratio)) / unlocked_ratio
- * For multiple unlocked: distribute the remainder proportionally
  */
 export function recalculateUnlockedColors(
   targetHex: string,
@@ -281,66 +287,128 @@ export function recalculateUnlockedColors(
     lockedB += rgb.b * weight;
   }
 
-  // Remaining color that unlocked components must produce
-  const remainingR = target.r - lockedR;
-  const remainingG = target.g - lockedG;
-  const remainingB = target.b - lockedB;
-
-  // Total weight of unlocked components
-  const unlockedTotalRatio = unlockedIndices.reduce(
-    (sum, idx) => sum + activeComponents[idx].ratio,
-    0,
-  );
+  // Remaining color that unlocked components must produce together
+  const remaining: RGB = {
+    r: target.r - lockedR,
+    g: target.g - lockedG,
+    b: target.b - lockedB,
+  };
 
   // Create new components array
   const newComponents = [...components];
 
-  if (unlockedIndices.length === 1) {
-    // Single unlocked: exact calculation
-    const idx = unlockedIndices[0];
-    const ratio = activeComponents[idx].ratio / 100;
+  // Get unlocked components info
+  const unlockedInfo = unlockedIndices.map((idx) => ({
+    idx,
+    ratio: activeComponents[idx].ratio,
+  }));
 
-    if (ratio > 0) {
-      const newR = Math.round(remainingR / ratio);
-      const newG = Math.round(remainingG / ratio);
-      const newB = Math.round(remainingB / ratio);
+  // Distribute remaining color cooperatively among unlocked components
+  const calculatedColors = distributeColorCooperatively(remaining, unlockedInfo);
 
-      // Clamp to valid RGB range
-      newComponents[idx] = {
-        ...newComponents[idx],
-        hex: rgbToHex(
-          Math.max(0, Math.min(255, newR)),
-          Math.max(0, Math.min(255, newG)),
-          Math.max(0, Math.min(255, newB)),
-        ),
-      };
-    }
-  } else {
-    // Multiple unlocked: distribute based on their ratio proportions
-    // Each unlocked color gets a share of the remaining based on its ratio weight
-    for (const idx of unlockedIndices) {
-      const ratio = activeComponents[idx].ratio;
-      const proportion = ratio / unlockedTotalRatio;
-
-      // This unlocked component needs to contribute (remaining × proportion) / ratio
-      // Simplified: (remaining × proportion) / (ratio / 100) = (remaining × proportion × 100) / ratio
-      if (ratio > 0) {
-        const weight = ratio / 100;
-        const targetR = (remainingR * proportion) / weight;
-        const targetG = (remainingG * proportion) / weight;
-        const targetB = (remainingB * proportion) / weight;
-
-        newComponents[idx] = {
-          ...newComponents[idx],
-          hex: rgbToHex(
-            Math.max(0, Math.min(255, Math.round(targetR))),
-            Math.max(0, Math.min(255, Math.round(targetG))),
-            Math.max(0, Math.min(255, Math.round(targetB))),
-          ),
-        };
-      }
-    }
+  // Apply calculated colors
+  for (let i = 0; i < unlockedIndices.length; i++) {
+    const idx = unlockedIndices[i];
+    const rgb = calculatedColors[i];
+    newComponents[idx] = {
+      ...newComponents[idx],
+      hex: rgbToHex(rgb.r, rgb.g, rgb.b),
+    };
   }
 
   return newComponents;
+}
+
+/**
+ * Distribute remaining color among unlocked components cooperatively
+ * When one component hits RGB limits, redistribute overflow to others
+ */
+function distributeColorCooperatively(
+  remaining: RGB,
+  unlockedInfo: { idx: number; ratio: number }[],
+): RGB[] {
+  const totalRatio = unlockedInfo.reduce((sum, info) => sum + info.ratio, 0);
+
+  if (totalRatio === 0) {
+    return unlockedInfo.map(() => ({ r: 128, g: 128, b: 128 }));
+  }
+
+  // Initialize result with target values (before clamping)
+  const results: RGB[] = unlockedInfo.map((info) => {
+    const weight = info.ratio / 100;
+    const proportion = info.ratio / totalRatio;
+    // Each component contributes: (remaining × proportion) when mixed at its ratio
+    // So the color value is: (remaining × proportion) / weight
+    return {
+      r: (remaining.r * proportion) / weight,
+      g: (remaining.g * proportion) / weight,
+      b: (remaining.b * proportion) / weight,
+    };
+  });
+
+  // Iteratively redistribute overflow until stable
+  const maxIterations = 10;
+  for (let iter = 0; iter < maxIterations; iter++) {
+    let hasOverflow = false;
+    const overflow: RGB = { r: 0, g: 0, b: 0 };
+    const availableIndices: number[] = [];
+
+    // Check each component for overflow and accumulate
+    for (let i = 0; i < results.length; i++) {
+      const rgb = results[i];
+      const weight = unlockedInfo[i].ratio / 100;
+      let componentHasOverflow = false;
+
+      // Check and clamp each channel
+      for (const channel of ['r', 'g', 'b'] as const) {
+        const val = rgb[channel];
+        if (val < 0) {
+          // Overflow: need more from others (negative contribution needed)
+          overflow[channel] += val * weight; // val is negative, so this subtracts
+          rgb[channel] = 0;
+          componentHasOverflow = true;
+          hasOverflow = true;
+        } else if (val > 255) {
+          // Overflow: this component contributes too much
+          overflow[channel] += (val - 255) * weight;
+          rgb[channel] = 255;
+          componentHasOverflow = true;
+          hasOverflow = true;
+        }
+      }
+
+      // Track components that can still absorb overflow
+      if (!componentHasOverflow) {
+        availableIndices.push(i);
+      }
+    }
+
+    if (!hasOverflow || availableIndices.length === 0) {
+      break;
+    }
+
+    // Redistribute overflow to available components
+    const availableTotalRatio = availableIndices.reduce((sum, i) => sum + unlockedInfo[i].ratio, 0);
+
+    if (availableTotalRatio === 0) {
+      break;
+    }
+
+    for (const i of availableIndices) {
+      const weight = unlockedInfo[i].ratio / 100;
+      const proportion = unlockedInfo[i].ratio / availableTotalRatio;
+
+      // Add overflow share to this component
+      results[i].r += (overflow.r * proportion) / weight;
+      results[i].g += (overflow.g * proportion) / weight;
+      results[i].b += (overflow.b * proportion) / weight;
+    }
+  }
+
+  // Final clamp and round
+  return results.map((rgb) => ({
+    r: Math.max(0, Math.min(255, Math.round(rgb.r))),
+    g: Math.max(0, Math.min(255, Math.round(rgb.g))),
+    b: Math.max(0, Math.min(255, Math.round(rgb.b))),
+  }));
 }
