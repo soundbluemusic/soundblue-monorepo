@@ -262,29 +262,31 @@ function ComponentColorCard({
     <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
       {/* Color Preview with Picker */}
       <div
-        className={`relative h-20 flex items-center justify-center ${textColor}`}
+        className={`relative h-20 flex flex-col items-center justify-center ${textColor}`}
         style={{ backgroundColor: component.hex }}
       >
-        <input
-          type="color"
-          value={component.hex}
-          onChange={(e) => onColorChange(index, e.target.value)}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          title={texts.colorN.replace('{n}', String(index + 1))}
-        />
-        <div className="text-center pointer-events-none">
-          <span className="text-xs font-medium opacity-70 block">
+        {/* Color Picker - covers top area */}
+        <label className="absolute inset-x-0 top-0 h-12 cursor-pointer">
+          <input
+            type="color"
+            value={component.hex}
+            onChange={(e) => onColorChange(index, e.target.value)}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            title={texts.colorN.replace('{n}', String(index + 1))}
+          />
+          <span className="text-xs font-medium opacity-70 block text-center mt-2">
             {texts.colorN.replace('{n}', String(index + 1))}
           </span>
-          <button
-            type="button"
-            onClick={copyToClipboard}
-            className="text-sm font-bold flex items-center gap-1"
-          >
-            {component.hex.toUpperCase()}
-            {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3 opacity-50" />}
-          </button>
-        </div>
+        </label>
+        {/* Copy Button - separate clickable area */}
+        <button
+          type="button"
+          onClick={copyToClipboard}
+          className="absolute bottom-2 text-sm font-bold flex items-center gap-1 px-2 py-1 rounded hover:bg-black/10 transition-colors"
+        >
+          {component.hex.toUpperCase()}
+          {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3 opacity-50" />}
+        </button>
       </div>
 
       {/* Ratio Slider */}
@@ -321,6 +323,7 @@ export function ColorDecomposer({
 
   // Merge settings
   const [internalSettings, setInternalSettings] = useState(defaultColorDecomposerSettings);
+  const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const settings = useMemo(
     () => ({ ...defaultColorDecomposerSettings, ...propSettings, ...internalSettings }),
     [propSettings, internalSettings],
@@ -333,6 +336,17 @@ export function ColorDecomposer({
     },
     [onSettingsChange],
   );
+
+  // Copy color to clipboard
+  const copyColor = useCallback(async (hex: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(hex.toUpperCase());
+      setCopiedColor(id);
+      setTimeout(() => setCopiedColor(null), 1500);
+    } catch {
+      // Clipboard API not available
+    }
+  }, []);
 
   // Calculate mixed color from components
   const mixedColor = useMemo(
@@ -446,19 +460,32 @@ export function ColorDecomposer({
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <h3 className="text-sm font-medium text-foreground mb-3">{texts.targetColor}</h3>
         <div
-          className={`relative h-24 rounded-xl flex items-center justify-center ${targetTextColor}`}
+          className={`relative h-24 rounded-xl flex flex-col items-center justify-center ${targetTextColor}`}
           style={{ backgroundColor: settings.targetColor }}
         >
-          <input
-            type="color"
-            value={settings.targetColor}
-            onChange={(e) => handleTargetColorChange(e.target.value)}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            title={texts.targetColor}
-          />
-          <span className="text-lg font-bold pointer-events-none">
+          {/* Color Picker - covers top area */}
+          <label className="absolute inset-x-0 top-0 h-16 cursor-pointer">
+            <input
+              type="color"
+              value={settings.targetColor}
+              onChange={(e) => handleTargetColorChange(e.target.value)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              title={texts.targetColor}
+            />
+          </label>
+          {/* Copy Button */}
+          <button
+            type="button"
+            onClick={() => copyColor(settings.targetColor, 'target')}
+            className="absolute bottom-3 text-lg font-bold flex items-center gap-2 px-3 py-1 rounded hover:bg-black/10 transition-colors"
+          >
             {settings.targetColor.toUpperCase()}
-          </span>
+            {copiedColor === 'target' ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Copy className="h-4 w-4 opacity-50" />
+            )}
+          </button>
         </div>
       </div>
 
@@ -505,12 +532,19 @@ export function ColorDecomposer({
           {/* Arrow */}
           <div className="text-muted-foreground text-xl px-2">→</div>
           {/* Mixed result */}
-          <div
-            className={`w-24 h-full rounded-r-xl flex items-center justify-center ${mixedTextColor}`}
+          <button
+            type="button"
+            onClick={() => copyColor(mixedColor, 'preview')}
+            className={`w-24 h-full rounded-r-xl flex items-center justify-center gap-1 hover:opacity-90 transition-opacity ${mixedTextColor}`}
             style={{ backgroundColor: mixedColor }}
           >
             <span className="text-xs font-bold">{mixedColor.toUpperCase()}</span>
-          </div>
+            {copiedColor === 'preview' ? (
+              <Check className="h-3 w-3" />
+            ) : (
+              <Copy className="h-3 w-3 opacity-50" />
+            )}
+          </button>
         </div>
       </div>
 
