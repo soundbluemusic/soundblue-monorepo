@@ -262,7 +262,7 @@ export function ConversationList({
               key={conv.id}
               onClick={() => handleLoadConversation(conv)}
               className={[
-                'group min-h-[44px] flex w-full items-center gap-4 py-2 px-4 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+                'group min-h-[44px] flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
                 activeConversationId === conv.id
                   ? 'bg-(--color-accent-light) text-(--color-accent-primary)'
                   : 'text-(--color-text-secondary)',
@@ -271,11 +271,11 @@ export function ConversationList({
                 .join(' ')}
             >
               <ChatIcon />
-              <div className="flex-1 text-left overflow-hidden">
+              <div className="flex-1 min-w-0 text-left">
                 <div className="text-sm font-medium truncate">
                   {conv.title || m['app.untitled']()}
                 </div>
-                <div className="text-xs text-(--color-text-tertiary)">
+                <div className="text-xs text-(--color-text-tertiary) truncate">
                   {formatDate(conv.updatedAt)}
                 </div>
               </div>

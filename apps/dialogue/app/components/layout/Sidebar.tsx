@@ -83,8 +83,8 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
           type="button"
           onClick={onNewChat}
           className={[
-            'min-h-[44px] flex items-center gap-4 w-full py-2 px-4 bg-(--color-accent-primary) text-white border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-150 hover:bg-(--color-accent-secondary) active:scale-[0.98] focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
-            sidebarCollapsed && 'justify-center',
+            'min-h-[44px] flex items-center w-full py-2 bg-(--color-accent-primary) text-white border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-150 hover:bg-(--color-accent-secondary) active:scale-[0.98] focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+            sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
           ]
             .filter(Boolean)
             .join(' ')}
@@ -99,8 +99,8 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
           type="button"
           onClick={toggleGhostMode}
           className={[
-            'min-h-[44px] flex items-center gap-4 w-full py-2 px-4 border-none rounded-lg text-sm cursor-pointer transition-colors duration-150 focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
-            sidebarCollapsed && 'justify-center',
+            'min-h-[44px] flex items-center w-full py-2 border-none rounded-lg text-sm cursor-pointer transition-colors duration-150 focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+            sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
             ghostMode
               ? 'bg-(--color-ghost-light) text-(--color-ghost)'
               : 'bg-(--color-bg-tertiary) text-(--color-text-tertiary) hover:bg-(--color-bg-hover)',
@@ -112,9 +112,11 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
           <GhostIcon />
           {!sidebarCollapsed && (
             <>
-              <div className="flex-1 text-left">
-                <div className="font-medium">{m['app.ghostMode']()}</div>
-                {ghostMode && <div className="text-xs opacity-70">{m['app.ghostModeDesc']()}</div>}
+              <div className="flex-1 min-w-0 text-left">
+                <div className="font-medium truncate">{m['app.ghostMode']()}</div>
+                {ghostMode && (
+                  <div className="text-xs opacity-70 truncate">{m['app.ghostModeDesc']()}</div>
+                )}
               </div>
               {ghostMode && <CheckIcon />}
             </>
@@ -157,12 +159,12 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex w-full items-center gap-4 py-2 px-4 rounded-lg text-sm bg-(--color-bg-tertiary) border-none cursor-pointer no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+              className="flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-(--color-bg-tertiary) border-none cursor-pointer no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
             >
               <span className="text-(--color-accent-primary)">
                 {resolvedTheme === 'dark' ? <MoonIcon /> : <SunIcon />}
               </span>
-              <span className="flex-1 text-left text-(--color-text-primary)">
+              <span className="flex-1 text-left text-(--color-text-primary) truncate">
                 {resolvedTheme === 'dark' ? m['app.darkMode']() : m['app.lightMode']()}
               </span>
             </button>
@@ -174,7 +176,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
                   key={lang.code}
                   type="button"
                   className={[
-                    'flex w-full items-center gap-4 py-2 px-4 rounded-lg text-sm bg-none border-none cursor-pointer no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+                    'flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
                     locale === lang.code &&
                       'bg-(--color-accent-light) text-(--color-accent-primary)',
                   ]
@@ -194,7 +196,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
                   >
                     {lang.flag}
                   </span>
-                  <span className="flex-1 text-left">{lang.label}</span>
+                  <span className="flex-1 text-left truncate">{lang.label}</span>
                   {locale === lang.code && <CheckIcon />}
                 </button>
               ))}
@@ -221,48 +223,48 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
           <Link
             to={getLocalizedPath('/sitemap', locale)}
             className={[
-              'flex w-full items-center gap-4 py-2 px-4 rounded-lg text-sm bg-none border-none cursor-pointer text-(--color-text-secondary) no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
-              sidebarCollapsed && 'justify-center',
+              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-(--color-text-secondary) no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+              sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
             ]
               .filter(Boolean)
               .join(' ')}
             title={sidebarCollapsed ? m['app.sitemap']?.() : undefined}
           >
             <SitemapIcon />
-            {!sidebarCollapsed && <span>{m['app.sitemap']?.()}</span>}
+            {!sidebarCollapsed && <span className="truncate">{m['app.sitemap']?.()}</span>}
           </Link>
           <Link
             to={getAboutUrl()}
             className={[
-              'flex w-full items-center gap-4 py-2 px-4 rounded-lg text-sm bg-none border-none cursor-pointer text-(--color-text-secondary) no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
-              sidebarCollapsed && 'justify-center',
+              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-(--color-text-secondary) no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+              sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
             ]
               .filter(Boolean)
               .join(' ')}
             title={sidebarCollapsed ? m['app.about']() : undefined}
           >
             <InfoIcon />
-            {!sidebarCollapsed && <span>{m['app.about']()}</span>}
+            {!sidebarCollapsed && <span className="truncate">{m['app.about']()}</span>}
           </Link>
           <Link
             to={getLocalizedPath('/built-with', locale)}
             className={[
-              'flex w-full items-center gap-4 py-2 px-4 rounded-lg text-sm bg-none border-none cursor-pointer text-(--color-text-secondary) no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
-              sidebarCollapsed && 'justify-center',
+              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-(--color-text-secondary) no-underline transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+              sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
             ]
               .filter(Boolean)
               .join(' ')}
             title={sidebarCollapsed ? m['app.openSourceLicenses']() : undefined}
           >
             <CodeIcon />
-            {!sidebarCollapsed && <span>{m['app.openSourceLicenses']()}</span>}
+            {!sidebarCollapsed && <span className="truncate">{m['app.openSourceLicenses']()}</span>}
           </Link>
 
           {/* Offline Badge */}
           <div
             className={[
-              'flex items-center gap-2 mt-2 py-2 px-4 bg-(--color-success-light) text-(--color-success) rounded-lg text-xs font-medium',
-              sidebarCollapsed && 'justify-center p-2',
+              'flex items-center mt-2 py-2 bg-(--color-success-light) text-(--color-success) rounded-lg text-xs font-medium',
+              sidebarCollapsed ? 'justify-center px-2' : 'gap-2 px-3',
             ]
               .filter(Boolean)
               .join(' ')}
