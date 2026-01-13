@@ -240,14 +240,13 @@ interface RGB {
 }
 
 /**
- * Recalculate unlocked component colors to match the target color
- * Given locked colors (fixed), calculate what unlocked colors should be
+ * Recalculate unlocked component colors to match the target color EXACTLY.
  *
- * Key improvement: Unlocked colors work TOGETHER to achieve the target.
- * When one color hits RGB limits (0-255), others compensate.
+ * Mathematical approach: Find exact RGB values that satisfy the equation.
+ * With multiple unlocked colors, infinite solutions exist - we find one
+ * where all colors stay within 0-255 range.
  *
  * Formula: target = Σ(locked × ratio) + Σ(unlocked × ratio)
- * So: Σ(unlocked × ratio) = target - Σ(locked × ratio)
  */
 export function recalculateUnlockedColors(
   targetHex: string,
@@ -269,44 +268,41 @@ export function recalculateUnlockedColors(
     }
   });
 
-  // If all locked or none unlocked, cannot recalculate
+  // If no unlocked, cannot recalculate
   if (unlockedIndices.length === 0) {
     return components;
   }
 
   // Calculate contribution from locked colors
-  let lockedR = 0;
-  let lockedG = 0;
-  let lockedB = 0;
-
+  const lockedContribution: RGB = { r: 0, g: 0, b: 0 };
   for (const idx of lockedIndices) {
     const rgb = hexToRgb(activeComponents[idx].hex);
     const weight = activeComponents[idx].ratio / 100;
-    lockedR += rgb.r * weight;
-    lockedG += rgb.g * weight;
-    lockedB += rgb.b * weight;
+    lockedContribution.r += rgb.r * weight;
+    lockedContribution.g += rgb.g * weight;
+    lockedContribution.b += rgb.b * weight;
   }
 
-  // Remaining color that unlocked components must produce together
+  // Remaining that unlocked must produce: target - locked contribution
   const remaining: RGB = {
-    r: target.r - lockedR,
-    g: target.g - lockedG,
-    b: target.b - lockedB,
+    r: target.r - lockedContribution.r,
+    g: target.g - lockedContribution.g,
+    b: target.b - lockedContribution.b,
   };
 
-  // Create new components array
-  const newComponents = [...components];
+  // Get unlocked ratios
+  const unlockedRatios = unlockedIndices.map((idx) => activeComponents[idx].ratio);
+  const totalUnlockedRatio = unlockedRatios.reduce((sum, r) => sum + r, 0);
 
-  // Get unlocked components info
-  const unlockedInfo = unlockedIndices.map((idx) => ({
-    idx,
-    ratio: activeComponents[idx].ratio,
-  }));
+  if (totalUnlockedRatio === 0) {
+    return components;
+  }
 
-  // Distribute remaining color cooperatively among unlocked components
-  const calculatedColors = distributeColorCooperatively(remaining, unlockedInfo);
+  // Find exact solution where all unlocked colors are within 0-255
+  const calculatedColors = findExactSolution(remaining, unlockedRatios);
 
   // Apply calculated colors
+  const newComponents = [...components];
   for (let i = 0; i < unlockedIndices.length; i++) {
     const idx = unlockedIndices[i];
     const rgb = calculatedColors[i];
@@ -320,95 +316,85 @@ export function recalculateUnlockedColors(
 }
 
 /**
- * Distribute remaining color among unlocked components cooperatively
- * When one component hits RGB limits, redistribute overflow to others
+ * Find exact RGB values for unlocked colors that sum to remaining.
+ *
+ * Strategy: Start with uniform distribution, then adjust to stay in 0-255.
+ * With N unlocked colors, we have N degrees of freedom per channel.
  */
-function distributeColorCooperatively(
-  remaining: RGB,
-  unlockedInfo: { idx: number; ratio: number }[],
-): RGB[] {
-  const totalRatio = unlockedInfo.reduce((sum, info) => sum + info.ratio, 0);
+function findExactSolution(remaining: RGB, ratios: number[]): RGB[] {
+  const n = ratios.length;
+  const totalRatio = ratios.reduce((sum, r) => sum + r, 0);
+  const weights = ratios.map((r) => r / 100);
 
-  if (totalRatio === 0) {
-    return unlockedInfo.map(() => ({ r: 128, g: 128, b: 128 }));
-  }
+  // For each channel, find valid color values
+  const rValues = solveChannel(remaining.r, weights, totalRatio);
+  const gValues = solveChannel(remaining.g, weights, totalRatio);
+  const bValues = solveChannel(remaining.b, weights, totalRatio);
 
-  // Initialize result with target values (before clamping)
-  const results: RGB[] = unlockedInfo.map((info) => {
-    const weight = info.ratio / 100;
-    const proportion = info.ratio / totalRatio;
-    // Each component contributes: (remaining × proportion) when mixed at its ratio
-    // So the color value is: (remaining × proportion) / weight
-    return {
-      r: (remaining.r * proportion) / weight,
-      g: (remaining.g * proportion) / weight,
-      b: (remaining.b * proportion) / weight,
-    };
-  });
-
-  // Iteratively redistribute overflow until stable
-  const maxIterations = 10;
-  for (let iter = 0; iter < maxIterations; iter++) {
-    let hasOverflow = false;
-    const overflow: RGB = { r: 0, g: 0, b: 0 };
-    const availableIndices: number[] = [];
-
-    // Check each component for overflow and accumulate
-    for (let i = 0; i < results.length; i++) {
-      const rgb = results[i];
-      const weight = unlockedInfo[i].ratio / 100;
-      let componentHasOverflow = false;
-
-      // Check and clamp each channel
-      for (const channel of ['r', 'g', 'b'] as const) {
-        const val = rgb[channel];
-        if (val < 0) {
-          // Overflow: need more from others (negative contribution needed)
-          overflow[channel] += val * weight; // val is negative, so this subtracts
-          rgb[channel] = 0;
-          componentHasOverflow = true;
-          hasOverflow = true;
-        } else if (val > 255) {
-          // Overflow: this component contributes too much
-          overflow[channel] += (val - 255) * weight;
-          rgb[channel] = 255;
-          componentHasOverflow = true;
-          hasOverflow = true;
-        }
-      }
-
-      // Track components that can still absorb overflow
-      if (!componentHasOverflow) {
-        availableIndices.push(i);
-      }
-    }
-
-    if (!hasOverflow || availableIndices.length === 0) {
-      break;
-    }
-
-    // Redistribute overflow to available components
-    const availableTotalRatio = availableIndices.reduce((sum, i) => sum + unlockedInfo[i].ratio, 0);
-
-    if (availableTotalRatio === 0) {
-      break;
-    }
-
-    for (const i of availableIndices) {
-      const weight = unlockedInfo[i].ratio / 100;
-      const proportion = unlockedInfo[i].ratio / availableTotalRatio;
-
-      // Add overflow share to this component
-      results[i].r += (overflow.r * proportion) / weight;
-      results[i].g += (overflow.g * proportion) / weight;
-      results[i].b += (overflow.b * proportion) / weight;
-    }
-  }
-
-  // Final clamp and round
-  return results.map((rgb) => ({
-    r: Math.max(0, Math.min(255, Math.round(rgb.r))),
-    g: Math.max(0, Math.min(255, Math.round(rgb.g))),
-    b: Math.max(0, Math.min(255, Math.round(rgb.b))),
+  return ratios.map((_, i) => ({
+    r: Math.round(rValues[i]),
+    g: Math.round(gValues[i]),
+    b: Math.round(bValues[i]),
   }));
+}
+
+/**
+ * Solve for one channel: find values v[i] such that Σ(v[i] × weight[i]) = target
+ * and all v[i] are in [0, 255].
+ */
+function solveChannel(target: number, weights: number[], totalRatio: number): number[] {
+  const n = weights.length;
+
+  // Initial: uniform distribution (all same value)
+  // If all colors have same value V: Σ(V × w[i]) = V × Σ(w[i]) = target
+  // So V = target / Σ(w[i]) = target / (totalRatio/100) = target × 100 / totalRatio
+  const uniformValue = (target * 100) / totalRatio;
+
+  // If uniform value is in range, we're done
+  if (uniformValue >= 0 && uniformValue <= 255) {
+    return new Array(n).fill(uniformValue);
+  }
+
+  // Need to redistribute: some colors at boundary, others compensate
+  const values = new Array(n).fill(uniformValue);
+  const fixed = new Array(n).fill(false); // true = clamped to boundary
+
+  // Iteratively fix out-of-range values and redistribute
+  for (let iter = 0; iter < n; iter++) {
+    let overflow = 0;
+    let unfixedWeightSum = 0;
+
+    // Clamp and calculate overflow
+    for (let i = 0; i < n; i++) {
+      if (fixed[i]) continue;
+
+      if (values[i] < 0) {
+        overflow += values[i] * weights[i]; // negative
+        values[i] = 0;
+        fixed[i] = true;
+      } else if (values[i] > 255) {
+        overflow += (values[i] - 255) * weights[i]; // positive
+        values[i] = 255;
+        fixed[i] = true;
+      } else {
+        unfixedWeightSum += weights[i];
+      }
+    }
+
+    // No overflow or no unfixed colors - done
+    if (Math.abs(overflow) < 0.0001 || unfixedWeightSum < 0.0001) {
+      break;
+    }
+
+    // Redistribute overflow to unfixed colors
+    for (let i = 0; i < n; i++) {
+      if (fixed[i]) continue;
+      // Each unfixed color absorbs: overflow × (its_weight / unfixed_total) / its_weight
+      // = overflow / unfixed_total
+      values[i] += overflow / unfixedWeightSum;
+    }
+  }
+
+  // Final clamp (safety)
+  return values.map((v) => Math.max(0, Math.min(255, v)));
 }
