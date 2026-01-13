@@ -2,19 +2,18 @@
  * Color Decomposer Settings
  */
 
-import type { ColorDecomposerSettings, ComponentColor, DecomposeSize } from './types';
+import type { ColorDecomposerSettings, DecomposeSize } from './types';
+import { decomposeColor } from './utils';
 
-// Default component colors for initial state
-const DEFAULT_COMPONENTS: ComponentColor[] = [
-  { hex: '#ef4444', ratio: 33 }, // Red
-  { hex: '#22c55e', ratio: 34 }, // Green
-  { hex: '#3b82f6', ratio: 33 }, // Blue
-];
+// Default values
+const DEFAULT_TARGET_COLOR = '#8b5cf6'; // Purple
+const DEFAULT_SIZE: DecomposeSize = 3;
 
+// Generate initial components that match the target color
 export const defaultColorDecomposerSettings: ColorDecomposerSettings = {
-  targetColor: '#8b5cf6', // Purple
-  size: 3,
-  components: DEFAULT_COMPONENTS,
+  targetColor: DEFAULT_TARGET_COLOR,
+  size: DEFAULT_SIZE,
+  components: decomposeColor(DEFAULT_TARGET_COLOR, DEFAULT_SIZE),
 };
 
 export const colorDecomposerTexts = {
@@ -49,24 +48,5 @@ export const colorDecomposerTexts = {
     copied: 'Copied!',
   },
 } as const;
-
-// Generate initial component colors for a given size
-export function generateInitialComponents(size: DecomposeSize): ComponentColor[] {
-  const baseColors = [
-    '#ef4444', // Red
-    '#22c55e', // Green
-    '#3b82f6', // Blue
-    '#f59e0b', // Amber
-    '#8b5cf6', // Purple
-  ];
-
-  const ratio = Math.floor(100 / size);
-  const remainder = 100 - ratio * size;
-
-  return baseColors.slice(0, size).map((hex, index) => ({
-    hex,
-    ratio: index === 0 ? ratio + remainder : ratio,
-  }));
-}
 
 export type { ColorDecomposerSettings };
