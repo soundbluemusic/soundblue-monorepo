@@ -118,19 +118,28 @@ function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: n
 
 // Auto-decompose target color into component colors
 // Key constraint: mixing all components at their ratios must reproduce the target color exactly
-function decomposeColor(targetHex: string, size: DecomposeSize): ComponentColor[] {
+function decomposeColor(
+  targetHex: string,
+  size: DecomposeSize,
+  customRatios?: number[],
+): ComponentColor[] {
   const target = hexToRgb(targetHex);
   const components: ComponentColor[] = [];
 
-  // Build ratios array (sum = 100)
-  const baseRatio = Math.floor(100 / size);
-  const ratios: number[] = [];
-  let remaining = 100;
-  for (let i = 0; i < size; i++) {
-    const ratio = i === size - 1 ? remaining : baseRatio;
-    remaining -= ratio;
-    ratios.push(ratio);
-  }
+  // Use custom ratios or build default ratios array (sum = 100)
+  const ratios =
+    customRatios ||
+    (() => {
+      const baseRatio = Math.floor(100 / size);
+      const arr: number[] = [];
+      let remaining = 100;
+      for (let i = 0; i < size; i++) {
+        const ratio = i === size - 1 ? remaining : baseRatio;
+        remaining -= ratio;
+        arr.push(ratio);
+      }
+      return arr;
+    })();
   const w = ratios.map((r) => r / 100); // weights
 
   // Calculate safe offset to prevent clamping
@@ -369,48 +378,38 @@ export function ColorDecomposer({
 
       // Distribute the difference among other components proportionally
       const otherIndices = currentComponents.map((_, i) => i).filter((i) => i !== index);
-
       const otherTotal = otherIndices.reduce((sum, i) => sum + currentComponents[i].ratio, 0);
 
-      const newComponents = currentComponents.map((comp, i) => {
+      const newRatios = currentComponents.map((comp, i) => {
         if (i === index) {
-          return { ...comp, ratio: newRatio };
+          return newRatio;
         }
         if (otherTotal === 0) {
-          // Distribute evenly if others are 0
-          return {
-            ...comp,
-            ratio: Math.max(5, comp.ratio - Math.floor(diff / otherIndices.length)),
-          };
+          return Math.max(5, comp.ratio - Math.floor(diff / otherIndices.length));
         }
-        // Proportional distribution
         const proportion = comp.ratio / otherTotal;
         const adjustment = Math.round(diff * proportion);
-        return { ...comp, ratio: Math.max(5, comp.ratio - adjustment) };
+        return Math.max(5, comp.ratio - adjustment);
       });
 
       // Normalize to exactly 100%
-      const total = newComponents.reduce((sum, c) => sum + c.ratio, 0);
+      const total = newRatios.reduce((sum, r) => sum + r, 0);
       if (total !== 100) {
         const diff100 = 100 - total;
-        // Add the difference to the largest component (excluding the one being changed)
         const maxOtherIdx = otherIndices.reduce(
-          (maxI, i) => (newComponents[i].ratio > newComponents[maxI].ratio ? i : maxI),
+          (maxI, i) => (newRatios[i] > newRatios[maxI] ? i : maxI),
           otherIndices[0],
         );
         if (maxOtherIdx !== undefined) {
-          newComponents[maxOtherIdx].ratio += diff100;
+          newRatios[maxOtherIdx] += diff100;
         }
       }
 
-      // Pad components array back to 5 if needed
-      while (newComponents.length < 5) {
-        newComponents.push({ hex: '#808080', ratio: 0 });
-      }
-
+      // Recalculate component colors with new ratios to maintain Preview = Target
+      const newComponents = decomposeColor(settings.targetColor, settings.size, newRatios);
       handleSettingsChange({ components: newComponents });
     },
-    [handleSettingsChange, settings.components, settings.size],
+    [handleSettingsChange, settings.targetColor, settings.size, settings.components],
   );
 
   const handleReset = useCallback(() => {
