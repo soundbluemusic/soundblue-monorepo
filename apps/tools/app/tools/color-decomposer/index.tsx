@@ -117,14 +117,13 @@ function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: n
 }
 
 // Auto-decompose target color into component colors
-// Key constraint: mixing all components at their ratios must reproduce the target color
+// Key constraint: mixing all components at their ratios must reproduce the target color exactly
 function decomposeColor(targetHex: string, size: DecomposeSize): ComponentColor[] {
   const target = hexToRgb(targetHex);
-  const targetHsl = rgbToHsl(target.r, target.g, target.b);
   const components: ComponentColor[] = [];
-  const baseRatio = Math.floor(100 / size);
 
   // Build ratios array (sum = 100)
+  const baseRatio = Math.floor(100 / size);
   const ratios: number[] = [];
   let remaining = 100;
   for (let i = 0; i < size; i++) {
@@ -132,75 +131,80 @@ function decomposeColor(targetHex: string, size: DecomposeSize): ComponentColor[
     remaining -= ratio;
     ratios.push(ratio);
   }
-
   const w = ratios.map((r) => r / 100); // weights
 
+  // Calculate safe offset to prevent clamping
+  // offset must not push any channel below 0 or above 255
+  const maxOffset = Math.min(
+    target.r,
+    target.g,
+    target.b,
+    255 - target.r,
+    255 - target.g,
+    255 - target.b,
+  );
+  const baseOffset = Math.min(40, maxOffset);
+
   if (size === 2) {
-    // Brightness-based: lighter + darker that mix to target
-    const offset = 60;
+    // c1: target + offset (brighter)
     const c1 = {
-      r: Math.min(255, target.r + offset),
-      g: Math.min(255, target.g + offset),
-      b: Math.min(255, target.b + offset),
+      r: target.r + baseOffset,
+      g: target.g + baseOffset,
+      b: target.b + baseOffset,
     };
-    // c2 = (target - c1 × w1) / w2 = (target × 2 - c1) for 50:50
+    // c2 = (target - c1 × w0) / w1  (mathematically exact)
     const c2 = {
-      r: Math.max(0, Math.round((target.r - c1.r * w[0]) / w[1])),
-      g: Math.max(0, Math.round((target.g - c1.g * w[0]) / w[1])),
-      b: Math.max(0, Math.round((target.b - c1.b * w[0]) / w[1])),
+      r: Math.round((target.r - c1.r * w[0]) / w[1]),
+      g: Math.round((target.g - c1.g * w[0]) / w[1]),
+      b: Math.round((target.b - c1.b * w[0]) / w[1]),
     };
     components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0] });
     components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1] });
   } else if (size === 3) {
-    // RGB-emphasized components with correction
-    const boost = 100;
-    const c1 = {
-      r: Math.min(255, target.r + boost),
-      g: Math.max(0, target.g - boost * 0.3),
-      b: Math.max(0, target.b - boost * 0.3),
-    };
-    const c2 = {
-      r: Math.max(0, target.r - boost * 0.3),
-      g: Math.min(255, target.g + boost),
-      b: Math.max(0, target.b - boost * 0.3),
-    };
-    // c3 = (target - c1×w1 - c2×w2) / w3
+    // Each component offsets a different channel
+    const c1 = { r: target.r + baseOffset, g: target.g, b: target.b };
+    const c2 = { r: target.r, g: target.g + baseOffset, b: target.b };
+    // c3 = (target - c1×w0 - c2×w1) / w2
     const c3 = {
-      r: Math.max(0, Math.min(255, Math.round((target.r - c1.r * w[0] - c2.r * w[1]) / w[2]))),
-      g: Math.max(0, Math.min(255, Math.round((target.g - c1.g * w[0] - c2.g * w[1]) / w[2]))),
-      b: Math.max(0, Math.min(255, Math.round((target.b - c1.b * w[0] - c2.b * w[1]) / w[2]))),
+      r: Math.round((target.r - c1.r * w[0] - c2.r * w[1]) / w[2]),
+      g: Math.round((target.g - c1.g * w[0] - c2.g * w[1]) / w[2]),
+      b: Math.round((target.b - c1.b * w[0] - c2.b * w[1]) / w[2]),
     };
     components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0] });
     components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1] });
     components.push({ hex: rgbToHex(c3.r, c3.g, c3.b), ratio: ratios[2] });
-  } else {
-    // size 4, 5: Hue spread with correction on last component
-    const hueStep = 360 / size;
-
-    // First N-1 components: spread across hue wheel
-    for (let i = 0; i < size - 1; i++) {
-      const newHue = (targetHsl.h + hueStep * i) % 360;
-      const rgb = hslToRgb(newHue, targetHsl.s, targetHsl.l);
-      components.push({ hex: rgbToHex(rgb.r, rgb.g, rgb.b), ratio: ratios[i] });
-    }
-
-    // Last component: correction to ensure mix = target
-    let sumR = 0;
-    let sumG = 0;
-    let sumB = 0;
-    for (let i = 0; i < size - 1; i++) {
-      const rgb = hexToRgb(components[i].hex);
-      sumR += rgb.r * w[i];
-      sumG += rgb.g * w[i];
-      sumB += rgb.b * w[i];
-    }
-    const lastW = w[size - 1];
-    const last = {
-      r: Math.max(0, Math.min(255, Math.round((target.r - sumR) / lastW))),
-      g: Math.max(0, Math.min(255, Math.round((target.g - sumG) / lastW))),
-      b: Math.max(0, Math.min(255, Math.round((target.b - sumB) / lastW))),
+  } else if (size === 4) {
+    const c1 = { r: target.r + baseOffset, g: target.g, b: target.b };
+    const c2 = { r: target.r, g: target.g + baseOffset, b: target.b };
+    const c3 = { r: target.r, g: target.g, b: target.b + baseOffset };
+    // c4 = (target - c1×w0 - c2×w1 - c3×w2) / w3
+    const c4 = {
+      r: Math.round((target.r - c1.r * w[0] - c2.r * w[1] - c3.r * w[2]) / w[3]),
+      g: Math.round((target.g - c1.g * w[0] - c2.g * w[1] - c3.g * w[2]) / w[3]),
+      b: Math.round((target.b - c1.b * w[0] - c2.b * w[1] - c3.b * w[2]) / w[3]),
     };
-    components.push({ hex: rgbToHex(last.r, last.g, last.b), ratio: ratios[size - 1] });
+    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0] });
+    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1] });
+    components.push({ hex: rgbToHex(c3.r, c3.g, c3.b), ratio: ratios[2] });
+    components.push({ hex: rgbToHex(c4.r, c4.g, c4.b), ratio: ratios[3] });
+  } else {
+    // size === 5
+    const halfOffset = Math.floor(baseOffset / 2);
+    const c1 = { r: target.r + baseOffset, g: target.g, b: target.b };
+    const c2 = { r: target.r, g: target.g + baseOffset, b: target.b };
+    const c3 = { r: target.r, g: target.g, b: target.b + baseOffset };
+    const c4 = { r: target.r + halfOffset, g: target.g + halfOffset, b: target.b };
+    // c5 = (target - c1×w0 - c2×w1 - c3×w2 - c4×w3) / w4
+    const c5 = {
+      r: Math.round((target.r - c1.r * w[0] - c2.r * w[1] - c3.r * w[2] - c4.r * w[3]) / w[4]),
+      g: Math.round((target.g - c1.g * w[0] - c2.g * w[1] - c3.g * w[2] - c4.g * w[3]) / w[4]),
+      b: Math.round((target.b - c1.b * w[0] - c2.b * w[1] - c3.b * w[2] - c4.b * w[3]) / w[4]),
+    };
+    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0] });
+    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1] });
+    components.push({ hex: rgbToHex(c3.r, c3.g, c3.b), ratio: ratios[2] });
+    components.push({ hex: rgbToHex(c4.r, c4.g, c4.b), ratio: ratios[3] });
+    components.push({ hex: rgbToHex(c5.r, c5.g, c5.b), ratio: ratios[4] });
   }
 
   // Pad to 5 components
