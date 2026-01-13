@@ -1,8 +1,8 @@
 import { useParaglideI18n } from '@soundblue/i18n';
 import { useTheme } from '@soundblue/ui-components/base';
+import { ServiceMenu } from '@soundblue/ui-components/composite';
 import { Link } from 'react-router';
 import { SearchBox, ThemeIcon } from '~/components/ui';
-import { ToolsIcon } from '~/constants/icons';
 import m from '~/lib/messages';
 
 interface HeaderProps {
@@ -11,8 +11,9 @@ interface HeaderProps {
 }
 
 export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
-  const { toggleLanguage, localizedPath } = useParaglideI18n();
+  const { toggleLanguage, localizedPath, locale } = useParaglideI18n();
   const { resolvedTheme, toggleTheme } = useTheme();
+  const currentLocale = locale === 'ko' ? 'ko' : 'en';
 
   const themeTitle = resolvedTheme === 'light' ? m['header.themeDark']() : m['header.themeLight']();
 
@@ -69,20 +70,10 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Tools Button */}
-        <a
-          href="https://tools.soundbluemusic.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden sm:inline-flex items-center justify-center gap-1.5 h-9 px-3 bg-(--color-accent-light) text-(--color-accent-primary) rounded-xl text-sm font-medium no-underline transition-all duration-150 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2"
-          title={m['externalLinks.tools']()}
-        >
-          <ToolsIcon className="w-4 h-4 shrink-0" />
-          <span>{m['externalLinks.tools']()}</span>
-        </a>
-
         {/* Controls */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Service Menu */}
+          <ServiceMenu currentApp="sound-blue" locale={currentLocale} />
           {/* Theme Toggle */}
           <button
             type="button"

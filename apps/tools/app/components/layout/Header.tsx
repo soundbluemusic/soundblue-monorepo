@@ -2,6 +2,7 @@
 
 import { useParaglideI18n } from '@soundblue/i18n';
 import { useTheme } from '@soundblue/ui-components/base';
+import { ServiceMenu } from '@soundblue/ui-components/composite';
 import { Link } from 'react-router';
 import { useToolStore } from '~/stores/tool-store';
 
@@ -48,6 +49,7 @@ export function Header() {
   const { toggleLanguage, localizedPath, locale } = useParaglideI18n();
   const { resolvedTheme, toggleTheme } = useTheme();
   const { sidebarCollapsed, toggleSidebarCollapse } = useToolStore();
+  const currentLocale = locale === 'ko' ? 'ko' : 'en';
 
   const t = {
     appTitle: 'Tools',
@@ -98,6 +100,8 @@ export function Header() {
 
         {/* Controls */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Service Menu */}
+          <ServiceMenu currentApp="tools" locale={currentLocale} />
           {/* Theme Toggle */}
           <button
             type="button"

@@ -7,5 +7,7 @@
 export * from './audio';
 // Chat patterns
 export * from './chat';
+// Navigation patterns
+export * from './navigation';
 // Tool patterns
 export * from './tool';
