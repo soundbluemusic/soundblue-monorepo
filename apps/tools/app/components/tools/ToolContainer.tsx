@@ -5,7 +5,6 @@ import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import m from '~/lib/messages';
 import { getToolComponent, getToolInfo } from '~/lib/toolCategories';
 import { getToolGuide } from '~/lib/toolGuides';
@@ -655,49 +654,43 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
         </div>
         <div className="flex items-center gap-2">
           {/* Share URL Button */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={copyShareUrl}
-                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border-none bg-transparent cursor-pointer transition-colors duration-150 hover:bg-(--color-interactive-hover) ${
-                    urlCopyFailed
-                      ? 'text-red-500 dark:text-red-400'
-                      : urlCopied
-                        ? 'text-(--color-accent-primary)'
-                        : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
-                  }`}
-                  aria-label={m['tools.shareUrl']?.()}
-                >
-                  {urlCopyFailed ? (
-                    <AlertTriangle className="w-5 h-5" />
-                  ) : (
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                      />
-                    </svg>
-                  )}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {urlCopyFailed
-                  ? (m['tools.urlCopyFailed']?.() ?? 'Copy failed')
-                  : urlCopied
-                    ? m['tools.urlCopied']?.()
-                    : m['tools.shareUrl']?.()}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <button
+            type="button"
+            onClick={copyShareUrl}
+            className={`inline-flex items-center gap-1.5 px-2.5 h-9 rounded-lg border-none bg-transparent cursor-pointer transition-colors duration-150 hover:bg-(--color-interactive-hover) text-sm font-medium ${
+              urlCopyFailed
+                ? 'text-red-500 dark:text-red-400'
+                : urlCopied
+                  ? 'text-(--color-accent-primary)'
+                  : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
+            }`}
+            aria-label={m['tools.shareUrl']?.()}
+          >
+            {urlCopyFailed ? (
+              <AlertTriangle className="w-4 h-4" />
+            ) : (
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                />
+              </svg>
+            )}
+            <span className="hidden sm:inline">
+              {urlCopyFailed
+                ? (m['tools.urlCopyFailed']?.() ?? 'Copy failed')
+                : urlCopied
+                  ? m['tools.urlCopied']?.()
+                  : m['tools.shareUrl']?.()}
+            </span>
+          </button>
           {/* Close Button */}
           <button
             type="button"

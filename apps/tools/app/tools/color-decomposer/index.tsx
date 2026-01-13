@@ -1,5 +1,5 @@
 import { useParaglideI18n } from '@soundblue/i18n';
-import { Check, Copy, Lock, RefreshCw, Shuffle, Unlock } from 'lucide-react';
+import { AlertTriangle, Check, Copy, Lock, RefreshCw, Shuffle, Unlock } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
 import { getToolGuide } from '~/lib/toolGuides';
@@ -58,11 +58,11 @@ function ComponentColorCard({
         className={`relative h-20 flex flex-col items-center justify-center ${textColor}`}
         style={{ backgroundColor: component.hex }}
       >
-        {/* Lock Button - top right */}
+        {/* Lock Button - top right (z-10 to appear above color picker label) */}
         <button
           type="button"
           onClick={() => onLockToggle(index)}
-          className={`absolute top-2 right-2 p-1.5 rounded-md transition-colors ${
+          className={`absolute top-2 right-2 z-10 p-1.5 rounded-md transition-colors ${
             component.locked
               ? 'bg-white/30 hover:bg-white/40'
               : 'bg-black/10 hover:bg-black/20 opacity-50 hover:opacity-100'
@@ -164,6 +164,19 @@ export function ColorDecomposer({
   );
 
   const mixedRgb = useMemo(() => hexToRgb(mixedColor), [mixedColor]);
+
+  // Check if there's a color mismatch (target != mixed result)
+  const hasColorMismatch = useMemo(() => {
+    return mixedColor.toLowerCase() !== settings.targetColor.toLowerCase();
+  }, [mixedColor, settings.targetColor]);
+
+  // Check if any colors are locked
+  const hasLockedColors = useMemo(() => {
+    return settings.components.slice(0, settings.size).some((comp) => comp.locked);
+  }, [settings.components, settings.size]);
+
+  // Show warning only when there's mismatch AND locked colors exist
+  const showMismatchWarning = hasColorMismatch && hasLockedColors;
 
   // Handlers
   const handleSizeChange = useCallback(
@@ -299,6 +312,12 @@ export function ColorDecomposer({
     handleSettingsChange({ components: newComponents });
   }, [handleSettingsChange, settings.components, settings.size]);
 
+  // Unlock all colors and recalculate to match target
+  const handleUnlockAll = useCallback(() => {
+    const newComponents = decomposeColor(settings.targetColor, settings.size);
+    handleSettingsChange({ components: newComponents });
+  }, [handleSettingsChange, settings.targetColor, settings.size]);
+
   const sizes: DecomposeSize[] = [2, 3, 4, 5];
   const activeComponents = settings.components.slice(0, settings.size);
 
@@ -370,7 +389,11 @@ export function ColorDecomposer({
       </div>
 
       {/* Mix Preview */}
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <div
+        className={`rounded-2xl border bg-card p-4 shadow-sm transition-colors ${
+          showMismatchWarning ? 'border-red-500 dark:border-red-400' : 'border-border'
+        }`}
+      >
         <h3 className="text-sm font-medium text-foreground mb-3">{texts.preview}</h3>
         <div className="flex items-center gap-2 h-16">
           {/* Component colors strip */}
@@ -403,6 +426,23 @@ export function ColorDecomposer({
             )}
           </button>
         </div>
+
+        {/* Mismatch Warning */}
+        {showMismatchWarning && (
+          <div className="mt-3 flex items-center justify-between gap-2 p-2 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span className="text-xs">{texts.mismatchWarning}</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleUnlockAll}
+              className="shrink-0 px-2 py-1 text-xs font-medium rounded bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900 transition-colors"
+            >
+              {texts.unlockAll}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Component Colors */}

@@ -34,6 +34,8 @@ export const colorDecomposerTexts = {
     lock: '고정',
     unlock: '고정 해제',
     locked: '고정됨',
+    mismatchWarning: '고정된 색상으로는 목표 색상을 만들 수 없습니다',
+    unlockAll: '모두 해제',
   },
   en: {
     title: 'Color Decomposer',
@@ -52,6 +54,8 @@ export const colorDecomposerTexts = {
     lock: 'Lock',
     unlock: 'Unlock',
     locked: 'Locked',
+    mismatchWarning: 'Cannot achieve target color with locked colors',
+    unlockAll: 'Unlock All',
   },
 } as const;
 
