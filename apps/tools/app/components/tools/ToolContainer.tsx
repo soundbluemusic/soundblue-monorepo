@@ -138,6 +138,11 @@ class ToolErrorBoundary extends Component<ToolErrorBoundaryProps, ToolErrorBound
 // ToolContainer Component - 도구 렌더링 영역
 // ========================================
 
+// Filter out undefined values from an object to prevent overwriting defaults
+function filterUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
+}
+
 // URL 파라미터 키 정의
 const URL_PARAMS = {
   metronome: ['bpm', 'beatsPerMeasure', 'volume'] as const,
@@ -516,7 +521,7 @@ export function ToolContainer() {
   const colorPaletteSettings = useMemo(
     () => ({
       ...defaultColorPaletteSettings,
-      ...toolSettings.colorPalette,
+      ...filterUndefined(toolSettings.colorPalette),
     }),
     [toolSettings.colorPalette],
   );
@@ -524,7 +529,7 @@ export function ToolContainer() {
   const colorDecomposerSettings = useMemo(
     () => ({
       ...defaultColorDecomposerSettings,
-      ...toolSettings.colorDecomposer,
+      ...filterUndefined(toolSettings.colorDecomposer),
     }),
     [toolSettings.colorDecomposer],
   );

@@ -147,6 +147,42 @@ All `platform/` packages MUST provide two implementations:
 | All `platform/` packages | API abstractions, fallback behaviors |
 | All `ui/` components | Prop handling, state management |
 
+### 5. No Downgrade Policy (다운그레이드 금지 정책)
+
+> **Always move forward, never backward**
+> **(언제나 미래를 향해, 절대 후퇴하지 않는다)**
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🚫 다운그레이드 금지 - Forward Only 🚫                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ❌ NEVER (절대 금지):                                                        ║
+║  ├── Package version downgrade (패키지 버전 다운그레이드)                       ║
+║  ├── Feature removal to avoid problems (기능 제거로 문제 회피)                 ║
+║  ├── Dependency rollback (의존성 롤백)                                        ║
+║  └── "Let's try the old version first" (일단 이전 버전으로)                    ║
+║                                                                              ║
+║  ✅ ALWAYS (항상 해야 할 것):                                                  ║
+║  ├── Root cause analysis (근본 원인 분석)                                     ║
+║  ├── New solution implementation (새로운 해결책 구현)                          ║
+║  ├── Compatibility layer addition (호환성 레이어 추가)                         ║
+║  └── Migration code writing (마이그레이션 코드 작성)                           ║
+║                                                                              ║
+║  ⚠️ Exception - Only deterministic cases like mathematical proofs:           ║
+║     (예외 - 수학적 증명처럼 확정적인 경우만)                                     ║
+║  ├── Confirmed security vulnerability (확인된 보안 취약점)                     ║
+║  ├── Official deprecation requirement (공식 deprecation 필수 변경)            ║
+║  └── Legal license issues (라이선스 법적 문제)                                 ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+**Rationale (근거):**
+- Problems are opportunities to improve, not excuses to regress
+- Downgrading hides problems instead of solving them
+- Each fix should make the system stronger, not weaker
+
 ---
 
 ## Package Structure (패키지 구조)
