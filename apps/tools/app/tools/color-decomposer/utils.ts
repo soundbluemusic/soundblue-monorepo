@@ -24,6 +24,11 @@ export function rgbToHex(r: number, g: number, b: number): string {
   return `#${[r, g, b].map((x) => Math.round(x).toString(16).padStart(2, '0')).join('')}`;
 }
 
+/**
+ * Mix colors with ratio and opacity.
+ * Formula: Mixed RGB = Σ(Component RGB × ratio × opacity)
+ * Opacity affects how much each color contributes to the final mix.
+ */
 export function mixColors(components: ComponentColor[]): string {
   let r = 0;
   let g = 0;
@@ -31,10 +36,26 @@ export function mixColors(components: ComponentColor[]): string {
 
   for (const component of components) {
     const rgb = hexToRgb(component.hex);
-    const weight = component.ratio / 100;
+    const ratioWeight = component.ratio / 100;
+    const opacityWeight = (component.opacity ?? 100) / 100;
+    const weight = ratioWeight * opacityWeight;
     r += rgb.r * weight;
     g += rgb.g * weight;
     b += rgb.b * weight;
+  }
+
+  // Calculate total effective weight for normalization
+  const totalWeight = components.reduce((sum, comp) => {
+    const ratioWeight = comp.ratio / 100;
+    const opacityWeight = (comp.opacity ?? 100) / 100;
+    return sum + ratioWeight * opacityWeight;
+  }, 0);
+
+  // Normalize if total weight is not 1 (due to opacity < 100%)
+  if (totalWeight > 0 && Math.abs(totalWeight - 1) > 0.001) {
+    r /= totalWeight;
+    g /= totalWeight;
+    b /= totalWeight;
   }
 
   return rgbToHex(Math.round(r), Math.round(g), Math.round(b));
@@ -172,8 +193,8 @@ export function decomposeColor(
       g: Math.round((target.g - c1.g * w[0]) / w[1]),
       b: Math.round((target.b - c1.b * w[0]) / w[1]),
     };
-    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0] });
-    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1] });
+    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0], opacity: 100 });
+    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1], opacity: 100 });
   } else if (size === 3) {
     // Each component offsets a different channel
     const c1 = { r: target.r + baseOffset, g: target.g, b: target.b };
@@ -184,9 +205,9 @@ export function decomposeColor(
       g: Math.round((target.g - c1.g * w[0] - c2.g * w[1]) / w[2]),
       b: Math.round((target.b - c1.b * w[0] - c2.b * w[1]) / w[2]),
     };
-    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0] });
-    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1] });
-    components.push({ hex: rgbToHex(c3.r, c3.g, c3.b), ratio: ratios[2] });
+    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0], opacity: 100 });
+    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1], opacity: 100 });
+    components.push({ hex: rgbToHex(c3.r, c3.g, c3.b), ratio: ratios[2], opacity: 100 });
   } else if (size === 4) {
     const c1 = { r: target.r + baseOffset, g: target.g, b: target.b };
     const c2 = { r: target.r, g: target.g + baseOffset, b: target.b };
@@ -197,10 +218,10 @@ export function decomposeColor(
       g: Math.round((target.g - c1.g * w[0] - c2.g * w[1] - c3.g * w[2]) / w[3]),
       b: Math.round((target.b - c1.b * w[0] - c2.b * w[1] - c3.b * w[2]) / w[3]),
     };
-    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0] });
-    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1] });
-    components.push({ hex: rgbToHex(c3.r, c3.g, c3.b), ratio: ratios[2] });
-    components.push({ hex: rgbToHex(c4.r, c4.g, c4.b), ratio: ratios[3] });
+    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0], opacity: 100 });
+    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1], opacity: 100 });
+    components.push({ hex: rgbToHex(c3.r, c3.g, c3.b), ratio: ratios[2], opacity: 100 });
+    components.push({ hex: rgbToHex(c4.r, c4.g, c4.b), ratio: ratios[3], opacity: 100 });
   } else {
     // size === 5
     const halfOffset = Math.floor(baseOffset / 2);
@@ -214,16 +235,16 @@ export function decomposeColor(
       g: Math.round((target.g - c1.g * w[0] - c2.g * w[1] - c3.g * w[2] - c4.g * w[3]) / w[4]),
       b: Math.round((target.b - c1.b * w[0] - c2.b * w[1] - c3.b * w[2] - c4.b * w[3]) / w[4]),
     };
-    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0] });
-    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1] });
-    components.push({ hex: rgbToHex(c3.r, c3.g, c3.b), ratio: ratios[2] });
-    components.push({ hex: rgbToHex(c4.r, c4.g, c4.b), ratio: ratios[3] });
-    components.push({ hex: rgbToHex(c5.r, c5.g, c5.b), ratio: ratios[4] });
+    components.push({ hex: rgbToHex(c1.r, c1.g, c1.b), ratio: ratios[0], opacity: 100 });
+    components.push({ hex: rgbToHex(c2.r, c2.g, c2.b), ratio: ratios[1], opacity: 100 });
+    components.push({ hex: rgbToHex(c3.r, c3.g, c3.b), ratio: ratios[2], opacity: 100 });
+    components.push({ hex: rgbToHex(c4.r, c4.g, c4.b), ratio: ratios[3], opacity: 100 });
+    components.push({ hex: rgbToHex(c5.r, c5.g, c5.b), ratio: ratios[4], opacity: 100 });
   }
 
   // Pad to 5 components
   while (components.length < 5) {
-    components.push({ hex: '#808080', ratio: 0 });
+    components.push({ hex: '#808080', ratio: 0, opacity: 100 });
   }
 
   return components;
@@ -246,7 +267,8 @@ interface RGB {
  * With multiple unlocked colors, infinite solutions exist - we find one
  * where all colors stay within 0-255 range.
  *
- * Formula: target = Σ(locked × ratio) + Σ(unlocked × ratio)
+ * Formula: target × totalWeight = Σ(locked × ratio × opacity) + Σ(unlocked × ratio × opacity)
+ * where totalWeight = Σ(ratio × opacity) for all components
  */
 export function recalculateUnlockedColors(
   targetHex: string,
@@ -273,11 +295,25 @@ export function recalculateUnlockedColors(
     return components;
   }
 
-  // Calculate contribution from locked colors
+  // Calculate total effective weight for normalization
+  const totalWeight = activeComponents.reduce((sum, comp) => {
+    const ratioWeight = comp.ratio / 100;
+    const opacityWeight = (comp.opacity ?? 100) / 100;
+    return sum + ratioWeight * opacityWeight;
+  }, 0);
+
+  if (totalWeight === 0) {
+    return components;
+  }
+
+  // Calculate contribution from locked colors (normalized)
   const lockedContribution: RGB = { r: 0, g: 0, b: 0 };
   for (const idx of lockedIndices) {
-    const rgb = hexToRgb(activeComponents[idx].hex);
-    const weight = activeComponents[idx].ratio / 100;
+    const comp = activeComponents[idx];
+    const rgb = hexToRgb(comp.hex);
+    const ratioWeight = comp.ratio / 100;
+    const opacityWeight = (comp.opacity ?? 100) / 100;
+    const weight = (ratioWeight * opacityWeight) / totalWeight;
     lockedContribution.r += rgb.r * weight;
     lockedContribution.g += rgb.g * weight;
     lockedContribution.b += rgb.b * weight;
@@ -290,16 +326,21 @@ export function recalculateUnlockedColors(
     b: target.b - lockedContribution.b,
   };
 
-  // Get unlocked ratios
-  const unlockedRatios = unlockedIndices.map((idx) => activeComponents[idx].ratio);
-  const totalUnlockedRatio = unlockedRatios.reduce((sum, r) => sum + r, 0);
+  // Get unlocked effective weights (ratio × opacity, normalized)
+  const unlockedWeights = unlockedIndices.map((idx) => {
+    const comp = activeComponents[idx];
+    const ratioWeight = comp.ratio / 100;
+    const opacityWeight = (comp.opacity ?? 100) / 100;
+    return (ratioWeight * opacityWeight) / totalWeight;
+  });
+  const totalUnlockedWeight = unlockedWeights.reduce((sum, w) => sum + w, 0);
 
-  if (totalUnlockedRatio === 0) {
+  if (totalUnlockedWeight === 0) {
     return components;
   }
 
   // Find exact solution where all unlocked colors are within 0-255
-  const calculatedColors = findExactSolution(remaining, unlockedRatios);
+  const calculatedColors = findExactSolutionWithWeights(remaining, unlockedWeights);
 
   // Apply calculated colors
   const newComponents = [...components];
@@ -320,18 +361,19 @@ export function recalculateUnlockedColors(
  *
  * Strategy: Start with uniform distribution, then adjust to stay in 0-255.
  * With N unlocked colors, we have N degrees of freedom per channel.
+ *
+ * @param remaining - The RGB values that unlocked colors must produce together
+ * @param weights - Normalized weights (ratio × opacity / totalWeight) for each unlocked color
  */
-function findExactSolution(remaining: RGB, ratios: number[]): RGB[] {
-  const n = ratios.length;
-  const totalRatio = ratios.reduce((sum, r) => sum + r, 0);
-  const weights = ratios.map((r) => r / 100);
+function findExactSolutionWithWeights(remaining: RGB, weights: number[]): RGB[] {
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
 
   // For each channel, find valid color values
-  const rValues = solveChannel(remaining.r, weights, totalRatio);
-  const gValues = solveChannel(remaining.g, weights, totalRatio);
-  const bValues = solveChannel(remaining.b, weights, totalRatio);
+  const rValues = solveChannelWithWeights(remaining.r, weights, totalWeight);
+  const gValues = solveChannelWithWeights(remaining.g, weights, totalWeight);
+  const bValues = solveChannelWithWeights(remaining.b, weights, totalWeight);
 
-  return ratios.map((_, i) => ({
+  return weights.map((_, i) => ({
     r: Math.round(rValues[i]),
     g: Math.round(gValues[i]),
     b: Math.round(bValues[i]),
@@ -341,14 +383,18 @@ function findExactSolution(remaining: RGB, ratios: number[]): RGB[] {
 /**
  * Solve for one channel: find values v[i] such that Σ(v[i] × weight[i]) = target
  * and all v[i] are in [0, 255].
+ *
+ * @param target - The target value for this channel
+ * @param weights - Normalized weights for each color
+ * @param totalWeight - Sum of all weights
  */
-function solveChannel(target: number, weights: number[], totalRatio: number): number[] {
+function solveChannelWithWeights(target: number, weights: number[], totalWeight: number): number[] {
   const n = weights.length;
 
   // Initial: uniform distribution (all same value)
-  // If all colors have same value V: Σ(V × w[i]) = V × Σ(w[i]) = target
-  // So V = target / Σ(w[i]) = target / (totalRatio/100) = target × 100 / totalRatio
-  const uniformValue = (target * 100) / totalRatio;
+  // If all colors have same value V: Σ(V × w[i]) = V × totalWeight = target
+  // So V = target / totalWeight
+  const uniformValue = totalWeight > 0 ? target / totalWeight : 0;
 
   // If uniform value is in range, we're done
   if (uniformValue >= 0 && uniformValue <= 255) {

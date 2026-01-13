@@ -32,6 +32,7 @@ function ComponentColorCard({
   texts,
   onColorChange,
   onRatioChange,
+  onOpacityChange,
   onLockToggle,
 }: {
   component: ComponentColor;
@@ -39,6 +40,7 @@ function ComponentColorCard({
   texts: (typeof colorDecomposerTexts)['ko'] | (typeof colorDecomposerTexts)['en'];
   onColorChange: (index: number, hex: string) => void;
   onRatioChange: (index: number, ratio: number) => void;
+  onOpacityChange: (index: number, opacity: number) => void;
   onLockToggle: (index: number) => void;
 }) {
   const [copied, setCopied] = useState(false);
@@ -108,20 +110,38 @@ function ComponentColorCard({
         </button>
       </div>
 
-      {/* Ratio Slider */}
-      <div className="p-3 space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">{texts.ratio}</span>
-          <span className="text-sm font-bold tabular-nums">{component.ratio}%</span>
+      {/* Sliders */}
+      <div className="p-3 space-y-3">
+        {/* Ratio Slider */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{texts.ratio}</span>
+            <span className="text-sm font-bold tabular-nums">{component.ratio}%</span>
+          </div>
+          <input
+            type="range"
+            min="5"
+            max="90"
+            value={component.ratio}
+            onChange={(e) => onRatioChange(index, Number(e.target.value))}
+            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+          />
         </div>
-        <input
-          type="range"
-          min="5"
-          max="90"
-          value={component.ratio}
-          onChange={(e) => onRatioChange(index, Number(e.target.value))}
-          className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-        />
+        {/* Opacity Slider */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{texts.opacity}</span>
+            <span className="text-sm font-bold tabular-nums">{component.opacity ?? 100}%</span>
+          </div>
+          <input
+            type="range"
+            min="10"
+            max="100"
+            value={component.opacity ?? 100}
+            onChange={(e) => onOpacityChange(index, Number(e.target.value))}
+            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-secondary"
+          />
+        </div>
       </div>
     </div>
   );
@@ -306,6 +326,35 @@ export function ColorDecomposer({
     [handleSettingsChange, settings.targetColor, settings.size, settings.components],
   );
 
+  const handleOpacityChange = useCallback(
+    (index: number, newOpacity: number) => {
+      // Update opacity and recalculate unlocked colors
+      const newComponents = settings.components.map((comp, i) => {
+        if (i === index) {
+          return { ...comp, opacity: newOpacity };
+        }
+        return comp;
+      });
+
+      // Check if any colors are locked
+      const hasLockedColors = newComponents.slice(0, settings.size).some((comp) => comp.locked);
+
+      if (hasLockedColors) {
+        // Recalculate unlocked colors to match target
+        const recalculatedComponents = recalculateUnlockedColors(
+          settings.targetColor,
+          newComponents,
+          settings.size,
+        );
+        handleSettingsChange({ components: recalculatedComponents });
+      } else {
+        // No locked colors - just update opacity, mixColors will handle normalization
+        handleSettingsChange({ components: newComponents });
+      }
+    },
+    [handleSettingsChange, settings.targetColor, settings.size, settings.components],
+  );
+
   const handleReset = useCallback(() => {
     handleSettingsChange(defaultColorDecomposerSettings);
   }, [handleSettingsChange]);
@@ -317,7 +366,7 @@ export function ColorDecomposer({
     }));
     // Pad back to 5
     while (newComponents.length < 5) {
-      newComponents.push({ hex: '#808080', ratio: 0 });
+      newComponents.push({ hex: '#808080', ratio: 0, opacity: 100 });
     }
     handleSettingsChange({ components: newComponents });
   }, [handleSettingsChange, settings.components, settings.size]);
@@ -482,6 +531,7 @@ export function ColorDecomposer({
               texts={texts}
               onColorChange={handleComponentColorChange}
               onRatioChange={handleRatioChange}
+              onOpacityChange={handleOpacityChange}
               onLockToggle={handleLockToggle}
             />
           ))}
