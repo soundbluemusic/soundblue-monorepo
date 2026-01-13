@@ -14,6 +14,7 @@ import {
   type ColorDecomposerSettings,
   defaultColorDecomposerSettings,
 } from '~/tools/color-decomposer/settings';
+import type { DecomposeSize } from '~/tools/color-decomposer/types';
 // Import tool types and default settings from local files (avoids loading heavy @soundblue/ui-components bundle)
 import {
   type ColorHarmonySettings,
@@ -23,6 +24,7 @@ import {
   type ColorPaletteSettings,
   defaultColorPaletteSettings,
 } from '~/tools/color-palette/settings';
+import type { PaletteSize } from '~/tools/color-palette/types';
 import {
   type DelayCalculatorSettings,
   defaultDelayCalculatorSettings,
@@ -145,17 +147,17 @@ function filterUndefined<T extends Record<string, unknown>>(obj: T | undefined |
 
 // URL 파라미터 키 정의
 const URL_PARAMS = {
-  metronome: ['bpm', 'beatsPerMeasure', 'volume'] as const,
+  metronome: ['bpm', 'beatsPerMeasure', 'volume', 'beatUnit'] as const,
   drumMachine: ['bpm', 'swing', 'volume'] as const,
   delayCalculator: ['bpm'] as const,
   tapTempo: ['soundEnabled', 'volume'] as const,
-  qr: ['size', 'fgColor', 'bgColor'] as const,
-  translator: ['direction'] as const,
-  spellChecker: [] as const,
+  qr: ['text', 'size', 'fgColor', 'bgColor', 'errorCorrection'] as const,
+  translator: ['direction', 'formality', 'text'] as const,
+  spellChecker: ['checkSpacing', 'checkTypo', 'checkGrammar'] as const,
   englishSpellChecker: [] as const,
   colorHarmony: ['baseColor', 'mode'] as const,
-  colorPalette: ['size'] as const,
-  colorDecomposer: ['size'] as const,
+  colorPalette: ['size', 'colors'] as const,
+  colorDecomposer: ['targetColor', 'size'] as const,
 };
 
 // 보존해야 할 특수 파라미터 (각 도구에서 직접 관리)
@@ -252,6 +254,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
           if (parsed.key === 'bpm') settings.bpm = parsed.value as number;
           if (parsed.key === 'beatsPerMeasure') settings.beatsPerMeasure = parsed.value as number;
           if (parsed.key === 'volume') settings.volume = parsed.value as number;
+          if (parsed.key === 'beatUnit') settings.beatUnit = parsed.value as number;
         }
       }
       if (hasUrlSettings) updateToolSettings('metronome', settings);
@@ -273,9 +276,18 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
         const parsed = parseUrlValue(param, searchParams.get(param));
         if (parsed) {
           hasUrlSettings = true;
+          if (parsed.key === 'text') settings.text = decodeURIComponent(parsed.value as string);
           if (parsed.key === 'size') settings.size = parsed.value as number;
-          if (parsed.key === 'fgColor') settings.foregroundColor = parsed.value as string;
-          if (parsed.key === 'bgColor') settings.backgroundColor = parsed.value as string;
+          if (parsed.key === 'fgColor')
+            settings.foregroundColor = `#${(parsed.value as string).replace('#', '')}`;
+          if (parsed.key === 'bgColor')
+            settings.backgroundColor = `#${(parsed.value as string).replace('#', '')}`;
+          if (parsed.key === 'errorCorrection') {
+            const ec = parsed.value as string;
+            if (['L', 'M', 'Q', 'H'].includes(ec)) {
+              settings.errorCorrection = ec as QRSettings['errorCorrection'];
+            }
+          }
         }
       }
       if (hasUrlSettings) updateToolSettings('qr', settings);
@@ -297,9 +309,64 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
           hasUrlSettings = true;
           if (parsed.key === 'direction')
             settings.direction = parsed.value as TranslatorSettings['direction'];
+          if (parsed.key === 'formality')
+            settings.formality = parsed.value as TranslatorSettings['formality'];
+          if (parsed.key === 'text')
+            settings.lastInput = decodeURIComponent(parsed.value as string);
         }
       }
       if (hasUrlSettings) updateToolSettings('translator', settings);
+    } else if (currentTool === 'spellChecker') {
+      const settings: Partial<SpellCheckerSettings> = {};
+      for (const param of params) {
+        const rawValue = searchParams.get(param);
+        if (rawValue !== null) {
+          hasUrlSettings = true;
+          const boolValue = rawValue === '1' || rawValue === 'true';
+          if (param === 'checkSpacing') settings.checkSpacing = boolValue;
+          if (param === 'checkTypo') settings.checkTypo = boolValue;
+          if (param === 'checkGrammar') settings.checkGrammar = boolValue;
+        }
+      }
+      if (hasUrlSettings) updateToolSettings('spellChecker', settings);
+    } else if (currentTool === 'colorPalette') {
+      const settings: Partial<ColorPaletteSettings> = {};
+      for (const param of params) {
+        const parsed = parseUrlValue(param, searchParams.get(param));
+        if (parsed) {
+          hasUrlSettings = true;
+          if (parsed.key === 'size') {
+            const sizeVal = parsed.value as number;
+            if ([2, 3, 4, 5].includes(sizeVal)) {
+              settings.size = sizeVal as PaletteSize;
+            }
+          }
+        }
+      }
+      // Handle colors array separately
+      const colorsParam = searchParams.get('colors');
+      if (colorsParam) {
+        hasUrlSettings = true;
+        settings.colors = colorsParam.split(',').map((c) => `#${c.replace('#', '')}`);
+      }
+      if (hasUrlSettings) updateToolSettings('colorPalette', settings);
+    } else if (currentTool === 'colorDecomposer') {
+      const settings: Partial<ColorDecomposerSettings> = {};
+      for (const param of params) {
+        const parsed = parseUrlValue(param, searchParams.get(param));
+        if (parsed) {
+          hasUrlSettings = true;
+          if (parsed.key === 'size') {
+            const sizeVal = parsed.value as number;
+            if ([2, 3, 4, 5].includes(sizeVal)) {
+              settings.size = sizeVal as DecomposeSize;
+            }
+          }
+          if (parsed.key === 'targetColor')
+            settings.targetColor = `#${(parsed.value as string).replace('#', '')}`;
+        }
+      }
+      if (hasUrlSettings) updateToolSettings('colorDecomposer', settings);
     }
   }, [currentTool, searchParams, updateToolSettings]);
 
@@ -331,8 +398,39 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
     }
 
     for (const param of params) {
-      const value = settings[param as keyof typeof settings];
-      if (value !== undefined && value !== null) {
+      // Handle special parameter mappings
+      let value: unknown;
+      if (currentTool === 'qr') {
+        if (param === 'text') value = (settings as QRSettings).text;
+        else if (param === 'fgColor')
+          value = (settings as QRSettings).foregroundColor?.replace('#', '');
+        else if (param === 'bgColor')
+          value = (settings as QRSettings).backgroundColor?.replace('#', '');
+        else if (param === 'errorCorrection') value = (settings as QRSettings).errorCorrection;
+        else value = settings[param as keyof typeof settings];
+      } else if (currentTool === 'translator') {
+        if (param === 'text') value = (settings as TranslatorSettings).lastInput;
+        else value = settings[param as keyof typeof settings];
+      } else if (currentTool === 'colorPalette') {
+        if (param === 'colors') {
+          const colors = (settings as ColorPaletteSettings).colors;
+          if (colors?.length) value = colors.map((c) => c.replace('#', '')).join(',');
+        } else {
+          value = settings[param as keyof typeof settings];
+        }
+      } else if (currentTool === 'colorDecomposer') {
+        if (param === 'targetColor')
+          value = (settings as ColorDecomposerSettings).targetColor?.replace('#', '');
+        else value = settings[param as keyof typeof settings];
+      } else if (currentTool === 'colorHarmony') {
+        if (param === 'baseColor')
+          value = (settings as ColorHarmonySettings).baseColor?.replace('#', '');
+        else value = settings[param as keyof typeof settings];
+      } else {
+        value = settings[param as keyof typeof settings];
+      }
+
+      if (value !== undefined && value !== null && value !== '') {
         urlUpdate.set(param, String(value));
       }
     }

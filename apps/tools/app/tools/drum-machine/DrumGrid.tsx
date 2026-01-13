@@ -22,7 +22,7 @@ const BASE_CELL_SIZE = 28;
 const BASE_CELL_GAP = 3;
 const BASE_LABEL_WIDTH = 52;
 const HEADER_HEIGHT = 0;
-const MIN_CELL_SIZE = 14;
+const MIN_CELL_SIZE = 24;
 
 const COLORS = {
   background: '#1a1a2e',
@@ -321,11 +321,23 @@ export function DrumGrid({
     }
   }, [isReady, render, pattern, currentStep, isPlaying]);
 
+  // Generate pattern description for screen readers
+  const getPatternDescription = useCallback(() => {
+    const activeSteps = DRUMS.map((drum) => {
+      const active = pattern[drum.id]?.map((v, i) => (v ? i + 1 : null)).filter(Boolean) ?? [];
+      return active.length > 0 ? `${drum.name}: steps ${active.join(', ')}` : null;
+    }).filter(Boolean);
+    return activeSteps.length > 0 ? activeSteps.join('. ') : 'No active steps';
+  }, [pattern]);
+
   return (
     <div ref={containerRef} className="w-full overflow-x-auto">
+      {/* biome-ignore lint/a11y/useSemanticElements: Canvas requires role="grid" for accessibility with custom grid rendering */}
       <canvas
         ref={canvasRef}
         className={className}
+        role="grid"
+        aria-label={`Drum pattern grid with ${steps} steps and ${DRUMS.length} instruments. Click to toggle beats.`}
         style={{
           width: `${getGridWidth()}px`,
           height: `${getGridHeight()}px`,
@@ -338,6 +350,10 @@ export function DrumGrid({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       />
+      {/* Screen reader description */}
+      <div className="sr-only" aria-live="polite">
+        {getPatternDescription()}
+      </div>
     </div>
   );
 }

@@ -164,7 +164,7 @@ const uncountableNouns = new Set([
 ]);
 
 /** Common preposition collocations: verb/adjective → correct preposition */
-const prepositionCollocations: Record<string, string> = {
+const _prepositionCollocations: Record<string, string> = {
   // Verb + preposition
   listen: 'to',
   depend: 'on',
@@ -348,13 +348,13 @@ function getThirdPersonSingular(verb: string): string {
     lower.endsWith('x') ||
     lower.endsWith('o')
   ) {
-    return lower + 'es';
+    return `${lower}es`;
   }
   if (lower.endsWith('y') && !/[aeiou]y$/i.test(lower)) {
-    return lower.slice(0, -1) + 'ies';
+    return `${lower.slice(0, -1)}ies`;
   }
 
-  return lower + 's';
+  return `${lower}s`;
 }
 
 /**
@@ -370,7 +370,7 @@ function getBaseForm(verb: string): string {
 
   // Try to reverse regular conjugation
   if (lower.endsWith('ies')) {
-    return lower.slice(0, -3) + 'y';
+    return `${lower.slice(0, -3)}y`;
   }
   if (lower.endsWith('es')) {
     const stem = lower.slice(0, -2);
@@ -737,13 +737,13 @@ export function checkTenseConsistency(text: string): TextError[] {
 
     let hasPastIndicator = false;
     let hasPresentIndicator = false;
-    let hasFutureIndicator = false;
+    let _hasFutureIndicator = false;
 
     // Check for tense indicators
     for (const word of words) {
       if (pastIndicators.has(word)) hasPastIndicator = true;
       if (presentIndicators.has(word)) hasPresentIndicator = true;
-      if (futureIndicators.has(word)) hasFutureIndicator = true;
+      if (futureIndicators.has(word)) _hasFutureIndicator = true;
     }
 
     // Look for tense mismatches

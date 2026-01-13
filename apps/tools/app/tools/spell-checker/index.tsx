@@ -185,7 +185,7 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
           type="button"
           onClick={handleCheck}
           disabled={!inputText.trim()}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-primary/80 bg-primary px-6 text-sm font-medium text-white shadow-lg shadow-primary/30 transition-all duration-200 hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-primary/80 bg-primary px-6 text-sm font-medium text-white shadow-lg shadow-primary/30 transition-all duration-200 hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 disabled:border-muted disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
         >
           <Sparkles className="h-4 w-4" />
           {m['spellChecker.check']?.() ?? '검사하기'}

@@ -212,7 +212,7 @@ export function TapTempo({ settings: propSettings, onSettingsChange }: TapTempoP
         </div>
 
         {/* TAP Button - Large and Central */}
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex flex-col items-center gap-2">
           <button
             type="button"
             onClick={handleTap}
@@ -226,6 +226,10 @@ export function TapTempo({ settings: propSettings, onSettingsChange }: TapTempoP
           >
             {texts.tap}
           </button>
+          {/* Keyboard shortcut hint */}
+          <span className="hidden text-xs text-muted-foreground sm:block">
+            {currentLocale === 'ko' ? '또는 Space 키' : 'or press Space'}
+          </span>
         </div>
 
         {/* Tap hint */}

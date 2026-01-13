@@ -178,7 +178,7 @@ function ColorCard({
             {copied === 'hex' ? (
               <Check className="h-3.5 w-3.5 text-green-500" />
             ) : (
-              <Copy className="h-3.5 w-3.5 opacity-0 group-hover:opacity-50" />
+              <Copy className="h-3.5 w-3.5 opacity-30 group-hover:opacity-60" />
             )}
           </span>
         </button>
@@ -195,7 +195,7 @@ function ColorCard({
             {copied === 'rgb' ? (
               <Check className="h-3.5 w-3.5 text-green-500" />
             ) : (
-              <Copy className="h-3.5 w-3.5 opacity-0 group-hover:opacity-50" />
+              <Copy className="h-3.5 w-3.5 opacity-30 group-hover:opacity-60" />
             )}
           </span>
         </button>
@@ -212,7 +212,7 @@ function ColorCard({
             {copied === 'hsl' ? (
               <Check className="h-3.5 w-3.5 text-green-500" />
             ) : (
-              <Copy className="h-3.5 w-3.5 opacity-0 group-hover:opacity-50" />
+              <Copy className="h-3.5 w-3.5 opacity-30 group-hover:opacity-60" />
             )}
           </span>
         </button>

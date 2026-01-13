@@ -70,7 +70,7 @@ const ADJECTIVE_PATTERNS =
   /^(happy|sad|angry|tired|hungry|thirsty|beautiful|ugly|tall|short|big|small|fast|slow|hot|cold|warm|cool|good|bad|nice|great|important|difficult|easy|hard|soft|new|old|young|busy|free|ready|sorry|glad|afraid|sure|certain|possible|impossible|necessary|available|different|same|similar|special|general|specific|particular|common|rare|popular|famous|successful|rich|poor|healthy|sick|alive|dead|awake|asleep|alone|together|safe|dangerous|clean|dirty|dry|wet|full|empty|open|closed|bright|dark|loud|quiet|strong|weak|thick|thin|heavy|light|deep|shallow|wide|narrow|long|short|high|low|early|late|near|far|close|distant)$/i;
 
 /** 3인칭 단수 주어 */
-const THIRD_PERSON_SINGULAR = new Set([
+const _THIRD_PERSON_SINGULAR = new Set([
   'he',
   'she',
   'it',
@@ -94,7 +94,7 @@ const THIRD_PERSON_SINGULAR = new Set([
 ]);
 
 /** 1인칭/2인칭/복수 주어 */
-const NON_THIRD_SINGULAR = new Set(['i', 'you', 'we', 'they']);
+const _NON_THIRD_SINGULAR = new Set(['i', 'you', 'we', 'they']);
 
 /** be동사 형태 */
 const BE_FORMS = {
@@ -156,7 +156,7 @@ function validateArticles(text: string, errors: ValidationError[]): string {
   let result = text;
 
   // a + 모음 소리 → an (예외 처리 포함)
-  result = result.replace(/\b(a)\s+([a-zA-Z]+)/gi, (match, article, word, offset) => {
+  result = result.replace(/\b(a)\s+([a-zA-Z]+)/gi, (match, _article, word, offset) => {
     const wordLower = word.toLowerCase();
 
     // 예외: a가 맞는 경우 (uni-, use- 등)
@@ -180,7 +180,7 @@ function validateArticles(text: string, errors: ValidationError[]): string {
   });
 
   // an + 자음 소리 → a (예외 처리 포함)
-  result = result.replace(/\b(an)\s+([a-zA-Z]+)/gi, (match, article, word, offset) => {
+  result = result.replace(/\b(an)\s+([a-zA-Z]+)/gi, (match, _article, word, offset) => {
     const wordLower = word.toLowerCase();
 
     // 예외: an이 맞는 경우
@@ -393,7 +393,7 @@ function validateCapitalization(text: string, errors: ValidationError[]): string
   }
 
   // 문장 부호 후 첫 글자 대문자
-  result = result.replace(/([.!?]\s+)([a-z])/g, (match, punct, letter, offset) => {
+  result = result.replace(/([.!?]\s+)([a-z])/g, (_match, punct, letter, offset) => {
     errors.push({
       type: 'capitalization',
       original: letter,
@@ -439,16 +439,16 @@ function addThirdPersonS(verb: string): string {
 
   // -s, -x, -z, -ch, -sh → -es
   if (/[sxz]$|ch$|sh$/i.test(verb)) {
-    return verb + 'es';
+    return `${verb}es`;
   }
 
   // 자음 + y → -ies
   if (/[^aeiou]y$/i.test(verb)) {
-    return verb.slice(0, -1) + 'ies';
+    return `${verb.slice(0, -1)}ies`;
   }
 
   // 일반적인 경우 -s
-  return verb + 's';
+  return `${verb}s`;
 }
 
 /**

@@ -1,5 +1,14 @@
 import { useParaglideI18n } from '@soundblue/i18n';
-import { AlertTriangle, Check, Copy, Lock, RefreshCw, Shuffle, Unlock } from 'lucide-react';
+import {
+  AlertTriangle,
+  Check,
+  Copy,
+  Lock,
+  Palette,
+  RefreshCw,
+  Shuffle,
+  Unlock,
+} from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
 import { getToolGuide } from '~/lib/toolGuides';
@@ -72,7 +81,7 @@ function ComponentColorCard({
           {component.locked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
         </button>
         {/* Color Picker - covers top area */}
-        <label className="absolute inset-x-0 top-0 h-12 cursor-pointer">
+        <label className="absolute inset-x-0 top-0 h-12 cursor-pointer group">
           <input
             type="color"
             value={component.hex}
@@ -80,11 +89,12 @@ function ComponentColorCard({
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             title={texts.colorN.replace('{n}', String(index + 1))}
           />
-          <span className="text-xs font-medium opacity-70 block text-center mt-2">
-            {texts.colorN.replace('{n}', String(index + 1))}
-            {component.locked && (
-              <span className="ml-1 text-[10px] opacity-80">({texts.locked})</span>
-            )}
+          <span className="flex flex-col items-center mt-1.5">
+            <span className="text-xs font-medium opacity-70 flex items-center gap-1">
+              <Palette className="h-2.5 w-2.5 opacity-50 group-hover:opacity-100" />
+              {texts.colorN.replace('{n}', String(index + 1))}
+              {component.locked && <span className="text-[10px] opacity-80">({texts.locked})</span>}
+            </span>
           </span>
         </label>
         {/* Copy Button - separate clickable area */}
@@ -340,7 +350,7 @@ export function ColorDecomposer({
           style={{ backgroundColor: settings.targetColor }}
         >
           {/* Color Picker - covers top area */}
-          <label className="absolute inset-x-0 top-0 h-16 cursor-pointer">
+          <label className="absolute inset-x-0 top-0 h-16 cursor-pointer group">
             <input
               type="color"
               value={settings.targetColor}
@@ -348,6 +358,11 @@ export function ColorDecomposer({
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               title={texts.targetColor}
             />
+            {/* Click hint */}
+            <span className="flex items-center justify-center gap-1 mt-3 text-xs opacity-60 group-hover:opacity-100 transition-opacity">
+              <Palette className="h-3 w-3" />
+              {currentLocale === 'ko' ? '클릭하여 색상 선택' : 'Click to pick color'}
+            </span>
           </label>
           {/* Copy Button */}
           <button

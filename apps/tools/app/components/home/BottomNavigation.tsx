@@ -102,7 +102,7 @@ export function BottomNavigation() {
                 <span className="flex items-center justify-center w-6 h-6 [&>svg]:w-full [&>svg]:h-full">
                   <Icon />
                 </span>
-                <span className="text-[0.6875rem] font-medium">{item.label}</span>
+                <span className="text-xs font-medium">{item.label}</span>
               </NavLink>
             </li>
           );

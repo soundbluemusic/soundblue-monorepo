@@ -200,14 +200,20 @@ export function DelayCalculator({
           </button>
         </div>
 
-        {/* TAP Tip */}
-        <p className="mt-3 text-center text-xs text-muted-foreground">{texts.tapTip}</p>
+        {/* TAP Tip with keyboard shortcut */}
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          {texts.tapTip}
+          <span className="hidden sm:inline">
+            {' '}
+            ({currentLocale === 'ko' ? 'Space 키 사용 가능' : 'or press Space'})
+          </span>
+        </p>
       </div>
 
       {/* Delay Times Table */}
       <div className="rounded-2xl border border-border bg-card shadow-sm">
         {/* Table Header */}
-        <div className="grid grid-cols-4 gap-1 border-b border-border bg-muted/50 px-2 py-2.5 text-xs font-medium sm:px-4 sm:py-3 sm:text-sm">
+        <div className="grid grid-cols-4 gap-1 border-b border-border bg-muted/50 px-2 py-2.5 text-sm font-medium sm:px-4 sm:py-3">
           <div className="text-muted-foreground">{texts.note}</div>
           <div className="text-center text-muted-foreground">{texts.normal}</div>
           <div className="text-center text-muted-foreground">{texts.dotted}</div>
@@ -220,8 +226,8 @@ export function DelayCalculator({
             <div key={row.note} className="grid grid-cols-4 gap-1 px-2 py-2 sm:px-4 sm:py-2.5">
               {/* Note Label */}
               <div className="flex items-center">
-                <span className="font-mono text-xs font-medium sm:text-sm">{row.note}</span>
-                <span className="ml-1.5 hidden text-xs text-muted-foreground sm:inline">
+                <span className="font-mono text-sm font-medium">{row.note}</span>
+                <span className="ml-1.5 hidden text-sm text-muted-foreground sm:inline">
                   {locale === 'ko' ? noteLabels[row.note]?.ko : noteLabels[row.note]?.en}
                 </span>
               </div>
@@ -242,10 +248,8 @@ export function DelayCalculator({
                     className="group relative flex flex-col items-center justify-center rounded-lg px-1 py-1 text-center transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-2"
                     title={`${texts.copyTip}: ${Math.round(data.ms)}ms`}
                   >
-                    <span className="font-mono text-xs font-semibold tabular-nums sm:text-sm">
-                      {msStr}
-                    </span>
-                    <span className="font-mono text-[10px] text-muted-foreground tabular-nums sm:text-xs">
+                    <span className="font-mono text-sm font-semibold tabular-nums">{msStr}</span>
+                    <span className="font-mono text-xs text-muted-foreground tabular-nums">
                       {hzStr}
                     </span>
                     {/* Copy indicator */}
