@@ -600,20 +600,27 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
         {
           title: '이 도구는',
           items: [
-            '목표 색상이 어떤 색상들로 조합되는지 보여주는 도구',
-            '색상 혼합 원리를 학습하는 데 유용',
+            '목표 색상을 여러 색상의 조합으로 분해하는 도구',
+            '구성 색상들을 비율대로 혼합하면 목표 색상이 됨',
+            '색상 혼합 원리와 RGB 이론을 학습하는 데 유용',
           ],
         },
         {
           title: '사용 방법',
-          items: ['목표 색상 선택', '구성 색상 개수(2~5) 선택', '각 색상의 비율 슬라이더로 조절'],
+          items: [
+            '목표 색상(Target Color)을 클릭하여 원하는 색상 선택',
+            '구성 색상 개수(2~5)를 선택하면 자동으로 분해됨',
+            '비율 슬라이더로 각 색상의 혼합 비율 조절 가능',
+            'Preview에서 혼합 결과가 목표 색상과 동일한지 확인',
+          ],
         },
         {
           title: '버튼 설명',
           items: [
-            'Random: 무작위 구성 색상 생성',
+            'Random: 무작위 구성 색상 생성 (목표 색상과 달라질 수 있음)',
             'Reset: 기본값으로 복원',
-            '비율 슬라이더: 색상 혼합 비율 조절',
+            '색상 칸 클릭: 해당 구성 색상 직접 변경',
+            '색상 코드 클릭: 클립보드에 복사',
           ],
         },
       ],
@@ -624,24 +631,27 @@ export const TOOL_GUIDES: Record<ToolType, LocalizedGuideContent> = {
         {
           title: 'About this tool',
           items: [
-            'Shows how a target color can be composed from other colors',
-            'Useful for learning color mixing principles',
+            'Decomposes a target color into multiple component colors',
+            'Mixing components at their ratios reproduces the target color',
+            'Useful for learning color mixing principles and RGB theory',
           ],
         },
         {
           title: 'How to use',
           items: [
-            'Select a target color',
-            'Choose component count (2-5)',
-            'Adjust ratio sliders for each color',
+            'Click Target Color to select your desired color',
+            'Choose component count (2-5) to auto-decompose',
+            'Adjust ratio sliders to change mixing proportions',
+            'Check Preview to verify the mix matches the target',
           ],
         },
         {
           title: 'Button guide',
           items: [
-            'Random: Generate random component colors',
+            'Random: Generate random colors (may differ from target)',
             'Reset: Restore defaults',
-            'Ratio slider: Adjust color mixing ratio',
+            'Click color box: Change that component color',
+            'Click color code: Copy to clipboard',
           ],
         },
       ],
