@@ -148,7 +148,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'metronome',
         slug: 'metronome',
         name: { ko: '메트로놈', en: 'Metronome' },
-        icon: '\u23F1\uFE0F',
+        icon: '◴',
         description: {
           ko: '정확한 템포 연습을 위한 메트로놈',
           en: 'Precision metronome for tempo practice',
@@ -158,14 +158,14 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'drumMachine',
         slug: 'drum-machine',
         name: { ko: '드럼머신', en: 'Drum Machine' },
-        icon: '\uD83E\uDD41',
+        icon: '⬢',
         description: { ko: '16스텝 드럼 패턴 시퀀서', en: '16-step drum pattern sequencer' },
       },
       {
         id: 'delayCalculator',
         slug: 'delay-calculator',
         name: { ko: '딜레이 계산기', en: 'Delay Calculator' },
-        icon: '\u23F1\uFE0F',
+        icon: '⧗',
         description: {
           ko: 'BPM 기반 딜레이 타임 계산',
           en: 'Calculate delay times based on BPM',
@@ -175,7 +175,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'tapTempo',
         slug: 'tap-tempo',
         name: { ko: '탭 템포', en: 'TAP Tempo' },
-        icon: '\uD83D\uDC4B',
+        icon: '◉',
         description: {
           ko: '박자에 맞춰 탭하여 BPM 감지',
           en: 'Tap to detect BPM',
@@ -194,7 +194,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'qr',
         slug: 'qr',
         name: { ko: 'QR 생성기', en: 'QR Generator' },
-        icon: '\uD83D\uDCF1',
+        icon: '⬚',
         description: {
           ko: 'URL이나 텍스트를 QR 코드로 변환',
           en: 'Convert URL or text to QR code',
@@ -204,7 +204,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'translator',
         slug: 'translator',
         name: { ko: '번역기', en: 'Translator' },
-        icon: '\uD83C\uDF10',
+        icon: '⇄',
         description: {
           ko: '한국어 ↔ 영어 알고리즘 기반 번역',
           en: 'Korean ↔ English algorithm-based translation',
@@ -214,7 +214,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'spellChecker',
         slug: 'spell-checker',
         name: { ko: '한국어 맞춤법 검사기', en: 'Korean Spell Checker' },
-        icon: '\u270F\uFE0F',
+        icon: '✎',
         description: {
           ko: '한국어 맞춤법, 띄어쓰기, 문법 검사',
           en: 'Check Korean spelling, spacing, and grammar',
@@ -224,7 +224,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'englishSpellChecker',
         slug: 'english-spell-checker',
         name: { ko: '영어 맞춤법 검사기', en: 'English Spell Checker' },
-        icon: '\uD83D\uDCD6',
+        icon: '✏',
         description: {
           ko: '영어 철자 검사 및 수정 제안',
           en: 'Check English spelling with suggestions',
@@ -234,7 +234,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'colorHarmony',
         slug: 'color-harmony',
         name: { ko: '컬러 하모니', en: 'Color Harmony' },
-        icon: '\uD83C\uDFA8',
+        icon: '🎨',
         description: {
           ko: '색상환 기반 조화로운 배색 생성',
           en: 'Generate harmonious color schemes based on color wheel',
@@ -244,7 +244,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'colorPalette',
         slug: 'color-palette',
         name: { ko: '컬러 팔레트', en: 'Color Palette' },
-        icon: '\uD83C\uDF08',
+        icon: '🌈',
         description: {
           ko: '2~5개 색상 조합 팔레트 생성',
           en: 'Create custom color palettes with 2-5 colors',
@@ -254,7 +254,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         id: 'colorDecomposer',
         slug: 'color-decomposer',
         name: { ko: '색상 분해', en: 'Color Decomposer' },
-        icon: '\uD83D\uDD0D',
+        icon: '💠',
         description: {
           ko: '색상 혼합 원리를 배우는 분해 도구',
           en: 'Learn color mixing by decomposing colors into components',
