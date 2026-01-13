@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import { ToolSidebar } from '~/components/sidebar';
 import { ToolContainer } from '~/components/tools';
-import { useToolStore } from '~/stores/tool-store';
+import { type ToolType, useToolStore } from '~/stores/tool-store';
 import { BottomNavigation } from '../home/BottomNavigation';
 import { CategorySection } from '../home/CategorySection';
 import { NewUpdatedSection } from '../home/NewUpdatedSection';
@@ -14,8 +15,23 @@ import { Header } from './Header';
 // MainLayout Component - Sound Blue Style
 // ========================================
 
-export function MainLayout() {
+interface MainLayoutProps {
+  /** Default tool to display - used for SSG to avoid flash of home screen */
+  defaultTool?: ToolType;
+}
+
+export function MainLayout({ defaultTool }: MainLayoutProps) {
   const { sidebarCollapsed, currentTool, openTool } = useToolStore();
+
+  // Sync store with defaultTool prop (for navigation and sidebar state)
+  useEffect(() => {
+    if (defaultTool && currentTool !== defaultTool) {
+      openTool(defaultTool);
+    }
+  }, [defaultTool, currentTool, openTool]);
+
+  // Use defaultTool for initial render, then sync with store
+  const activeTool = currentTool ?? defaultTool;
 
   return (
     <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
@@ -31,10 +47,10 @@ export function MainLayout() {
           sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
         } max-md:pl-0`}
       >
-        {currentTool ? (
+        {activeTool ? (
           // Tool is open - show ToolContainer
           <div className="h-[calc(100vh-var(--header-height)-16px)] max-md:h-[calc(100vh-52px-var(--bottom-nav-height)-16px)]">
-            <ToolContainer />
+            <ToolContainer tool={activeTool} />
           </div>
         ) : (
           // No tool open - show tool list (for when X button is clicked)

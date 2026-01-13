@@ -1,8 +1,6 @@
-import { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
 import { MainLayout } from '~/components/layout';
 import { getSeoMeta } from '~/lib/seo';
-import { useToolStore } from '~/stores/tool-store';
 
 export const meta: MetaFunction = ({ location }) => [
   { title: 'Color Palette - Tools' },
@@ -15,11 +13,5 @@ export const meta: MetaFunction = ({ location }) => [
 ];
 
 export default function ColorPalettePage() {
-  const { openTool } = useToolStore();
-
-  useEffect(() => {
-    openTool('colorPalette');
-  }, [openTool]);
-
-  return <MainLayout />;
+  return <MainLayout defaultTool="colorPalette" />;
 }

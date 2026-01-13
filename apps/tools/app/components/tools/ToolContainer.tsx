@@ -10,7 +10,7 @@ import m from '~/lib/messages';
 import { getToolComponent, getToolInfo } from '~/lib/toolCategories';
 import { getToolGuide } from '~/lib/toolGuides';
 import { useAudioStore } from '~/stores/audio-store';
-import { useToolStore } from '~/stores/tool-store';
+import { type ToolType, useToolStore } from '~/stores/tool-store';
 import {
   type ColorDecomposerSettings,
   defaultColorDecomposerSettings,
@@ -162,11 +162,19 @@ const URL_PARAMS = {
 // 보존해야 할 특수 파라미터 (각 도구에서 직접 관리)
 const PRESERVED_PARAMS = ['s'] as const;
 
-export function ToolContainer() {
+interface ToolContainerProps {
+  /** Tool type to render - overrides store state for SSG initial render */
+  tool?: ToolType;
+}
+
+export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const navigate = useNavigate();
   const { locale, localizedPath } = useParaglideI18n();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { currentTool, toolSettings, updateToolSettings, closeTool } = useToolStore();
+  const { currentTool: storeTool, toolSettings, updateToolSettings, closeTool } = useToolStore();
+
+  // Use prop tool if provided, otherwise fall back to store state
+  const currentTool = propTool ?? storeTool;
   const isPlaying = useAudioStore((state) => state.transport.isPlaying);
 
   const [urlCopied, setUrlCopied] = useState(false);
