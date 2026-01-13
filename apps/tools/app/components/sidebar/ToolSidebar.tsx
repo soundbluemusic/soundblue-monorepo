@@ -80,8 +80,10 @@ export function ToolSidebar() {
 
   return (
     <aside
-      className={`hidden md:flex flex-col fixed top-(--header-height) left-0 bottom-0 bg-(--color-bg-secondary) border-r border-(--color-border-primary) overflow-y-auto overflow-x-hidden z-50 transition-[width] duration-150 scrollbar-thin scrollbar-thumb-(--color-border-primary) scrollbar-track-transparent ${
-        sidebarCollapsed ? 'w-(--sidebar-collapsed-width)' : 'w-(--sidebar-width)'
+      className={`hidden md:flex flex-col fixed top-(--header-height) left-0 bottom-0 w-(--sidebar-width) bg-(--color-bg-secondary) border-r border-(--color-border-primary) overflow-y-auto overflow-x-hidden z-50 transition-transform duration-150 ease-(--ease-default) scrollbar-thin scrollbar-thumb-(--color-border-primary) scrollbar-track-transparent ${
+        sidebarCollapsed
+          ? '-translate-x-[calc(var(--sidebar-width)-var(--sidebar-collapsed-width))]'
+          : 'translate-x-0'
       }`}
     >
       <nav className="py-4" aria-label="Main navigation">
