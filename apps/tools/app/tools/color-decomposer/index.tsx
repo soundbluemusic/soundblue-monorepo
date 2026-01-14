@@ -37,52 +37,63 @@ const checkerboardStyle: React.CSSProperties = {
 };
 
 // ========================================
-// Blend Preview Component (Flower petal style with real color mixing)
+// Blend Preview Component (SVG Venn diagram with real intersections)
 // ========================================
 
 /**
- * Mix two colors with equal weights (simple average)
+ * Mix multiple colors with their opacities (subtractive mixing like paint)
  */
-function blendTwoColors(hex1: string, hex2: string, opacity1: number, opacity2: number): string {
-  const rgb1 = hexToRgb(hex1);
-  const rgb2 = hexToRgb(hex2);
-  const w1 = opacity1 / 100;
-  const w2 = opacity2 / 100;
-  const totalW = w1 + w2;
-  if (totalW === 0) return '#000000';
-  const r = Math.round((rgb1.r * w1 + rgb2.r * w2) / totalW);
-  const g = Math.round((rgb1.g * w1 + rgb2.g * w2) / totalW);
-  const b = Math.round((rgb1.b * w1 + rgb2.b * w2) / totalW);
+function blendColors(colors: { hex: string; opacity: number }[]): string {
+  if (colors.length === 0) return '#000000';
+  if (colors.length === 1) return colors[0].hex;
+
+  // Subtractive color mixing (like paint/ink)
+  // Start with white and subtract
+  let c = 1;
+  let m = 1;
+  let y = 1;
+
+  for (const color of colors) {
+    const rgb = hexToRgb(color.hex);
+    const weight = (color.opacity ?? 100) / 100;
+
+    // Convert RGB to CMY
+    const colorC = 1 - rgb.r / 255;
+    const colorM = 1 - rgb.g / 255;
+    const colorY = 1 - rgb.b / 255;
+
+    // Subtractive mixing: multiply CMY values
+    c = c * (1 - weight * (1 - colorC));
+    m = m * (1 - weight * (1 - colorM));
+    y = y * (1 - weight * (1 - colorY));
+  }
+
+  // Convert back to RGB
+  const r = Math.round((1 - c) * 255);
+  const g = Math.round((1 - m) * 255);
+  const b = Math.round((1 - y) * 255);
+
   return `#${[r, g, b].map((x) => Math.max(0, Math.min(255, x)).toString(16).padStart(2, '0')).join('')}`;
 }
 
 /**
- * Mix multiple colors with their opacities
+ * Generate all possible subsets of indices (for intersection regions)
  */
-function blendMultipleColors(colors: { hex: string; opacity: number }[]): string {
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  let totalW = 0;
-  for (const c of colors) {
-    const rgb = hexToRgb(c.hex);
-    const w = c.opacity / 100;
-    r += rgb.r * w;
-    g += rgb.g * w;
-    b += rgb.b * w;
-    totalW += w;
+function getSubsets(n: number): number[][] {
+  const result: number[][] = [];
+  for (let i = 1; i < 1 << n; i++) {
+    const subset: number[] = [];
+    for (let j = 0; j < n; j++) {
+      if (i & (1 << j)) subset.push(j);
+    }
+    result.push(subset);
   }
-  if (totalW === 0) return '#000000';
-  r = Math.round(r / totalW);
-  g = Math.round(g / totalW);
-  b = Math.round(b / totalW);
-  return `#${[r, g, b].map((x) => Math.max(0, Math.min(255, x)).toString(16).padStart(2, '0')).join('')}`;
+  // Sort by size (larger first for proper z-ordering)
+  return result.sort((a, b) => b.length - a.length);
 }
 
 const BlendPreview = memo(function BlendPreview({
   components,
-  mixedColor,
-  mixedTextColor,
   onCopy,
   copiedColor,
 }: {
@@ -93,107 +104,131 @@ const BlendPreview = memo(function BlendPreview({
   copiedColor: string | null;
 }) {
   const count = components.length;
+  const uniqueId = useMemo(() => Math.random().toString(36).slice(2, 9), []);
 
-  // Calculate center position for each petal
-  const petalPositions = useMemo(() => {
-    const centerX = 50; // %
-    const centerY = 50; // %
-    const radius = 18; // % from center
+  // SVG viewBox dimensions
+  const width = 300;
+  const height = 220;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const circleRadius = 55;
+  const spreadRadius = 45; // Distance from center to circle centers
 
-    return components.map((_, idx) => {
+  // Calculate circle centers
+  const circles = useMemo(() => {
+    return components.map((comp, idx) => {
       const angle = (360 / count) * idx - 90; // Start from top
       const rad = (angle * Math.PI) / 180;
       return {
-        x: centerX + radius * Math.cos(rad),
-        y: centerY + radius * Math.sin(rad),
+        cx: centerX + spreadRadius * Math.cos(rad),
+        cy: centerY + spreadRadius * Math.sin(rad),
+        r: circleRadius,
+        color: comp.hex,
+        opacity: (comp.opacity ?? 100) / 100,
       };
     });
-  }, [count, components.length]);
+  }, [components, count, centerX, centerY, spreadRadius, circleRadius]);
 
-  // Calculate all 2-way intersections (pairs)
-  const pairBlends = useMemo(() => {
-    const pairs: { idx1: number; idx2: number; color: string; x: number; y: number }[] = [];
-    for (let i = 0; i < count; i++) {
-      for (let j = i + 1; j < count; j++) {
-        const c1 = components[i];
-        const c2 = components[j];
-        const blended = blendTwoColors(c1.hex, c2.hex, c1.opacity ?? 100, c2.opacity ?? 100);
-        // Position: midpoint between two petals
-        const x = (petalPositions[i].x + petalPositions[j].x) / 2;
-        const y = (petalPositions[i].y + petalPositions[j].y) / 2;
-        pairs.push({ idx1: i, idx2: j, color: blended, x, y });
-      }
-    }
-    return pairs;
-  }, [components, count, petalPositions]);
+  // Generate all intersection regions with their colors
+  const regions = useMemo(() => {
+    const subsets = getSubsets(count);
+    return subsets.map((indices) => {
+      const colorsInRegion = indices.map((i) => ({
+        hex: components[i].hex,
+        opacity: components[i].opacity ?? 100,
+      }));
+      const blendedColor = blendColors(colorsInRegion);
+      return {
+        indices,
+        color: blendedColor,
+        key: indices.join('-'),
+      };
+    });
+  }, [components, count]);
 
-  // Center blend (all colors mixed)
+  // Center blend color (all colors)
   const centerBlend = useMemo(() => {
-    return blendMultipleColors(components.map((c) => ({ hex: c.hex, opacity: c.opacity ?? 100 })));
+    return blendColors(components.map((c) => ({ hex: c.hex, opacity: c.opacity ?? 100 })));
   }, [components]);
 
-  // Get text color for center
   const centerRgb = hexToRgb(centerBlend);
   const centerLuminance = (0.299 * centerRgb.r + 0.587 * centerRgb.g + 0.114 * centerRgb.b) / 255;
-  const centerTextColor = centerLuminance > 0.5 ? 'text-gray-900' : 'text-white';
+  const centerTextColor = centerLuminance > 0.5 ? '#111' : '#fff';
 
   return (
-    <div className="relative w-full h-56 bg-neutral-900 rounded-xl overflow-hidden">
-      {/* Individual petals (outer ring) */}
-      {components.map((comp, idx) => {
-        const pos = petalPositions[idx];
-        const opacity = (comp.opacity ?? 100) / 100;
-
-        return (
-          <div
-            key={`petal-${idx}`}
-            className="absolute transition-all duration-300"
-            style={{
-              backgroundColor: comp.hex,
-              opacity,
-              width: '32%',
-              height: '50%',
-              borderRadius: '50%',
-              left: `${pos.x}%`,
-              top: `${pos.y}%`,
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
-        );
-      })}
-
-      {/* 2-way blended intersections */}
-      {pairBlends.map(({ idx1, idx2, color, x, y }) => (
-        <div
-          key={`pair-${idx1}-${idx2}`}
-          className="absolute transition-all duration-300"
-          style={{
-            backgroundColor: color,
-            width: '18%',
-            height: '28%',
-            borderRadius: '50%',
-            left: `${x}%`,
-            top: `${y}%`,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      ))}
-
-      {/* Center - all colors blended */}
-      <button
-        type="button"
-        onClick={() => onCopy(centerBlend, 'blend')}
-        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                    w-20 h-20 rounded-full flex items-center justify-center
-                    text-xs font-bold shadow-lg hover:scale-105 transition-transform ${centerTextColor}`}
-        style={{ backgroundColor: centerBlend }}
+    <div className="relative w-full h-56 bg-neutral-900 rounded-xl overflow-hidden flex items-center justify-center">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full h-full"
+        style={{ maxHeight: '100%' }}
       >
-        {copiedColor === 'blend' ? (
-          <Check className="h-4 w-4" />
-        ) : (
-          <span className="text-[10px]">{centerBlend.toUpperCase()}</span>
-        )}
-      </button>
+        <defs>
+          {/* Define clip paths for each circle */}
+          {circles.map((circle, idx) => (
+            <clipPath key={`clip-${idx}`} id={`circle-${uniqueId}-${idx}`}>
+              <circle cx={circle.cx} cy={circle.cy} r={circle.r} />
+            </clipPath>
+          ))}
+        </defs>
+
+        {/* Render each region from largest intersection to smallest */}
+        {regions.map(({ indices, color, key }) => {
+          if (indices.length === 1) {
+            // Single circle - just draw it
+            const idx = indices[0];
+            const circle = circles[idx];
+            return (
+              <circle
+                key={key}
+                cx={circle.cx}
+                cy={circle.cy}
+                r={circle.r}
+                fill={circle.color}
+                opacity={circle.opacity}
+              />
+            );
+          }
+
+          // For intersections, use nested clip paths
+          // Draw a large rect clipped by all circles in the intersection
+          const firstIdx = indices[0];
+          const firstCircle = circles[firstIdx];
+
+          // Create nested group with clip paths
+          let element = (
+            <circle cx={firstCircle.cx} cy={firstCircle.cy} r={firstCircle.r * 2} fill={color} />
+          );
+
+          // Apply each clip path
+          for (let i = indices.length - 1; i >= 0; i--) {
+            const clipIdx = indices[i];
+            element = (
+              <g key={`g-${i}`} clipPath={`url(#circle-${uniqueId}-${clipIdx})`}>
+                {element}
+              </g>
+            );
+          }
+
+          return <g key={key}>{element}</g>;
+        })}
+
+        {/* Center label */}
+        <g style={{ cursor: 'pointer' }} onClick={() => onCopy(centerBlend, 'blend')}>
+          <circle cx={centerX} cy={centerY} r={24} fill={centerBlend} />
+          <text
+            x={centerX}
+            y={centerY}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill={centerTextColor}
+            fontSize="8"
+            fontWeight="bold"
+            fontFamily="monospace"
+          >
+            {copiedColor === 'blend' ? '✓' : centerBlend.toUpperCase()}
+          </text>
+        </g>
+      </svg>
     </div>
   );
 });
