@@ -414,7 +414,7 @@ export function ColorDecomposer({
   // Merge settings
   const [internalSettings, setInternalSettings] = useState(defaultColorDecomposerSettings);
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const settings = useMemo(
     () => ({ ...defaultColorDecomposerSettings, ...propSettings, ...internalSettings }),
     [propSettings, internalSettings],
