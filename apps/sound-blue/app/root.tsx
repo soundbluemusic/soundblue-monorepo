@@ -54,6 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           content="mw0M1q-2K63FX-NZCL5AetN7V6VI6cXY5ItnMXyl85A"
         />
         <meta name="naver-site-verification" content="d2e5722513ceb03e1afeac65bab53416c217ca72" />
+        <meta name="msvalidate.01" content="2555E807B2875180F8DAC1EB5D284D3D" />
         <Meta />
         <Links />
         {/* JSON-LD Structured Data for SEO */}
