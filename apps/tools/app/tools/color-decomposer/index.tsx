@@ -78,6 +78,8 @@ function blendColors(colors: { hex: string; opacity: number }[]): string {
 
 /**
  * Generate all possible subsets of indices (for intersection regions)
+ * Sorted by size: smaller first (single circles), then pairs, then larger intersections
+ * This ensures proper z-ordering: base circles first, then overlays on top
  */
 function getSubsets(n: number): number[][] {
   const result: number[][] = [];
@@ -88,8 +90,8 @@ function getSubsets(n: number): number[][] {
     }
     result.push(subset);
   }
-  // Sort by size (larger first for proper z-ordering)
-  return result.sort((a, b) => b.length - a.length);
+  // Sort by size: smaller first (base), larger last (on top)
+  return result.sort((a, b) => a.length - b.length);
 }
 
 const BlendPreview = memo(function BlendPreview({
@@ -244,7 +246,9 @@ const ComponentColorCard = memo(function ComponentColorCard({
   onColorChange,
   onRatioChange,
   onOpacityChange,
-  onLockToggle,
+  onHexLockToggle,
+  onRatioLockToggle,
+  onOpacityLockToggle,
 }: {
   component: ComponentColor;
   index: number;
@@ -252,7 +256,9 @@ const ComponentColorCard = memo(function ComponentColorCard({
   onColorChange: (index: number, hex: string) => void;
   onRatioChange: (index: number, ratio: number) => void;
   onOpacityChange: (index: number, opacity: number) => void;
-  onLockToggle: (index: number) => void;
+  onHexLockToggle: (index: number) => void;
+  onRatioLockToggle: (index: number) => void;
+  onOpacityLockToggle: (index: number) => void;
 }) {
   const [copied, setCopied] = useState(false);
   const rgb = hexToRgb(component.hex);
@@ -272,10 +278,27 @@ const ComponentColorCard = memo(function ComponentColorCard({
   const textColor = luminance > 0.5 ? 'text-gray-900' : 'text-white';
 
   const opacity = (component.opacity ?? 100) / 100;
+  const isHexLocked = component.lockedHex ?? false;
+
+  // Small lock button component for sliders
+  const LockButton = ({ locked, onClick }: { locked: boolean; onClick: () => void }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`p-0.5 rounded transition-colors ${
+        locked
+          ? 'text-primary hover:text-primary/80'
+          : 'text-muted-foreground/40 hover:text-muted-foreground'
+      }`}
+      title={locked ? texts.unlock : texts.lock}
+    >
+      {locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+    </button>
+  );
 
   return (
     <div
-      className={`rounded-xl border bg-card overflow-hidden shadow-sm ${component.locked ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`}
+      className={`rounded-xl border bg-card overflow-hidden shadow-sm ${isHexLocked ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`}
     >
       {/* Color Preview with Picker - Checkerboard shows through at low opacity */}
       <div className="relative h-20" style={checkerboardStyle}>
@@ -284,22 +307,18 @@ const ComponentColorCard = memo(function ComponentColorCard({
           className={`absolute inset-0 flex flex-col items-center justify-center ${textColor}`}
           style={{ backgroundColor: component.hex, opacity }}
         >
-          {/* Lock Button - top right (z-10 to appear above color picker label) */}
+          {/* Hex Lock Button - top right (z-10 to appear above color picker label) */}
           <button
             type="button"
-            onClick={() => onLockToggle(index)}
+            onClick={() => onHexLockToggle(index)}
             className={`absolute top-2 right-2 z-10 p-1.5 rounded-md transition-colors ${
-              component.locked
+              isHexLocked
                 ? 'bg-white/30 hover:bg-white/40'
                 : 'bg-black/10 hover:bg-black/20 opacity-50 hover:opacity-100'
             }`}
-            title={component.locked ? texts.unlock : texts.lock}
+            title={isHexLocked ? texts.unlock : texts.lock}
           >
-            {component.locked ? (
-              <Lock className="h-3.5 w-3.5" />
-            ) : (
-              <Unlock className="h-3.5 w-3.5" />
-            )}
+            {isHexLocked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
           </button>
           {/* Color Picker - covers top area */}
           <label className="absolute inset-x-0 top-0 h-12 cursor-pointer group">
@@ -314,9 +333,7 @@ const ComponentColorCard = memo(function ComponentColorCard({
               <span className="text-xs font-medium opacity-70 flex items-center gap-1">
                 <Palette className="h-2.5 w-2.5 opacity-50 group-hover:opacity-100" />
                 {texts.colorN.replace('{n}', String(index + 1))}
-                {component.locked && (
-                  <span className="text-[10px] opacity-80">({texts.locked})</span>
-                )}
+                {isHexLocked && <span className="text-[10px] opacity-80">({texts.locked})</span>}
               </span>
             </span>
           </label>
@@ -337,7 +354,13 @@ const ComponentColorCard = memo(function ComponentColorCard({
         {/* Ratio Slider */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">{texts.ratio}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-medium text-muted-foreground">{texts.ratio}</span>
+              <LockButton
+                locked={component.lockedRatio ?? false}
+                onClick={() => onRatioLockToggle(index)}
+              />
+            </div>
             <span className="text-sm font-bold tabular-nums">{component.ratio}%</span>
           </div>
           <input
@@ -352,7 +375,13 @@ const ComponentColorCard = memo(function ComponentColorCard({
         {/* Opacity Slider */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">{texts.opacity}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-medium text-muted-foreground">{texts.opacity}</span>
+              <LockButton
+                locked={component.lockedOpacity ?? false}
+                onClick={() => onOpacityLockToggle(index)}
+              />
+            </div>
             <span className="text-sm font-bold tabular-nums">{component.opacity ?? 100}%</span>
           </div>
           <input
@@ -423,9 +452,9 @@ export function ColorDecomposer({
     return mixedColor.toLowerCase() !== settings.targetColor.toLowerCase();
   }, [mixedColor, settings.targetColor]);
 
-  // Check if any colors are locked
+  // Check if any colors are locked (hex locked)
   const hasLockedColors = useMemo(() => {
-    return settings.components.slice(0, settings.size).some((comp) => comp.locked);
+    return settings.components.slice(0, settings.size).some((comp) => comp.lockedHex);
   }, [settings.components, settings.size]);
 
   // Show warning only when there's mismatch AND locked colors exist
@@ -452,9 +481,9 @@ export function ColorDecomposer({
 
   const handleComponentColorChange = useCallback(
     (index: number, hex: string) => {
-      // Update the changed color and mark it as locked
+      // Update the changed color and mark hex as locked
       const newComponents = [...settings.components];
-      newComponents[index] = { ...newComponents[index], hex, locked: true };
+      newComponents[index] = { ...newComponents[index], hex, lockedHex: true };
 
       // Recalculate unlocked colors to match target
       const recalculatedComponents = recalculateUnlockedColors(
@@ -468,13 +497,17 @@ export function ColorDecomposer({
     [handleSettingsChange, settings.components, settings.targetColor, settings.size],
   );
 
-  const handleLockToggle = useCallback(
+  // Individual lock toggles for hex, ratio, and opacity
+  const handleHexLockToggle = useCallback(
     (index: number) => {
       const newComponents = [...settings.components];
-      newComponents[index] = { ...newComponents[index], locked: !newComponents[index].locked };
+      newComponents[index] = {
+        ...newComponents[index],
+        lockedHex: !newComponents[index].lockedHex,
+      };
 
       // If unlocking, recalculate unlocked colors
-      if (!newComponents[index].locked) {
+      if (!newComponents[index].lockedHex) {
         const recalculatedComponents = recalculateUnlockedColors(
           settings.targetColor,
           newComponents,
@@ -488,6 +521,30 @@ export function ColorDecomposer({
     [handleSettingsChange, settings.components, settings.targetColor, settings.size],
   );
 
+  const handleRatioLockToggle = useCallback(
+    (index: number) => {
+      const newComponents = [...settings.components];
+      newComponents[index] = {
+        ...newComponents[index],
+        lockedRatio: !newComponents[index].lockedRatio,
+      };
+      handleSettingsChange({ components: newComponents });
+    },
+    [handleSettingsChange, settings.components],
+  );
+
+  const handleOpacityLockToggle = useCallback(
+    (index: number) => {
+      const newComponents = [...settings.components];
+      newComponents[index] = {
+        ...newComponents[index],
+        lockedOpacity: !newComponents[index].lockedOpacity,
+      };
+      handleSettingsChange({ components: newComponents });
+    },
+    [handleSettingsChange, settings.components],
+  );
+
   // Ratio change with useTransition for smooth slider interaction
   const handleRatioChange = useCallback(
     (index: number, newRatio: number) => {
@@ -496,57 +553,65 @@ export function ColorDecomposer({
         const oldRatio = currentComponents[index].ratio;
         const diff = newRatio - oldRatio;
 
-        // Distribute the difference among other components proportionally
-        const otherIndices = currentComponents.map((_, i) => i).filter((i) => i !== index);
-        const otherTotal = otherIndices.reduce((sum, i) => sum + currentComponents[i].ratio, 0);
+        // Find indices that are not ratio-locked (excluding current index)
+        const unlockedIndices = currentComponents
+          .map((comp, i) => ({ i, locked: comp.lockedRatio }))
+          .filter(({ i, locked }) => i !== index && !locked)
+          .map(({ i }) => i);
+
+        // If all others are locked, can't redistribute
+        if (unlockedIndices.length === 0) {
+          return;
+        }
+
+        const unlockedTotal = unlockedIndices.reduce(
+          (sum, i) => sum + currentComponents[i].ratio,
+          0,
+        );
 
         const newRatios = currentComponents.map((comp, i) => {
           if (i === index) {
             return newRatio;
           }
-          if (otherTotal === 0) {
-            return Math.max(5, comp.ratio - Math.floor(diff / otherIndices.length));
+          if (comp.lockedRatio) {
+            return comp.ratio; // Keep locked ratio unchanged
           }
-          const proportion = comp.ratio / otherTotal;
+          if (unlockedTotal === 0) {
+            return Math.max(5, comp.ratio - Math.floor(diff / unlockedIndices.length));
+          }
+          const proportion = comp.ratio / unlockedTotal;
           const adjustment = Math.round(diff * proportion);
           return Math.max(5, comp.ratio - adjustment);
         });
 
         // Normalize to exactly 100%
         const total = newRatios.reduce((sum, r) => sum + r, 0);
-        if (total !== 100) {
+        if (total !== 100 && unlockedIndices.length > 0) {
           const diff100 = 100 - total;
-          const maxOtherIdx = otherIndices.reduce(
+          const maxUnlockedIdx = unlockedIndices.reduce(
             (maxI, i) => (newRatios[i] > newRatios[maxI] ? i : maxI),
-            otherIndices[0],
+            unlockedIndices[0],
           );
-          if (maxOtherIdx !== undefined) {
-            newRatios[maxOtherIdx] += diff100;
+          if (maxUnlockedIdx !== undefined) {
+            newRatios[maxUnlockedIdx] += diff100;
           }
         }
 
-        // Check if any colors are locked
-        const hasLockedColors = currentComponents.some((comp) => comp.locked);
+        // Update ratios and recalculate unlocked hex colors
+        const newComponents = settings.components.map((comp, i) => {
+          if (i < settings.size) {
+            return { ...comp, ratio: newRatios[i] };
+          }
+          return comp;
+        });
 
-        if (hasLockedColors) {
-          // Keep locked colors, update ratios, recalculate unlocked
-          const newComponents = settings.components.map((comp, i) => {
-            if (i < settings.size) {
-              return { ...comp, ratio: newRatios[i] };
-            }
-            return comp;
-          });
-          const recalculatedComponents = recalculateUnlockedColors(
-            settings.targetColor,
-            newComponents,
-            settings.size,
-          );
-          handleSettingsChange({ components: recalculatedComponents });
-        } else {
-          // No locked colors - recalculate all component colors with new ratios
-          const newComponents = decomposeColor(settings.targetColor, settings.size, newRatios);
-          handleSettingsChange({ components: newComponents });
-        }
+        // Always recalculate unlocked hex colors to maintain target
+        const recalculatedComponents = recalculateUnlockedColors(
+          settings.targetColor,
+          newComponents,
+          settings.size,
+        );
+        handleSettingsChange({ components: recalculatedComponents });
       });
     },
     [handleSettingsChange, settings.targetColor, settings.size, settings.components],
@@ -556,7 +621,7 @@ export function ColorDecomposer({
   const handleOpacityChange = useCallback(
     (index: number, newOpacity: number) => {
       startTransition(() => {
-        // Update opacity and recalculate unlocked colors
+        // Update opacity
         const newComponents = settings.components.map((comp, i) => {
           if (i === index) {
             return { ...comp, opacity: newOpacity };
@@ -564,21 +629,13 @@ export function ColorDecomposer({
           return comp;
         });
 
-        // Check if any colors are locked
-        const hasLockedColors = newComponents.slice(0, settings.size).some((comp) => comp.locked);
-
-        if (hasLockedColors) {
-          // Recalculate unlocked colors to match target
-          const recalculatedComponents = recalculateUnlockedColors(
-            settings.targetColor,
-            newComponents,
-            settings.size,
-          );
-          handleSettingsChange({ components: recalculatedComponents });
-        } else {
-          // No locked colors - just update opacity, mixColors will handle normalization
-          handleSettingsChange({ components: newComponents });
-        }
+        // Always recalculate unlocked hex colors to maintain target
+        const recalculatedComponents = recalculateUnlockedColors(
+          settings.targetColor,
+          newComponents,
+          settings.size,
+        );
+        handleSettingsChange({ components: recalculatedComponents });
       });
     },
     [handleSettingsChange, settings.targetColor, settings.size, settings.components],
@@ -801,7 +858,9 @@ export function ColorDecomposer({
               onColorChange={handleComponentColorChange}
               onRatioChange={handleRatioChange}
               onOpacityChange={handleOpacityChange}
-              onLockToggle={handleLockToggle}
+              onHexLockToggle={handleHexLockToggle}
+              onRatioLockToggle={handleRatioLockToggle}
+              onOpacityLockToggle={handleOpacityLockToggle}
             />
           ))}
         </div>

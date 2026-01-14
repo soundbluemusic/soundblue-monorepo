@@ -267,6 +267,9 @@ interface RGB {
  * With multiple unlocked colors, infinite solutions exist - we find one
  * where all colors stay within 0-255 range.
  *
+ * Now supports individual locking: lockedHex, lockedRatio, lockedOpacity
+ * Only components with unlocked hex can have their color adjusted.
+ *
  * Formula: target × totalWeight = Σ(locked × ratio × opacity) + Σ(unlocked × ratio × opacity)
  * where totalWeight = Σ(ratio × opacity) for all components
  */
@@ -278,20 +281,20 @@ export function recalculateUnlockedColors(
   const target = hexToRgb(targetHex);
   const activeComponents = components.slice(0, size);
 
-  // Find locked and unlocked indices
-  const lockedIndices: number[] = [];
-  const unlockedIndices: number[] = [];
+  // Find indices where hex is locked vs unlocked
+  const lockedHexIndices: number[] = [];
+  const unlockedHexIndices: number[] = [];
 
   activeComponents.forEach((comp, idx) => {
-    if (comp.locked) {
-      lockedIndices.push(idx);
+    if (comp.lockedHex) {
+      lockedHexIndices.push(idx);
     } else {
-      unlockedIndices.push(idx);
+      unlockedHexIndices.push(idx);
     }
   });
 
-  // If no unlocked, cannot recalculate
-  if (unlockedIndices.length === 0) {
+  // If no unlocked hex, cannot recalculate colors
+  if (unlockedHexIndices.length === 0) {
     return components;
   }
 
@@ -306,9 +309,9 @@ export function recalculateUnlockedColors(
     return components;
   }
 
-  // Calculate contribution from locked colors (normalized)
+  // Calculate contribution from locked hex colors (normalized)
   const lockedContribution: RGB = { r: 0, g: 0, b: 0 };
-  for (const idx of lockedIndices) {
+  for (const idx of lockedHexIndices) {
     const comp = activeComponents[idx];
     const rgb = hexToRgb(comp.hex);
     const ratioWeight = comp.ratio / 100;
@@ -319,7 +322,7 @@ export function recalculateUnlockedColors(
     lockedContribution.b += rgb.b * weight;
   }
 
-  // Remaining that unlocked must produce: target - locked contribution
+  // Remaining that unlocked hex must produce: target - locked contribution
   const remaining: RGB = {
     r: target.r - lockedContribution.r,
     g: target.g - lockedContribution.g,
@@ -327,7 +330,7 @@ export function recalculateUnlockedColors(
   };
 
   // Get unlocked effective weights (ratio × opacity, normalized)
-  const unlockedWeights = unlockedIndices.map((idx) => {
+  const unlockedWeights = unlockedHexIndices.map((idx) => {
     const comp = activeComponents[idx];
     const ratioWeight = comp.ratio / 100;
     const opacityWeight = (comp.opacity ?? 100) / 100;
@@ -342,10 +345,10 @@ export function recalculateUnlockedColors(
   // Find exact solution where all unlocked colors are within 0-255
   const calculatedColors = findExactSolutionWithWeights(remaining, unlockedWeights);
 
-  // Apply calculated colors
+  // Apply calculated colors to unlocked hex components
   const newComponents = [...components];
-  for (let i = 0; i < unlockedIndices.length; i++) {
-    const idx = unlockedIndices[i];
+  for (let i = 0; i < unlockedHexIndices.length; i++) {
+    const idx = unlockedHexIndices[i];
     const rgb = calculatedColors[i];
     newComponents[idx] = {
       ...newComponents[idx],

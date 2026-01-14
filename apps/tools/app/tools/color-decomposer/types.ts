@@ -9,7 +9,9 @@ export interface ComponentColor {
   hex: string;
   ratio: number; // 0-100
   opacity: number; // 0-100, affects how much this color contributes to the mix
-  locked?: boolean; // If true, this color won't be auto-adjusted
+  lockedHex?: boolean; // If true, hex color won't be auto-adjusted
+  lockedRatio?: boolean; // If true, ratio won't be auto-adjusted
+  lockedOpacity?: boolean; // If true, opacity won't be auto-adjusted
 }
 
 export interface ColorDecomposerSettings {
