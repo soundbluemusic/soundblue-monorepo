@@ -1,5 +1,5 @@
 import { ArrowLeftRight, Check, Copy, Info, Share2, Trash2, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import {
   defaultTranslatorSettings,
   FORMALITY_OPTIONS,
@@ -109,6 +109,7 @@ export function Translator({
   const [isAutoFormality, setIsAutoFormality] = useState(true); // 자동 어투 감지 모드
   const prevDetectedFormality = useRef(settings.formality); // 이전 감지된 어투
   const [isMounted, setIsMounted] = useState(false); // hydration 불일치 방지
+  const [isPending, startTransition] = useTransition(); // UI 응답성 개선
 
   // Cleanup all timeouts on unmount
   useEffect(() => {
@@ -144,7 +145,7 @@ export function Translator({
     }
   }, [settings.direction, handleSettingsChange]);
 
-  // Translate function
+  // Translate function with useTransition for UI responsiveness
   const doTranslate = useCallback(() => {
     const text = inputText.trim();
     if (!text) {
@@ -152,8 +153,10 @@ export function Translator({
       return;
     }
 
-    const result = translate(text, settings.direction, { formality: settings.formality });
-    setOutputText(result);
+    startTransition(() => {
+      const result = translate(text, settings.direction, { formality: settings.formality });
+      setOutputText(result);
+    });
   }, [inputText, settings.direction, settings.formality]);
 
   // Auto-detect formality and translate with debounce
@@ -206,10 +209,12 @@ export function Translator({
 
       if (inputText.trim()) {
         // Translate immediately with new direction or formality
-        const result = translate(inputText.trim(), settings.direction, {
-          formality: settings.formality,
+        startTransition(() => {
+          const result = translate(inputText.trim(), settings.direction, {
+            formality: settings.formality,
+          });
+          setOutputText(result);
         });
-        setOutputText(result);
       }
     }
   }, [settings.direction, settings.formality, inputText]);
@@ -433,7 +438,7 @@ export function Translator({
         {/* Output area */}
         <div className="relative flex-1">
           <section
-            className="h-full w-full overflow-auto rounded-xl border border-border bg-black/[0.03] p-3 text-sm dark:bg-white/[0.03]"
+            className={`h-full w-full overflow-auto rounded-xl border border-border bg-black/[0.03] p-3 text-sm transition-opacity duration-150 dark:bg-white/[0.03] ${isPending ? 'opacity-60' : 'opacity-100'}`}
             aria-live="polite"
             aria-atomic="true"
             aria-label={settings.direction === 'ko-en' ? '번역 결과' : 'Translation result'}

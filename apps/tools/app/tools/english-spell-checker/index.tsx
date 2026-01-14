@@ -1,6 +1,6 @@
 import { useParaglideI18n } from '@soundblue/i18n';
 import { AlertTriangle, Check, Copy, Loader2, RefreshCw, RotateCcw, Sparkles } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
 import m from '~/lib/messages';
 import { getToolGuide } from '~/lib/toolGuides';
@@ -44,7 +44,7 @@ export function EnglishSpellChecker({
   const [inputText, setInputText] = useState(settings.lastInput || '');
   const [result, setResult] = useState<EnglishSpellCheckResult | null>(null);
   const [copied, setCopied] = useState(false);
-  const [isChecking, setIsChecking] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -100,11 +100,10 @@ export function EnglishSpellChecker({
   // State for check errors
   const [checkError, setCheckError] = useState<string | null>(null);
 
-  // Run spell check
+  // Run spell check with useTransition for UI responsiveness
   const handleCheck = useCallback(async () => {
     if (!inputText.trim()) return;
 
-    setIsChecking(true);
     setCheckError(null);
     try {
       const checkResult = await checkEnglishSpelling(inputText, {
@@ -114,8 +113,11 @@ export function EnglishSpellChecker({
         checkGrammar: settings.checkGrammar,
       });
 
-      setResult(checkResult);
-      handleSettingsChange({ lastInput: inputText });
+      // Use startTransition for non-urgent state updates
+      startTransition(() => {
+        setResult(checkResult);
+        handleSettingsChange({ lastInput: inputText });
+      });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to check spelling';
       setCheckError(errorMsg);
@@ -123,8 +125,6 @@ export function EnglishSpellChecker({
       if (hasSpellCheckerError()) {
         setLoadError(getSpellCheckerError()?.message || 'Dictionary error');
       }
-    } finally {
-      setIsChecking(false);
     }
   }, [inputText, settings, handleSettingsChange]);
 
@@ -326,10 +326,10 @@ export function EnglishSpellChecker({
         <button
           type="button"
           onClick={handleCheck}
-          disabled={!inputText.trim() || isChecking || isLoading}
+          disabled={!inputText.trim() || isPending || isLoading}
           className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-primary/80 bg-primary px-6 text-sm font-medium text-white shadow-lg shadow-primary/30 transition-all duration-200 hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
         >
-          {isChecking ? (
+          {isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <Sparkles className="h-4 w-4" />

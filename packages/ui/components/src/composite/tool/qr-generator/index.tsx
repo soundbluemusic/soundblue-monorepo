@@ -1,6 +1,6 @@
 import { Check, Copy, Download } from 'lucide-react';
 import QRCode from 'qrcode';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { defaultQRSettings, type QRSettings } from './settings';
 
 /** classnames 유틸리티 (tailwind-merge 대체) */
@@ -61,15 +61,18 @@ export function QRGenerator({
 
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  // Generate QR code
+  // Generate QR code with useTransition for UI responsiveness
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const generateQR = async () => {
       try {
-        setError(null);
+        startTransition(() => {
+          setError(null);
+        });
         await QRCode.toCanvas(canvas, settings.text || ' ', {
           width: settings.size,
           margin: 2,
@@ -80,12 +83,14 @@ export function QRGenerator({
           errorCorrectionLevel: settings.errorCorrection,
         });
       } catch {
-        setError(messages.generationFailed ?? 'Failed to generate QR code');
+        startTransition(() => {
+          setError(messages.generationFailed ?? 'Failed to generate QR code');
+        });
       }
     };
 
     generateQR();
-  }, [settings]);
+  }, [settings, messages.generationFailed]);
 
   const downloadQR = useCallback(() => {
     const canvas = canvasRef.current;
@@ -155,7 +160,10 @@ export function QRGenerator({
         ) : (
           <canvas
             ref={canvasRef}
-            className="rounded border [image-rendering:pixelated]"
+            className={cn(
+              'rounded border [image-rendering:pixelated] transition-opacity duration-150',
+              isPending ? 'opacity-60' : 'opacity-100',
+            )}
             style={{ width: '200px', height: '200px' }}
           />
         )}
