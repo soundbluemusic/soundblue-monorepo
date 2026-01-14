@@ -1,6 +1,6 @@
 import { useParaglideI18n } from '@soundblue/i18n';
-import { AlertTriangle, Check, Copy, RotateCcw, Sparkles } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { AlertTriangle, Check, Copy, Loader2, RotateCcw, Sparkles } from 'lucide-react';
+import { useCallback, useMemo, useState, useTransition } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
 import m from '~/lib/messages';
 import { getToolGuide } from '~/lib/toolGuides';
@@ -34,6 +34,7 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
   const [result, setResult] = useState<SpellCheckResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const handleSettingsChange = useCallback(
     (partial: Partial<SpellCheckerSettings>) => {
@@ -43,18 +44,20 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
     [onSettingsChange],
   );
 
-  // 검사 실행
+  // 검사 실행 (useTransition으로 UI 응답성 유지)
   const handleCheck = useCallback(() => {
     if (!inputText.trim()) return;
 
-    const checkResult = checkSpelling(inputText, {
-      checkSpacing: settings.checkSpacing,
-      checkTypo: settings.checkTypo,
-      checkGrammar: settings.checkGrammar,
-    });
+    startTransition(() => {
+      const checkResult = checkSpelling(inputText, {
+        checkSpacing: settings.checkSpacing,
+        checkTypo: settings.checkTypo,
+        checkGrammar: settings.checkGrammar,
+      });
 
-    setResult(checkResult);
-    handleSettingsChange({ lastInput: inputText });
+      setResult(checkResult);
+      handleSettingsChange({ lastInput: inputText });
+    });
   }, [inputText, settings, handleSettingsChange]);
 
   // 초기화
@@ -184,11 +187,17 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
         <button
           type="button"
           onClick={handleCheck}
-          disabled={!inputText.trim()}
+          disabled={!inputText.trim() || isPending}
           className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-primary/80 bg-primary px-6 text-sm font-medium text-white shadow-lg shadow-primary/30 transition-all duration-200 hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 disabled:border-muted disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
         >
-          <Sparkles className="h-4 w-4" />
-          {m['spellChecker.check']?.() ?? '검사하기'}
+          {isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
+          {isPending
+            ? (m['spellChecker.checking']?.() ?? '검사 중...')
+            : (m['spellChecker.check']?.() ?? '검사하기')}
         </button>
         <button
           type="button"

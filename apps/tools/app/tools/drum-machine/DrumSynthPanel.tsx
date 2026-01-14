@@ -1,4 +1,5 @@
 import { ChevronDown, Play, RotateCcw, Volume2 } from 'lucide-react';
+import { memo } from 'react';
 import { Slider } from '~/components/ui/slider';
 import { useAutoAnimate } from '~/hooks/useAutoAnimate';
 import { cn } from '~/lib/utils';
@@ -13,7 +14,7 @@ interface DrumSynthPanelProps {
   onPreviewSound: (drumId: DrumId) => void;
 }
 
-export function DrumSynthPanel({
+export const DrumSynthPanel = memo(function DrumSynthPanel({
   isOpen,
   onToggle,
   getSynthParams,
@@ -59,7 +60,7 @@ export function DrumSynthPanel({
       </div>
     </>
   );
-}
+});
 
 interface DrumSynthCardProps {
   drum: (typeof DRUM_SOUNDS)[number];
@@ -69,7 +70,7 @@ interface DrumSynthCardProps {
   onPreviewSound: (drumId: DrumId) => void;
 }
 
-function DrumSynthCard({
+const DrumSynthCard = memo(function DrumSynthCard({
   drum,
   params,
   onParamUpdate,
@@ -168,4 +169,4 @@ function DrumSynthCard({
       </div>
     </div>
   );
-}
+});

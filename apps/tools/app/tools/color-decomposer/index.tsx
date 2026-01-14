@@ -9,7 +9,7 @@ import {
   Shuffle,
   Unlock,
 } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState, useTransition } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
 import { getToolGuide } from '~/lib/toolGuides';
 import { colorDecomposerTexts, defaultColorDecomposerSettings } from './settings';
@@ -23,10 +23,10 @@ import {
 } from './utils';
 
 // ========================================
-// Component Color Card
+// Component Color Card (memoized for performance)
 // ========================================
 
-function ComponentColorCard({
+const ComponentColorCard = memo(function ComponentColorCard({
   component,
   index,
   texts,
@@ -145,7 +145,7 @@ function ComponentColorCard({
       </div>
     </div>
   );
-}
+});
 
 // ========================================
 // Main Component
@@ -163,6 +163,7 @@ export function ColorDecomposer({
   // Merge settings
   const [internalSettings, setInternalSettings] = useState(defaultColorDecomposerSettings);
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const settings = useMemo(
     () => ({ ...defaultColorDecomposerSettings, ...propSettings, ...internalSettings }),
     [propSettings, internalSettings],
@@ -265,92 +266,98 @@ export function ColorDecomposer({
     [handleSettingsChange, settings.components, settings.targetColor, settings.size],
   );
 
+  // Ratio change with useTransition for smooth slider interaction
   const handleRatioChange = useCallback(
     (index: number, newRatio: number) => {
-      const currentComponents = settings.components.slice(0, settings.size);
-      const oldRatio = currentComponents[index].ratio;
-      const diff = newRatio - oldRatio;
+      startTransition(() => {
+        const currentComponents = settings.components.slice(0, settings.size);
+        const oldRatio = currentComponents[index].ratio;
+        const diff = newRatio - oldRatio;
 
-      // Distribute the difference among other components proportionally
-      const otherIndices = currentComponents.map((_, i) => i).filter((i) => i !== index);
-      const otherTotal = otherIndices.reduce((sum, i) => sum + currentComponents[i].ratio, 0);
+        // Distribute the difference among other components proportionally
+        const otherIndices = currentComponents.map((_, i) => i).filter((i) => i !== index);
+        const otherTotal = otherIndices.reduce((sum, i) => sum + currentComponents[i].ratio, 0);
 
-      const newRatios = currentComponents.map((comp, i) => {
-        if (i === index) {
-          return newRatio;
-        }
-        if (otherTotal === 0) {
-          return Math.max(5, comp.ratio - Math.floor(diff / otherIndices.length));
-        }
-        const proportion = comp.ratio / otherTotal;
-        const adjustment = Math.round(diff * proportion);
-        return Math.max(5, comp.ratio - adjustment);
-      });
-
-      // Normalize to exactly 100%
-      const total = newRatios.reduce((sum, r) => sum + r, 0);
-      if (total !== 100) {
-        const diff100 = 100 - total;
-        const maxOtherIdx = otherIndices.reduce(
-          (maxI, i) => (newRatios[i] > newRatios[maxI] ? i : maxI),
-          otherIndices[0],
-        );
-        if (maxOtherIdx !== undefined) {
-          newRatios[maxOtherIdx] += diff100;
-        }
-      }
-
-      // Check if any colors are locked
-      const hasLockedColors = currentComponents.some((comp) => comp.locked);
-
-      if (hasLockedColors) {
-        // Keep locked colors, update ratios, recalculate unlocked
-        const newComponents = settings.components.map((comp, i) => {
-          if (i < settings.size) {
-            return { ...comp, ratio: newRatios[i] };
+        const newRatios = currentComponents.map((comp, i) => {
+          if (i === index) {
+            return newRatio;
           }
-          return comp;
+          if (otherTotal === 0) {
+            return Math.max(5, comp.ratio - Math.floor(diff / otherIndices.length));
+          }
+          const proportion = comp.ratio / otherTotal;
+          const adjustment = Math.round(diff * proportion);
+          return Math.max(5, comp.ratio - adjustment);
         });
-        const recalculatedComponents = recalculateUnlockedColors(
-          settings.targetColor,
-          newComponents,
-          settings.size,
-        );
-        handleSettingsChange({ components: recalculatedComponents });
-      } else {
-        // No locked colors - recalculate all component colors with new ratios
-        const newComponents = decomposeColor(settings.targetColor, settings.size, newRatios);
-        handleSettingsChange({ components: newComponents });
-      }
+
+        // Normalize to exactly 100%
+        const total = newRatios.reduce((sum, r) => sum + r, 0);
+        if (total !== 100) {
+          const diff100 = 100 - total;
+          const maxOtherIdx = otherIndices.reduce(
+            (maxI, i) => (newRatios[i] > newRatios[maxI] ? i : maxI),
+            otherIndices[0],
+          );
+          if (maxOtherIdx !== undefined) {
+            newRatios[maxOtherIdx] += diff100;
+          }
+        }
+
+        // Check if any colors are locked
+        const hasLockedColors = currentComponents.some((comp) => comp.locked);
+
+        if (hasLockedColors) {
+          // Keep locked colors, update ratios, recalculate unlocked
+          const newComponents = settings.components.map((comp, i) => {
+            if (i < settings.size) {
+              return { ...comp, ratio: newRatios[i] };
+            }
+            return comp;
+          });
+          const recalculatedComponents = recalculateUnlockedColors(
+            settings.targetColor,
+            newComponents,
+            settings.size,
+          );
+          handleSettingsChange({ components: recalculatedComponents });
+        } else {
+          // No locked colors - recalculate all component colors with new ratios
+          const newComponents = decomposeColor(settings.targetColor, settings.size, newRatios);
+          handleSettingsChange({ components: newComponents });
+        }
+      });
     },
     [handleSettingsChange, settings.targetColor, settings.size, settings.components],
   );
 
+  // Opacity change with useTransition for smooth slider interaction
   const handleOpacityChange = useCallback(
     (index: number, newOpacity: number) => {
-      // Update opacity and recalculate unlocked colors
-      const newComponents = settings.components.map((comp, i) => {
-        if (i === index) {
-          return { ...comp, opacity: newOpacity };
+      startTransition(() => {
+        // Update opacity and recalculate unlocked colors
+        const newComponents = settings.components.map((comp, i) => {
+          if (i === index) {
+            return { ...comp, opacity: newOpacity };
+          }
+          return comp;
+        });
+
+        // Check if any colors are locked
+        const hasLockedColors = newComponents.slice(0, settings.size).some((comp) => comp.locked);
+
+        if (hasLockedColors) {
+          // Recalculate unlocked colors to match target
+          const recalculatedComponents = recalculateUnlockedColors(
+            settings.targetColor,
+            newComponents,
+            settings.size,
+          );
+          handleSettingsChange({ components: recalculatedComponents });
+        } else {
+          // No locked colors - just update opacity, mixColors will handle normalization
+          handleSettingsChange({ components: newComponents });
         }
-        return comp;
       });
-
-      // Check if any colors are locked
-      const hasLockedColors = newComponents.slice(0, settings.size).some((comp) => comp.locked);
-
-      if (hasLockedColors) {
-        // Recalculate unlocked colors to match target
-        const recalculatedComponents = recalculateUnlockedColors(
-          settings.targetColor,
-          newComponents,
-          settings.size,
-        );
-        handleSettingsChange({ components: recalculatedComponents });
-      } else {
-        // No locked colors - just update opacity, mixColors will handle normalization
-        handleSettingsChange({ components: newComponents });
-      }
     },
     [handleSettingsChange, settings.targetColor, settings.size, settings.components],
   );

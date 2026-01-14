@@ -1,6 +1,6 @@
 import { useParaglideI18n } from '@soundblue/i18n';
 import { Check, Copy, RefreshCw, RotateCcw, Shuffle } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
 import { getToolGuide } from '~/lib/toolGuides';
 import {
@@ -114,10 +114,10 @@ function generateRandomColor(): string {
 }
 
 // ========================================
-// Color Card Component
+// Color Card Component (memoized for performance)
 // ========================================
 
-function ColorCard({
+const ColorCard = memo(function ColorCard({
   color,
   index,
   texts,
@@ -224,10 +224,10 @@ function ColorCard({
       </div>
     </div>
   );
-}
+});
 
 // ========================================
-// Draggable Preview Component
+// Draggable Preview Component (memoized for performance)
 // ========================================
 
 const SNAP_THRESHOLD = 15; // px - distance for snapping
@@ -242,7 +242,7 @@ interface DraggablePreviewProps {
   texts: (typeof colorPaletteTexts)['ko'] | (typeof colorPaletteTexts)['en'];
 }
 
-function DraggablePreview({
+const DraggablePreview = memo(function DraggablePreview({
   colors,
   positions,
   onPositionsChange,
@@ -530,7 +530,7 @@ function DraggablePreview({
       </div>
     </div>
   );
-}
+});
 
 // ========================================
 // Main Component

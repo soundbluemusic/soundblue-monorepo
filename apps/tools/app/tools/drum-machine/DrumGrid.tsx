@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import type { DrumId } from './settings';
 
 interface DrumGridProps {
@@ -56,7 +56,7 @@ function roundRect(
   context.closePath();
 }
 
-export function DrumGrid({
+export const DrumGrid = memo(function DrumGrid({
   pattern,
   steps,
   currentStep,
@@ -356,4 +356,4 @@ export function DrumGrid({
       </div>
     </div>
   );
-}
+});

@@ -1,4 +1,5 @@
 import { Pause, Play, RotateCcw, Timer, Volume2 } from 'lucide-react';
+import { memo } from 'react';
 import { Slider } from '~/components/ui/slider';
 import m from '~/lib/messages';
 import { cn } from '~/lib/utils';
@@ -15,7 +16,7 @@ interface DrumControlsProps {
   onVolumeChange: (volume: number) => void;
 }
 
-export function DrumControls({
+export const DrumControls = memo(function DrumControls({
   isPlaying,
   bpm,
   volume,
@@ -90,4 +91,4 @@ export function DrumControls({
       </div>
     </div>
   );
-}
+});

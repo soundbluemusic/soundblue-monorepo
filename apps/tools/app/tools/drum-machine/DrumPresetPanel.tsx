@@ -1,4 +1,5 @@
 import { ChevronDown, Music } from 'lucide-react';
+import { memo } from 'react';
 import { useAutoAnimate } from '~/hooks/useAutoAnimate';
 import { cn } from '~/lib/utils';
 import { PRESET_PATTERNS, type PresetName } from './settings';
@@ -9,7 +10,11 @@ interface DrumPresetPanelProps {
   onLoadPreset: (presetName: PresetName) => void;
 }
 
-export function DrumPresetPanel({ isOpen, onToggle, onLoadPreset }: DrumPresetPanelProps) {
+export const DrumPresetPanel = memo(function DrumPresetPanel({
+  isOpen,
+  onToggle,
+  onLoadPreset,
+}: DrumPresetPanelProps) {
   const [presetsRef] = useAutoAnimate<HTMLDivElement>({ duration: 200 });
 
   return (
@@ -48,4 +53,4 @@ export function DrumPresetPanel({ isOpen, onToggle, onLoadPreset }: DrumPresetPa
       </div>
     </>
   );
-}
+});
