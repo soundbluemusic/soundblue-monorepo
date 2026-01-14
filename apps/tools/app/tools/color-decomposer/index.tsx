@@ -23,6 +23,85 @@ import {
 } from './utils';
 
 // ========================================
+// Checkerboard pattern for transparency visualization
+// ========================================
+const checkerboardStyle: React.CSSProperties = {
+  backgroundImage: `
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%)
+  `,
+  backgroundSize: '16px 16px',
+  backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
+};
+
+// ========================================
+// Blend Preview Component (Flower petal style)
+// ========================================
+const BlendPreview = memo(function BlendPreview({
+  components,
+  mixedColor,
+  mixedTextColor,
+  onCopy,
+  copiedColor,
+}: {
+  components: ComponentColor[];
+  mixedColor: string;
+  mixedTextColor: string;
+  onCopy: (hex: string, id: string) => void;
+  copiedColor: string | null;
+}) {
+  const count = components.length;
+
+  return (
+    <div className="relative w-full h-48 bg-black rounded-xl overflow-hidden">
+      {/* Flower petal ellipses */}
+      {components.map((comp, idx) => {
+        const rotation = (360 / count) * idx;
+        const opacity = (comp.opacity ?? 100) / 100;
+
+        return (
+          <div
+            key={idx}
+            className="absolute left-1/2 top-1/2 transition-all duration-300"
+            style={{
+              backgroundColor: comp.hex,
+              opacity,
+              mixBlendMode: 'screen',
+              width: '35%',
+              height: '65%',
+              borderRadius: '50%',
+              transform: `
+                translate(-50%, -50%)
+                rotate(${rotation}deg)
+                translateY(-25%)
+              `,
+              transformOrigin: 'center center',
+            }}
+          />
+        );
+      })}
+      {/* Center mixed color indicator */}
+      <button
+        type="button"
+        onClick={() => onCopy(mixedColor, 'blend')}
+        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+                    w-16 h-16 rounded-full flex items-center justify-center
+                    text-xs font-bold shadow-lg hover:scale-105 transition-transform ${mixedTextColor}`}
+        style={{ backgroundColor: mixedColor }}
+      >
+        {copiedColor === 'blend' ? (
+          <Check className="h-4 w-4" />
+        ) : (
+          <span className="text-[10px]">{mixedColor.toUpperCase()}</span>
+        )}
+      </button>
+    </div>
+  );
+});
+
+// ========================================
 // Component Color Card (memoized for performance)
 // ========================================
 
@@ -60,54 +139,65 @@ const ComponentColorCard = memo(function ComponentColorCard({
   const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
   const textColor = luminance > 0.5 ? 'text-gray-900' : 'text-white';
 
+  const opacity = (component.opacity ?? 100) / 100;
+
   return (
     <div
       className={`rounded-xl border bg-card overflow-hidden shadow-sm ${component.locked ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`}
     >
-      {/* Color Preview with Picker */}
-      <div
-        className={`relative h-20 flex flex-col items-center justify-center ${textColor}`}
-        style={{ backgroundColor: component.hex }}
-      >
-        {/* Lock Button - top right (z-10 to appear above color picker label) */}
-        <button
-          type="button"
-          onClick={() => onLockToggle(index)}
-          className={`absolute top-2 right-2 z-10 p-1.5 rounded-md transition-colors ${
-            component.locked
-              ? 'bg-white/30 hover:bg-white/40'
-              : 'bg-black/10 hover:bg-black/20 opacity-50 hover:opacity-100'
-          }`}
-          title={component.locked ? texts.unlock : texts.lock}
+      {/* Color Preview with Picker - Checkerboard shows through at low opacity */}
+      <div className="relative h-20" style={checkerboardStyle}>
+        {/* Color overlay with actual opacity */}
+        <div
+          className={`absolute inset-0 flex flex-col items-center justify-center ${textColor}`}
+          style={{ backgroundColor: component.hex, opacity }}
         >
-          {component.locked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
-        </button>
-        {/* Color Picker - covers top area */}
-        <label className="absolute inset-x-0 top-0 h-12 cursor-pointer group">
-          <input
-            type="color"
-            value={component.hex}
-            onChange={(e) => onColorChange(index, e.target.value)}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            title={texts.colorN.replace('{n}', String(index + 1))}
-          />
-          <span className="flex flex-col items-center mt-1.5">
-            <span className="text-xs font-medium opacity-70 flex items-center gap-1">
-              <Palette className="h-2.5 w-2.5 opacity-50 group-hover:opacity-100" />
-              {texts.colorN.replace('{n}', String(index + 1))}
-              {component.locked && <span className="text-[10px] opacity-80">({texts.locked})</span>}
+          {/* Lock Button - top right (z-10 to appear above color picker label) */}
+          <button
+            type="button"
+            onClick={() => onLockToggle(index)}
+            className={`absolute top-2 right-2 z-10 p-1.5 rounded-md transition-colors ${
+              component.locked
+                ? 'bg-white/30 hover:bg-white/40'
+                : 'bg-black/10 hover:bg-black/20 opacity-50 hover:opacity-100'
+            }`}
+            title={component.locked ? texts.unlock : texts.lock}
+          >
+            {component.locked ? (
+              <Lock className="h-3.5 w-3.5" />
+            ) : (
+              <Unlock className="h-3.5 w-3.5" />
+            )}
+          </button>
+          {/* Color Picker - covers top area */}
+          <label className="absolute inset-x-0 top-0 h-12 cursor-pointer group">
+            <input
+              type="color"
+              value={component.hex}
+              onChange={(e) => onColorChange(index, e.target.value)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              title={texts.colorN.replace('{n}', String(index + 1))}
+            />
+            <span className="flex flex-col items-center mt-1.5">
+              <span className="text-xs font-medium opacity-70 flex items-center gap-1">
+                <Palette className="h-2.5 w-2.5 opacity-50 group-hover:opacity-100" />
+                {texts.colorN.replace('{n}', String(index + 1))}
+                {component.locked && (
+                  <span className="text-[10px] opacity-80">({texts.locked})</span>
+                )}
+              </span>
             </span>
-          </span>
-        </label>
-        {/* Copy Button - separate clickable area */}
-        <button
-          type="button"
-          onClick={copyToClipboard}
-          className="absolute bottom-2 text-sm font-bold flex items-center gap-1 px-2 py-1 rounded hover:bg-black/10 transition-colors"
-        >
-          {component.hex.toUpperCase()}
-          {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3 opacity-50" />}
-        </button>
+          </label>
+          {/* Copy Button - separate clickable area */}
+          <button
+            type="button"
+            onClick={copyToClipboard}
+            className="absolute bottom-2 text-sm font-bold flex items-center gap-1 px-2 py-1 rounded hover:bg-black/10 transition-colors"
+          >
+            {component.hex.toUpperCase()}
+            {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3 opacity-50" />}
+          </button>
+        </div>
       </div>
 
       {/* Sliders */}
@@ -465,38 +555,78 @@ export function ColorDecomposer({
           showMismatchWarning ? 'border-red-500 dark:border-red-400' : 'border-border'
         }`}
       >
-        <h3 className="text-sm font-medium text-foreground mb-3">{texts.preview}</h3>
-        <div className="flex items-center gap-2 h-16">
-          {/* Component colors strip */}
-          <div className="flex-1 flex h-full rounded-l-xl overflow-hidden">
-            {activeComponents.map((comp, idx) => (
-              <div
-                key={idx}
-                className="h-full transition-all duration-200"
-                style={{
-                  backgroundColor: comp.hex,
-                  width: `${comp.ratio}%`,
-                }}
-              />
-            ))}
+        {/* Header with mode toggle */}
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium text-foreground">{texts.preview}</h3>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              onClick={() => handleSettingsChange({ previewMode: 'strip' })}
+              className={`px-2 py-1 text-xs font-medium rounded-l-md transition-colors ${
+                settings.previewMode === 'strip'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {texts.previewModeStrip}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSettingsChange({ previewMode: 'blend' })}
+              className={`px-2 py-1 text-xs font-medium rounded-r-md transition-colors ${
+                settings.previewMode === 'blend'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {texts.previewModeBlend}
+            </button>
           </div>
-          {/* Arrow */}
-          <div className="text-muted-foreground text-xl px-2">→</div>
-          {/* Mixed result */}
-          <button
-            type="button"
-            onClick={() => copyColor(mixedColor, 'preview')}
-            className={`w-24 h-full rounded-r-xl flex items-center justify-center gap-1 hover:opacity-90 transition-opacity ${mixedTextColor}`}
-            style={{ backgroundColor: mixedColor }}
-          >
-            <span className="text-xs font-bold">{mixedColor.toUpperCase()}</span>
-            {copiedColor === 'preview' ? (
-              <Check className="h-3 w-3" />
-            ) : (
-              <Copy className="h-3 w-3 opacity-50" />
-            )}
-          </button>
         </div>
+
+        {/* Preview content based on mode */}
+        {settings.previewMode === 'strip' ? (
+          <div className="flex items-center gap-2 h-16">
+            {/* Component colors strip */}
+            <div className="flex-1 flex h-full rounded-l-xl overflow-hidden">
+              {activeComponents.map((comp, idx) => (
+                <div
+                  key={idx}
+                  className="h-full transition-all duration-200"
+                  style={{
+                    backgroundColor: comp.hex,
+                    width: `${comp.ratio}%`,
+                    opacity: (comp.opacity ?? 100) / 100,
+                  }}
+                />
+              ))}
+            </div>
+            {/* Arrow */}
+            <div className="text-muted-foreground text-xl px-2">→</div>
+            {/* Mixed result */}
+            <button
+              type="button"
+              onClick={() => copyColor(mixedColor, 'preview')}
+              className={`w-24 h-full rounded-r-xl flex items-center justify-center gap-1 hover:opacity-90 transition-opacity ${mixedTextColor}`}
+              style={{ backgroundColor: mixedColor }}
+            >
+              <span className="text-xs font-bold">{mixedColor.toUpperCase()}</span>
+              {copiedColor === 'preview' ? (
+                <Check className="h-3 w-3" />
+              ) : (
+                <Copy className="h-3 w-3 opacity-50" />
+              )}
+            </button>
+          </div>
+        ) : (
+          <BlendPreview
+            components={activeComponents}
+            mixedColor={mixedColor}
+            mixedTextColor={mixedTextColor}
+            onCopy={copyColor}
+            copiedColor={copiedColor}
+          />
+        )}
 
         {/* Mismatch Warning */}
         {showMismatchWarning && (

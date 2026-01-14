@@ -3,6 +3,7 @@
  */
 
 export type DecomposeSize = 2 | 3 | 4 | 5;
+export type PreviewMode = 'strip' | 'blend';
 
 export interface ComponentColor {
   hex: string;
@@ -15,6 +16,7 @@ export interface ColorDecomposerSettings {
   targetColor: string; // Target color HEX
   size: DecomposeSize; // Number of component colors
   components: ComponentColor[]; // Component colors with ratios
+  previewMode: PreviewMode; // Preview display mode
 }
 
 export interface ColorDecomposerProps {

@@ -14,6 +14,7 @@ export const defaultColorDecomposerSettings: ColorDecomposerSettings = {
   targetColor: DEFAULT_TARGET_COLOR,
   size: DEFAULT_SIZE,
   components: decomposeColor(DEFAULT_TARGET_COLOR, DEFAULT_SIZE),
+  previewMode: 'strip',
 };
 
 export const colorDecomposerTexts = {
@@ -37,6 +38,8 @@ export const colorDecomposerTexts = {
     locked: '고정됨',
     mismatchWarning: '고정된 색상으로는 목표 색상을 만들 수 없습니다',
     unlockAll: '모두 해제',
+    previewModeStrip: '스트립',
+    previewModeBlend: '블렌드',
   },
   en: {
     title: 'Color Decomposer',
@@ -58,6 +61,8 @@ export const colorDecomposerTexts = {
     locked: 'Locked',
     mismatchWarning: 'Cannot achieve target color with locked colors',
     unlockAll: 'Unlock All',
+    previewModeStrip: 'Strip',
+    previewModeBlend: 'Blend',
   },
 } as const;
 
