@@ -37,8 +37,48 @@ const checkerboardStyle: React.CSSProperties = {
 };
 
 // ========================================
-// Blend Preview Component (Flower petal style)
+// Blend Preview Component (Flower petal style with real color mixing)
 // ========================================
+
+/**
+ * Mix two colors with equal weights (simple average)
+ */
+function blendTwoColors(hex1: string, hex2: string, opacity1: number, opacity2: number): string {
+  const rgb1 = hexToRgb(hex1);
+  const rgb2 = hexToRgb(hex2);
+  const w1 = opacity1 / 100;
+  const w2 = opacity2 / 100;
+  const totalW = w1 + w2;
+  if (totalW === 0) return '#000000';
+  const r = Math.round((rgb1.r * w1 + rgb2.r * w2) / totalW);
+  const g = Math.round((rgb1.g * w1 + rgb2.g * w2) / totalW);
+  const b = Math.round((rgb1.b * w1 + rgb2.b * w2) / totalW);
+  return `#${[r, g, b].map((x) => Math.max(0, Math.min(255, x)).toString(16).padStart(2, '0')).join('')}`;
+}
+
+/**
+ * Mix multiple colors with their opacities
+ */
+function blendMultipleColors(colors: { hex: string; opacity: number }[]): string {
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let totalW = 0;
+  for (const c of colors) {
+    const rgb = hexToRgb(c.hex);
+    const w = c.opacity / 100;
+    r += rgb.r * w;
+    g += rgb.g * w;
+    b += rgb.b * w;
+    totalW += w;
+  }
+  if (totalW === 0) return '#000000';
+  r = Math.round(r / totalW);
+  g = Math.round(g / totalW);
+  b = Math.round(b / totalW);
+  return `#${[r, g, b].map((x) => Math.max(0, Math.min(255, x)).toString(16).padStart(2, '0')).join('')}`;
+}
+
 const BlendPreview = memo(function BlendPreview({
   components,
   mixedColor,
@@ -54,47 +94,104 @@ const BlendPreview = memo(function BlendPreview({
 }) {
   const count = components.length;
 
+  // Calculate center position for each petal
+  const petalPositions = useMemo(() => {
+    const centerX = 50; // %
+    const centerY = 50; // %
+    const radius = 18; // % from center
+
+    return components.map((_, idx) => {
+      const angle = (360 / count) * idx - 90; // Start from top
+      const rad = (angle * Math.PI) / 180;
+      return {
+        x: centerX + radius * Math.cos(rad),
+        y: centerY + radius * Math.sin(rad),
+      };
+    });
+  }, [count, components.length]);
+
+  // Calculate all 2-way intersections (pairs)
+  const pairBlends = useMemo(() => {
+    const pairs: { idx1: number; idx2: number; color: string; x: number; y: number }[] = [];
+    for (let i = 0; i < count; i++) {
+      for (let j = i + 1; j < count; j++) {
+        const c1 = components[i];
+        const c2 = components[j];
+        const blended = blendTwoColors(c1.hex, c2.hex, c1.opacity ?? 100, c2.opacity ?? 100);
+        // Position: midpoint between two petals
+        const x = (petalPositions[i].x + petalPositions[j].x) / 2;
+        const y = (petalPositions[i].y + petalPositions[j].y) / 2;
+        pairs.push({ idx1: i, idx2: j, color: blended, x, y });
+      }
+    }
+    return pairs;
+  }, [components, count, petalPositions]);
+
+  // Center blend (all colors mixed)
+  const centerBlend = useMemo(() => {
+    return blendMultipleColors(components.map((c) => ({ hex: c.hex, opacity: c.opacity ?? 100 })));
+  }, [components]);
+
+  // Get text color for center
+  const centerRgb = hexToRgb(centerBlend);
+  const centerLuminance = (0.299 * centerRgb.r + 0.587 * centerRgb.g + 0.114 * centerRgb.b) / 255;
+  const centerTextColor = centerLuminance > 0.5 ? 'text-gray-900' : 'text-white';
+
   return (
-    <div className="relative w-full h-48 bg-black rounded-xl overflow-hidden">
-      {/* Flower petal ellipses */}
+    <div className="relative w-full h-56 bg-neutral-900 rounded-xl overflow-hidden">
+      {/* Individual petals (outer ring) */}
       {components.map((comp, idx) => {
-        const rotation = (360 / count) * idx;
+        const pos = petalPositions[idx];
         const opacity = (comp.opacity ?? 100) / 100;
 
         return (
           <div
-            key={idx}
-            className="absolute left-1/2 top-1/2 transition-all duration-300"
+            key={`petal-${idx}`}
+            className="absolute transition-all duration-300"
             style={{
               backgroundColor: comp.hex,
               opacity,
-              mixBlendMode: 'screen',
-              width: '35%',
-              height: '65%',
+              width: '32%',
+              height: '50%',
               borderRadius: '50%',
-              transform: `
-                translate(-50%, -50%)
-                rotate(${rotation}deg)
-                translateY(-25%)
-              `,
-              transformOrigin: 'center center',
+              left: `${pos.x}%`,
+              top: `${pos.y}%`,
+              transform: 'translate(-50%, -50%)',
             }}
           />
         );
       })}
-      {/* Center mixed color indicator */}
+
+      {/* 2-way blended intersections */}
+      {pairBlends.map(({ idx1, idx2, color, x, y }) => (
+        <div
+          key={`pair-${idx1}-${idx2}`}
+          className="absolute transition-all duration-300"
+          style={{
+            backgroundColor: color,
+            width: '18%',
+            height: '28%',
+            borderRadius: '50%',
+            left: `${x}%`,
+            top: `${y}%`,
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+      ))}
+
+      {/* Center - all colors blended */}
       <button
         type="button"
-        onClick={() => onCopy(mixedColor, 'blend')}
+        onClick={() => onCopy(centerBlend, 'blend')}
         className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                    w-16 h-16 rounded-full flex items-center justify-center
-                    text-xs font-bold shadow-lg hover:scale-105 transition-transform ${mixedTextColor}`}
-        style={{ backgroundColor: mixedColor }}
+                    w-20 h-20 rounded-full flex items-center justify-center
+                    text-xs font-bold shadow-lg hover:scale-105 transition-transform ${centerTextColor}`}
+        style={{ backgroundColor: centerBlend }}
       >
         {copiedColor === 'blend' ? (
           <Check className="h-4 w-4" />
         ) : (
-          <span className="text-[10px]">{mixedColor.toUpperCase()}</span>
+          <span className="text-[10px]">{centerBlend.toUpperCase()}</span>
         )}
       </button>
     </div>
