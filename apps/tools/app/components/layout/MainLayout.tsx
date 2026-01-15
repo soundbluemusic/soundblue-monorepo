@@ -44,7 +44,7 @@ export function MainLayout({ defaultTool }: MainLayoutProps) {
       {/* Main Content Area */}
       <main
         className={`pt-[var(--header-height)] pb-4 transition-[margin-left] duration-150 ease-[var(--ease-default)] max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
-          sidebarCollapsed ? 'ml-[var(--sidebar-collapsed-width)]' : 'ml-[var(--sidebar-width)]'
+          sidebarCollapsed ? 'ml-0' : 'ml-[var(--sidebar-width)]'
         } max-md:ml-0`}
       >
         {activeTool ? (

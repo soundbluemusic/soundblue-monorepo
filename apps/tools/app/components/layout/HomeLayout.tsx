@@ -107,9 +107,9 @@ export function HomeLayout() {
 
       {/* Main Content Area */}
       <main
-        className={`pt-[var(--header-height)] pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
-          sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
-        } max-md:pl-0`}
+        className={`pt-[var(--header-height)] pb-4 transition-[margin-left] duration-150 ease-[var(--ease-default)] max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
+          sidebarCollapsed ? 'ml-0' : 'ml-[var(--sidebar-width)]'
+        } max-md:ml-0`}
       >
         <div className="w-full max-w-4xl mx-auto px-4 py-6">
           {/* Search Bar */}

@@ -25,9 +25,9 @@ export default function About() {
       <ToolSidebar />
 
       <main
-        className={`flex min-h-screen flex-col items-center justify-center p-6 pt-[var(--header-height)] pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
-          sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
-        } max-md:pl-0`}
+        className={`flex min-h-screen flex-col items-center justify-center p-6 pt-[var(--header-height)] pb-4 transition-[margin-left] duration-150 ease-[var(--ease-default)] max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
+          sidebarCollapsed ? 'ml-0' : 'ml-[var(--sidebar-width)]'
+        } max-md:ml-0`}
       >
         <div className="max-w-md text-center">
           <blockquote className="mb-12 text-2xl font-light leading-relaxed tracking-tight text-foreground sm:text-3xl">

@@ -50,9 +50,9 @@ export default function Sitemap() {
       <ToolSidebar />
 
       <main
-        className={`flex-1 p-4 pt-[var(--header-height)] pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:pr-8 sm:pb-8 sm:pt-[var(--header-height)] ${
-          sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
-        } max-md:pl-0`}
+        className={`flex-1 p-4 pt-[var(--header-height)] pb-4 transition-[margin-left] duration-150 ease-[var(--ease-default)] max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:pr-8 sm:pb-8 sm:pt-[var(--header-height)] ${
+          sidebarCollapsed ? 'ml-0' : 'ml-[var(--sidebar-width)]'
+        } max-md:ml-0`}
       >
         <div className="mx-auto max-w-3xl">
           {/* 타이틀 섹션 */}
