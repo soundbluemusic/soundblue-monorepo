@@ -80,7 +80,7 @@ export function ToolSidebar() {
 
   return (
     <aside
-      className={`hidden md:flex flex-col fixed top-(--header-height) left-0 bottom-0 w-(--sidebar-width) bg-(--color-bg-secondary) border-r border-(--color-border-primary) overflow-y-auto overflow-x-hidden z-50 transition-transform duration-150 ease-(--ease-default) scrollbar-thin scrollbar-thumb-(--color-border-primary) scrollbar-track-transparent ${
+      className={`hidden md:flex flex-col fixed top-[var(--header-height)] left-0 bottom-0 w-[var(--sidebar-width)] bg-[var(--color-bg-secondary)] border-r border-[var(--color-border-primary)] overflow-y-auto overflow-x-hidden z-50 transition-transform duration-150 ease-[var(--ease-default)] scrollbar-thin scrollbar-thumb-[var(--color-border-primary)] scrollbar-track-transparent ${
         sidebarCollapsed
           ? '-translate-x-[calc(var(--sidebar-width)-var(--sidebar-collapsed-width))]'
           : 'translate-x-0'
@@ -97,12 +97,12 @@ export function ToolSidebar() {
                   prefetch="intent"
                   end={item.path === localizedPath('/')}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-medium no-underline transition-all duration-150 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 ${
+                    `flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-medium no-underline transition-all duration-150 focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2 ${
                       sidebarCollapsed ? 'justify-center' : ''
                     } ${
                       isActive
-                        ? 'bg-(--color-accent-light) text-(--color-accent-primary)'
-                        : 'text-(--color-text-secondary) hover:bg-(--color-interactive-hover) hover:text-(--color-text-primary)'
+                        ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)]'
+                        : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-text-primary)]'
                     }`
                   }
                   title={sidebarCollapsed ? item.label : undefined}

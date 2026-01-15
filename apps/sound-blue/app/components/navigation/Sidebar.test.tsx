@@ -129,15 +129,15 @@ describe('Sidebar', () => {
     it('현재 경로와 일치하는 링크에 accent 색상', () => {
       renderWithRouter(<Sidebar isOpen={true} />);
       const homeLink = screen.getByText('Home').closest('a');
-      expect(homeLink?.className).toContain('text-(--color-accent-primary)');
-      expect(homeLink?.className).toContain('bg-(--color-accent-light)');
+      expect(homeLink?.className).toContain('text-[var(--color-accent-primary)]');
+      expect(homeLink?.className).toContain('bg-[var(--color-accent-light)]');
     });
 
     it('비활성 링크는 muted 색상', () => {
       renderWithRouter(<Sidebar isOpen={true} />);
       const aboutLink = screen.getByText('About').closest('a');
-      expect(aboutLink?.className).toContain('text-(--color-text-secondary)');
-      expect(aboutLink?.className).not.toContain('text-(--color-accent-primary)');
+      expect(aboutLink?.className).toContain('text-[var(--color-text-secondary)]');
+      expect(aboutLink?.className).not.toContain('text-[var(--color-accent-primary)]');
     });
   });
 

@@ -74,14 +74,14 @@ function ChevronRight() {
 
 function LibraryItem({ item }: { item: OpenSourceItem }) {
   return (
-    <li className="border-b border-border last:border-b-0">
+    <li className="border-b border-[var(--color-border-primary)] last:border-b-0">
       <a
         href={item.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-between py-4 px-4 hover:bg-surface-secondary/50 transition-colors"
+        className="flex items-center justify-between py-4 px-4 hover:bg-[var(--color-interactive-hover)] transition-colors"
       >
-        <span className="font-medium text-content">{item.name}</span>
+        <span className="font-medium text-[var(--color-text-primary)]">{item.name}</span>
         <ChevronRight />
       </a>
     </li>
@@ -97,7 +97,7 @@ export default function BuiltWith() {
           <button
             type="button"
             onClick={() => window.history.back()}
-            className="p-2 rounded-lg hover:bg-surface-secondary transition-colors"
+            className="p-2 rounded-lg hover:bg-[var(--color-interactive-hover)] transition-colors"
             aria-label="Close"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -108,10 +108,10 @@ export default function BuiltWith() {
 
         {Object.entries(openSourceLibraries).map(([category, items]) => (
           <section key={category} className="mb-6">
-            <h2 className="text-sm font-semibold text-content-muted uppercase tracking-wider mb-2 px-2">
+            <h2 className="text-sm font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider mb-2 px-2">
               {sectionTitles[category]}
             </h2>
-            <ul className="bg-surface rounded-lg border border-border">
+            <ul className="bg-[var(--color-bg-secondary)] rounded-lg border border-[var(--color-border-primary)]">
               {items.map((item) => (
                 <LibraryItem key={item.name} item={item} />
               ))}

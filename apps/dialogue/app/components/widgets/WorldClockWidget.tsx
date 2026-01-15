@@ -146,12 +146,12 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
           <div key={city.id} className="flex flex-col items-center gap-1">
             <span className={isCompact ? 'text-base' : 'text-lg'}>{city.flag}</span>
             <span
-              className={`font-light tabular-nums text-(--color-text-primary) ${isCompact ? 'text-2xl' : 'text-4xl'}`}
+              className={`font-light tabular-nums text-[var(--color-text-primary)] ${isCompact ? 'text-2xl' : 'text-4xl'}`}
               suppressHydrationWarning
             >
               {getHour(city.timezone)}
             </span>
-            <span className="text-xs text-(--color-text-tertiary)">{city.city[locale]}</span>
+            <span className="text-xs text-[var(--color-text-tertiary)]">{city.city[locale]}</span>
           </div>
         ))}
       </div>
@@ -159,7 +159,7 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
       {/* 공통 분:초 - 크게 표시 */}
       <div className="flex items-baseline gap-1">
         <span
-          className={`font-extralight tabular-nums tracking-tight text-(--color-accent-primary) ${isCompact ? 'text-4xl' : 'text-6xl'}`}
+          className={`font-extralight tabular-nums tracking-tight text-[var(--color-accent-primary)] ${isCompact ? 'text-4xl' : 'text-6xl'}`}
           suppressHydrationWarning
         >
           {`:${getMinuteSecond()}`}
@@ -168,7 +168,7 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
 
       {/* 날짜 정보 */}
       <div
-        className={`text-(--color-text-tertiary) ${isCompact ? 'flex flex-col items-center gap-1 text-xs' : 'flex gap-4 text-sm'}`}
+        className={`text-[var(--color-text-tertiary)] ${isCompact ? 'flex flex-col items-center gap-1 text-xs' : 'flex gap-4 text-sm'}`}
       >
         {CITIES.map((city) => (
           <span key={city.id} suppressHydrationWarning>
@@ -178,13 +178,13 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
       </div>
 
       {/* 구분선 */}
-      <div className="w-full max-w-sm h-px bg-(--color-border-primary)" />
+      <div className="w-full max-w-sm h-px bg-[var(--color-border-primary)]" />
 
       {/* 미니 캘린더 */}
       <div className="flex flex-col items-center gap-2">
         {/* 년월 표시 */}
         <div
-          className={`font-medium text-(--color-text-primary) ${isCompact ? 'text-base' : 'text-lg'}`}
+          className={`font-medium text-[var(--color-text-primary)] ${isCompact ? 'text-base' : 'text-lg'}`}
         >
           {locale === 'ko'
             ? `${currentDate.year}년 ${monthNames.ko[currentDate.month]}`
@@ -193,7 +193,7 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
 
         {/* 요일 헤더 */}
         <div
-          className={`grid grid-cols-7 text-center text-xs text-(--color-text-tertiary) ${isCompact ? 'gap-0.5' : 'gap-1'}`}
+          className={`grid grid-cols-7 text-center text-xs text-[var(--color-text-tertiary)] ${isCompact ? 'gap-0.5' : 'gap-1'}`}
         >
           {weekdayNames[locale].map((day) => (
             <div
@@ -212,9 +212,9 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
               key={day ?? `empty-${index}`}
               className={`flex items-center justify-center rounded-full transition-colors ${isCompact ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-sm'} ${
                 day === currentDate.day
-                  ? 'bg-(--color-accent-primary) text-white font-semibold'
+                  ? 'bg-[var(--color-accent-primary)] text-white font-semibold'
                   : day
-                    ? 'text-(--color-text-primary) hover:bg-(--color-bg-tertiary)'
+                    ? 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]'
                     : ''
               }`}
             >

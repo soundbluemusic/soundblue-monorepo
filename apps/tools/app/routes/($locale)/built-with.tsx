@@ -107,12 +107,12 @@ export default function BuiltWith() {
   const { sidebarCollapsed } = useToolStore();
 
   return (
-    <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <Header />
       <ToolSidebar />
 
       <main
-        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:pr-8 sm:pb-8 sm:pt-(--header-height) ${
+        className={`flex-1 p-4 pt-[var(--header-height)] pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:pr-8 sm:pb-8 sm:pt-[var(--header-height)] ${
           sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
         } max-md:pl-0`}
       >

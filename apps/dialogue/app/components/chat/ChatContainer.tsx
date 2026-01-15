@@ -340,7 +340,7 @@ export function ChatContainer() {
   if (!isHydrated) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="animate-pulse text-(--color-text-tertiary)">{m['app.thinking']()}</div>
+        <div className="animate-pulse text-[var(--color-text-tertiary)]">{m['app.thinking']()}</div>
       </div>
     );
   }
@@ -348,10 +348,10 @@ export function ChatContainer() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-(--color-border-primary)">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--color-border-primary)]">
         <div>
           <h1 className="text-xl font-semibold">{m['app.title']()}</h1>
-          <p className="text-sm text-(--color-text-tertiary)">{m['app.subtitle']()}</p>
+          <p className="text-sm text-[var(--color-text-tertiary)]">{m['app.subtitle']()}</p>
         </div>
         <div className="flex items-center gap-2">
           {ghostMode && (
@@ -362,7 +362,7 @@ export function ChatContainer() {
           <button
             type="button"
             onClick={handleNewChat}
-            className="px-4 py-1 text-sm bg-(--color-bg-tertiary) border-none rounded-lg cursor-pointer transition-colors duration-150 hover:bg-(--color-bg-elevated) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+            className="px-4 py-1 text-sm bg-[var(--color-bg-tertiary)] border-none rounded-lg cursor-pointer transition-colors duration-150 hover:bg-[var(--color-bg-elevated)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
           >
             {m['app.newChat']()}
           </button>
@@ -376,10 +376,10 @@ export function ChatContainer() {
         ))}
         {isThinking && (
           <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center shrink-0 text-sm font-medium text-(--color-text-secondary)">
+            <div className="w-8 h-8 rounded-full bg-[var(--color-bg-tertiary)] flex items-center justify-center shrink-0 text-sm font-medium text-[var(--color-text-secondary)]">
               D
             </div>
-            <div className="px-4 py-2 bg-(--color-bg-tertiary) rounded-2xl rounded-bl-md">
+            <div className="px-4 py-2 bg-[var(--color-bg-tertiary)] rounded-2xl rounded-bl-md">
               <span className="animate-pulse">{m['app.thinking']()}</span>
             </div>
           </div>
@@ -388,7 +388,7 @@ export function ChatContainer() {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-(--color-border-primary)">
+      <div className="p-4 border-t border-[var(--color-border-primary)]">
         <ChatInput onSend={handleSend} disabled={isThinking} />
       </div>
     </div>

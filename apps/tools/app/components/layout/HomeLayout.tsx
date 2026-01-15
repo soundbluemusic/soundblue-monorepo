@@ -98,7 +98,7 @@ export function HomeLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       {/* Fixed Header */}
       <Header />
 
@@ -107,7 +107,7 @@ export function HomeLayout() {
 
       {/* Main Content Area */}
       <main
-        className={`pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
+        className={`pt-[var(--header-height)] pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
           sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
         } max-md:pl-0`}
       >
@@ -115,7 +115,7 @@ export function HomeLayout() {
           {/* Search Bar */}
           <div className="relative mb-6">
             <svg
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-text-tertiary)"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-tertiary)]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -134,7 +134,7 @@ export function HomeLayout() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchKeyDown}
-              className="w-full h-12 pl-12 pr-4 bg-(--color-bg-secondary) border border-(--color-border-primary) rounded-xl text-sm text-(--color-text-primary) placeholder:text-(--color-text-tertiary) focus:ring-2 focus:ring-(--color-accent-primary)/30 focus:border-(--color-accent-primary)/30 outline-none transition-all"
+              className="w-full h-12 pl-12 pr-4 bg-[var(--color-bg-secondary)] border border-[var(--color-border-primary)] rounded-xl text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:ring-2 focus:ring-[var(--color-accent-primary)]/30 focus:border-[var(--color-accent-primary)]/30 outline-none transition-all"
             />
           </div>
 
@@ -143,7 +143,7 @@ export function HomeLayout() {
             // Search Results View
             <div className="space-y-3">
               {searchResults.length === 0 ? (
-                <p className="text-center text-(--color-text-secondary) py-8">
+                <p className="text-center text-[var(--color-text-secondary)] py-8">
                   {locale === 'ko' ? '검색 결과가 없습니다.' : 'No results found.'}
                 </p>
               ) : (
@@ -160,23 +160,25 @@ export function HomeLayout() {
                       }
                       setSearchQuery('');
                     }}
-                    className="w-full text-left p-4 rounded-xl bg-(--color-bg-secondary) border border-(--color-border-primary) hover:bg-(--color-interactive-hover) active:scale-[0.99] transition-all"
+                    className="w-full text-left p-4 rounded-xl bg-[var(--color-bg-secondary)] border border-[var(--color-border-primary)] hover:bg-[var(--color-interactive-hover)] active:scale-[0.99] transition-all"
                   >
                     {result.type === 'tool' ? (
                       <div>
-                        <div className="font-medium text-(--color-text-primary)">
+                        <div className="font-medium text-[var(--color-text-primary)]">
                           {result.data.name[locale]}
                         </div>
-                        <div className="text-sm text-(--color-text-secondary) mt-0.5">
+                        <div className="text-sm text-[var(--color-text-secondary)] mt-0.5">
                           {result.data.description[locale]}
                         </div>
                       </div>
                     ) : (
                       <div>
-                        <div className="font-medium text-(--color-text-primary) capitalize">
+                        <div className="font-medium text-[var(--color-text-primary)] capitalize">
                           {result.data.key}
                         </div>
-                        <div className="text-sm text-(--color-text-secondary) mt-0.5">Page</div>
+                        <div className="text-sm text-[var(--color-text-secondary)] mt-0.5">
+                          Page
+                        </div>
                       </div>
                     )}
                   </button>

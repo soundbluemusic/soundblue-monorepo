@@ -67,12 +67,12 @@ function ToolErrorFallback({ error, onRetry }: { error: Error; onRetry: () => vo
     <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
       <AlertTriangle className="size-12 text-amber-500" />
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-(--color-text-primary)">
+        <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
           {isChunkError
             ? (m['tools.loadError_network']?.() ?? 'Network Error')
             : (m['tools.loadError_title']?.() ?? 'Failed to load tool')}
         </h3>
-        <p className="text-sm text-(--color-text-secondary) max-w-md">
+        <p className="text-sm text-[var(--color-text-secondary)] max-w-md">
           {isChunkError
             ? (m['tools.loadError_networkDesc']?.() ??
               'Please check your internet connection and try again.')
@@ -741,12 +741,12 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   }
 
   return (
-    <div className="flex h-full flex-col bg-(--color-bg-primary)">
+    <div className="flex h-full flex-col bg-[var(--color-bg-primary)]">
       {/* Tool Header */}
-      <div className="flex items-center justify-between border-b border-(--color-border-primary) bg-(--color-bg-secondary) px-4 py-3">
+      <div className="flex items-center justify-between border-b border-[var(--color-border-primary)] bg-[var(--color-bg-secondary)] px-4 py-3">
         <div className="flex items-center gap-3">
           <span className="text-xl">{toolInfo?.icon}</span>
-          <h2 className="text-base font-semibold text-(--color-text-primary)">
+          <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
             {toolInfo?.name[locale]}
           </h2>
         </div>
@@ -755,12 +755,12 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
           <button
             type="button"
             onClick={copyShareUrl}
-            className={`inline-flex items-center gap-1.5 px-2.5 h-9 rounded-lg border-none bg-transparent cursor-pointer transition-colors duration-150 hover:bg-(--color-interactive-hover) text-sm font-medium ${
+            className={`inline-flex items-center gap-1.5 px-2.5 h-9 rounded-lg border-none bg-transparent cursor-pointer transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] text-sm font-medium ${
               urlCopyFailed
                 ? 'text-red-500 dark:text-red-400'
                 : urlCopied
-                  ? 'text-(--color-accent-primary)'
-                  : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
+                  ? 'text-[var(--color-accent-primary)]'
+                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
             aria-label={m['tools.shareUrl']?.()}
           >
@@ -793,7 +793,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
           <button
             type="button"
             onClick={handleClose}
-            className="inline-flex items-center justify-center w-9 h-9 rounded-lg border-none bg-transparent text-(--color-text-secondary) cursor-pointer transition-colors duration-150 hover:bg-(--color-interactive-hover) hover:text-(--color-text-primary)"
+            className="inline-flex items-center justify-center w-9 h-9 rounded-lg border-none bg-transparent text-[var(--color-text-secondary)] cursor-pointer transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-text-primary)]"
             aria-label={m['tools.closeTool']?.()}
           >
             <svg

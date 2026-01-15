@@ -6,17 +6,28 @@ import { createTestMetaArgs, findMetaDescription, findMetaTitle } from '~/test/t
 import Sitemap, { meta } from './($locale)/sitemap';
 
 // Mock dependencies
-vi.mock('@soundblue/ui-components/base', () => ({
+vi.mock('@soundblue/i18n', () => ({
   useParaglideI18n: () => ({
     locale: 'en',
     localizedPath: (path: string) => path,
     toggleLanguage: vi.fn(),
   }),
+}));
+
+vi.mock('@soundblue/ui-components/base', () => ({
   useTheme: () => ({
     resolvedTheme: 'light',
     toggleTheme: vi.fn(),
   }),
   cn: ((...classes) => classes.filter(Boolean).join(' ')) as CnFunction,
+}));
+
+vi.mock('@soundblue/ui-components/composite', () => ({
+  ServiceMenu: () => (
+    <button type="button" data-testid="service-menu" aria-label="Open services menu">
+      Services
+    </button>
+  ),
 }));
 
 vi.mock('react-router', async () => {
@@ -39,6 +50,7 @@ vi.mock('~/lib/messages', () => ({
     'sitemap.sections.main': () => 'Main Pages',
     'sitemap.sections.content': () => 'Content',
     'sitemap.sections.legal': () => 'Legal',
+    'sitemap.sections.other': () => 'Other',
     'sitemap.links.home': () => 'Home',
     'sitemap.links.news': () => 'News',
     'sitemap.links.blog': () => 'Blog',
@@ -46,6 +58,7 @@ vi.mock('~/lib/messages', () => ({
     'sitemap.links.privacy': () => 'Privacy Policy',
     'sitemap.links.terms': () => 'Terms of Service',
     'sitemap.links.license': () => 'License',
+    'sitemap.xml': () => 'sitemap.xml',
     'nav.about': () => 'About',
     'accessibility.skipToContent': () => 'Skip to content',
     'accessibility.mainContent': () => 'Main content',
@@ -177,7 +190,7 @@ describe('Sitemap Route', () => {
     it('모든 링크에 올바른 스타일', () => {
       renderWithRouter(<Sitemap />);
       const homeLink = screen.getByText('Home').closest('a');
-      expect(homeLink?.className).toContain('text-(--color-link)');
+      expect(homeLink?.className).toContain('text-[var(--color-link)]');
       expect(homeLink?.className).toContain('hover:underline');
     });
   });

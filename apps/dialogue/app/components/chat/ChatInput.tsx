@@ -46,13 +46,13 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
         placeholder={m['app.placeholder']()}
         disabled={disabled}
         rows={1}
-        className="flex-1 p-4 bg-(--color-bg-tertiary) border border-(--color-border-primary) rounded-xl resize-none font-inherit text-base transition-all duration-150 focus:outline-none focus:border-(--color-accent-primary) focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-(--color-text-tertiary)"
+        className="flex-1 p-4 bg-[var(--color-bg-tertiary)] border border-[var(--color-border-primary)] rounded-xl resize-none font-inherit text-base transition-all duration-150 focus:outline-none focus:border-[var(--color-accent-primary)] focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-[var(--color-text-tertiary)]"
       />
       <button
         type="button"
         onClick={handleSend}
         disabled={disabled || !input.trim()}
-        className="p-4 bg-(--color-accent-primary) text-white border-none rounded-xl font-inherit text-base cursor-pointer transition-colors duration-150 hover:bg-(--color-accent-secondary) disabled:opacity-50 disabled:cursor-not-allowed focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+        className="p-4 bg-[var(--color-accent-primary)] text-white border-none rounded-xl font-inherit text-base cursor-pointer transition-colors duration-150 hover:bg-[var(--color-accent-secondary)] disabled:opacity-50 disabled:cursor-not-allowed focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
       >
         {m['app.send']()}
       </button>

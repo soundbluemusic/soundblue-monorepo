@@ -20,12 +20,12 @@ export default function About() {
   const { sidebarCollapsed } = useToolStore();
 
   return (
-    <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <Header />
       <ToolSidebar />
 
       <main
-        className={`flex min-h-screen flex-col items-center justify-center p-6 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
+        className={`flex min-h-screen flex-col items-center justify-center p-6 pt-[var(--header-height)] pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
           sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
         } max-md:pl-0`}
       >

@@ -23,7 +23,7 @@ export function CSSParticles() {
       {particles.map(([top, left, size, delay], index) => (
         <div
           key={index}
-          className="absolute rounded-full bg-(--color-accent-primary) opacity-30 animate-float motion-reduce:animate-none motion-reduce:opacity-20"
+          className="absolute rounded-full bg-[var(--color-accent-primary)] opacity-30 animate-float motion-reduce:animate-none motion-reduce:opacity-20"
           style={{
             top: `${top}%`,
             left: `${left}%`,

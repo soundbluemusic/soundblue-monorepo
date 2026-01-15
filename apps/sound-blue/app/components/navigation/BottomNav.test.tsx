@@ -197,13 +197,13 @@ describe('BottomNav', () => {
     it('현재 경로와 일치하는 item에 accent 색상', () => {
       renderWithRouter(<BottomNav />);
       const homeLink = screen.getByText('Home').closest('a');
-      expect(homeLink?.className).toContain('text-(--color-accent-primary)');
+      expect(homeLink?.className).toContain('text-[var(--color-accent-primary)]');
     });
 
     it('비활성 item은 muted 색상', () => {
       renderWithRouter(<BottomNav />);
       const aboutLink = screen.getByText('About').closest('a');
-      expect(aboutLink?.className).toContain('text-(--color-text-secondary)');
+      expect(aboutLink?.className).toContain('text-[var(--color-text-secondary)]');
     });
   });
 

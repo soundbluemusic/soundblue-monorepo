@@ -13,7 +13,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
 
   return (
     <aside
-      className={`view-transition-sidebar fixed top-(--header-height) left-0 bottom-0 w-(--sidebar-width) bg-(--color-bg-secondary) border-r border-(--color-border-primary) overflow-y-auto overflow-x-hidden z-50 transition-transform duration-150 ease-(--ease-default) max-md:hidden scrollbar-thin scrollbar-thumb-(--color-border-primary) scrollbar-track-transparent ${
+      className={`view-transition-sidebar fixed top-[var(--header-height)] left-0 bottom-0 w-[var(--sidebar-width)] bg-[var(--color-bg-secondary)] border-r border-[var(--color-border-primary)] overflow-y-auto overflow-x-hidden z-50 transition-transform duration-150 ease-[var(--ease-default)] max-md:hidden scrollbar-thin scrollbar-thumb-[var(--color-border-primary)] scrollbar-track-transparent ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -27,10 +27,10 @@ export function Sidebar({ isOpen }: SidebarProps) {
                 <Link
                   to={localizedPath(item.path)}
                   prefetch="intent"
-                  className={`flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-medium no-underline transition-all duration-150 ease-(--ease-default) focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 ${
+                  className={`flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-medium no-underline transition-all duration-150 ease-[var(--ease-default)] focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2 ${
                     isActive
-                      ? 'bg-(--color-accent-light) text-(--color-accent-primary)'
-                      : 'text-(--color-text-secondary) hover:bg-(--color-interactive-hover) hover:text-(--color-text-primary)'
+                      ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)]'
+                      : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-text-primary)]'
                   }`}
                 >
                   <span className="flex items-center justify-center w-5 h-5 shrink-0 [&>svg]:w-full [&>svg]:h-full">
@@ -46,7 +46,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
 
           {/* Divider */}
           <li className="mx-3 my-2" aria-hidden="true">
-            <div className="h-px bg-(--color-border-primary)" />
+            <div className="h-px bg-[var(--color-border-primary)]" />
           </li>
 
           {/* External Links Section */}
@@ -54,7 +54,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
             <li key={item.url} className="mb-1 px-3">
               <a
                 href={item.url}
-                className="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-medium no-underline text-(--color-text-secondary) transition-all duration-150 ease-(--ease-default) hover:bg-(--color-interactive-hover) hover:text-(--color-text-primary) focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2"
+                className="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-medium no-underline text-[var(--color-text-secondary)] transition-all duration-150 ease-[var(--ease-default)] hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2"
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -95,13 +95,13 @@ describe('BuiltWith Route', () => {
     it('meta 함수가 올바른 title 반환', () => {
       const metaResult = meta(createTestMetaArgs()) as MetaDescriptor[];
       const titleMeta = findMetaTitle(metaResult);
-      expect(titleMeta?.title).toBe('Built With | Sound Blue');
+      expect(titleMeta?.title).toBe('Open Source Licenses | Sound Blue');
     });
 
     it('meta 함수가 올바른 description 반환', () => {
       const metaResult = meta(createTestMetaArgs()) as MetaDescriptor[];
       const descMeta = findMetaDescription(metaResult);
-      expect(descMeta?.content).toBe('Technologies used to build Sound Blue website.');
+      expect(descMeta?.content).toBe('Open source libraries used to build Sound Blue website.');
     });
   });
 
@@ -113,7 +113,7 @@ describe('BuiltWith Route', () => {
 
     it('타이틀 렌더링', () => {
       renderWithRouter(<BuiltWith />);
-      const title = screen.getByRole('heading', { level: 1, name: 'Built With' });
+      const title = screen.getByRole('heading', { level: 1, name: 'Open Source Licenses' });
       expect(title.tagName).toBe('H1');
     });
 
@@ -121,7 +121,7 @@ describe('BuiltWith Route', () => {
       renderWithRouter(<BuiltWith />);
       // Note: sectionTitles are hardcoded in component, not from messages
       expect(screen.getByText('Framework & Language')).toBeInTheDocument();
-      expect(screen.getByText('Deployment')).toBeInTheDocument();
+      expect(screen.getByText('Build Tools')).toBeInTheDocument();
     });
 
     it('프레임워크 목록 렌더링', () => {
@@ -132,10 +132,10 @@ describe('BuiltWith Route', () => {
       expect(screen.getByText('Tailwind CSS')).toBeInTheDocument();
     });
 
-    it('배포 정보 렌더링', () => {
+    it('빌드 도구 렌더링', () => {
       renderWithRouter(<BuiltWith />);
-      expect(screen.getByText('Cloudflare Pages')).toBeInTheDocument();
-      expect(screen.getByText('100% SSG')).toBeInTheDocument();
+      expect(screen.getByText('Vite')).toBeInTheDocument();
+      expect(screen.getByText('pnpm')).toBeInTheDocument();
     });
   });
 
@@ -157,7 +157,7 @@ describe('BuiltWith Route', () => {
     it('섹션 타이틀 스타일', () => {
       renderWithRouter(<BuiltWith />);
       const sectionTitle = screen.getByText('Framework & Language');
-      expect(sectionTitle.className).toContain('text-xl');
+      expect(sectionTitle.className).toContain('text-sm');
       expect(sectionTitle.className).toContain('font-semibold');
     });
   });
@@ -171,7 +171,7 @@ describe('BuiltWith Route', () => {
       renderWithRouter(<BuiltWith />);
       expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
       expect(screen.getByText('React')).toBeInTheDocument();
-      expect(screen.getByText('Cloudflare Pages')).toBeInTheDocument();
+      expect(screen.getByText('Vite')).toBeInTheDocument();
     });
   });
 });

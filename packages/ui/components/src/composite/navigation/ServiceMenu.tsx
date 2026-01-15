@@ -119,7 +119,7 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
         ref={buttonRef}
         type="button"
         onClick={handleToggle}
-        className="inline-flex items-center justify-center min-w-11 min-h-11 w-10 h-10 p-0 rounded-xl text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-interactive-hover) active:bg-(--color-interactive-active) transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 max-md:w-9 max-md:h-9"
+        className="inline-flex items-center justify-center min-w-11 min-h-11 w-10 h-10 p-0 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] active:bg-[var(--color-interactive-active)] transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2 max-md:w-9 max-md:h-9"
         title={labels.ariaLabel}
         aria-label={labels.ariaLabel}
         aria-expanded={isOpen}
@@ -131,12 +131,12 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-2 min-w-[180px] py-2 bg-(--color-bg-primary) border border-(--color-border-primary) rounded-xl shadow-lg z-[200]"
+          className="absolute right-0 top-full mt-2 min-w-[180px] py-2 bg-[var(--color-bg-primary)] border border-[var(--color-border-primary)] rounded-xl shadow-lg z-[200]"
           role="menu"
           aria-orientation="vertical"
         >
           {/* Services Header */}
-          <div className="px-3 py-2 text-xs font-semibold text-(--color-text-tertiary) uppercase tracking-wider">
+          <div className="px-3 py-2 text-xs font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider">
             {labels.services}
           </div>
 
@@ -151,8 +151,8 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
                 rel="noopener noreferrer"
                 className={`flex items-center gap-3 px-3 py-2.5 text-sm no-underline transition-colors duration-150 ${
                   isCurrent
-                    ? 'text-(--color-accent-primary) bg-(--color-accent-light)'
-                    : 'text-(--color-text-primary) hover:bg-(--color-interactive-hover)'
+                    ? 'text-[var(--color-accent-primary)] bg-[var(--color-accent-light)]'
+                    : 'text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)]'
                 }`}
                 role="menuitem"
                 aria-current={isCurrent ? 'page' : undefined}
@@ -167,10 +167,10 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
           })}
 
           {/* Divider */}
-          <div className="my-2 border-t border-(--color-border-primary)" />
+          <div className="my-2 border-t border-[var(--color-border-primary)]" />
 
           {/* Social Header */}
-          <div className="px-3 py-2 text-xs font-semibold text-(--color-text-tertiary) uppercase tracking-wider">
+          <div className="px-3 py-2 text-xs font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider">
             {labels.social}
           </div>
 
@@ -183,7 +183,7 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-3 py-2.5 text-sm no-underline text-(--color-text-primary) hover:bg-(--color-interactive-hover) transition-colors duration-150"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm no-underline text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] transition-colors duration-150"
                 role="menuitem"
                 onClick={handleClose}
               >

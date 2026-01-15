@@ -48,7 +48,7 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-70 bg-black/50 transition-opacity duration-250 ${
+        className={`fixed inset-0 z-[70] bg-black/50 transition-opacity duration-250 ${
           isOpen ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={onClose}
@@ -62,7 +62,7 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
 
       {/* Sheet */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-70 bg-(--color-bg-secondary) rounded-t-2xl shadow-(--shadow-lg) transition-transform duration-300 ease-out pb-[env(safe-area-inset-bottom)] ${
+        className={`fixed bottom-0 left-0 right-0 z-[70] bg-[var(--color-bg-secondary)] rounded-t-2xl shadow-[var(--shadow-lg)] transition-transform duration-300 ease-out pb-[env(safe-area-inset-bottom)] ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
         role="dialog"
@@ -76,13 +76,13 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-10 h-1 bg-(--color-border-primary) rounded-full" />
+          <div className="w-10 h-1 bg-[var(--color-border-primary)] rounded-full" />
         </div>
 
         {/* Title */}
         {title && (
           <div className="px-4 pb-2">
-            <h2 className="text-lg font-semibold text-(--color-text-primary) m-0">{title}</h2>
+            <h2 className="text-lg font-semibold text-[var(--color-text-primary)] m-0">{title}</h2>
           </div>
         )}
 
