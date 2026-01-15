@@ -923,6 +923,19 @@ h6 {
   container-name: content;
 }
 
+/* ========================================
+   Layout Transition Classes
+   Sound Blue compatible - smooth sidebar animation
+   ======================================== */
+
+.sidebar-transition {
+  transition: transform var(--transition-fast) var(--ease-default);
+}
+
+.main-content-transition {
+  transition: margin-left var(--transition-fast) var(--ease-default);
+}
+
 /* Card that adapts to container */
 @container content (min-width: 300px) {
   .adaptive-card {

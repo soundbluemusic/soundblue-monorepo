@@ -80,7 +80,7 @@ export function ToolSidebar() {
 
   return (
     <aside
-      className={`flex flex-col fixed top-[var(--header-height)] left-0 bottom-0 w-[var(--sidebar-width)] bg-[var(--color-bg-secondary)] border-r border-[var(--color-border-primary)] overflow-y-auto overflow-x-hidden z-50 transition-transform duration-150 ease-[var(--ease-default)] max-md:hidden scrollbar-thin scrollbar-thumb-[var(--color-border-primary)] scrollbar-track-transparent ${
+      className={`sidebar-transition flex flex-col fixed top-[var(--header-height)] left-0 bottom-0 w-[var(--sidebar-width)] bg-[var(--color-bg-secondary)] border-r border-[var(--color-border-primary)] overflow-y-auto overflow-x-hidden z-50 max-md:hidden scrollbar-thin scrollbar-thumb-[var(--color-border-primary)] scrollbar-track-transparent ${
         sidebarCollapsed ? '-translate-x-full' : 'translate-x-0'
       }`}
     >
