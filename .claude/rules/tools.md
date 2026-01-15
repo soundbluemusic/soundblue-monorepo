@@ -116,6 +116,63 @@ export function ToolName({ ... }: ToolNameProps) {
 - [ ] `routes.ts` - TOOL_PAGES 배열
 - [ ] `react-router.config.ts` - BASE_PATHS 배열
 
+## 레이아웃 트랜지션 규칙 (CRITICAL)
+
+> **사이드바/메인 콘텐츠 애니메이션은 반드시 CSS 클래스 사용**
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              ⚠️ Tailwind 임의값 대신 CSS 클래스 사용 ⚠️                         ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ❌ 금지 (Tailwind 임의값 - 애니메이션 작동 안 함):                              ║
+║  • transition-transform duration-150 ease-[var(--ease-default)]              ║
+║  • transition-[margin-left] duration-150                                     ║
+║                                                                              ║
+║  ✅ 필수 (CSS 클래스 - 안정적 작동):                                            ║
+║  • .sidebar-transition (사이드바용)                                           ║
+║  • .main-content-transition (메인 콘텐츠용)                                   ║
+║                                                                              ║
+║  📍 원인:                                                                     ║
+║  • Tailwind 임의값이 복잡한 앱에서 CSS 변수와 함께 사용 시 불안정                  ║
+║  • 실제 CSS 클래스가 브라우저에서 더 안정적으로 트랜지션 처리                       ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+### CSS 클래스 정의 (app.css)
+
+```css
+/* apps/tools/app/app.css */
+
+.sidebar-transition {
+  transition: transform var(--transition-fast) var(--ease-default);
+}
+
+.main-content-transition {
+  transition: margin-left var(--transition-fast) var(--ease-default);
+}
+```
+
+### 사용 예시
+
+```tsx
+// ToolSidebar.tsx - 사이드바
+<aside className={`sidebar-transition ... ${collapsed ? '-translate-x-full' : 'translate-x-0'}`}>
+
+// MainLayout.tsx - 메인 콘텐츠
+<main className={`main-content-transition ... ${collapsed ? 'ml-0' : 'ml-[var(--sidebar-width)]'}`}>
+```
+
+### 추가 주의사항
+
+| 항목 | 설명 |
+|------|------|
+| `hidden` vs `max-md:hidden` | `hidden`은 `display: none`으로 애니메이션 차단. `max-md:hidden` 사용 |
+| 헤더 패딩 | 동적 패딩 대신 고정 패딩 사용 (Sound Blue와 동일하게) |
+
+---
+
 ## 관련 파일
 
 | 파일 | 역할 |
@@ -124,3 +181,7 @@ export function ToolName({ ... }: ToolNameProps) {
 | `components/tools/ToolGuide.tsx` | 가이드 렌더링 컴포넌트 |
 | `components/tools/ToolContainer.tsx` | 도구 컨테이너 (설정 관리) |
 | `lib/toolCategories.ts` | 도구 메타데이터 & 카테고리 |
+| `app.css` | 레이아웃 트랜지션 CSS 클래스 |
+| `components/sidebar/ToolSidebar.tsx` | 사이드바 컴포넌트 |
+| `components/layout/MainLayout.tsx` | 메인 레이아웃 |
+| `components/layout/HomeLayout.tsx` | 홈 레이아웃 |
