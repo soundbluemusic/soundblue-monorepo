@@ -250,14 +250,21 @@ soundblue-monorepo/
 
 ---
 
-## ⚠️ SSG Only Policy (SSG 전용 정책)
+## ⚠️ SSG Only Policy - SPA 금지 (SEO 필수)
 
 > 📄 **Full documentation:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                         ⚠️ SSG ONLY - CRITICAL RULE ⚠️                        ║
+║                    🚨 SPA 금지 - SEO 치명적 영향 🚨                             ║
+║                    🚨 NO SPA - CRITICAL SEO IMPACT 🚨                         ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  SPA 모드는 SEO에 치명적 (SPA mode is critically harmful to SEO):             ║
+║  • 초기 HTML이 비어있어 크롤러가 콘텐츠를 인식 못함                               ║
+║  • Google도 JS 렌더링 큐를 별도로 거쳐 색인이 지연됨                             ║
+║  • Bing, Naver 등은 JS 렌더링 지원이 제한적/불가                                ║
+║  • 메타태그가 크롤링 시점에 없어 SNS 공유 미리보기 실패                           ║
 ║                                                                              ║
 ║  ❌ NEVER enable these modes:                                                ║
 ║     • SPA mode (removing prerender)                                          ║
@@ -268,6 +275,11 @@ soundblue-monorepo/
 ║     • ssr: false                                                             ║
 ║     • prerender() with all routes listed                                     ║
 ║     • Dual implementation for browser APIs                                   ║
+║                                                                              ║
+║  🔍 SPA 발견 시 즉시 수정:                                                     ║
+║     1. react-router.config.ts에서 prerender() 함수 확인                       ║
+║     2. 없으면 모든 라우트를 반환하는 prerender() 추가                            ║
+║     3. ssr: false 확인                                                       ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
