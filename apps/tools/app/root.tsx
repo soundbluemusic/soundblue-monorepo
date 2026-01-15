@@ -17,6 +17,20 @@ import m from '~/lib/messages';
 import { setLocale } from '~/paraglide/runtime';
 import './app.css';
 
+/**
+ * Safely set locale for both SSR and client
+ */
+function safeSetLocale(locale: 'en' | 'ko') {
+  try {
+    if (typeof setLocale === 'function') {
+      setLocale(locale);
+    }
+  } catch (error: unknown) {
+    // Ignore errors during SSR/prerendering
+    console.debug('setLocale error (expected during SSR):', error);
+  }
+}
+
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
@@ -91,7 +105,7 @@ function AppContent() {
   // Sync Paraglide locale with URL
   useEffect(() => {
     const locale = getLocaleFromPath(location.pathname);
-    setLocale(locale);
+    safeSetLocale(locale);
   }, [location.pathname]);
 
   return (
@@ -112,7 +126,7 @@ export function ErrorBoundary() {
 
   // Sync Paraglide locale with URL
   const locale = getLocaleFromPath(location.pathname);
-  setLocale(locale);
+  safeSetLocale(locale);
 
   let message = 'Oops!';
   let details = 'An unexpected error occurred.';
