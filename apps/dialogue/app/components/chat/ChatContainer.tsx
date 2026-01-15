@@ -244,7 +244,7 @@ export function ChatContainer() {
           // Clear local messages and reset count only on success
           setLocalMessages([]);
           setUserMessageCount(0);
-        } catch (error) {
+        } catch (error: unknown) {
           // On failure, keep messages in local state and continue in ghost mode
           console.warn('Auto-save failed, keeping messages in ghost mode:', error);
           setLocalMessages((prev) => [...prev, userMessage]);

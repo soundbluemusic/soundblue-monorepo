@@ -114,7 +114,7 @@ export class EngineLoader {
       this.loadingState.loaded++;
       this.loadingState.inProgress.delete(chunkId);
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       if (import.meta.env.DEV) console.error(`Failed to load chunk: ${chunkId}`, error);
       this.loadingState.failed.push(chunkId);
       this.loadingState.inProgress.delete(chunkId);
@@ -396,8 +396,8 @@ export class StreamingChunkLoader {
       const data = await chunk.loader();
       this.engine.loadKoToEnDictionary(data);
       return true;
-    } catch (error) {
-      this.options.onError(chunk.id, error as Error);
+    } catch (error: unknown) {
+      this.options.onError(chunk.id, error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   }

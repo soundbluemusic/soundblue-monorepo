@@ -447,7 +447,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
       setUrlCopyFailed(false);
       if (urlCopiedTimeoutRef.current) clearTimeout(urlCopiedTimeoutRef.current);
       urlCopiedTimeoutRef.current = setTimeout(() => setUrlCopied(false), 2000);
-    } catch (error) {
+    } catch (error: unknown) {
       // Clipboard API failed - show error feedback to user
       console.warn('[clipboard] URL copy failed:', error);
       setUrlCopyFailed(true);

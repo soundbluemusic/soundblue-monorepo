@@ -54,7 +54,7 @@ export function EnglishSpellChecker({
       setLoadError(null);
       try {
         await preloadSpellChecker();
-      } catch (error) {
+      } catch (error: unknown) {
         const errorMsg = error instanceof Error ? error.message : 'Failed to load dictionary';
         setLoadError(errorMsg);
       }
@@ -83,7 +83,7 @@ export function EnglishSpellChecker({
     resetSpellChecker();
     try {
       await preloadSpellChecker();
-    } catch (error) {
+    } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to load dictionary';
       setLoadError(errorMsg);
     }
@@ -118,7 +118,7 @@ export function EnglishSpellChecker({
         setResult(checkResult);
         handleSettingsChange({ lastInput: inputText });
       });
-    } catch (error) {
+    } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to check spelling';
       setCheckError(errorMsg);
       // Also update load error if it's a dictionary loading issue

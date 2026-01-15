@@ -103,7 +103,7 @@ async function initSpellChecker(): Promise<void> {
 
       // Create spell checker with text content
       spellChecker = nspell(affText, dicText);
-    } catch (error) {
+    } catch (error: unknown) {
       loadError = error instanceof Error ? error : new Error('Failed to initialize spell checker');
       loadPromise = null;
       throw loadError;
@@ -585,7 +585,7 @@ export async function checkWord(word: string): Promise<{
 export async function preloadSpellChecker(): Promise<void> {
   try {
     await initSpellChecker();
-  } catch (error) {
+  } catch (error: unknown) {
     // Error is stored in loadError, re-throw for caller handling
     console.error('Spell checker preload failed:', error);
     throw error;
