@@ -34,7 +34,7 @@ export function MainLayout({ defaultTool }: MainLayoutProps) {
   const activeTool = currentTool ?? defaultTool;
 
   return (
-    <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       {/* Fixed Header */}
       <Header />
 
@@ -43,8 +43,8 @@ export function MainLayout({ defaultTool }: MainLayoutProps) {
 
       {/* Main Content Area */}
       <main
-        className={`pt-(--header-height) pb-4 transition-[margin-left] duration-150 ease-(--ease-default) max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
-          sidebarCollapsed ? 'ml-[var(--sidebar-collapsed-width)]' : 'ml-[var(--sidebar-width)]'
+        className={`main-content-transition pt-[var(--header-height)] pb-4 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
+          sidebarCollapsed ? 'ml-0' : 'ml-[var(--sidebar-width)]'
         } max-md:ml-0`}
       >
         {activeTool ? (

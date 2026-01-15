@@ -78,7 +78,7 @@ export function BottomNavigation() {
 
   return (
     <nav
-      className="hidden max-md:block fixed bottom-0 left-0 right-0 h-(--bottom-nav-height) bg-(--color-bg-secondary) border-t border-(--color-border-primary) z-50 pb-[env(safe-area-inset-bottom)]"
+      className="hidden max-md:block fixed bottom-0 left-0 right-0 h-[var(--bottom-nav-height)] bg-[var(--color-bg-secondary)] border-t border-[var(--color-border-primary)] z-50 pb-[env(safe-area-inset-bottom)]"
       aria-label="Mobile navigation"
     >
       <ul className="flex items-center justify-around h-full m-0 p-0 list-none">
@@ -92,10 +92,10 @@ export function BottomNavigation() {
                 prefetch="intent"
                 end={item.path === localizedPath('/')}
                 className={({ isActive }) =>
-                  `flex flex-col items-center justify-center gap-1 h-full p-2 no-underline transition-all duration-150 active:scale-95 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 ${
+                  `flex flex-col items-center justify-center gap-1 h-full p-2 no-underline transition-all duration-150 active:scale-95 focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2 ${
                     isActive
-                      ? 'text-(--color-accent-primary)'
-                      : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
+                      ? 'text-[var(--color-accent-primary)]'
+                      : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                   }`
                 }
               >

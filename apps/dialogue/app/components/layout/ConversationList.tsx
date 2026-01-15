@@ -205,10 +205,10 @@ export function ConversationList({
       <div className="flex flex-col gap-2 animate-pulse">
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex items-center gap-4 py-2 px-4">
-            <div className="w-4 h-4 bg-(--color-bg-tertiary) rounded" />
+            <div className="w-4 h-4 bg-[var(--color-bg-tertiary)] rounded" />
             <div className="flex-1">
-              <div className="h-4 bg-(--color-bg-tertiary) rounded w-3/4 mb-2" />
-              <div className="h-3 bg-(--color-bg-tertiary) rounded w-1/2" />
+              <div className="h-4 bg-[var(--color-bg-tertiary)] rounded w-3/4 mb-2" />
+              <div className="h-3 bg-[var(--color-bg-tertiary)] rounded w-1/2" />
             </div>
           </div>
         ))}
@@ -220,11 +220,11 @@ export function ConversationList({
     <div className="flex flex-col h-full">
       {/* Mobile Header - 새 대화 + Ghost Mode */}
       {isMobile && onNewChat && (
-        <div className="flex flex-col gap-2 mb-4 pb-4 border-b border-(--color-border-primary)">
+        <div className="flex flex-col gap-2 mb-4 pb-4 border-b border-[var(--color-border-primary)]">
           <button
             type="button"
             onClick={onNewChat}
-            className="flex items-center justify-center gap-2 w-full py-4 px-4 bg-(--color-accent-primary) text-white border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-150 hover:bg-(--color-accent-secondary) active:scale-[0.98] focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+            className="flex items-center justify-center gap-2 w-full py-4 px-4 bg-[var(--color-accent-primary)] text-white border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-150 hover:bg-[var(--color-accent-secondary)] active:scale-[0.98] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
           >
             <PlusIcon />
             <span>{m['app.newChat']()}</span>
@@ -235,10 +235,10 @@ export function ConversationList({
             type="button"
             onClick={toggleGhostMode}
             className={[
-              'flex items-center gap-4 w-full py-2.5 px-4 border-none rounded-lg text-sm cursor-pointer transition-colors duration-150 focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+              'flex items-center gap-4 w-full py-2.5 px-4 border-none rounded-lg text-sm cursor-pointer transition-colors duration-150 focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               ghostMode
-                ? 'bg-(--color-ghost-light) text-(--color-ghost)'
-                : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:bg-(--color-bg-hover)',
+                ? 'bg-[var(--color-ghost-light)] text-[var(--color-ghost)]'
+                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]',
             ]
               .filter(Boolean)
               .join(' ')}
@@ -262,10 +262,10 @@ export function ConversationList({
               key={conv.id}
               onClick={() => handleLoadConversation(conv)}
               className={[
-                'group min-h-[44px] flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-(--color-bg-hover) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2',
+                'group min-h-[44px] flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
                 activeConversationId === conv.id
-                  ? 'bg-(--color-accent-light) text-(--color-accent-primary)'
-                  : 'text-(--color-text-secondary)',
+                  ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)]'
+                  : 'text-[var(--color-text-secondary)]',
               ]
                 .filter(Boolean)
                 .join(' ')}
@@ -275,7 +275,7 @@ export function ConversationList({
                 <div className="text-sm font-medium truncate">
                   {conv.title || m['app.untitled']()}
                 </div>
-                <div className="text-xs text-(--color-text-tertiary) truncate">
+                <div className="text-xs text-[var(--color-text-tertiary)] truncate">
                   {formatDate(conv.updatedAt)}
                 </div>
               </div>
@@ -283,7 +283,7 @@ export function ConversationList({
                 <button
                   type="button"
                   onClick={(e) => handleExport(e, conv)}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-md bg-none border-none cursor-pointer text-(--color-text-tertiary) transition-all duration-150 hover:bg-(--color-accent-light) hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
                   title={m['app.export']()}
                 >
                   <ExportIcon />
@@ -291,7 +291,7 @@ export function ConversationList({
                 <button
                   type="button"
                   onClick={(e) => handleDeleteClick(e, conv.id)}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-md bg-none border-none cursor-pointer text-(--color-text-tertiary) transition-all duration-150 hover:bg-red-500/15 hover:text-(--color-error) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-red-500/15 hover:text-[var(--color-error)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
                   title={m['app.deleteChat']()}
                 >
                   <TrashIcon />
@@ -302,13 +302,13 @@ export function ConversationList({
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-center py-4 px-8">
-          <div className="w-16 h-16 mb-4 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center">
+          <div className="w-16 h-16 mb-4 rounded-full bg-[var(--color-bg-tertiary)] flex items-center justify-center">
             <ChatIcon />
           </div>
-          <p className="text-sm font-medium text-(--color-text-primary) mb-1">
+          <p className="text-sm font-medium text-[var(--color-text-primary)] mb-1">
             {m['app.noHistory']()}
           </p>
-          <p className="text-xs text-(--color-text-tertiary) mb-4">
+          <p className="text-xs text-[var(--color-text-tertiary)] mb-4">
             {isMobile
               ? 'Start a new conversation to begin'
               : 'Click "New Chat" to start a conversation'}
@@ -317,7 +317,7 @@ export function ConversationList({
             <button
               type="button"
               onClick={onNewChat}
-              className="py-2 px-4 bg-(--color-accent-primary) text-white border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-150 hover:bg-(--color-accent-secondary) active:scale-95 focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+              className="py-2 px-4 bg-[var(--color-accent-primary)] text-white border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-150 hover:bg-[var(--color-accent-secondary)] active:scale-95 focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
             >
               {m['app.newChat']()}
             </button>
@@ -327,11 +327,11 @@ export function ConversationList({
 
       {/* Trash Section */}
       {deletedConversations.length > 0 && (
-        <div className="mt-auto pt-4 border-t border-(--color-border-primary)">
+        <div className="mt-auto pt-4 border-t border-[var(--color-border-primary)]">
           <button
             type="button"
             onClick={() => setShowTrash(!showTrash)}
-            className="flex items-center gap-2 w-full py-2 px-4 text-sm text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors"
+            className="flex items-center gap-2 w-full py-2 px-4 text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors"
           >
             <TrashBinIcon />
             <span>Trash ({deletedConversations.length})</span>
@@ -346,7 +346,7 @@ export function ConversationList({
               <button
                 type="button"
                 onClick={() => setShowEmptyTrashConfirm(true)}
-                className="flex items-center gap-2 py-1.5 px-4 text-xs text-(--color-error) hover:bg-red-500/10 rounded transition-colors"
+                className="flex items-center gap-2 py-1.5 px-4 text-xs text-[var(--color-error)] hover:bg-red-500/10 rounded transition-colors"
               >
                 <TrashIcon />
                 <span>Empty Trash</span>
@@ -356,7 +356,7 @@ export function ConversationList({
               {deletedConversations.map((conv) => (
                 <div
                   key={conv.id}
-                  className="group flex items-center gap-3 py-2 px-4 text-sm text-(--color-text-tertiary) rounded-lg hover:bg-(--color-bg-hover)"
+                  className="group flex items-center gap-3 py-2 px-4 text-sm text-[var(--color-text-tertiary)] rounded-lg hover:bg-[var(--color-bg-hover)]"
                 >
                   <ChatIcon />
                   <div className="flex-1 overflow-hidden">
@@ -371,7 +371,7 @@ export function ConversationList({
                     <button
                       type="button"
                       onClick={() => handleRestore(conv.id)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md text-(--color-text-tertiary) hover:bg-(--color-accent-light) hover:text-(--color-accent-primary) transition-all"
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md text-[var(--color-text-tertiary)] hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] transition-all"
                       title="Restore"
                     >
                       <RestoreIcon />
@@ -379,7 +379,7 @@ export function ConversationList({
                     <button
                       type="button"
                       onClick={(e) => handlePermanentDeleteClick(e, conv.id)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md text-(--color-text-tertiary) hover:bg-red-500/15 hover:text-(--color-error) transition-all"
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md text-[var(--color-text-tertiary)] hover:bg-red-500/15 hover:text-[var(--color-error)] transition-all"
                       title="Delete permanently"
                     >
                       <TrashIcon />

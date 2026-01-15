@@ -200,7 +200,7 @@ describe('Home Route', () => {
       const title = screen.getByRole('heading', { level: 1 });
       expect(title.className).toContain('text-5xl');
       expect(title.className).toContain('font-bold');
-      expect(title.className).toContain('text-content');
+      expect(title.className).toContain('text-[var(--color-text-primary)]');
     });
 
     it('소셜 링크 스타일', () => {

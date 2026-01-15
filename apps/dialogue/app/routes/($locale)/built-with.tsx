@@ -65,7 +65,7 @@ function ChevronRight() {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      className="w-5 h-5 text-(--color-text-tertiary)"
+      className="w-5 h-5 text-[var(--color-text-tertiary)]"
     >
       <path d="M9 18l6-6-6-6" />
     </svg>
@@ -74,14 +74,14 @@ function ChevronRight() {
 
 function LibraryItem({ item }: { item: OpenSourceItem }) {
   return (
-    <li className="border-b border-(--color-border-primary) last:border-b-0">
+    <li className="border-b border-[var(--color-border-primary)] last:border-b-0">
       <a
         href={item.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-between py-4 px-4 hover:bg-(--color-bg-secondary)/50 transition-colors"
+        className="flex items-center justify-between py-4 px-4 hover:bg-[var(--color-bg-secondary)]/50 transition-colors"
       >
-        <span className="font-medium text-(--color-text-primary)">{item.name}</span>
+        <span className="font-medium text-[var(--color-text-primary)]">{item.name}</span>
         <ChevronRight />
       </a>
     </li>
@@ -119,11 +119,11 @@ export default function BuiltWith() {
   };
 
   return (
-    <div className="min-h-full flex flex-col bg-(--color-bg-primary)">
-      <header className="py-4 px-6 max-md:px-4 bg-(--color-bg-secondary) border-b border-(--color-border-primary)">
+    <div className="min-h-full flex flex-col bg-[var(--color-bg-primary)]">
+      <header className="py-4 px-6 max-md:px-4 bg-[var(--color-bg-secondary)] border-b border-[var(--color-border-primary)]">
         <Link
           to={getHomeUrl()}
-          className="inline-flex items-center gap-2 py-2 px-4 text-(--color-text-secondary) no-underline rounded-lg transition-colors duration-150 hover:bg-blue-500/10 hover:text-(--color-accent-primary) focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+          className="inline-flex items-center gap-2 py-2 px-4 text-[var(--color-text-secondary)] no-underline rounded-lg transition-colors duration-150 hover:bg-blue-500/10 hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
         >
           <BackIcon />
           <span>{texts.backToChat}</span>
@@ -132,13 +132,13 @@ export default function BuiltWith() {
 
       <main className="flex-1 py-6 px-8 max-md:py-6 max-md:px-4 max-w-[800px] mx-auto w-full">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-[2rem] max-md:text-[1.75rem] font-bold text-(--color-text-primary)">
+          <h1 className="text-[2rem] max-md:text-[1.75rem] font-bold text-[var(--color-text-primary)]">
             {texts.title}
           </h1>
           <button
             type="button"
             onClick={() => window.history.back()}
-            className="p-2 rounded-lg hover:bg-(--color-bg-secondary) transition-colors text-(--color-text-secondary)"
+            className="p-2 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors text-[var(--color-text-secondary)]"
             aria-label="Close"
           >
             <CloseIcon />
@@ -147,10 +147,10 @@ export default function BuiltWith() {
 
         {Object.entries(openSourceLibraries).map(([category, items]) => (
           <section key={category} className="mb-6">
-            <h2 className="text-sm font-semibold text-(--color-text-tertiary) uppercase tracking-wider mb-2 px-2">
+            <h2 className="text-sm font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider mb-2 px-2">
               {sectionTitles[category]?.[locale] ?? category}
             </h2>
-            <ul className="bg-(--color-bg-secondary) rounded-lg border border-(--color-border-primary)">
+            <ul className="bg-[var(--color-bg-secondary)] rounded-lg border border-[var(--color-border-primary)]">
               {items.map((item) => (
                 <LibraryItem key={item.name} item={item} />
               ))}
@@ -159,7 +159,7 @@ export default function BuiltWith() {
         ))}
       </main>
 
-      <footer className="py-6 text-center text-(--color-text-tertiary) text-[0.8125rem] border-t border-(--color-border-primary)">
+      <footer className="py-6 text-center text-[var(--color-text-tertiary)] text-[0.8125rem] border-t border-[var(--color-border-primary)]">
         <p>{texts.footer}</p>
       </footer>
     </div>

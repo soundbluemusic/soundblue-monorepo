@@ -54,8 +54,8 @@ export const ChatMessage = memo(function ChatMessage({ message }: ChatMessagePro
       <div
         className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-sm font-medium ${
           isUser
-            ? 'bg-(--color-accent-primary) text-white'
-            : 'bg-(--color-bg-tertiary) text-(--color-text-secondary)'
+            ? 'bg-[var(--color-accent-primary)] text-white'
+            : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)]'
         }`}
       >
         {isUser ? 'U' : 'D'}
@@ -65,8 +65,8 @@ export const ChatMessage = memo(function ChatMessage({ message }: ChatMessagePro
       <div
         className={`max-w-[70%] px-4 py-2 rounded-2xl ${
           isUser
-            ? 'bg-(--color-accent-primary) text-white rounded-br-md'
-            : 'bg-(--color-bg-tertiary) text-(--color-text-primary) rounded-bl-md'
+            ? 'bg-[var(--color-accent-primary)] text-white rounded-br-md'
+            : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] rounded-bl-md'
         }`}
       >
         <p className="whitespace-pre-wrap break-words">{message.content}</p>
@@ -76,10 +76,10 @@ export const ChatMessage = memo(function ChatMessage({ message }: ChatMessagePro
       <button
         type="button"
         onClick={handleCopy}
-        className={`self-center p-1.5 rounded-md border-none cursor-pointer transition-all duration-150 focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2 ${
+        className={`self-center p-1.5 rounded-md border-none cursor-pointer transition-all duration-150 focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 ${
           copied
             ? 'bg-green-500/15 text-green-600 dark:text-green-400'
-            : 'bg-transparent text-(--color-text-tertiary) hover:bg-(--color-bg-tertiary) hover:text-(--color-text-secondary)'
+            : 'bg-transparent text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-secondary)]'
         }`}
         title={copied ? m['app.copied']() : m['app.copy']()}
       >

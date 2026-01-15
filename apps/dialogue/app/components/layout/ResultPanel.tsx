@@ -23,11 +23,11 @@ export function ResultPanel({ isCompact = false }: ResultPanelProps) {
   const { resultContent, closeResultPanel } = useUIStore();
 
   return (
-    <div className="flex flex-col h-full bg-(--color-bg-secondary)">
+    <div className="flex flex-col h-full bg-[var(--color-bg-secondary)]">
       {resultContent ? (
         <>
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-(--color-border-primary) p-4">
+          <div className="flex items-center justify-between border-b border-[var(--color-border-primary)] p-4">
             <div className="flex items-center gap-2">
               <span className="text-lg">
                 {resultContent.type === 'report' && <ReportIcon />}
@@ -35,14 +35,14 @@ export function ResultPanel({ isCompact = false }: ResultPanelProps) {
                 {resultContent.type === 'help' && <HelpIcon />}
                 {resultContent.type === 'tool' && <ToolIcon />}
               </span>
-              <h2 className="text-sm font-semibold text-(--color-text-primary)">
+              <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">
                 {resultContent.title}
               </h2>
             </div>
             <button
               type="button"
               onClick={closeResultPanel}
-              className="p-1.5 rounded-lg bg-transparent border-none cursor-pointer text-(--color-text-tertiary) transition-colors duration-150 hover:bg-red-500/10 hover:text-red-500 active:scale-95 focus:outline-2 focus:outline-(--color-border-focus) focus:outline-offset-2"
+              className="p-1.5 rounded-lg bg-transparent border-none cursor-pointer text-[var(--color-text-tertiary)] transition-colors duration-150 hover:bg-red-500/10 hover:text-red-500 active:scale-95 focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
               aria-label={m['app.closePanel']()}
             >
               <CloseIcon />
@@ -55,7 +55,7 @@ export function ResultPanel({ isCompact = false }: ResultPanelProps) {
               <Suspense
                 fallback={
                   <div className="flex h-full items-center justify-center">
-                    <div className="size-6 animate-spin rounded-full border-2 border-(--color-border-primary) border-t-transparent" />
+                    <div className="size-6 animate-spin rounded-full border-2 border-[var(--color-border-primary)] border-t-transparent" />
                   </div>
                 }
               >
@@ -64,7 +64,7 @@ export function ResultPanel({ isCompact = false }: ResultPanelProps) {
               </Suspense>
             ) : (
               <div className="p-4">
-                <div className="max-w-none text-sm text-(--color-text-primary) whitespace-pre-wrap">
+                <div className="max-w-none text-sm text-[var(--color-text-primary)] whitespace-pre-wrap">
                   {resultContent.content}
                 </div>
               </div>
@@ -87,7 +87,7 @@ function ReportIcon() {
       fill="currentColor"
       width="20"
       height="20"
-      className="text-(--color-accent-primary)"
+      className="text-[var(--color-accent-primary)]"
     >
       <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
     </svg>
@@ -101,7 +101,7 @@ function InfoIcon() {
       fill="currentColor"
       width="20"
       height="20"
-      className="text-(--color-accent-primary)"
+      className="text-[var(--color-accent-primary)]"
     >
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
     </svg>
@@ -115,7 +115,7 @@ function HelpIcon() {
       fill="currentColor"
       width="20"
       height="20"
-      className="text-(--color-accent-primary)"
+      className="text-[var(--color-accent-primary)]"
     >
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
     </svg>
@@ -129,7 +129,7 @@ function ToolIcon() {
       fill="currentColor"
       width="20"
       height="20"
-      className="text-(--color-accent-primary)"
+      className="text-[var(--color-accent-primary)]"
     >
       <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z" />
     </svg>

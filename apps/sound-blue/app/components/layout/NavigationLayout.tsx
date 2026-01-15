@@ -17,7 +17,7 @@ export function NavigationLayout({ children }: NavigationLayoutProps) {
       {/* Skip to content link for accessibility */}
       <a
         href="#main-content"
-        className="absolute -left-[9999px] z-[9999] p-4 bg-(--color-accent-primary) text-white focus:left-0 focus:top-0"
+        className="absolute -left-[9999px] z-[9999] p-4 bg-[var(--color-accent-primary)] text-white focus:left-0 focus:top-0"
         aria-label={m['accessibility.skipToContent']()}
       >
         {m['accessibility.skipToContent']()}
@@ -33,7 +33,7 @@ export function NavigationLayout({ children }: NavigationLayoutProps) {
         className={cn(
           'main-content view-transition-content transition-[margin-left] duration-150',
           'max-md:ml-0',
-          isSidebarOpen ? 'ml-(--sidebar-width) max-md:ml-0' : 'ml-0',
+          isSidebarOpen ? 'ml-[var(--sidebar-width)] max-md:ml-0' : 'ml-0',
         )}
         aria-label={m['accessibility.mainContent']()}
       >

@@ -164,7 +164,7 @@ export function MainLayout() {
   }, [isMobile]);
 
   return (
-    <div className="flex flex-col h-screen bg-(--color-bg-primary)">
+    <div className="flex flex-col h-screen bg-[var(--color-bg-primary)]">
       {/* Header */}
       <Header />
 
@@ -200,15 +200,15 @@ export function MainLayout() {
           {/* Mobile: Tab-based view */}
           <div className="flex flex-col flex-1 min-h-[200px] md:hidden">
             {/* Tab Switcher */}
-            <div className="flex shrink-0 border-b border-(--color-border-primary) bg-(--color-bg-secondary)">
+            <div className="flex shrink-0 border-b border-[var(--color-border-primary)] bg-[var(--color-bg-secondary)]">
               <button
                 type="button"
                 onClick={() => setActiveTab('chat')}
                 className={[
                   'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
                   activeTab === 'chat'
-                    ? 'border-b-2 border-(--color-accent-primary) text-(--color-accent-primary)'
-                    : 'text-(--color-text-tertiary)',
+                    ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
+                    : 'text-[var(--color-text-tertiary)]',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -221,8 +221,8 @@ export function MainLayout() {
                 className={[
                   'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
                   activeTab === 'history'
-                    ? 'border-b-2 border-(--color-accent-primary) text-(--color-accent-primary)'
-                    : 'text-(--color-text-tertiary)',
+                    ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
+                    : 'text-[var(--color-text-tertiary)]',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -235,8 +235,8 @@ export function MainLayout() {
                 className={[
                   'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
                   activeTab === 'result'
-                    ? 'border-b-2 border-(--color-accent-primary) text-(--color-accent-primary)'
-                    : 'text-(--color-text-tertiary)',
+                    ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
+                    : 'text-[var(--color-text-tertiary)]',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -265,7 +265,7 @@ export function MainLayout() {
           <div className="hidden md:flex md:flex-1">
             {/* Chat Area - width controlled by chatWidth state */}
             <div
-              className="relative shrink-0 border-r border-(--color-border-primary) min-h-[200px]"
+              className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-[200px]"
               style={{ width: chatWidth }}
             >
               <ChatContainer />
@@ -298,7 +298,7 @@ export function MainLayout() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-(--color-border-primary) py-2 px-4 text-center text-xs text-(--color-text-tertiary)">
+      <footer className="border-t border-[var(--color-border-primary)] py-2 px-4 text-center text-xs text-[var(--color-text-tertiary)]">
         <span>{m['app.title']()}</span>
         <span className="mx-2">·</span>
         <span>{m['app.footerDescription']()}</span>

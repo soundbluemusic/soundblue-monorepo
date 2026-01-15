@@ -45,14 +45,14 @@ export default function Sitemap() {
   const { sidebarCollapsed } = useToolStore();
 
   return (
-    <div className="min-h-screen bg-(--color-bg-primary) text-(--color-text-primary)">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <Header />
       <ToolSidebar />
 
       <main
-        className={`flex-1 p-4 pt-(--header-height) pb-4 transition-[padding] duration-150 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:pr-8 sm:pb-8 sm:pt-(--header-height) ${
-          sidebarCollapsed ? 'pl-[var(--sidebar-collapsed-width)]' : 'pl-[var(--sidebar-width)]'
-        } max-md:pl-0`}
+        className={`flex-1 p-4 pt-[var(--header-height)] pb-4 transition-[margin-left] duration-150 ease-[var(--ease-default)] max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] sm:pr-8 sm:pb-8 sm:pt-[var(--header-height)] ${
+          sidebarCollapsed ? 'ml-0' : 'ml-[var(--sidebar-width)]'
+        } max-md:ml-0`}
       >
         <div className="mx-auto max-w-3xl">
           {/* 타이틀 섹션 */}
@@ -75,10 +75,10 @@ export default function Sitemap() {
                 <Link
                   key={page.path}
                   to={localizedPath(page.path)}
-                  className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-secondary"
+                  className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-[var(--color-accent-primary)]/30 hover:bg-secondary"
                 >
                   <span className="text-lg">{page.icon}</span>
-                  <span className="font-medium text-foreground group-hover:text-(--color-accent-primary)">
+                  <span className="font-medium text-foreground group-hover:text-[var(--color-accent-primary)]">
                     {m[page.messageKey]?.()}
                   </span>
                 </Link>
@@ -100,13 +100,13 @@ export default function Sitemap() {
                 <Link
                   key={tool.id}
                   to={localizedPath(`/${tool.slug}`)}
-                  className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-secondary"
+                  className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-[var(--color-accent-primary)]/30 hover:bg-secondary"
                 >
                   <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-base">
                     {tool.icon}
                   </span>
                   <div className="flex flex-col">
-                    <span className="font-medium text-foreground group-hover:text-(--color-accent-primary)">
+                    <span className="font-medium text-foreground group-hover:text-[var(--color-accent-primary)]">
                       {tool.name[locale]}
                     </span>
                     <span className="text-xs text-muted-foreground line-clamp-1">
@@ -130,10 +130,10 @@ export default function Sitemap() {
                 <Link
                   key={page.path}
                   to={localizedPath(page.path)}
-                  className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-secondary"
+                  className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-[var(--color-accent-primary)]/30 hover:bg-secondary"
                 >
                   <span className="text-lg">{page.icon}</span>
-                  <span className="font-medium text-foreground group-hover:text-(--color-accent-primary)">
+                  <span className="font-medium text-foreground group-hover:text-[var(--color-accent-primary)]">
                     {m[page.messageKey]?.()}
                   </span>
                 </Link>
@@ -142,11 +142,11 @@ export default function Sitemap() {
                 href="/sitemap.xml"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-(--color-accent-primary)/30 hover:bg-secondary"
+                className="group flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-all hover:border-[var(--color-accent-primary)]/30 hover:bg-secondary"
               >
                 <span className="text-lg">📄</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground group-hover:text-(--color-accent-primary)">
+                  <span className="font-medium text-foreground group-hover:text-[var(--color-accent-primary)]">
                     {m['sitemap_xml']?.()}
                   </span>
                   <svg

@@ -8,16 +8,16 @@ export function HomeContent() {
       <CSSParticles />
 
       <div className="relative z-[1] mb-8">
-        <h1 className="text-3xl md:text-5xl font-semibold text-(--color-text-primary) m-0 mb-4">
+        <h1 className="text-3xl md:text-5xl font-semibold text-[var(--color-text-primary)] m-0 mb-4">
           {BRAND.name}
         </h1>
-        <p className="text-lg md:text-xl text-(--color-text-secondary) m-0 mb-4 italic">
+        <p className="text-lg md:text-xl text-[var(--color-text-secondary)] m-0 mb-4 italic">
           {m['home.tagline']()}
         </p>
-        <p className="text-base md:text-lg text-(--color-text-secondary) m-0 mb-2 max-w-[30rem] leading-relaxed">
+        <p className="text-base md:text-lg text-[var(--color-text-secondary)] m-0 mb-2 max-w-[30rem] leading-relaxed">
           {m['home.description']()}
         </p>
-        <p className="text-sm text-(--color-text-secondary) m-0">{m['home.genres']()}</p>
+        <p className="text-sm text-[var(--color-text-secondary)] m-0">{m['home.genres']()}</p>
       </div>
 
       <div className="relative z-[1] flex flex-wrap gap-3 justify-center mt-6">

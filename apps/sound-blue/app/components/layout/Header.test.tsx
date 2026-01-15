@@ -24,6 +24,14 @@ vi.mock('@soundblue/ui-components/base', () => ({
   }),
 }));
 
+vi.mock('@soundblue/ui-components/composite', () => ({
+  ServiceMenu: () => (
+    <button type="button" data-testid="service-menu" aria-label="Open services menu">
+      Services
+    </button>
+  ),
+}));
+
 vi.mock('~/lib/messages', () => ({
   default: {
     'header.themeDark': () => 'Switch to dark mode',
@@ -75,13 +83,10 @@ describe('Header', () => {
       expect(screen.getByTestId('search-box')).toBeInTheDocument();
     });
 
-    it('Tools 링크 렌더링', () => {
+    it('ServiceMenu 렌더링', () => {
       renderWithRouter(<Header />);
-      const toolsLink = screen.getByTitle('Tools');
-      expect(toolsLink).toBeInTheDocument();
-      expect(toolsLink).toHaveAttribute('href', 'https://tools.soundbluemusic.com');
-      expect(toolsLink).toHaveAttribute('target', '_blank');
-      expect(toolsLink).toHaveAttribute('rel', 'noopener noreferrer');
+      const serviceMenu = screen.getByTestId('service-menu');
+      expect(serviceMenu).toBeInTheDocument();
     });
 
     it('Theme toggle 버튼 렌더링', () => {
@@ -192,10 +197,10 @@ describe('Header', () => {
       expect(logo?.getAttribute('tabIndex')).not.toBe('-1');
     });
 
-    it('Tools 링크에 title 속성', () => {
+    it('ServiceMenu 버튼에 aria-label 설정', () => {
       renderWithRouter(<Header />);
-      const toolsLink = screen.getByTitle('Tools');
-      expect(toolsLink).toBeInTheDocument();
+      const serviceMenu = screen.getByLabelText('Open services menu');
+      expect(serviceMenu).toBeInTheDocument();
     });
   });
 

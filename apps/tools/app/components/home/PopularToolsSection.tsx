@@ -25,10 +25,10 @@ export function PopularToolsSection({ onToolClick }: PopularToolsSectionProps) {
     <section>
       {/* Header */}
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-(--color-text-primary) tracking-tight">
+        <h2 className="text-lg font-semibold text-[var(--color-text-primary)] tracking-tight">
           {t.popularTitle}
         </h2>
-        <p className="text-(--color-text-secondary) text-sm mt-0.5">{t.popularDesc}</p>
+        <p className="text-[var(--color-text-secondary)] text-sm mt-0.5">{t.popularDesc}</p>
       </div>
 
       {/* Cards Grid */}
@@ -39,10 +39,10 @@ export function PopularToolsSection({ onToolClick }: PopularToolsSectionProps) {
             to={localizedPath(`/${tool.slug}`)}
             prefetch="intent"
             onClick={() => onToolClick(tool.id)}
-            className="flex items-center gap-4 p-4 bg-(--color-bg-secondary) border border-(--color-border-primary) rounded-xl text-left hover:bg-(--color-interactive-hover) active:scale-[0.98] transition-all duration-150 focus-visible:outline-2 focus-visible:outline-(--color-border-focus) focus-visible:outline-offset-2 no-underline"
+            className="flex items-center gap-4 p-4 bg-[var(--color-bg-secondary)] border border-[var(--color-border-primary)] rounded-xl text-left hover:bg-[var(--color-interactive-hover)] active:scale-[0.98] transition-all duration-150 focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2 no-underline"
           >
             {/* Icon */}
-            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-(--color-bg-tertiary) shrink-0">
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-bg-tertiary)] shrink-0">
               <span className="text-2xl" aria-hidden="true">
                 {tool.icon}
               </span>
@@ -50,17 +50,17 @@ export function PopularToolsSection({ onToolClick }: PopularToolsSectionProps) {
 
             {/* Content */}
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-medium text-(--color-text-primary) truncate">
+              <h3 className="text-sm font-medium text-[var(--color-text-primary)] truncate">
                 {tool.name[locale]}
               </h3>
-              <p className="text-xs text-(--color-text-secondary) mt-0.5 line-clamp-1">
+              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 line-clamp-1">
                 {tool.description[locale]}
               </p>
             </div>
 
             {/* Arrow */}
             <svg
-              className="w-5 h-5 text-(--color-text-tertiary) shrink-0"
+              className="w-5 h-5 text-[var(--color-text-tertiary)] shrink-0"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

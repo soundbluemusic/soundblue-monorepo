@@ -141,7 +141,7 @@ describe('Chat Route', () => {
     it('서브타이틀 스타일', () => {
       renderWithRouter(<Chat />);
       const subtitle = screen.getByText('Chat with Sound Blue assistant');
-      expect(subtitle.className).toContain('text-content-muted');
+      expect(subtitle.className).toContain('text-[var(--color-text-secondary)]');
     });
 
     it('환영 메시지 박스 스타일', () => {

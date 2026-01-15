@@ -227,7 +227,7 @@ describe('NavigationLayout', () => {
         </NavigationLayout>,
       );
       const main = document.querySelector('#main-content');
-      expect(main?.className).toContain('ml-(--sidebar-width)');
+      expect(main?.className).toContain('ml-[var(--sidebar-width)]');
     });
 
     it('사이드바 닫힘 시 margin-left 0', async () => {
