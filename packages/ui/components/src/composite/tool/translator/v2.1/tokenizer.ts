@@ -2,12 +2,21 @@
  * 번역기 v3 토크나이저
  * 입력 텍스트를 토큰으로 분리하고 역할 부여
  *
+ * @filesize ~4,200 lines
+ *
  * 파이프라인 v3 개선사항:
  * - 유사도 검색 제거 (할루시네이션 방지)
  * - 규칙 기반 형태소 분석 강화
  * - 미인식 단어는 원문 유지 (추측하지 않음)
  * - WSD 통합 (다의어 해소)
  * - morphology 모듈 통합 (리팩토링)
+ *
+ * TODO(refactor): 이 파일은 4K+ 줄로 분할 고려 대상입니다.
+ * 제안되는 모듈 구조:
+ * - tokenizer/index.ts - 메인 토크나이저
+ * - tokenizer/korean.ts - 한국어 형태소 분석
+ * - tokenizer/english.ts - 영어 토큰화
+ * - tokenizer/particles.ts - 조사/어미 처리
  */
 
 import { decompose, getBatchim } from '@soundblue/hangul';

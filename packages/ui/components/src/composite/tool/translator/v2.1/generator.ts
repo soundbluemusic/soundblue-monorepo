@@ -1,6 +1,20 @@
 /**
- * 번역기 v2 생성기
+ * 번역기 v2.1 생성기
  * 분석된 토큰을 목표 언어로 재조립
+ *
+ * @filesize ~10,900 lines
+ *
+ * TODO(refactor): 이 파일은 10K+ 줄로 분할이 필요합니다.
+ * 제안되는 모듈 구조:
+ * - generator/index.ts - 메인 진입점
+ * - generator/hangul-utils.ts - 한글 자모 처리
+ * - generator/verb-conjugation.ts - 동사 활용 (3인칭, 시제, 조동사)
+ * - generator/sentence-templates.ts - 문장 템플릿 시스템
+ * - generator/word-order.ts - 어순 변환 (SVO ↔ SOV)
+ * - generator/articles.ts - 관사 규칙 (a/an/the)
+ * - generator/particles.ts - 전치사/조사 매핑
+ *
+ * @see https://github.com/soundbluemusic/soundblue-monorepo/issues/XXX
  */
 
 import {

@@ -6,12 +6,10 @@
 
 // Context (AudioContext management - noop)
 export * from './context/index.noop';
-// Types (shared)
-export * from './types';
-
-// Instruments - these are browser-only, export noop versions
-// Note: Instruments are typically only used at runtime, so we can skip them in noop
-
+// Instruments (drum machine, metronome - noop stubs)
+export * from './instruments/index.noop';
 // Tone.js engine (noop)
 export { Tone, toneEngine } from './tone-engine.noop';
 export type { AudioEngineCallbacks, AudioEngineState } from './types';
+// Types (shared)
+export * from './types';
