@@ -128,19 +128,10 @@ const BlendPreview = memo(function BlendPreview({
   }, [components, count, centerX, centerY, spreadRadius, circleRadius]);
 
   // Generate all intersection regions with their colors
-  // Center (all colors) = target color, partial intersections = additive blend
+  // All regions show actual blended colors (no forced target color)
   const regions = useMemo(() => {
     const subsets = getSubsets(count);
     return subsets.map((indices) => {
-      // If all colors are in this region, use target color
-      if (indices.length === count) {
-        return {
-          indices,
-          color: targetColor,
-          key: indices.join('-'),
-        };
-      }
-      // Otherwise, blend the colors additively
       const colorsInRegion = indices.map((i) => ({
         hex: components[i].hex,
         opacity: components[i].opacity ?? 100,
@@ -152,10 +143,12 @@ const BlendPreview = memo(function BlendPreview({
         key: indices.join('-'),
       };
     });
-  }, [components, count, targetColor]);
+  }, [components, count]);
 
-  // Center blend color = target color (always matches)
-  const centerBlend = targetColor;
+  // Center blend color = actual mix of all colors (truth, not forced)
+  const centerBlend = useMemo(() => {
+    return blendColorsAdditive(components.map((c) => ({ hex: c.hex, opacity: c.opacity ?? 100 })));
+  }, [components]);
 
   const centerRgb = hexToRgb(centerBlend);
   const centerLuminance = (0.299 * centerRgb.r + 0.587 * centerRgb.g + 0.114 * centerRgb.b) / 255;
@@ -505,13 +498,15 @@ export function ColorDecomposer({
   const handleHexLockToggle = useCallback(
     (index: number) => {
       const newComponents = [...settings.components];
+      const isLocking = !newComponents[index].lockedHex;
       newComponents[index] = {
         ...newComponents[index],
-        lockedHex: !newComponents[index].lockedHex,
+        lockedHex: isLocking,
       };
 
-      // If unlocking, recalculate unlocked colors
-      if (!newComponents[index].lockedHex) {
+      if (isLocking) {
+        // When locking: recalculate OTHER unlocked colors to achieve target
+        // The locked color's opacity may also be adjusted if it's an extreme color
         const recalculatedComponents = recalculateUnlockedColors(
           settings.targetColor,
           newComponents,
@@ -519,6 +514,8 @@ export function ColorDecomposer({
         );
         handleSettingsChange({ components: recalculatedComponents });
       } else {
+        // When unlocking: keep the color as is, don't recalculate
+        // User may want to keep their chosen color
         handleSettingsChange({ components: newComponents });
       }
     },
