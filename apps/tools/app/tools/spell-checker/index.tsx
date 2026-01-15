@@ -76,7 +76,7 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
       setCopied(true);
       setCopyFailed(false);
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch (error: unknown) {
       // 클립보드 접근 실패 - 사용자에게 피드백 제공
       console.warn('[clipboard] Copy failed:', error);
       setCopyFailed(true);

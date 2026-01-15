@@ -26,7 +26,7 @@ function safeSetLocale(locale: 'en' | 'ko') {
     if (typeof setLocale === 'function') {
       setLocale(locale);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // Ignore errors during SSR/prerendering
     console.debug('setLocale error (expected during SSR):', error);
   }

@@ -46,7 +46,7 @@ export async function registerSW(
     }
 
     return registration;
-  } catch (error) {
+  } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error(String(error));
     options.onError?.(err);
     console.error('Service worker registration failed:', err);
@@ -66,7 +66,7 @@ export async function unregisterSW(): Promise<boolean> {
     const registrations = await navigator.serviceWorker.getRegistrations();
     await Promise.all(registrations.map((reg) => reg.unregister()));
     return true;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to unregister service workers:', error);
     return false;
   }

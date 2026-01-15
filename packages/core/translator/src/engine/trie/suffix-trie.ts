@@ -220,8 +220,8 @@ export class SuffixTrie<TInfo = SuffixInfo> {
    * Trie를 JSON으로 변환하여 정적 파일로 저장 가능
    */
   serialize(): string {
-    const serializeNode = (node: TrieNode<TInfo>): object => {
-      const children: Record<string, object> = {};
+    const serializeNode = (node: TrieNode<TInfo>): SerializedSuffixNode<TInfo> => {
+      const children: Record<string, SerializedSuffixNode<TInfo>> = {};
 
       for (const [char, child] of node.children) {
         children[char] = serializeNode(child);

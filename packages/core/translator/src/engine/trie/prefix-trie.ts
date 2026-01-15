@@ -302,8 +302,8 @@ export class PrefixTrie<TInfo = TrieNodeInfo> {
    * 컴팩트한 JSON 형식으로 저장
    */
   serialize(): string {
-    const serializeNode = (node: TrieNode<TInfo>): object => {
-      const children: Record<string, object> = {};
+    const serializeNode = (node: TrieNode<TInfo>): SerializedNode<TInfo> => {
+      const children: Record<string, SerializedNode<TInfo>> = {};
 
       for (const [char, child] of node.children) {
         children[char] = serializeNode(child);

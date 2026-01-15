@@ -16,9 +16,9 @@
       "default": "./src/context/index.noop.ts"
     },
     "./instruments": {
-      "types": "./src/instruments/index.ts",
-      "browser": "./src/instruments/index.ts",
-      "default": "./src/instruments/index.ts"
+      "types": "./src/instruments/index.browser.ts",
+      "browser": "./src/instruments/index.browser.ts",
+      "default": "./src/instruments/index.noop.ts"
     },
     "./types": {
       "types": "./src/types.ts",

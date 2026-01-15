@@ -7,7 +7,7 @@
 // Context (AudioContext management)
 export * from './context/index.browser';
 // Instruments (drum machine, metronome)
-export * from './instruments';
+export * from './instruments/index.browser';
 export type { ToneEngineCallbacks, ToneEngineState } from './tone-engine.browser';
 
 // Tone.js engine

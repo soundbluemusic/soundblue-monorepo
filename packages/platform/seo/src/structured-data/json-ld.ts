@@ -6,6 +6,7 @@
 import type {
   BreadcrumbItem,
   BreadcrumbJsonLd,
+  JsonLdBase,
   OrganizationJsonLd,
   SoftwareApplicationJsonLd,
   WebSiteJsonLd,
@@ -114,7 +115,7 @@ export function createBreadcrumbJsonLd(items: { name: string; url?: string }[]):
 /**
  * Generate JSON-LD script tag
  */
-export function generateJsonLdScript(jsonLd: object | object[]): string {
+export function generateJsonLdScript(jsonLd: JsonLdBase | JsonLdBase[]): string {
   const content = JSON.stringify(jsonLd);
   return `<script type="application/ld+json">${content}</script>`;
 }
@@ -122,6 +123,6 @@ export function generateJsonLdScript(jsonLd: object | object[]): string {
 /**
  * Combine multiple JSON-LD objects into array
  */
-export function combineJsonLd(...jsonLds: object[]): object[] {
+export function combineJsonLd(...jsonLds: JsonLdBase[]): JsonLdBase[] {
   return jsonLds.filter(Boolean);
 }
