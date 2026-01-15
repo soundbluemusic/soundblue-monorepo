@@ -66,11 +66,7 @@ export function Header() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-[100] h-[var(--header-height)] bg-[var(--color-bg-secondary)] border-b border-[var(--color-border-primary)] max-md:h-[52px]">
-      <div
-        className={`flex items-center gap-4 w-full h-full px-4 transition-[padding-left] duration-150 ease-[var(--ease-default)] max-md:px-3 max-md:gap-2 max-md:!pl-3 ${
-          sidebarCollapsed ? 'pl-16' : 'pl-[calc(var(--sidebar-width)+16px)]'
-        }`}
-      >
+      <div className="flex items-center gap-4 w-full h-full px-4 pl-[calc(var(--sidebar-width)+16px)] max-md:px-3 max-md:gap-2 max-md:!pl-3">
         {/* Sidebar Toggle - Desktop only */}
         <button
           type="button"
