@@ -41,37 +41,33 @@ const checkerboardStyle: React.CSSProperties = {
 // ========================================
 
 /**
- * Mix multiple colors with their opacities (subtractive mixing like paint)
+ * Mix multiple colors using additive RGB blending (light mixing)
+ * Each color contributes proportionally based on opacity/weight
  */
-function blendColors(colors: { hex: string; opacity: number }[]): string {
+function blendColorsAdditive(colors: { hex: string; opacity: number }[]): string {
   if (colors.length === 0) return '#000000';
   if (colors.length === 1) return colors[0].hex;
 
-  // Subtractive color mixing (like paint/ink)
-  // Start with white and subtract
-  let c = 1;
-  let m = 1;
-  let y = 1;
+  let totalR = 0;
+  let totalG = 0;
+  let totalB = 0;
+  let totalWeight = 0;
 
   for (const color of colors) {
     const rgb = hexToRgb(color.hex);
     const weight = (color.opacity ?? 100) / 100;
 
-    // Convert RGB to CMY
-    const colorC = 1 - rgb.r / 255;
-    const colorM = 1 - rgb.g / 255;
-    const colorY = 1 - rgb.b / 255;
-
-    // Subtractive mixing: multiply CMY values
-    c = c * (1 - weight * (1 - colorC));
-    m = m * (1 - weight * (1 - colorM));
-    y = y * (1 - weight * (1 - colorY));
+    totalR += rgb.r * weight;
+    totalG += rgb.g * weight;
+    totalB += rgb.b * weight;
+    totalWeight += weight;
   }
 
-  // Convert back to RGB
-  const r = Math.round((1 - c) * 255);
-  const g = Math.round((1 - m) * 255);
-  const b = Math.round((1 - y) * 255);
+  if (totalWeight === 0) return '#000000';
+
+  const r = Math.round(totalR / totalWeight);
+  const g = Math.round(totalG / totalWeight);
+  const b = Math.round(totalB / totalWeight);
 
   return `#${[r, g, b].map((x) => Math.max(0, Math.min(255, x)).toString(16).padStart(2, '0')).join('')}`;
 }
@@ -96,12 +92,12 @@ function getSubsets(n: number): number[][] {
 
 const BlendPreview = memo(function BlendPreview({
   components,
+  targetColor,
   onCopy,
   copiedColor,
 }: {
   components: ComponentColor[];
-  mixedColor: string;
-  mixedTextColor: string;
+  targetColor: string;
   onCopy: (hex: string, id: string) => void;
   copiedColor: string | null;
 }) {
@@ -132,26 +128,34 @@ const BlendPreview = memo(function BlendPreview({
   }, [components, count, centerX, centerY, spreadRadius, circleRadius]);
 
   // Generate all intersection regions with their colors
+  // Center (all colors) = target color, partial intersections = additive blend
   const regions = useMemo(() => {
     const subsets = getSubsets(count);
     return subsets.map((indices) => {
+      // If all colors are in this region, use target color
+      if (indices.length === count) {
+        return {
+          indices,
+          color: targetColor,
+          key: indices.join('-'),
+        };
+      }
+      // Otherwise, blend the colors additively
       const colorsInRegion = indices.map((i) => ({
         hex: components[i].hex,
         opacity: components[i].opacity ?? 100,
       }));
-      const blendedColor = blendColors(colorsInRegion);
+      const blendedColor = blendColorsAdditive(colorsInRegion);
       return {
         indices,
         color: blendedColor,
         key: indices.join('-'),
       };
     });
-  }, [components, count]);
+  }, [components, count, targetColor]);
 
-  // Center blend color (all colors)
-  const centerBlend = useMemo(() => {
-    return blendColors(components.map((c) => ({ hex: c.hex, opacity: c.opacity ?? 100 })));
-  }, [components]);
+  // Center blend color = target color (always matches)
+  const centerBlend = targetColor;
 
   const centerRgb = hexToRgb(centerBlend);
   const centerLuminance = (0.299 * centerRgb.r + 0.587 * centerRgb.g + 0.114 * centerRgb.b) / 255;
@@ -810,8 +814,7 @@ export function ColorDecomposer({
         ) : (
           <BlendPreview
             components={activeComponents}
-            mixedColor={mixedColor}
-            mixedTextColor={mixedTextColor}
+            targetColor={settings.targetColor}
             onCopy={copyColor}
             copiedColor={copiedColor}
           />
