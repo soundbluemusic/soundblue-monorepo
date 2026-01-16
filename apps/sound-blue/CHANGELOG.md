@@ -81,12 +81,6 @@ _향후 변경사항이 여기에 기록됩니다._
 
 ---
 
-## [2.x] - Legacy
-
-Previous versions used different architecture (SolidJS → React migration completed in v3.0.0).
-
----
-
 [Unreleased]: https://github.com/soundbluemusic/sound-blue/compare/v3.0.18-베타...HEAD
 [3.0.18-베타]: https://github.com/soundbluemusic/sound-blue/compare/v3.0.17-베타...v3.0.18-베타
 [3.0.17-베타]: https://github.com/soundbluemusic/sound-blue/compare/v3.0.10-베타...v3.0.17-베타

@@ -9,7 +9,6 @@
     "includes": [
       "**",
       "!**/node_modules",
-      "!**/.vinxi",
       "!**/.output",
       "!**/dist",
       "!**/build",

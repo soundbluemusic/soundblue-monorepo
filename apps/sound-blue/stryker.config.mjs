@@ -20,7 +20,7 @@ const config = {
     '!src/**/index.ts',
   ],
   // Ignore CSS and visual-only changes
-  ignorePatterns: ['node_modules', 'dist', '.vinxi', '.output', 'stryker-report'],
+  ignorePatterns: ['node_modules', 'dist', '.output', 'stryker-report'],
   // Timeout settings for longer running tests
   timeoutMS: 60000,
   timeoutFactor: 2,
