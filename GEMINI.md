@@ -9,6 +9,8 @@
 - 불필요하게 방대한 파일 전체를 읽기보다는 필요한 파일과 섹션을 명확히 타겟팅하여 참조합니다.
 
 ## 상세 규칙 (Referenced Rules)
+
+- **SEO 렌더링 규칙**: `.claude/rules/seo-rendering.md` ⚠️ SPA 금지
 - 번역기 규칙: `.claude/rules/translator.md` (공용 참조)
 - 품질 규칙: `.claude/rules/quality.md` (공용 참조)
 
@@ -43,10 +45,13 @@ core/           ← 외부 import 금지
 ## 절대 규칙 (CRITICAL)
 
 ### 1. SPA 금지 - SSG/SSR 사용
-```
+
+```text
 ❌ SPA 모드 (클라이언트 렌더링) - SEO 치명적
 ✅ SSG (정적 생성) 또는 SSR (서버 렌더링)
 ```
+
+상세: `.claude/rules/seo-rendering.md` 참조
 
 ### 2. 기타 절대 규칙
 - **오픈소스 Only**: 라이선스 문제 없는 라이브러리만 사용.

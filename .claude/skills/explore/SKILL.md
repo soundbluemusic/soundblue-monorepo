@@ -61,3 +61,10 @@ description: 코드베이스 탐색 - 서브에이전트에서 실행하여 토�
 - 서브에이전트가 탐색 완료 후 요약 반환
 - 탐색 과정은 메인 컨텍스트에 포함되지 않음
 - 토큰 절약 효과: 약 70-80%
+
+## SEO 렌더링 규칙 준수
+
+탐색 중 다음 패턴 발견 시 경고:
+
+- `react-router.config.ts`에서 `prerender()` 없고 `ssr: true`도 아닌 경우 (SPA 모드)
+- 상세: `.claude/rules/seo-rendering.md` 참조

@@ -96,3 +96,10 @@ description: 패키지 레이어 의존성 검증 - import 규칙 준수 확인
 | core | hangul, translator, nlu, audio-engine, locale |
 | platform | web-audio, storage, worker, i18n, seo, pwa |
 | ui | ui-components |
+
+## 관련 검사
+
+레이어 검사와 함께 SEO 렌더링 검사도 권장:
+
+- `/rendering-check` - SPA 감지 및 SSG/SSR 확인
+- 상세: `.claude/rules/seo-rendering.md` 참조

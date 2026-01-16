@@ -17,7 +17,8 @@
 ## 절대 금지 ⛔
 
 ### 1. 하드코딩
-```
+
+```text
 ❌ 테스트 통과용 하드코딩
 ❌ 빌드 에러 회피용 임시 상수
 ❌ 특정 케이스만 통과하는 조건문
@@ -28,7 +29,8 @@
 ```
 
 ### 2. 에러 숨기기
-```
+
+```text
 ❌ 빈 catch 블록
 ❌ 설명 없이 @ts-ignore
 ❌ any 타입 남용
@@ -36,7 +38,8 @@
 ```
 
 ### 3. 테스트 비활성화
-```
+
+```text
 ❌ pre-commit hooks 스킵
 ❌ --no-verify 사용
 ❌ eslint-disable 남용
@@ -44,14 +47,16 @@
 ```
 
 ### 4. 불완전한 코드
-```
+
+```text
 ❌ // ... existing code ...
 ❌ TODO 주석 (이슈 없이)
 ❌ 플레이스홀더 커밋
 ```
 
 ### 5. 다운그레이드 (Forward Only)
-```
+
+```text
 ❌ 패키지 버전 다운그레이드
 ❌ 기능 제거로 문제 회피
 ❌ 의존성 롤백
@@ -62,10 +67,26 @@
 ✅ 호환성 레이어 추가
 ✅ 마이그레이션 코드 작성
 ```
+
 **예외** (수학적 증명처럼 확정적인 경우만):
+
 - 확인된 보안 취약점
 - 공식 deprecation 필수 변경
 - 라이선스 법적 문제
+
+### 6. SPA 모드 (SEO 필수)
+
+```text
+❌ SPA 모드 (prerender 없고 ssr: false)
+❌ react-router.config.ts에서 prerender() 제거
+❌ SEO 무시한 렌더링 설정
+
+✅ SSG 모드 (ssr: false + prerender())
+✅ SSR 모드 (ssr: true)
+✅ 모든 라우트 prerender() 배열에 등록
+```
+
+상세: `seo-rendering.md` | 검증: `/rendering-check`
 
 ## 수정 전 필수 프로세스
 

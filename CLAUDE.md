@@ -13,6 +13,7 @@
 | 코드 탐색/구조 파악 | `/explore` | 서브에이전트 처리, 토큰 ~70% 절약 |
 | 단순 검색/위치 찾기 | `/search` | Haiku 모델, 비용 ~90% 절약 |
 | 심층 분석/리뷰 | `/analyze` | 별도 컨텍스트, 토큰 ~60% 절약 |
+| **SEO 렌더링 검증** | `/rendering-check` | SPA 감지 시 경고, SSG/SSR 확인 |
 | 레이어 의존성 검증 | `/layer-check` | import 규칙 준수 확인 |
 
 ### 모델 선택 기준
@@ -23,6 +24,8 @@
 | Opus | 복잡한 아키텍처 설계, 심층 분석 |
 
 ## 상세 규칙 (필요시 참조)
+
+- **SEO 렌더링**: `.claude/rules/seo-rendering.md` ⚠️ SPA 금지
 - 번역기: `.claude/rules/translator.md`
 - 품질: `.claude/rules/quality.md`
 - 도구 개발: `.claude/rules/tools.md`

@@ -10,6 +10,30 @@ Tools 프로젝트에 기여해 주셔서 감사합니다!
 - **Cloudflare Pages 배포**
 - **SEO 최적화** - HTML에 메타 태그와 콘텐츠 포함
 
+### ⚠️ SPA 금지 규칙 (CRITICAL)
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  ✅ 허용: SSG (빌드 시 HTML) / SSR (요청 시 HTML)                 │
+│  ❌ 금지: SPA (클라이언트 JS로 렌더링)                            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**react-router.config.ts 설정:**
+
+```typescript
+// ✅ SSG 모드
+export default { ssr: false, async prerender() { return ['/route1', '/route2']; } };
+
+// ✅ SSR 모드
+export default { ssr: true };
+
+// ❌ SPA 모드 (금지!)
+export default { ssr: false }; // prerender 없음 = SPA = SEO 불가!
+```
+
+상세: [.claude/rules/seo-rendering.md](../.claude/rules/seo-rendering.md)
+
 ## 기여 방법
 
 ### 이슈 리포트

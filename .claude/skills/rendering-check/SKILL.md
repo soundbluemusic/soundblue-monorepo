@@ -1,24 +1,24 @@
 ---
-name: ssg-check
+name: rendering-check
 description: SEO 호환성 검증 - 브라우저 API 사용 및 이중 구현 확인, SPA 감지 시 경고
 ---
 
-# /ssg-check 스킬
+# /rendering-check 스킬
 
 프로젝트의 SEO 호환 렌더링(SSG/SSR)을 검증하고, **SPA 모드 발견 시 경고**합니다.
 
 ## 사용법
 
 ```
-/ssg-check [경로 또는 패키지명]
+/rendering-check [경로 또는 패키지명]
 ```
 
 ## 예시
 
 ```
-/ssg-check                          # 전체 프로젝트 검사
-/ssg-check packages/core/           # core 레이어만 검사
-/ssg-check packages/platform/storage # 특정 패키지 검사
+/rendering-check                          # 전체 프로젝트 검사
+/rendering-check packages/core/           # core 레이어만 검사
+/rendering-check packages/platform/storage # 특정 패키지 검사
 ```
 
 ## 검사 항목
