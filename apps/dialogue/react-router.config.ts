@@ -31,8 +31,8 @@ function generateLocalizedPaths(): string[] {
 }
 
 export default {
-  // SSR 활성화 - 동적 콘텐츠 지원 (저장된 페이지 등)
-  ssr: true,
+  // SSG 모드 - 빌드 시 정적 HTML 생성
+  ssr: false,
 
   // Pre-render static routes for SEO
   async prerender() {

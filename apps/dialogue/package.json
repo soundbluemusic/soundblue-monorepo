@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.9.0",
-    "@react-router/cloudflare": "^7.12.0",
+    "@react-router/node": "^7.12.0",
+    "@react-router/serve": "^7.12.0",
     "@soundblue/hangul": "workspace:*",
     "@soundblue/i18n": "workspace:*",
     "@soundblue/locale": "workspace:*",
@@ -39,6 +40,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",
+    "@cloudflare/vite-plugin": "^1.21.0",
     "@playwright/test": "^1.57.0",
     "@react-router/dev": "^7.12.0",
     "@tailwindcss/vite": "^4.1.18",
