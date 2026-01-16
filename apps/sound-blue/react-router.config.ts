@@ -45,10 +45,10 @@ function generateLocalizedPaths(): string[] {
 }
 
 export default {
-  // 100% SSG - No server-side rendering (CLAUDE.md requirement)
-  ssr: false,
+  // SSR 활성화 - 동적 콘텐츠 지원
+  ssr: true,
 
-  // Pre-render all routes for static hosting
+  // Pre-render static routes for SEO
   async prerender() {
     return generateLocalizedPaths();
   },
