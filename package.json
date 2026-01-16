@@ -27,7 +27,8 @@
     "build-storybook": "storybook build",
     "prepare": "husky",
     "sync:context": "tsx scripts/sync-context.ts",
-    "sync:context-dict": "tsx scripts/sync-context-dictionary.ts"
+    "sync:context-dict": "tsx scripts/sync-context-dictionary.ts",
+    "sync:context-d1": "tsx scripts/sync-context-d1.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
