@@ -1,7 +1,7 @@
 # Sound Blue - Claude Guide
 
 @./README.md
-@../../.claude/rules/common.md
+@../../.claude/rules/seo-rendering.md (⚠️ SPA 금지, SSG/SSR만 허용)
 
 ## Quick Commands (빠른 명령어)
 

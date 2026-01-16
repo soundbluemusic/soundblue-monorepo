@@ -4,6 +4,7 @@
 (**오프라인 Q&A 학습 도구**)
 
 프로젝트 개요, 기술 스택, 구조, 명령어: @README.md
+SEO 렌더링 규칙: @../../.claude/rules/seo-rendering.md (⚠️ SPA 금지)
 
 ---
 
