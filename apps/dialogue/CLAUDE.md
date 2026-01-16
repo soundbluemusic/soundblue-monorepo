@@ -11,18 +11,7 @@
 
 > **이 규칙들은 절대 위반하지 말 것. 부모 CLAUDE.md의 모든 규칙 적용.**
 
-1. **100% SSG Only** - 정적 사이트 생성만 사용. SSR/서버 로직 절대 금지.
-   ```typescript
-   // react-router.config.ts 필수 설정
-   import type { Config } from '@react-router/dev/config';
-
-   export default {
-     ssr: false,  // SSR 비활성화
-     async prerender() {
-       return ['/', '/ko', '/about', '/ko/about'];
-     },
-   } satisfies Config;
-   ```
+1. **SPA 금지** - SSG 또는 SSR 사용. 클라이언트 렌더링만으로 동작하는 SPA 금지 (SEO 치명적).
 
 2. **Offline-First** - 모든 데이터는 빌드 시 정적 파일에 포함.
    - 외부 API 호출 금지

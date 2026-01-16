@@ -42,10 +42,10 @@ core/           ← 외부 import 금지
 
 ## 절대 규칙 (CRITICAL)
 
-### 1. 100% SSG Only
+### 1. SPA 금지 - SSG/SSR 사용
 ```
-❌ SSR/SPA 모드, 서버 로직, API 라우트
-✅ ssr: false, prerender() 함수에 모든 라우트 명시
+❌ SPA 모드 (클라이언트 렌더링) - SEO 치명적
+✅ SSG (정적 생성) 또는 SSR (서버 렌더링)
 ```
 
 ### 2. 기타 절대 규칙

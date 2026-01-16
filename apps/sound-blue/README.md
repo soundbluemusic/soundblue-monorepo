@@ -14,8 +14,8 @@
 
 ## Architecture (아키텍처)
 
-**100% Static Site Generation (SSG)** - No backend server required.
-(**100% 정적 사이트 생성 (SSG)** - 백엔드 서버 없음.)
+**SEO 호환 렌더링 (SSG/SSR)** - SPA 금지, 서버에서 HTML 생성
+(**SEO 호환 렌더링 (SSG/SSR)** - SPA 금지)
 
 - **React Router v7 SSG mode** - All pages pre-rendered at build time
   (React Router v7 SSG 모드 - 빌드 시 모든 페이지 사전 렌더링)

@@ -1,58 +1,40 @@
 # SoundBlue Monorepo Architecture
 
-> SSG Edition - Domain-Based Package Structure
-> (SSG 에디션 - 도메인 기반 패키지 구조)
+> Domain-Based Package Structure
+> (도메인 기반 패키지 구조)
 
 ---
 
 ## Overview (개요)
 
-This document describes the architectural redesign of the SoundBlue monorepo, transitioning from a monolithic shared package to a domain-based multi-package structure optimized for Static Site Generation (SSG).
+This document describes the architectural redesign of the SoundBlue monorepo, transitioning from a monolithic shared package to a domain-based multi-package structure.
 
-이 문서는 SoundBlue 모노레포의 아키텍처 재설계를 설명합니다. 모놀리식 공유 패키지에서 정적 사이트 생성(SSG)에 최적화된 도메인 기반 멀티 패키지 구조로 전환했습니다.
+이 문서는 SoundBlue 모노레포의 아키텍처 재설계를 설명합니다. 모놀리식 공유 패키지에서 도메인 기반 멀티 패키지 구조로 전환했습니다.
 
 ---
 
 ## Architecture Principles (아키텍처 원칙)
 
-### 1. 100% SSG Compatibility (100% SSG 호환성)
+### 1. SEO 호환 렌더링 - SPA 금지
 
-All packages must support Static Site Generation build without errors.
+SSG 또는 SSR을 사용하여 서버에서 완성된 HTML을 생성합니다.
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                    🚨 SPA 금지 - SEO 치명적 영향 🚨                             ║
-║                    🚨 NO SPA - CRITICAL SEO IMPACT 🚨                         ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
 ║  SPA(Single Page Application) 모드는 SEO에 치명적입니다:                       ║
-║  SPA mode is critically harmful to SEO:                                      ║
-║                                                                              ║
-║  📉 SEO 문제점 (SEO Problems):                                               ║
 ║  • 초기 HTML이 비어있어 크롤러가 콘텐츠를 인식 못함                               ║
-║    (Empty initial HTML - crawlers can't see content)                         ║
 ║  • Google도 JS 렌더링 큐를 별도로 거쳐 색인이 지연됨                             ║
-║    (Google delays indexing through separate JS rendering queue)              ║
 ║  • Bing, Naver 등은 JS 렌더링 지원이 제한적/불가                                ║
-║    (Bing, Naver have limited/no JS rendering support)                        ║
-║  • 메타태그가 크롤링 시점에 없어 SNS 공유 미리보기 실패                           ║
-║    (Meta tags missing at crawl time - SNS preview fails)                     ║
 ║                                                                              ║
-║  ❌ 절대 금지 (NEVER):                                                        ║
-║  • SPA 모드 활성화 (SPA mode - removing prerender)                           ║
-║  • SSR 모드 활성화 (SSR mode - ssr: true)                                    ║
-║  • 서버 사이드 로직 (Server-side logic / API routes)                          ║
-║  • 서버 컴포넌트 (Server components)                                          ║
+║  ✅ 허용 (ALLOWED):                                                          ║
+║  • SSG (정적 생성) - 빌드 시 HTML 생성                                         ║
+║  • SSR (서버 렌더링) - 요청 시 HTML 생성                                       ║
 ║                                                                              ║
-║  ✅ 필수 설정 (REQUIRED):                                                     ║
-║  • ssr: false (항상 / always)                                                ║
-║  • prerender() 함수에 모든 라우트 명시 (all routes listed)                    ║
-║  • 브라우저 API는 이중 구현 사용 (dual implementation)                         ║
-║                                                                              ║
-║  🔍 SPA 발견 시 즉시 수정 (Fix immediately if SPA detected):                  ║
-║  1. react-router.config.ts에서 prerender() 함수 확인                          ║
-║  2. 없으면 모든 라우트를 반환하는 prerender() 추가                               ║
-║  3. ssr: false 확인                                                          ║
+║  ❌ 금지 (FORBIDDEN):                                                        ║
+║  • SPA (클라이언트 렌더링) - 빈 HTML + JS로 렌더링                              ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
@@ -600,7 +582,7 @@ startTransition(() => {
 
 ---
 
-## SSG Build Safety Checklist (SSG 빌드 안전 체크리스트)
+## Build Safety Checklist (빌드 안전 체크리스트)
 
 Before deploying, verify:
 
@@ -608,11 +590,7 @@ Before deploying, verify:
 - [ ] All `platform/` packages have `.noop.ts` implementations
 - [ ] `package.json` exports use `browser` + `default` conditions
 - [ ] No `window`, `document`, `navigator` in non-platform code
-- [ ] `react-router.config.ts` has `ssr: false` **(NEVER change to true!)**
-- [ ] All routes are listed in `prerender()` **(NEVER remove this function!)**
-- [ ] **NO SPA mode enabled** (prerender must exist and return routes)
-- [ ] **NO SSR mode enabled** (ssr must be false)
-- [ ] **NO API routes or server-side logic**
+- [ ] **NO SPA mode** - 서버에서 HTML이 생성되는지 확인 (SSG 또는 SSR)
 
 ---
 
