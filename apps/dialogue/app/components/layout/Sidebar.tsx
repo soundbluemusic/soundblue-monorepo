@@ -259,6 +259,19 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             <CodeIcon />
             {!sidebarCollapsed && <span className="truncate">{m['app.openSourceLicenses']()}</span>}
           </Link>
+          <Link
+            to={getLocalizedPath('/changelog', locale)}
+            className={[
+              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
+              sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            title={sidebarCollapsed ? m['changelog.title']() : undefined}
+          >
+            <ChangelogIcon />
+            {!sidebarCollapsed && <span className="truncate">{m['changelog.title']()}</span>}
+          </Link>
 
           {/* Offline Badge */}
           <div
@@ -397,6 +410,14 @@ function CodeIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
       <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+    </svg>
+  );
+}
+
+function ChangelogIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
     </svg>
   );
 }

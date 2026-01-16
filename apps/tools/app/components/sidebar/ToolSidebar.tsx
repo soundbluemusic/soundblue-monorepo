@@ -56,6 +56,21 @@ function SitemapIcon() {
   );
 }
 
+function ChangelogIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+      />
+      <polyline points="14 2 14 8 20 8" strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="16" y1="13" x2="8" y2="13" strokeLinecap="round" />
+      <line x1="16" y1="17" x2="8" y2="17" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 // ========================================
 // ToolSidebar Component - Sound Blue Style
 // ========================================
@@ -69,6 +84,7 @@ export function ToolSidebar() {
     navAbout: locale === 'ko' ? '소개' : 'About',
     navBenchmark: locale === 'ko' ? '벤치마크' : 'Benchmark',
     navSitemap: locale === 'ko' ? '사이트맵' : 'Sitemap',
+    navChangelog: locale === 'ko' ? '변경 이력' : 'Changelog',
   };
 
   const items = [
@@ -76,6 +92,7 @@ export function ToolSidebar() {
     { path: localizedPath('/about'), icon: InfoIcon, label: t.navAbout },
     { path: localizedPath('/benchmark'), icon: ChartIcon, label: t.navBenchmark },
     { path: localizedPath('/sitemap'), icon: SitemapIcon, label: t.navSitemap },
+    { path: localizedPath('/changelog'), icon: ChangelogIcon, label: t.navChangelog },
   ];
 
   return (

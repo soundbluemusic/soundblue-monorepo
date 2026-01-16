@@ -7,6 +7,7 @@ import {
   AboutIcon,
   BlogIcon,
   BuiltWithIcon,
+  ChangelogIcon,
   ChatIcon,
   HomeIcon,
   MusicIcon,
@@ -26,7 +27,8 @@ export type NavLabelKey =
   | 'news'
   | 'blog'
   | 'builtWith'
-  | 'chat';
+  | 'chat'
+  | 'changelog';
 
 /** External link label keys */
 export type ExternalLabelKey = 'youtube' | 'discography' | 'tools';
@@ -91,6 +93,11 @@ export const NAV_ITEMS: NavItem[] = [
     path: '/sitemap',
     labelKey: 'sitemap',
     icon: () => <SitemapIcon />,
+  },
+  {
+    path: '/changelog',
+    labelKey: 'changelog',
+    icon: () => <ChangelogIcon />,
   },
 ];
 
