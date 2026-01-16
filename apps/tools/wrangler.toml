@@ -16,3 +16,9 @@ local_protocol = "http"
 [vars]
 ENVIRONMENT = "production"
 NODE_VERSION = "22"
+
+# D1 Database 바인딩 (Context 앱 어휘 데이터)
+[[d1_databases]]
+binding = "DB"
+database_name = "context-db"
+database_id = "${D1_DATABASE_ID}"
