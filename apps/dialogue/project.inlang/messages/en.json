@@ -77,5 +77,7 @@
   "app_export": "Export",
   "app_copy": "Copy",
   "app_copied": "Copied",
-  "app_openSourceLicenses": "Open Source Licenses"
+  "app_openSourceLicenses": "Open Source Licenses",
+  "changelog_title": "Changelog",
+  "changelog_description": "Version history and updates"
 }

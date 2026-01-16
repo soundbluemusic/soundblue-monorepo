@@ -19,6 +19,7 @@ const BASE_PATHS = [
   '/chat',
   '/built-with',
   '/offline',
+  '/changelog',
 ];
 
 // 로케일별 경로 생성

@@ -13,6 +13,7 @@ const STATIC_PAGES = [
   { slug: 'built-with', file: 'built-with.tsx' },
   { slug: 'benchmark', file: 'benchmark.tsx' },
   { slug: 'sitemap', file: 'sitemap.tsx' },
+  { slug: 'changelog', file: 'changelog.tsx' },
 ] as const;
 
 // Tool pages - matches toolCategories.ts slugs

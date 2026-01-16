@@ -77,5 +77,7 @@
   "app_export": "내보내기",
   "app_copy": "복사",
   "app_copied": "복사됨",
-  "app_openSourceLicenses": "오픈소스 라이센스"
+  "app_openSourceLicenses": "오픈소스 라이센스",
+  "changelog_title": "변경 이력",
+  "changelog_description": "버전별 업데이트 내역"
 }

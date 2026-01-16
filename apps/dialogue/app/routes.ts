@@ -8,9 +8,11 @@ export default [
   route('about', 'routes/($locale)/about.tsx', { id: 'about-en' }),
   route('built-with', 'routes/($locale)/built-with.tsx', { id: 'built-with-en' }),
   route('sitemap', 'routes/($locale)/sitemap.tsx', { id: 'sitemap-en' }),
+  route('changelog', 'routes/($locale)/changelog.tsx', { id: 'changelog-en' }),
   // Korean (/ko prefix)
   route('ko', 'routes/($locale)/home.tsx', { id: 'home-ko' }),
   route('ko/about', 'routes/($locale)/about.tsx', { id: 'about-ko' }),
   route('ko/built-with', 'routes/($locale)/built-with.tsx', { id: 'built-with-ko' }),
   route('ko/sitemap', 'routes/($locale)/sitemap.tsx', { id: 'sitemap-ko' }),
+  route('ko/changelog', 'routes/($locale)/changelog.tsx', { id: 'changelog-ko' }),
 ] satisfies RouteConfig;

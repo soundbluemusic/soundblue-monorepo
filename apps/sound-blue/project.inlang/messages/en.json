@@ -275,5 +275,7 @@
   "music_description": "Original music, BGM, soundtracks, and instrumental tracks.",
   "music_emptyState": "No additional videos yet.",
   "music_emptyStateHint": "All releases are available on YouTube.",
-  "music_visitYouTube": "YouTube Channel"
+  "music_visitYouTube": "YouTube Channel",
+  "changelog_title": "Changelog",
+  "changelog_description": "Version history and updates"
 }

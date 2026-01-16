@@ -1,0 +1,142 @@
+{
+  "versions": [
+    {
+      "version": "3.0.0",
+      "date": "2026-01-17",
+      "title": "D1 Integration & SSG Mode",
+      "titleKo": "D1 통합 및 SSG 모드",
+      "categories": [
+        {
+          "type": "added",
+          "items": [
+            {
+              "title": "D1 Runtime Dictionary",
+              "titleKo": "D1 런타임 사전",
+              "description": "Translator now loads dictionary from D1 database at runtime",
+              "descriptionKo": "번역기가 런타임에 D1 데이터베이스에서 사전 로드"
+            },
+            {
+              "title": "Changelog Page",
+              "titleKo": "변경 이력 페이지",
+              "description": "Version history and updates page",
+              "descriptionKo": "버전별 업데이트 내역 페이지"
+            },
+            {
+              "title": "English Spell Checker",
+              "titleKo": "영어 맞춤법 검사기",
+              "description": "New tool for checking English spelling",
+              "descriptionKo": "영어 맞춤법 검사 도구 추가"
+            }
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            {
+              "title": "SSG Mode",
+              "titleKo": "SSG 모드",
+              "description": "Migrated from SSR to SSG for improved performance",
+              "descriptionKo": "성능 향상을 위해 SSR에서 SSG로 마이그레이션"
+            },
+            {
+              "title": "Dictionary Loading",
+              "titleKo": "사전 로딩",
+              "description": "Reduced initial bundle size by ~920KB",
+              "descriptionKo": "초기 번들 크기 약 920KB 감소"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            {
+              "title": "Hydration Bug",
+              "titleKo": "Hydration 버그",
+              "description": "Fixed React Router v7 SSG hydration issue",
+              "descriptionKo": "React Router v7 SSG hydration 문제 수정"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.0.0",
+      "date": "2025-12-01",
+      "title": "Monorepo Architecture",
+      "titleKo": "모노레포 아키텍처",
+      "categories": [
+        {
+          "type": "added",
+          "items": [
+            {
+              "title": "Translator",
+              "titleKo": "번역기",
+              "description": "Korean-English bidirectional translation tool",
+              "descriptionKo": "한영/영한 양방향 번역 도구"
+            },
+            {
+              "title": "Korean Spell Checker",
+              "titleKo": "한글 맞춤법 검사기",
+              "description": "Tool for checking Korean spelling",
+              "descriptionKo": "한글 맞춤법 검사 도구"
+            },
+            {
+              "title": "Color Tools",
+              "titleKo": "색상 도구",
+              "description": "Color Harmony, Color Palette, Color Decomposer",
+              "descriptionKo": "컬러 하모니, 컬러 팔레트, 컬러 분해기"
+            }
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            {
+              "title": "UI Components",
+              "titleKo": "UI 컴포넌트",
+              "description": "Migrated to shared component library",
+              "descriptionKo": "공유 컴포넌트 라이브러리로 마이그레이션"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2025-06-01",
+      "title": "Initial Release",
+      "titleKo": "초기 릴리스",
+      "categories": [
+        {
+          "type": "added",
+          "items": [
+            {
+              "title": "Metronome",
+              "titleKo": "메트로놈",
+              "description": "Precise tempo control with audio sync",
+              "descriptionKo": "오디오 동기화를 지원하는 정밀한 템포 조절"
+            },
+            {
+              "title": "Drum Machine",
+              "titleKo": "드럼머신",
+              "description": "Pattern-based drum sequencer",
+              "descriptionKo": "패턴 기반 드럼 시퀀서"
+            },
+            {
+              "title": "QR Generator",
+              "titleKo": "QR 생성기",
+              "description": "Generate QR codes with custom colors",
+              "descriptionKo": "커스텀 색상의 QR 코드 생성"
+            },
+            {
+              "title": "Multi-language Support",
+              "titleKo": "다국어 지원",
+              "description": "English and Korean language support",
+              "descriptionKo": "영어 및 한국어 지원"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "versions": [
+    {
+      "version": "3.0.0",
+      "date": "2026-01-17",
+      "title": "SSG Mode & Performance Optimization",
+      "titleKo": "SSG 모드 및 성능 최적화",
+      "categories": [
+        {
+          "type": "added",
+          "items": [
+            {
+              "title": "SSG Mode",
+              "titleKo": "SSG 모드",
+              "description": "Static Site Generation for improved SEO and performance",
+              "descriptionKo": "SEO 및 성능 향상을 위한 정적 사이트 생성"
+            },
+            {
+              "title": "Changelog Page",
+              "titleKo": "변경 이력 페이지",
+              "description": "Version history and updates page",
+              "descriptionKo": "버전별 업데이트 내역 페이지"
+            }
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            {
+              "title": "Build System",
+              "titleKo": "빌드 시스템",
+              "description": "Migrated from SSR to SSG for all static pages",
+              "descriptionKo": "모든 정적 페이지를 SSR에서 SSG로 마이그레이션"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            {
+              "title": "Hydration Bug",
+              "titleKo": "Hydration 버그",
+              "description": "Fixed React Router v7 SSG hydration issue",
+              "descriptionKo": "React Router v7 SSG hydration 문제 수정"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.0.0",
+      "date": "2025-12-01",
+      "title": "Monorepo Architecture",
+      "titleKo": "모노레포 아키텍처",
+      "categories": [
+        {
+          "type": "added",
+          "items": [
+            {
+              "title": "Monorepo Structure",
+              "titleKo": "모노레포 구조",
+              "description": "Migrated to soundblue-monorepo",
+              "descriptionKo": "soundblue-monorepo로 마이그레이션"
+            },
+            {
+              "title": "Conversation Export",
+              "titleKo": "대화 내보내기",
+              "description": "Export conversations as text or JSON",
+              "descriptionKo": "대화를 텍스트 또는 JSON으로 내보내기"
+            }
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            {
+              "title": "UI Components",
+              "titleKo": "UI 컴포넌트",
+              "description": "Migrated to shared component library",
+              "descriptionKo": "공유 컴포넌트 라이브러리로 마이그레이션"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2025-06-01",
+      "title": "Initial Release",
+      "titleKo": "초기 릴리스",
+      "categories": [
+        {
+          "type": "added",
+          "items": [
+            {
+              "title": "Offline Q&A",
+              "titleKo": "오프라인 Q&A",
+              "description": "100% offline conversational learning tool",
+              "descriptionKo": "100% 오프라인 Q&A 학습 도구"
+            },
+            {
+              "title": "Conversation History",
+              "titleKo": "대화 기록",
+              "description": "Save and manage conversation history",
+              "descriptionKo": "대화 기록 저장 및 관리"
+            },
+            {
+              "title": "Multi-language Support",
+              "titleKo": "다국어 지원",
+              "description": "English and Korean language support",
+              "descriptionKo": "영어 및 한국어 지원"
+            },
+            {
+              "title": "Theme Support",
+              "titleKo": "테마 지원",
+              "description": "Light and dark mode",
+              "descriptionKo": "라이트 및 다크 모드 지원"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

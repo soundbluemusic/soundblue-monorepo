@@ -275,5 +275,7 @@
   "music_description": "오리지널 음악, BGM, 사운드트랙, 인스트루멘탈 트랙.",
   "music_emptyState": "아직 추가 영상이 없습니다.",
   "music_emptyStateHint": "모든 발매 음악은 YouTube에서 확인 가능합니다.",
-  "music_visitYouTube": "YouTube 채널"
+  "music_visitYouTube": "YouTube 채널",
+  "changelog_title": "변경 이력",
+  "changelog_description": "버전별 업데이트 내역"
 }

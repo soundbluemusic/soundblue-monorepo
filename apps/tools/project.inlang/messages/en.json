@@ -201,5 +201,7 @@
   "englishSpellChecker_otherSuggestions": "Other",
   "englishSpellChecker_copy": "Copy corrected",
   "englishSpellChecker_copied": "Copied!",
-  "englishSpellChecker_applyAll": "Apply all"
+  "englishSpellChecker_applyAll": "Apply all",
+  "changelog_title": "Changelog",
+  "changelog_description": "Version history and updates"
 }

@@ -17,6 +17,7 @@ export default [
   route('built-with', 'routes/($locale)/built-with.tsx', { id: 'built-with-en' }),
   route('offline', 'routes/($locale)/offline.tsx', { id: 'offline-en' }),
   route('music', 'routes/($locale)/music.tsx', { id: 'music-en' }),
+  route('changelog', 'routes/($locale)/changelog.tsx', { id: 'changelog-en' }),
   // Korean (/ko prefix)
   route('ko', 'routes/($locale)/home.tsx', { id: 'home-ko' }),
   route('ko/about', 'routes/($locale)/about.tsx', { id: 'about-ko' }),
@@ -31,4 +32,5 @@ export default [
   route('ko/built-with', 'routes/($locale)/built-with.tsx', { id: 'built-with-ko' }),
   route('ko/offline', 'routes/($locale)/offline.tsx', { id: 'offline-ko' }),
   route('ko/music', 'routes/($locale)/music.tsx', { id: 'music-ko' }),
+  route('ko/changelog', 'routes/($locale)/changelog.tsx', { id: 'changelog-ko' }),
 ] satisfies RouteConfig;

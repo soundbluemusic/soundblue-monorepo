@@ -11,6 +11,7 @@ const BASE_PATHS = [
   '/built-with',
   '/benchmark',
   '/sitemap',
+  '/changelog',
   '/metronome',
   '/drum-machine',
   '/delay-calculator',

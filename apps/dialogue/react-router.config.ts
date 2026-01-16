@@ -5,7 +5,7 @@ const LOCALES = ['en', 'ko'] as const;
 const DEFAULT_LOCALE = 'en';
 
 // 기본 경로 목록 (로케일 prefix 없이)
-const BASE_PATHS = ['/', '/about', '/built-with', '/sitemap'];
+const BASE_PATHS = ['/', '/about', '/built-with', '/sitemap', '/changelog'];
 
 // 로케일별 경로 생성
 function generateLocalizedPaths(): string[] {
