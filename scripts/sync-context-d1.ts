@@ -178,7 +178,9 @@ async function syncFromD1(): Promise<void> {
     }
   }
 
-  console.log(`🔤 Word pairs: ${Object.keys(koToEn).length} ko→en, ${Object.keys(enToKo).length} en→ko\n`);
+  console.log(
+    `🔤 Word pairs: ${Object.keys(koToEn).length} ko→en, ${Object.keys(enToKo).length} en→ko\n`,
+  );
 
   // 4. 문장 사전 생성
   const koSentences: Record<string, string> = {};
@@ -339,12 +341,16 @@ export const EXTERNAL_WORDS_STATS = {
 `;
 
   writeFileSync(join(OUTPUT_DIR, 'words.ts'), wordsContent);
-  console.log(`📝 Created external/words.ts (${Object.keys(koToEn).length} ko→en, ${Object.keys(enToKo).length} en→ko)`);
+  console.log(
+    `📝 Created external/words.ts (${Object.keys(koToEn).length} ko→en, ${Object.keys(enToKo).length} en→ko)`,
+  );
 
   // 문장 사전: JSON 파일로 저장 (lazy loading용)
   writeFileSync(join(PUBLIC_DATA_DIR, 'ko-to-en.json'), JSON.stringify(koSentences));
   writeFileSync(join(PUBLIC_DATA_DIR, 'en-to-ko.json'), JSON.stringify(enSentences));
-  console.log(`📝 Created public/data/sentences/*.json (${Object.keys(koSentences).length} ko→en, ${Object.keys(enSentences).length} en→ko)`);
+  console.log(
+    `📝 Created public/data/sentences/*.json (${Object.keys(koSentences).length} ko→en, ${Object.keys(enSentences).length} en→ko)`,
+  );
 
   // TypeScript 파일: 통계와 loader 함수
   const sentencesContent = `${header}/**
@@ -460,8 +466,12 @@ export function lookupExternalEnToKo(word: string): string | null {
   console.log('═══════════════════════════════════════════════════════════════');
   console.log(`📚 Entries processed: ${entries.length}`);
   console.log(`💬 Conversations processed: ${conversations.length}`);
-  console.log(`🔤 Word pairs: ko→en ${Object.keys(koToEn).length}, en→ko ${Object.keys(enToKo).length}`);
-  console.log(`📝 Sentence pairs: ko→en ${Object.keys(koSentences).length}, en→ko ${Object.keys(enSentences).length}`);
+  console.log(
+    `🔤 Word pairs: ko→en ${Object.keys(koToEn).length}, en→ko ${Object.keys(enToKo).length}`,
+  );
+  console.log(
+    `📝 Sentence pairs: ko→en ${Object.keys(koSentences).length}, en→ko ${Object.keys(enSentences).length}`,
+  );
   console.log('═══════════════════════════════════════════════════════════════');
   console.log(`\n✅ Output: ${OUTPUT_DIR}`);
 }
