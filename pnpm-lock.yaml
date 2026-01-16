@@ -95,12 +95,9 @@ importers:
       '@formkit/auto-animate':
         specifier: ^0.9.0
         version: 0.9.0
-      '@react-router/node':
+      '@react-router/cloudflare':
         specifier: ^7.12.0
-        version: 7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
-      '@react-router/serve':
-        specifier: ^7.12.0
-        version: 7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
+        version: 7.12.0(@cloudflare/workers-types@4.20260116.0)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
       '@soundblue/hangul':
         specifier: workspace:*
         version: link:../../packages/core/hangul
@@ -198,12 +195,9 @@ importers:
 
   apps/sound-blue:
     dependencies:
-      '@react-router/node':
+      '@react-router/cloudflare':
         specifier: ^7.12.0
-        version: 7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
-      '@react-router/serve':
-        specifier: ^7.12.0
-        version: 7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
+        version: 7.12.0(@cloudflare/workers-types@4.20260116.0)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
       '@soundblue/i18n':
         specifier: workspace:*
         version: link:../../packages/platform/i18n
@@ -355,12 +349,9 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.1.6
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@react-router/node':
+      '@react-router/cloudflare':
         specifier: ^7.12.0
-        version: 7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
-      '@react-router/serve':
-        specifier: ^7.12.0
-        version: 7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
+        version: 7.12.0(@cloudflare/workers-types@4.20260116.0)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
       '@soundblue/audio-engine':
         specifier: workspace:*
         version: link:../../packages/core/audio-engine
@@ -1360,6 +1351,9 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@cloudflare/workers-types@4.20260116.0':
+    resolution: {integrity: sha512-iMZIQDco7ARzzH+r8j90757kbPKEetKY3/6V5UurOzS6T1GJ+rsREw5i7vlBA4XjFV5UMaPtUD6HuUFSMLcxPQ==}
 
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
@@ -2530,6 +2524,17 @@ packages:
 
   '@radix-ui/rect@1.1.1':
     resolution: {integrity: sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw==}
+
+  '@react-router/cloudflare@7.12.0':
+    resolution: {integrity: sha512-mx6p2nOoKmoAqV91mu5YVPNxUr8dZTtbuzKHgfWH8DEMgCrEPVd8aAZaTtRx3fi7GfcWOnm/+OcndphuHXyqqQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@cloudflare/workers-types': ^4.0.0
+      react-router: ^7.12.0
+      typescript: ^5.1.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@react-router/dev@7.12.0':
     resolution: {integrity: sha512-5GpwXgq4pnOVeG7l6ADkCHA1rthJus1q/A3NRYJAIypclUQDYAzg1/fDNjvaKuTSrq+Nr3u6aj2v+oC+47MX6g==}
@@ -7679,6 +7684,8 @@ snapshots:
   '@biomejs/cli-win32-x64@2.3.11':
     optional: true
 
+  '@cloudflare/workers-types@4.20260116.0': {}
+
   '@csstools/color-helpers@5.1.0': {}
 
   '@csstools/css-calc@2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)':
@@ -8823,6 +8830,13 @@ snapshots:
 
   '@radix-ui/rect@1.1.1': {}
 
+  '@react-router/cloudflare@7.12.0(@cloudflare/workers-types@4.20260116.0)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)':
+    dependencies:
+      '@cloudflare/workers-types': 4.20260116.0
+      react-router: 7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+    optionalDependencies:
+      typescript: 5.9.3
+
   '@react-router/dev@7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3))(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(yaml@2.8.2)':
     dependencies:
       '@babel/core': 7.28.5
@@ -8880,6 +8894,7 @@ snapshots:
       react-router: 7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     optionalDependencies:
       typescript: 5.9.3
+    optional: true
 
   '@react-router/node@7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)':
     dependencies:
@@ -8902,6 +8917,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
       - typescript
+    optional: true
 
   '@remix-run/node-fetch-server@0.9.0': {}
 
@@ -9998,6 +10014,7 @@ snapshots:
   basic-auth@2.0.1:
     dependencies:
       safe-buffer: 5.1.2
+    optional: true
 
   basic-ftp@5.1.0: {}
 
@@ -10936,7 +10953,8 @@ snapshots:
 
   get-own-enumerable-property-symbols@3.0.2: {}
 
-  get-port@5.1.1: {}
+  get-port@5.1.1:
+    optional: true
 
   get-proto@1.0.1:
     dependencies:
@@ -11789,6 +11807,7 @@ snapshots:
       on-headers: 1.1.0
     transitivePeerDependencies:
       - supports-color
+    optional: true
 
   motion-dom@12.24.11:
     dependencies:
@@ -11865,6 +11884,7 @@ snapshots:
   on-finished@2.3.0:
     dependencies:
       ee-first: 1.1.1
+    optional: true
 
   on-finished@2.4.1:
     dependencies:
@@ -12444,7 +12464,8 @@ snapshots:
       has-symbols: 1.1.0
       isarray: 2.0.5
 
-  safe-buffer@5.1.2: {}
+  safe-buffer@5.1.2:
+    optional: true
 
   safe-buffer@5.2.1: {}
 

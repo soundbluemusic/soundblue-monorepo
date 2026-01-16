@@ -19,8 +19,7 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.9.0",
-    "@react-router/node": "^7.12.0",
-    "@react-router/serve": "^7.12.0",
+    "@react-router/cloudflare": "^7.12.0",
     "@soundblue/hangul": "workspace:*",
     "@soundblue/i18n": "workspace:*",
     "@soundblue/locale": "workspace:*",
