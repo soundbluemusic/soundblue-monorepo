@@ -31,18 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **빌드 시스템**: Vite 6.3
 - **사이트맵 생성**: scripts/generate-sitemaps.ts (커스텀)
 
-### Note
-
-- SolidJS로의 임시 마이그레이션 후 React로 복귀
-- React 19.1의 개선된 성능과 React Router v7의 SSG 지원 활용
-
 ---
 
 ## [1.0.2-베타] - 2025-12-08
 
 ### Changed
 
-- React 19 + Next.js 16 기반으로 프레임워크 마이그레이션 완료
+- 프레임워크 마이그레이션 완료
 - Rust + wasm-pack 기반 WASM 빌드 시스템으로 전환
 - Biome 2.3 린터/포매터로 통합
 

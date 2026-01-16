@@ -16,7 +16,7 @@
     "typecheck": "turbo run typecheck",
     "check": "pnpm exec biome check .",
     "check:fix": "pnpm exec biome check --write .",
-    "check:circular": "pnpm -r exec skott --showCircularDependencies --displayMode=raw --fileExtensions=.ts,.tsx --ignorePattern='node_modules|.vinxi|.output|dist|rust' --exitCodeOnCircularDependencies=1",
+    "check:circular": "pnpm -r exec skott --showCircularDependencies --displayMode=raw --fileExtensions=.ts,.tsx --ignorePattern='node_modules|.output|dist|rust' --exitCodeOnCircularDependencies=1",
     "check:versions": "pnpm exec syncpack list-mismatches",
     "check:size": "pnpm exec size-limit",
     "check:links": "node scripts/check-links.mjs",
@@ -27,7 +27,8 @@
     "build-storybook": "storybook build",
     "prepare": "husky",
     "sync:context": "tsx scripts/sync-context.ts",
-    "sync:context-dict": "tsx scripts/sync-context-dictionary.ts"
+    "sync:context-dict": "tsx scripts/sync-context-dictionary.ts",
+    "sync:context-d1": "tsx scripts/sync-context-d1.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
