@@ -54,23 +54,26 @@ interface ToolState {
   setSidebarCollapsed: (collapsed: boolean) => void;
 }
 
+// Default toolSettings - ensure all tools have empty object defaults
+const defaultToolSettings: ToolSettings = {
+  metronome: {},
+  qr: {},
+  drumMachine: {},
+  delayCalculator: {},
+  translator: {},
+  spellChecker: {},
+  englishSpellChecker: {},
+  tapTempo: {},
+  colorHarmony: {},
+  colorPalette: {},
+  colorDecomposer: {},
+};
+
 export const useToolStore = create<ToolState>()(
   persist(
     immer((set) => ({
       currentTool: null,
-      toolSettings: {
-        metronome: {},
-        qr: {},
-        drumMachine: {},
-        delayCalculator: {},
-        translator: {},
-        spellChecker: {},
-        englishSpellChecker: {},
-        tapTempo: {},
-        colorHarmony: {},
-        colorPalette: {},
-        colorDecomposer: {},
-      },
+      toolSettings: { ...defaultToolSettings },
       sidebarOpen: true,
       sidebarCollapsed: false,
 
@@ -84,6 +87,10 @@ export const useToolStore = create<ToolState>()(
         }),
       updateToolSettings: (tool, settings) =>
         set((state) => {
+          // Ensure toolSettings[tool] exists before assigning
+          if (!state.toolSettings[tool]) {
+            state.toolSettings[tool] = {};
+          }
           Object.assign(state.toolSettings[tool], settings);
         }),
       toggleSidebar: () =>
@@ -109,6 +116,39 @@ export const useToolStore = create<ToolState>()(
         sidebarCollapsed: state.sidebarCollapsed,
         toolSettings: state.toolSettings,
       }),
+      // Deep merge persisted state with default state to handle new tools
+      merge: (persistedState, currentState) => {
+        // Handle null/undefined persistedState
+        if (!persistedState || typeof persistedState !== 'object') {
+          return currentState;
+        }
+
+        const persisted = persistedState as Partial<ToolState>;
+        const persistedToolSettings = persisted.toolSettings;
+
+        // Build merged toolSettings safely
+        const mergedToolSettings: ToolSettings = { ...defaultToolSettings };
+        if (persistedToolSettings && typeof persistedToolSettings === 'object') {
+          for (const key of Object.keys(defaultToolSettings) as (keyof ToolSettings)[]) {
+            const defaultValue = defaultToolSettings[key] ?? {};
+            const persistedValue = persistedToolSettings[key];
+            // Use type assertion since we're iterating over known keys
+            (mergedToolSettings as unknown as Record<string, object>)[key] = {
+              ...defaultValue,
+              ...(persistedValue && typeof persistedValue === 'object' ? persistedValue : {}),
+            };
+          }
+        }
+
+        return {
+          ...currentState,
+          sidebarCollapsed:
+            typeof persisted.sidebarCollapsed === 'boolean'
+              ? persisted.sidebarCollapsed
+              : currentState.sidebarCollapsed,
+          toolSettings: mergedToolSettings,
+        };
+      },
     },
   ),
 );
