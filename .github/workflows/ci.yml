@@ -31,6 +31,12 @@ jobs:
       - name: Build packages
         run: pnpm turbo build --filter="@soundblue/*"
 
+      - name: Generate paraglide (i18n)
+        run: |
+          pnpm --filter sound-blue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide
+          pnpm --filter tools exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide
+          pnpm --filter dialogue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide
+
       - name: Biome check
         run: pnpm check
 
