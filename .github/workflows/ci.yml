@@ -109,13 +109,28 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
-          path: apps
+          path: .
+
+      - name: Verify artifacts
+        run: |
+          echo "=== Sound Blue ==="
+          ls -la apps/sound-blue/
+          cat apps/sound-blue/wrangler.toml
+          echo "=== Tools ==="
+          ls -la apps/tools/
+          cat apps/tools/wrangler.toml
+          echo "=== Dialogue ==="
+          ls -la apps/dialogue/
+          cat apps/dialogue/wrangler.toml
 
       - name: Deploy Sound Blue (Workers)
-        run: pnpm --filter sound-blue exec wrangler deploy
+        working-directory: apps/sound-blue
+        run: pnpm exec wrangler deploy
 
       - name: Deploy Tools (Workers)
-        run: pnpm --filter tools exec wrangler deploy
+        working-directory: apps/tools
+        run: pnpm exec wrangler deploy
 
       - name: Deploy Dialogue (Workers)
-        run: pnpm --filter dialogue exec wrangler deploy
+        working-directory: apps/dialogue
+        run: pnpm exec wrangler deploy
