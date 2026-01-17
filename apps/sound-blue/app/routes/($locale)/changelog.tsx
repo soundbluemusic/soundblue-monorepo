@@ -88,7 +88,8 @@ export default function Changelog() {
                         type={category.type}
                         label={
                           categoryLabels[locale]?.[category.type] ||
-                          categoryLabels.en[category.type]
+                          categoryLabels.en?.[category.type] ||
+                          category.type
                         }
                       />
                     </div>

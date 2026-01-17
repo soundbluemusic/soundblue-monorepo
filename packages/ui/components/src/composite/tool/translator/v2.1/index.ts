@@ -18,9 +18,10 @@
 import {
   lookupEnToKoSentence,
   lookupExternalEnToKo,
-  lookupExternalKoToEn,
   lookupKoToEnSentence,
 } from '../dictionary/external';
+// 통합 사전 (기본 + 외부 D1 자동 병합)
+import { koToEnWords } from '../dictionary/words';
 import { type ParsedClauses, parseEnglishClauses, parseKoreanClauses } from './clause-parser';
 import {
   ContextTracker,
@@ -2755,11 +2756,12 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
   const endsWithVerbEnding = /[다니자라지]$/.test(cleanedInput);
 
   if (isSingleWord && isLongEnough && !endsWithVerbEnding) {
-    const externalWordMatch = lookupExternalKoToEn(cleanedInput);
-    if (externalWordMatch) {
+    // 통합 사전 조회 (기본 + 외부 D1 자동 병합)
+    const wordMatch = koToEnWords[cleanedInput];
+    if (wordMatch) {
       // 원래 문장 끝 부호 유지
       const suffix = trimmedInput.slice(cleanedInput.length);
-      return externalWordMatch + suffix;
+      return wordMatch + suffix;
     }
   }
 
@@ -2786,7 +2788,7 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
       pattern: /^(나는?|저는?|I)\s*(.+?[운은])\s*(.+?)([를을])\s*(좋아한다|좋아해|좋아해요)\.?$/,
       handler: (m) => {
         const adj = KO_ADJECTIVES[m[2]] || KO_ADJECTIVES[m[2].replace(/운$/, '')] || m[2];
-        const noun = lookupExternalKoToEn(m[3]) || m[3];
+        const noun = koToEnWords[m[3]] || m[3];
         return `I like ${adj} ${noun}.`;
       },
     },
@@ -2795,7 +2797,7 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
       pattern: /^(나는?|저는?|I)\s*(.+?[운은])\s*(.+?)([를을])\s*(싫어한다|싫어해|싫어해요)\.?$/,
       handler: (m) => {
         const adj = KO_ADJECTIVES[m[2]] || KO_ADJECTIVES[m[2].replace(/운$/, '')] || m[2];
-        const noun = lookupExternalKoToEn(m[3]) || m[3];
+        const noun = koToEnWords[m[3]] || m[3];
         return `I hate ${adj} ${noun}.`;
       },
     },
@@ -2804,7 +2806,7 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
       pattern: /^(나는?|저는?|I)\s*(.+?[운은])\s*(.+?)([를을])\s*(마신다|마셔|마셨어|마셨다)\.?$/,
       handler: (m) => {
         const adj = KO_ADJECTIVES[m[2]] || KO_ADJECTIVES[m[2].replace(/운$/, '')] || m[2];
-        const noun = lookupExternalKoToEn(m[3]) || m[3];
+        const noun = koToEnWords[m[3]] || m[3];
         const isPast = m[5].includes('셨') || m[5].includes('었');
         return isPast ? `I drank ${adj} ${noun}.` : `I drink ${adj} ${noun}.`;
       },
@@ -2814,7 +2816,7 @@ function translateKoreanSentence(sentence: string, _formality: Formality): strin
       pattern: /^(나는?|저는?|I)\s*(.+?[운은])\s*(.+?)([를을])\s*(먹는다|먹어|먹었어|먹었다)\.?$/,
       handler: (m) => {
         const adj = KO_ADJECTIVES[m[2]] || KO_ADJECTIVES[m[2].replace(/운$/, '')] || m[2];
-        const noun = lookupExternalKoToEn(m[3]) || m[3];
+        const noun = koToEnWords[m[3]] || m[3];
         const isPast = m[5].includes('었');
         return isPast ? `I ate ${adj} ${noun}.` : `I eat ${adj} ${noun}.`;
       },
