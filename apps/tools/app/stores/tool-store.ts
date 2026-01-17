@@ -54,23 +54,26 @@ interface ToolState {
   setSidebarCollapsed: (collapsed: boolean) => void;
 }
 
+// Default toolSettings - ensure all tools have empty object defaults
+const defaultToolSettings: ToolSettings = {
+  metronome: {},
+  qr: {},
+  drumMachine: {},
+  delayCalculator: {},
+  translator: {},
+  spellChecker: {},
+  englishSpellChecker: {},
+  tapTempo: {},
+  colorHarmony: {},
+  colorPalette: {},
+  colorDecomposer: {},
+};
+
 export const useToolStore = create<ToolState>()(
   persist(
     immer((set) => ({
       currentTool: null,
-      toolSettings: {
-        metronome: {},
-        qr: {},
-        drumMachine: {},
-        delayCalculator: {},
-        translator: {},
-        spellChecker: {},
-        englishSpellChecker: {},
-        tapTempo: {},
-        colorHarmony: {},
-        colorPalette: {},
-        colorDecomposer: {},
-      },
+      toolSettings: { ...defaultToolSettings },
       sidebarOpen: true,
       sidebarCollapsed: false,
 
@@ -84,6 +87,10 @@ export const useToolStore = create<ToolState>()(
         }),
       updateToolSettings: (tool, settings) =>
         set((state) => {
+          // Ensure toolSettings[tool] exists before assigning
+          if (!state.toolSettings[tool]) {
+            state.toolSettings[tool] = {};
+          }
           Object.assign(state.toolSettings[tool], settings);
         }),
       toggleSidebar: () =>
@@ -109,6 +116,24 @@ export const useToolStore = create<ToolState>()(
         sidebarCollapsed: state.sidebarCollapsed,
         toolSettings: state.toolSettings,
       }),
+      // Deep merge persisted state with default state to handle new tools
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<ToolState>;
+        return {
+          ...currentState,
+          sidebarCollapsed: persisted.sidebarCollapsed ?? currentState.sidebarCollapsed,
+          toolSettings: {
+            // Start with defaults, then overlay persisted settings
+            ...defaultToolSettings,
+            ...Object.fromEntries(
+              Object.entries(persisted.toolSettings ?? {}).map(([key, value]) => [
+                key,
+                { ...defaultToolSettings[key as keyof ToolSettings], ...value },
+              ]),
+            ),
+          } as ToolSettings,
+        };
+      },
     },
   ),
 );

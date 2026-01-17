@@ -385,7 +385,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
       return;
     }
 
-    const settings = toolSettings[currentTool];
+    const settings = toolSettings[currentTool] ?? {};
     const params = URL_PARAMS[currentTool];
     const urlUpdate = new URLSearchParams();
 
@@ -401,33 +401,34 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
       // Handle special parameter mappings
       let value: unknown;
       if (currentTool === 'qr') {
-        if (param === 'text') value = (settings as QRSettings).text;
-        else if (param === 'fgColor')
-          value = (settings as QRSettings).foregroundColor?.replace('#', '');
-        else if (param === 'bgColor')
-          value = (settings as QRSettings).backgroundColor?.replace('#', '');
-        else if (param === 'errorCorrection') value = (settings as QRSettings).errorCorrection;
-        else value = settings[param as keyof typeof settings];
+        const qrSettings = settings as Partial<QRSettings>;
+        if (param === 'text') value = qrSettings.text;
+        else if (param === 'fgColor') value = qrSettings.foregroundColor?.replace('#', '');
+        else if (param === 'bgColor') value = qrSettings.backgroundColor?.replace('#', '');
+        else if (param === 'errorCorrection') value = qrSettings.errorCorrection;
+        else value = qrSettings[param as keyof QRSettings];
       } else if (currentTool === 'translator') {
-        if (param === 'text') value = (settings as TranslatorSettings).lastInput;
-        else value = settings[param as keyof typeof settings];
+        const translatorSettingsLocal = settings as Partial<TranslatorSettings>;
+        if (param === 'text') value = translatorSettingsLocal.lastInput;
+        else value = translatorSettingsLocal[param as keyof TranslatorSettings];
       } else if (currentTool === 'colorPalette') {
+        const paletteSettings = settings as Partial<ColorPaletteSettings>;
         if (param === 'colors') {
-          const colors = (settings as ColorPaletteSettings).colors;
+          const colors = paletteSettings.colors;
           if (colors?.length) value = colors.map((c) => c.replace('#', '')).join(',');
         } else {
-          value = settings[param as keyof typeof settings];
+          value = paletteSettings[param as keyof ColorPaletteSettings];
         }
       } else if (currentTool === 'colorDecomposer') {
-        if (param === 'targetColor')
-          value = (settings as ColorDecomposerSettings).targetColor?.replace('#', '');
-        else value = settings[param as keyof typeof settings];
+        const decomposerSettings = settings as Partial<ColorDecomposerSettings>;
+        if (param === 'targetColor') value = decomposerSettings.targetColor?.replace('#', '');
+        else value = decomposerSettings[param as keyof ColorDecomposerSettings];
       } else if (currentTool === 'colorHarmony') {
-        if (param === 'baseColor')
-          value = (settings as ColorHarmonySettings).baseColor?.replace('#', '');
-        else value = settings[param as keyof typeof settings];
+        const harmonySettings = settings as Partial<ColorHarmonySettings>;
+        if (param === 'baseColor') value = harmonySettings.baseColor?.replace('#', '');
+        else value = harmonySettings[param as keyof ColorHarmonySettings];
       } else {
-        value = settings[param as keyof typeof settings];
+        value = (settings as Record<string, unknown>)[param];
       }
 
       if (value !== undefined && value !== null && value !== '') {
@@ -543,11 +544,11 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
     [updateToolSettings],
   );
 
-  // Merged settings for each tool
+  // Merged settings for each tool (with null-safe access)
   const metronomeSettings = useMemo(
     () => ({
       ...defaultMetronomeSettings,
-      ...toolSettings.metronome,
+      ...(toolSettings.metronome ?? {}),
     }),
     [toolSettings.metronome],
   );
@@ -555,22 +556,22 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const qrSettings = useMemo(
     () => ({
       ...defaultQRSettings,
-      ...toolSettings.qr,
+      ...(toolSettings.qr ?? {}),
     }),
     [toolSettings.qr],
   );
 
   const drumMachineSettings = useMemo(() => {
-    const storeSettings = toolSettings.drumMachine;
+    const storeSettings = toolSettings.drumMachine ?? {};
     const merged = {
       ...defaultDrumMachineSettings,
       ...storeSettings,
     };
     // Ensure pattern is properly merged (not replaced with partial)
-    if (storeSettings['pattern']) {
+    if (storeSettings.pattern) {
       merged.pattern = {
         ...defaultDrumMachineSettings.pattern,
-        ...storeSettings['pattern'],
+        ...storeSettings.pattern,
       };
     }
     return merged;
@@ -579,7 +580,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const translatorSettings = useMemo(
     () => ({
       ...defaultTranslatorSettings,
-      ...toolSettings.translator,
+      ...(toolSettings.translator ?? {}),
     }),
     [toolSettings.translator],
   );
@@ -587,7 +588,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const spellCheckerSettings = useMemo(
     () => ({
       ...defaultSpellCheckerSettings,
-      ...toolSettings.spellChecker,
+      ...(toolSettings.spellChecker ?? {}),
     }),
     [toolSettings.spellChecker],
   );
@@ -595,7 +596,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const englishSpellCheckerSettings = useMemo(
     () => ({
       ...defaultEnglishSpellCheckerSettings,
-      ...toolSettings.englishSpellChecker,
+      ...(toolSettings.englishSpellChecker ?? {}),
     }),
     [toolSettings.englishSpellChecker],
   );
@@ -603,7 +604,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const delayCalculatorSettings = useMemo(
     () => ({
       ...defaultDelayCalculatorSettings,
-      ...toolSettings.delayCalculator,
+      ...(toolSettings.delayCalculator ?? {}),
     }),
     [toolSettings.delayCalculator],
   );
@@ -611,7 +612,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const tapTempoSettings = useMemo(
     () => ({
       ...defaultTapTempoSettings,
-      ...toolSettings.tapTempo,
+      ...(toolSettings.tapTempo ?? {}),
     }),
     [toolSettings.tapTempo],
   );
@@ -619,7 +620,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const colorHarmonySettings = useMemo(
     () => ({
       ...defaultColorHarmonySettings,
-      ...toolSettings.colorHarmony,
+      ...(toolSettings.colorHarmony ?? {}),
     }),
     [toolSettings.colorHarmony],
   );
@@ -627,7 +628,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const colorPaletteSettings = useMemo(
     () => ({
       ...defaultColorPaletteSettings,
-      ...filterUndefined(toolSettings.colorPalette),
+      ...filterUndefined(toolSettings.colorPalette ?? {}),
     }),
     [toolSettings.colorPalette],
   );
@@ -635,7 +636,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const colorDecomposerSettings = useMemo(
     () => ({
       ...defaultColorDecomposerSettings,
-      ...filterUndefined(toolSettings.colorDecomposer),
+      ...filterUndefined(toolSettings.colorDecomposer ?? {}),
     }),
     [toolSettings.colorDecomposer],
   );
