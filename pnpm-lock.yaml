@@ -156,9 +156,15 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: ^1.21.0
         version: 1.21.0(vite@7.3.1(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260114.0)(wrangler@4.59.2(@cloudflare/workers-types@4.20260116.0))
+      '@cloudflare/workers-types':
+        specifier: ^4.20260116.0
+        version: 4.20260116.0
       '@playwright/test':
         specifier: ^1.57.0
         version: 1.57.0
+      '@react-router/cloudflare':
+        specifier: ^7.12.0
+        version: 7.12.0(@cloudflare/workers-types@4.20260116.0)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
       '@react-router/dev':
         specifier: ^7.12.0
         version: 7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3))(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(wrangler@4.59.2(@cloudflare/workers-types@4.20260116.0))(yaml@2.8.2)
@@ -274,9 +280,15 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: ^1.21.0
         version: 1.21.0(vite@7.3.1(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260114.0)(wrangler@4.59.2(@cloudflare/workers-types@4.20260116.0))
+      '@cloudflare/workers-types':
+        specifier: ^4.20260116.0
+        version: 4.20260116.0
       '@playwright/test':
         specifier: ^1.57.0
         version: 1.57.0
+      '@react-router/cloudflare':
+        specifier: ^7.12.0
+        version: 7.12.0(@cloudflare/workers-types@4.20260116.0)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
       '@react-router/dev':
         specifier: ^7.12.0
         version: 7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3))(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(wrangler@4.59.2(@cloudflare/workers-types@4.20260116.0))(yaml@2.8.2)
@@ -474,11 +486,14 @@ importers:
         specifier: ^1.21.0
         version: 1.21.0(vite@7.3.1(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260114.0)(wrangler@4.59.2(@cloudflare/workers-types@4.20260116.0))
       '@cloudflare/workers-types':
-        specifier: ^4.20250701.0
+        specifier: ^4.20260116.0
         version: 4.20260116.0
       '@playwright/test':
         specifier: ^1.57.0
         version: 1.57.0
+      '@react-router/cloudflare':
+        specifier: ^7.12.0
+        version: 7.12.0(@cloudflare/workers-types@4.20260116.0)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
       '@react-router/dev':
         specifier: ^7.12.0
         version: 7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3))(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(wrangler@4.59.2(@cloudflare/workers-types@4.20260116.0))(yaml@2.8.2)
@@ -2766,6 +2781,17 @@ packages:
 
   '@radix-ui/rect@1.1.1':
     resolution: {integrity: sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw==}
+
+  '@react-router/cloudflare@7.12.0':
+    resolution: {integrity: sha512-mx6p2nOoKmoAqV91mu5YVPNxUr8dZTtbuzKHgfWH8DEMgCrEPVd8aAZaTtRx3fi7GfcWOnm/+OcndphuHXyqqQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@cloudflare/workers-types': ^4.0.0
+      react-router: ^7.12.0
+      typescript: ^5.1.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@react-router/dev@7.12.0':
     resolution: {integrity: sha512-5GpwXgq4pnOVeG7l6ADkCHA1rthJus1q/A3NRYJAIypclUQDYAzg1/fDNjvaKuTSrq+Nr3u6aj2v+oC+47MX6g==}
@@ -9265,6 +9291,13 @@ snapshots:
       '@types/react-dom': 19.2.3(@types/react@19.2.7)
 
   '@radix-ui/rect@1.1.1': {}
+
+  '@react-router/cloudflare@7.12.0(@cloudflare/workers-types@4.20260116.0)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)':
+    dependencies:
+      '@cloudflare/workers-types': 4.20260116.0
+      react-router: 7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+    optionalDependencies:
+      typescript: 5.9.3
 
   '@react-router/dev@7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3))(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(wrangler@4.59.2(@cloudflare/workers-types@4.20260116.0))(yaml@2.8.2)':
     dependencies:

@@ -46,11 +46,6 @@ function generateLocalizedPaths(): string[] {
 }
 
 export default {
-  // SSG 모드 - 빌드 시 정적 HTML 생성
-  ssr: false,
-
-  // Pre-render static routes for SEO
-  async prerender() {
-    return generateLocalizedPaths();
-  },
+  // SSR 모드 - Workers에서 요청 시 HTML 생성
+  ssr: true,
 } satisfies Config;

@@ -8,73 +8,101 @@ jobs:
     name: Delete Old Pages Projects
     runs-on: ubuntu-latest
     steps:
-      - name: Delete tools project
+      - name: Delete t00ls (Pages)
         run: |
-          # Delete all deployments for 'tools' project
-          echo "Deleting deployments for 'tools'..."
+          echo "Deleting deployments for 't00ls'..."
           for i in {1..50}; do
             RESPONSE=$(curl -s -X GET \
-              "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/tools/deployments?per_page=25" \
+              "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/t00ls/deployments?per_page=25" \
               -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
               -H "Content-Type: application/json")
 
             DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result[]?.id // empty' 2>/dev/null || echo "")
 
             if [ -z "$DEPLOYMENTS" ]; then
-              echo "No more deployments for 'tools'"
+              echo "No more deployments for 't00ls'"
               break
             fi
 
             for id in $DEPLOYMENTS; do
               echo "Deleting deployment $id..."
               curl -s -X DELETE \
-                "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/tools/deployments/$id?force=true" \
+                "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/t00ls/deployments/$id?force=true" \
                 -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
                 -H "Content-Type: application/json" > /dev/null
             done
           done
 
-          # Delete the project
-          echo "Deleting 'tools' project..."
+          echo "Deleting 't00ls' project..."
           curl -s -X DELETE \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/tools" \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/t00ls" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json"
-          echo "Done with tools"
+          echo "Done with t00ls"
 
-      - name: Delete sound-blue project
+      - name: Delete soundbluemusic (Pages)
         run: |
-          # Delete all deployments for 'sound-blue' project
-          echo "Deleting deployments for 'sound-blue'..."
+          echo "Deleting deployments for 'soundbluemusic'..."
           for i in {1..50}; do
             RESPONSE=$(curl -s -X GET \
-              "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/sound-blue/deployments?per_page=25" \
+              "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/soundbluemusic/deployments?per_page=25" \
               -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
               -H "Content-Type: application/json")
 
             DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result[]?.id // empty' 2>/dev/null || echo "")
 
             if [ -z "$DEPLOYMENTS" ]; then
-              echo "No more deployments for 'sound-blue'"
+              echo "No more deployments for 'soundbluemusic'"
               break
             fi
 
             for id in $DEPLOYMENTS; do
               echo "Deleting deployment $id..."
               curl -s -X DELETE \
-                "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/sound-blue/deployments/$id?force=true" \
+                "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/soundbluemusic/deployments/$id?force=true" \
                 -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
                 -H "Content-Type: application/json" > /dev/null
             done
           done
 
-          # Delete the project
-          echo "Deleting 'sound-blue' project..."
+          echo "Deleting 'soundbluemusic' project..."
           curl -s -X DELETE \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/sound-blue" \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/soundbluemusic" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json"
-          echo "Done with sound-blue"
+          echo "Done with soundbluemusic"
+
+      - name: Delete dial0gue (Pages)
+        run: |
+          echo "Deleting deployments for 'dial0gue'..."
+          for i in {1..50}; do
+            RESPONSE=$(curl -s -X GET \
+              "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/dial0gue/deployments?per_page=25" \
+              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+              -H "Content-Type: application/json")
+
+            DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result[]?.id // empty' 2>/dev/null || echo "")
+
+            if [ -z "$DEPLOYMENTS" ]; then
+              echo "No more deployments for 'dial0gue'"
+              break
+            fi
+
+            for id in $DEPLOYMENTS; do
+              echo "Deleting deployment $id..."
+              curl -s -X DELETE \
+                "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/dial0gue/deployments/$id?force=true" \
+                -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+                -H "Content-Type: application/json" > /dev/null
+            done
+          done
+
+          echo "Deleting 'dial0gue' project..."
+          curl -s -X DELETE \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/dial0gue" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json"
+          echo "Done with dial0gue"
 
       - name: Verify deletion
         run: |
@@ -82,4 +110,4 @@ jobs:
           curl -s -X GET \
             "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            -H "Content-Type: application/json" | jq -r '.result[].name'
+            -H "Content-Type: application/json" | jq -r '.result[].name // "None"'

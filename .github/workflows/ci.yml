@@ -46,7 +46,7 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-  # Job 2: Build all apps (SSG)
+  # Job 2: Build all apps (SSR for Workers)
   build:
     name: Build Apps
     runs-on: ubuntu-latest
@@ -72,12 +72,18 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            apps/sound-blue/build/client
-            apps/tools/build/client
-            apps/dialogue/build/client
+            apps/sound-blue/build
+            apps/sound-blue/wrangler.toml
+            apps/sound-blue/workers.ts
+            apps/tools/build
+            apps/tools/wrangler.toml
+            apps/tools/workers.ts
+            apps/dialogue/build
+            apps/dialogue/wrangler.toml
+            apps/dialogue/workers.ts
           retention-days: 1
 
-  # Job 3: Deploy to Cloudflare Pages
+  # Job 3: Deploy to Cloudflare Workers
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
@@ -98,23 +104,26 @@ jobs:
           name: build-artifacts
           path: apps
 
-      - name: Deploy Sound Blue
+      - name: Deploy Sound Blue (Workers)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/sound-blue/build/client --project-name=soundblue --branch=main
+          workingDirectory: apps/sound-blue
+          command: deploy
 
-      - name: Deploy Tools
+      - name: Deploy Tools (Workers)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/tools/build/client --project-name=soundblue-tools --branch=main
+          workingDirectory: apps/tools
+          command: deploy
 
-      - name: Deploy Dialogue
+      - name: Deploy Dialogue (Workers)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/dialogue/build/client --project-name=soundblue-dialogue --branch=main
+          workingDirectory: apps/dialogue
+          command: deploy

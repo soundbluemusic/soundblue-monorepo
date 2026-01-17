@@ -1,6 +1,6 @@
 {
   "include": ["app/**/*.ts", "app/**/*.tsx", ".react-router/types/**/*"],
-  "exclude": ["e2e", "node_modules", "playwright.config.ts", "vitest.config.ts"],
+  "exclude": ["e2e", "node_modules", "playwright.config.ts", "vitest.config.ts", "workers.ts"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["vite/client"],

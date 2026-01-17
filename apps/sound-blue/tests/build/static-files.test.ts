@@ -7,72 +7,41 @@ import {
   findFilesMatching,
   getAllFiles,
   isBuildDirReady,
-  routeToFilePath,
   searchInFiles,
 } from './helpers/test-utils';
 
 /**
- * Static Files Test - 정적 파일 생성 검증
+ * Static Files Test - 빌드 파일 검증
  *
  * 목적:
- * - 모든 prerender 라우트의 HTML 파일이 생성되었는지 확인
+ * - SSR 모드: 클라이언트 assets가 올바르게 생성되었는지 확인
  * - 소스맵이 프로덕션 빌드에 포함되지 않았는지 확인
  * - 빌드 파일 구조가 올바른지 확인
  */
 
-/**
- * Prerender result type - can be string[] or object with paths property
- */
-interface PrerenderResult {
-  paths: string[];
-}
-
-// react-router.config.ts에서 라우트 목록 가져오기
-const getExpectedRoutes = async (): Promise<string[]> => {
-  const config = await import('../../react-router.config');
-  if (typeof config.default.prerender !== 'function') {
-    throw new Error('prerender is not a function');
-  }
-  // prerender can be called without args for static routes
-  const result = (await config.default.prerender()) as string[] | PrerenderResult;
-  // Handle both array and object return types
-  return Array.isArray(result) ? result : result.paths;
-};
+// SSR 모드에서는 prerender가 없으므로 정적 라우트 목록을 직접 정의
+// (HTML은 런타임에 Workers에서 생성됨)
+const EXPECTED_STATIC_ASSETS = [
+  'manifest.webmanifest',
+  'robots.txt',
+  '_headers',
+  '_redirects',
+];
 
 describe('Static Files Generation', () => {
   it('빌드 디렉토리 존재', () => {
     expect(isBuildDirReady(), `Build directory not found: ${BUILD_DIR}`).toBe(true);
   });
 
-  describe('HTML 파일 생성', () => {
-    it('모든 prerender 라우트의 HTML 생성', async () => {
-      const routes = await getExpectedRoutes();
-      const missingHtmlFiles: string[] = [];
-
-      routes.forEach((route) => {
-        const filePath = routeToFilePath(route);
-        if (!fileExists(filePath)) {
-          missingHtmlFiles.push(`${route} → ${filePath}`);
-        }
-      });
-
-      expect(
-        missingHtmlFiles,
-        `Missing HTML files:\n${missingHtmlFiles.join('\n')}`,
-      ).toEqual([]);
+  describe('SSR 모드 빌드 검증', () => {
+    // SSR 모드에서는 HTML이 런타임에 생성되므로 정적 HTML 파일 검증을 건너뜀
+    it('클라이언트 빌드 디렉토리에 assets 존재', () => {
+      expect(fileExists(`${BUILD_DIR}/_build`), '_build directory not found').toBe(true);
     });
 
-    it('index.html 파일 존재', () => {
-      expect(fileExists(`${BUILD_DIR}/index.html`)).toBe(true);
-    });
-
-    it('한국어 index.html 파일 존재', () => {
-      expect(fileExists(`${BUILD_DIR}/ko/index.html`)).toBe(true);
-    });
-
-    it('최소 10개 이상의 HTML 파일 생성', () => {
-      const htmlFiles = getAllHtmlFiles();
-      expect(htmlFiles.length).toBeGreaterThanOrEqual(10);
+    it('JavaScript 번들 존재', () => {
+      const jsFiles = getAllJsFiles(`${BUILD_DIR}/_build`);
+      expect(jsFiles.length).toBeGreaterThan(0);
     });
   });
 
@@ -107,9 +76,8 @@ describe('Static Files Generation', () => {
       expect(fileExists(`${BUILD_DIR}/_build`), '_build directory not found').toBe(true);
     });
 
-    it('ko 디렉토리 존재 (한국어)', () => {
-      expect(fileExists(`${BUILD_DIR}/ko`), 'ko directory not found').toBe(true);
-    });
+    // SSR 모드에서는 ko 디렉토리가 정적으로 생성되지 않음
+    // (런타임에 Workers에서 처리)
 
     it('icons 디렉토리 존재 (PWA 아이콘)', () => {
       expect(fileExists(`${BUILD_DIR}/icons`), 'icons directory not found').toBe(true);
