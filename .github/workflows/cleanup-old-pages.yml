@@ -8,15 +8,17 @@ jobs:
     name: Delete Old Pages Projects
     runs-on: ubuntu-latest
     steps:
-      - name: Delete tools deployments and project
+      - name: Delete tools project
         run: |
           # Delete all deployments for 'tools' project
           echo "Deleting deployments for 'tools'..."
-          while true; do
-            DEPLOYMENTS=$(curl -s -X GET \
+          for i in {1..50}; do
+            RESPONSE=$(curl -s -X GET \
               "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/tools/deployments?per_page=25" \
               -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-              -H "Content-Type: application/json" | jq -r '.result[].id // empty')
+              -H "Content-Type: application/json")
+
+            DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result[]?.id // empty' 2>/dev/null || echo "")
 
             if [ -z "$DEPLOYMENTS" ]; then
               echo "No more deployments for 'tools'"
@@ -38,16 +40,19 @@ jobs:
             "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/tools" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json"
+          echo "Done with tools"
 
-      - name: Delete sound-blue deployments and project
+      - name: Delete sound-blue project
         run: |
           # Delete all deployments for 'sound-blue' project
           echo "Deleting deployments for 'sound-blue'..."
-          while true; do
-            DEPLOYMENTS=$(curl -s -X GET \
+          for i in {1..50}; do
+            RESPONSE=$(curl -s -X GET \
               "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/sound-blue/deployments?per_page=25" \
               -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-              -H "Content-Type: application/json" | jq -r '.result[].id // empty')
+              -H "Content-Type: application/json")
+
+            DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result[]?.id // empty' 2>/dev/null || echo "")
 
             if [ -z "$DEPLOYMENTS" ]; then
               echo "No more deployments for 'sound-blue'"
@@ -69,6 +74,7 @@ jobs:
             "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/sound-blue" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json"
+          echo "Done with sound-blue"
 
       - name: Verify deletion
         run: |
@@ -76,4 +82,4 @@ jobs:
           curl -s -X GET \
             "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            -H "Content-Type: application/json" | jq '.result[].name'
+            -H "Content-Type: application/json" | jq -r '.result[].name'
