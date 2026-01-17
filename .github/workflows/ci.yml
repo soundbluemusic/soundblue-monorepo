@@ -28,15 +28,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build packages
+        run: pnpm turbo build --filter="@soundblue/*"
+
       - name: Biome check
         run: pnpm exec biome check .
 
       - name: TypeScript check
-        run: |
-          pnpm --filter sound-blue exec tsc --noEmit
-          pnpm --filter tools exec tsc --noEmit
-          pnpm --filter dialogue exec tsc --noEmit
-          pnpm --filter @soundblue/shared exec tsc --noEmit
+        run: pnpm turbo typecheck
 
   # Job 2: Unit Tests with Coverage
   test-coverage:
