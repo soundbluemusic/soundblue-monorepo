@@ -15,6 +15,7 @@
 | 심층 분석/리뷰 | `/analyze` | 별도 컨텍스트, 토큰 ~60% 절약 |
 | **SEO 렌더링 검증** | `/rendering-check` | SPA 감지 시 경고, SSG/SSR 확인 |
 | 레이어 의존성 검증 | `/layer-check` | import 규칙 준수 확인 |
+| **기술 스택 최신 정보** | `/latest-check` | WebSearch로 outdated 정보 방지 |
 
 ### 모델 선택 기준
 | 모델 | 용도 |
@@ -180,6 +181,30 @@ setTimeout(() => {
 - 핵심 로직 변경
 - 브레이킹 체인지
 - 하드코딩 추가
+
+---
+
+## 🔍 최신 정보 확인 필수 (WebSearch + 날짜 검증)
+
+> ⚠️ **내 지식 컷오프(2025년 5월) 이후 변경 가능성이 높은 주제**.
+> 아래 주제 답변 전 **반드시 WebSearch 실행** + **Today's date 기준 검증**.
+
+| 주제 | 검색 키워드 | 확인 포인트 |
+|------|------------|-------------|
+| Cloudflare Pages/Workers | "Cloudflare Pages Workers {현재연도}" | 기능 통합, Git 연동, Preview URL |
+| Cloudflare D1 | "Cloudflare D1 pricing limits {현재연도}" | GA 전환, 가격, 제한 변경 |
+| React Router v7 | "React Router v7 changelog {현재연도}" | API 변경, 새 기능, SSG/SSR |
+| Tailwind CSS v4 | "Tailwind CSS v4 breaking changes {현재연도}" | 문법 변경, 마이그레이션 |
+| TypeScript | "TypeScript 5 new features {현재연도}" | 새 버전 기능 |
+
+**규칙**:
+1. 위 주제 관련 질문 시 → **WebSearch로 현재 연도 포함 검색**
+2. **Today's date** (env 컨텍스트) 기준으로 날짜 검증
+3. 릴리즈 날짜 > Today's date → ❌ 오류, 재확인 필수
+4. 릴리즈 연도 < 현재 연도 → ⚠️ 최신 버전 누락 가능
+5. 출처 URL 명시
+
+**스킬**: `/latest-check` - 프로젝트 기술 스택 최신 정보 일괄 검색
 
 ---
 
