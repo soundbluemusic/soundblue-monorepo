@@ -17,8 +17,5 @@ local_protocol = "http"
 ENVIRONMENT = "production"
 NODE_VERSION = "22"
 
-# D1 Database 바인딩 (Context 앱 어휘 데이터)
-[[d1_databases]]
-binding = "DB"
-database_name = "context-db"
-database_id = "${D1_DATABASE_ID}"
+# D1 Database 바인딩은 Cloudflare Dashboard에서 설정
+# (wrangler.toml에서 ${...} 문법이 치환되지 않아 Dashboard 바인딩 사용)
