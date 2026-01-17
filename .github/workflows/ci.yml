@@ -109,19 +109,25 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
-          path: .
+          path: artifact-temp
+
+      - name: Move artifacts to apps folder
+        run: |
+          # Artifacts are extracted with apps/ as root, so we get sound-blue/, tools/, dialogue/
+          # Move build folders to the correct location
+          cp -r artifact-temp/sound-blue/build apps/sound-blue/
+          cp -r artifact-temp/tools/build apps/tools/
+          cp -r artifact-temp/dialogue/build apps/dialogue/
+          rm -rf artifact-temp
 
       - name: Verify artifacts
         run: |
           echo "=== Sound Blue ==="
-          ls -la apps/sound-blue/
-          cat apps/sound-blue/wrangler.toml
+          ls -la apps/sound-blue/build/
           echo "=== Tools ==="
-          ls -la apps/tools/
-          cat apps/tools/wrangler.toml
+          ls -la apps/tools/build/
           echo "=== Dialogue ==="
-          ls -la apps/dialogue/
-          cat apps/dialogue/wrangler.toml
+          ls -la apps/dialogue/build/
 
       - name: Deploy Sound Blue (Workers)
         working-directory: apps/sound-blue
