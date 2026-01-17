@@ -118,20 +118,35 @@ export const useToolStore = create<ToolState>()(
       }),
       // Deep merge persisted state with default state to handle new tools
       merge: (persistedState, currentState) => {
+        // Handle null/undefined persistedState
+        if (!persistedState || typeof persistedState !== 'object') {
+          return currentState;
+        }
+
         const persisted = persistedState as Partial<ToolState>;
+        const persistedToolSettings = persisted.toolSettings;
+
+        // Build merged toolSettings safely
+        const mergedToolSettings: ToolSettings = { ...defaultToolSettings };
+        if (persistedToolSettings && typeof persistedToolSettings === 'object') {
+          for (const key of Object.keys(defaultToolSettings) as (keyof ToolSettings)[]) {
+            const defaultValue = defaultToolSettings[key] ?? {};
+            const persistedValue = persistedToolSettings[key];
+            // Use type assertion since we're iterating over known keys
+            (mergedToolSettings as unknown as Record<string, object>)[key] = {
+              ...defaultValue,
+              ...(persistedValue && typeof persistedValue === 'object' ? persistedValue : {}),
+            };
+          }
+        }
+
         return {
           ...currentState,
-          sidebarCollapsed: persisted.sidebarCollapsed ?? currentState.sidebarCollapsed,
-          toolSettings: {
-            // Start with defaults, then overlay persisted settings
-            ...defaultToolSettings,
-            ...Object.fromEntries(
-              Object.entries(persisted.toolSettings ?? {}).map(([key, value]) => [
-                key,
-                { ...defaultToolSettings[key as keyof ToolSettings], ...value },
-              ]),
-            ),
-          } as ToolSettings,
+          sidebarCollapsed:
+            typeof persisted.sidebarCollapsed === 'boolean'
+              ? persisted.sidebarCollapsed
+              : currentState.sidebarCollapsed,
+          toolSettings: mergedToolSettings,
         };
       },
     },
