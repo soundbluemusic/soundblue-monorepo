@@ -2,6 +2,7 @@
   "name": "dialogue",
   "version": "0.1.0",
   "description": "A conversational learning tool that works 100% offline",
+  "license": "UNLICENSED",
   "type": "module",
   "scripts": {
     "dev": "react-router dev",

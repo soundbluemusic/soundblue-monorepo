@@ -298,10 +298,15 @@ export function MainLayout() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--color-border-primary)] py-2 px-4 text-center text-xs text-[var(--color-text-tertiary)]">
-        <span>{m['app.title']()}</span>
-        <span className="mx-2">·</span>
-        <span>{m['app.footerDescription']()}</span>
+      <footer className="border-t border-[var(--color-border-primary)] py-3 px-4 text-center">
+        <p className="text-xs text-[var(--color-text-tertiary)] mb-1">
+          <span>{m['app.title']()}</span>
+          <span className="mx-2">·</span>
+          <span>{m['app.footerDescription']()}</span>
+        </p>
+        <p className="text-[0.6875rem] text-[var(--color-text-tertiary)]/70">
+          &copy; 2025 SoundBlueMusic. All rights reserved.
+        </p>
       </footer>
     </div>
   );
