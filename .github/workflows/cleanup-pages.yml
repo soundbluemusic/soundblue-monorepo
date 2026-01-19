@@ -19,44 +19,51 @@ jobs:
             local PROJECT=$1
             echo "=== Processing $PROJECT ==="
 
-            # Get all deployment IDs first
-            echo "Fetching all deployments..."
-            RESPONSE=$(curl -s -X GET \
-              "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT}/deployments" \
-              -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-              -H "Content-Type: application/json")
+            # Loop until all deployments are deleted
+            ROUND=1
+            while true; do
+              echo "--- Round $ROUND: Fetching deployments ---"
+              RESPONSE=$(curl -s -X GET \
+                "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT}/deployments" \
+                -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+                -H "Content-Type: application/json")
 
-            # Debug: show raw response
-            echo "API Response:"
-            echo "$RESPONSE" | jq '.'
+              # Check if project exists
+              if ! echo "$RESPONSE" | jq -e '.success == true' > /dev/null 2>&1; then
+                echo "Project $PROJECT not found or API error"
+                echo "Errors: $(echo "$RESPONSE" | jq '.errors')"
+                return 0
+              fi
 
-            # Check if project exists
-            if ! echo "$RESPONSE" | jq -e '.success == true' > /dev/null 2>&1; then
-              echo "Project $PROJECT not found or API error"
-              echo "Errors: $(echo "$RESPONSE" | jq '.errors')"
-              return 0
-            fi
+              # Get deployment IDs
+              DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result[].id' 2>/dev/null)
+              COUNT=$(echo "$DEPLOYMENTS" | grep -c . || echo 0)
 
-            # Get unique deployment IDs
-            DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result[].id' 2>/dev/null | sort -u)
-            TOTAL=$(echo "$DEPLOYMENTS" | wc -l | tr -d ' ')
+              if [ "$COUNT" = "0" ] || [ -z "$DEPLOYMENTS" ]; then
+                echo "No more deployments found"
+                break
+              fi
 
-            if [ -z "$DEPLOYMENTS" ] || [ "$TOTAL" = "0" ]; then
-              echo "No deployments found for $PROJECT"
-            else
-              echo "Found $TOTAL deployments to delete"
+              echo "Found $COUNT deployments in this batch"
               DELETED=0
               for DEPLOY_ID in $DEPLOYMENTS; do
                 DELETED=$((DELETED + 1))
-                echo "[$DELETED/$TOTAL] Deleting: $DEPLOY_ID"
+                echo "[$DELETED/$COUNT] Deleting: $DEPLOY_ID"
                 curl -s -X DELETE \
                   "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT}/deployments/${DEPLOY_ID}?force=true" \
                   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
                   -H "Content-Type: application/json" > /dev/null
-                sleep 0.5
+                sleep 0.3
               done
-              echo "Deleted $DELETED deployments"
-            fi
+              echo "Deleted $DELETED deployments in round $ROUND"
+              ROUND=$((ROUND + 1))
+
+              # Safety limit
+              if [ $ROUND -gt 50 ]; then
+                echo "Safety limit reached (50 rounds)"
+                break
+              fi
+            done
 
             # Delete the project
             echo "Deleting project: $PROJECT"
