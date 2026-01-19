@@ -15,19 +15,25 @@ jobs:
         run: |
           ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID}"
 
-          for PROJECT in soundbluemusic t00ls dial0gue; do
+          for PROJECT in t00ls dial0gue; do
             echo "=== Processing $PROJECT ==="
 
             # Delete deployments in batches (API returns max 25 per page)
-            PAGE=1
             while true; do
-              echo "Fetching deployments page $PAGE..."
+              echo "Fetching deployments..."
               RESPONSE=$(curl -s -X GET \
-                "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT}/deployments?page=${PAGE}&per_page=25" \
+                "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT}/deployments?per_page=25" \
                 -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
                 -H "Content-Type: application/json")
 
-              DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result[].id // empty')
+              # Check if project exists
+              SUCCESS=$(echo "$RESPONSE" | jq -r '.success // false')
+              if [ "$SUCCESS" != "true" ]; then
+                echo "Project $PROJECT not found or API error, skipping..."
+                break
+              fi
+
+              DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result[]?.id // empty')
 
               if [ -z "$DEPLOYMENTS" ]; then
                 echo "No more deployments found for $PROJECT"
@@ -40,12 +46,9 @@ jobs:
                 curl -s -X DELETE \
                   "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT}/deployments/${DEPLOY_ID}?force=true" \
                   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-                  -H "Content-Type: application/json"
-                sleep 0.3
+                  -H "Content-Type: application/json" > /dev/null
+                sleep 0.2
               done
-
-              # Always start from page 1 since we're deleting
-              # (deleted items shift the pagination)
             done
 
             # Delete the project
@@ -55,7 +58,7 @@ jobs:
               -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
               -H "Content-Type: application/json")
 
-            echo "Delete result: $DELETE_RESULT"
+            echo "Delete result: $(echo "$DELETE_RESULT" | jq -r '.success // .errors[0].message // "unknown"')"
             echo "=== Done with $PROJECT ==="
           done
 
