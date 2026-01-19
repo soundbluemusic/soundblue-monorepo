@@ -139,7 +139,7 @@ export default function Changelog() {
         </div>
 
         <div className="hidden md:block">
-          <Footer appName="Changelog" />
+          <Footer />
         </div>
       </main>
 

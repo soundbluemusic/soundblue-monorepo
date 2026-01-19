@@ -3,6 +3,7 @@ import m from '~/lib/messages';
 import { generateId, type Message, useChatStore, useUIStore } from '~/stores';
 import { ChatContainer } from '../chat/ChatContainer';
 import { ConversationList } from './ConversationList';
+import { Footer } from './Footer';
 import { Header } from './Header';
 import { ResultPanel } from './ResultPanel';
 import { Sidebar } from './Sidebar';
@@ -298,16 +299,7 @@ export function MainLayout() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--color-border-primary)] py-3 px-4 text-center">
-        <p className="text-xs text-[var(--color-text-tertiary)] mb-1">
-          <span>{m['app.title']()}</span>
-          <span className="mx-2">·</span>
-          <span>{m['app.footerDescription']()}</span>
-        </p>
-        <p className="text-[0.6875rem] text-[var(--color-text-tertiary)]/70">
-          &copy; 2025 SoundBlueMusic. All rights reserved.
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 }

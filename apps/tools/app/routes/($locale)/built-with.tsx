@@ -146,7 +146,7 @@ export default function BuiltWith() {
         </div>
 
         <div className="hidden md:block">
-          <Footer appName="Open Source Licenses" />
+          <Footer />
         </div>
       </main>
 

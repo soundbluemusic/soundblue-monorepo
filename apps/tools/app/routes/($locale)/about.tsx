@@ -38,7 +38,7 @@ export default function About() {
         </div>
 
         <div className="hidden md:block w-full mt-auto">
-          <Footer appName="About" />
+          <Footer />
         </div>
       </main>
 

@@ -811,7 +811,7 @@ export default function Benchmark() {
         </div>
 
         <div className="hidden md:block">
-          <Footer appName="Translator Benchmark" />
+          <Footer />
         </div>
       </main>
 

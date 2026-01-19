@@ -177,7 +177,7 @@ export default function Sitemap() {
         </div>
 
         <div className="hidden md:block">
-          <Footer appName="Sitemap" />
+          <Footer />
         </div>
       </main>
 
