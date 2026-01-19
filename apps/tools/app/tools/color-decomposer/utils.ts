@@ -3,26 +3,19 @@
  * Separated to avoid circular dependencies with settings.ts
  */
 
+import {
+  colorDistance,
+  generateRandomColor,
+  hexToRgb,
+  hslToRgb,
+  type RGB,
+  rgbToHex,
+  rgbToHsl,
+} from '~/lib/color-converters';
 import type { ComponentColor, DecomposeSize } from './types';
 
-// ========================================
-// Color Conversion Functions
-// ========================================
-
-export function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: Number.parseInt(result[1], 16),
-        g: Number.parseInt(result[2], 16),
-        b: Number.parseInt(result[3], 16),
-      }
-    : { r: 0, g: 0, b: 0 };
-}
-
-export function rgbToHex(r: number, g: number, b: number): string {
-  return `#${[r, g, b].map((x) => Math.round(x).toString(16).padStart(2, '0')).join('')}`;
-}
+// Re-export for backward compatibility
+export { colorDistance, generateRandomColor, hexToRgb, hslToRgb, rgbToHex, rgbToHsl, type RGB };
 
 /**
  * Mix colors with ratio and opacity.
@@ -61,94 +54,9 @@ export function mixColors(components: ComponentColor[]): string {
   return rgbToHex(Math.round(r), Math.round(g), Math.round(b));
 }
 
-export function generateRandomColor(): string {
-  const r = Math.floor(Math.random() * 256);
-  const g = Math.floor(Math.random() * 256);
-  const b = Math.floor(Math.random() * 256);
-  return rgbToHex(r, g, b);
-}
-
-// RGB to HSL conversion
-export function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
-  r /= 255;
-  g /= 255;
-  b /= 255;
-
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  let h = 0;
-  let s = 0;
-
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-    switch (max) {
-      case r:
-        h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-        break;
-      case g:
-        h = ((b - r) / d + 2) / 6;
-        break;
-      case b:
-        h = ((r - g) / d + 4) / 6;
-        break;
-    }
-  }
-
-  return { h: h * 360, s: s * 100, l: l * 100 };
-}
-
-// HSL to RGB conversion
-export function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
-  h /= 360;
-  s /= 100;
-  l /= 100;
-
-  let r: number;
-  let g: number;
-  let b: number;
-
-  if (s === 0) {
-    r = g = b = l;
-  } else {
-    const hue2rgb = (p: number, q: number, t: number) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
-  }
-
-  return {
-    r: Math.round(r * 255),
-    g: Math.round(g * 255),
-    b: Math.round(b * 255),
-  };
-}
-
 // ========================================
 // Color Decomposition - Extreme Contrast Mode
 // ========================================
-
-/**
- * Calculate color distance (Euclidean in RGB space)
- */
-function colorDistance(
-  c1: { r: number; g: number; b: number },
-  c2: { r: number; g: number; b: number },
-): number {
-  return Math.sqrt((c1.r - c2.r) ** 2 + (c1.g - c2.g) ** 2 + (c1.b - c2.b) ** 2);
-}
 
 /**
  * Find extreme colors that create surprising visual contrast.
@@ -797,12 +705,6 @@ export function decomposeColor(
 // ========================================
 // Recalculate Unlocked Colors
 // ========================================
-
-interface RGB {
-  r: number;
-  g: number;
-  b: number;
-}
 
 /**
  * Check if a color is an extreme (black or white)

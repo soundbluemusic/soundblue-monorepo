@@ -1,5 +1,6 @@
 export {
   type Conversation,
+  createWelcomeMessage,
   type DeletedConversation,
   generateId,
   type Message,

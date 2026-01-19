@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import m from '~/lib/messages';
-import { generateId, type Message, useChatStore, useUIStore } from '~/stores';
+import { createWelcomeMessage, useChatStore, useUIStore } from '~/stores';
 import { ChatContainer } from '../chat/ChatContainer';
 import { ConversationList } from './ConversationList';
 import { Footer } from './Footer';
@@ -145,13 +145,7 @@ export function MainLayout() {
   // Handle new chat - clear active and create new conversation
   const handleNewChat = useCallback(() => {
     clearActive();
-    const welcomeMessage: Message = {
-      id: generateId(),
-      role: 'assistant',
-      content: m['app.welcome'](),
-      timestamp: Date.now(),
-    };
-    createConversation(welcomeMessage);
+    createConversation(createWelcomeMessage(m['app.welcome']()));
     if (isMobile) {
       setActiveTab('chat');
     }

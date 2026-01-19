@@ -2,27 +2,8 @@ import { useParaglideI18n } from '@soundblue/i18n';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { BottomSheet } from '~/components/ui';
-import { isNavActive, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from '~/constants';
+import { isNavActive, MoreIcon, PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from '~/constants';
 import m from '~/lib/messages';
-
-/**
- * MoreIcon - Three dots icon for "More" menu
- */
-function MoreIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    >
-      <circle cx="12" cy="12" r="1" />
-      <circle cx="12" cy="5" r="1" />
-      <circle cx="12" cy="19" r="1" />
-    </svg>
-  );
-}
 
 export function BottomNav() {
   const { localizedPath } = useParaglideI18n();

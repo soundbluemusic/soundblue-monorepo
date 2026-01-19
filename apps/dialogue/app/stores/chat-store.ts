@@ -59,6 +59,21 @@ export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
 }
 
+/**
+ * Create a welcome message for a new conversation
+ *
+ * @param content - The welcome message content (typically from i18n)
+ * @returns A new Message object with assistant role
+ */
+export function createWelcomeMessage(content: string): Message {
+  return {
+    id: generateId(),
+    role: 'assistant',
+    content,
+    timestamp: Date.now(),
+  };
+}
+
 const TRASH_EXPIRY_DAYS = 30;
 
 export const useChatStore = create<ChatState & ChatActions>()(

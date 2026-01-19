@@ -1,104 +1,12 @@
-import { useParaglideI18n } from '@soundblue/i18n';
 import { Check, Copy, RefreshCw, Shuffle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
+import { useCurrentLocale } from '~/hooks';
+import { copyToClipboard } from '~/lib/clipboard';
+import { hexToColorInfo, hslToRgb, rgbToHex } from '~/lib/color-converters';
 import { getToolGuide } from '~/lib/toolGuides';
 import { colorHarmonyTexts, defaultColorHarmonySettings } from './settings';
 import type { ColorHarmonyProps, ColorInfo, HarmonyMode } from './types';
-
-// ========================================
-// Color Utility Functions
-// ========================================
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: Number.parseInt(result[1], 16),
-        g: Number.parseInt(result[2], 16),
-        b: Number.parseInt(result[3], 16),
-      }
-    : { r: 0, g: 0, b: 0 };
-}
-
-function rgbToHex(r: number, g: number, b: number): string {
-  return `#${[r, g, b].map((x) => Math.round(x).toString(16).padStart(2, '0')).join('')}`;
-}
-
-function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
-  r /= 255;
-  g /= 255;
-  b /= 255;
-
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h = 0;
-  let s = 0;
-  const l = (max + min) / 2;
-
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r:
-        h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-        break;
-      case g:
-        h = ((b - r) / d + 2) / 6;
-        break;
-      case b:
-        h = ((r - g) / d + 4) / 6;
-        break;
-    }
-  }
-
-  return {
-    h: Math.round(h * 360),
-    s: Math.round(s * 100),
-    l: Math.round(l * 100),
-  };
-}
-
-function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
-  h /= 360;
-  s /= 100;
-  l /= 100;
-
-  let r: number;
-  let g: number;
-  let b: number;
-
-  if (s === 0) {
-    r = g = b = l;
-  } else {
-    const hue2rgb = (p: number, q: number, t: number): number => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
-  }
-
-  return {
-    r: Math.round(r * 255),
-    g: Math.round(g * 255),
-    b: Math.round(b * 255),
-  };
-}
-
-function hexToColorInfo(hex: string): ColorInfo {
-  const rgb = hexToRgb(hex);
-  const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-  return { hex: hex.toUpperCase(), rgb, hsl };
-}
 
 function hslToColorInfo(h: number, s: number, l: number): ColorInfo {
   const rgb = hslToRgb(h, s, l);
@@ -163,13 +71,11 @@ function ColorCard({
 }) {
   const [copied, setCopied] = useState<string | null>(null);
 
-  const copyToClipboard = useCallback(async (text: string, type: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
+  const handleCopy = useCallback(async (text: string, type: string) => {
+    const success = await copyToClipboard(text);
+    if (success) {
       setCopied(type);
       setTimeout(() => setCopied(null), 1500);
-    } catch {
-      // Clipboard API not available
     }
   }, []);
 
@@ -195,7 +101,7 @@ function ColorCard({
         {/* HEX */}
         <button
           type="button"
-          onClick={() => copyToClipboard(color.hex, 'hex')}
+          onClick={() => handleCopy(color.hex, 'hex')}
           className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted transition-colors text-left group"
         >
           <span className="text-xs font-medium text-muted-foreground">{texts.hex}</span>
@@ -212,7 +118,7 @@ function ColorCard({
         {/* RGB */}
         <button
           type="button"
-          onClick={() => copyToClipboard(rgbString, 'rgb')}
+          onClick={() => handleCopy(rgbString, 'rgb')}
           className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted transition-colors text-left group"
         >
           <span className="text-xs font-medium text-muted-foreground">{texts.rgb}</span>
@@ -229,7 +135,7 @@ function ColorCard({
         {/* HSL */}
         <button
           type="button"
-          onClick={() => copyToClipboard(hslString, 'hsl')}
+          onClick={() => handleCopy(hslString, 'hsl')}
           className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted transition-colors text-left group"
         >
           <span className="text-xs font-medium text-muted-foreground">{texts.hsl}</span>
@@ -252,8 +158,7 @@ function ColorCard({
 // ========================================
 
 export function ColorHarmony({ settings: propSettings, onSettingsChange }: ColorHarmonyProps) {
-  const { locale } = useParaglideI18n();
-  const currentLocale = locale === 'ko' ? 'ko' : 'en';
+  const currentLocale = useCurrentLocale();
   const texts = colorHarmonyTexts[currentLocale];
   const guide = getToolGuide('colorHarmony', currentLocale);
 
