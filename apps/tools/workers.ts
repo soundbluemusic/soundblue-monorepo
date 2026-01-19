@@ -1,7 +1,8 @@
 /// <reference types="@cloudflare/workers-types" />
+
+// @ts-expect-error - virtual module provided by Cloudflare Vite plugin
+import * as serverBuild from 'virtual:react-router/server-build';
 import { createRequestHandler } from '@react-router/cloudflare';
-// @ts-expect-error - virtual module from build
-import * as serverBuild from './build/server';
 
 const requestHandler = createRequestHandler(serverBuild, 'production');
 

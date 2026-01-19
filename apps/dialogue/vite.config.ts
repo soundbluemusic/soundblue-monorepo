@@ -1,3 +1,4 @@
+import { cloudflare } from '@cloudflare/vite-plugin';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
@@ -14,6 +15,7 @@ export default defineConfig({
       outdir: './app/paraglide',
     }),
     tailwindcss(),
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
     reactRouter(),
     // PWA Support - SSG optimized (100% offline)
     VitePWA({
