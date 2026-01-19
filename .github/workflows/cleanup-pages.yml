@@ -26,9 +26,14 @@ jobs:
               -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
               -H "Content-Type: application/json")
 
+            # Debug: show raw response
+            echo "API Response:"
+            echo "$RESPONSE" | jq '.'
+
             # Check if project exists
             if ! echo "$RESPONSE" | jq -e '.success == true' > /dev/null 2>&1; then
-              echo "Project $PROJECT not found or API error, skipping..."
+              echo "Project $PROJECT not found or API error"
+              echo "Errors: $(echo "$RESPONSE" | jq '.errors')"
               return 0
             fi
 
