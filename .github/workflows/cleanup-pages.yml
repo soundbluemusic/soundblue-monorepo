@@ -70,7 +70,6 @@ jobs:
             echo "=== Done with $PROJECT ==="
           }
 
-          delete_project "t00ls"
           delete_project "dial0gue"
 
           echo "Cleanup complete!"
