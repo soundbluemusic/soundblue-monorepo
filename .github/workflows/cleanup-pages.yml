@@ -22,7 +22,7 @@ jobs:
             # Get all deployment IDs first
             echo "Fetching all deployments..."
             RESPONSE=$(curl -s -X GET \
-              "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT}/deployments?per_page=100" \
+              "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT}/deployments" \
               -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
               -H "Content-Type: application/json")
 
