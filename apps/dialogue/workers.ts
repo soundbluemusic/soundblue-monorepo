@@ -1,15 +1,26 @@
 /// <reference types="@cloudflare/workers-types" />
 
-// @ts-expect-error - virtual module provided by Cloudflare Vite plugin
-import * as serverBuild from 'virtual:react-router/server-build';
-import { createRequestHandler } from '@react-router/cloudflare';
+import { createRequestHandler } from 'react-router';
 
-const requestHandler = createRequestHandler(serverBuild, 'production');
+declare module 'react-router' {
+  export interface AppLoadContext {
+    cloudflare: {
+      env: Env;
+      ctx: ExecutionContext;
+    };
+  }
+}
+
+const requestHandler = createRequestHandler(
+  // @ts-expect-error - virtual module provided by Cloudflare Vite plugin
+  () => import('virtual:react-router/server-build'),
+  import.meta.env.MODE,
+);
 
 export default {
-  async fetch(request: Request, env: Record<string, unknown>, ctx: ExecutionContext) {
+  async fetch(request, env, ctx) {
     return requestHandler(request, {
       cloudflare: { env, ctx },
     });
   },
-} satisfies ExportedHandler;
+} satisfies ExportedHandler<Env>;
