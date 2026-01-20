@@ -1,6 +1,6 @@
 {
-  "name": "SoundBlue Monorepo Docs",
-  "short_name": "SB Docs",
+  "name": "SoundBlue Projects",
+  "short_name": "SB Projects",
   "description": "Music and creative projects by Sound Blue",
   "start_url": "/soundblue-monorepo/",
   "scope": "/soundblue-monorepo/",

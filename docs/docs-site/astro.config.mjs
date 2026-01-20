@@ -14,7 +14,7 @@ export default defineConfig({
 	},
 	integrations: [
 		starlight({
-			title: 'SoundBlue Monorepo',
+			title: 'SoundBlue Projects',
 			description: 'Music and creative projects by Sound Blue',
 			logo: {
 				light: './src/assets/logo-light.svg',
