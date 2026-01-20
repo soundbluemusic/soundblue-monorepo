@@ -1,7 +1,7 @@
 // ========================================
 // External Dictionary - 외부 사전 (D1에서 자동 생성)
 // Source: Cloudflare D1 (Context App)
-// Generated: 2026-01-20T12:38:13.152Z
+// Generated: 2026-01-20T18:29:04.291Z
 // ========================================
 // ⚠️ 이 파일은 자동 생성됩니다. 직접 수정하지 마세요!
 // ⚠️ This file is auto-generated. Do not edit directly!
@@ -14,7 +14,7 @@
 export const EXTERNAL_SENTENCES_STATS = {
   koToEnCount: 80357,
   enToKoCount: 79915,
-  generatedAt: '2026-01-20T12:38:13.152Z',
+  generatedAt: '2026-01-20T18:29:04.291Z',
 } as const;
 
 // 문장 사전 캐시
