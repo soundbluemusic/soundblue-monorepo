@@ -66,7 +66,7 @@ pnpm dev:dialogue  # Dialogue
 | `pnpm dev:tools` | Run Tools |
 | `pnpm dev:dialogue` | Run Dialogue |
 | `pnpm build` | Build all apps |
-| `pnpm build:all` | Build with prebuild hooks |
+| `pnpm prebuild:all` | Sync dictionaries + generate types |
 | `pnpm test` | Run tests |
 | `pnpm check:fix` | Lint & format |
 
@@ -79,7 +79,7 @@ pnpm dev:dialogue  # Dialogue
 | Tech | Description | Docs |
 |------|-------------|------|
 | [**React 19**](https://react.dev/) | Fast reactive framework | [react.dev](https://react.dev/) |
-| [**React Router 7**](https://reactrouter.com/) | SSG mode routing | [reactrouter.com](https://reactrouter.com/) |
+| [**React Router 7**](https://reactrouter.com/) | SSR mode routing | [reactrouter.com](https://reactrouter.com/) |
 | [**TypeScript**](https://www.typescriptlang.org/) | Type-safe JavaScript | [typescriptlang.org](https://www.typescriptlang.org/docs/) |
 | [**Tailwind CSS v4**](https://tailwindcss.com/) | Utility-first styling | [tailwindcss.com](https://tailwindcss.com/docs/) |
 
@@ -118,7 +118,8 @@ soundblue-monorepo/
 │   │   ├── translator/         → Translation engine
 │   │   ├── nlu/                → Natural language understanding
 │   │   ├── audio-engine/       → Audio timing & sequencing
-│   │   └── locale/             → Pure locale utilities
+│   │   ├── locale/             → Pure locale utilities
+│   │   └── text-processor/     → Text processing utilities
 │   │
 │   ├── 🖥️ platform/            → Browser API adapters (dual implementation)
 │   │   ├── web-audio/          → Web Audio API
@@ -153,7 +154,7 @@ soundblue-monorepo/
 │           .browser.ts (실제) / .noop.ts (빈 구현)                │
 ├─────────────────────────────────────────────────────────────────┤
 │                          core/                                  │
-│         (hangul, translator, nlu, audio-engine, locale)         │
+│    (hangul, translator, nlu, audio-engine, locale, text-processor) │
 │                 No browser APIs allowed!                        │
 └─────────────────────────────────────────────────────────────────┘
 
@@ -176,6 +177,7 @@ soundblue-monorepo/
 | `@soundblue/nlu` | Intent & entity recognition | [packages/core/nlu/](packages/core/nlu/) |
 | `@soundblue/audio-engine` | Audio timing & sequencing | [packages/core/audio-engine/](packages/core/audio-engine/) |
 | `@soundblue/locale` | Pure locale utilities | [packages/core/locale/](packages/core/locale/) |
+| `@soundblue/text-processor` | Text processing utilities | [packages/core/text-processor/](packages/core/text-processor/) |
 
 ### Platform Layer (플랫폼 레이어)
 
@@ -327,7 +329,7 @@ soundblue-monorepo/
 
 | Category | Document | Description |
 |----------|----------|-------------|
-| **Architecture** | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 전체 아키텍처, 패키지 구조, SSG 원칙 |
+| **Architecture** | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 전체 아키텍처, 패키지 구조, SSR 원칙 |
 | **Development Rules** | [CLAUDE.md](CLAUDE.md) | 개발 규칙, 코드 품질, 응답 규칙 |
 | **Quality** | [.claude/rules/quality.md](.claude/rules/quality.md) | 품질 지표, 안티패턴, 12가지 품질 지표 |
 | **Translator** | [.claude/rules/translator.md](.claude/rules/translator.md) | 번역기 개발 규칙, 하드코딩 정책 |

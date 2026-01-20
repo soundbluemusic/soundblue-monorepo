@@ -211,7 +211,9 @@ packages/
 │   ├── hangul/            # Korean text processing
 │   ├── translator/        # Translation engine
 │   ├── nlu/               # Natural language understanding
-│   └── audio-engine/      # Audio timing & sequencing
+│   ├── audio-engine/      # Audio timing & sequencing
+│   ├── locale/            # Pure locale utilities
+│   └── text-processor/    # Text processing utilities
 │
 ├── platform/              # Browser API adapters (브라우저 API 어댑터)
 │   ├── web-audio/         # Web Audio API
@@ -611,7 +613,7 @@ The translator integrates an external vocabulary system that syncs from [public-
 │  └── conversations.json → Dialogue examples (211+ sentence pairs)           │
 └─────────────────────────────────────────────────────────────────────────────┘
                           │
-                          ▼ pnpm build:all (prebuild hook)
+                          ▼ pnpm prebuild:all (prebuild hook)
                           ▼ pnpm sync:context-dict (manual)
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  Output: apps/tools/app/tools/translator/dictionary/external/               │
@@ -645,7 +647,7 @@ The translator integrates an external vocabulary system that syncs from [public-
 pnpm sync:context-dict
 
 # Auto sync + build (자동 동기화 + 빌드)
-pnpm build:all
+pnpm prebuild:all && pnpm build
 ```
 
 ### Design Principles (설계 원칙)
@@ -791,18 +793,18 @@ soundblue-monorepo/
 │       ├── idioms.schema.json
 │       └── domains.schema.json
 │
+├── packages/ui/components/src/composite/tool/translator/
+│   └── dictionary/
+│       └── generated/                    ← 자동 생성 (pnpm prebuild)
+│           ├── ko-to-en.ts              # JSON에서 생성
+│           ├── en-to-ko.ts
+│           ├── stems.ts
+│           ├── idioms.ts
+│           └── index.ts
+│
 ├── apps/tools/app/tools/translator/
 │   └── dictionary/
-│       ├── generated/                    ← 자동 생성 (pnpm prebuild)
-│       │   ├── ko-to-en.ts              # JSON에서 생성
-│       │   ├── en-to-ko.ts
-│       │   ├── stems.ts
-│       │   ├── idioms.ts
-│       │   └── index.ts
-│       │
-│       ├── words.ts                      ← 로직만 (174줄, 데이터 제거됨)
-│       ├── stems.ts                      ← 로직만 (77줄, 데이터 제거됨)
-│       ├── idioms.ts                     ← 로직만 (269줄, 데이터 제거됨)
+│       ├── d1-client.ts                  ← D1 데이터베이스 클라이언트
 │       │
 │       └── external/                     ← Context 앱에서 동기화
 │           ├── words.ts                 # 외부 단어 사전
@@ -834,7 +836,8 @@ soundblue-monorepo/
 |---------|-------------|--------|
 | `pnpm prebuild` | JSON → TypeScript 생성 | `dictionary/generated/*.ts` |
 | `pnpm sync:context-dict` | Context 앱에서 어휘 동기화 | `dictionary/external/*.ts` |
-| `pnpm build:all` | prebuild + sync + 빌드 전체 | 모든 앱 빌드 |
+| `pnpm prebuild:all` | sync + prebuild 전체 | 사전 동기화 + 타입 생성 |
+| `pnpm build` | 전체 빌드 | 모든 앱 빌드 |
 
 ### Rules (규칙)
 
@@ -902,7 +905,7 @@ soundblue-monorepo/
 **New Features:**
 - External dictionary sync from public-monorepo
 - Sentence dictionary with exact match priority
-- Prebuild hook for automatic sync (`pnpm build:all`)
+- Prebuild hook for automatic sync (`pnpm prebuild:all`)
 
 ### v2.0.0 - SSG Edition (2024-12)
 
