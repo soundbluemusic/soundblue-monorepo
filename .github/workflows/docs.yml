@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: docs/docs-site
-        run: pnpm install
+        run: pnpm install --ignore-workspace
 
       - name: Build docs
         working-directory: docs/docs-site
