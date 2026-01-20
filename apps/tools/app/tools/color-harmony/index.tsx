@@ -219,9 +219,12 @@ export function ColorHarmony({ settings: propSettings, onSettingsChange }: Color
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         {/* Base Color Picker */}
         <div className="flex items-center gap-4 mb-4">
-          <label className="text-sm font-medium text-foreground">{texts.baseColor}</label>
+          <label htmlFor="base-color-picker" className="text-sm font-medium text-foreground">
+            {texts.baseColor}
+          </label>
           <div className="flex items-center gap-2 flex-1">
             <input
+              id="base-color-picker"
               type="color"
               value={settings.baseColor}
               onChange={handleColorChange}
@@ -238,13 +241,14 @@ export function ColorHarmony({ settings: propSettings, onSettingsChange }: Color
               }}
               className="flex-1 h-10 px-3 rounded-lg border border-border bg-background text-sm font-mono uppercase"
               maxLength={7}
+              aria-label="Hex color code"
             />
           </div>
         </div>
 
         {/* Mode Selector */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">{texts.mode}</label>
+          <span className="text-sm font-medium text-foreground">{texts.mode}</span>
           <div className="flex flex-wrap gap-2">
             {modes.map((m) => (
               <button

@@ -246,7 +246,7 @@ function translatePredicate(predicate: Constituent, parsed: ParsedSentence): str
 
   // 형용사인 경우 be 동사 추가
   if (token.pos === 'adjective') {
-    verb = conjugateBeVerb(parsed.tense) + ' ' + verb;
+    verb = `${conjugateBeVerb(parsed.tense)} ${verb}`;
   } else if (token.pos === 'verb') {
     // 동사 시제 활용
     verb = conjugateVerb(verb, parsed.tense);
@@ -254,10 +254,11 @@ function translatePredicate(predicate: Constituent, parsed: ParsedSentence): str
 
   // 부정 처리
   if (parsed.isNegative) {
+    const base = getVerbBase(verb);
     if (parsed.negationType === 'could_not') {
-      verb = "couldn't " + getVerbBase(verb);
+      verb = `couldn't ${base}`;
     } else {
-      verb = "didn't " + getVerbBase(verb);
+      verb = `didn't ${base}`;
     }
   }
 
@@ -322,11 +323,11 @@ function conjugateVerb(verb: string, tense: string): string {
 
   switch (tense) {
     case 'past':
-      return irregularPast[verb] || (verb.endsWith('e') ? verb + 'd' : verb + 'ed');
+      return irregularPast[verb] || (verb.endsWith('e') ? `${verb}d` : `${verb}ed`);
     case 'future':
-      return 'will ' + verb;
+      return `will ${verb}`;
     case 'progressive':
-      return 'is ' + (verb.endsWith('e') ? verb.slice(0, -1) + 'ing' : verb + 'ing');
+      return `is ${verb.endsWith('e') ? `${verb.slice(0, -1)}ing` : `${verb}ing`}`;
     default:
       return verb;
   }
@@ -367,7 +368,7 @@ export function generateBySentenceType(
   switch (sentenceType) {
     // 1. 평서문 (declarative)
     case 'declarative':
-      sentence = capitalizeFirst(sentence) + '.';
+      sentence = `${capitalizeFirst(sentence)}.`;
       break;
 
     // 2. 의문문 (interrogative)
@@ -387,7 +388,7 @@ export function generateBySentenceType(
 
     // 5. 감탄문 (exclamatory)
     case 'exclamatory':
-      sentence = capitalizeFirst(sentence) + '!';
+      sentence = `${capitalizeFirst(sentence)}!`;
       break;
   }
 
@@ -403,7 +404,7 @@ function convertToQuestion(parts: string[], parsed: ParsedSentence): string {
   const hasQuestionWord = parts.some((p) => questionWords.includes(p.toLowerCase()));
 
   if (hasQuestionWord) {
-    return capitalizeFirst(parts.join(' ')) + '?';
+    return `${capitalizeFirst(parts.join(' '))}?`;
   }
 
   // 일반 Yes/No 의문문: Do/Does/Did + S + V?
@@ -422,7 +423,7 @@ function convertToQuestion(parts: string[], parsed: ParsedSentence): string {
 function convertToImperative(parts: string[]): string {
   // 주어 제거하고 동사로 시작
   const filtered = parts.filter((p) => !['I', 'you', 'we', 'they', 'he', 'she'].includes(p));
-  return capitalizeFirst(filtered.join(' ')) + '.';
+  return `${capitalizeFirst(filtered.join(' '))}.`;
 }
 
 /**
@@ -430,7 +431,7 @@ function convertToImperative(parts: string[]): string {
  */
 function convertToCohortative(parts: string[]): string {
   const filtered = parts.filter((p) => !['I', 'we'].includes(p));
-  return "Let's " + filtered.join(' ') + '.';
+  return `Let's ${filtered.join(' ')}.`;
 }
 
 /**

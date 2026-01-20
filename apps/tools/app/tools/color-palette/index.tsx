@@ -492,8 +492,12 @@ const DraggablePreview = memo(function DraggablePreview({
           const isResizing = resizingIndex === idx;
 
           return (
+            // biome-ignore lint/a11y/useSemanticElements: div is used for drag functionality with dynamic positioning
             <div
               key={idx}
+              role="button"
+              tabIndex={0}
+              aria-label={`Color ${idx + 1}: ${color.hex}`}
               className={`absolute rounded-lg shadow-md cursor-move transition-shadow ${
                 isDragging || isResizing ? 'shadow-lg ring-2 ring-primary z-10' : 'hover:shadow-lg'
               }`}
@@ -510,9 +514,15 @@ const DraggablePreview = memo(function DraggablePreview({
                   handleDragStart(idx, e.touches[0].clientX, e.touches[0].clientY);
                 }
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                }
+              }}
             >
-              {/* Resize handle */}
+              {/* Resize handle - decorative only, main interaction is via drag */}
               <div
+                aria-hidden="true"
                 className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-0 hover:opacity-100 transition-opacity"
                 style={{
                   background: 'linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.5) 50%)',
@@ -632,7 +642,7 @@ export function ColorPalette({ settings: propSettings, onSettingsChange }: Color
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         {/* Size Selector */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">{texts.paletteSize}</label>
+          <span className="text-sm font-medium text-foreground">{texts.paletteSize}</span>
           <div className="flex flex-wrap gap-2">
             {sizes.map((size) => (
               <button

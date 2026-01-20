@@ -233,17 +233,15 @@ export function createAdverb(stem: string): string {
     const jamo = decompose(lastChar);
     if (jamo && jamo.jong === 'ㄹ') {
       // ㄹ탈락 없이 그대로 -이 붙임 (멀+이 = 멀리)
-      return stem + '이';
+      return `${stem}이`;
     }
   }
 
   switch (suffixType) {
     case 'hi':
-      return stem + '히';
-    case 'i':
-    case 'both':
+      return `${stem}히`;
     default:
-      return `${stem}이`; // both인 경우 기본은 -이
+      return `${stem}이`; // i, both인 경우 기본은 -이
   }
 }
 

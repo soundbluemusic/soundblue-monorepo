@@ -92,12 +92,10 @@ function getSubsets(n: number): number[][] {
 
 const BlendPreview = memo(function BlendPreview({
   components,
-  targetColor,
   onCopy,
   copiedColor,
 }: {
   components: ComponentColor[];
-  targetColor: string;
   onCopy: (hex: string, id: string) => void;
   copiedColor: string | null;
 }) {
@@ -211,8 +209,15 @@ const BlendPreview = memo(function BlendPreview({
           return <g key={key}>{element}</g>;
         })}
 
-        {/* Center label */}
-        <g style={{ cursor: 'pointer' }} onClick={() => onCopy(centerBlend, 'blend')}>
+        {/* Center label - clickable SVG group */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG group cannot be a button element */}
+        <g
+          role="button"
+          tabIndex={0}
+          style={{ cursor: 'pointer' }}
+          onClick={() => onCopy(centerBlend, 'blend')}
+          onKeyDown={(e) => e.key === 'Enter' && onCopy(centerBlend, 'blend')}
+        >
           <circle cx={centerX} cy={centerY} r={24} fill={centerBlend} />
           <text
             x={centerX}
@@ -718,9 +723,9 @@ export function ColorDecomposer({
 
       {/* Size Selector */}
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-        <label className="text-sm font-medium text-foreground block mb-2">
+        <span className="text-sm font-medium text-foreground block mb-2">
           {texts.componentCount}
-        </label>
+        </span>
         <div className="flex flex-wrap gap-2">
           {sizes.map((size) => (
             <button
@@ -811,7 +816,6 @@ export function ColorDecomposer({
         ) : (
           <BlendPreview
             components={activeComponents}
-            targetColor={settings.targetColor}
             onCopy={copyColor}
             copiedColor={copiedColor}
           />

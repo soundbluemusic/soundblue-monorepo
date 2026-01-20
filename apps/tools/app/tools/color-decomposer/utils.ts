@@ -109,7 +109,7 @@ function findExtremeDecomposition(
 
     // Solve for ratio: t = α × c1 + (1-α) × c2
     const result = solveWithOpacity(target, [color1, color2]);
-    if (result && result.ratios.every((r) => r >= 5)) {
+    if (result?.ratios.every((r) => r >= 5)) {
       return { colors: [color1, color2], ratios: result.ratios, opacities: result.opacities };
     }
 
@@ -122,7 +122,7 @@ function findExtremeDecomposition(
       b: (target.b * 2 - color1b.b + 256) % 256,
     };
     const result2 = solveWithOpacity(target, [color1b, color2b]);
-    if (result2 && result2.ratios.every((r) => r >= 5)) {
+    if (result2?.ratios.every((r) => r >= 5)) {
       return { colors: [color1b, color2b], ratios: result2.ratios, opacities: result2.opacities };
     }
   }
@@ -244,7 +244,7 @@ function findExtremeDecomposition(
 
     for (const triad of triads) {
       const result = solveWithOpacity(target, triad);
-      if (result && result.ratios.every((r) => r >= 3)) {
+      if (result?.ratios.every((r) => r >= 3)) {
         return { colors: triad, ratios: result.ratios, opacities: result.opacities };
       }
     }
@@ -444,160 +444,6 @@ function solveWithOpacity(
         weights[i] *= colorDotTarget / colorDotMix;
       }
       weights[i] = Math.max(0.001, weights[i]);
-    }
-  }
-
-  return null;
-}
-
-/**
- * Solve for ratios that produce the target color from given base colors.
- * Uses closed-form solution when possible (RGB primary case).
- *
- * target = Σ(color[i] × ratio[i]) where Σ(ratio[i]) = 1
- */
-function solveRatiosForTarget(
-  target: { r: number; g: number; b: number },
-  colors: { r: number; g: number; b: number }[],
-): number[] | null {
-  const n = colors.length;
-
-  // Special case: RGB primaries - use direct mathematical solution
-  // The mixing formula is: result[channel] = Σ(color[i][channel] × ratio[i])
-  // For RGB primaries, each color only contributes to one channel:
-  // R contributes to R channel: target.r = 255 × ratioR
-  // G contributes to G channel: target.g = 255 × ratioG
-  // B contributes to B channel: target.b = 255 × ratioB
-  // So: ratioR = target.r/255, ratioG = target.g/255, ratioB = target.b/255
-  // But we need ratios to sum to 1, so we normalize.
-  if (n === 3) {
-    const isRGB =
-      colors.some((c) => c.r === 255 && c.g === 0 && c.b === 0) &&
-      colors.some((c) => c.r === 0 && c.g === 255 && c.b === 0) &&
-      colors.some((c) => c.r === 0 && c.g === 0 && c.b === 255);
-
-    if (isRGB) {
-      // For the weighted average formula:
-      // result = Σ(color[i] × ratio[i]) where Σ(ratio[i]) = 1
-      // We need: target.r = 255 × r_ratio, target.g = 255 × g_ratio, target.b = 255 × b_ratio
-      // And: r_ratio + g_ratio + b_ratio = 1
-      // This is only possible if target.r/255 + target.g/255 + target.b/255 = 1
-      // i.e., target.r + target.g + target.b = 255
-
-      // For general targets, we need a different approach
-      // The mix formula normalizes, so we solve:
-      // target = Σ(color[i] × ratio[i]) / Σ(ratio[i]) = Σ(color[i] × ratio[i])
-      // (since Σ(ratio[i]) = 1)
-
-      // Direct solution for RGB:
-      // R(255,0,0), G(0,255,0), B(0,0,255)
-      // target.r = 255 × rR, target.g = 255 × rG, target.b = 255 × rB
-      // where rR + rG + rB = 1
-      // This requires target.r + target.g + target.b = 255
-
-      const channelSum = target.r + target.g + target.b;
-
-      // For any target, we calculate the ideal ratio and check if it's achievable
-      // Since the formula is a weighted average, the result must be within the convex hull
-      // of the input colors. For RGB primaries, any color can be achieved!
-
-      // Correct formula: For RGB primaries with weighted average,
-      // the result is simply the weighted combination.
-      // If target = (r, g, b), and we mix R, G, B with ratios (a, b, c) where a+b+c=1:
-      // result = (255a, 255b, 255c)
-      // So: a = r/255, b = g/255, c = b/255
-      // But this only works if r + g + b = 255
-
-      // For other cases, we need to accept that pure RGB can only make colors
-      // where R+G+B = 255 (when using equal opacity and ratio sum = 1)
-
-      // Actually, let's reconsider: The mixing formula IS weighted average
-      // So if we have colors C1, C2, C3 with ratios r1, r2, r3 (sum=1):
-      // Result = r1*C1 + r2*C2 + r3*C3
-      // For RGB primaries: Result = (255*r1, 255*r2, 255*r3)
-      // To get target (R, G, B): r1 = R/255, r2 = G/255, r3 = B/255
-      // Sum = (R+G+B)/255 - this must equal 1, so R+G+B must = 255
-
-      // For targets where R+G+B ≠ 255, we cannot use pure RGB primaries.
-      // But we can use a different approach: use opacity to scale!
-
-      // For now, only return if the constraint is met or close
-      const tolerance = 0.2; // Allow 20% deviation, will be compensated by opacity or fallback
-      const normalizedSum = channelSum / 255;
-
-      if (normalizedSum > 0 && Math.abs(normalizedSum - 1) < tolerance) {
-        // Scale to make sum = 1
-        const scale = 1 / normalizedSum;
-        const rawRatios = [
-          (target.r / 255) * scale,
-          (target.g / 255) * scale,
-          (target.b / 255) * scale,
-        ];
-
-        const orderedRatios = colors.map((c) => {
-          if (c.r === 255) return rawRatios[0];
-          if (c.g === 255) return rawRatios[1];
-          return rawRatios[2];
-        });
-
-        const percentRatios = orderedRatios.map((r) => Math.round(r * 100));
-        const pSum = percentRatios.reduce((a, b) => a + b, 0);
-        if (pSum !== 100) {
-          const maxIdx = percentRatios.indexOf(Math.max(...percentRatios));
-          percentRatios[maxIdx] += 100 - pSum;
-        }
-
-        if (percentRatios.every((r) => r >= 0)) {
-          return percentRatios;
-        }
-      }
-
-      return null; // RGB primaries can't achieve this target
-    }
-  }
-
-  // General case: iterative solver
-  const ratios = new Array(n).fill(1 / n);
-  const lr = 0.0005;
-
-  for (let iter = 0; iter < 500; iter++) {
-    let mixR = 0,
-      mixG = 0,
-      mixB = 0;
-    for (let i = 0; i < n; i++) {
-      mixR += colors[i].r * ratios[i];
-      mixG += colors[i].g * ratios[i];
-      mixB += colors[i].b * ratios[i];
-    }
-
-    const errR = target.r - mixR;
-    const errG = target.g - mixG;
-    const errB = target.b - mixB;
-    const error = Math.sqrt(errR ** 2 + errG ** 2 + errB ** 2);
-
-    if (error < 3) {
-      const percentRatios = ratios.map((r) => Math.round(r * 100));
-      const sum = percentRatios.reduce((a, b) => a + b, 0);
-      if (sum !== 100) {
-        const maxIdx = percentRatios.indexOf(Math.max(...percentRatios));
-        percentRatios[maxIdx] += 100 - sum;
-      }
-      if (percentRatios.every((r) => r >= 0)) {
-        return percentRatios;
-      }
-    }
-
-    for (let i = 0; i < n; i++) {
-      const grad = -(errR * colors[i].r + errG * colors[i].g + errB * colors[i].b);
-      ratios[i] -= lr * grad;
-      ratios[i] = Math.max(0, ratios[i]);
-    }
-
-    const sum = ratios.reduce((a, b) => a + b, 0);
-    if (sum > 0) {
-      for (let i = 0; i < n; i++) {
-        ratios[i] /= sum;
-      }
     }
   }
 

@@ -321,7 +321,7 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
     let base = '';
     // -iest → -y (happiest → happy)
     if (cleaned.endsWith('iest')) {
-      base = cleaned.slice(0, -4) + 'y';
+      base = `${cleaned.slice(0, -4)}y`;
     }
     // -est (doubled consonant: biggest → big)
     else if (/(.)\1est$/.test(cleaned)) {
@@ -342,7 +342,7 @@ export function handleSpecialEnglishPatterns(text: string): string | null {
     let base = '';
     // -ier → -y (happier → happy)
     if (cleaned.endsWith('ier')) {
-      base = cleaned.slice(0, -3) + 'y';
+      base = `${cleaned.slice(0, -3)}y`;
     }
     // -er (doubled consonant: bigger → big)
     else if (/(.)\1er$/.test(cleaned)) {
