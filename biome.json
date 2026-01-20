@@ -24,7 +24,8 @@
       "!**/apps/dialogue/src",
       "!**/data",
       "!**/dictionary/external",
-      "!**/dictionary/generated"
+      "!**/dictionary/generated",
+      "!**/docs/docs-site"
     ]
   },
   "formatter": {

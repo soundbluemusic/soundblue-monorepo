@@ -1,0 +1,100 @@
+---
+interface Project {
+	icon: string;
+	title: string;
+	description: string;
+	url: string;
+	linkText: string;
+}
+
+interface Props {
+	lang?: 'en' | 'ko' | 'ja';
+}
+
+const { lang = 'en' } = Astro.props;
+
+const projects: Record<'en' | 'ko' | 'ja', Project[]> = {
+	en: [
+		{
+			icon: '🎵',
+			title: 'Sound Blue',
+			description: 'Official website of indie artist Sound Blue. Music, albums, news, blog, and AI chat assistant.',
+			url: 'https://soundbluemusic.com',
+			linkText: 'Visit Website',
+		},
+		{
+			icon: '🎛️',
+			title: 'Tools',
+			description: 'Free web tools for all creators. Metronome, drum machine, QR generator, translator, and color tools. No sign-up, no ads.',
+			url: 'https://tools.soundbluemusic.com',
+			linkText: 'Try Tools',
+		},
+		{
+			icon: '💬',
+			title: 'Dialogue',
+			description: 'Q&A tool that works 100% offline. Instant answers without internet connection. English and Korean supported.',
+			url: 'https://dialogue.soundbluemusic.com',
+			linkText: 'Try Dialogue',
+		},
+	],
+	ko: [
+		{
+			icon: '🎵',
+			title: 'Sound Blue',
+			description: '인디 아티스트 Sound Blue의 공식 홈페이지. 음악, 앨범, 뉴스, 블로그, AI 채팅 어시스턴트.',
+			url: 'https://soundbluemusic.com',
+			linkText: '웹사이트 방문',
+		},
+		{
+			icon: '🎛️',
+			title: 'Tools',
+			description: '모든 창작자를 위한 무료 웹 도구. 메트로놈, 드럼 머신, QR 생성기, 번역기, 컬러 도구. 회원가입 없음, 광고 없음.',
+			url: 'https://tools.soundbluemusic.com',
+			linkText: '도구 사용하기',
+		},
+		{
+			icon: '💬',
+			title: 'Dialogue',
+			description: '100% 오프라인으로 작동하는 Q&A 도구. 인터넷 연결 없이 즉시 답변. 영어와 한국어 지원.',
+			url: 'https://dialogue.soundbluemusic.com',
+			linkText: 'Dialogue 사용하기',
+		},
+	],
+	ja: [
+		{
+			icon: '🎵',
+			title: 'Sound Blue',
+			description: 'インディーアーティスト Sound Blue の公式サイト。音楽、アルバム、ニュース、ブログ、AIチャットアシスタント。',
+			url: 'https://soundbluemusic.com',
+			linkText: 'サイトを見る',
+		},
+		{
+			icon: '🎛️',
+			title: 'Tools',
+			description: 'すべてのクリエイターのための無料ウェブツール。メトロノーム、ドラムマシン、QRコード生成、翻訳、カラーツール。登録不要、広告なし。',
+			url: 'https://tools.soundbluemusic.com',
+			linkText: 'ツールを試す',
+		},
+		{
+			icon: '💬',
+			title: 'Dialogue',
+			description: '100%オフラインで動作するQ&Aツール。インターネット接続なしで即座に回答。英語と韓国語対応。',
+			url: 'https://dialogue.soundbluemusic.com',
+			linkText: 'Dialogueを試す',
+		},
+	],
+};
+
+const currentProjects = projects[lang];
+---
+
+<div class="project-cards">
+	{currentProjects.map((project) => (
+		<a href={project.url} class="project-card" target="_blank" rel="noopener noreferrer">
+			<span class="project-card-icon">{project.icon}</span>
+			<h3 class="project-card-title">{project.title}</h3>
+			<p class="project-card-description">{project.description}</p>
+			<span class="project-card-link">{project.linkText}</span>
+		</a>
+	))}
+</div>

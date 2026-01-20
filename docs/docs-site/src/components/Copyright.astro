@@ -1,0 +1,36 @@
+---
+interface Props {
+	lang?: 'en' | 'ko' | 'ja';
+}
+
+const { lang = 'en' } = Astro.props;
+
+const currentYear = new Date().getFullYear();
+
+const text = {
+	en: {
+		rights: 'All rights reserved.',
+		code: 'Code is open source.',
+		content: 'Content is copyrighted.',
+	},
+	ko: {
+		rights: '모든 권리 보유.',
+		code: '코드는 오픈소스입니다.',
+		content: '콘텐츠는 저작권이 있습니다.',
+	},
+	ja: {
+		rights: '全著作権所有。',
+		code: 'コードはオープンソースです。',
+		content: 'コンテンツには著作権があります。',
+	},
+};
+
+const t = text[lang];
+---
+
+<footer class="copyright-footer">
+	<p>
+		© {currentYear} <a href="https://soundbluemusic.com" target="_blank" rel="noopener noreferrer">SoundBlueMusic</a>. {t.rights}
+	</p>
+	<p>{t.code} {t.content}</p>
+</footer>
