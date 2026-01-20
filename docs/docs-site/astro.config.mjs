@@ -6,8 +6,8 @@ export default defineConfig({
 	base: '/soundblue-monorepo',
 	integrations: [
 		starlight({
-			title: 'SoundBlue',
-			description: 'A creative platform for musicians - 뮤지션을 위한 크리에이티브 플랫폼',
+			title: 'SoundBlueMusic',
+			description: 'Music and creative projects by Sound Blue',
 			logo: {
 				light: './src/assets/logo-light.svg',
 				dark: './src/assets/logo-dark.svg',
