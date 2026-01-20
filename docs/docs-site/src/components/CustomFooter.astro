@@ -1,0 +1,63 @@
+---
+/**
+ * CustomFooter.astro
+ * Custom footer with "Pages by soundbluemusic" branding
+ */
+
+interface Props {
+	locale?: string;
+}
+
+const { locale = 'en' } = Astro.props;
+
+const currentYear = new Date().getFullYear();
+
+const links = {
+	en: {
+		github: 'GitHub',
+		soundBlue: 'Sound Blue',
+		tools: 'Tools',
+		dialogue: 'Dialogue',
+	},
+	ko: {
+		github: 'GitHub',
+		soundBlue: 'Sound Blue',
+		tools: 'Tools',
+		dialogue: 'Dialogue',
+	},
+	ja: {
+		github: 'GitHub',
+		soundBlue: 'Sound Blue',
+		tools: 'Tools',
+		dialogue: 'Dialogue',
+	},
+};
+
+const t = links[locale as keyof typeof links] || links.en;
+---
+
+<footer class="custom-footer">
+	<div class="custom-footer-content">
+		<div class="custom-footer-brand">
+			<span>Pages by</span>
+			<a href="https://soundbluemusic.com" target="_blank" rel="noopener noreferrer">
+				soundbluemusic
+			</a>
+			<span>© {currentYear}</span>
+		</div>
+		<div class="custom-footer-links">
+			<a href="https://github.com/soundbluemusic/soundblue-monorepo" target="_blank" rel="noopener noreferrer">
+				{t.github}
+			</a>
+			<a href="https://soundbluemusic.com" target="_blank" rel="noopener noreferrer">
+				{t.soundBlue}
+			</a>
+			<a href="https://tools.soundbluemusic.com" target="_blank" rel="noopener noreferrer">
+				{t.tools}
+			</a>
+			<a href="https://dialogue.soundbluemusic.com" target="_blank" rel="noopener noreferrer">
+				{t.dialogue}
+			</a>
+		</div>
+	</div>
+</footer>
