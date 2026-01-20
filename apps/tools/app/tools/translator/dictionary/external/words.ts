@@ -1,7 +1,7 @@
 // ========================================
 // External Dictionary - 외부 사전 (D1에서 자동 생성)
 // Source: Cloudflare D1 (Context App)
-// Generated: 2026-01-20T01:16:54.840Z
+// Generated: 2026-01-20T06:29:07.601Z
 // ========================================
 // ⚠️ 이 파일은 자동 생성됩니다. 직접 수정하지 마세요!
 // ⚠️ This file is auto-generated. Do not edit directly!
@@ -29382,5 +29382,5 @@ export const externalEnToKoWords: Record<string, string> = {
 export const EXTERNAL_WORDS_STATS = {
   koToEnCount: 15180,
   enToKoCount: 14178,
-  generatedAt: '2026-01-20T01:16:54.840Z',
+  generatedAt: '2026-01-20T06:29:07.601Z',
 } as const;
