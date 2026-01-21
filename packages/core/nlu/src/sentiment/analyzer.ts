@@ -99,6 +99,46 @@ export type Emotion =
   | 'calm';
 
 /**
+ * Supported locales for sentiment analysis.
+ *
+ * - **en**: English
+ * - **ko**: Korean
+ */
+export type SentimentLocale = 'en' | 'ko';
+
+/**
+ * Configuration for emotion detection patterns.
+ *
+ * @property en - English regex patterns for this emotion
+ * @property ko - Korean regex patterns for this emotion
+ * @property basePolarity - Default polarity score when this emotion is detected
+ *
+ * @internal
+ */
+interface EmotionPatternConfig {
+  /** English regex patterns for this emotion */
+  readonly en: readonly RegExp[];
+  /** Korean regex patterns for this emotion */
+  readonly ko: readonly RegExp[];
+  /** Base polarity score (-1.0 to +1.0) */
+  readonly basePolarity: number;
+}
+
+/**
+ * Lexicon entry for word-to-polarity mapping.
+ *
+ * @internal
+ */
+type SentimentLexicon = Record<SentimentLocale, Readonly<Record<string, number>>>;
+
+/**
+ * Pattern configuration for negation/intensifier detection.
+ *
+ * @internal
+ */
+type ModifierPatterns = Readonly<Record<SentimentLocale, RegExp>>;
+
+/**
  * Result of sentiment analysis.
  *
  * @property sentiment - Overall classification (positive/negative/neutral)
@@ -145,7 +185,7 @@ export interface SentimentResult {
  *
  * @internal
  */
-const SENTIMENT_LEXICON: Record<string, Record<string, number>> = {
+const SENTIMENT_LEXICON: SentimentLexicon = {
   en: {
     // Positive (0.5 to 1.0)
     love: 1.0,
@@ -226,7 +266,7 @@ const SENTIMENT_LEXICON: Record<string, Record<string, number>> = {
  *
  * @internal
  */
-const EMOTION_PATTERNS: Record<Emotion, { en: RegExp[]; ko: RegExp[]; basePolarity: number }> = {
+const EMOTION_PATTERNS: Readonly<Record<Emotion, EmotionPatternConfig>> = {
   joy: {
     en: [/(happy|joyful|delighted|cheerful)/i],
     ko: [/(기쁘|행복|즐거|신나)/],
@@ -280,20 +320,20 @@ const EMOTION_PATTERNS: Record<Emotion, { en: RegExp[]; ko: RegExp[]; basePolari
 };
 
 // 사전 컴파일된 정규식 패턴 (함수 호출마다 생성하지 않음)
-const NEGATION_PATTERNS = {
+const NEGATION_PATTERNS: ModifierPatterns = {
   en: /(not|no|never|neither|nor|none|nobody|nothing)/i,
   ko: /(안|않|없|못|아니|부정)/,
-} as const;
+};
 
-const INTENSIFIER_PATTERNS = {
+const INTENSIFIER_PATTERNS: ModifierPatterns = {
   en: /(very|really|so|extremely|absolutely)/i,
   ko: /(정말|진짜|너무|아주|완전|매우)/,
-} as const;
+};
 
 // 빠른 조회를 위한 어휘 키 Set (O(1) 조회)
-const LEXICON_KEYS: Record<'en' | 'ko', readonly string[]> = {
-  en: Object.keys(SENTIMENT_LEXICON.en ?? {}),
-  ko: Object.keys(SENTIMENT_LEXICON.ko ?? {}),
+const LEXICON_KEYS: Readonly<Record<SentimentLocale, readonly string[]>> = {
+  en: Object.keys(SENTIMENT_LEXICON.en),
+  ko: Object.keys(SENTIMENT_LEXICON.ko),
 };
 
 /**
@@ -403,9 +443,9 @@ const LEXICON_KEYS: Record<'en' | 'ko', readonly string[]> = {
  */
 export function analyzeSentiment(text: string, locale: string): SentimentResult {
   const lowerText = text.toLowerCase();
-  const lang: 'en' | 'ko' = locale === 'ko' ? 'ko' : 'en';
-  const lexicon = SENTIMENT_LEXICON[lang] ?? {};
-  const lexiconKeys = LEXICON_KEYS[lang] ?? [];
+  const lang: SentimentLocale = locale === 'ko' ? 'ko' : 'en';
+  const lexicon = SENTIMENT_LEXICON[lang];
+  const lexiconKeys = LEXICON_KEYS[lang];
 
   // Step 1: Calculate polarity from lexicon (최적화: 사전 키 배열 사용)
   // 어휘 키 배열을 순회하며 텍스트에서 키워드 검색 (O(k) where k = lexicon size)
