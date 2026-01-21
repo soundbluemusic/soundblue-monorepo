@@ -4,15 +4,41 @@
 // ========================================
 
 /**
- * Worker-like interface for postMessage communication.
- * Used to abstract Worker (main thread) and DedicatedWorkerGlobalScope (worker thread).
+ * Base interface for message communication.
+ * Shared properties between Worker and DedicatedWorkerGlobalScope.
  */
-export interface WorkerMessagePort {
+interface MessagePortBase {
   postMessage(message: unknown, transfer?: Transferable[]): void;
   onmessage: ((event: MessageEvent) => void) | null;
   onerror: ((event: ErrorEvent) => void) | null;
+}
+
+/**
+ * Worker-like interface for postMessage communication.
+ * Used to abstract Worker (main thread) and DedicatedWorkerGlobalScope (worker thread).
+ */
+export interface WorkerMessagePort extends MessagePortBase {
   terminate?: () => void;
 }
+
+/**
+ * Extended interface for worker-side context (DedicatedWorkerGlobalScope).
+ * Includes properties available in the worker thread's global scope.
+ */
+export interface WorkerGlobalContext extends MessagePortBase {
+  /** Worker name (if specified during creation) */
+  readonly name: string;
+  /** Worker location */
+  readonly location: WorkerLocation;
+  /** Self-reference */
+  readonly self: WorkerGlobalContext;
+}
+
+/**
+ * Union type for worker communication targets.
+ * Can be either a Worker (main thread side) or WorkerGlobalContext (worker side).
+ */
+export type WorkerTarget = Worker | WorkerMessagePort;
 
 /**
  * RPC message sent to worker
