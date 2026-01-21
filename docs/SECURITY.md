@@ -18,7 +18,7 @@ We take the security of our project seriously. If you discover a security vulner
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please send an email to **soundbluemusic@gmail.com** with the following information:
+Instead, please send an email to **soundblue@soundbluemusic.com** with the following information:
 
 1. **Description**: A clear description of the vulnerability
 2. **Steps to Reproduce**: Detailed steps to reproduce the issue
