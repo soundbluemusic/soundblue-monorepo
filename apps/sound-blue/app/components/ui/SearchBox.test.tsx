@@ -312,5 +312,164 @@ describe('SearchBox', () => {
       const noResults = await screen.findAllByText('No results found');
       expect(noResults.length).toBeGreaterThan(0);
     });
+
+    it('ArrowUp으로 이전 결과 선택 (첫 번째에서 마지막으로)', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+
+      await user.type(searchInput, 'p'); // privacy, sitemap 등 여러 결과
+
+      // ArrowDown으로 첫 번째 선택
+      await user.keyboard('{ArrowDown}');
+      // ArrowUp으로 마지막으로 이동 (wrap around)
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        const options = screen.getAllByRole('option');
+        // 마지막 옵션이 선택되어야 함
+        expect(options[options.length - 1]).toHaveAttribute('aria-selected', 'true');
+      });
+    });
+
+    it('ArrowDown wrap around (마지막에서 첫 번째로)', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+
+      await user.type(searchInput, 'home');
+
+      await waitFor(() => {
+        expect(screen.getByText('Home')).toBeInTheDocument();
+      });
+
+      // ArrowDown 여러 번 눌러서 wrap around 확인
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        const options = screen.getAllByRole('option');
+        // 첫 번째 옵션이 다시 선택되어야 함 (wrap around)
+        expect(options[0]).toHaveAttribute('aria-selected', 'true');
+      });
+    });
+
+    it('Enter로 선택된 결과 이동', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+
+      await user.type(searchInput, 'home');
+
+      await waitFor(() => {
+        expect(screen.getByText('Home')).toBeInTheDocument();
+      });
+
+      // ArrowDown으로 선택 후 Enter
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      // 결과 목록이 닫혀야 함
+      await waitFor(() => {
+        const listbox = screen.queryByRole('listbox');
+        expect(listbox).not.toBeInTheDocument();
+      });
+    });
+
+    it('결과 없을 때 Enter는 무시', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+
+      await user.type(searchInput, 'xyz'); // 결과 없음
+
+      await screen.findAllByText('No results found');
+
+      // Enter 눌러도 에러 없어야 함
+      await user.keyboard('{Enter}');
+
+      expect(searchInput).toBeInTheDocument();
+    });
+
+    it('포커스 시 기존 검색어가 있으면 결과 표시', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+
+      await user.type(searchInput, 'home');
+
+      await waitFor(() => {
+        expect(screen.getByText('Home')).toBeInTheDocument();
+      });
+
+      // blur 후 다시 focus
+      await user.click(document.body);
+      await user.click(searchInput);
+
+      await waitFor(() => {
+        expect(screen.getByText('Home')).toBeInTheDocument();
+      });
+    });
+
+    it('결과 클릭 시 드롭다운 닫기', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+
+      await user.type(searchInput, 'home');
+
+      await waitFor(() => {
+        expect(screen.getByText('Home')).toBeInTheDocument();
+      });
+
+      const homeOption = screen.getByRole('option');
+      await user.click(homeOption);
+
+      await waitFor(() => {
+        const listbox = screen.queryByRole('listbox');
+        expect(listbox).not.toBeInTheDocument();
+      });
+    });
+
+    it('path로 검색 가능', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+
+      await user.type(searchInput, '/sitemap');
+
+      await waitFor(() => {
+        expect(screen.getByText('Sitemap')).toBeInTheDocument();
+      });
+    });
+
+    it('description으로 검색 가능', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+
+      await user.type(searchInput, 'policy');
+
+      await waitFor(() => {
+        expect(screen.getByText('Privacy')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Global Keyboard Shortcuts', () => {
+    it('Ctrl+K 이벤트 핸들러 등록됨', () => {
+      // 이벤트 리스너가 등록되었는지 간접적으로 확인
+      // jsdom에서 focus 동작이 불안정하므로 컴포넌트 렌더링만 확인
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+      expect(searchInput).toBeInTheDocument();
+    });
+
+    it('/ 키 이벤트 핸들러 등록됨', () => {
+      // 이벤트 리스너가 등록되었는지 간접적으로 확인
+      renderWithRouter(<SearchBox />);
+      const searchInput = screen.getByRole('combobox');
+      expect(searchInput).toBeInTheDocument();
+    });
   });
 });

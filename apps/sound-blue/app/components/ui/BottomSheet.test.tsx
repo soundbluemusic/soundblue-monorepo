@@ -371,4 +371,154 @@ describe('BottomSheet', () => {
       });
     });
   });
+
+  describe('경계값 테스트', () => {
+    it('undefined children', async () => {
+      const onClose = vi.fn();
+      render(
+        <BottomSheet isOpen={true} onClose={onClose}>
+          {undefined}
+        </BottomSheet>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+    });
+
+    it('공백만 있는 title', async () => {
+      const onClose = vi.fn();
+      render(
+        <BottomSheet isOpen={true} onClose={onClose} title="   ">
+          <div>Content</div>
+        </BottomSheet>,
+      );
+
+      await waitFor(() => {
+        // title이 공백만 있으면 truthy이므로 렌더링됨 (Portal에서 찾아야 함)
+        const heading = document.body.querySelector('h2');
+        expect(heading).toBeInTheDocument();
+        expect(heading?.textContent).toBe('   ');
+      });
+    });
+
+    it('특수문자 포함 title', async () => {
+      const onClose = vi.fn();
+      render(
+        <BottomSheet isOpen={true} onClose={onClose} title="<script>alert('xss')</script>">
+          <div>Content</div>
+        </BottomSheet>,
+      );
+
+      await waitFor(() => {
+        const heading = screen.getByText("<script>alert('xss')</script>");
+        expect(heading).toBeInTheDocument();
+        expect(heading.tagName).toBe('H2');
+      });
+    });
+
+    it('이모지 포함 title', async () => {
+      const onClose = vi.fn();
+      render(
+        <BottomSheet isOpen={true} onClose={onClose} title="🎵 음악 메뉴">
+          <div>Content</div>
+        </BottomSheet>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('🎵 음악 메뉴')).toBeInTheDocument();
+      });
+    });
+
+    it('매우 긴 title', async () => {
+      const onClose = vi.fn();
+      const longTitle = 'A'.repeat(500);
+      render(
+        <BottomSheet isOpen={true} onClose={onClose} title={longTitle}>
+          <div>Content</div>
+        </BottomSheet>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(longTitle)).toBeInTheDocument();
+      });
+    });
+
+    it('boolean children (false)', async () => {
+      const onClose = vi.fn();
+      render(
+        <BottomSheet isOpen={true} onClose={onClose}>
+          {false}
+        </BottomSheet>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+    });
+
+    it('숫자 0 children', async () => {
+      const onClose = vi.fn();
+      render(
+        <BottomSheet isOpen={true} onClose={onClose}>
+          {0}
+        </BottomSheet>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+        expect(screen.getByText('0')).toBeInTheDocument();
+      });
+    });
+
+    it('배열 children', async () => {
+      const onClose = vi.fn();
+      const items = ['Item 1', 'Item 2', 'Item 3'];
+      render(
+        <BottomSheet isOpen={true} onClose={onClose}>
+          {items.map((item, i) => (
+            <div key={i}>{item}</div>
+          ))}
+        </BottomSheet>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Item 1')).toBeInTheDocument();
+        expect(screen.getByText('Item 2')).toBeInTheDocument();
+        expect(screen.getByText('Item 3')).toBeInTheDocument();
+      });
+    });
+
+    it('빠른 isOpen 토글', async () => {
+      const onClose = vi.fn();
+      const { rerender } = render(
+        <BottomSheet isOpen={false} onClose={onClose}>
+          <div>Content</div>
+        </BottomSheet>,
+      );
+
+      // 빠르게 열고 닫기
+      rerender(
+        <BottomSheet isOpen={true} onClose={onClose}>
+          <div>Content</div>
+        </BottomSheet>,
+      );
+
+      rerender(
+        <BottomSheet isOpen={false} onClose={onClose}>
+          <div>Content</div>
+        </BottomSheet>,
+      );
+
+      rerender(
+        <BottomSheet isOpen={true} onClose={onClose}>
+          <div>Content</div>
+        </BottomSheet>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+    });
+  });
 });

@@ -110,6 +110,63 @@ describe('getMessage', () => {
       expect(result).toBe('Sound Blue | SoundBlueMusic');
     });
   });
+
+  describe('경계값 테스트', () => {
+    it('null 키 전달 시 크래시 없음', async () => {
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
+
+      // @ts-expect-error Testing null to verify boundary handling
+      const result = getMessage(null);
+      expect(result).toBe('null');
+    });
+
+    it('undefined 키 전달 시 크래시 없음', async () => {
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
+
+      // @ts-expect-error Testing undefined to verify boundary handling
+      const result = getMessage(undefined);
+      expect(result).toBe('undefined');
+    });
+
+    it('숫자 키 전달 시 크래시 없음', async () => {
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
+
+      // @ts-expect-error Testing number to verify boundary handling
+      const result = getMessage(123);
+      expect(result).toBe('123');
+    });
+
+    it('객체 키 전달 시 크래시 없음', async () => {
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
+
+      // @ts-expect-error Testing object to verify boundary handling
+      const result = getMessage({});
+      expect(result).toBe('[object Object]');
+    });
+
+    it('매우 긴 키 전달 시 크래시 없음', async () => {
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
+
+      const longKey = 'a'.repeat(10000);
+      // @ts-expect-error Testing very long key to verify boundary handling
+      const result = getMessage(longKey);
+      expect(result).toBe(longKey);
+    });
+
+    it('공백만 있는 키', async () => {
+      mockGetLocale.mockReturnValue('en');
+      const { getMessage } = await import('./messages');
+
+      // @ts-expect-error Testing whitespace key to verify boundary handling
+      const result = getMessage('   ');
+      expect(result).toBe('   ');
+    });
+  });
 });
 
 describe('getRawMessage', () => {

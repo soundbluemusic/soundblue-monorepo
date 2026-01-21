@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Footer } from './Footer';
 
 // Mock dependencies
@@ -25,6 +25,9 @@ vi.mock('~/constants', () => ({
   BRAND: {
     copyrightHolder: 'Sound Blue Music',
   },
+  MoreIcon: ({ className }: { className?: string }) => (
+    <svg data-testid="more-icon" className={className} />
+  ),
 }));
 
 describe('Footer', () => {
@@ -106,7 +109,7 @@ describe('Footer', () => {
 
     it('nav에 aria-label 설정', () => {
       renderWithRouter(<Footer />);
-      const nav = screen.getByRole('navigation', { name: 'Footer navigation' });
+      const nav = screen.getByRole('navigation', { name: 'Legal' });
       expect(nav).toBeInTheDocument();
     });
 
@@ -124,7 +127,7 @@ describe('Footer', () => {
   describe('링크 구조', () => {
     it('4개의 footer 링크 렌더링', () => {
       renderWithRouter(<Footer />);
-      const nav = screen.getByRole('navigation', { name: 'Footer navigation' });
+      const nav = screen.getByRole('navigation', { name: 'Legal' });
       const links = nav.querySelectorAll('a');
       expect(links.length).toBe(4); // privacy, terms, license, sitemap
     });
@@ -141,5 +144,29 @@ describe('Footer', () => {
     it('컴포넌트 렌더링 시 에러 없음', () => {
       expect(() => renderWithRouter(<Footer />)).not.toThrow();
     });
+  });
+});
+
+describe('Footer - Korean locale', () => {
+  const renderWithRouter = (component: React.ReactElement) => {
+    return render(<BrowserRouter>{component}</BrowserRouter>);
+  };
+
+  beforeEach(() => {
+    vi.doMock('@soundblue/i18n', () => ({
+      useParaglideI18n: () => ({
+        localizedPath: (path: string) => `/ko${path}`,
+        locale: 'ko',
+      }),
+    }));
+  });
+
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it('한국어 로케일에서 렌더링 성공', async () => {
+    const { Footer: FooterKo } = await import('./Footer');
+    expect(() => renderWithRouter(<FooterKo />)).not.toThrow();
   });
 });

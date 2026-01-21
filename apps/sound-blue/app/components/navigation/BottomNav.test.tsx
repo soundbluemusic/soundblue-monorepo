@@ -47,6 +47,9 @@ vi.mock('~/components/ui', () => ({
 
 vi.mock('~/constants', () => ({
   isNavActive: (path: string, pathname: string) => path === pathname,
+  MoreIcon: ({ className }: { className?: string }) => (
+    <svg data-testid="more-icon" className={className} />
+  ),
   PRIMARY_NAV_ITEMS: [
     { path: '/', labelKey: 'home', icon: () => <svg data-testid="home-icon" /> },
     { path: '/about', labelKey: 'about', icon: () => <svg data-testid="about-icon" /> },
