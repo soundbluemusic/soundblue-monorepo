@@ -5,6 +5,8 @@
 # GLOBAL SECURITY HEADERS (모든 페이지에 적용)
 # =============================================================================
 /*
+  # HSTS - Enforce HTTPS (1 year, include subdomains)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
   # XSS Protection
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
