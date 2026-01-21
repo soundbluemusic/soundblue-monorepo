@@ -10,9 +10,11 @@
  */
 
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const BUILD_DIR = join(import.meta.dirname, '../build/client');
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const BUILD_DIR = join(__dirname, '../build/client');
 
 interface CleanupResult {
   spaFallbackRemoved: boolean;
