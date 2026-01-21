@@ -16,6 +16,7 @@
 | **SEO 렌더링 검증** | `/rendering-check` | SPA 감지 시 경고, SSG/SSR 확인 |
 | 레이어 의존성 검증 | `/layer-check` | import 규칙 준수 확인 |
 | **기술 스택 최신 정보** | `/latest-check` | WebSearch로 outdated 정보 방지 |
+| **엣지 케이스 테스트** | `/edge-test` | 파일 분석 후 테스트 코드 생성 |
 
 ### 모델 선택 기준
 | 모델 | 용도 |
