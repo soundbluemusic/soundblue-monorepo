@@ -44,7 +44,6 @@ const openSourceLibraries: Record<string, OpenSourceItem[]> = {
     { name: 'Testing Library', url: 'https://testing-library.com' },
   ],
   quality: [{ name: 'Biome', url: 'https://biomejs.dev' }],
-  ai: [{ name: 'Claude Code', url: 'https://docs.anthropic.com/en/docs/claude-code' }],
 };
 
 const sectionTitles: Record<string, { en: string; ko: string }> = {
@@ -55,7 +54,6 @@ const sectionTitles: Record<string, { en: string; ko: string }> = {
   build: { en: 'Build Tools', ko: '빌드 도구' },
   testing: { en: 'Testing', ko: '테스팅' },
   quality: { en: 'Code Quality', ko: '코드 품질' },
-  ai: { en: 'AI Tools', ko: 'AI 도구' },
 };
 
 function ChevronRight() {

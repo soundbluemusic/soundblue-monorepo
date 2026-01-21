@@ -71,7 +71,6 @@ const openSourceLibraries: Record<string, OpenSourceItem[]> = {
     { name: 'Storybook', url: 'https://storybook.js.org' },
     { name: 'Lighthouse', url: 'https://developer.chrome.com/docs/lighthouse' },
   ],
-  ai: [{ name: 'Claude Code', url: 'https://docs.anthropic.com/en/docs/claude-code' }],
 };
 
 const sectionTitles: Record<string, string> = {
@@ -84,7 +83,6 @@ const sectionTitles: Record<string, string> = {
   build: 'Build Tools',
   testing: 'Testing',
   quality: 'Code Quality',
-  ai: 'AI Tools',
 };
 
 function LibraryItem({ item }: { item: OpenSourceItem }) {
