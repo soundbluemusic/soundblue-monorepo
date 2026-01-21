@@ -258,4 +258,4 @@ See root repository LICENSE for details.
 
 ---
 
-Built with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by [SoundBlueMusic](https://soundbluemusic.com)
+Made by [SoundBlueMusic](https://soundbluemusic.com)

@@ -338,4 +338,4 @@ See [License](https://soundbluemusic.com/license) page for details.
 
 ---
 
-Built with [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+Made by [SoundBlueMusic](https://soundbluemusic.com)

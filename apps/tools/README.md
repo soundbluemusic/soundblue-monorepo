@@ -398,4 +398,4 @@ For more details, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ---
 
-Built with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by [SoundBlueMusic](https://soundbluemusic.com)
+Made by [SoundBlueMusic](https://soundbluemusic.com)

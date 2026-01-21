@@ -477,4 +477,4 @@ const sanitizedContent = DOMPurify.sanitize(userInput);
 
 ---
 
-Built with [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+Made by [SoundBlueMusic](https://soundbluemusic.com)
