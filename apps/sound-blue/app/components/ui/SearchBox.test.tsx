@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
@@ -291,12 +291,13 @@ describe('SearchBox', () => {
     });
 
     it('매우 긴 검색어', async () => {
-      const user = userEvent.setup();
       renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox') as HTMLInputElement;
 
+      // Use fireEvent.change instead of userEvent.type for performance
+      // userEvent.type with 1000 characters causes timeout
       const longQuery = 'a'.repeat(1000);
-      await user.type(searchInput, longQuery);
+      fireEvent.change(searchInput, { target: { value: longQuery } });
 
       expect(searchInput.value).toBe(longQuery);
     });
@@ -318,7 +319,13 @@ describe('SearchBox', () => {
       renderWithRouter(<SearchBox />);
       const searchInput = screen.getByRole('combobox');
 
-      await user.type(searchInput, 'p'); // privacy, sitemap 등 여러 결과
+      // Use 'site' which matches 'sitemap' for reliable results
+      await user.type(searchInput, 'site');
+
+      // Wait for results to appear
+      await waitFor(() => {
+        expect(screen.getByText('Sitemap')).toBeInTheDocument();
+      });
 
       // ArrowDown으로 첫 번째 선택
       await user.keyboard('{ArrowDown}');

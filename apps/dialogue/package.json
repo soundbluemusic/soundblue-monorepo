@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "react-router dev",
-    "build": "react-router build && tsx scripts/postbuild-seo.ts",
+    "build": "react-router build && pnpm exec tsx scripts/postbuild-seo.ts",
     "prebuild": "pnpm --filter @soundblue/ui-components build",
     "start": "npx serve build/client -s -L",
     "typecheck": "react-router typegen && tsc --noEmit",
