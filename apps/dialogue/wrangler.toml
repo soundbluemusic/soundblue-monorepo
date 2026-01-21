@@ -7,11 +7,13 @@ compatibility_flags = ["nodejs_compat"]
 directory = "build/client"
 
 # D1 Databases
+# Algorithms DB: 번역 알고리즘 공유 데이터 (향후 번역 기능 연동용)
 [[d1_databases]]
 binding = "ALGORITHMS_DB"
 database_name = "algorithms"
 database_id = "149373cb-fff3-4c48-a5fc-6293c2883d48"
 
+# Private DB: 대화 히스토리 저장용 (향후 구현 예정)
 [[d1_databases]]
 binding = "PRIVATE_DB"
 database_name = "private"
