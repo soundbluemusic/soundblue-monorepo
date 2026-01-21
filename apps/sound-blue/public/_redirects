@@ -19,3 +19,38 @@
 # =============================================================================
 /assets/*    /assets/:splat    200
 /icons/*     /icons/:splat     200
+
+# =============================================================================
+# Trailing slash normalization (301 redirect)
+# SEO: 중복 URL 방지 - Google Search Console 중복 페이지 문제 해결
+# =============================================================================
+# English pages
+/about/              /about              301
+/privacy/            /privacy            301
+/terms/              /terms              301
+/license/            /license            301
+/sitemap/            /sitemap            301
+/sound-recording/    /sound-recording    301
+/news/               /news               301
+/blog/               /blog               301
+/chat/               /chat               301
+/built-with/         /built-with         301
+/offline/            /offline            301
+/music/              /music              301
+/changelog/          /changelog          301
+
+# Korean pages
+/ko/                 /ko                 301
+/ko/about/           /ko/about           301
+/ko/privacy/         /ko/privacy         301
+/ko/terms/           /ko/terms           301
+/ko/license/         /ko/license         301
+/ko/sitemap/         /ko/sitemap         301
+/ko/sound-recording/ /ko/sound-recording 301
+/ko/news/            /ko/news            301
+/ko/blog/            /ko/blog            301
+/ko/chat/            /ko/chat            301
+/ko/built-with/      /ko/built-with      301
+/ko/offline/         /ko/offline         301
+/ko/music/           /ko/music           301
+/ko/changelog/       /ko/changelog       301

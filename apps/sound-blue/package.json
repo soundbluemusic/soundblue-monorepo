@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "dev": "react-router dev",
-    "build": "react-router build && node scripts/generate-sitemap.mjs",
+    "build": "react-router build && node scripts/generate-sitemap.mjs && node scripts/postbuild-seo.mjs",
     "prebuild": "pnpm --filter @soundblue/ui-components build",
     "build:analyze": "ANALYZE=true react-router build",
     "start": "npx serve build/client -s -L",

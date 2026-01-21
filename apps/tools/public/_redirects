@@ -21,24 +21,48 @@
 
 # =============================================================================
 # Trailing slash normalization (301 redirect)
-# SEO: 중복 URL 방지
+# SEO: 중복 URL 방지 - Google Search Console 중복 페이지 문제 해결
 # =============================================================================
-/about/         /about          301
-/built-with/    /built-with     301
-/benchmark/     /benchmark      301
-/sitemap/       /sitemap        301
-/metronome/     /metronome      301
-/drum-machine/  /drum-machine   301
-/qr/            /qr             301
-/translator/    /translator     301
-/ko/about/      /ko/about       301
-/ko/built-with/ /ko/built-with  301
-/ko/benchmark/  /ko/benchmark   301
-/ko/sitemap/    /ko/sitemap     301
-/ko/metronome/  /ko/metronome   301
-/ko/drum-machine/ /ko/drum-machine 301
-/ko/qr/         /ko/qr          301
-/ko/translator/ /ko/translator  301
+# Static pages (English)
+/about/                  /about                  301
+/built-with/             /built-with             301
+/benchmark/              /benchmark              301
+/sitemap/                /sitemap                301
+/changelog/              /changelog              301
+
+# Tool pages (English) - routes.ts TOOL_PAGES와 동기화
+/metronome/              /metronome              301
+/drum-machine/           /drum-machine           301
+/delay-calculator/       /delay-calculator       301
+/tap-tempo/              /tap-tempo              301
+/qr/                     /qr                     301
+/translator/             /translator             301
+/spell-checker/          /spell-checker          301
+/english-spell-checker/  /english-spell-checker  301
+/color-harmony/          /color-harmony          301
+/color-palette/          /color-palette          301
+/color-decomposer/       /color-decomposer       301
+
+# Static pages (Korean)
+/ko/                     /ko                     301
+/ko/about/               /ko/about               301
+/ko/built-with/          /ko/built-with          301
+/ko/benchmark/           /ko/benchmark           301
+/ko/sitemap/             /ko/sitemap             301
+/ko/changelog/           /ko/changelog           301
+
+# Tool pages (Korean) - routes.ts TOOL_PAGES와 동기화
+/ko/metronome/           /ko/metronome           301
+/ko/drum-machine/        /ko/drum-machine        301
+/ko/delay-calculator/    /ko/delay-calculator    301
+/ko/tap-tempo/           /ko/tap-tempo           301
+/ko/qr/                  /ko/qr                  301
+/ko/translator/          /ko/translator          301
+/ko/spell-checker/       /ko/spell-checker       301
+/ko/english-spell-checker/ /ko/english-spell-checker 301
+/ko/color-harmony/       /ko/color-harmony       301
+/ko/color-palette/       /ko/color-palette       301
+/ko/color-decomposer/    /ko/color-decomposer    301
 
 # =============================================================================
 # 404 처리 - Cloudflare Pages는 404.html을 자동으로 404 상태로 서빙

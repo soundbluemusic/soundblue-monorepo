@@ -54,6 +54,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Search Engine Verification */}
+        <meta
+          name="google-site-verification"
+          content="mw0M1q-2K63FX-NZCL5AetN7V6VI6cXY5ItnMXyl85A"
+        />
+        {/* TODO: Naver Webmaster에서 dialogue.soundbluemusic.com 인증 후 실제 코드로 교체 */}
+        <meta name="naver-site-verification" content="DIALOGUE_NAVER_VERIFICATION_CODE" />
+        {/* TODO: Bing Webmaster에서 dialogue.soundbluemusic.com 인증 후 실제 코드로 교체 */}
+        <meta name="msvalidate.01" content="DIALOGUE_BING_VERIFICATION_CODE" />
         <Meta />
         <Links />
         {/* JSON-LD Structured Data for SEO */}

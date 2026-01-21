@@ -47,6 +47,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="google" content="notranslate" />
+        {/* Search Engine Verification */}
+        <meta
+          name="google-site-verification"
+          content="mw0M1q-2K63FX-NZCL5AetN7V6VI6cXY5ItnMXyl85A"
+        />
+        <meta name="naver-site-verification" content="0d06d3e004cd38146df5d501e660bff8f39fb8ed" />
+        {/* TODO: Bing Webmaster에서 tools.soundbluemusic.com 인증 후 실제 코드로 교체 */}
+        <meta name="msvalidate.01" content="TOOLS_BING_VERIFICATION_CODE" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />

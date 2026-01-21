@@ -1,5 +1,38 @@
-# SPA fallback for dynamic chat routes
-# These routes are not pre-rendered, so we serve __spa-fallback.html and let client-side routing handle them
+# Cloudflare Pages - Redirects Configuration
+# https://developers.cloudflare.com/pages/configuration/redirects/
+# Format: from to status_code
 
-/c/*    /__spa-fallback.html    200
-/ko/c/*    /__spa-fallback.html    200
+# =============================================================================
+# SEO 파일 - 명시적 서빙
+# =============================================================================
+/sitemap.xml           /sitemap.xml           200
+/robots.txt            /robots.txt            200
+
+# =============================================================================
+# 정적 자산 - Splat 매칭으로 직접 서빙
+# =============================================================================
+/assets/*    /assets/:splat    200
+/icons/*     /icons/:splat     200
+
+# =============================================================================
+# Trailing slash normalization (301 redirect)
+# SEO: 중복 URL 방지 - Google Search Console 중복 페이지 문제 해결
+# =============================================================================
+# English pages
+/about/              /about              301
+/built-with/         /built-with         301
+/sitemap/            /sitemap            301
+/changelog/          /changelog          301
+
+# Korean pages
+/ko/                 /ko                 301
+/ko/about/           /ko/about           301
+/ko/built-with/      /ko/built-with      301
+/ko/sitemap/         /ko/sitemap         301
+/ko/changelog/       /ko/changelog       301
+
+# =============================================================================
+# 동적 채팅 라우트 - SPA 폴백 제거됨
+# SEO: SPA 폴백은 Soft 404 원인이므로 완전히 제거
+# Cloudflare는 존재하지 않는 경로에 대해 자동으로 404.html 제공
+# =============================================================================
