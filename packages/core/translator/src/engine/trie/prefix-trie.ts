@@ -4,18 +4,63 @@
 // ========================================
 
 /**
+ * 품사 유형
+ */
+export type PartOfSpeech =
+  | 'noun'
+  | 'verb'
+  | 'adjective'
+  | 'adverb'
+  | 'particle'
+  | 'conjunction'
+  | 'interjection'
+  | 'pronoun'
+  | 'determiner'
+  | 'preposition';
+
+/**
+ * 도메인 유형 (전문 분야)
+ */
+export type DomainType =
+  | 'general'
+  | 'music'
+  | 'technology'
+  | 'medical'
+  | 'legal'
+  | 'business'
+  | 'academic'
+  | 'colloquial'
+  | 'formal';
+
+/**
+ * 추가 메타데이터 타입 (확장성을 위해 분리)
+ */
+export interface TrieNodeMetadata {
+  /** 사용 빈도 */
+  frequency?: number;
+  /** 동의어 목록 */
+  synonyms?: string[];
+  /** 반의어 목록 */
+  antonyms?: string[];
+  /** 관련 단어 */
+  related?: string[];
+  /** 출처 */
+  source?: string;
+}
+
+/**
  * 기본 Trie 정보 타입
  * 품사, 도메인 등의 메타데이터
  */
 export interface TrieNodeInfo {
   /** 품사 (part of speech) */
-  pos?: 'noun' | 'verb' | 'adjective' | 'adverb' | 'particle' | 'conjunction' | 'interjection';
+  pos?: PartOfSpeech;
   /** 도메인 (전문 분야) */
-  domain?: string;
+  domain?: DomainType | string;
   /** 우선순위 (낮을수록 우선) */
   priority?: number;
-  /** 추가 메타데이터 */
-  [key: string]: unknown;
+  /** 추가 메타데이터 (확장용) */
+  meta?: TrieNodeMetadata;
 }
 
 /**

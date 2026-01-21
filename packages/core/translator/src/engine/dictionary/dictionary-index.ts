@@ -3,7 +3,37 @@
 // Map 기반 O(1) 조회, Trie 기반 O(k) prefix 검색, 청크 로딩 지원
 // ========================================
 
-import type { PrefixTrie } from '../trie/prefix-trie';
+import type { PrefixTrie, TrieNodeInfo, TrieNodeMetadata } from '../trie/prefix-trie';
+
+/**
+ * 품사 유형
+ */
+export type DictionaryPOS = 'noun' | 'verb' | 'adj' | 'adv' | 'particle' | 'ending' | 'other';
+
+/**
+ * 도메인/카테고리 유형
+ */
+export type DictionaryDomain =
+  | 'general'
+  | 'music'
+  | 'technology'
+  | 'medical'
+  | 'legal'
+  | 'business'
+  | 'academic'
+  | 'colloquial'
+  | 'formal';
+
+/**
+ * 사전 엔트리 메타데이터 (TrieNodeMetadata와 호환)
+ * Trie 인덱스와 함께 사용할 수 있도록 확장
+ */
+export interface DictionaryEntryMeta extends TrieNodeMetadata {
+  /** 문맥/예문 */
+  examples?: string[];
+  /** 노트/설명 */
+  notes?: string;
+}
 
 /**
  * 사전 엔트리 타입
@@ -12,13 +42,13 @@ export interface DictionaryEntry {
   /** 번역 결과 */
   translation: string;
   /** 품사 (선택) */
-  pos?: 'noun' | 'verb' | 'adj' | 'adv' | 'particle' | 'ending' | 'other';
+  pos?: DictionaryPOS;
   /** 우선순위 (높을수록 우선) */
   priority?: number;
   /** 도메인/카테고리 */
-  domain?: string;
+  domain?: DictionaryDomain | string;
   /** 추가 메타데이터 */
-  meta?: Record<string, unknown>;
+  meta?: DictionaryEntryMeta;
 }
 
 /**
@@ -309,16 +339,11 @@ export class DictionaryIndex {
   }
 
   /**
-   * 문자열에서 가장 긴 매칭 접두사 찾기 (Trie 사용 시 O(k))
-   * @param text 검색할 문자열
-   * @returns 가장 긴 매칭 단어와 번역, 없으면 null
-   *
-   * @example
-   * dict.longestPrefixMatch('학교에서') // { word: '학교', translation: 'school' }
+   * 가장 긴 접두사 매칭 결과 타입
    */
   longestPrefixMatch(
     text: string,
-  ): { word: string; translation: string; info: Record<string, unknown> | null } | null {
+  ): { word: string; translation: string; info: TrieNodeInfo | null } | null {
     // Trie가 있으면 O(k) 검색
     if (this.prefixTrie) {
       return this.prefixTrie.longestPrefix(text);
@@ -328,7 +353,7 @@ export class DictionaryIndex {
     let longest: {
       word: string;
       translation: string;
-      info: Record<string, unknown> | null;
+      info: TrieNodeInfo | null;
     } | null = null;
     for (const [word, entries] of this.entries) {
       if (text.startsWith(word)) {
@@ -338,13 +363,25 @@ export class DictionaryIndex {
             longest = {
               word,
               translation: entry.translation,
-              info: entry.meta ?? null,
+              info: this.entryToTrieInfo(entry),
             };
           }
         }
       }
     }
     return longest;
+  }
+
+  /**
+   * 사전 엔트리를 TrieNodeInfo 형식으로 변환
+   */
+  private entryToTrieInfo(entry: DictionaryEntry): TrieNodeInfo {
+    return {
+      pos: entry.pos as TrieNodeInfo['pos'],
+      domain: entry.domain,
+      priority: entry.priority,
+      meta: entry.meta,
+    };
   }
 
   /**
@@ -359,7 +396,7 @@ export class DictionaryIndex {
     for (const [word, entries] of this.entries) {
       const entry = entries[0];
       if (entry) {
-        this.prefixTrie.insert(word, entry.translation, entry.meta);
+        this.prefixTrie.insert(word, entry.translation, this.entryToTrieInfo(entry));
       }
     }
   }
@@ -374,7 +411,7 @@ export class DictionaryIndex {
     for (const [word, entries] of this.entries) {
       const entry = entries[0];
       if (entry) {
-        this.prefixTrie.insert(word, entry.translation, entry.meta);
+        this.prefixTrie.insert(word, entry.translation, this.entryToTrieInfo(entry));
       }
     }
   }

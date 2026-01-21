@@ -85,10 +85,22 @@ import * as Tone from 'tone';
 export type DrumSound = 'kick' | 'snare' | 'hihat' | 'clap' | 'tom' | 'cymbal';
 
 /**
+ * Complete pattern data structure with all drum sounds required.
+ *
+ * Use this type when you need a fully populated pattern with all drum sounds.
+ */
+export type CompleteDrumPattern = {
+  [K in DrumSound]: boolean[];
+};
+
+/**
  * Pattern data structure for the step sequencer.
  *
  * Maps each drum sound to an array of boolean values representing active steps.
  * Array length equals the number of steps (default: 16).
+ *
+ * Uses Record<DrumSound, boolean[]> for type safety while allowing
+ * partial initialization during runtime.
  *
  * @example
  * ```typescript
@@ -96,15 +108,15 @@ export type DrumSound = 'kick' | 'snare' | 'hihat' | 'clap' | 'tom' | 'cymbal';
  *   kick:   [true, false, false, false, true, false, false, false, ...],
  *   snare:  [false, false, false, false, true, false, false, false, ...],
  *   hihat:  [true, false, true, false, true, false, true, false, ...],
- *   // ... other sounds
+ *   clap:   [false, false, false, false, false, false, false, false, ...],
+ *   tom:    [false, false, false, false, false, false, false, false, ...],
+ *   cymbal: [false, false, false, false, false, false, false, false, ...],
  * };
  *
  * drumMachine.setPattern(pattern);
  * ```
  */
-export interface DrumPattern {
-  [key: string]: boolean[];
-}
+export type DrumPattern = Partial<Record<DrumSound, boolean[]>>;
 
 /**
  * Configuration options for initializing the drum machine.

@@ -4,24 +4,70 @@
 // ========================================
 
 /**
+ * 접미사 유형
+ */
+export type SuffixType = 'particle' | 'ending' | 'connective';
+
+/**
+ * 시제 유형
+ */
+export type TenseType = 'past' | 'present' | 'future';
+
+/**
+ * 어조/화법 유형
+ */
+export type MoodType = 'declarative' | 'interrogative' | 'imperative' | 'propositive';
+
+/**
+ * 문법적 역할 유형
+ */
+export type GrammaticalRole =
+  | 'subject'
+  | 'object'
+  | 'topic'
+  | 'location'
+  | 'direction'
+  | 'instrument'
+  | 'time'
+  | 'manner'
+  | 'reason'
+  | 'comparison'
+  | 'conjunction'
+  | 'quotation';
+
+/**
+ * 추가 메타데이터 타입 (확장성을 위해 분리)
+ */
+export interface SuffixMetadata {
+  /** 변형된 형태 */
+  variant?: string;
+  /** 결합 가능한 어간 유형 */
+  stemType?: 'vowel' | 'consonant' | 'both';
+  /** 동의어/대체 형태 */
+  alternatives?: string[];
+  /** 빈도 가중치 */
+  frequency?: number;
+}
+
+/**
  * 기본 접미사 정보 타입
  * 역할, 시제 등의 메타데이터
  */
 export interface SuffixInfo {
   /** 접미사 유형 (particle: 조사, ending: 어미, connective: 연결어미) */
-  type?: 'particle' | 'ending' | 'connective';
+  type?: SuffixType;
   /** 문법적 역할 */
-  role?: string;
-  /** 시제 */
-  tense?: 'past' | 'present' | 'future' | string;
+  role?: GrammaticalRole | string;
+  /** 시제 (표준 값 또는 커스텀 문자열) */
+  tense?: TenseType | string;
   /** 어조/화법 */
-  mood?: 'declarative' | 'interrogative' | 'imperative' | 'propositive';
+  mood?: MoodType;
   /** 존댓말 여부 */
   honorific?: boolean;
   /** 영어 번역 */
   en?: string;
-  /** 추가 메타데이터 */
-  [key: string]: unknown;
+  /** 추가 메타데이터 (확장용) */
+  meta?: SuffixMetadata;
 }
 
 /**

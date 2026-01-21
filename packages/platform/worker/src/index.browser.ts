@@ -3,20 +3,54 @@
 // For runtime in browser environment
 // ========================================
 
-import type { IWorkerRPC, RPCHandler, RPCRequest, RPCResponse, WorkerMessagePort } from './types';
+import type {
+  IWorkerRPC,
+  RPCHandler,
+  RPCRequest,
+  RPCResponse,
+  WorkerMessagePort,
+  WorkerTarget,
+} from './types';
 
 export * from './types';
 
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 
 /**
+ * Type guard to check if we're in a worker context.
+ * In a worker, `self` is a DedicatedWorkerGlobalScope.
+ */
+function isWorkerContext(): boolean {
+  return (
+    typeof self !== 'undefined' &&
+    typeof (self as unknown as { postMessage?: unknown }).postMessage === 'function' &&
+    typeof Worker === 'undefined'
+  );
+}
+
+/**
  * Get the worker global scope as a message port.
  * Used when running inside a Web Worker to communicate with main thread.
+ *
+ * @returns The worker's global scope cast to WorkerMessagePort
+ * @throws Error if not in a worker context
  */
 function getWorkerSelf(): WorkerMessagePort {
-  // In worker context, self is DedicatedWorkerGlobalScope which has postMessage
-  const workerSelf = self as unknown as WorkerMessagePort;
-  return workerSelf;
+  if (!isWorkerContext()) {
+    throw new Error('getWorkerSelf() can only be called from within a Web Worker');
+  }
+  // In worker context, self has postMessage and message event handlers
+  // Cast is safe because we verified the context above
+  return self as unknown as WorkerMessagePort;
+}
+
+/**
+ * Pending RPC request state
+ */
+interface PendingRequest {
+  resolve: (value: unknown) => void;
+  reject: (error: Error) => void;
+  timeoutId: ReturnType<typeof setTimeout>;
 }
 
 /**
@@ -24,18 +58,16 @@ function getWorkerSelf(): WorkerMessagePort {
  * Provides type-safe communication with Web Workers.
  */
 export class WorkerRPC implements IWorkerRPC {
-  private worker: Worker;
+  /** Communication target - either a Worker or WorkerMessagePort */
+  private target: WorkerTarget;
+  /** Message port for worker-side communication (null on main thread) */
   private messagePort: WorkerMessagePort | null;
-  private pending = new Map<
-    string,
-    {
-      resolve: (value: unknown) => void;
-      reject: (error: Error) => void;
-      timeoutId: ReturnType<typeof setTimeout>;
-    }
-  >();
+  /** Pending RPC requests awaiting response */
+  private pending = new Map<string, PendingRequest>();
+  /** Registered RPC handlers (worker-side only) */
   private handlers = new Map<string, RPCHandler<unknown, unknown>>();
-  private isWorkerSide: boolean;
+  /** Whether this instance is running inside a worker */
+  private readonly isWorkerSide: boolean;
 
   /**
    * Create a new WorkerRPC instance
@@ -49,18 +81,18 @@ export class WorkerRPC implements IWorkerRPC {
     if (isWorkerSide) {
       // Running inside worker - use self via message port abstraction
       this.messagePort = getWorkerSelf();
-      // Assign to worker for unified handling (worker will be used for event binding)
-      this.worker = this.messagePort as unknown as Worker;
+      // Use messagePort as the communication target
+      this.target = this.messagePort;
     } else if (workerOrUrl instanceof Worker) {
-      this.worker = workerOrUrl;
+      this.target = workerOrUrl;
     } else if (workerOrUrl !== null) {
-      this.worker = new Worker(workerOrUrl, { type: 'module' });
+      this.target = new Worker(workerOrUrl, { type: 'module' });
     } else {
       throw new Error('Worker URL required when not in worker context');
     }
 
-    this.worker.onmessage = this.handleMessage.bind(this);
-    this.worker.onerror = this.handleError.bind(this);
+    this.target.onmessage = this.handleMessage.bind(this);
+    this.target.onerror = this.handleError.bind(this);
   }
 
   isAvailable(): boolean {
@@ -91,11 +123,8 @@ export class WorkerRPC implements IWorkerRPC {
       // Detect transferable objects
       const transfer = this.detectTransferable(payload);
 
-      if (this.isWorkerSide && this.messagePort) {
-        this.messagePort.postMessage(message, transfer);
-      } else {
-        this.worker.postMessage(message, transfer);
-      }
+      // Use target for unified message sending
+      this.target.postMessage(message, transfer);
     });
   }
 
@@ -117,8 +146,9 @@ export class WorkerRPC implements IWorkerRPC {
       this.pending.delete(id);
     }
 
-    if (!this.isWorkerSide) {
-      this.worker.terminate();
+    // Only terminate if we're on the main thread and target is a Worker
+    if (!this.isWorkerSide && 'terminate' in this.target) {
+      (this.target as Worker).terminate();
     }
   }
 
@@ -175,11 +205,8 @@ export class WorkerRPC implements IWorkerRPC {
   }
 
   private sendResponse(response: RPCResponse): void {
-    if (this.isWorkerSide && this.messagePort) {
-      this.messagePort.postMessage(response);
-    } else {
-      this.worker.postMessage(response);
-    }
+    // Use target for unified response sending (no transfers needed for responses)
+    this.target.postMessage(response, []);
   }
 
   private detectTransferable(payload: unknown): Transferable[] {
