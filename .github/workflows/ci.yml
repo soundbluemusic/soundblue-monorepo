@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Job 1: Lint, Type Check, and Test (fast feedback)
+  # Job 1: Lint, Type Check, and Test (병렬 실행으로 빠른 피드백)
   validate:
     name: Validate
     runs-on: ubuntu-latest
@@ -33,20 +33,19 @@ jobs:
 
       - name: Generate paraglide (i18n)
         run: |
-          pnpm --filter sound-blue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide
-          pnpm --filter tools exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide
-          pnpm --filter dialogue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide
+          pnpm --filter sound-blue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide &
+          pnpm --filter tools exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide &
+          pnpm --filter dialogue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide &
+          wait
 
-      - name: Biome check
-        run: pnpm check
+      - name: Run checks in parallel (lint, typecheck, test)
+        run: |
+          pnpm check &
+          pnpm typecheck &
+          pnpm test &
+          wait
 
-      - name: TypeScript check
-        run: pnpm typecheck
-
-      - name: Unit tests
-        run: pnpm test
-
-  # Job 2: Build all apps (SSR for Workers)
+  # Job 2: Build all apps (Turbo로 병렬 빌드)
   build:
     name: Build Apps
     runs-on: ubuntu-latest
@@ -64,7 +63,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all apps
+      - name: Build all apps (parallel via Turbo)
         run: pnpm build
 
       - name: Upload build artifacts
@@ -80,12 +79,16 @@ jobs:
             apps/dialogue/wrangler.toml
           retention-days: 1
 
-  # Job 3: Deploy to Cloudflare Workers
+  # Job 3: Deploy to Cloudflare Workers (병렬 배포)
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    strategy:
+      matrix:
+        app: [sound-blue, tools, dialogue]
+      fail-fast: false
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -110,30 +113,12 @@ jobs:
 
       - name: Move artifacts to apps folder
         run: |
-          # Artifacts are extracted with apps/ as root, so we get sound-blue/, tools/, dialogue/
-          # Move build folders to the correct location
-          cp -r artifact-temp/sound-blue/build apps/sound-blue/
-          cp -r artifact-temp/tools/build apps/tools/
-          cp -r artifact-temp/dialogue/build apps/dialogue/
+          cp -r artifact-temp/${{ matrix.app }}/build apps/${{ matrix.app }}/
           rm -rf artifact-temp
 
       - name: Verify artifacts
-        run: |
-          echo "=== Sound Blue ==="
-          ls -la apps/sound-blue/build/
-          echo "=== Tools ==="
-          ls -la apps/tools/build/
-          echo "=== Dialogue ==="
-          ls -la apps/dialogue/build/
+        run: ls -la apps/${{ matrix.app }}/build/
 
-      - name: Deploy Sound Blue (Workers)
-        working-directory: apps/sound-blue
-        run: pnpm exec wrangler deploy --config build/server/wrangler.json
-
-      - name: Deploy Tools (Workers)
-        working-directory: apps/tools
-        run: pnpm exec wrangler deploy --config build/server/wrangler.json
-
-      - name: Deploy Dialogue (Workers)
-        working-directory: apps/dialogue
+      - name: Deploy ${{ matrix.app }}
+        working-directory: apps/${{ matrix.app }}
         run: pnpm exec wrangler deploy --config build/server/wrangler.json
