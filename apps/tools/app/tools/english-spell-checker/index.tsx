@@ -1,7 +1,9 @@
 import { useParaglideI18n } from '@soundblue/i18n';
-import { AlertTriangle, Check, Copy, Loader2, RefreshCw, RotateCcw, Sparkles } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { AlertTriangle, Copy, Loader2, RefreshCw, RotateCcw, Sparkles } from 'lucide-react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
+import { useCopyToClipboard, useSettingsMerge } from '~/hooks';
+import { getErrorBadgeColor, getErrorColor } from '~/lib/error-colors';
 import m from '~/lib/messages';
 import { getToolGuide } from '~/lib/toolGuides';
 import {
@@ -34,19 +36,24 @@ export function EnglishSpellChecker({
   const currentLocale = locale === 'ko' ? 'ko' : 'en';
   const guide = getToolGuide('englishSpellChecker', currentLocale);
 
-  // Merge provided settings with defaults
-  const [internalSettings, setInternalSettings] = useState(defaultEnglishSpellCheckerSettings);
-  const settings = useMemo(
-    () => ({ ...defaultEnglishSpellCheckerSettings, ...propSettings, ...internalSettings }),
-    [propSettings, internalSettings],
-  );
+  // Merge settings using shared hook (DRY)
+  const { settings, updateSettings } = useSettingsMerge({
+    defaults: defaultEnglishSpellCheckerSettings,
+    propSettings,
+    onSettingsChange,
+  });
 
   const [inputText, setInputText] = useState(settings.lastInput || '');
   const [result, setResult] = useState<EnglishSpellCheckResult | null>(null);
-  const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Clipboard using shared hook (DRY)
+  const { copy } = useCopyToClipboard({
+    successMessage: m['englishSpellChecker.copied']?.() ?? 'Copied',
+    errorMessage: m['englishSpellChecker.copyFailed']?.() ?? 'Copy failed',
+  });
 
   // Preload spell checker on mount
   useEffect(() => {
@@ -89,14 +96,6 @@ export function EnglishSpellChecker({
     }
   }, []);
 
-  const handleSettingsChange = useCallback(
-    (partial: Partial<EnglishSpellCheckerSettings>) => {
-      setInternalSettings((prev) => ({ ...prev, ...partial }));
-      onSettingsChange?.(partial);
-    },
-    [onSettingsChange],
-  );
-
   // State for check errors
   const [checkError, setCheckError] = useState<string | null>(null);
 
@@ -116,7 +115,7 @@ export function EnglishSpellChecker({
       // Use startTransition for non-urgent state updates
       startTransition(() => {
         setResult(checkResult);
-        handleSettingsChange({ lastInput: inputText });
+        updateSettings({ lastInput: inputText });
       });
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to check spelling';
@@ -126,35 +125,9 @@ export function EnglishSpellChecker({
         setLoadError(getSpellCheckerError()?.message || 'Dictionary error');
       }
     }
-  }, [inputText, settings, handleSettingsChange]);
+  }, [inputText, settings, updateSettings]);
 
-  // Error type colors
-  const getErrorBadgeColor = (type: EnglishSpellError['type']) => {
-    switch (type) {
-      case 'spelling':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300';
-      case 'spacing':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300';
-      case 'grammar':
-        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  };
-
-  const getErrorColor = (type: EnglishSpellError['type']) => {
-    switch (type) {
-      case 'spelling':
-        return 'text-red-600 dark:text-red-400';
-      case 'spacing':
-        return 'text-blue-600 dark:text-blue-400';
-      case 'grammar':
-        return 'text-amber-600 dark:text-amber-400';
-      default:
-        return 'text-muted-foreground';
-    }
-  };
-
+  // 에러 유형별 라벨 (i18n 의존성 때문에 컴포넌트 내부에 유지)
   const getErrorTypeLabel = (type: EnglishSpellError['type']) => {
     switch (type) {
       case 'spelling':
@@ -168,22 +141,11 @@ export function EnglishSpellChecker({
     }
   };
 
-  // Reset
-  const handleReset = useCallback(() => {
-    setInputText('');
-    setResult(null);
-    setCopied(false);
-  }, []);
-
-  // Copy corrected text
-  const handleCopy = useCallback(async () => {
-    if (!result) return;
-
-    // Build corrected text by replacing misspelled words with first suggestion
+  // Build corrected text helper
+  const buildCorrectedText = useCallback(() => {
+    if (!result) return '';
     let correctedText = result.original;
-    // Apply corrections from end to start to preserve positions
     const sortedErrors = [...result.errors].sort((a, b) => b.start - a.start);
-
     for (const error of sortedErrors) {
       if (error.suggestions.length > 0) {
         correctedText =
@@ -192,15 +154,22 @@ export function EnglishSpellChecker({
           correctedText.slice(error.end);
       }
     }
-
-    try {
-      await navigator.clipboard.writeText(correctedText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard access failed
-    }
+    return correctedText;
   }, [result]);
+
+  // Reset
+  const handleReset = useCallback(() => {
+    setInputText('');
+    setResult(null);
+  }, []);
+
+  // Copy corrected text (useCopyToClipboard 훅 사용)
+  const handleCopy = useCallback(() => {
+    const correctedText = buildCorrectedText();
+    if (correctedText) {
+      copy(correctedText);
+    }
+  }, [buildCorrectedText, copy]);
 
   // Apply first suggestion for all errors
   const handleApplyAll = useCallback(() => {
@@ -286,7 +255,7 @@ export function EnglishSpellChecker({
             <input
               type="checkbox"
               checked={settings.checkSpelling}
-              onChange={(e) => handleSettingsChange({ checkSpelling: e.target.checked })}
+              onChange={(e) => updateSettings({ checkSpelling: e.target.checked })}
               className="h-4 w-4 rounded border-border accent-primary"
             />
             <span>{m['englishSpellChecker.checkSpelling']?.() ?? 'Spelling'}</span>
@@ -295,7 +264,7 @@ export function EnglishSpellChecker({
             <input
               type="checkbox"
               checked={settings.checkSpacing}
-              onChange={(e) => handleSettingsChange({ checkSpacing: e.target.checked })}
+              onChange={(e) => updateSettings({ checkSpacing: e.target.checked })}
               className="h-4 w-4 rounded border-border accent-primary"
             />
             <span>{m['englishSpellChecker.checkSpacing']?.() ?? 'Spacing'}</span>
@@ -304,7 +273,7 @@ export function EnglishSpellChecker({
             <input
               type="checkbox"
               checked={settings.checkGrammar}
-              onChange={(e) => handleSettingsChange({ checkGrammar: e.target.checked })}
+              onChange={(e) => updateSettings({ checkGrammar: e.target.checked })}
               className="h-4 w-4 rounded border-border accent-primary"
             />
             <span>{m['englishSpellChecker.checkGrammar']?.() ?? 'Grammar'}</span>
@@ -313,7 +282,7 @@ export function EnglishSpellChecker({
             <input
               type="checkbox"
               checked={settings.ignoreNumbers}
-              onChange={(e) => handleSettingsChange({ ignoreNumbers: e.target.checked })}
+              onChange={(e) => updateSettings({ ignoreNumbers: e.target.checked })}
               className="h-4 w-4 rounded border-border accent-primary"
             />
             <span>{m['englishSpellChecker.ignoreNumbers']?.() ?? 'Ignore numbers'}</span>
@@ -401,10 +370,8 @@ export function EnglishSpellChecker({
                   onClick={handleCopy}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs transition-colors hover:bg-black/8 dark:hover:bg-white/12"
                 >
-                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied
-                    ? (m['englishSpellChecker.copied']?.() ?? 'Copied')
-                    : (m['englishSpellChecker.copy']?.() ?? 'Copy')}
+                  <Copy className="h-3.5 w-3.5" />
+                  {m['englishSpellChecker.copy']?.() ?? 'Copy'}
                 </button>
                 <button
                   type="button"

@@ -1,7 +1,9 @@
 import { useParaglideI18n } from '@soundblue/i18n';
-import { AlertTriangle, Check, Copy, Loader2, RotateCcw, Sparkles } from 'lucide-react';
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import { Copy, Loader2, RotateCcw, Sparkles } from 'lucide-react';
+import { useCallback, useState, useTransition } from 'react';
 import { ToolGuide } from '~/components/tools/ToolGuide';
+import { useCopyToClipboard, useSettingsMerge } from '~/hooks';
+import { getErrorBadgeColor, getErrorColor } from '~/lib/error-colors';
 import m from '~/lib/messages';
 import { getToolGuide } from '~/lib/toolGuides';
 import { checkSpelling } from './engine';
@@ -23,26 +25,22 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
   const currentLocale = locale === 'ko' ? 'ko' : 'en';
   const guide = getToolGuide('spellChecker', currentLocale);
 
-  // Merge provided settings with defaults
-  const [internalSettings, setInternalSettings] = useState(defaultSpellCheckerSettings);
-  const settings = useMemo(
-    () => ({ ...defaultSpellCheckerSettings, ...propSettings, ...internalSettings }),
-    [propSettings, internalSettings],
-  );
+  // Merge settings using shared hook (DRY)
+  const { settings, updateSettings } = useSettingsMerge({
+    defaults: defaultSpellCheckerSettings,
+    propSettings,
+    onSettingsChange,
+  });
 
   const [inputText, setInputText] = useState(settings.lastInput || '');
   const [result, setResult] = useState<SpellCheckResult | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [copyFailed, setCopyFailed] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const handleSettingsChange = useCallback(
-    (partial: Partial<SpellCheckerSettings>) => {
-      setInternalSettings((prev) => ({ ...prev, ...partial }));
-      onSettingsChange?.(partial);
-    },
-    [onSettingsChange],
-  );
+  // Clipboard using shared hook (DRY)
+  const { copy } = useCopyToClipboard({
+    successMessage: m['spellChecker.copied']?.() ?? '복사됨',
+    errorMessage: m['spellChecker.copyFailed']?.() ?? '복사 실패',
+  });
 
   // 검사 실행 (useTransition으로 UI 응답성 유지)
   const handleCheck = useCallback(() => {
@@ -56,33 +54,22 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
       });
 
       setResult(checkResult);
-      handleSettingsChange({ lastInput: inputText });
+      updateSettings({ lastInput: inputText });
     });
-  }, [inputText, settings, handleSettingsChange]);
+  }, [inputText, settings, updateSettings]);
 
   // 초기화
   const handleReset = useCallback(() => {
     setInputText('');
     setResult(null);
-    setCopied(false);
   }, []);
 
-  // 수정된 텍스트 복사
-  const handleCopy = useCallback(async () => {
-    if (!result?.corrected) return;
-
-    try {
-      await navigator.clipboard.writeText(result.corrected);
-      setCopied(true);
-      setCopyFailed(false);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error: unknown) {
-      // 클립보드 접근 실패 - 사용자에게 피드백 제공
-      console.warn('[clipboard] Copy failed:', error);
-      setCopyFailed(true);
-      setTimeout(() => setCopyFailed(false), 2000);
+  // 수정된 텍스트 복사 (useCopyToClipboard 훅 사용)
+  const handleCopy = useCallback(() => {
+    if (result?.corrected) {
+      copy(result.corrected);
     }
-  }, [result]);
+  }, [result, copy]);
 
   // 수정된 텍스트 적용
   const handleApply = useCallback(() => {
@@ -91,33 +78,7 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
     setResult(null);
   }, [result]);
 
-  // 에러 유형별 색상
-  const getErrorColor = (type: SpellError['type']) => {
-    switch (type) {
-      case 'spacing':
-        return 'text-blue-600 dark:text-blue-400';
-      case 'typo':
-        return 'text-red-600 dark:text-red-400';
-      case 'grammar':
-        return 'text-amber-600 dark:text-amber-400';
-      default:
-        return 'text-muted-foreground';
-    }
-  };
-
-  const getErrorBadgeColor = (type: SpellError['type']) => {
-    switch (type) {
-      case 'spacing':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300';
-      case 'typo':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300';
-      case 'grammar':
-        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  };
-
+  // 에러 유형별 라벨 (i18n 의존성 때문에 컴포넌트 내부에 유지)
   const getErrorTypeLabel = (type: SpellError['type']) => {
     switch (type) {
       case 'spacing':
@@ -156,7 +117,7 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
             <input
               type="checkbox"
               checked={settings.checkSpacing}
-              onChange={(e) => handleSettingsChange({ checkSpacing: e.target.checked })}
+              onChange={(e) => updateSettings({ checkSpacing: e.target.checked })}
               className="h-4 w-4 rounded border-border accent-primary"
             />
             <span>{m['spellChecker.checkSpacing']?.() ?? '띄어쓰기'}</span>
@@ -165,7 +126,7 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
             <input
               type="checkbox"
               checked={settings.checkTypo}
-              onChange={(e) => handleSettingsChange({ checkTypo: e.target.checked })}
+              onChange={(e) => updateSettings({ checkTypo: e.target.checked })}
               className="h-4 w-4 rounded border-border accent-primary"
             />
             <span>{m['spellChecker.checkTypo']?.() ?? '오타'}</span>
@@ -174,7 +135,7 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
             <input
               type="checkbox"
               checked={settings.checkGrammar}
-              onChange={(e) => handleSettingsChange({ checkGrammar: e.target.checked })}
+              onChange={(e) => updateSettings({ checkGrammar: e.target.checked })}
               className="h-4 w-4 rounded border-border accent-primary"
             />
             <span>{m['spellChecker.checkGrammar']?.() ?? '문법'}</span>
@@ -257,24 +218,10 @@ export function SpellChecker({ settings: propSettings, onSettingsChange }: Spell
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors ${
-                    copyFailed
-                      ? 'border-red-300 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950/50 dark:text-red-400'
-                      : 'border-border hover:bg-black/8 dark:hover:bg-white/12'
-                  }`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs transition-colors hover:bg-black/8 dark:hover:bg-white/12"
                 >
-                  {copyFailed ? (
-                    <AlertTriangle className="h-3.5 w-3.5" />
-                  ) : copied ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : (
-                    <Copy className="h-3.5 w-3.5" />
-                  )}
-                  {copyFailed
-                    ? (m['spellChecker.copyFailed']?.() ?? '복사 실패')
-                    : copied
-                      ? (m['spellChecker.copied']?.() ?? '복사됨')
-                      : (m['spellChecker.copy']?.() ?? '복사')}
+                  <Copy className="h-3.5 w-3.5" />
+                  {m['spellChecker.copy']?.() ?? '복사'}
                 </button>
                 <button
                   type="button"
