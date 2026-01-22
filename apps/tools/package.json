@@ -79,7 +79,7 @@
     "tailwind-merge": "^3.4.0",
     "tonal": "^6.4.2",
     "tone": "^15.1.22",
-    "valibot": "^1.2.0",
+    "zod": "^4.3.5",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

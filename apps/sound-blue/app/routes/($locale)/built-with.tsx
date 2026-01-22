@@ -32,7 +32,7 @@ const openSourceLibraries: Record<string, OpenSourceItem[]> = {
     { name: 'Immer', url: 'https://immerjs.github.io/immer' },
     { name: 'Dexie.js', url: 'https://dexie.org' },
   ],
-  validation: [{ name: 'Valibot', url: 'https://valibot.dev' }],
+  validation: [{ name: 'Zod', url: 'https://zod.dev' }],
   utilities: [{ name: 'date-fns', url: 'https://date-fns.org' }],
   build: [
     { name: 'Vite', url: 'https://vitejs.dev' },

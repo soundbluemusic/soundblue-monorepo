@@ -47,7 +47,7 @@ const openSourceLibraries: Record<string, OpenSourceItem[]> = {
   ],
   forms: [
     { name: 'React Hook Form', url: 'https://react-hook-form.com' },
-    { name: 'Valibot', url: 'https://valibot.dev' },
+    { name: 'Zod', url: 'https://zod.dev' },
   ],
   utilities: [
     { name: 'date-fns', url: 'https://date-fns.org' },
