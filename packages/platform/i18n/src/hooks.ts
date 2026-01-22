@@ -9,8 +9,8 @@ import {
   getOppositeLocale,
   type Locale,
 } from '@soundblue/locale';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useCallback, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router';
 import { useLocaleContext } from './context';
 import type { TranslateOptions, TranslationMap } from './types';
 
@@ -214,7 +214,7 @@ export function useParaglideI18n() {
     // Fix: locale prefix 뒤에 / 또는 문자열 끝이 와야 함 (e.g., /english-spell-checker 오탐 방지)
     const basePath = currentPath.replace(/^\/(ko|en)(?=\/|$)/, '') || '/';
     const newPath = getLocalizedPath(basePath, newLocale);
-    navigate(newPath);
+    navigate({ to: newPath });
   }, [locale, location.pathname, navigate]);
 
   /**
