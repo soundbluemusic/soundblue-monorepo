@@ -3,4 +3,5 @@ packages:
   - 'packages/core/*'
   - 'packages/platform/*'
   - 'packages/ui/*'
+  - 'docs/docs-site'
   - '!apps/*-solid-backup'

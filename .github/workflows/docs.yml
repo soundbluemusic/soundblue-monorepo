@@ -33,8 +33,10 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        working-directory: docs/docs-site
-        run: pnpm install --ignore-workspace
+        run: pnpm install --frozen-lockfile
+
+      - name: Build UI components (dependency)
+        run: pnpm --filter @soundblue/ui-components build
 
       - name: Build docs
         working-directory: docs/docs-site
@@ -43,10 +45,15 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Move prerendered files to root
+        run: |
+          cp -r docs/docs-site/build/client/soundblue-monorepo/* docs/docs-site/build/client/
+          rm -rf docs/docs-site/build/client/soundblue-monorepo
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/docs-site/dist
+          path: docs/docs-site/build/client
 
   deploy:
     environment:
