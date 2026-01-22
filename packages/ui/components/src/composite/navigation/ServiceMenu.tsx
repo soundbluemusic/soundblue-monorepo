@@ -114,12 +114,12 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
 
   return (
     <div ref={menuRef} className="relative">
-      {/* Toggle Button */}
+      {/* Toggle Button - 44px minimum touch target */}
       <button
         ref={buttonRef}
         type="button"
         onClick={handleToggle}
-        className="inline-flex items-center justify-center min-w-11 min-h-11 w-10 h-10 p-0 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] active:bg-[var(--color-interactive-active)] transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2 max-md:w-9 max-md:h-9"
+        className="inline-flex items-center justify-center min-w-11 min-h-11 w-11 h-11 p-0 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] active:bg-[var(--color-interactive-active)] transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2"
         title={labels.ariaLabel}
         aria-label={labels.ariaLabel}
         aria-expanded={isOpen}
@@ -140,7 +140,7 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
             {labels.services}
           </div>
 
-          {/* Service Links */}
+          {/* Service Links - 44px minimum touch target */}
           {SERVICE_LINKS.map((service) => {
             const isCurrent = service.id === currentApp;
             return (
@@ -149,7 +149,7 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
                 href={service.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex items-center gap-3 px-3 py-2.5 text-sm no-underline transition-colors duration-150 ${
+                className={`flex items-center gap-3 px-4 py-3 min-h-[44px] text-sm no-underline transition-colors duration-150 ${
                   isCurrent
                     ? 'text-[var(--color-accent-primary)] bg-[var(--color-accent-light)]'
                     : 'text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)]'
@@ -158,7 +158,7 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
                 aria-current={isCurrent ? 'page' : undefined}
                 onClick={handleClose}
               >
-                <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                <span className="w-5 h-5 flex items-center justify-center shrink-0">
                   {isCurrent && <CheckIcon />}
                 </span>
                 <span className="flex-1">{service.label[locale]}</span>
@@ -174,7 +174,7 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
             {labels.social}
           </div>
 
-          {/* Social Links */}
+          {/* Social Links - 44px minimum touch target */}
           {SOCIAL_LINKS.map((social) => {
             const IconComponent = SOCIAL_ICONS[social.id];
             return (
@@ -183,11 +183,11 @@ export function ServiceMenu({ currentApp, locale }: ServiceMenuProps) {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-3 py-2.5 text-sm no-underline text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] transition-colors duration-150"
+                className="flex items-center gap-3 px-4 py-3 min-h-[44px] text-sm no-underline text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] transition-colors duration-150"
                 role="menuitem"
                 onClick={handleClose}
               >
-                <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                <span className="w-5 h-5 flex items-center justify-center shrink-0">
                   {IconComponent && <IconComponent />}
                 </span>
                 <span className="flex-1">{social.name}</span>

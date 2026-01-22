@@ -91,7 +91,7 @@ export function ColorblindSelector({
 
   return (
     <div ref={containerRef} className={cn('relative inline-block', className)}>
-      {/* Trigger Button */}
+      {/* Trigger Button - 44px minimum touch target */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -100,10 +100,12 @@ export function ColorblindSelector({
         aria-haspopup="listbox"
         title={currentLabel}
         className={cn(
-          'flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200',
-          'hover:bg-black/8 dark:hover:bg-white/12',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          isActive && 'text-primary',
+          'flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-xl transition-all duration-200',
+          'hover:bg-[var(--color-interactive-hover)] active:bg-[var(--color-interactive-active)]',
+          'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]',
+          'focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2',
+          'cursor-pointer border-none bg-transparent',
+          isActive && 'text-[var(--color-accent-primary)]',
         )}
       >
         {isActive ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5 opacity-60" />}
@@ -115,9 +117,8 @@ export function ColorblindSelector({
           role="listbox"
           aria-label={defaultAriaLabel}
           className={cn(
-            'absolute right-0 top-full z-50 mt-2 min-w-[160px] overflow-hidden rounded-xl',
-            'border border-border bg-background shadow-lg',
-            'animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200',
+            'absolute right-0 top-full z-50 mt-2 min-w-[180px] overflow-hidden rounded-xl',
+            'border border-[var(--color-border-primary)] bg-[var(--color-bg-primary)] shadow-lg',
           )}
         >
           {COLORBLIND_MODES.map((modeOption) => {
@@ -132,22 +133,24 @@ export function ColorblindSelector({
                 aria-selected={isSelected}
                 onClick={() => handleSelect(modeOption)}
                 className={cn(
-                  'flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors',
-                  'hover:bg-black/5 dark:hover:bg-white/8',
-                  'focus-visible:outline-none focus-visible:bg-black/5 dark:focus-visible:bg-white/8',
-                  isSelected && 'bg-primary/10 text-primary font-medium',
+                  'flex w-full items-center gap-3 px-4 py-3 min-h-[44px] text-sm transition-colors',
+                  'hover:bg-[var(--color-interactive-hover)]',
+                  'focus-visible:outline-none focus-visible:bg-[var(--color-interactive-hover)]',
+                  isSelected
+                    ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)] font-medium'
+                    : 'text-[var(--color-text-primary)]',
                 )}
               >
-                {/* Color preview indicator */}
+                {/* Selection indicator */}
                 <span
                   className={cn(
-                    'flex h-4 w-4 items-center justify-center rounded-full border-2',
-                    isSelected ? 'border-primary bg-primary' : 'border-muted-foreground/30',
+                    'flex h-4 w-4 items-center justify-center rounded-full border-2 shrink-0',
+                    isSelected
+                      ? 'border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]'
+                      : 'border-[var(--color-text-tertiary)]',
                   )}
                 >
-                  {isSelected && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
-                  )}
+                  {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
                 </span>
                 <span>{label}</span>
               </button>

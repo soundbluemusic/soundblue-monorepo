@@ -102,7 +102,7 @@ export function Header() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="inline-flex items-center justify-center min-w-11 min-h-11 w-10 h-10 p-0 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] active:bg-[var(--color-interactive-active)] transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2 max-md:w-9 max-md:h-9"
+            className="inline-flex items-center justify-center min-w-11 min-h-11 w-11 h-11 p-0 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] active:bg-[var(--color-interactive-active)] transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2"
             title={themeTitle}
             aria-label={themeTitle}
           >
@@ -113,12 +113,12 @@ export function Header() {
           <button
             type="button"
             onClick={toggleLanguage}
-            className="inline-flex items-center justify-center gap-1 min-w-11 min-h-11 h-10 px-3 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] active:bg-[var(--color-interactive-active)] transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2 max-md:h-9 max-md:px-2"
+            className="inline-flex items-center justify-center gap-1.5 min-w-11 min-h-11 h-11 px-3 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] active:bg-[var(--color-interactive-active)] transition-colors duration-150 cursor-pointer border-none bg-transparent focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2"
             title={t.langSwitch}
             aria-label={`${t.langSwitch} (${t.langCode})`}
           >
             <svg
-              className="w-4 h-4 shrink-0"
+              className="w-5 h-5 shrink-0"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -128,7 +128,7 @@ export function Header() {
               <circle cx="12" cy="12" r="10" />
               <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
             </svg>
-            <span className="text-xs font-semibold tracking-wide" aria-hidden="true">
+            <span className="text-sm font-semibold tracking-wide" aria-hidden="true">
               {t.langCode}
             </span>
           </button>
