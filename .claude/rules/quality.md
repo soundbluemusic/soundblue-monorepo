@@ -77,13 +77,12 @@
 ### 6. SPA 모드 (SEO 필수)
 
 ```text
-❌ SPA 모드 (prerender 없고 ssr: false)
-❌ react-router.config.ts에서 prerender() 제거
+❌ SPA 모드 (SSR 비활성화)
+❌ SSR 설정 제거
 ❌ SEO 무시한 렌더링 설정
 
-✅ SSG 모드 (ssr: false + prerender())
-✅ SSR 모드 (ssr: true)
-✅ 모든 라우트 prerender() 배열에 등록
+✅ SSR 모드 (TanStack Start 기본값)
+✅ Cloudflare Workers에서 서버 렌더링
 ```
 
 상세: `seo-rendering.md` | 검증: `/rendering-check`

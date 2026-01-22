@@ -23,11 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **프레임워크**: React 19.1 + React Router 7.6 (SSG mode)
+- **프레임워크**: React 19.1 + TanStack Start (SSR mode)
 - **상태관리**: Zustand 5
 - **UI 컴포넌트**: Radix UI (접근성 프리미티브)
 - **다국어 지원**: @inlang/paraglide-js
-- **라우팅**: React Router 7 (파일 기반 라우팅)
+- **라우팅**: TanStack Router (파일 기반 라우팅)
 - **빌드 시스템**: Vite 6.3
 - **사이트맵 생성**: scripts/generate-sitemaps.ts (커스텀)
 

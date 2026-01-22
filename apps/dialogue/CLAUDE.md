@@ -16,11 +16,11 @@ SEO 렌더링 규칙: @../../.claude/rules/seo-rendering.md (⚠️ SPA 금지)
 
 2. **Offline-First** - 모든 데이터는 빌드 시 정적 파일에 포함.
    - 외부 API 호출 금지
-   - 모든 Q&A 데이터는 `app/data/` 디렉토리에 저장
+   - 모든 Q&A 데이터는 `src/data/` 디렉토리에 저장
    - 런타임 네트워크 요청 절대 금지
 
 3. **Bilingual Support** - 모든 콘텐츠는 영어/한국어 버전 필수.
-   - UI 텍스트는 `app/i18n/` 또는 컴포넌트 내 하드코딩
+   - UI 텍스트는 `src/i18n/` 또는 컴포넌트 내 하드코딩
    - Q&A 데이터는 EN/KO 필드 모두 포함
 
 ---
@@ -48,7 +48,7 @@ Before any fix:
 ### Data Structure (데이터 구조)
 
 ```typescript
-// app/data/questions.ts
+// src/data/questions.ts
 export interface QAPair {
   id: string;
   question: {
@@ -85,7 +85,7 @@ export const qaData: QAPair[] = [
 Use Zustand for global state:
 
 ```typescript
-// app/stores/chat-store.ts
+// src/stores/chat-store.ts
 import { create } from 'zustand';
 
 interface Message {
@@ -121,7 +121,7 @@ export const useChatStore = create<ChatStore>((set) => ({
 ### Language Switching (언어 전환)
 
 ```typescript
-// app/stores/language-store.ts
+// src/stores/language-store.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -153,7 +153,7 @@ export const useLanguageStore = create<LanguageStore>()(
 ### Chat Components (채팅 컴포넌트)
 
 ```tsx
-// app/components/chat/ChatContainer.tsx
+// src/components/chat/ChatContainer.tsx
 import { type FC } from 'react';
 import { useChatStore } from '~/stores/chat-store';
 import { ChatMessage } from './ChatMessage';
@@ -178,7 +178,7 @@ export const ChatContainer: FC = () => {
 ### Layout Components (레이아웃 컴포넌트)
 
 ```tsx
-// app/components/layout/MainLayout.tsx
+// src/components/layout/MainLayout.tsx
 import { type FC, type ReactNode } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
@@ -207,32 +207,26 @@ export const MainLayout: FC<MainLayoutProps> = ({ children }) => {
 ### File-based Routing (파일 기반 라우팅)
 
 ```
-app/routes/
-├── home.tsx          # / (English home)
+src/routes/
+├── __root.tsx        # Root layout (TanStack Router)
+├── index.tsx         # / (English home)
 ├── about.tsx         # /about (English about)
-└── ko/
-    ├── home.tsx      # /ko (Korean home)
+└── _$locale/
+    ├── index.tsx     # /ko (Korean home)
     └── about.tsx     # /ko/about (Korean about)
 ```
 
 ### Route Configuration (라우트 설정)
 
 ```typescript
-// react-router.config.ts
-import type { Config } from '@react-router/dev/config';
+// app.config.ts (TanStack Start)
+import { defineConfig } from '@tanstack/react-start/config';
 
-export default {
-  ssr: false,
-  async prerender() {
-    return [
-      '/',
-      '/ko',
-      '/about',
-      '/ko/about',
-      // Add more routes as needed
-    ];
+export default defineConfig({
+  server: {
+    preset: 'cloudflare-pages',
   },
-} satisfies Config;
+});
 ```
 
 ---
@@ -242,7 +236,7 @@ export default {
 ### Unit Tests (유닛 테스트)
 
 ```tsx
-// app/components/chat/__tests__/ChatMessage.test.tsx
+// src/components/chat/__tests__/ChatMessage.test.tsx
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ChatMessage } from '../ChatMessage';
@@ -471,9 +465,9 @@ const sanitizedContent = DOMPurify.sanitize(userInput);
 
 - Parent: `/home/user/soundblue-monorepo/CLAUDE.md`
 - README: `/home/user/soundblue-monorepo/apps/dialogue/README.md`
-- React Router Docs: https://reactrouter.com/
-- Tailwind CSS: https://tailwindcss.com/
-- Zustand: https://docs.pmnd.rs/zustand/
+- TanStack Start Docs: [tanstack.com](https://tanstack.com/start/latest/docs/framework/react/overview)
+- Tailwind CSS: [tailwindcss.com](https://tailwindcss.com/)
+- Zustand: [docs.pmnd.rs/zustand](https://docs.pmnd.rs/zustand/)
 
 ---
 

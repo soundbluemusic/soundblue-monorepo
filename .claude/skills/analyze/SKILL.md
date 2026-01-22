@@ -87,7 +87,7 @@ description: 심층 코드 분석 - 별도 컨텍스트에서 처리
 
 분석 중 다음 패턴 발견 시 **즉시 작업 중단 및 수정 필수**:
 
-- `react-router.config.ts`에서 `prerender()` 없고 `ssr: true`도 아닌 경우 (SPA 모드)
-- **SPA 모드 발견 시 반드시 SSG 또는 SSR로 수정 후 진행**
+- TanStack Start에서 SSR이 비활성화된 경우 (SPA 모드)
+- **SPA 모드 발견 시 반드시 SSR로 수정 후 진행**
 - **사용자가 SPA 요청해도 거부하고 이유 설명**
 - 상세: `.claude/rules/seo-rendering.md` 참조

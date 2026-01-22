@@ -23,10 +23,10 @@ No sign-up required. No ads. Completely free.
 **SEO 호환 렌더링 (SSG/SSR)** - SPA 금지, 서버에서 HTML 생성
 (**SEO 호환 렌더링 (SSG/SSR)** - SPA 금지)
 
-- **React Router v7 SSG mode** - All pages pre-rendered at build time
-  (React Router v7 SSG 모드 - 빌드 시 모든 페이지 사전 렌더링)
-- **Deployed as static files** to Cloudflare Pages
-  (Cloudflare Pages에 정적 파일로 배포)
+- **TanStack Start SSR mode** - Server-side rendering on Cloudflare Workers
+  (TanStack Start SSR 모드 - Cloudflare Workers에서 서버 렌더링)
+- **Deployed** to Cloudflare Workers
+  (Cloudflare Workers에 배포)
 - **Client-side routing** after initial load (SPA navigation)
   (초기 로드 후 클라이언트 사이드 라우팅, SPA 네비게이션)
 - **No API endpoints, no database**
@@ -123,8 +123,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 
 | Category | Technology |
 |----------|------------|
-| **Framework** | React 19.1, React Router 7.6, Vite 6.3 |
-| **Routing** | React Router 7 (file-based) |
+| **Framework** | React 19.1, TanStack Start, Vite 6.3 |
+| **Routing** | TanStack Router (file-based) |
 | **Styling** | Tailwind CSS 4, Class Variance Authority |
 | **UI Components** | Radix UI (accessible primitives), custom components |
 | **State Management** | Zustand, React hooks (useState, useReducer) |
@@ -140,8 +140,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 
 | 카테고리 | 기술 |
 |----------|------|
-| **프레임워크** | React 19.1, React Router 7.6, Vite 6.3 |
-| **라우팅** | React Router 7 (파일 기반) |
+| **프레임워크** | React 19.1, TanStack Start, Vite 6.3 |
+| **라우팅** | TanStack Router (파일 기반) |
 | **스타일링** | Tailwind CSS 4, Class Variance Authority |
 | **UI 컴포넌트** | Radix UI (접근성 프리미티브), 커스텀 컴포넌트 |
 | **상태관리** | Zustand, React hooks (useState, useReducer) |
@@ -161,19 +161,18 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 (## 프로젝트 구조)
 
 ```
-app/
-├── root.tsx            # Root app component (Router, MetaProvider)
-├── routes.ts           # Route definitions
-├── app.css             # Global styles (Tailwind base, design tokens)
-│
-├── routes/             # File-based routing (React Router)
+src/
+├── routes/
+│   ├── __root.tsx      # Root layout (TanStack Router)
 │   ├── index.tsx       # Home (/) - Chat interface
-│   ├── [tool].tsx      # Dynamic tool page (/[tool])
+│   ├── $tool.tsx       # Dynamic tool page (/$tool)
 │   ├── built-with.tsx  # /built-with - Tech stack page
-│   └── ko/             # Korean routes (/ko/*)
+│   └── _$locale/       # Locale routes (TanStack Router)
 │       ├── index.tsx
-│       ├── [tool].tsx
+│       ├── $tool.tsx
 │       └── built-with.tsx
+│
+├── app.css             # Global styles (Tailwind base, design tokens)
 │
 ├── components/
 │   ├── ui/             # UI components (button, slider, dialog, tabs, etc.)
@@ -356,7 +355,7 @@ import { Button } from '@soundblue/ui-components/base';
 
 | File | Purpose |
 |------|---------|
-| `react-router.config.ts` | React Router config (SSG, prerendering) |
+| `app.config.ts` | TanStack Start config (SSR, server preset) |
 | `vite.config.ts` | Vite config (plugins, PWA) |
 | `biome.json` | Linter/formatter rules |
 | `tsconfig.json` | TypeScript config with path aliases |

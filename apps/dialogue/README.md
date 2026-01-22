@@ -20,10 +20,10 @@ Dialogue is an offline Q&A tool that provides instant answers without internet c
 **SEO 호환 렌더링 (SSG/SSR)** - SPA 금지, 서버에서 HTML 생성
 (**SEO 호환 렌더링 (SSG/SSR)** - SPA 금지)
 
-- **React Router v7 SSG mode** - All pages pre-rendered at build time
-  (React Router v7 SSG 모드 - 빌드 시 모든 페이지 사전 렌더링)
-- **Deployed as static files** to Cloudflare Pages
-  (Cloudflare Pages에 정적 파일로 배포)
+- **TanStack Start SSR mode** - Server-side rendering on Cloudflare Workers
+  (TanStack Start SSR 모드 - Cloudflare Workers에서 서버 렌더링)
+- **Deployed** to Cloudflare Workers
+  (Cloudflare Workers에 배포)
 - **Client-side routing** after initial load (SPA navigation)
   (초기 로드 후 클라이언트 사이드 라우팅, SPA 네비게이션)
 - **No API endpoints, no database**
@@ -101,8 +101,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 
 | Category | Technology |
 |----------|------------|
-| **Framework** | React 19.1, React Router 7.6, Vite 6.3 |
-| **Routing** | React Router 7 (file-based) |
+| **Framework** | React 19.1, TanStack Start, Vite 6.3 |
+| **Routing** | TanStack Router (file-based) |
 | **Styling** | Tailwind CSS 4 |
 | **State Management** | Zustand, React hooks (useState, useReducer) |
 | **i18n** | Built-in language switching (EN/KO) |
@@ -113,8 +113,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 
 | 카테고리 | 기술 |
 |----------|------|
-| **프레임워크** | React 19.1, React Router 7.6, Vite 6.3 |
-| **라우팅** | React Router 7 (파일 기반) |
+| **프레임워크** | React 19.1, TanStack Start, Vite 6.3 |
+| **라우팅** | TanStack Router (파일 기반) |
 | **스타일링** | Tailwind CSS 4 |
 | **상태관리** | Zustand, React hooks (useState, useReducer) |
 | **다국어** | 내장 언어 전환 (EN/KO) |
@@ -129,17 +129,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view.
 
 ```
 dialogue/
-├── app/
-│   ├── root.tsx            # Root app component
-│   ├── routes.ts           # Route definitions
-│   ├── app.css             # Global styles (Tailwind)
-│   │
-│   ├── routes/             # File-based routing (React Router)
-│   │   ├── home.tsx        # Home route (/)
+├── src/
+│   ├── routes/
+│   │   ├── __root.tsx      # Root layout (TanStack Router)
+│   │   ├── index.tsx       # Home route (/)
 │   │   ├── about.tsx       # About page
-│   │   └── ko/             # Korean routes (/ko/*)
-│   │       ├── home.tsx
+│   │   └── _$locale/       # Locale routes (TanStack Router)
+│   │       ├── index.tsx
 │   │       └── about.tsx
+│   ├── app.css             # Global styles (Tailwind)
 │   │
 │   ├── components/         # React components
 │   │   ├── layout/         # Layout components (Header, Sidebar, MainLayout)
@@ -158,7 +156,7 @@ dialogue/
 │   ├── manifest.json       # PWA manifest
 │   └── llms.txt            # AI crawler optimization
 │
-├── react-router.config.ts  # React Router configuration (SSG)
+├── app.config.ts           # TanStack Start configuration (SSR)
 ├── vite.config.ts          # Vite configuration
 ├── biome.json              # Linter/formatter rules
 └── tsconfig.json           # TypeScript configuration
@@ -206,7 +204,7 @@ import { cn } from '~/lib/utils';
 
 | File | Purpose |
 |------|---------|
-| `react-router.config.ts` | React Router config (SSG, prerendering) |
+| `app.config.ts` | TanStack Start config (SSR, server preset) |
 | `vite.config.ts` | Vite config (plugins, PWA) |
 | `biome.json` | Linter/formatter rules |
 | `tsconfig.json` | TypeScript config with path aliases |

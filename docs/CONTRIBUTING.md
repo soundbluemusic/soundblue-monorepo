@@ -19,17 +19,22 @@ Tools 프로젝트에 기여해 주셔서 감사합니다!
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**react-router.config.ts 설정:**
+**vite.config.ts 설정 (TanStack Start):**
 
 ```typescript
-// ✅ SSG 모드
-export default { ssr: false, async prerender() { return ['/route1', '/route2']; } };
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 
-// ✅ SSR 모드
-export default { ssr: true };
+// ✅ SSR 모드 (TanStack Start 기본값 - 권장)
+export default defineConfig({
+  plugins: [
+    tanstackStart({
+      // SSR 모드 (Cloudflare Workers에서 서버 렌더링)
+    }),
+  ],
+});
 
 // ❌ SPA 모드 (금지!)
-export default { ssr: false }; // prerender 없음 = SPA = SEO 불가!
+// TanStack Start는 기본적으로 SSR이므로 SSR을 비활성화하면 안 됨
 ```
 
 상세: [.claude/rules/seo-rendering.md](../.claude/rules/seo-rendering.md)
@@ -134,7 +139,7 @@ pnpm test:e2e:ui
 
 ### 1. 도구 정의 생성
 
-`app/tools/[tool-name]/index.tsx`:
+`src/tools/[tool-name]/index.tsx`:
 
 ```typescript
 import type { FC } from 'react';
@@ -168,7 +173,7 @@ registerTool(myTool);
 
 ### 2. 도구 내보내기
 
-`app/tools/index.ts`에 추가:
+`src/tools/index.ts`에 추가:
 
 ```typescript
 export * from './my-tool';
@@ -244,7 +249,7 @@ registerProcessor('my-processor', MyProcessor);
 | 변경 항목 | 수정 파일 |
 |-----------|-----------|
 | Node.js 버전 (`engines.node`) | `README.md`, `CONTRIBUTING.md` |
-| 주요 프레임워크 버전 (React, React Router 등) | `README.md`, `CLAUDE.md` |
+| 주요 프레임워크 버전 (React, TanStack Start 등) | `README.md`, `CLAUDE.md` |
 | 새 의존성 추가 | `README.md` (Tech Stack), `CLAUDE.md` (Tech Stack) |
 | 라우트 추가/삭제 | `README.md`, `CLAUDE.md` (Directory Structure) |
 | 새 도구 추가 | `README.md` (Key Features), `CHANGELOG.md` |

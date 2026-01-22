@@ -13,7 +13,7 @@ user-invocable: true
 
 | 패키지 | GitHub API URL |
 |--------|----------------|
-| React Router | `https://api.github.com/repos/remix-run/react-router/releases/latest` |
+| TanStack Start | `https://api.github.com/repos/TanStack/router/releases/latest` |
 | Tailwind CSS | `https://api.github.com/repos/tailwindlabs/tailwindcss/releases/latest` |
 | TypeScript | `https://api.github.com/repos/microsoft/TypeScript/releases/latest` |
 
@@ -27,7 +27,7 @@ user-invocable: true
 |------|------------|-------------|
 | Cloudflare Pages/Workers | "Cloudflare Pages Workers {현재연도}" | 기능 통합, Git 연동, Preview URL |
 | Cloudflare D1 | "Cloudflare D1 pricing limits {현재연도}" | GA 전환, 가격, 제한 변경 |
-| React Router v7 | "React Router v7 changelog {현재연도}" | API 변경, 새 기능, SSG/SSR |
+| TanStack Start | "TanStack Start changelog {현재연도}" | API 변경, 새 기능, SSR |
 | Tailwind CSS v4 | "Tailwind CSS v4 breaking changes {현재연도}" | 문법 변경, 설정 방식, 새 유틸리티 |
 | TypeScript | "TypeScript 5 new features {현재연도}" | 새 버전 기능, 호환성 |
 
@@ -54,7 +54,7 @@ user-invocable: true
 ### 버전 정보 (GitHub API)
 | 패키지 | 버전 | 릴리즈 날짜 |
 |--------|------|------------|
-| React Router | vX.X.X | YYYY-MM-DD |
+| TanStack Start | vX.X.X | YYYY-MM-DD |
 | Tailwind CSS | vX.X.X | YYYY-MM-DD |
 | TypeScript | vX.X.X | YYYY-MM-DD |
 
@@ -66,7 +66,7 @@ user-invocable: true
 ### 2. Cloudflare D1
 ...
 
-### 3. React Router v7
+### 3. TanStack Start
 ...
 
 ### 4. Tailwind CSS v4

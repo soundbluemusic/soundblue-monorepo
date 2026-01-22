@@ -58,18 +58,6 @@ core/           ← 외부 import 금지
 - **웹 표준 API Only**: 특정 브라우저 종속 API 지양 (가능하면 표준 API 사용).
 - **로컬 스토리지 Only**: 서버 DB 대신 localStorage, IndexedDB 사용 (사용자 데이터 저장용).
 
-### 3. SSG Hydration Workaround
-위치: `apps/*/app/entry.client.tsx` - **삭제 금지!**
-```typescript
-// React Router v7 SSG hydration 버그 workaround
-setTimeout(() => {
-  const divs = [...document.body.children].filter(el => el.tagName === 'DIV');
-  if (divs.length >= 2 && !Object.keys(divs[0]).some(k => k.startsWith('__react'))) {
-    divs[0].remove();
-  }
-}, 100);
-```
-
 ---
 
 ## 코드 품질 핵심 (Code Quality)
@@ -114,8 +102,8 @@ setTimeout(() => {
 
 | Tech | Docs |
 |------|------|
-| Tailwind v4 | [tailwindcss.com](https://tailwindcss.com/docs/installation/framework-guides/react-router) |
-| React Router v7 | [reactrouter.com](https://reactrouter.com/start/framework/deploying) |
+| Tailwind v4 | [tailwindcss.com](https://tailwindcss.com/docs/installation/vite) |
+| TanStack Start | [tanstack.com](https://tanstack.com/start/latest/docs/framework/react/overview) |
 | TypeScript | [typescriptlang.org](https://www.typescriptlang.org/docs/) |
 
 **참조 우선순위**: 공식 문서 → GitHub Issues → Stack Overflow → 블로그

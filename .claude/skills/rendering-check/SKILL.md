@@ -43,17 +43,16 @@ description: SEO 호환성 검증 - 브라우저 API 사용 및 이중 구현 �
 ### 3. apps/ 레이어 (SEO 호환 렌더링 확인)
 
 ```
-✅ SSG 모드: prerender() 함수 존재
-✅ SSR 모드: ssr: true 설정
-❌ SPA 모드: prerender 없고 ssr도 없음 (금지)
+✅ SSR 모드: TanStack Start + Cloudflare Workers (기본값)
+❌ SPA 모드: SSR 비활성화 (금지)
 ```
 
 ## SPA 감지 조건
 
-다음 조건이 모두 해당되면 SPA로 판정 (SEO 위험):
+다음 조건이 해당되면 SPA로 판정 (SEO 위험):
 
-1. `react-router.config.ts`에 `prerender()` 함수 없음
-2. `ssr: true`도 아님
+1. TanStack Start SSR이 비활성화됨
+2. 클라이언트 사이드 렌더링만 사용
 
 ## 실행 규칙
 

@@ -63,7 +63,7 @@ _향후 변경사항이 여기에 기록됩니다._
 
 ### Added
 
-- React 19.1 with React Router 7.6 (SSG mode)
+- React 19.1 with TanStack Start (SSR mode)
 - TypeScript 5.9 strict mode
 - Tailwind CSS 4.x styling system
 - Pure CSS Particles (lightweight visual effects)
