@@ -1,5 +1,5 @@
 import { useParaglideI18n } from '@soundblue/i18n';
-import { useTheme } from '@soundblue/ui-components/base';
+import { ColorblindSelector, useTheme } from '@soundblue/ui-components/base';
 import { ServiceMenu } from '@soundblue/ui-components/composite';
 import { Link } from 'react-router';
 import { SearchBox, ThemeIcon } from '~/components/ui';
@@ -74,6 +74,8 @@ export function Header({ onSidebarToggle, isSidebarOpen = true }: HeaderProps) {
         <div className="flex items-center gap-2 shrink-0">
           {/* Service Menu */}
           <ServiceMenu currentApp="sound-blue" locale={currentLocale} />
+          {/* Colorblind Mode Selector */}
+          <ColorblindSelector locale={currentLocale} />
           {/* Theme Toggle */}
           <button
             type="button"

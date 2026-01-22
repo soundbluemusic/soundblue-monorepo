@@ -1,7 +1,7 @@
 'use client';
 
 import { useParaglideI18n } from '@soundblue/i18n';
-import { useTheme } from '@soundblue/ui-components/base';
+import { ColorblindSelector, useTheme } from '@soundblue/ui-components/base';
 import { ServiceMenu } from '@soundblue/ui-components/composite';
 import { Link } from 'react-router';
 import { useToolStore } from '~/stores/tool-store';
@@ -96,6 +96,8 @@ export function Header() {
         <div className="flex items-center gap-2 shrink-0">
           {/* Service Menu */}
           <ServiceMenu currentApp="tools" locale={currentLocale} />
+          {/* Colorblind Mode Selector */}
+          <ColorblindSelector locale={currentLocale} />
           {/* Theme Toggle */}
           <button
             type="button"

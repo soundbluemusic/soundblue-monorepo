@@ -1,5 +1,5 @@
 import { getLocaleFromPath, getLocalizedPath } from '@soundblue/i18n';
-import { useTheme } from '@soundblue/ui-components/base';
+import { ColorblindSelector, useTheme } from '@soundblue/ui-components/base';
 import { ServiceMenu } from '@soundblue/ui-components/composite';
 import { useLocation, useNavigate } from 'react-router';
 import m from '~/lib/messages';
@@ -26,6 +26,8 @@ export function Header() {
       <div className="flex items-center gap-2">
         {/* Service Menu */}
         <ServiceMenu currentApp="dialogue" locale={locale} />
+        {/* Colorblind Mode Selector */}
+        <ColorblindSelector locale={locale} />
         {/* Theme toggle */}
         <button
           type="button"

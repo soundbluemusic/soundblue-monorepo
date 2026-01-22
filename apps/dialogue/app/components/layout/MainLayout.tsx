@@ -160,11 +160,19 @@ export function MainLayout() {
 
   return (
     <div className="flex flex-col h-screen bg-[var(--color-bg-primary)]">
+      {/* Skip Link for Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[var(--color-accent-primary)] focus:text-white focus:rounded-lg focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
+
       {/* Header */}
       <Header />
 
       {/* Main Content */}
-      <main className="flex flex-1 overflow-hidden">
+      <main id="main-content" className="flex flex-1 overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
           <button

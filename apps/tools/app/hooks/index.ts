@@ -6,6 +6,12 @@
 
 // Animation hooks
 export { type AutoAnimateOptions, autoAnimatePresets, useAutoAnimate } from './useAutoAnimate';
+// Clipboard hooks
+export {
+  type UseCopyToClipboardOptions,
+  type UseCopyToClipboardReturn,
+  useCopyToClipboard,
+} from './useCopyToClipboard';
 // Locale hooks
 export { type SupportedLocale, useCurrentLocale } from './useCurrentLocale';
 export {

@@ -518,6 +518,20 @@ a {
 }
 
 /* ========================================
+   Touch Target Optimization (Accessibility)
+   Minimum 44px touch targets for touch devices
+   ======================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  button:not(.inline-btn),
+  a:not(.inline-link),
+  [role='button'] {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+}
+
+/* ========================================
    Reduced Motion
    ======================================== */
 
@@ -595,4 +609,51 @@ a {
   .news-card-image {
     width: 100%;
   }
+}
+
+/* ========================================
+   Colorblind Accessibility Modes
+   ======================================== */
+
+/* Protanopia (Red-blind) */
+[data-colorblind='protanopia'] {
+  --color-error: 210 80% 45%;
+  --color-success: 50 85% 50%;
+  --destructive: 210 80% 45%;
+}
+
+[data-colorblind='protanopia'][data-theme='dark'] {
+  --color-error: 210 70% 60%;
+  --color-success: 50 80% 60%;
+  --destructive: 210 70% 60%;
+}
+
+/* Deuteranopia (Green-blind) */
+[data-colorblind='deuteranopia'] {
+  --color-error: 220 75% 50%;
+  --color-success: 45 90% 48%;
+  --destructive: 220 75% 50%;
+}
+
+[data-colorblind='deuteranopia'][data-theme='dark'] {
+  --color-error: 220 65% 65%;
+  --color-success: 45 85% 58%;
+  --destructive: 220 65% 65%;
+}
+
+/* Tritanopia (Blue-blind) */
+[data-colorblind='tritanopia'] {
+  --color-warning: 15 70% 50%;
+  --color-link: 340 60% 55%;
+  --primary: 340 60% 55%;
+  --accent: 340 60% 55%;
+  --ring: 340 60% 55%;
+}
+
+[data-colorblind='tritanopia'][data-theme='dark'] {
+  --color-warning: 15 65% 60%;
+  --color-link: 340 55% 65%;
+  --primary: 340 55% 65%;
+  --accent: 340 55% 65%;
+  --ring: 340 55% 65%;
 }

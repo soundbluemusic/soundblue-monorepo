@@ -35,6 +35,14 @@ export function MainLayout({ defaultTool }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+      {/* Skip Link for Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
+
       {/* Fixed Header */}
       <Header />
 
@@ -43,6 +51,7 @@ export function MainLayout({ defaultTool }: MainLayoutProps) {
 
       {/* Main Content Area */}
       <main
+        id="main-content"
         className={`main-content-transition pt-[var(--header-height)] pb-4 max-md:pt-[52px] max-md:pb-[calc(var(--bottom-nav-height)+16px)] ${
           sidebarCollapsed ? 'ml-0' : 'ml-[var(--sidebar-width)]'
         } max-md:ml-0`}

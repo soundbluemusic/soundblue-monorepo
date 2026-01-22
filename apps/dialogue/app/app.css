@@ -284,3 +284,58 @@ body {
 .error-stack code {
   font-family: monospace;
 }
+
+/* ========================================
+   Touch Target Optimization (Accessibility)
+   Minimum 44px touch targets for touch devices
+   ======================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  button:not(.inline-btn),
+  a:not(.inline-link),
+  [role='button'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ========================================
+   Colorblind Accessibility Modes
+   ======================================== */
+
+/* Protanopia (Red-blind) */
+[data-colorblind='protanopia'] {
+  --color-error: #0077bb;
+  --color-success: #ddaa00;
+}
+
+[data-colorblind='protanopia'][data-theme='dark'] {
+  --color-error: #66aadd;
+  --color-success: #eebb33;
+}
+
+/* Deuteranopia (Green-blind) */
+[data-colorblind='deuteranopia'] {
+  --color-error: #0066cc;
+  --color-success: #e6c200;
+}
+
+[data-colorblind='deuteranopia'][data-theme='dark'] {
+  --color-error: #6699dd;
+  --color-success: #eecc33;
+}
+
+/* Tritanopia (Blue-blind) */
+[data-colorblind='tritanopia'] {
+  --color-warning: #cc6600;
+  --color-accent-primary: #cc3366;
+  --color-accent-secondary: #aa2255;
+  --color-border-focus: #cc3366;
+}
+
+[data-colorblind='tritanopia'][data-theme='dark'] {
+  --color-warning: #dd7733;
+  --color-accent-primary: #dd5588;
+  --color-accent-secondary: #cc4477;
+  --color-border-focus: #dd5588;
+}

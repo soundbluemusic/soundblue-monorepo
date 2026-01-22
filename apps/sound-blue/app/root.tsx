@@ -1,6 +1,6 @@
 import { getLocaleFromPath } from '@soundblue/i18n';
 import { MusicGroupStructuredData, WebSiteStructuredData } from '@soundblue/seo';
-import { ThemeProvider, ToastContainer } from '@soundblue/ui-components/base';
+import { ColorblindProvider, ThemeProvider, ToastContainer } from '@soundblue/ui-components/base';
 import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import {
@@ -106,8 +106,10 @@ function AppContent() {
 
   return (
     <ThemeProvider storageKey="sound-blue-theme" defaultTheme="system">
-      <Outlet />
-      <ToastContainer position="bottom-right" />
+      <ColorblindProvider storageKey="sound-blue-colorblind">
+        <Outlet />
+        <ToastContainer position="bottom-right" />
+      </ColorblindProvider>
     </ThemeProvider>
   );
 }

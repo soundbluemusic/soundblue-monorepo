@@ -1,6 +1,7 @@
 'use client';
 
 import { useParaglideI18n } from '@soundblue/i18n';
+import { useToast } from '@soundblue/ui-components/base';
 import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -173,6 +174,7 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   const { locale, localizedPath } = useParaglideI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const { currentTool: storeTool, toolSettings, updateToolSettings, closeTool } = useToolStore();
+  const { toast } = useToast();
 
   // Use prop tool if provided, otherwise fall back to store state
   const currentTool = propTool ?? storeTool;
@@ -544,6 +546,23 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
     [updateToolSettings],
   );
 
+  // Toast callbacks for copy operations
+  const handleTranslatorCopySuccess = useCallback(() => {
+    toast.success(locale === 'ko' ? '복사됨!' : 'Copied!');
+  }, [toast, locale]);
+
+  const handleTranslatorCopyError = useCallback(() => {
+    toast.error(locale === 'ko' ? '복사 실패' : 'Copy failed');
+  }, [toast, locale]);
+
+  const handleQRCopySuccess = useCallback(() => {
+    toast.success(locale === 'ko' ? 'QR 코드 복사됨!' : 'QR code copied!');
+  }, [toast, locale]);
+
+  const handleQRCopyError = useCallback(() => {
+    toast.error(locale === 'ko' ? 'QR 코드 복사 실패' : 'QR code copy failed');
+  }, [toast, locale]);
+
   // Merged settings for each tool (with null-safe access)
   const metronomeSettings = useMemo(
     () => ({
@@ -721,14 +740,29 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
 
     const config = toolSettingsRegistry[currentTool];
 
-    // For external package tools (qr, translator), inject guideSlot
-    if (currentTool === 'qr' || currentTool === 'translator') {
+    // For external package tools (qr, translator), inject guideSlot and copy callbacks
+    if (currentTool === 'translator') {
       const guide = getToolGuide(currentTool, currentLocale);
       return (
         <LazyComponent
           settings={config.settings}
           onSettingsChange={config.onSettingsChange}
           guideSlot={<ToolGuide title={guide.title} sections={guide.sections} />}
+          onCopySuccess={handleTranslatorCopySuccess}
+          onCopyError={handleTranslatorCopyError}
+        />
+      );
+    }
+
+    if (currentTool === 'qr') {
+      const guide = getToolGuide(currentTool, currentLocale);
+      return (
+        <LazyComponent
+          settings={config.settings}
+          onSettingsChange={config.onSettingsChange}
+          guideSlot={<ToolGuide title={guide.title} sections={guide.sections} />}
+          onCopySuccess={handleQRCopySuccess}
+          onCopyError={handleQRCopyError}
         />
       );
     }

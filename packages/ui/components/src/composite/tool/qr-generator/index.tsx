@@ -34,6 +34,10 @@ interface QRGeneratorProps {
   messages?: QRGeneratorMessages;
   /** 사용 안내 슬롯 (외부에서 주입, 하단에 렌더링) */
   guideSlot?: React.ReactNode;
+  /** Callback when copy succeeds (for Toast integration) */
+  onCopySuccess?: () => void;
+  /** Callback when copy fails (for Toast integration) */
+  onCopyError?: (error: unknown) => void;
 }
 
 export function QRGenerator({
@@ -41,6 +45,8 @@ export function QRGenerator({
   onSettingsChange,
   messages: propMessages,
   guideSlot,
+  onCopySuccess,
+  onCopyError,
 }: QRGeneratorProps) {
   const messages = useMemo(() => ({ ...defaultMessages, ...propMessages }), [propMessages]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -133,10 +139,11 @@ export function QRGenerator({
         clearTimeout(copyTimeoutRef.current);
       }
       copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Copy failed silently
+      onCopySuccess?.();
+    } catch (error) {
+      onCopyError?.(error);
     }
-  }, []);
+  }, [onCopySuccess, onCopyError]);
 
   return (
     <div className="flex h-full flex-col gap-3 p-4">

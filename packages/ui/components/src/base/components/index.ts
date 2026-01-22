@@ -10,6 +10,7 @@ export {
   LinkButton,
   type LinkButtonProps,
 } from './Button';
+export { ColorblindSelector, type ColorblindSelectorProps } from './ColorblindSelector';
 export { ConfirmDialog, type ConfirmDialogProps, type ConfirmDialogVariant } from './ConfirmDialog';
 export {
   KeyboardShortcutsModal,

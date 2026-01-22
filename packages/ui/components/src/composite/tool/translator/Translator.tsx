@@ -70,6 +70,10 @@ interface TranslatorProps {
   messages?: TranslatorMessages;
   /** 사용 안내 슬롯 (외부에서 주입, 하단에 렌더링) */
   guideSlot?: React.ReactNode;
+  /** Callback when copy succeeds (for Toast integration) */
+  onCopySuccess?: (text: string) => void;
+  /** Callback when copy fails (for Toast integration) */
+  onCopyError?: (error: unknown) => void;
 }
 
 export function Translator({
@@ -77,6 +81,8 @@ export function Translator({
   onSettingsChange,
   messages: propMessages,
   guideSlot,
+  onCopySuccess,
+  onCopyError,
 }: TranslatorProps) {
   const messages = useMemo(() => ({ ...defaultMessages, ...propMessages }), [propMessages]);
   const [internalSettings, setInternalSettings] = useState(defaultTranslatorSettings);
@@ -241,10 +247,11 @@ export function Translator({
       setIsCopied(true);
       if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
       copyTimeoutRef.current = setTimeout(() => setIsCopied(false), 2000);
-    } catch {
-      // Clipboard failed
+      onCopySuccess?.(text);
+    } catch (error) {
+      onCopyError?.(error);
     }
-  }, [outputText]);
+  }, [outputText, onCopySuccess, onCopyError]);
 
   // Clear all
   const clearAll = useCallback(() => {

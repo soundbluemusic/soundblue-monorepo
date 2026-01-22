@@ -4,6 +4,15 @@
 // ========================================
 
 export {
+  COLORBLIND_MODE_LABELS,
+  COLORBLIND_MODES,
+  type ColorblindContextValue,
+  type ColorblindMode,
+  ColorblindProvider,
+  type ColorblindProviderProps,
+  useColorblind,
+} from './ColorblindProvider';
+export {
   DEFAULT_I18N_CONFIG,
   getLocaleFromPath,
   getLocalizedPath,
@@ -15,7 +24,6 @@ export {
   type Locale,
   useI18n,
 } from './I18nProvider';
-
 export {
   type ResolvedTheme,
   type Theme,
