@@ -1,5 +1,5 @@
 import { getLocaleFromPath } from '@soundblue/i18n';
-import { WebSiteStructuredData } from '@soundblue/seo';
+import { SoftwareApplicationStructuredData, WebSiteStructuredData } from '@soundblue/seo';
 import { ColorblindProvider, ThemeProvider, ToastContainer } from '@soundblue/ui-components/base';
 import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
@@ -71,6 +71,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           url="https://dialogue.soundbluemusic.com"
           description="Offline Q&A learning tool with instant answers"
           inLanguage={['en', 'ko']}
+        />
+        <SoftwareApplicationStructuredData
+          name="Dialogue"
+          url="https://dialogue.soundbluemusic.com"
+          description="A conversational learning tool that works 100% offline. Instant Q&A answers without internet connection."
+          applicationCategory="EducationalApplication"
+          operatingSystem="Web Browser"
+          offers={{ price: '0', priceCurrency: 'USD' }}
         />
         {/* Inline script to prevent FOUC */}
         <script

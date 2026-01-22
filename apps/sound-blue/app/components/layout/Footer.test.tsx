@@ -8,6 +8,7 @@ vi.mock('@soundblue/ui-components/base', () => ({
   useParaglideI18n: () => ({
     localizedPath: (path: string) => path,
   }),
+  ColorblindSelector: () => null,
 }));
 
 vi.mock('~/lib/messages', () => ({

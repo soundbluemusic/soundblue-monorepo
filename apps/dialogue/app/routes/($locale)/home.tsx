@@ -1,3 +1,4 @@
+import { BreadcrumbStructuredData } from '@soundblue/seo';
 import type { MetaFunction } from 'react-router';
 import { useLoaderData } from 'react-router';
 import { MainLayout } from '~/components';
@@ -17,6 +18,11 @@ export async function loader() {
 export const meta: MetaFunction = ({ location }) => [
   { title: 'Dialogue - Conversational Learning Tool' },
   { name: 'description', content: 'A conversational learning tool that works 100% offline' },
+  {
+    name: 'keywords',
+    content:
+      'offline learning tool, Q&A app, conversational learning, instant answers, no internet learning, education app, learning without internet, 오프라인 학습 도구, Q&A 앱, 대화형 학습, 즉시 답변, 인터넷 없이 학습',
+  },
   ...getSeoMeta(location),
 ];
 
@@ -24,5 +30,12 @@ export default function Home() {
   // 빌드 타임에 주입된 데이터 사용
   const _data = useLoaderData<typeof loader>();
 
-  return <MainLayout />;
+  return (
+    <>
+      <BreadcrumbStructuredData
+        items={[{ name: 'Dialogue', url: 'https://dialogue.soundbluemusic.com' }]}
+      />
+      <MainLayout />
+    </>
+  );
 }

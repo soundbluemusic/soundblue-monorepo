@@ -10,6 +10,11 @@ export const meta: MetaFunction = ({ location }) => [
     content:
       'South Korean indie artist and music producer. Creating original BGM, soundtracks, and instrumental music.',
   },
+  {
+    name: 'keywords',
+    content:
+      'Sound Blue, SoundBlue, indie artist, music producer, Korean musician, electronic music, ambient, experimental, BGM, soundtrack, instrumental, 사운드블루, 인디 아티스트, 음악 프로듀서, 한국 뮤지션, 전자음악, 앰비언트',
+  },
   ...getSeoMeta(location),
 ];
 

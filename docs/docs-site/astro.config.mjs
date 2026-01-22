@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
 	site: 'https://soundbluemusic.github.io',
@@ -13,6 +14,7 @@ export default defineConfig({
 		},
 	},
 	integrations: [
+		sitemap(),
 		starlight({
 			title: 'SoundBlue Projects',
 			description: 'Music and creative projects by Sound Blue',

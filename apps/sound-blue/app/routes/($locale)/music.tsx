@@ -1,3 +1,4 @@
+import { BreadcrumbStructuredData } from '@soundblue/seo';
 import { useState } from 'react';
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
@@ -9,6 +10,11 @@ import { getSeoMeta } from '~/lib/seo';
 export const meta: MetaFunction = ({ location }) => [
   { title: m['seo.pages.music.title']() },
   { name: 'description', content: m['seo.pages.music.description']() },
+  {
+    name: 'keywords',
+    content:
+      'Sound Blue music, albums, discography, original music, BGM, soundtrack, instrumental, electronic, ambient, YouTube music, 사운드블루 음악, 앨범, 디스코그래피, 오리지널 음악, 사운드트랙',
+  },
   ...getSeoMeta(location),
 ];
 
@@ -29,6 +35,12 @@ export default function Music() {
 
   return (
     <NavigationLayout>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Home', url: 'https://soundbluemusic.com' },
+          { name: 'Music', url: 'https://soundbluemusic.com/music' },
+        ]}
+      />
       <div className="mx-auto max-w-4xl p-6">
         {/* Page Header */}
         <h1 className="mb-2 text-3xl font-bold text-content">{m['music.title']()}</h1>

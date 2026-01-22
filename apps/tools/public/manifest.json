@@ -1,7 +1,7 @@
 {
   "name": "Tools",
   "short_name": "Tools",
-  "description": "프로급 웹 DAW, 리듬 게임, 크리에이티브 도구. Professional web-based DAW, rhythm game, and creative tools.",
+  "description": "무료 음악 도구 - 메트로놈, 드럼 머신, 번역기. Free music tools - Metronome, Drum Machine, Translator.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",
@@ -70,7 +70,7 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Web DAW - Desktop View"
+      "label": "Tools - Desktop View"
     },
     {
       "src": "/icons/screenshot-narrow.png",
@@ -82,17 +82,17 @@
   ],
   "shortcuts": [
     {
-      "name": "Web DAW",
-      "short_name": "DAW",
-      "description": "Open the digital audio workstation",
-      "url": "/daw",
+      "name": "Metronome",
+      "short_name": "Metronome",
+      "description": "Open the metronome tool",
+      "url": "/metronome",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Rhythm Game",
-      "short_name": "Rhythm",
-      "description": "Play the rhythm game",
-      "url": "/rhythm",
+      "name": "Drum Machine",
+      "short_name": "Drums",
+      "description": "Open the drum machine",
+      "url": "/drum-machine",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     }
   ],

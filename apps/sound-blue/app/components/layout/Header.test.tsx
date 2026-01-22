@@ -22,6 +22,7 @@ vi.mock('@soundblue/ui-components/base', () => ({
     resolvedTheme: 'light',
     toggleTheme: mockToggleTheme,
   }),
+  ColorblindSelector: () => null,
 }));
 
 vi.mock('@soundblue/ui-components/composite', () => ({

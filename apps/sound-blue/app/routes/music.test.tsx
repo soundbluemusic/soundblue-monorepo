@@ -17,6 +17,7 @@ vi.mock('@soundblue/ui-components/base', () => ({
     toggleTheme: vi.fn(),
   }),
   cn: ((...classes) => classes.filter(Boolean).join(' ')) as CnFunction,
+  ColorblindSelector: () => null,
 }));
 
 vi.mock('react-router', async () => {

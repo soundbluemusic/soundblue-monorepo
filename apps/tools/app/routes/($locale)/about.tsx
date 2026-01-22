@@ -13,6 +13,11 @@ export const meta: MetaFunction = ({ location }) => [
     name: 'description',
     content: 'We believe powerful tools should be accessible to everyone.',
   },
+  {
+    name: 'keywords',
+    content:
+      'about SoundBlue Tools, free online tools, music production tools, creative tools, 도구 소개, 무료 온라인 도구, 음악 제작 도구',
+  },
   ...getSeoMeta(location),
 ];
 

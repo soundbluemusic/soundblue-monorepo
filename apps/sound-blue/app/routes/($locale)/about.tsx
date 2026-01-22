@@ -1,3 +1,4 @@
+import { BreadcrumbStructuredData } from '@soundblue/seo';
 import type { MetaFunction } from 'react-router';
 import { NavigationLayout } from '~/components/layout';
 import m, { getRawMessage } from '~/lib/messages';
@@ -9,12 +10,23 @@ export const meta: MetaFunction = ({ location }) => [
     name: 'description',
     content: 'About Sound Blue and SoundBlueMusic. Learn more about the artist, music, and vision.',
   },
+  {
+    name: 'keywords',
+    content:
+      'about Sound Blue, indie musician biography, music artist, SoundBlueMusic, Korean artist, music producer story, 사운드블루 소개, 인디 뮤지션, 음악가, 아티스트 소개',
+  },
   ...getSeoMeta(location),
 ];
 
 export default function About() {
   return (
     <NavigationLayout>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Home', url: 'https://soundbluemusic.com' },
+          { name: 'About', url: 'https://soundbluemusic.com/about' },
+        ]}
+      />
       <div className="max-w-3xl mx-auto p-6">
         <h1 className="text-3xl font-bold text-content mb-6">{m['about.title']()}</h1>
         <p className="text-lg text-content-muted mb-8">{m['about.intro']()}</p>

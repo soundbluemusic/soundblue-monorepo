@@ -1,0 +1,7 @@
+# https://soundbluemusic.github.io/soundblue-monorepo/
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://soundbluemusic.github.io/soundblue-monorepo/sitemap-index.xml
