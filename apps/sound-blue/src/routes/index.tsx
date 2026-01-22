@@ -17,6 +17,28 @@ export const Route = createFileRoute('/')({
         content:
           'Sound Blue, SoundBlue, indie artist, music producer, Korean musician, electronic music, ambient, experimental, BGM, soundtrack, instrumental, 사운드블루, 인디 아티스트, 음악 프로듀서, 한국 뮤지션, 전자음악, 앰비언트',
       },
+      // Open Graph
+      { property: 'og:title', content: 'Sound Blue | SoundBlueMusic' },
+      {
+        property: 'og:description',
+        content:
+          'South Korean indie artist and music producer. Creating original BGM, soundtracks, and instrumental music.',
+      },
+      { property: 'og:image', content: 'https://soundbluemusic.com/og-image.png' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: 'https://soundbluemusic.com/' },
+      { property: 'og:site_name', content: 'Sound Blue' },
+      // Twitter Card
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'Sound Blue | SoundBlueMusic' },
+      {
+        name: 'twitter:description',
+        content:
+          'South Korean indie artist and music producer. Creating original BGM, soundtracks, and instrumental music.',
+      },
+      { name: 'twitter:image', content: 'https://soundbluemusic.com/og-image.png' },
       ...generateSeoMeta('/'),
     ],
   }),

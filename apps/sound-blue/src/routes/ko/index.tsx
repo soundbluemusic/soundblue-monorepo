@@ -16,6 +16,29 @@ export const Route = createFileRoute('/ko/')({
         content:
           'Sound Blue, SoundBlue, 사운드블루, 인디 아티스트, 음악 프로듀서, 한국 뮤지션, 전자음악, 앰비언트, BGM, 사운드트랙, 인스트루멘탈',
       },
+      // Open Graph
+      { property: 'og:title', content: 'Sound Blue | SoundBlueMusic' },
+      {
+        property: 'og:description',
+        content:
+          '사운드블루 - 한국 인디 아티스트이자 음악 프로듀서. 오리지널 BGM, 사운드트랙, 인스트루멘탈 음악을 만듭니다.',
+      },
+      { property: 'og:image', content: 'https://soundbluemusic.com/og-image.png' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: 'https://soundbluemusic.com/ko/' },
+      { property: 'og:site_name', content: 'Sound Blue' },
+      { property: 'og:locale', content: 'ko_KR' },
+      // Twitter Card
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'Sound Blue | SoundBlueMusic' },
+      {
+        name: 'twitter:description',
+        content:
+          '사운드블루 - 한국 인디 아티스트이자 음악 프로듀서. 오리지널 BGM, 사운드트랙, 인스트루멘탈 음악을 만듭니다.',
+      },
+      { name: 'twitter:image', content: 'https://soundbluemusic.com/og-image.png' },
     ],
     links: [
       { rel: 'canonical', href: 'https://soundbluemusic.com/ko/' },

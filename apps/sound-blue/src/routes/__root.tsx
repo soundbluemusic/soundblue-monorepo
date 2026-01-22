@@ -45,6 +45,7 @@ export const Route = createRootRoute({
   }),
   component: RootLayout,
   errorComponent: ErrorBoundary,
+  notFoundComponent: NotFound,
 });
 
 function RootLayout() {
@@ -124,6 +125,38 @@ function ErrorBoundary({ error }: { error: Error }) {
           <div className="error-content">
             <h1 className="error-title">{message}</h1>
             <p className="error-message">{details}</p>
+            <a href="/" className="error-link">
+              {m['notFound.backHome']()}
+            </a>
+          </div>
+        </main>
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+function NotFound() {
+  const location = useLocation();
+
+  // Sync Paraglide locale with URL
+  useEffect(() => {
+    const locale = getLocaleFromPath(location.pathname);
+    safeSetLocale(locale);
+  }, [location.pathname]);
+
+  return (
+    <html lang="en">
+      <head>
+        <HeadContent />
+        <title>404 - Page Not Found | Sound Blue</title>
+        <meta name="robots" content="noindex" />
+      </head>
+      <body>
+        <main className="error-page">
+          <div className="error-content">
+            <h1 className="error-title">404</h1>
+            <p className="error-message">{m['notFound.message']()}</p>
             <a href="/" className="error-link">
               {m['notFound.backHome']()}
             </a>

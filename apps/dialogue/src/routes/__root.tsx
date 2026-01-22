@@ -54,6 +54,7 @@ export const Route = createRootRoute({
   }),
   component: RootLayout,
   errorComponent: ErrorBoundary,
+  notFoundComponent: NotFound,
 });
 
 function RootLayout() {
@@ -142,6 +143,34 @@ function ErrorBoundary({ error }: { error: Error }) {
                 <code>{stack}</code>
               </pre>
             )}
+          </div>
+        </main>
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+function NotFound() {
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+  const locale = getLocaleFromPath(pathname);
+  safeSetLocale(locale);
+
+  return (
+    <html lang="en">
+      <head>
+        <HeadContent />
+        <title>404 - Page Not Found | Dialogue</title>
+        <meta name="robots" content="noindex" />
+      </head>
+      <body>
+        <main className="error-page">
+          <div className="error-content">
+            <h1 className="error-title">404</h1>
+            <p className="error-message">{m['app.notFoundMessage']?.() || 'Page not found'}</p>
+            <a href="/" className="error-link">
+              {m['app.notFoundBackHome']()}
+            </a>
           </div>
         </main>
         <Scripts />
