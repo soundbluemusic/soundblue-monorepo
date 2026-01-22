@@ -1,6 +1,6 @@
 {
-  "include": ["app/**/*.ts", "app/**/*.tsx", ".react-router/types/**/*"],
-  "exclude": ["e2e", "node_modules", "playwright.config.ts", "vitest.config.ts", "workers.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["e2e", "node_modules", "playwright.config.ts", "vitest.config.ts"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["vite/client"],
@@ -20,9 +20,8 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "~/*": ["./app/*"],
-      "@/*": ["./app/*"]
-    },
-    "rootDirs": [".", "./.react-router/types"]
+      "~/*": ["./src/*"],
+      "@/*": ["./src/*"]
+    }
   }
 }

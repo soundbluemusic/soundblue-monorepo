@@ -1,10 +1,10 @@
 name = "soundblue-tools"
-main = "workers.ts"
-compatibility_date = "2024-12-01"
+main = "@tanstack/react-start/server-entry"
+compatibility_date = "2026-01-14"
 compatibility_flags = ["nodejs_compat"]
 
 [assets]
-directory = "build/client"
+directory = "dist/client"
 
 # D1 Databases
 # Context DB: 순수 어휘 데이터 (entries, conversations)

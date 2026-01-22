@@ -19,9 +19,7 @@
       "!**/pnpm-lock.yaml",
       "!**/*.css",
       "!**/.react-router",
-      "!**/apps/tools/src",
-      "!**/apps/sound-blue/src",
-      "!**/apps/dialogue/src",
+      "!**/routeTree.gen.ts",
       "!**/data",
       "!**/dictionary/external",
       "!**/dictionary/generated",
@@ -125,6 +123,19 @@
         "rules": {
           "suspicious": {
             "noAssignInExpressions": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/routeTree.gen.ts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedImports": "off"
+          },
+          "suspicious": {
+            "noExplicitAny": "off"
           }
         }
       }
