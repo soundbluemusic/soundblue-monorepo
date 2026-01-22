@@ -1,0 +1,1295 @@
+// Auto-generated from data/dictionaries/idioms/idioms.json
+// DO NOT EDIT - run 'pnpm prebuild' to regenerate
+
+export interface JsonIdiomEntry {
+  ko: string;
+  en: string;
+  literal?: string;
+  category?: string;
+  variants?: string[];
+}
+
+export const jsonIdioms: JsonIdiomEntry[] = [
+  {
+    "ko": "눈이 높다",
+    "en": "have high standards",
+    "category": "body"
+  },
+  {
+    "ko": "눈이 낮다",
+    "en": "have low standards",
+    "category": "body"
+  },
+  {
+    "ko": "눈 깜짝할 사이",
+    "en": "in the blink of an eye",
+    "category": "body"
+  },
+  {
+    "ko": "눈 깜짝할 사이에",
+    "en": "in the blink of an eye",
+    "category": "body"
+  },
+  {
+    "ko": "눈치가 빠르다",
+    "en": "be quick to read situations",
+    "category": "body"
+  },
+  {
+    "ko": "눈치가 없다",
+    "en": "be clueless",
+    "category": "body"
+  },
+  {
+    "ko": "눈치를 보다",
+    "en": "read the room",
+    "category": "body"
+  },
+  {
+    "ko": "눈이 빠지게 기다리다",
+    "en": "wait anxiously",
+    "category": "body"
+  },
+  {
+    "ko": "눈을 붙이다",
+    "en": "catch some sleep",
+    "category": "body"
+  },
+  {
+    "ko": "눈 밖에 나다",
+    "en": "fall out of favor",
+    "category": "body"
+  },
+  {
+    "ko": "눈 하나 깜짝 안 하다",
+    "en": "not bat an eye",
+    "category": "body"
+  },
+  {
+    "ko": "귀가 얇다",
+    "en": "be easily influenced",
+    "category": "body"
+  },
+  {
+    "ko": "귀가 따갑다",
+    "en": "ears are burning",
+    "category": "body"
+  },
+  {
+    "ko": "귀에 못이 박히다",
+    "en": "hear something over and over",
+    "category": "body"
+  },
+  {
+    "ko": "귀를 기울이다",
+    "en": "lend an ear",
+    "category": "body"
+  },
+  {
+    "ko": "귀가 가렵다",
+    "en": "ears are itching",
+    "category": "body"
+  },
+  {
+    "ko": "입이 가볍다",
+    "en": "have a loose tongue",
+    "category": "body"
+  },
+  {
+    "ko": "입이 무겁다",
+    "en": "be tight-lipped",
+    "category": "body"
+  },
+  {
+    "ko": "입에 발린 말",
+    "en": "lip service",
+    "category": "body"
+  },
+  {
+    "ko": "입이 짧다",
+    "en": "be a picky eater",
+    "category": "body"
+  },
+  {
+    "ko": "입이 심심하다",
+    "en": "crave a snack",
+    "category": "body"
+  },
+  {
+    "ko": "입을 모으다",
+    "en": "speak in unison",
+    "category": "body"
+  },
+  {
+    "ko": "입이 근질근질하다",
+    "en": "be dying to tell",
+    "category": "body"
+  },
+  {
+    "ko": "손이 크다",
+    "en": "be generous",
+    "category": "body"
+  },
+  {
+    "ko": "손이 맵다",
+    "en": "have a heavy hand",
+    "category": "body"
+  },
+  {
+    "ko": "손이 모자라다",
+    "en": "be short-handed",
+    "category": "body"
+  },
+  {
+    "ko": "손에 익다",
+    "en": "get the hang of",
+    "category": "body"
+  },
+  {
+    "ko": "손을 보다",
+    "en": "teach someone a lesson",
+    "category": "body"
+  },
+  {
+    "ko": "손을 빌리다",
+    "en": "ask for help",
+    "category": "body"
+  },
+  {
+    "ko": "손꼽아 기다리다",
+    "en": "count the days",
+    "category": "body"
+  },
+  {
+    "ko": "발이 넓다",
+    "en": "know many people",
+    "category": "body"
+  },
+  {
+    "ko": "발이 묶이다",
+    "en": "be stuck",
+    "category": "body"
+  },
+  {
+    "ko": "발을 끊다",
+    "en": "cut ties",
+    "category": "body"
+  },
+  {
+    "ko": "발등에 불이 떨어지다",
+    "en": "be pressed for time",
+    "category": "body"
+  },
+  {
+    "ko": "머리가 좋다",
+    "en": "be smart",
+    "category": "body"
+  },
+  {
+    "ko": "머리가 나쁘다",
+    "en": "be slow",
+    "category": "body"
+  },
+  {
+    "ko": "머리에 피도 안 마르다",
+    "en": "be wet behind the ears",
+    "category": "body"
+  },
+  {
+    "ko": "배가 부르다",
+    "en": "be complacent",
+    "category": "body"
+  },
+  {
+    "ko": "배보다 배꼽이 더 크다",
+    "en": "the tail wags the dog",
+    "category": "body"
+  },
+  {
+    "ko": "코가 높다",
+    "en": "be arrogant",
+    "category": "body"
+  },
+  {
+    "ko": "코 앞에 닥치다",
+    "en": "be just around the corner",
+    "category": "body"
+  },
+  {
+    "ko": "목이 빠지게 기다리다",
+    "en": "wait anxiously",
+    "category": "body"
+  },
+  {
+    "ko": "어깨가 무겁다",
+    "en": "have a heavy burden",
+    "category": "body"
+  },
+  {
+    "ko": "가슴이 뛰다",
+    "en": "heart is racing",
+    "category": "body"
+  },
+  {
+    "ko": "가슴이 찡하다",
+    "en": "be touched",
+    "category": "body"
+  },
+  {
+    "ko": "간이 콩알만 해지다",
+    "en": "be scared stiff",
+    "category": "body"
+  },
+  {
+    "ko": "뼈를 깎는",
+    "en": "painstaking",
+    "category": "body"
+  },
+  {
+    "ko": "피가 마르다",
+    "en": "be worried sick",
+    "category": "body"
+  },
+  {
+    "ko": "애가 타다",
+    "en": "be anxious",
+    "category": "body"
+  },
+  {
+    "ko": "식은 죽 먹기",
+    "en": "a piece of cake",
+    "category": "food",
+    "variants": [
+      "식은죽 먹기"
+    ]
+  },
+  {
+    "ko": "누워서 떡 먹기",
+    "en": "a piece of cake",
+    "category": "food"
+  },
+  {
+    "ko": "그림의 떡",
+    "en": "pie in the sky",
+    "category": "food"
+  },
+  {
+    "ko": "떡 본 김에 제사 지낸다",
+    "en": "strike while the iron is hot",
+    "category": "food"
+  },
+  {
+    "ko": "밥 먹듯이 하다",
+    "en": "do something all the time",
+    "category": "food"
+  },
+  {
+    "ko": "국수를 먹다",
+    "en": "attend a wedding",
+    "category": "food"
+  },
+  {
+    "ko": "국물도 없다",
+    "en": "no way",
+    "category": "food"
+  },
+  {
+    "ko": "죽 쑤다",
+    "en": "mess up",
+    "category": "food"
+  },
+  {
+    "ko": "찬밥 신세",
+    "en": "be treated coldly",
+    "category": "food"
+  },
+  {
+    "ko": "밥이 되다",
+    "en": "fall apart",
+    "category": "food"
+  },
+  {
+    "ko": "쥐도 새도 모르게",
+    "en": "without anyone knowing",
+    "category": "animal"
+  },
+  {
+    "ko": "개미 허리",
+    "en": "wasp waist",
+    "category": "animal"
+  },
+  {
+    "ko": "닭살이 돋다",
+    "en": "get goosebumps",
+    "category": "animal"
+  },
+  {
+    "ko": "용 꼬리보다 뱀 머리",
+    "en": "better to be a big fish in a small pond",
+    "category": "animal"
+  },
+  {
+    "ko": "호랑이도 제 말 하면 온다",
+    "en": "speak of the devil",
+    "category": "animal"
+  },
+  {
+    "ko": "쇠뿔도 단김에 빼라",
+    "en": "strike while the iron is hot",
+    "category": "animal"
+  },
+  {
+    "ko": "닭 쫓던 개 지붕 쳐다본다",
+    "en": "be left empty-handed",
+    "category": "animal"
+  },
+  {
+    "ko": "제 눈에 안경",
+    "en": "beauty is in the eye of the beholder",
+    "category": "animal"
+  },
+  {
+    "ko": "까마귀 날자 배 떨어진다",
+    "en": "bad timing",
+    "category": "animal"
+  },
+  {
+    "ko": "고양이한테 생선을 맡기다",
+    "en": "set a fox to guard the henhouse",
+    "category": "animal"
+  },
+  {
+    "ko": "벼룩의 간을 빼먹다",
+    "en": "squeeze blood from a stone",
+    "category": "animal"
+  },
+  {
+    "ko": "하늘의 별 따기",
+    "en": "reach for the stars",
+    "category": "animal"
+  },
+  {
+    "ko": "바람 맞다",
+    "en": "get stood up",
+    "category": "nature"
+  },
+  {
+    "ko": "불 보듯 뻔하다",
+    "en": "be obvious",
+    "category": "nature"
+  },
+  {
+    "ko": "물 만난 물고기",
+    "en": "like a fish in water",
+    "category": "nature"
+  },
+  {
+    "ko": "물이 좋다",
+    "en": "have a good atmosphere",
+    "category": "nature"
+  },
+  {
+    "ko": "돌 다리도 두들겨 보고 건너라",
+    "en": "look before you leap",
+    "category": "nature"
+  },
+  {
+    "ko": "불에 기름 붓기",
+    "en": "add fuel to the fire",
+    "category": "nature"
+  },
+  {
+    "ko": "산 넘어 산",
+    "en": "one problem after another",
+    "category": "nature"
+  },
+  {
+    "ko": "빙산의 일각",
+    "en": "tip of the iceberg",
+    "category": "nature"
+  },
+  {
+    "ko": "가뭄에 단비",
+    "en": "a blessing in disguise",
+    "category": "nature"
+  },
+  {
+    "ko": "새벽녘",
+    "en": "at the crack of dawn",
+    "category": "nature"
+  },
+  {
+    "ko": "마음이 가다",
+    "en": "feel attracted to",
+    "category": "emotion"
+  },
+  {
+    "ko": "화가 나다",
+    "en": "get angry",
+    "category": "emotion"
+  },
+  {
+    "ko": "기가 막히다",
+    "en": "be dumbfounded",
+    "category": "emotion"
+  },
+  {
+    "ko": "기분이 좋다",
+    "en": "feel good",
+    "category": "emotion"
+  },
+  {
+    "ko": "속이 상하다",
+    "en": "feel hurt",
+    "category": "emotion"
+  },
+  {
+    "ko": "속이 타다",
+    "en": "be anxious",
+    "category": "emotion"
+  },
+  {
+    "ko": "속이 시원하다",
+    "en": "feel relieved",
+    "category": "emotion"
+  },
+  {
+    "ko": "속을 썩이다",
+    "en": "give someone a headache",
+    "category": "emotion"
+  },
+  {
+    "ko": "마음이 놓이다",
+    "en": "feel at ease",
+    "category": "emotion"
+  },
+  {
+    "ko": "마음을 졸이다",
+    "en": "be on edge",
+    "category": "emotion"
+  },
+  {
+    "ko": "열 받다",
+    "en": "get annoyed",
+    "category": "emotion"
+  },
+  {
+    "ko": "짜증나다",
+    "en": "be annoying",
+    "category": "emotion"
+  },
+  {
+    "ko": "가슴이 먹먹하다",
+    "en": "feel choked up",
+    "category": "emotion"
+  },
+  {
+    "ko": "한 눈 팔다",
+    "en": "get distracted",
+    "category": "action"
+  },
+  {
+    "ko": "꼬리를 내리다",
+    "en": "give in",
+    "category": "action"
+  },
+  {
+    "ko": "코웃음 치다",
+    "en": "scoff at",
+    "category": "action"
+  },
+  {
+    "ko": "귀 기울이다",
+    "en": "pay attention",
+    "category": "action"
+  },
+  {
+    "ko": "시치미를 떼다",
+    "en": "play dumb",
+    "category": "action"
+  },
+  {
+    "ko": "배짱이 두둑하다",
+    "en": "have guts",
+    "category": "action"
+  },
+  {
+    "ko": "뒷북 치다",
+    "en": "be late to the party",
+    "category": "action"
+  },
+  {
+    "ko": "김새다",
+    "en": "lose momentum",
+    "category": "action"
+  },
+  {
+    "ko": "딴청을 피우다",
+    "en": "pretend not to know",
+    "category": "action"
+  },
+  {
+    "ko": "가는 말이 고와야 오는 말이 곱다",
+    "en": "you reap what you sow",
+    "category": "proverb"
+  },
+  {
+    "ko": "고래 싸움에 새우 등 터진다",
+    "en": "caught between two fires",
+    "category": "proverb"
+  },
+  {
+    "ko": "낫 놓고 기역자도 모른다",
+    "en": "be completely illiterate",
+    "category": "proverb"
+  },
+  {
+    "ko": "원숭이도 나무에서 떨어진다",
+    "en": "even Homer nods",
+    "category": "proverb"
+  },
+  {
+    "ko": "빈 수레가 요란하다",
+    "en": "empty vessels make the most noise",
+    "category": "proverb"
+  },
+  {
+    "ko": "세 살 버릇 여든까지 간다",
+    "en": "old habits die hard",
+    "category": "proverb"
+  },
+  {
+    "ko": "가랑비에 옷 젖는 줄 모른다",
+    "en": "little strokes fell great oaks",
+    "category": "proverb"
+  },
+  {
+    "ko": "백지장도 맞들면 낫다",
+    "en": "many hands make light work",
+    "category": "proverb"
+  },
+  {
+    "ko": "급할수록 돌아가라",
+    "en": "haste makes waste",
+    "category": "proverb"
+  },
+  {
+    "ko": "고생 끝에 낙이 온다",
+    "en": "no pain no gain",
+    "category": "proverb"
+  },
+  {
+    "ko": "지렁이도 밟으면 꿈틀한다",
+    "en": "even a worm will turn",
+    "category": "proverb"
+  },
+  {
+    "ko": "티끌 모아 태산",
+    "en": "every little bit counts",
+    "category": "proverb"
+  },
+  {
+    "ko": "아는 길도 물어 가라",
+    "en": "better safe than sorry",
+    "category": "proverb"
+  },
+  {
+    "ko": "낮말은 새가 듣고 밤말은 쥐가 듣는다",
+    "en": "walls have ears",
+    "category": "proverb"
+  },
+  {
+    "ko": "마른 하늘에 날벼락",
+    "en": "a bolt from the blue",
+    "category": "proverb"
+  },
+  {
+    "ko": "우물 안 개구리",
+    "en": "a frog in a well",
+    "category": "proverb"
+  },
+  {
+    "ko": "달리는 말에 채찍질",
+    "en": "spur a willing horse",
+    "category": "proverb"
+  },
+  {
+    "ko": "말이 씨가 된다",
+    "en": "be careful what you wish for",
+    "category": "proverb"
+  },
+  {
+    "ko": "뿌린 대로 거둔다",
+    "en": "you reap what you sow",
+    "category": "proverb"
+  },
+  {
+    "ko": "일석이조",
+    "en": "kill two birds with one stone",
+    "category": "idiom"
+  },
+  {
+    "ko": "일취월장",
+    "en": "improve day by day",
+    "category": "idiom"
+  },
+  {
+    "ko": "동고동락",
+    "en": "share joys and sorrows",
+    "category": "idiom"
+  },
+  {
+    "ko": "자업자득",
+    "en": "you made your bed now lie in it",
+    "category": "idiom"
+  },
+  {
+    "ko": "일거양득",
+    "en": "kill two birds with one stone",
+    "category": "idiom"
+  },
+  {
+    "ko": "금상첨화",
+    "en": "icing on the cake",
+    "category": "idiom"
+  },
+  {
+    "ko": "설상가상",
+    "en": "to make matters worse",
+    "category": "idiom"
+  },
+  {
+    "ko": "유비무환",
+    "en": "forewarned is forearmed",
+    "category": "idiom"
+  },
+  {
+    "ko": "백문불여일견",
+    "en": "seeing is believing",
+    "category": "idiom"
+  },
+  {
+    "ko": "고진감래",
+    "en": "no pain no gain",
+    "category": "idiom"
+  },
+  {
+    "ko": "대기만성",
+    "en": "good things come to those who wait",
+    "category": "idiom"
+  },
+  {
+    "ko": "다다익선",
+    "en": "the more the merrier",
+    "category": "idiom"
+  },
+  {
+    "ko": "유유상종",
+    "en": "birds of a feather flock together",
+    "category": "idiom"
+  },
+  {
+    "ko": "십중팔구",
+    "en": "nine times out of ten",
+    "category": "idiom"
+  },
+  {
+    "ko": "새옹지마",
+    "en": "every cloud has a silver lining",
+    "category": "idiom"
+  },
+  {
+    "ko": "언행일치",
+    "en": "practice what you preach",
+    "category": "idiom"
+  },
+  {
+    "ko": "좌불안석",
+    "en": "on pins and needles",
+    "category": "idiom"
+  },
+  {
+    "ko": "죽마고우",
+    "en": "childhood friend",
+    "category": "idiom"
+  },
+  {
+    "ko": "일사천리",
+    "en": "proceed swiftly",
+    "category": "idiom"
+  },
+  {
+    "ko": "칠전팔기",
+    "en": "fall seven times stand up eight",
+    "category": "idiom"
+  },
+  {
+    "ko": "선견지명",
+    "en": "foresight",
+    "category": "idiom"
+  },
+  {
+    "ko": "동문서답",
+    "en": "give an irrelevant answer",
+    "category": "idiom"
+  },
+  {
+    "ko": "백발백중",
+    "en": "hit the mark every time",
+    "category": "idiom"
+  },
+  {
+    "ko": "전화위복",
+    "en": "turn a crisis into an opportunity",
+    "category": "idiom"
+  },
+  {
+    "ko": "막상막하",
+    "en": "neck and neck",
+    "category": "idiom"
+  },
+  {
+    "ko": "동분서주",
+    "en": "run around busily",
+    "category": "idiom"
+  },
+  {
+    "ko": "적반하장",
+    "en": "the pot calling the kettle black",
+    "category": "idiom"
+  },
+  {
+    "ko": "갈수록 태산",
+    "en": "out of the frying pan into the fire",
+    "category": "idiom"
+  },
+  {
+    "ko": "구사일생",
+    "en": "have a narrow escape",
+    "category": "idiom"
+  },
+  {
+    "ko": "극혐",
+    "en": "extremely disgusting",
+    "category": "slang"
+  },
+  {
+    "ko": "존맛",
+    "en": "super delicious",
+    "category": "slang"
+  },
+  {
+    "ko": "존맛탱",
+    "en": "super delicious",
+    "category": "slang"
+  },
+  {
+    "ko": "핵인싸",
+    "en": "super popular person",
+    "category": "slang"
+  },
+  {
+    "ko": "아싸",
+    "en": "outsider",
+    "category": "slang"
+  },
+  {
+    "ko": "인싸",
+    "en": "popular person",
+    "category": "slang"
+  },
+  {
+    "ko": "갑질",
+    "en": "power abuse",
+    "category": "slang"
+  },
+  {
+    "ko": "갑을관계",
+    "en": "power hierarchy",
+    "category": "slang"
+  },
+  {
+    "ko": "꿀잼",
+    "en": "super fun",
+    "category": "slang"
+  },
+  {
+    "ko": "노잼",
+    "en": "no fun",
+    "category": "slang"
+  },
+  {
+    "ko": "핵노잼",
+    "en": "super boring",
+    "category": "slang"
+  },
+  {
+    "ko": "레알",
+    "en": "for real",
+    "category": "slang"
+  },
+  {
+    "ko": "인정",
+    "en": "true that",
+    "category": "slang"
+  },
+  {
+    "ko": "공감",
+    "en": "relatable",
+    "category": "slang"
+  },
+  {
+    "ko": "댓글",
+    "en": "comment",
+    "category": "slang"
+  },
+  {
+    "ko": "구독",
+    "en": "subscribe",
+    "category": "slang"
+  },
+  {
+    "ko": "혼밥",
+    "en": "eating alone",
+    "category": "slang"
+  },
+  {
+    "ko": "혼술",
+    "en": "drinking alone",
+    "category": "slang"
+  },
+  {
+    "ko": "존버",
+    "en": "holding strong",
+    "category": "slang"
+  },
+  {
+    "ko": "TMI",
+    "en": "too much information",
+    "category": "slang"
+  },
+  {
+    "ko": "워라밸",
+    "en": "work-life balance",
+    "category": "slang"
+  },
+  {
+    "ko": "소확행",
+    "en": "small but certain happiness",
+    "category": "slang"
+  },
+  {
+    "ko": "갓생",
+    "en": "productive life",
+    "category": "slang"
+  },
+  {
+    "ko": "플렉스",
+    "en": "flex",
+    "category": "slang"
+  },
+  {
+    "ko": "킹받다",
+    "en": "to be annoyed",
+    "category": "slang"
+  },
+  {
+    "ko": "킹받아",
+    "en": "so annoying",
+    "category": "slang"
+  },
+  {
+    "ko": "킹리적갓심",
+    "en": "totally reasonable",
+    "category": "slang"
+  },
+  {
+    "ko": "취향저격",
+    "en": "totally my taste",
+    "category": "slang"
+  },
+  {
+    "ko": "오졌다",
+    "en": "awesome",
+    "category": "slang"
+  },
+  {
+    "ko": "쩐다",
+    "en": "awesome",
+    "category": "slang"
+  },
+  {
+    "ko": "존잘",
+    "en": "super handsome",
+    "category": "slang"
+  },
+  {
+    "ko": "존예",
+    "en": "super pretty",
+    "category": "slang"
+  },
+  {
+    "ko": "존귀",
+    "en": "super cute",
+    "category": "slang"
+  },
+  {
+    "ko": "광탈",
+    "en": "eliminated early",
+    "category": "slang"
+  },
+  {
+    "ko": "만렙",
+    "en": "max level",
+    "category": "slang"
+  },
+  {
+    "ko": "버프",
+    "en": "buff",
+    "category": "slang"
+  },
+  {
+    "ko": "너프",
+    "en": "nerf",
+    "category": "slang"
+  },
+  {
+    "ko": "캐리",
+    "en": "carry",
+    "category": "slang"
+  },
+  {
+    "ko": "트롤",
+    "en": "troll",
+    "category": "slang"
+  },
+  {
+    "ko": "템",
+    "en": "item",
+    "category": "slang"
+  },
+  {
+    "ko": "겜",
+    "en": "game",
+    "category": "slang"
+  },
+  {
+    "ko": "폰",
+    "en": "phone",
+    "category": "slang"
+  },
+  {
+    "ko": "컴",
+    "en": "computer",
+    "category": "slang"
+  },
+  {
+    "ko": "뇌절",
+    "en": "annoying repetition",
+    "category": "slang"
+  },
+  {
+    "ko": "손절",
+    "en": "cutting ties",
+    "category": "slang"
+  },
+  {
+    "ko": "정줄놓",
+    "en": "lost my mind",
+    "category": "slang"
+  },
+  {
+    "ko": "JMT",
+    "en": "super delicious",
+    "category": "slang"
+  },
+  {
+    "ko": "ㄹㅇ",
+    "en": "for real",
+    "category": "slang"
+  },
+  {
+    "ko": "ㅋㅋㅋ",
+    "en": "lol",
+    "category": "slang"
+  },
+  {
+    "ko": "ㅎㅎ",
+    "en": "haha",
+    "category": "slang"
+  },
+  {
+    "ko": "ㅠㅠ",
+    "en": "crying",
+    "category": "slang"
+  },
+  {
+    "ko": "ㅜㅜ",
+    "en": "sad",
+    "category": "slang"
+  },
+  {
+    "ko": "1차",
+    "en": "first round",
+    "category": "idiom",
+    "variants": [
+      "1차만",
+      "일차"
+    ]
+  },
+  {
+    "ko": "2차",
+    "en": "second round",
+    "category": "idiom",
+    "variants": [
+      "2차까지",
+      "이차"
+    ]
+  },
+  {
+    "ko": "3차",
+    "en": "third round",
+    "category": "idiom"
+  },
+  {
+    "ko": "빠지다",
+    "en": "leave",
+    "category": "idiom",
+    "variants": [
+      "빠져도",
+      "빠져"
+    ]
+  },
+  {
+    "ko": "눈치가 빠른 편",
+    "en": "good at reading the room",
+    "category": "idiom"
+  },
+  {
+    "ko": "말년",
+    "en": "near the end of service",
+    "category": "slang",
+    "variants": [
+      "말년에"
+    ]
+  },
+  {
+    "ko": "군대",
+    "en": "military service",
+    "category": "idiom"
+  },
+  {
+    "ko": "금수저",
+    "en": "born rich",
+    "category": "slang"
+  },
+  {
+    "ko": "흙수저",
+    "en": "born poor",
+    "category": "slang"
+  }
+];
+
+// Reverse mapping (en → ko)
+export const jsonEnToKoIdioms: Record<string, string> = {
+  "have high standards": "눈이 높다",
+  "have low standards": "눈이 낮다",
+  "in the blink of an eye": "눈 깜짝할 사이에",
+  "be quick to read situations": "눈치가 빠르다",
+  "be clueless": "눈치가 없다",
+  "read the room": "눈치를 보다",
+  "wait anxiously": "목이 빠지게 기다리다",
+  "catch some sleep": "눈을 붙이다",
+  "fall out of favor": "눈 밖에 나다",
+  "not bat an eye": "눈 하나 깜짝 안 하다",
+  "be easily influenced": "귀가 얇다",
+  "ears are burning": "귀가 따갑다",
+  "hear something over and over": "귀에 못이 박히다",
+  "lend an ear": "귀를 기울이다",
+  "ears are itching": "귀가 가렵다",
+  "have a loose tongue": "입이 가볍다",
+  "be tight-lipped": "입이 무겁다",
+  "lip service": "입에 발린 말",
+  "be a picky eater": "입이 짧다",
+  "crave a snack": "입이 심심하다",
+  "speak in unison": "입을 모으다",
+  "be dying to tell": "입이 근질근질하다",
+  "be generous": "손이 크다",
+  "have a heavy hand": "손이 맵다",
+  "be short-handed": "손이 모자라다",
+  "get the hang of": "손에 익다",
+  "teach someone a lesson": "손을 보다",
+  "ask for help": "손을 빌리다",
+  "count the days": "손꼽아 기다리다",
+  "know many people": "발이 넓다",
+  "be stuck": "발이 묶이다",
+  "cut ties": "발을 끊다",
+  "be pressed for time": "발등에 불이 떨어지다",
+  "be smart": "머리가 좋다",
+  "be slow": "머리가 나쁘다",
+  "be wet behind the ears": "머리에 피도 안 마르다",
+  "be complacent": "배가 부르다",
+  "the tail wags the dog": "배보다 배꼽이 더 크다",
+  "be arrogant": "코가 높다",
+  "be just around the corner": "코 앞에 닥치다",
+  "have a heavy burden": "어깨가 무겁다",
+  "heart is racing": "가슴이 뛰다",
+  "be touched": "가슴이 찡하다",
+  "be scared stiff": "간이 콩알만 해지다",
+  "painstaking": "뼈를 깎는",
+  "be worried sick": "피가 마르다",
+  "be anxious": "속이 타다",
+  "a piece of cake": "누워서 떡 먹기",
+  "pie in the sky": "그림의 떡",
+  "strike while the iron is hot": "쇠뿔도 단김에 빼라",
+  "do something all the time": "밥 먹듯이 하다",
+  "attend a wedding": "국수를 먹다",
+  "no way": "국물도 없다",
+  "mess up": "죽 쑤다",
+  "be treated coldly": "찬밥 신세",
+  "fall apart": "밥이 되다",
+  "without anyone knowing": "쥐도 새도 모르게",
+  "wasp waist": "개미 허리",
+  "get goosebumps": "닭살이 돋다",
+  "better to be a big fish in a small pond": "용 꼬리보다 뱀 머리",
+  "speak of the devil": "호랑이도 제 말 하면 온다",
+  "be left empty-handed": "닭 쫓던 개 지붕 쳐다본다",
+  "beauty is in the eye of the beholder": "제 눈에 안경",
+  "bad timing": "까마귀 날자 배 떨어진다",
+  "set a fox to guard the henhouse": "고양이한테 생선을 맡기다",
+  "squeeze blood from a stone": "벼룩의 간을 빼먹다",
+  "reach for the stars": "하늘의 별 따기",
+  "get stood up": "바람 맞다",
+  "be obvious": "불 보듯 뻔하다",
+  "like a fish in water": "물 만난 물고기",
+  "have a good atmosphere": "물이 좋다",
+  "look before you leap": "돌 다리도 두들겨 보고 건너라",
+  "add fuel to the fire": "불에 기름 붓기",
+  "one problem after another": "산 넘어 산",
+  "tip of the iceberg": "빙산의 일각",
+  "a blessing in disguise": "가뭄에 단비",
+  "at the crack of dawn": "새벽녘",
+  "feel attracted to": "마음이 가다",
+  "get angry": "화가 나다",
+  "be dumbfounded": "기가 막히다",
+  "feel good": "기분이 좋다",
+  "feel hurt": "속이 상하다",
+  "feel relieved": "속이 시원하다",
+  "give someone a headache": "속을 썩이다",
+  "feel at ease": "마음이 놓이다",
+  "be on edge": "마음을 졸이다",
+  "get annoyed": "열 받다",
+  "be annoying": "짜증나다",
+  "feel choked up": "가슴이 먹먹하다",
+  "get distracted": "한 눈 팔다",
+  "give in": "꼬리를 내리다",
+  "scoff at": "코웃음 치다",
+  "pay attention": "귀 기울이다",
+  "play dumb": "시치미를 떼다",
+  "have guts": "배짱이 두둑하다",
+  "be late to the party": "뒷북 치다",
+  "lose momentum": "김새다",
+  "pretend not to know": "딴청을 피우다",
+  "you reap what you sow": "뿌린 대로 거둔다",
+  "caught between two fires": "고래 싸움에 새우 등 터진다",
+  "be completely illiterate": "낫 놓고 기역자도 모른다",
+  "even Homer nods": "원숭이도 나무에서 떨어진다",
+  "empty vessels make the most noise": "빈 수레가 요란하다",
+  "old habits die hard": "세 살 버릇 여든까지 간다",
+  "little strokes fell great oaks": "가랑비에 옷 젖는 줄 모른다",
+  "many hands make light work": "백지장도 맞들면 낫다",
+  "haste makes waste": "급할수록 돌아가라",
+  "no pain no gain": "고진감래",
+  "even a worm will turn": "지렁이도 밟으면 꿈틀한다",
+  "every little bit counts": "티끌 모아 태산",
+  "better safe than sorry": "아는 길도 물어 가라",
+  "walls have ears": "낮말은 새가 듣고 밤말은 쥐가 듣는다",
+  "a bolt from the blue": "마른 하늘에 날벼락",
+  "a frog in a well": "우물 안 개구리",
+  "spur a willing horse": "달리는 말에 채찍질",
+  "be careful what you wish for": "말이 씨가 된다",
+  "kill two birds with one stone": "일거양득",
+  "improve day by day": "일취월장",
+  "share joys and sorrows": "동고동락",
+  "you made your bed now lie in it": "자업자득",
+  "icing on the cake": "금상첨화",
+  "to make matters worse": "설상가상",
+  "forewarned is forearmed": "유비무환",
+  "seeing is believing": "백문불여일견",
+  "good things come to those who wait": "대기만성",
+  "the more the merrier": "다다익선",
+  "birds of a feather flock together": "유유상종",
+  "nine times out of ten": "십중팔구",
+  "every cloud has a silver lining": "새옹지마",
+  "practice what you preach": "언행일치",
+  "on pins and needles": "좌불안석",
+  "childhood friend": "죽마고우",
+  "proceed swiftly": "일사천리",
+  "fall seven times stand up eight": "칠전팔기",
+  "foresight": "선견지명",
+  "give an irrelevant answer": "동문서답",
+  "hit the mark every time": "백발백중",
+  "turn a crisis into an opportunity": "전화위복",
+  "neck and neck": "막상막하",
+  "run around busily": "동분서주",
+  "the pot calling the kettle black": "적반하장",
+  "out of the frying pan into the fire": "갈수록 태산",
+  "have a narrow escape": "구사일생",
+  "extremely disgusting": "극혐",
+  "super delicious": "JMT",
+  "super popular person": "핵인싸",
+  "outsider": "아싸",
+  "popular person": "인싸",
+  "power abuse": "갑질",
+  "power hierarchy": "갑을관계",
+  "super fun": "꿀잼",
+  "no fun": "노잼",
+  "super boring": "핵노잼",
+  "for real": "ㄹㅇ",
+  "true that": "인정",
+  "relatable": "공감",
+  "comment": "댓글",
+  "subscribe": "구독",
+  "eating alone": "혼밥",
+  "drinking alone": "혼술",
+  "holding strong": "존버",
+  "too much information": "TMI",
+  "work-life balance": "워라밸",
+  "small but certain happiness": "소확행",
+  "productive life": "갓생",
+  "flex": "플렉스",
+  "to be annoyed": "킹받다",
+  "so annoying": "킹받아",
+  "totally reasonable": "킹리적갓심",
+  "totally my taste": "취향저격",
+  "awesome": "쩐다",
+  "super handsome": "존잘",
+  "super pretty": "존예",
+  "super cute": "존귀",
+  "eliminated early": "광탈",
+  "max level": "만렙",
+  "buff": "버프",
+  "nerf": "너프",
+  "carry": "캐리",
+  "troll": "트롤",
+  "item": "템",
+  "game": "겜",
+  "phone": "폰",
+  "computer": "컴",
+  "annoying repetition": "뇌절",
+  "cutting ties": "손절",
+  "lost my mind": "정줄놓",
+  "lol": "ㅋㅋㅋ",
+  "haha": "ㅎㅎ",
+  "crying": "ㅠㅠ",
+  "sad": "ㅜㅜ",
+  "first round": "1차",
+  "second round": "2차",
+  "third round": "3차",
+  "leave": "빠지다",
+  "good at reading the room": "눈치가 빠른 편",
+  "near the end of service": "말년",
+  "military service": "군대",
+  "born rich": "금수저",
+  "born poor": "흙수저"
+};
