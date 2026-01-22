@@ -953,64 +953,17 @@ h6 {
 
 /* ========================================
    Colorblind Accessibility Modes
-   Optimized color palettes for color vision deficiencies
+
+   Colorblind simulation is now handled by SVG filters in
+   ColorblindProvider.tsx for full site-wide coverage.
+
+   SVG filters apply color transformation to ALL rendered pixels,
+   including inline styles, Tailwind classes, and images.
+
+   Supported modes:
+   - Protanopia (red-blind, ~1% of males)
+   - Deuteranopia (green-blind, ~6% of males, most common)
+   - Tritanopia (blue-blind, rare)
+
+   @see packages/ui/components/src/base/providers/ColorblindProvider.tsx
    ======================================== */
-
-/* Protanopia (Red-blind) - Replace red/green with blue/yellow */
-[data-colorblind='protanopia'] {
-  --color-error: 210 80% 45%;
-  /* Blue instead of red */
-  --color-success: 50 85% 50%;
-  /* Yellow instead of green */
-  --destructive: 210 80% 45%;
-  --daw-meter-red: 210 80% 45%;
-  --daw-meter-green: 50 85% 50%;
-}
-
-[data-colorblind='protanopia'][data-theme='dark'] {
-  --color-error: 210 70% 60%;
-  --color-success: 50 80% 60%;
-  --destructive: 210 70% 60%;
-  --daw-meter-red: 210 70% 60%;
-  --daw-meter-green: 50 80% 60%;
-}
-
-/* Deuteranopia (Green-blind, most common) - Similar to protanopia */
-[data-colorblind='deuteranopia'] {
-  --color-error: 220 75% 50%;
-  /* Blue instead of red */
-  --color-success: 45 90% 48%;
-  /* Gold/Yellow instead of green */
-  --destructive: 220 75% 50%;
-  --daw-meter-red: 220 75% 50%;
-  --daw-meter-green: 45 90% 48%;
-}
-
-[data-colorblind='deuteranopia'][data-theme='dark'] {
-  --color-error: 220 65% 65%;
-  --color-success: 45 85% 58%;
-  --destructive: 220 65% 65%;
-  --daw-meter-red: 220 65% 65%;
-  --daw-meter-green: 45 85% 58%;
-}
-
-/* Tritanopia (Blue-blind) - Replace blue/yellow with red/cyan */
-[data-colorblind='tritanopia'] {
-  --color-warning: 15 70% 50%;
-  /* Orange instead of yellow */
-  --color-link: 340 60% 55%;
-  /* Magenta instead of blue */
-  --primary: 340 60% 55%;
-  --accent: 340 60% 55%;
-  --ring: 340 60% 55%;
-  --daw-meter-yellow: 15 70% 50%;
-}
-
-[data-colorblind='tritanopia'][data-theme='dark'] {
-  --color-warning: 15 65% 60%;
-  --color-link: 340 55% 65%;
-  --primary: 340 55% 65%;
-  --accent: 340 55% 65%;
-  --ring: 340 55% 65%;
-  --daw-meter-yellow: 15 65% 60%;
-}
