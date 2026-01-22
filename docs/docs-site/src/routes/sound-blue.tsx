@@ -1,15 +1,19 @@
-import type { MetaFunction } from 'react-router';
-import { useLocation } from 'react-router';
+import { createFileRoute, useRouterState } from '@tanstack/react-router';
 import { Layout } from '~/components/Layout';
 import { getLocaleFromPath, getContent } from '~/content';
 
-export const meta: MetaFunction = () => [
-  { title: 'Sound Blue | SoundBlue Projects' },
-  { name: 'description', content: 'Official website of indie artist Sound Blue' },
-];
+export const Route = createFileRoute('/sound-blue')({
+  head: () => ({
+    meta: [
+      { title: 'Sound Blue | SoundBlue Projects' },
+      { name: 'description', content: 'Official website of indie artist Sound Blue' },
+    ],
+  }),
+  component: SoundBlue,
+});
 
-export default function SoundBlue() {
-  const location = useLocation();
+function SoundBlue() {
+  const { location } = useRouterState();
   const locale = getLocaleFromPath(location.pathname);
   const t = getContent(locale);
 

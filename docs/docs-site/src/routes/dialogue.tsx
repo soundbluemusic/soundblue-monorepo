@@ -1,15 +1,19 @@
-import type { MetaFunction } from 'react-router';
-import { useLocation } from 'react-router';
+import { createFileRoute, useRouterState } from '@tanstack/react-router';
 import { Layout } from '~/components/Layout';
 import { getLocaleFromPath, getContent } from '~/content';
 
-export const meta: MetaFunction = () => [
-  { title: 'Dialogue | SoundBlue Projects' },
-  { name: 'description', content: 'Q&A tool that works 100% offline' },
-];
+export const Route = createFileRoute('/dialogue')({
+  head: () => ({
+    meta: [
+      { title: 'Dialogue | SoundBlue Projects' },
+      { name: 'description', content: 'Q&A tool that works 100% offline' },
+    ],
+  }),
+  component: Dialogue,
+});
 
-export default function Dialogue() {
-  const location = useLocation();
+function Dialogue() {
+  const { location } = useRouterState();
   const locale = getLocaleFromPath(location.pathname);
   const t = getContent(locale);
 

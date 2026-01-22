@@ -1,15 +1,19 @@
-import type { MetaFunction } from 'react-router';
-import { useLocation } from 'react-router';
+import { createFileRoute, useRouterState } from '@tanstack/react-router';
 import { Layout } from '~/components/Layout';
 import { getLocaleFromPath, getContent } from '~/content';
 
-export const meta: MetaFunction = () => [
-  { title: 'Tools | SoundBlue Projects' },
-  { name: 'description', content: 'Free web tools for all creators' },
-];
+export const Route = createFileRoute('/ko/tools')({
+  head: () => ({
+    meta: [
+      { title: 'Tools | SoundBlue Projects' },
+      { name: 'description', content: 'Free web tools for all creators' },
+    ],
+  }),
+  component: Tools,
+});
 
-export default function Tools() {
-  const location = useLocation();
+function Tools() {
+  const { location } = useRouterState();
   const locale = getLocaleFromPath(location.pathname);
   const t = getContent(locale);
 

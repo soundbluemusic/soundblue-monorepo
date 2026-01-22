@@ -1,7 +1,5 @@
-import { Link, useLocation } from 'react-router';
+import { Link, useRouterState } from '@tanstack/react-router';
 import { getLocaleFromPath, getContent, type Locale } from '~/content';
-
-const BASE = '/soundblue-monorepo';
 
 function LogoIcon() {
   return (
@@ -33,7 +31,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const location = useLocation();
+  const { location } = useRouterState();
   const locale = getLocaleFromPath(location.pathname);
   const t = getContent(locale);
   const localePrefix = locale === 'en' ? '' : `/${locale}`;
@@ -43,7 +41,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[var(--color-bg-primary)] border-b border-[var(--color-border)]">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to={`${BASE}${localePrefix}/`} className="flex items-center gap-2 font-bold text-lg">
+          <Link to={`${localePrefix}/` as '/'} className="flex items-center gap-2 font-bold text-lg">
             <LogoIcon />
             <span>SoundBlue</span>
           </Link>
@@ -94,7 +92,7 @@ export function Layout({ children }: LayoutProps) {
               <ul className="space-y-1">
                 {t.sidebar.slice(0, 3).map((item) => (
                   <li key={item.href}>
-                    <SidebarLink href={`${BASE}${item.href}`} currentPath={location.pathname}>
+                    <SidebarLink href={item.href} currentPath={location.pathname}>
                       {item.label}
                     </SidebarLink>
                   </li>
@@ -108,7 +106,7 @@ export function Layout({ children }: LayoutProps) {
               <ul className="space-y-1">
                 {t.sidebar.slice(3).map((item) => (
                   <li key={item.href}>
-                    <SidebarLink href={`${BASE}${item.href}`} currentPath={location.pathname}>
+                    <SidebarLink href={item.href} currentPath={location.pathname}>
                       {item.label}
                     </SidebarLink>
                   </li>
@@ -133,21 +131,21 @@ export function Layout({ children }: LayoutProps) {
 }
 
 function SidebarLink({ href, currentPath, children }: { href: string; currentPath: string; children: React.ReactNode }) {
-  const isActive = currentPath === href || currentPath === `${href}/`;
+  const isActive = currentPath.endsWith(href) || currentPath.endsWith(`${href}/`);
 
   return (
-    <Link to={href} className={`sidebar-link ${isActive ? 'active' : ''}`}>
+    <Link to={href as '/'} className={`sidebar-link ${isActive ? 'active' : ''}`}>
       {children}
     </Link>
   );
 }
 
 function LocaleLink({ locale, currentLocale, pathname }: { locale: Locale; currentLocale: Locale; pathname: string }) {
-  // Get the page path without locale prefix
-  let pagePath = pathname.replace(BASE, '').replace(/^\/(ko|ja)/, '').replace(/^\//, '');
+  // Get the page path without locale prefix (remove /soundblue-monorepo and /ko or /ja)
+  let pagePath = pathname.replace(/^\/soundblue-monorepo/, '').replace(/^\/(ko|ja)/, '').replace(/^\//, '');
   if (!pagePath) pagePath = '';
 
-  const newPath = locale === 'en' ? `${BASE}/${pagePath}` : `${BASE}/${locale}/${pagePath}`;
+  const newPath = locale === 'en' ? `/${pagePath}` : `/${locale}/${pagePath}`;
   const isActive = locale === currentLocale;
 
   const labels: Record<Locale, string> = {
@@ -158,7 +156,7 @@ function LocaleLink({ locale, currentLocale, pathname }: { locale: Locale; curre
 
   return (
     <Link
-      to={newPath || `${BASE}/`}
+      to={(newPath || '/') as '/'}
       className={`px-2 py-1 rounded ${isActive ? 'bg-[var(--color-brand)] text-white' : 'hover:bg-[var(--color-bg-secondary)]'}`}
     >
       {labels[locale]}

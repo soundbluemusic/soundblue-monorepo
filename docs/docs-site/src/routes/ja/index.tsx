@@ -1,14 +1,18 @@
-import type { MetaFunction } from 'react-router';
-import { Link, useLocation } from 'react-router';
+import { createFileRoute, Link, useRouterState } from '@tanstack/react-router';
 import { Layout } from '~/components/Layout';
 import { getLocaleFromPath, getContent } from '~/content';
 
-const BASE = '/soundblue-monorepo';
 
-export const meta: MetaFunction = () => [
-  { title: 'SoundBlue Projects' },
-  { name: 'description', content: 'Music and creative projects by Sound Blue' },
-];
+
+export const Route = createFileRoute('/ja/')({
+  head: () => ({
+    meta: [
+      { title: 'SoundBlue Projects' },
+      { name: 'description', content: 'Music and creative projects by Sound Blue' },
+    ],
+  }),
+  component: Home,
+});
 
 const projects = [
   {
@@ -37,8 +41,8 @@ const projects = [
   },
 ];
 
-export default function Home() {
-  const location = useLocation();
+function Home() {
+  const { location } = useRouterState();
   const locale = getLocaleFromPath(location.pathname);
   const t = getContent(locale);
   const localePrefix = locale === 'en' ? '' : `/${locale}`;
@@ -51,7 +55,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold mb-4">{t.home.title}</h1>
           <p className="text-xl text-[var(--color-text-secondary)] mb-6">{t.home.tagline}</p>
           <Link
-            to={`${BASE}${localePrefix}/sound-blue`}
+            to={`${localePrefix}/sound-blue` as '/sound-blue'}
             className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-brand)] text-white rounded-lg hover:bg-[var(--color-brand-dark)] transition-colors no-underline"
           >
             {t.home.exploreBtn}
@@ -67,7 +71,7 @@ export default function Home() {
             return (
               <Link
                 key={project.id}
-                to={`${BASE}${localePrefix}/${project.id}`}
+                to={`${localePrefix}/${project.id}` as '/sound-blue'}
                 className="flex items-start gap-4 p-4 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors no-underline"
               >
                 <span className="text-3xl">{project.icon}</span>
