@@ -785,6 +785,9 @@ importers:
       '@soundblue/hangul':
         specifier: workspace:*
         version: link:../../core/hangul
+      '@soundblue/text-processor':
+        specifier: workspace:*
+        version: link:../../core/text-processor
       '@soundblue/translator':
         specifier: workspace:*
         version: link:../../core/translator

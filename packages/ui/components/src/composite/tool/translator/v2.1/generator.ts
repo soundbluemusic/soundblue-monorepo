@@ -32,9 +32,11 @@ import {
   IDIOMS_EN_KO,
   IDIOMS_KO_EN,
   KO_EN,
+  KO_POLYSEMY_RULES,
   MODAL_VERBS,
   NOUN_CONTEXT,
   NOUN_TO_VERB,
+  selectPolysemyMeaning,
   VERB_PAST,
   VERB_PREPOSITIONS,
   VERB_STEMS,
@@ -66,6 +68,42 @@ const KO_SUBJECT_TO_EN: Record<string, string> = {
  */
 function translateSubjectPronoun(korean: string, fallback: string): string {
   return KO_SUBJECT_TO_EN[korean] || fallback;
+}
+
+/**
+ * 다의어 처리를 포함한 한국어 → 영어 단어 번역
+ *
+ * 1. 다의어(KO_POLYSEMY_RULES에 있는 단어)인 경우 맥락 분석
+ * 2. 일반 단어는 KO_EN 사전에서 직접 찾기
+ *
+ * @param word 번역할 한국어 단어
+ * @param context 주변 단어들 (맥락 분석용)
+ * @returns 영어 번역
+ */
+function _translateKoreanWord(word: string, context: string[] = []): string {
+  // 1. 다의어인지 확인
+  if (KO_POLYSEMY_RULES[word]) {
+    return selectPolysemyMeaning(word, context);
+  }
+
+  // 2. 일반 사전 조회
+  return KO_EN[word] || word;
+}
+
+/**
+ * 문장에서 맥락 단어 추출
+ *
+ * @param tokens 토큰 배열
+ * @returns 맥락 단어들 (동사, 명사, 형용사의 stem/text)
+ */
+function _extractContext(tokens: Token[]): string[] {
+  const context: string[] = [];
+  for (const token of tokens) {
+    if (token.stem) context.push(token.stem);
+    if (token.text) context.push(token.text);
+    if (token.translated) context.push(token.translated);
+  }
+  return context;
 }
 
 // ============================================
@@ -3196,13 +3234,246 @@ export function generateEnglish(parsed: ParsedSentence): string {
   }
 
   // ============================================
+  // Phase -0.05: 기본 SVO 문장 패턴
+  // "그가 책을 읽는다" → "He reads a book"
+  // "나는 밥을 먹었다" → "I ate rice"
+  // ============================================
+  // 주어+조사(은/는/이/가) + 목적어+조사(을/를) + 동사(다/어/요로 끝남)
+  const koBasicSVOPattern = originalText.match(
+    /^(.+?)([은는이가])\s+(.+?)([을를])\s+(.+[다어요])\.?$/,
+  );
+  if (koBasicSVOPattern) {
+    const subjectKo = koBasicSVOPattern[1]; // 주어 (조사 제외)
+    const _subjectParticle = koBasicSVOPattern[2]; // 주격 조사
+    const objectKo = koBasicSVOPattern[3]; // 목적어 (조사 제외)
+    const _objectParticle = koBasicSVOPattern[4]; // 목적격 조사
+    const verbKo = koBasicSVOPattern[5]; // 동사
+
+    // 주어 변환
+    const subjectMap: Record<string, { en: string; is3ps: boolean }> = {
+      나: { en: 'I', is3ps: false },
+      저: { en: 'I', is3ps: false },
+      너: { en: 'You', is3ps: false },
+      당신: { en: 'You', is3ps: false },
+      그: { en: 'He', is3ps: true },
+      그녀: { en: 'She', is3ps: true },
+      그것: { en: 'It', is3ps: true },
+      우리: { en: 'We', is3ps: false },
+      저희: { en: 'We', is3ps: false },
+      그들: { en: 'They', is3ps: false },
+      여러분: { en: 'You', is3ps: false },
+      아이: { en: 'The child', is3ps: true },
+      아이들: { en: 'The children', is3ps: false },
+      학생: { en: 'The student', is3ps: true },
+      학생들: { en: 'The students', is3ps: false },
+      선생님: { en: 'The teacher', is3ps: true },
+      엄마: { en: 'Mom', is3ps: true },
+      아빠: { en: 'Dad', is3ps: true },
+      동생: { en: 'My sibling', is3ps: true },
+      친구: { en: 'My friend', is3ps: true },
+    };
+
+    // 목적어 변환
+    const objectEn = KO_EN[objectKo] || objectKo;
+
+    // 동사 변환 (어간 추출 + 시제 판단)
+    const verbMap: Record<string, { base: string; past: string }> = {
+      // 기본 동사
+      읽는다: { base: 'read', past: 'read' },
+      읽었다: { base: 'read', past: 'read' },
+      먹는다: { base: 'eat', past: 'ate' },
+      먹었다: { base: 'eat', past: 'ate' },
+      마신다: { base: 'drink', past: 'drank' },
+      마셨다: { base: 'drink', past: 'drank' },
+      본다: { base: 'see', past: 'saw' },
+      봤다: { base: 'see', past: 'saw' },
+      보았다: { base: 'see', past: 'saw' },
+      간다: { base: 'go', past: 'went' },
+      갔다: { base: 'go', past: 'went' },
+      한다: { base: 'do', past: 'did' },
+      했다: { base: 'do', past: 'did' },
+      산다: { base: 'buy', past: 'bought' },
+      샀다: { base: 'buy', past: 'bought' },
+      쓴다: { base: 'write', past: 'wrote' },
+      썼다: { base: 'write', past: 'wrote' },
+      듣는다: { base: 'listen to', past: 'listened to' },
+      들었다: { base: 'listen to', past: 'listened to' },
+      좋아한다: { base: 'like', past: 'liked' },
+      좋아했다: { base: 'like', past: 'liked' },
+      사랑한다: { base: 'love', past: 'loved' },
+      사랑했다: { base: 'love', past: 'loved' },
+      원한다: { base: 'want', past: 'wanted' },
+      원했다: { base: 'want', past: 'wanted' },
+      닫는다: { base: 'close', past: 'closed' },
+      닫았다: { base: 'close', past: 'closed' },
+      열다: { base: 'open', past: 'opened' },
+      열었다: { base: 'open', past: 'opened' },
+      // 추가 동사
+      만든다: { base: 'make', past: 'made' },
+      만들었다: { base: 'make', past: 'made' },
+      찾는다: { base: 'find', past: 'found' },
+      찾았다: { base: 'find', past: 'found' },
+      알아: { base: 'know', past: 'knew' },
+      알았다: { base: 'know', past: 'knew' },
+      가르친다: { base: 'teach', past: 'taught' },
+      가르쳤다: { base: 'teach', past: 'taught' },
+      배운다: { base: 'learn', past: 'learned' },
+      배웠다: { base: 'learn', past: 'learned' },
+      부른다: { base: 'call', past: 'called' },
+      불렀다: { base: 'call', past: 'called' },
+      잡는다: { base: 'catch', past: 'caught' },
+      잡았다: { base: 'catch', past: 'caught' },
+      준다: { base: 'give', past: 'gave' },
+      줬다: { base: 'give', past: 'gave' },
+      주었다: { base: 'give', past: 'gave' },
+      받는다: { base: 'receive', past: 'received' },
+      받았다: { base: 'receive', past: 'received' },
+      보낸다: { base: 'send', past: 'sent' },
+      보냈다: { base: 'send', past: 'sent' },
+      가져온다: { base: 'bring', past: 'brought' },
+      가져왔다: { base: 'bring', past: 'brought' },
+      놓는다: { base: 'put', past: 'put' },
+      놓았다: { base: 'put', past: 'put' },
+      던진다: { base: 'throw', past: 'threw' },
+      던졌다: { base: 'throw', past: 'threw' },
+      맞는다: { base: 'hit', past: 'hit' },
+      맞았다: { base: 'hit', past: 'hit' },
+      안다: { base: 'hold', past: 'held' },
+      안았다: { base: 'hold', past: 'held' },
+    };
+
+    const subjectInfo = subjectMap[subjectKo];
+    const verbInfo = verbMap[verbKo];
+
+    if (subjectInfo && verbInfo) {
+      const isPast = /었|았|였/.test(verbKo);
+      let verb: string;
+
+      if (isPast) {
+        verb = verbInfo.past;
+      } else if (subjectInfo.is3ps) {
+        // 3인칭 단수 현재: add -s/-es
+        const base = verbInfo.base;
+        // 불규칙 동사 처리
+        const irregularThirdPerson: Record<string, string> = {
+          do: 'does',
+          go: 'goes',
+          have: 'has',
+          watch: 'watches',
+          catch: 'catches',
+          teach: 'teaches',
+          'listen to': 'listens to',
+        };
+        if (irregularThirdPerson[base]) {
+          verb = irregularThirdPerson[base];
+        } else if (
+          base.endsWith('s') ||
+          base.endsWith('x') ||
+          base.endsWith('z') ||
+          base.endsWith('ch') ||
+          base.endsWith('sh')
+        ) {
+          verb = `${base}es`;
+        } else if (base.endsWith('y') && !/[aeiou]y$/.test(base)) {
+          verb = `${base.slice(0, -1)}ies`;
+        } else {
+          verb = `${base}s`;
+        }
+      } else {
+        verb = verbInfo.base;
+      }
+
+      // 목적어에 관사 추가
+      const article = /^[aeiou]/i.test(objectEn) ? 'an' : 'a';
+      const objectWithArticle = objectEn === objectKo ? objectEn : `${article} ${objectEn}`;
+
+      return `${subjectInfo.en} ${verb} ${objectWithArticle}`;
+    }
+  }
+
+  // ============================================
+  // Phase -0.045: 한국어 의문형 -니? 패턴
+  // "책을 읽니?" → "Do you read a book?"
+  // "누가 책을 읽니?" → "Who reads the book?"
+  // ============================================
+
+  // 특수 표현: "그렇지 않니?" → "Isn't it?"
+  if (/^그렇지\s*않니\??$/.test(originalText)) {
+    return "Isn't it?";
+  }
+
+  // 패턴1: [목적어+을/를] + [동사+니?] (주어 생략 - 2인칭 추정)
+  // "책을 읽니?" → "Do you read a book?"
+  const koQuestionPatternNoSubject = originalText.match(/^(.+?)([을를])\s+(.+?)니\??$/);
+  if (koQuestionPatternNoSubject) {
+    const objectKo = koQuestionPatternNoSubject[1];
+    const verbStemKo = koQuestionPatternNoSubject[3];
+
+    // 목적어 변환
+    const objectEn = KO_EN[objectKo] || objectKo;
+
+    // 동사 변환 (어간 → 기본형)
+    const verbMap: Record<string, string> = {
+      읽: 'read',
+      먹: 'eat',
+      마시: 'drink',
+      보: 'see',
+      사: 'buy',
+      쓰: 'write',
+      듣: 'listen to',
+      좋아하: 'like',
+      사랑하: 'love',
+      원하: 'want',
+    };
+
+    const verbEn = verbMap[verbStemKo];
+    if (verbEn && objectEn !== objectKo) {
+      const article = /^[aeiou]/i.test(objectEn) ? 'an' : 'a';
+      return `Do you ${verbEn} ${article} ${objectEn}?`;
+    }
+  }
+
+  // 패턴2: 누가 + [목적어+을/를] + [동사+니?]
+  // "누가 책을 읽니?" → "Who reads the book?"
+  const koWhoQuestionPattern = originalText.match(/^누가\s+(.+?)([을를])\s+(.+?)니\??$/);
+  if (koWhoQuestionPattern) {
+    const objectKo = koWhoQuestionPattern[1];
+    const verbStemKo = koWhoQuestionPattern[3];
+
+    // 목적어 변환
+    const objectEn = KO_EN[objectKo] || objectKo;
+
+    // 동사 변환 (어간 → 3인칭 단수형)
+    const verbMap: Record<string, string> = {
+      읽: 'reads',
+      먹: 'eats',
+      마시: 'drinks',
+      보: 'sees',
+      사: 'buys',
+      쓰: 'writes',
+      듣: 'listens to',
+      좋아하: 'likes',
+      사랑하: 'loves',
+      원하: 'wants',
+    };
+
+    const verbEn = verbMap[verbStemKo];
+    if (verbEn && objectEn !== objectKo) {
+      return `Who ${verbEn} the ${objectEn}?`;
+    }
+  }
+
+  // ============================================
   // Phase -0.04: L14 관계대명사 패턴
   // "내가 산 책" → "the book that I bought"
+  // 주의: 동사 종결어미(다)로 끝나는 문장은 제외
   // ============================================
 
   // L14: [주어]가 [동사한] [명사] → the [명사] that [주어] [동사]
+  // 마지막 단어가 '다'로 끝나면 매칭하지 않음 (일반 문장)
   const koRelativeClausePattern = originalText.match(/^(.+?)[이가]\s+(.+[은ㄴ])\s+(.+)$/);
-  if (koRelativeClausePattern) {
+  const lastWord = originalText.split(/\s+/).pop() || '';
+  if (koRelativeClausePattern && !lastWord.endsWith('다')) {
     const subjectKo = koRelativeClausePattern[1];
     const verbKo = koRelativeClausePattern[2];
     const nounKo = koRelativeClausePattern[3];
