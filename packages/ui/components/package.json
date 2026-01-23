@@ -61,6 +61,10 @@
       "types": "./dist/composite/audio/index.d.ts",
       "import": "./dist/composite/audio/index.js"
     },
+    "./composite/navigation": {
+      "types": "./dist/composite/navigation/index.d.ts",
+      "import": "./dist/composite/navigation/index.js"
+    },
     "./icons": {
       "types": "./dist/icons/index.d.ts",
       "import": "./dist/icons/index.js"

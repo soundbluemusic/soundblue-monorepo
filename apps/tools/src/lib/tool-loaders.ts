@@ -22,7 +22,13 @@ type LazyToolComponent = React.LazyExoticComponent<AnyToolComponent>;
  *
  * Each tool is loaded on-demand when first accessed.
  */
-export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
+/**
+ * Tool types handled by ToolContainer (via MainLayout).
+ * Translator is excluded as it uses its own TranslatorLayout.
+ */
+type LoadableToolType = Exclude<ToolType, 'translator'>;
+
+export const TOOL_COMPONENTS: Record<LoadableToolType, LazyToolComponent> = {
   metronome: lazy(() => import('~/tools/metronome').then((m) => ({ default: m.Metronome }))),
   drumMachine: lazy(() => import('~/tools/drum-machine').then((m) => ({ default: m.DrumMachine }))),
   delayCalculator: lazy(() =>
@@ -32,11 +38,6 @@ export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
   qr: lazy(() =>
     import('@soundblue/ui-components/composite/tool/qr-generator').then((m) => ({
       default: m.QRGenerator,
-    })),
-  ),
-  translator: lazy(() =>
-    import('@soundblue/ui-components/composite/tool/translator').then((m) => ({
-      default: m.Translator,
     })),
   ),
   spellChecker: lazy(() =>
@@ -58,7 +59,9 @@ export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
 
 /**
  * Get a lazy-loaded tool component by its ID.
+ * Returns undefined for translator (which uses TranslatorLayout directly).
  */
 export const getToolComponent = (id: ToolType): LazyToolComponent | undefined => {
-  return TOOL_COMPONENTS[id];
+  if (id === 'translator') return undefined;
+  return TOOL_COMPONENTS[id as LoadableToolType];
 };

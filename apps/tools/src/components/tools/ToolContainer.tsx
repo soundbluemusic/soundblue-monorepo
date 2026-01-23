@@ -36,7 +36,6 @@ function useSearchParams(): [
   return [searchParams, setSearchParams];
 }
 
-import { getToolComponent } from '~/lib/tool-loaders';
 import { getToolInfo } from '~/lib/toolCategories';
 import { getToolGuide } from '~/lib/toolGuides';
 import { useAudioStore } from '~/stores/audio-store';
@@ -761,12 +760,28 @@ export function ToolContainer({ tool: propTool }: ToolContainerProps) {
   // Get current locale for tool guide
   const currentLocale = locale === 'ko' ? 'ko' : 'en';
 
+  // Dynamically load tool component to avoid bundling all tools with ToolContainer
+  const [LazyComponent, setLazyComponent] = useState<React.LazyExoticComponent<
+    React.ComponentType<Record<string, unknown>>
+  > | null>(null);
+
+  useEffect(() => {
+    if (!currentTool) {
+      setLazyComponent(null);
+      return;
+    }
+    // Dynamic import to prevent bundling tool-loaders with ToolContainer
+    import('~/lib/tool-loaders').then((module) => {
+      const component = module.getToolComponent(currentTool);
+      setLazyComponent(component ?? null);
+    });
+  }, [currentTool]);
+
   // Render tool content using registry pattern (no switch statement)
   const renderToolContent = () => {
     if (!currentTool) return null;
 
-    const LazyComponent = getToolComponent(currentTool);
-    if (!LazyComponent) return null;
+    if (!LazyComponent) return <ToolLoading />;
 
     const config = toolSettingsRegistry[currentTool];
 

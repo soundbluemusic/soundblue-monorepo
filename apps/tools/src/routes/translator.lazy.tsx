@@ -1,6 +1,7 @@
 import { BreadcrumbStructuredData } from '@soundblue/seo';
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { TranslatorLayout } from '~/components/layout';
+// Direct import to enable code splitting - translator bundle only loaded on this route
+import { TranslatorLayout } from '~/components/layout/TranslatorLayout';
 
 export const Route = createLazyFileRoute('/translator')({
   component: TranslatorPage,

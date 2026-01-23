@@ -2,7 +2,7 @@
 
 import { useParaglideI18n } from '@soundblue/i18n';
 import { ColorblindSelector, useTheme } from '@soundblue/ui-components/base';
-import { ServiceMenu } from '@soundblue/ui-components/composite';
+import { ServiceMenu } from '@soundblue/ui-components/composite/navigation';
 import { Link } from '@tanstack/react-router';
 import { useToolStore } from '~/stores/tool-store';
 

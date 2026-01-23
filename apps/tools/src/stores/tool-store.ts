@@ -1,4 +1,3 @@
-import type { QRSettings, TranslatorSettings } from '@soundblue/ui-components/composite/tool';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
@@ -9,8 +8,10 @@ import type { DelayCalculatorSettings } from '../tools/delay-calculator/settings
 import type { DrumMachineSettings } from '../tools/drum-machine/settings';
 import type { EnglishSpellCheckerSettings } from '../tools/english-spell-checker/settings';
 import type { MetronomeSettings } from '../tools/metronome/settings';
+import type { QRSettings } from '../tools/qr/settings';
 import type { SpellCheckerSettings } from '../tools/spell-checker/settings';
 import type { TapTempoSettings } from '../tools/tap-tempo/settings';
+import type { TranslatorSettings } from '../tools/translator/settings';
 
 export type ToolType =
   | 'metronome'

@@ -5,7 +5,7 @@
  */
 
 import { useParaglideI18n } from '@soundblue/i18n';
-import { AppFooter } from '@soundblue/ui-components/composite';
+import { AppFooter } from '@soundblue/ui-components/composite/navigation';
 
 interface FooterProps {
   className?: string;
