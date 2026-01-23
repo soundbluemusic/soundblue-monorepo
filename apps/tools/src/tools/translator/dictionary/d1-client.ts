@@ -1,9 +1,10 @@
 /**
  * D1 Dictionary Client
  *
- * 런타임에 D1 API를 호출하여 어휘 데이터를 가져옵니다.
- * Pages Functions의 /api/dictionary 엔드포인트 사용
+ * TanStack Start 서버 함수를 통해 D1 데이터베이스에서 어휘 데이터를 가져옵니다.
  */
+
+import { getAllDictionary, getSentences, getWords } from '~/server/dictionary';
 
 interface DictionaryResponse {
   koToEn: Record<string, string>;
@@ -22,48 +23,31 @@ let sentencesCache: DictionaryResponse | null = null;
 let isLoading = false;
 let loadPromise: Promise<void> | null = null;
 
-const API_BASE = '/api/dictionary';
-
 /**
- * D1에서 단어 사전 로드
+ * D1에서 단어 사전 로드 (서버 함수 호출)
  */
 export async function loadWordsFromD1(): Promise<DictionaryResponse> {
   if (wordsCache) return wordsCache;
 
-  const response = await fetch(`${API_BASE}?type=words`);
-  if (!response.ok) {
-    throw new Error(`Failed to load words: ${response.status}`);
-  }
-
-  wordsCache = await response.json();
-  return wordsCache!;
+  wordsCache = await getWords();
+  return wordsCache;
 }
 
 /**
- * D1에서 문장 사전 로드
+ * D1에서 문장 사전 로드 (서버 함수 호출)
  */
 export async function loadSentencesFromD1(): Promise<DictionaryResponse> {
   if (sentencesCache) return sentencesCache;
 
-  const response = await fetch(`${API_BASE}?type=sentences`);
-  if (!response.ok) {
-    throw new Error(`Failed to load sentences: ${response.status}`);
-  }
-
-  sentencesCache = await response.json();
-  return sentencesCache!;
+  sentencesCache = await getSentences();
+  return sentencesCache;
 }
 
 /**
- * D1에서 모든 사전 로드 (단어 + 문장)
+ * D1에서 모든 사전 로드 (단어 + 문장, 서버 함수 호출)
  */
 export async function loadAllFromD1(): Promise<AllDictionaryResponse> {
-  const response = await fetch(`${API_BASE}?type=all`);
-  if (!response.ok) {
-    throw new Error(`Failed to load all: ${response.status}`);
-  }
-
-  const data: AllDictionaryResponse = await response.json();
+  const data = await getAllDictionary();
   wordsCache = data.words;
   sentencesCache = data.sentences;
   return data;
