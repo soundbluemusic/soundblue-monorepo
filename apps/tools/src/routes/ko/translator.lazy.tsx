@@ -1,6 +1,6 @@
 import { BreadcrumbStructuredData } from '@soundblue/seo';
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { MainLayout } from '~/components/layout';
+import { TranslatorLayout } from '~/components/layout';
 
 export const Route = createLazyFileRoute('/ko/translator')({
   component: KoTranslatorPage,
@@ -15,7 +15,7 @@ function KoTranslatorPage() {
           { name: '번역기', url: 'https://tools.soundbluemusic.com/ko/translator' },
         ]}
       />
-      <MainLayout defaultTool="translator" />
+      <TranslatorLayout />
     </>
   );
 }
