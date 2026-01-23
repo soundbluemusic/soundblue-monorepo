@@ -123,6 +123,7 @@ export function DrumMachine({ settings: propSettings, onSettingsChange }: DrumMa
           currentStep={drumMachine.currentStep}
           isPlaying={drumMachine.isPlaying}
           onStepToggle={handleStepChange}
+          onPreviewSound={handlePreviewSound}
           className="rounded-lg"
         />
       </div>

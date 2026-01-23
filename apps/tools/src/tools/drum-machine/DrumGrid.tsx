@@ -7,6 +7,7 @@ interface DrumGridProps {
   currentStep: number;
   isPlaying: boolean;
   onStepToggle: (drumId: DrumId, step: number, value: boolean) => void;
+  onPreviewSound?: (drumId: DrumId) => void;
   className?: string;
 }
 
@@ -62,6 +63,7 @@ export const DrumGrid = memo(function DrumGrid({
   currentStep,
   isPlaying,
   onStepToggle,
+  onPreviewSound,
   className,
 }: DrumGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -120,6 +122,29 @@ export const DrumGrid = memo(function DrumGrid({
       return { drumId: drum.id, step };
     },
     [getLabelWidth, getCellSize, getCellGap, steps],
+  );
+
+  // Label 영역 클릭 감지 (소리 미리듣기용)
+  const getDrumFromLabelClick = useCallback(
+    (x: number, y: number): DrumId | null => {
+      const labelWidth = getLabelWidth();
+      const cellSize = getCellSize();
+      const cellGap = getCellGap();
+
+      // Label 영역 외부면 null
+      if (x >= labelWidth) return null;
+
+      const drumIndex = Math.floor((y - HEADER_HEIGHT) / (cellSize + cellGap));
+      if (drumIndex < 0 || drumIndex >= DRUMS.length) return null;
+
+      // Label 셀 영역 내부인지 확인
+      const labelY = HEADER_HEIGHT + drumIndex * (cellSize + cellGap);
+      if (y > labelY + cellSize) return null;
+
+      const drum = DRUMS[drumIndex];
+      return drum?.id ?? null;
+    },
+    [getLabelWidth, getCellSize, getCellGap],
   );
 
   const render = useCallback(() => {
@@ -254,8 +279,16 @@ export const DrumGrid = memo(function DrumGrid({
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
       const pos = getMousePos(e);
-      const cell = getCellFromPoint(pos.x, pos.y);
 
+      // Label 영역 클릭 시 소리 미리듣기
+      const labelDrumId = getDrumFromLabelClick(pos.x, pos.y);
+      if (labelDrumId) {
+        onPreviewSound?.(labelDrumId);
+        return;
+      }
+
+      // Grid 셀 클릭 시 스텝 토글
+      const cell = getCellFromPoint(pos.x, pos.y);
       if (cell) {
         const currentValue = pattern[cell.drumId]?.[cell.step] ?? false;
         const newValue = !currentValue;
@@ -268,7 +301,7 @@ export const DrumGrid = memo(function DrumGrid({
         canvasRef.current?.setPointerCapture(e.pointerId);
       }
     },
-    [getMousePos, getCellFromPoint, pattern, onStepToggle],
+    [getMousePos, getDrumFromLabelClick, getCellFromPoint, pattern, onStepToggle, onPreviewSound],
   );
 
   const handlePointerMove = useCallback(
