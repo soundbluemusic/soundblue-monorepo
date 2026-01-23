@@ -12,7 +12,7 @@
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 
-const BUILD_DIR = join(import.meta.dirname, '../build/client');
+const BUILD_DIR = join(import.meta.dirname, '../dist/client');
 
 interface CleanupResult {
   spaFallbackRemoved: boolean;
@@ -43,13 +43,15 @@ function cleanup(): CleanupResult {
     console.log('ℹ️  __spa-fallback.html not found (already clean)');
   }
 
-  // 2. Validate 404.html exists
+  // 2. Validate 404.html exists (optional for SSR apps - handled by server)
   const notFoundPath = join(BUILD_DIR, '404.html');
   if (existsSync(notFoundPath)) {
     result.has404Page = true;
     console.log('✅ 404.html exists');
   } else {
-    result.errors.push('404.html not found - Cloudflare needs this for proper 404 responses');
+    // SSR apps handle 404 at runtime, so this is just informational
+    console.log('ℹ️  404.html not found (SSR apps handle 404 at runtime)');
+    result.has404Page = true; // Mark as OK for SSR apps
   }
 
   // 3. Check _redirects doesn't have SPA fallback
@@ -66,8 +68,12 @@ function cleanup(): CleanupResult {
       result.errors.push('_redirects contains SPA fallback rule - this causes Soft 404');
     } else {
       result.hasProperRedirects = true;
-      console.log('✅ _redirects has no SPA fallback (correct for SSG)');
+      console.log('✅ _redirects has no SPA fallback (correct for SSR)');
     }
+  } else {
+    // No _redirects file is OK for SSR apps
+    result.hasProperRedirects = true;
+    console.log('ℹ️  No _redirects file (SSR app handles routing)');
   }
 
   // Summary
