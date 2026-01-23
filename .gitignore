@@ -8,10 +8,6 @@ build/
 *.tsbuildinfo
 .turbo/
 
-# React Router generated types
-.react-router/
-
-
 # Generated service workers (PWA build output)
 **/public/sw.js
 **/public/workbox-*.js
