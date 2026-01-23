@@ -71,11 +71,11 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            apps/sound-blue/build
+            apps/sound-blue/dist
             apps/sound-blue/wrangler.toml
-            apps/tools/build
+            apps/tools/dist
             apps/tools/wrangler.toml
-            apps/dialogue/build
+            apps/dialogue/dist
             apps/dialogue/wrangler.toml
           retention-days: 1
 
@@ -113,12 +113,12 @@ jobs:
 
       - name: Move artifacts to apps folder
         run: |
-          cp -r artifact-temp/${{ matrix.app }}/build apps/${{ matrix.app }}/
+          cp -r artifact-temp/${{ matrix.app }}/dist apps/${{ matrix.app }}/
           rm -rf artifact-temp
 
       - name: Verify artifacts
-        run: ls -la apps/${{ matrix.app }}/build/
+        run: ls -la apps/${{ matrix.app }}/dist/
 
       - name: Deploy ${{ matrix.app }}
         working-directory: apps/${{ matrix.app }}
-        run: pnpm exec wrangler deploy --config build/server/wrangler.json
+        run: pnpm exec wrangler deploy --config dist/server/wrangler.json
