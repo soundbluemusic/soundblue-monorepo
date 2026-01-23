@@ -48,7 +48,7 @@ const TranslatorRoute = TranslatorRouteImport.update({
   id: '/translator',
   path: '/translator',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any).lazy(() => import('./routes/translator.lazy').then((d) => d.Route));
 const TapTempoRoute = TapTempoRouteImport.update({
   id: '/tap-tempo',
   path: '/tap-tempo',
@@ -138,7 +138,7 @@ const KoTranslatorRoute = KoTranslatorRouteImport.update({
   id: '/ko/translator',
   path: '/ko/translator',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any).lazy(() => import('./routes/ko/translator.lazy').then((d) => d.Route));
 const KoTapTempoRoute = KoTapTempoRouteImport.update({
   id: '/ko/tap-tempo',
   path: '/ko/tap-tempo',

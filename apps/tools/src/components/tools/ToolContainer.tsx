@@ -36,7 +36,8 @@ function useSearchParams(): [
   return [searchParams, setSearchParams];
 }
 
-import { getToolComponent, getToolInfo } from '~/lib/toolCategories';
+import { getToolComponent } from '~/lib/tool-loaders';
+import { getToolInfo } from '~/lib/toolCategories';
 import { getToolGuide } from '~/lib/toolGuides';
 import { useAudioStore } from '~/stores/audio-store';
 import { type ToolType, useToolStore } from '~/stores/tool-store';

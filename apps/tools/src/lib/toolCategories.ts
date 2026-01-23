@@ -37,12 +37,7 @@
  * ```
  */
 
-import { type ComponentType, lazy } from 'react';
 import type { ToolType } from '~/stores/tool-store';
-
-// biome-ignore lint/suspicious/noExplicitAny: Dynamic tool components have varying props that cannot be unified
-type AnyToolComponent = ComponentType<any>;
-type LazyToolComponent = React.LazyExoticComponent<AnyToolComponent>;
 
 /**
  * Metadata for an individual tool.
@@ -361,77 +356,5 @@ export const getToolName = (id: ToolType, locale: 'ko' | 'en' = 'ko'): string =>
   return tool?.name[locale] ?? id;
 };
 
-// ========================================
-// Tool Component Registry (Lazy Loading)
-// ========================================
-
-/**
- * Registry of lazy-loaded tool components.
- *
- * Each tool is loaded on-demand when first accessed, enabling
- * optimal code splitting. Adding a new tool only requires:
- * 1. Adding the tool to TOOL_CATEGORIES
- * 2. Adding the lazy component loader here
- *
- * @constant
- * @type {Record<ToolType, LazyToolComponent>}
- *
- * @example
- * ```tsx
- * // In ToolContainer
- * const LazyComponent = TOOL_COMPONENTS[currentTool];
- * return <LazyComponent settings={settings} onSettingsChange={onChange} />;
- * ```
- */
-export const TOOL_COMPONENTS: Record<ToolType, LazyToolComponent> = {
-  metronome: lazy(() => import('~/tools/metronome').then((m) => ({ default: m.Metronome }))),
-  drumMachine: lazy(() => import('~/tools/drum-machine').then((m) => ({ default: m.DrumMachine }))),
-  delayCalculator: lazy(() =>
-    import('~/tools/delay-calculator').then((m) => ({ default: m.DelayCalculator })),
-  ),
-  tapTempo: lazy(() => import('~/tools/tap-tempo').then((m) => ({ default: m.TapTempo }))),
-  // Use individual entry points to avoid loading entire ui-components bundle
-  qr: lazy(() =>
-    import('@soundblue/ui-components/composite/tool/qr-generator').then((m) => ({
-      default: m.QRGenerator,
-    })),
-  ),
-  translator: lazy(() =>
-    import('@soundblue/ui-components/composite/tool/translator').then((m) => ({
-      default: m.Translator,
-    })),
-  ),
-  spellChecker: lazy(() =>
-    import('~/tools/spell-checker').then((m) => ({ default: m.SpellChecker })),
-  ),
-  englishSpellChecker: lazy(() =>
-    import('~/tools/english-spell-checker').then((m) => ({ default: m.EnglishSpellChecker })),
-  ),
-  colorHarmony: lazy(() =>
-    import('~/tools/color-harmony').then((m) => ({ default: m.ColorHarmony })),
-  ),
-  colorPalette: lazy(() =>
-    import('~/tools/color-palette').then((m) => ({ default: m.ColorPalette })),
-  ),
-  colorDecomposer: lazy(() =>
-    import('~/tools/color-decomposer').then((m) => ({ default: m.ColorDecomposer })),
-  ),
-};
-
-/**
- * Get a lazy-loaded tool component by its ID.
- *
- * @param {ToolType} id - The tool's unique identifier
- * @returns {LazyToolComponent | undefined} Lazy component, or undefined if not found
- *
- * @example
- * ```tsx
- * const Component = getToolComponent('metronome');
- * if (Component) {
- *   return <Component settings={settings} onSettingsChange={onChange} />;
- * }
- * ```
- */
-export const getToolComponent = (id: ToolType): LazyToolComponent | undefined => {
-  return TOOL_COMPONENTS[id];
-};
+// Tool Component Registry moved to ~/lib/tool-loaders.ts for code splitting
+// Import from there if you need lazy-loaded tool components
