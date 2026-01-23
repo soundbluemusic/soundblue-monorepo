@@ -1,35 +1,16 @@
 /**
  * Algorithms D1 Client
  *
- * 런타임에 Algorithms D1 API를 호출하여 번역 알고리즘 데이터를 가져옵니다.
- * - stems: 어간 패턴 (동사/형용사/명사)
- * - domains: 도메인별 어휘
- * - polysemy: 다의어 처리
+ * TanStack Start 서버 함수를 통해 Algorithms D1 데이터베이스에서 번역 알고리즘 데이터를 가져옵니다.
  */
 
-interface StemsResponse {
-  verb: Record<string, string>;
-  adj: Record<string, string>;
-  noun: Record<string, string>;
-  count: { verb: number; adj: number; noun: number };
-}
-
-interface DomainsResponse {
-  domains: Record<string, { koToEn: Record<string, string>; enToKo: Record<string, string> }>;
-  count: number;
-  totalEntries: number;
-}
-
-interface PolysemyResponse {
-  words: Record<string, { meanings: string[]; examples?: string[] }>;
-  count: number;
-}
-
-interface AllAlgorithmsResponse {
-  stems: StemsResponse;
-  domains: DomainsResponse;
-  polysemy: PolysemyResponse;
-}
+import {
+  type AllAlgorithmsResponse,
+  type DomainsResponse,
+  getAllAlgorithms,
+  type PolysemyResponse,
+  type StemsResponse,
+} from '~/server/algorithms';
 
 // 캐시
 let stemsCache: StemsResponse | null = null;
@@ -38,18 +19,11 @@ let polysemyCache: PolysemyResponse | null = null;
 let isLoading = false;
 let loadPromise: Promise<void> | null = null;
 
-const API_BASE = '/api/algorithms';
-
 /**
- * Algorithms D1에서 모든 데이터 로드
+ * Algorithms D1에서 모든 데이터 로드 (서버 함수 호출)
  */
 export async function loadAllAlgorithms(): Promise<AllAlgorithmsResponse> {
-  const response = await fetch(`${API_BASE}?type=all`);
-  if (!response.ok) {
-    throw new Error(`Failed to load algorithms: ${response.status}`);
-  }
-
-  const data: AllAlgorithmsResponse = await response.json();
+  const data = await getAllAlgorithms();
   stemsCache = data.stems;
   domainsCache = data.domains;
   polysemyCache = data.polysemy;
@@ -171,15 +145,15 @@ export function isAlgorithmsLoading(): boolean {
 /**
  * 캐시된 데이터 반환
  */
-export function getStems(): StemsResponse | null {
+export function getCachedStems(): StemsResponse | null {
   return stemsCache;
 }
 
-export function getDomains(): DomainsResponse | null {
+export function getCachedDomains(): DomainsResponse | null {
   return domainsCache;
 }
 
-export function getPolysemy(): PolysemyResponse | null {
+export function getCachedPolysemy(): PolysemyResponse | null {
   return polysemyCache;
 }
 
