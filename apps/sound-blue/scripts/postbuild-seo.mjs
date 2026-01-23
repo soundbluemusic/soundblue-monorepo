@@ -14,7 +14,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const BUILD_DIR = join(__dirname, '../build/client');
+const BUILD_DIR = join(__dirname, '../dist/client');
 
 function cleanup() {
   const result = {
