@@ -1,10 +1,13 @@
 name = "soundblue-dialogue"
-main = "workers.ts"
-compatibility_date = "2024-12-01"
+main = "@tanstack/react-start/server-entry"
+compatibility_date = "2026-01-14"
 compatibility_flags = ["nodejs_compat"]
 
+[observability]
+enabled = true
+
 [assets]
-directory = "build/client"
+directory = "dist/client"
 
 # D1 Databases
 # Algorithms DB: 번역 알고리즘 공유 데이터 (향후 번역 기능 연동용)

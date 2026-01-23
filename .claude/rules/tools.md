@@ -105,16 +105,15 @@ export function ToolName({ ... }: ToolNameProps) {
 
 새 도구를 추가할 때 반드시 확인:
 
-- [ ] `tools/[tool-name]/types.ts` - 타입 정의
-- [ ] `tools/[tool-name]/settings.ts` - 기본 설정 & i18n 텍스트
-- [ ] `tools/[tool-name]/index.tsx` - 메인 컴포넌트 (**ToolGuide 포함**)
-- [ ] `routes/($locale)/[tool-name].tsx` - 라우트 페이지
-- [ ] `stores/tool-store.ts` - 타입 & 설정 추가
-- [ ] `lib/toolCategories.ts` - 도구 정보 & lazy loader
-- [ ] `lib/toolGuides.ts` - **ko/en 가이드 등록** ⚠️
-- [ ] `components/tools/ToolContainer.tsx` - 설정 핸들러
-- [ ] `routes.ts` - TOOL_PAGES 배열
-- [ ] `react-router.config.ts` - BASE_PATHS 배열
+- [ ] `src/tools/[tool-name]/types.ts` - 타입 정의
+- [ ] `src/tools/[tool-name]/settings.ts` - 기본 설정 & i18n 텍스트
+- [ ] `src/tools/[tool-name]/index.tsx` - 메인 컴포넌트 (**ToolGuide 포함**)
+- [ ] `src/routes/[tool-name].tsx` - 영어 라우트 페이지
+- [ ] `src/routes/ko/[tool-name].tsx` - 한글 라우트 페이지
+- [ ] `src/stores/tool-store.ts` - 타입 & 설정 추가
+- [ ] `src/lib/toolCategories.ts` - 도구 정보 & lazy loader
+- [ ] `src/lib/toolGuides.ts` - **ko/en 가이드 등록** ⚠️
+- [ ] `src/components/tools/ToolContainer.tsx` - 설정 핸들러
 
 ## 레이아웃 트랜지션 규칙 (CRITICAL)
 

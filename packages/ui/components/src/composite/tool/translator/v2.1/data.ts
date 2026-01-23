@@ -2785,3 +2785,284 @@ export const EN_IDIOMS: Record<string, string> = {
   'spare no expense': '돈을 아끼지 않다',
   'sparing no investment': '투자를 아끼지 않다',
 };
+
+// ============================================
+// 다의어 맥락 규칙 (Polysemy Context Rules)
+// ============================================
+
+/**
+ * 다의어 맥락 규칙 타입
+ *
+ * contextVerbs: 해당 의미와 함께 자주 사용되는 동사들
+ * contextNouns: 해당 의미와 함께 자주 사용되는 명사들
+ * contextAdj: 해당 의미와 함께 자주 사용되는 형용사들
+ * contextParticles: 해당 의미와 함께 자주 사용되는 조사들
+ */
+interface PolysemyMeaning {
+  en: string;
+  contextVerbs?: string[];
+  contextNouns?: string[];
+  contextAdj?: string[];
+  contextParticles?: string[];
+  priority?: number; // 높을수록 우선
+}
+
+interface PolysemyRule {
+  meanings: PolysemyMeaning[];
+  default: string; // 맥락 불명확 시 기본값
+}
+
+/**
+ * 한국어 다의어 → 영어 맥락 규칙
+ *
+ * 문맥에서 동사/명사/형용사/조사를 확인하여 적절한 의미 선택
+ */
+export const KO_POLYSEMY_RULES: Record<string, PolysemyRule> = {
+  // === 배 (5가지 의미) ===
+  배: {
+    meanings: [
+      {
+        en: 'ship',
+        contextVerbs: ['타다', '끌다', '정박하다', '내리다', '몰다', '젓다'],
+        contextNouns: ['항구', '바다', '강', '여객', '화물', '선장', '항해'],
+        priority: 3,
+      },
+      {
+        en: 'pear',
+        contextVerbs: ['먹다', '깎다', '자르다', '씹다', '베어 물다'],
+        contextNouns: ['과일', '디저트', '사과', '과수원'],
+        priority: 2,
+      },
+      {
+        en: 'stomach',
+        contextVerbs: ['아프다', '탈나다', '꼬르륵거리다', '배탈나다'],
+        contextNouns: ['탈', '통증', '복통', '소화'],
+        contextAdj: ['아프', '쓰리'],
+        priority: 4,
+      },
+      {
+        en: 'belly',
+        contextVerbs: ['나오다', '들어가다', '두드리다'],
+        contextAdj: ['부르', '불러', '배부르'],
+        priority: 1,
+      },
+    ],
+    default: 'stomach', // 가장 일반적인 의미
+  },
+
+  // === 눈 (2가지 의미) ===
+  눈: {
+    meanings: [
+      {
+        en: 'snow',
+        contextVerbs: ['내리다', '오다', '녹다', '쌓이다', '치우다', '맞다'],
+        contextNouns: ['겨울', '눈사람', '눈송이', '함박'],
+        contextAdj: ['하얀', '흰'],
+        priority: 3,
+      },
+      {
+        en: 'eye',
+        contextVerbs: ['감다', '뜨다', '깜빡이다', '마주치다', '돌리다', '피하다'],
+        contextNouns: ['시력', '눈동자', '속눈썹', '눈꺼풀', '안경'],
+        contextAdj: ['초롱초롱', '멍한', '날카로운'],
+        priority: 2,
+      },
+    ],
+    default: 'eye',
+  },
+
+  // === 일 (3가지 의미) ===
+  일: {
+    meanings: [
+      {
+        en: 'work',
+        contextVerbs: ['하다', '마치다', '시작하다', '끝내다', '처리하다'],
+        contextNouns: ['회사', '직장', '업무', '프로젝트', '과제'],
+        priority: 3,
+      },
+      {
+        en: 'day',
+        contextNouns: [
+          '요일',
+          '월요일',
+          '화요일',
+          '수요일',
+          '목요일',
+          '금요일',
+          '토요일',
+          '일요일',
+        ],
+        priority: 2,
+      },
+      {
+        en: 'matter',
+        contextNouns: ['그런', '이런', '저런', '무슨', '어떤', '별'],
+        contextVerbs: ['생기다', '일어나다', '벌어지다', '있다'],
+        priority: 1,
+      },
+    ],
+    default: 'work',
+  },
+
+  // === 손 (2가지 의미) ===
+  손: {
+    meanings: [
+      {
+        en: 'hand',
+        contextVerbs: ['잡다', '놓다', '흔들다', '씻다', '들다', '내밀다'],
+        contextNouns: ['손가락', '손톱', '손목', '장갑'],
+        priority: 3,
+      },
+      {
+        en: 'guest',
+        contextVerbs: ['맞이하다', '치르다', '모시다', '대접하다'],
+        contextNouns: ['손님', '방문객'],
+        priority: 1,
+      },
+    ],
+    default: 'hand',
+  },
+
+  // === 밤 (2가지 의미) ===
+  밤: {
+    meanings: [
+      {
+        en: 'night',
+        contextVerbs: ['새우다', '지나다', '보내다', '지새다'],
+        contextNouns: ['어둠', '달', '별', '저녁', '야경'],
+        contextAdj: ['깊', '어두운', '캄캄한'],
+        priority: 3,
+      },
+      {
+        en: 'chestnut',
+        contextVerbs: ['먹다', '굽다', '까다', '줍다'],
+        contextNouns: ['가을', '과일', '간식'],
+        priority: 2,
+      },
+    ],
+    default: 'night',
+  },
+
+  // === 다리 (2가지 의미) ===
+  다리: {
+    meanings: [
+      {
+        en: 'leg',
+        contextVerbs: ['아프다', '다치다', '걷다', '뻗다', '꼬다'],
+        contextNouns: ['무릎', '발', '허벅지', '종아리'],
+        priority: 3,
+      },
+      {
+        en: 'bridge',
+        contextVerbs: ['건너다', '지나다', '놓다', '만들다'],
+        contextNouns: ['강', '한강', '다리 밑', '교각'],
+        priority: 2,
+      },
+    ],
+    default: 'leg',
+  },
+
+  // === 말 (3가지 의미) ===
+  말: {
+    meanings: [
+      {
+        en: 'word',
+        contextVerbs: ['하다', '듣다', '전하다', '꺼내다', '삼키다'],
+        contextNouns: ['이야기', '대화', '표현', '문장'],
+        priority: 3,
+      },
+      {
+        en: 'horse',
+        contextVerbs: ['타다', '달리다', '끌다', '기르다'],
+        contextNouns: ['마구간', '승마', '경마', '말굽'],
+        priority: 2,
+      },
+      {
+        en: 'end',
+        contextNouns: ['끝', '마지막', '월말', '연말', '학기'],
+        priority: 1,
+      },
+    ],
+    default: 'word',
+  },
+
+  // === 차 (2가지 의미) ===
+  차: {
+    meanings: [
+      {
+        en: 'car',
+        contextVerbs: ['타다', '운전하다', '몰다', '주차하다', '세우다'],
+        contextNouns: ['자동차', '버스', '택시', '기차', '도로', '주차장'],
+        priority: 3,
+      },
+      {
+        en: 'tea',
+        contextVerbs: ['마시다', '우려내다', '끓이다', '따르다'],
+        contextNouns: ['녹차', '홍차', '커피', '잔', '주전자'],
+        priority: 2,
+      },
+    ],
+    default: 'car',
+  },
+};
+
+/**
+ * 맥락 기반 다의어 의미 선택
+ *
+ * @param word 다의어 단어
+ * @param context 주변 단어들 (동사, 명사, 형용사 등)
+ * @returns 선택된 영어 의미
+ */
+export function selectPolysemyMeaning(word: string, context: string[]): string {
+  const rule = KO_POLYSEMY_RULES[word];
+  if (!rule) return word;
+
+  let bestMatch: { meaning: PolysemyMeaning; score: number } | null = null;
+
+  for (const meaning of rule.meanings) {
+    let score = 0;
+
+    // 동사 맥락 체크
+    if (meaning.contextVerbs) {
+      for (const verb of meaning.contextVerbs) {
+        if (context.some((c) => c.includes(verb.replace('다', '')))) {
+          score += 2;
+        }
+      }
+    }
+
+    // 명사 맥락 체크
+    if (meaning.contextNouns) {
+      for (const noun of meaning.contextNouns) {
+        if (context.some((c) => c.includes(noun))) {
+          score += 2;
+        }
+      }
+    }
+
+    // 형용사 맥락 체크
+    if (meaning.contextAdj) {
+      for (const adj of meaning.contextAdj) {
+        if (context.some((c) => c.includes(adj))) {
+          score += 2;
+        }
+      }
+    }
+
+    // 우선순위 보너스
+    if (meaning.priority) {
+      score += meaning.priority * 0.5;
+    }
+
+    if (!bestMatch || score > bestMatch.score) {
+      bestMatch = { meaning, score };
+    }
+  }
+
+  // 점수가 임계값 이상이면 해당 의미 선택, 아니면 기본값
+  if (bestMatch && bestMatch.score >= 2) {
+    return bestMatch.meaning.en;
+  }
+
+  return rule.default;
+}

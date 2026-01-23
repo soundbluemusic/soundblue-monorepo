@@ -84,6 +84,276 @@ function translateWithWSD(word: string, context?: string): string | undefined {
 }
 
 // ============================================
+// 영어 -ing 타입 분류 (Phase 2)
+// ============================================
+
+/**
+ * -ing 형태의 문법적 타입
+ *
+ * PROGRESSIVE: 진행형 (is/are/was/were + Ving) → "-고 있다"
+ * PARTICIPLE: 현재분사 (수식) → "-는"
+ * GERUND_PREP: 전치사 목적어 (while/after/before + Ving) → "-면서", "-한 후", "-하기 전"
+ * GERUND_NOUN: 동명사 (주어/목적어 위치) → "-기", "-음"
+ */
+export type IngType = 'PROGRESSIVE' | 'PARTICIPLE' | 'GERUND_PREP' | 'GERUND_NOUN';
+
+/**
+ * -ing 단어의 문법적 타입 분류
+ *
+ * @param words 전체 단어 배열
+ * @param index -ing 단어의 인덱스
+ * @returns -ing 타입 및 관련 정보
+ */
+export function getIngType(
+  words: string[],
+  index: number,
+): { type: IngType; koreanForm: string; preposition?: string } {
+  const _word = words[index];
+  const prevWord = index > 0 ? words[index - 1].toLowerCase() : '';
+  const prevPrevWord = index > 1 ? words[index - 2].toLowerCase() : '';
+  const nextWord = index < words.length - 1 ? words[index + 1]?.toLowerCase() : '';
+
+  // 1. 진행형 체크: be동사 + -ing
+  const beVerbs = ['am', 'is', 'are', 'was', 'were', 'been', 'being'];
+  if (beVerbs.includes(prevWord)) {
+    return { type: 'PROGRESSIVE', koreanForm: '-고 있다' };
+  }
+  // "have been + -ing" (현재완료 진행형)
+  if (prevWord === 'been' && ['have', 'has', 'had'].includes(prevPrevWord)) {
+    return { type: 'PROGRESSIVE', koreanForm: '-고 있었다' };
+  }
+
+  // 2. 전치사 + -ing: 동명사 (전치사 목적어)
+  const prepMappings: Record<string, string> = {
+    while: '-면서',
+    whilst: '-면서',
+    after: '-한 후',
+    before: '-하기 전에',
+    by: '-함으로써',
+    without: '-하지 않고',
+    instead: '-하는 대신',
+    of: '-하는 것의', // "instead of", "tired of" 등
+    about: '-하는 것에 대해',
+    for: '-하기 위해',
+    on: '-하자마자', // "on arriving"
+    upon: '-하자마자',
+    in: '-하는 중에',
+    from: '-하는 것으로부터',
+    to: '-하는 것에', // "look forward to Ving"
+  };
+
+  if (prepMappings[prevWord]) {
+    return {
+      type: 'GERUND_PREP',
+      koreanForm: prepMappings[prevWord],
+      preposition: prevWord,
+    };
+  }
+
+  // 복합 전치사 처리: "instead of", "tired of", "look forward to" 등
+  if (prevWord === 'of') {
+    if (prevPrevWord === 'instead') {
+      return { type: 'GERUND_PREP', koreanForm: '-하는 대신', preposition: 'instead of' };
+    }
+    if (prevPrevWord === 'tired') {
+      return { type: 'GERUND_PREP', koreanForm: '-하는 것에 지쳐', preposition: 'tired of' };
+    }
+    if (prevPrevWord === 'afraid') {
+      return { type: 'GERUND_PREP', koreanForm: '-하는 것이 두려워', preposition: 'afraid of' };
+    }
+    if (prevPrevWord === 'capable') {
+      return { type: 'GERUND_PREP', koreanForm: '-할 수 있는', preposition: 'capable of' };
+    }
+  }
+
+  if (prevWord === 'to') {
+    // "look forward to Ving", "be used to Ving" 등
+    if (prevPrevWord === 'forward' || prevPrevWord === 'used' || prevPrevWord === 'accustomed') {
+      return {
+        type: 'GERUND_PREP',
+        koreanForm: '-하는 것에 익숙한',
+        preposition: `${prevPrevWord} to`,
+      };
+    }
+  }
+
+  // 3. 현재분사 체크: -ing + 명사 (수식)
+  // 예: "eating apple", "running water", "singing bird"
+  // 단, 명사가 아닌 경우는 제외
+  const commonNouns = [
+    'man',
+    'woman',
+    'person',
+    'people',
+    'child',
+    'children',
+    'student',
+    'teacher',
+    'dog',
+    'cat',
+    'bird',
+    'car',
+    'bus',
+    'train',
+    'water',
+    'food',
+    'apple',
+    'movie',
+    'book',
+    'room',
+    'house',
+    'tree',
+    'flower',
+    'song',
+    'music',
+    'game',
+    'ball',
+  ];
+  if (nextWord && commonNouns.includes(nextWord)) {
+    return { type: 'PARTICIPLE', koreanForm: '-는' };
+  }
+
+  // 4. 동명사 (주어/목적어 위치)
+  // 문장 시작 또는 동사 뒤
+  const mainVerbs = [
+    'like',
+    'love',
+    'hate',
+    'enjoy',
+    'finish',
+    'stop',
+    'start',
+    'begin',
+    'keep',
+    'continue',
+    'avoid',
+    'consider',
+    'suggest',
+    'recommend',
+    'mind',
+    'imagine',
+    'practice',
+    'deny',
+    'admit',
+    'appreciate',
+    'prefer',
+    'dislike',
+  ];
+
+  if (index === 0) {
+    // 문장 시작: 동명사 (주어)
+    return { type: 'GERUND_NOUN', koreanForm: '-기' };
+  }
+
+  if (mainVerbs.includes(prevWord)) {
+    // 동사 + -ing: 동명사 (목적어)
+    return { type: 'GERUND_NOUN', koreanForm: '-기' };
+  }
+
+  // 기본값: 문맥 불명확 시 동명사로 처리
+  return { type: 'GERUND_NOUN', koreanForm: '-기' };
+}
+
+/**
+ * -ing 단어의 어간(stem) 추출
+ *
+ * @param ingWord -ing로 끝나는 단어
+ * @returns 어간 (예: "eating" → "eat")
+ */
+export function extractIngStem(ingWord: string): string {
+  const word = ingWord.toLowerCase();
+
+  if (!word.endsWith('ing')) {
+    return word;
+  }
+
+  const base = word.slice(0, -3);
+
+  // 1. 자음 중복 제거: "running" → "run", "swimming" → "swim"
+  // 단, "ing" 제거 후 끝이 자음 중복이고 원래 동사가 1음절인 경우
+  const doubleConsonantPattern = /([bcdfghjklmnpqrstvwxyz])\1$/;
+  if (doubleConsonantPattern.test(base)) {
+    const singleBase = base.slice(0, -1);
+    // 짧은 동사 확인 (run, swim, sit, etc.)
+    const shortVerbs = [
+      'run',
+      'swim',
+      'sit',
+      'stop',
+      'shop',
+      'hit',
+      'cut',
+      'put',
+      'get',
+      'set',
+      'let',
+      'bet',
+      'win',
+      'begin',
+      'plan',
+      'drop',
+      'skip',
+      'slip',
+      'trip',
+      'wrap',
+    ];
+    if (shortVerbs.includes(singleBase)) {
+      return singleBase;
+    }
+  }
+
+  // 2. -e 복원: "making" → "make", "coming" → "come"
+  // 단, "being", "seeing" 등은 제외
+  const eVerbStems = [
+    'mak',
+    'tak',
+    'com',
+    'giv',
+    'hav',
+    'liv',
+    'lov',
+    'mov',
+    'sav',
+    'writ',
+    'driv',
+    'rid',
+    'hid',
+    'bit',
+    'chos',
+    'wok',
+    'bak',
+    'smok',
+    'hop',
+    'danc',
+    'chang',
+    'manag',
+    'arrang',
+    'imagin',
+    'continu',
+    'decid',
+    'provid',
+    'receiv',
+    'believ',
+    'achiev',
+  ];
+  if (eVerbStems.includes(base)) {
+    return `${base}e`;
+  }
+
+  // 3. -ie → -y: "lying" → "lie" (이미 처리됨 위에서 -ying 체크 필요)
+  if (word.endsWith('ying')) {
+    const yBase = word.slice(0, -4);
+    const ieVerbs = ['l', 'd', 't']; // lie, die, tie
+    if (ieVerbs.includes(yBase)) {
+      return `${yBase}ie`;
+    }
+  }
+
+  // 기본: 그대로 반환
+  return base;
+}
+
+// ============================================
 // 보조용언 패턴 (Phase 0: 긴급 수정)
 // "-고 있다", "-고 싶다" 등을 우선 인식하여
 // "하고"→"하구" 오매칭 방지
@@ -1472,6 +1742,18 @@ function detectKoreanRelativeClause(text: string): KoreanRelativeClauseMatch | n
     const subject = match![1].trim();
     const verbPart = match![2].trim();
     const noun = match![3].trim();
+
+    // 필터링: 동사 종결어미(다/요/어)로 끝나는 문장은 관계절이 아닌 일반 문장
+    // 예: "그가 책을 읽는다" → 일반 SVO 문장 (관계절 아님)
+    if (/[다요어]$/.test(noun)) {
+      return null;
+    }
+
+    // 필터링: 목적격 조사(을/를)로 끝나는 단어는 관형형 동사가 아님
+    // 예: "책을"은 목적어이지 관형형이 아님
+    if (/[을를]$/.test(verbPart)) {
+      return null;
+    }
 
     const verbInfo = extractVerbStemAndTense(verbPart);
 

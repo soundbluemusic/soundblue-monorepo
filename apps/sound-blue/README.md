@@ -17,9 +17,9 @@
 **SEO 호환 렌더링 (SSG/SSR)** - SPA 금지, 서버에서 HTML 생성
 (**SEO 호환 렌더링 (SSG/SSR)** - SPA 금지)
 
-- **React Router v7 SSG mode** - All pages pre-rendered at build time
-  (React Router v7 SSG 모드 - 빌드 시 모든 페이지 사전 렌더링)
-- Deployed as static files to Cloudflare Pages (Cloudflare Pages에 정적 파일로 배포)
+- **TanStack Start SSR mode** - Server-side rendering on Cloudflare Workers
+  (TanStack Start SSR 모드 - Cloudflare Workers에서 서버 렌더링)
+- Deployed to Cloudflare Workers (Cloudflare Workers에 배포)
 - Client-side routing after initial load (초기 로드 후 클라이언트 사이드 라우팅)
 - No API endpoints, no database (API 엔드포인트 없음, 데이터베이스 없음)
 
@@ -46,7 +46,7 @@ pnpm pages:deploy     # Deploy to Cloudflare Pages (Cloudflare Pages 배포)
 | Category | Technology |
 | (분류) | (기술) |
 |------|------|
-| Framework (프레임워크) | React 19.1 + React Router 7.6 + TypeScript 5.9 |
+| Framework (프레임워크) | React 19.1 + TanStack Start + TypeScript 5.9 |
 | Bundler (번들러) | Vite 6.3 |
 | Styling (스타일링) | Tailwind CSS 4.x |
 | Visual Effects (시각 효과) | Pure CSS Particles (lightweight, no JS) |
@@ -98,9 +98,8 @@ User: "라이선스 정보"
 
 ```
 sound-blue/
-├── app/                    # React Router source (소스 코드)
-│   ├── root.tsx            # Root app component (루트 앱 컴포넌트)
-│   ├── routes.ts           # Route definitions (라우트 정의)
+├── src/                    # TanStack Start source (소스 코드)
+│   ├── routes/__root.tsx   # Root layout (루트 레이아웃)
 │   ├── app.css             # Global styles (전역 스타일)
 │   ├── components/         # React components (React 컴포넌트)
 │   │   ├── ui/             # UI components (SearchBox, ThemeIcon)

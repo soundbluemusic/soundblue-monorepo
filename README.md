@@ -79,7 +79,7 @@ pnpm dev:dialogue  # Dialogue
 | Tech | Description | Docs |
 |------|-------------|------|
 | [**React 19**](https://react.dev/) | Fast reactive framework | [react.dev](https://react.dev/) |
-| [**React Router 7**](https://reactrouter.com/) | SSR mode routing | [reactrouter.com](https://reactrouter.com/) |
+| [**TanStack Start**](https://tanstack.com/start) | SSR framework | [tanstack.com/start](https://tanstack.com/start/latest/docs/framework/react/overview) |
 | [**TypeScript**](https://www.typescriptlang.org/) | Type-safe JavaScript | [typescriptlang.org](https://www.typescriptlang.org/docs/) |
 | [**Tailwind CSS v4**](https://tailwindcss.com/) | Utility-first styling | [tailwindcss.com](https://tailwindcss.com/docs/) |
 
@@ -295,23 +295,6 @@ soundblue-monorepo/
 | Data/Logic Separation | [ARCHITECTURE.md#datalogic-separation](docs/ARCHITECTURE.md#datalogic-separation-architecture-데이터로직-분리-아키텍처) |
 
 ---
-
-## ⚠️ Known Issues & Workarounds (알려진 이슈)
-
-### SSG Hydration Bug (React Router v7 + React 19)
-
-| Item | Description |
-|------|-------------|
-| **증상** | SSG 빌드 후 버튼 클릭이 작동하지 않음 |
-| **원인** | Hydration 실패 시 DOM 중복 발생 |
-| **해결** | `entry.client.tsx`에서 orphan DOM 제거 |
-| **위치** | `apps/*/app/entry.client.tsx` |
-
-**Related Issues:**
-- [react-router#12893](https://github.com/remix-run/react-router/issues/12893)
-- [react-router#12360](https://github.com/remix-run/react-router/issues/12360)
-
-> ⚠️ **DO NOT DELETE** the workaround in `entry.client.tsx`
 
 ---
 

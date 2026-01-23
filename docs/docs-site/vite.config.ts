@@ -1,17 +1,26 @@
-import path from 'node:path';
-import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import { defineConfig } from 'vite';
+import viteTsConfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
+  plugins: [
+    viteTsConfigPaths(),
+    tailwindcss(),
+    tanstackStart({
+      prerender: {
+        enabled: true,
+        crawlLinks: true,
+      },
+    }),
+  ],
   base: '/soundblue-monorepo/',
-  plugins: [tailwindcss(), reactRouter()],
-  resolve: {
-    alias: {
-      '~': path.resolve(__dirname, './app'),
-    },
-  },
   build: {
     target: 'esnext',
+  },
+  resolve: {
+    alias: {
+      '~': '/src',
+    },
   },
 });

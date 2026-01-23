@@ -82,14 +82,15 @@
     "react-dom": "^19.2.3"
   },
   "dependencies": {
-    "@radix-ui/react-dialog": "^1.1.4",
+    "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
-    "@radix-ui/react-tooltip": "^1.1.6",
-    "@soundblue/hangul": "workspace:*",
-    "@soundblue/translator": "workspace:*",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@soundblue/hangul": "workspace:^1.0.0",
+    "@soundblue/text-processor": "workspace:^1.0.0",
+    "@soundblue/translator": "workspace:^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.28.1",
+    "framer-motion": "^12.29.0",
     "lucide-react": "^0.562.0",
     "qrcode": "^1.5.4",
     "tailwind-merge": "^3.4.0",
@@ -97,10 +98,10 @@
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.6",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.18"
   }
 }

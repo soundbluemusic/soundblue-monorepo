@@ -22,17 +22,17 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@soundblue/locale": "workspace:*"
+    "@soundblue/locale": "workspace:^1.0.0"
   },
   "peerDependencies": {
-    "react": "^19.2.3",
-    "react-router": "^7.12.0"
+    "@tanstack/react-router": "^1.149.4",
+    "react": "^19.2.3"
   },
   "devDependencies": {
-    "@types/react": "^19.1.8",
+    "@tanstack/react-router": "^1.154.12",
+    "@types/react": "^19.2.9",
     "react": "^19.2.3",
-    "react-router": "^7.12.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.18"
   }
 }

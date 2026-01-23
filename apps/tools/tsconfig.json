@@ -1,5 +1,5 @@
 {
-  "include": ["**/*", ".react-router/types/**/*"],
+  "include": ["**/*"],
   "exclude": ["functions/**/*", "workers.ts"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
@@ -20,11 +20,10 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "rootDirs": [".", ".react-router/types"],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"],
-      "@/*": ["./app/*"]
+      "~/*": ["./src/*"],
+      "@/*": ["./src/*"]
     }
   }
 }

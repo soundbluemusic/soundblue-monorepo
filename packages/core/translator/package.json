@@ -24,8 +24,8 @@
     "@soundblue/hangul": "1.0.0"
   },
   "devDependencies": {
-    "@soundblue/hangul": "workspace:*",
+    "@soundblue/hangul": "workspace:^1.0.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.18"
   }
 }

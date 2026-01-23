@@ -269,10 +269,14 @@ const KO_CONNECTIVE_ENDINGS: Record<string, { en: string; type: ClauseType }> = 
   는동안: { en: 'while', type: 'adverbial' },
   면서: { en: 'while', type: 'adverbial' },
   으면서: { en: 'while', type: 'adverbial' },
-  다가: { en: 'while', type: 'adverbial' }, // 가다가 (while going)
+  며: { en: 'while', type: 'adverbial' }, // 먹으며 (while eating / and)
+  으며: { en: 'while', type: 'adverbial' }, // 살으며 (while living)
+  다가: { en: 'and then', type: 'adverbial' }, // 가다가 (while going → then)
   기전에: { en: 'before', type: 'adverbial' },
   ㄴ후에: { en: 'after', type: 'adverbial' },
   은후에: { en: 'after', type: 'adverbial' },
+  ㄴ뒤에: { en: 'after', type: 'adverbial' }, // 먹은 뒤에
+  은뒤에: { en: 'after', type: 'adverbial' },
 
   // 이유/순차 연결 (순서 중요: 긴 것부터)
   // -아서/-어서/-여서/-서 (and/and then)
@@ -286,14 +290,24 @@ const KO_CONNECTIVE_ENDINGS: Record<string, { en: string; type: ClauseType }> = 
   서: { en: 'and', type: 'adverbial' }, // 일어나서, 와서, 가서 (단일 음절 어미)
   니까: { en: 'because', type: 'adverbial' },
   으니까: { en: 'because', type: 'adverbial' },
+  니: { en: 'because', type: 'adverbial' }, // 가니 (because went)
+  으니: { en: 'because', type: 'adverbial' }, // 먹으니
   느라고: { en: 'because of', type: 'adverbial' }, // 공부하느라고
   느라: { en: 'because of', type: 'adverbial' },
   기때문에: { en: 'because', type: 'adverbial' },
+  // 결과/발견 (V + 더니)
+  더니: { en: 'and then', type: 'adverbial' }, // 먹더니 (ate and then)
+  았더니: { en: 'and then', type: 'adverbial' }, // 했더니 (did and as a result)
+  었더니: { en: 'and then', type: 'adverbial' }, // 먹었더니
 
   // 조건/양보
   면: { en: 'if', type: 'conditional' },
   으면: { en: 'if', type: 'conditional' },
   더라도: { en: 'even if', type: 'adverbial' },
+  아도: { en: 'even if', type: 'adverbial' }, // 가도 (even if go)
+  어도: { en: 'even if', type: 'adverbial' }, // 먹어도 (even if eat)
+  여도: { en: 'even if', type: 'adverbial' }, // 해도 → 하여도
+  해도: { en: 'even if', type: 'adverbial' }, // 해도 (even if do)
   지만: { en: 'but', type: 'adverbial' },
   았지만: { en: 'but', type: 'adverbial' }, // 했지만
   었지만: { en: 'but', type: 'adverbial' }, // 먹었지만
@@ -308,12 +322,16 @@ const KO_CONNECTIVE_ENDINGS: Record<string, { en: string; type: ClauseType }> = 
   러: { en: 'in order to', type: 'adverbial' }, // 보러 (to see)
   도록: { en: 'so that', type: 'adverbial' },
   게: { en: 'so that', type: 'adverbial' },
+  려: { en: 'to', type: 'adverbial' }, // 가려 (to go) - 축약형
 
   // 나열/순차 (순서 중요: 긴 것부터)
   았고: { en: 'and', type: 'main' }, // 했고 (did and)
   었고: { en: 'and', type: 'main' }, // 먹었고 (ate and)
+  였고: { en: 'and', type: 'main' }, // 했었고
   고: { en: 'and', type: 'main' },
   거나: { en: 'or', type: 'main' }, // 먹거나 (or eat)
+  든지: { en: 'or', type: 'main' }, // 가든지 (whether go or)
+  든: { en: 'or', type: 'main' }, // 가든 (whether)
 
   // 인용
   라고: { en: 'that (quote)', type: 'quotation' },
@@ -567,6 +585,14 @@ function splitKoreanByConnectors(text: string): Segment[] {
         // 종결어미인지 확인 (갑니까 = 격식 의문 종결어미, 가니까 = 연결어미)
         if (isFinalEndingNotConnective(token, ending)) {
           continue; // 종결어미면 연결어미로 처리하지 않음
+        }
+
+        // 의문문 끝의 -니/-으니는 연결어미가 아닌 의문형 종결어미
+        // 예: "읽니?" → "Do you read?" (의문), "가니 좋다" → "It's good because I go" (이유)
+        const isLastToken = i === tokens.length - 1;
+        const isQuestionSentence = /[?？]$/.test(text);
+        if (isLastToken && isQuestionSentence && (ending === '니' || ending === '으니')) {
+          continue; // 의문문 끝의 -니/-으니는 종결어미로 처리
         }
 
         // 연결어미 발견 - 어간 추출

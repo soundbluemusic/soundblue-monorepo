@@ -86,28 +86,16 @@ core/           ← 외부 import 금지
 - 웹 표준 API Only
 - 로컬 스토리지 Only (localStorage, IndexedDB)
 
-### 3. SSG Hydration Workaround
-위치: `apps/*/app/entry.client.tsx` - 삭제 금지!
-```typescript
-// React Router v7 SSG hydration 버그 workaround
-setTimeout(() => {
-  const divs = [...document.body.children].filter(el => el.tagName === 'DIV');
-  if (divs.length >= 2 && !Object.keys(divs[0]).some(k => k.startsWith('__react'))) {
-    divs[0].remove();
-  }
-}, 100);
-```
-
-### 4. Tools 앱 - ToolGuide 필수 (CRITICAL)
+### 3. Tools 앱 - ToolGuide 필수 (CRITICAL)
 ```
 ❌ 사용 안내 없는 도구 배포
 ✅ 모든 도구는 반드시 ToolGuide 컴포넌트 포함
 ```
-- 위치: `apps/tools/app/lib/toolGuides.ts`
+- 위치: `apps/tools/src/lib/toolGuides.ts`
 - 구조: 이 도구는 / 사용 방법 / 버튼 설명 (ko/en)
 - 상세: `.claude/rules/tools.md` 참조
 
-### 5. 다운그레이드 금지 (Forward Only)
+### 4. 다운그레이드 금지 (Forward Only)
 ```
 ❌ 패키지 버전 다운그레이드
 ❌ 기능 제거로 문제 회피
@@ -124,7 +112,7 @@ setTimeout(() => {
 - 공식 deprecation으로 인한 필수 변경
 - 라이선스 문제로 인한 법적 요구
 
-### 6. SEO 인증 파일/메타태그 삭제 금지 (Double Check)
+### 5. SEO 인증 파일/메타태그 삭제 금지 (Double Check)
 ```
 ❌ 중복이라는 이유로 인증 파일 삭제
 ❌ 중복이라는 이유로 메타태그 삭제
@@ -194,7 +182,7 @@ setTimeout(() => {
 |------|------------|-------------|
 | Cloudflare Pages/Workers | "Cloudflare Pages Workers {현재연도}" | 기능 통합, Git 연동, Preview URL |
 | Cloudflare D1 | "Cloudflare D1 pricing limits {현재연도}" | GA 전환, 가격, 제한 변경 |
-| React Router v7 | "React Router v7 changelog {현재연도}" | API 변경, 새 기능, SSG/SSR |
+| TanStack Start | "TanStack Start changelog {현재연도}" | API 변경, 새 기능, SSR |
 | Tailwind CSS v4 | "Tailwind CSS v4 breaking changes {현재연도}" | 문법 변경, 마이그레이션 |
 | TypeScript | "TypeScript 5 new features {현재연도}" | 새 버전 기능 |
 
@@ -213,8 +201,8 @@ setTimeout(() => {
 
 | Tech | Docs |
 |------|------|
-| Tailwind v4 | [tailwindcss.com](https://tailwindcss.com/docs/installation/framework-guides/react-router) |
-| React Router v7 | [reactrouter.com](https://reactrouter.com/start/framework/deploying) |
+| Tailwind v4 | [tailwindcss.com](https://tailwindcss.com/docs/installation/vite) |
+| TanStack Start | [tanstack.com](https://tanstack.com/start/latest/docs/framework/react/overview) |
 | TypeScript | [typescriptlang.org](https://www.typescriptlang.org/docs/) |
 
 **참조 우선순위**: 공식 문서 → GitHub Issues → Stack Overflow → 블로그

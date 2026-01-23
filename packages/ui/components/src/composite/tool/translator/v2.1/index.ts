@@ -2588,6 +2588,17 @@ export function translateWithInfo(
     translated: results.join(' '),
     original: text,
   };
+
+  // ============================================
+  // Phase 8: 문법 검사 후처리 (비활성화)
+  // TODO: 번역 엔진 품질 개선 후 활성화
+  // 현재는 번역 결과에 원본 언어 문자가 혼재되어 후처리가 오히려 품질 저하 유발
+  // ============================================
+  // 사용 가능한 함수:
+  // - checkEnglishGrammar(text): 영어 문법 검사 (주어-동사 수일치, 관사, 전치사)
+  // - applyCorrections(text, errors): 에러 목록 기반 텍스트 수정
+  // - correctSpacing(text): 한국어 띄어쓰기 교정
+  // - correctTypos(text): 한국어 오타 교정
 }
 
 // ============================================
