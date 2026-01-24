@@ -6,7 +6,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./app/test/setup.ts'],
-    include: ['app/**/*.{test,spec}.{ts,tsx}'],
+    include: ['app/**/*.{test,spec}.{ts,tsx}', 'src/**/*.{test,spec}.{ts,tsx}'],
     passWithNoTests: true,
     coverage: {
       provider: 'v8',
@@ -30,6 +30,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './app'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
 });
