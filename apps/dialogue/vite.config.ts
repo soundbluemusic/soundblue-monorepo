@@ -34,9 +34,26 @@ export default defineConfig({
     minify: 'esbuild',
     sourcemap: false,
     cssMinify: 'esbuild',
+    chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
         manualChunks: (id: string) => {
+          // ========================================
+          // 번역기 청크 분리 (큰 사전 파일 lazy loading)
+          // ========================================
+          if (id.includes('translator/dictionary/external/words')) {
+            return 'translator-external-dict';
+          }
+          if (id.includes('translator/v2.1')) {
+            return 'translator-engine';
+          }
+          if (id.includes('translator/dictionary')) {
+            return 'translator-dict';
+          }
+
+          // ========================================
+          // node_modules 벤더 청크
+          // ========================================
           if (!id.includes('node_modules')) return undefined;
           // React core stays in main bundle
           if (id.includes('react') || id.includes('react-dom') || id.includes('@tanstack'))
@@ -48,6 +65,10 @@ export default defineConfig({
           // State management
           if (id.includes('zustand')) {
             return 'state-vendor';
+          }
+          // Framer Motion - animation library
+          if (id.includes('framer-motion')) {
+            return 'motion-vendor';
           }
           return undefined;
         },
