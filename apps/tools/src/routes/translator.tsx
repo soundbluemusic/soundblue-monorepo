@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { getAllDictionary } from '~/server/dictionary';
 
 export const Route = createFileRoute('/translator')({
   head: () => ({
@@ -16,4 +17,14 @@ export const Route = createFileRoute('/translator')({
       },
     ],
   }),
+  // Prefetch D1 dictionary data on server
+  loader: async () => {
+    try {
+      const dictionary = await getAllDictionary();
+      return { dictionary };
+    } catch {
+      // Fallback: D1 not available, use bundled dictionary
+      return { dictionary: null };
+    }
+  },
 });
