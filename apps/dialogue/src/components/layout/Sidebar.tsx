@@ -222,6 +222,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
         <div className="p-2 border-t border-[var(--color-border-primary)]">
           <Link
             to={getLocalizedPath('/sitemap', locale)}
+            preload="intent"
             className={[
               'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
@@ -235,6 +236,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
           </Link>
           <Link
             to={getAboutUrl()}
+            preload="intent"
             className={[
               'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
@@ -248,6 +250,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
           </Link>
           <Link
             to={getLocalizedPath('/built-with', locale)}
+            preload="intent"
             className={[
               'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
@@ -261,6 +264,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
           </Link>
           <Link
             to={getLocalizedPath('/changelog', locale)}
+            preload="intent"
             className={[
               'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',

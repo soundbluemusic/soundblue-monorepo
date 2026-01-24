@@ -82,7 +82,7 @@ const ChatRoute = ChatRouteImport.update({
   id: '/chat',
   path: '/chat',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any).lazy(() => import('./routes/chat.lazy').then((d) => d.Route));
 const ChangelogRoute = ChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
@@ -157,7 +157,7 @@ const KoChatRoute = KoChatRouteImport.update({
   id: '/ko/chat',
   path: '/ko/chat',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any).lazy(() => import('./routes/ko/chat.lazy').then((d) => d.Route));
 const KoChangelogRoute = KoChangelogRouteImport.update({
   id: '/ko/changelog',
   path: '/ko/changelog',

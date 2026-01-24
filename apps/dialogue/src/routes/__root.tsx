@@ -53,9 +53,18 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootLayout,
+  pendingComponent: PendingFallback,
   errorComponent: ErrorBoundary,
   notFoundComponent: NotFound,
 });
+
+function PendingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin h-8 w-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full" />
+    </div>
+  );
+}
 
 function RootLayout() {
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';

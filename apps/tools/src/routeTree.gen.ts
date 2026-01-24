@@ -118,7 +118,7 @@ const BenchmarkRoute = BenchmarkRouteImport.update({
   id: '/benchmark',
   path: '/benchmark',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any).lazy(() => import('./routes/benchmark.lazy').then((d) => d.Route));
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -208,7 +208,7 @@ const KoBenchmarkRoute = KoBenchmarkRouteImport.update({
   id: '/ko/benchmark',
   path: '/ko/benchmark',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any).lazy(() => import('./routes/ko/benchmark.lazy').then((d) => d.Route));
 const KoAboutRoute = KoAboutRouteImport.update({
   id: '/ko/about',
   path: '/ko/about',

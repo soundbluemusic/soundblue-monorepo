@@ -633,6 +633,9 @@ importers:
 
   packages/core/hangul:
     devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.0.18
+        version: 4.0.18(vitest@4.0.18)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -660,6 +663,9 @@ importers:
 
   packages/core/text-processor:
     devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.0.18
+        version: 4.0.18(vitest@4.0.18)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -672,6 +678,9 @@ importers:
       '@soundblue/hangul':
         specifier: workspace:^1.0.0
         version: link:../hangul
+      '@vitest/coverage-v8':
+        specifier: ^4.0.18
+        version: 4.0.18(vitest@4.0.18)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -721,6 +730,9 @@ importers:
       '@types/react':
         specifier: ^19.2.9
         version: 19.2.9
+      '@vitest/coverage-v8':
+        specifier: ^4.0.18
+        version: 4.0.18(vitest@4.0.18)
       react:
         specifier: ^19.2.3
         version: 19.2.3
