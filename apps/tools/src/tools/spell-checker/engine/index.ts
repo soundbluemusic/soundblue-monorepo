@@ -102,15 +102,175 @@ function checkParticleAgreement(text: string): SpellError[] {
 }
 
 /**
+ * 띄어쓰기 차이점을 찾는 정밀 diff 알고리즘
+ *
+ * 원본과 수정본의 공백 위치를 비교하여 실제로 변경된 부분만 반환합니다.
+ * - 공백이 추가된 위치: 붙어있던 단어 사이에 공백 삽입
+ * - 공백이 제거된 위치: 떨어져있던 단어 사이의 공백 제거
+ */
+function findSpacingDifferences(
+  original: string,
+  corrected: string,
+): Array<{
+  start: number;
+  end: number;
+  originalText: string;
+  correctedText: string;
+  type: 'insert' | 'remove';
+}> {
+  const differences: Array<{
+    start: number;
+    end: number;
+    originalText: string;
+    correctedText: string;
+    type: 'insert' | 'remove';
+  }> = [];
+
+  // 공백을 제외한 문자만 추출하여 두 문자열이 같은지 확인
+  const originalChars = original.replace(/\s/g, '');
+  const correctedChars = corrected.replace(/\s/g, '');
+
+  // 공백 외 문자가 다르면 띄어쓰기 에러가 아님
+  if (originalChars !== correctedChars) {
+    return differences;
+  }
+
+  // 원본 문자열의 각 위치에서 공백 다음 문자까지의 정보 수집
+  let origIdx = 0;
+  let corrIdx = 0;
+
+  while (origIdx < original.length && corrIdx < corrected.length) {
+    const origChar = original[origIdx];
+    const corrChar = corrected[corrIdx];
+
+    // 둘 다 공백이 아닌 문자인 경우 - 동기화 포인트
+    if (origChar !== ' ' && corrChar !== ' ') {
+      origIdx++;
+      corrIdx++;
+      continue;
+    }
+
+    // 원본에 공백이 있고 수정본에 없음 - 공백 제거 필요
+    if (origChar === ' ' && corrChar !== ' ') {
+      // 연속된 공백 처리
+      let spaceEnd = origIdx;
+      while (spaceEnd < original.length && original[spaceEnd] === ' ') {
+        spaceEnd++;
+      }
+
+      // 공백 앞뒤 단어 찾기
+      let wordStart = origIdx - 1;
+      while (wordStart > 0 && original[wordStart - 1] !== ' ') {
+        wordStart--;
+      }
+      let wordEnd = spaceEnd;
+      while (wordEnd < original.length && original[wordEnd] !== ' ') {
+        wordEnd++;
+      }
+
+      const originalText = original.slice(wordStart, wordEnd);
+      const correctedText = originalText.replace(/\s+/g, '');
+
+      differences.push({
+        start: wordStart,
+        end: wordEnd,
+        originalText,
+        correctedText,
+        type: 'remove',
+      });
+
+      origIdx = spaceEnd;
+      continue;
+    }
+
+    // 원본에 공백이 없고 수정본에 있음 - 공백 삽입 필요
+    if (origChar !== ' ' && corrChar === ' ') {
+      // 수정본의 연속된 공백 건너뛰기
+      let spaceEnd = corrIdx;
+      while (spaceEnd < corrected.length && corrected[spaceEnd] === ' ') {
+        spaceEnd++;
+      }
+
+      // 원본에서 공백이 삽입되어야 할 위치 앞뒤 단어 찾기
+      let wordStart = origIdx - 1;
+      while (wordStart > 0 && original[wordStart - 1] !== ' ') {
+        wordStart--;
+      }
+      let wordEnd = origIdx;
+      while (wordEnd < original.length && original[wordEnd] !== ' ') {
+        wordEnd++;
+      }
+
+      const originalText = original.slice(wordStart, wordEnd);
+      // 수정본에서 해당 부분 찾기
+      const corrWordStart = corrIdx - (origIdx - wordStart);
+      const correctedText = corrected.slice(corrWordStart, corrWordStart + originalText.length + 1);
+
+      differences.push({
+        start: wordStart,
+        end: wordEnd,
+        originalText,
+        correctedText:
+          correctedText.trim() !== originalText
+            ? correctedText
+            : originalText.slice(0, origIdx - wordStart) +
+              ' ' +
+              originalText.slice(origIdx - wordStart),
+        type: 'insert',
+      });
+
+      corrIdx = spaceEnd;
+      continue;
+    }
+
+    // 둘 다 공백
+    origIdx++;
+    corrIdx++;
+  }
+
+  // 중복 제거 및 정렬
+  const uniqueDiffs = differences.filter(
+    (diff, index, self) =>
+      index === self.findIndex((d) => d.start === diff.start && d.end === diff.end),
+  );
+
+  return uniqueDiffs.sort((a, b) => a.start - b.start);
+}
+
+/**
  * 띄어쓰기 에러를 SpellError 형식으로 변환
+ *
+ * 정밀 diff 알고리즘을 사용하여 실제로 띄어쓰기가 변경된 위치만 에러로 표시합니다.
  */
 function convertSpacingErrors(original: string, corrected: string): SpellError[] {
   const errors: SpellError[] = [];
 
   if (original === corrected) return errors;
 
-  // 간단한 diff: 전체를 하나의 에러로 처리
-  // TODO: 더 정밀한 diff 알고리즘 적용
+  const differences = findSpacingDifferences(original, corrected);
+
+  // 정밀 diff 결과가 있으면 개별 에러로 반환
+  if (differences.length > 0) {
+    for (const diff of differences) {
+      const message =
+        diff.type === 'insert'
+          ? `'${diff.originalText}'에 띄어쓰기가 필요합니다`
+          : `'${diff.originalText}'의 띄어쓰기를 제거해야 합니다`;
+
+      errors.push({
+        type: 'spacing',
+        start: diff.start,
+        end: diff.end,
+        original: diff.originalText,
+        suggestions: [diff.correctedText],
+        message,
+        confidence: 0.9,
+      });
+    }
+    return errors;
+  }
+
+  // 정밀 diff가 작동하지 않는 경우 전체 에러로 폴백
   errors.push({
     type: 'spacing',
     start: 0,
