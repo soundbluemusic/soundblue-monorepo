@@ -5,6 +5,9 @@ compatibility_flags = ["nodejs_compat"]
 
 [assets]
 directory = "dist/client"
+# 정적 자산(sitemap.xml 등)을 Worker보다 먼저 서빙
+# TanStack Start SSR에서 정적 파일이 404되는 문제 해결
+run_worker_first = false
 
 # D1 Databases
 # Context DB: 순수 어휘 데이터 (entries, conversations)
