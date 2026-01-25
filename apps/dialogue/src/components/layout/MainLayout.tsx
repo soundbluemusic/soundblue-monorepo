@@ -159,7 +159,7 @@ export function MainLayout() {
   }, [isMobile]);
 
   return (
-    <div className="flex flex-col h-screen bg-[var(--color-bg-primary)]">
+    <div className="flex flex-col min-h-screen bg-[var(--color-bg-primary)]">
       {/* Skip Link for Accessibility */}
       <a
         href="#main-content"
@@ -171,8 +171,8 @@ export function MainLayout() {
       {/* Header */}
       <Header />
 
-      {/* Main Content */}
-      <main id="main-content" className="flex flex-1 overflow-hidden">
+      {/* Main Content - min-h ensures footer is below fold */}
+      <main id="main-content" className="flex flex-1 min-h-[calc(100vh-3.5rem)] overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
           <button
