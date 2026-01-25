@@ -22,7 +22,7 @@ interface DictionaryResponse {
   count: { koToEn: number; enToKo: number };
 }
 
-interface AllDictionaryResponse {
+export interface AllDictionaryResponse {
   words: DictionaryResponse;
   sentences: DictionaryResponse;
 }

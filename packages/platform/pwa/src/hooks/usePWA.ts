@@ -126,7 +126,7 @@ export function usePWA(): UsePWAResult {
     });
 
     return () => {
-      navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+      navigator.serviceWorker?.removeEventListener('controllerchange', handleControllerChange);
     };
   }, []);
 
