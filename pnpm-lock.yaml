@@ -188,7 +188,7 @@ importers:
         version: 27.4.0
       rollup-plugin-visualizer:
         specifier: ^6.0.5
-        version: 6.0.5(rolldown@1.0.0-rc.1)(rollup@2.79.2)
+        version: 6.0.5(rolldown@1.0.0-rc.1)(rollup@4.56.0)
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
@@ -264,9 +264,6 @@ importers:
       isbot:
         specifier: ^5.1.33
         version: 5.1.33
-      lucide-react:
-        specifier: ^0.511.0
-        version: 0.511.0(react@19.2.3)
       react:
         specifier: ^19.2.3
         version: 19.2.3
@@ -331,9 +328,12 @@ importers:
       jsdom:
         specifier: ^27.4.0
         version: 27.4.0
+      lucide-react:
+        specifier: ^0.511.0
+        version: 0.511.0(react@19.2.3)
       rollup-plugin-visualizer:
         specifier: ^6.0.5
-        version: 6.0.5(rolldown@1.0.0-rc.1)(rollup@4.56.0)
+        version: 6.0.5(rolldown@1.0.0-rc.1)(rollup@2.79.2)
       sharp:
         specifier: ^0.34.5
         version: 0.34.5

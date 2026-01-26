@@ -66,13 +66,13 @@ body {
   line-height: 1.75;
 }
 
-.prose a {
+.prose a:not(.no-underline) {
   color: var(--color-brand);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.prose a:hover {
+.prose a:not(.no-underline):hover {
   color: var(--color-brand-dark);
 }
 

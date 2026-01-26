@@ -10,14 +10,16 @@ import { useToolStore } from '~/stores/tool-store';
 export const Route = createFileRoute('/about')({
   head: () => ({
     meta: [
-      { title: 'About | Tools' },
+      { title: 'About | Tools - SoundBlue' },
       {
         name: 'description',
-        content: 'We believe powerful tools should be accessible to everyone.',
+        content:
+          'Interactive tools for creators by SoundBlue. Rhythm tools for musicians, writing tools for authors, and color tools for visual artists.',
       },
       {
         name: 'keywords',
-        content: 'about, soundblue tools, mission, free tools, music tools',
+        content:
+          'soundblue tools, music tools, creative tools, musician tools, artist tools, metronome, drum machine, translator, color palette',
       },
     ],
   }),
@@ -48,22 +50,55 @@ function AboutPage() {
 
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-4">
-                {m['about_missionTitle']?.() || 'Our Mission'}
+                {m['about_missionTitle']?.() || 'Who We Are'}
               </h2>
               <p className="text-[var(--color-text-secondary)] leading-relaxed">
                 {m['about_missionText']?.() ||
-                  'We believe powerful tools should be accessible to everyone. Our goal is to provide professional-grade music and creative tools that are free, easy to use, and work right in your browser.'}
+                  'Tools is a collection of interactive tools created by SoundBlue, an indie musician and creator. We build tools that help with music, art, and creative work — everything a creator might need, all in one place.'}
               </p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-4">
-                {m['about_introTitle']?.() || 'What We Offer'}
+                {m['about_introTitle']?.() || 'Tools for Creators'}
               </h2>
-              <p className="text-[var(--color-text-secondary)] leading-relaxed">
+              <p className="text-[var(--color-text-secondary)] leading-relaxed mb-6">
                 {m['about_introText']?.() ||
-                  'From metronomes to drum machines, QR generators to translators - all our tools are designed with musicians and creators in mind. No sign-up required, no ads, completely free.'}
+                  'Every tool here serves a purpose for creators. No sign-up required, no ads, completely free.'}
               </p>
+
+              <div className="space-y-6">
+                <div className="border-l-4 border-[var(--color-accent)] pl-4">
+                  <h3 className="font-semibold mb-2">🎵 Rhythm — For Musicians</h3>
+                  <p className="text-[var(--color-text-secondary)] text-sm">
+                    Metronome for precise tempo practice, Drum Machine for rhythm experimentation,
+                    Tap Tempo to detect BPM, and Delay Calculator for mixing.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-[var(--color-accent)] pl-4">
+                  <h3 className="font-semibold mb-2">✍️ Language — For Authors & Lyricists</h3>
+                  <p className="text-[var(--color-text-secondary)] text-sm">
+                    Translator for vocabulary building and lyrics translation, Spell Checkers to
+                    improve writing quality in Korean and English.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-[var(--color-accent)] pl-4">
+                  <h3 className="font-semibold mb-2">🎨 Visual — For Visual Artists</h3>
+                  <p className="text-[var(--color-text-secondary)] text-sm">
+                    Color Harmony to learn and apply color theory, Color Palette to create schemes
+                    for your artwork, Color Decomposer to improve color analysis skills.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-[var(--color-accent)] pl-4">
+                  <h3 className="font-semibold mb-2">🔧 Utility — For All Creators</h3>
+                  <p className="text-[var(--color-text-secondary)] text-sm">
+                    QR Generator to easily share your work and portfolio with anyone.
+                  </p>
+                </div>
+              </div>
             </section>
           </div>
 
