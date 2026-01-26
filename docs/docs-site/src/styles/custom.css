@@ -29,3 +29,23 @@
 .sl-markdown-content a:hover {
   color: var(--sl-color-accent-high);
 }
+
+/* Header text visibility fix */
+header .sl-flex {
+  color: var(--sl-color-gray-5);
+}
+
+:root[data-theme='dark'] header .sl-flex {
+  color: var(--sl-color-gray-2);
+}
+
+/* Theme/Language selector text */
+starlight-theme-select label,
+starlight-lang-select label {
+  color: var(--sl-color-gray-5);
+}
+
+:root[data-theme='dark'] starlight-theme-select label,
+:root[data-theme='dark'] starlight-lang-select label {
+  color: var(--sl-color-gray-2);
+}
