@@ -15,10 +15,25 @@ pnpm typecheck || exit 1
 echo "🧹 Linting..."
 pnpm check || exit 1
 
-# 3. Build all apps (skip with SKIP_BUILD=1)
+# 3. Auto-stage routeTree.gen.ts files if modified
+# TanStack Router가 자동 생성하는 파일들 - 빌드 시 변경될 수 있음
+ROUTE_FILES=$(git diff --name-only | grep 'routeTree.gen.ts$' || true)
+if [ -n "$ROUTE_FILES" ]; then
+  echo "📦 Auto-staging routeTree.gen.ts files..."
+  echo "$ROUTE_FILES" | xargs git add
+fi
+
+# 4. Build all apps (skip with SKIP_BUILD=1)
 if [ "$SKIP_BUILD" != "1" ]; then
   echo "🏗️ Building..."
   pnpm build || exit 1
+
+  # 5. Re-stage routeTree.gen.ts after build (may have changed)
+  ROUTE_FILES_POST=$(git diff --name-only | grep 'routeTree.gen.ts$' || true)
+  if [ -n "$ROUTE_FILES_POST" ]; then
+    echo "📦 Auto-staging routeTree.gen.ts files (post-build)..."
+    echo "$ROUTE_FILES_POST" | xargs git add
+  fi
 fi
 
 echo "✅ All checks passed!"
