@@ -54,6 +54,3 @@ bench.json
 uiux-studio/
 .vinxi
 .wrangler/
-
-# Auto-generated route trees
-**/routeTree.gen.ts
