@@ -22,7 +22,7 @@ binding = "ALGORITHMS_DB"
 database_name = "algorithms"
 database_id = "149373cb-fff3-4c48-a5fc-6293c2883d48"
 
-# Private DB: 비공개 사용자 데이터
+# Private DB: 저작권 자료 (공개 레포에 넣을 수 없는 콘텐츠)
 [[d1_databases]]
 binding = "PRIVATE_DB"
 database_name = "private"
