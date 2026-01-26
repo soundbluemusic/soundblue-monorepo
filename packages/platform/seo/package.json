@@ -2,6 +2,7 @@
   "name": "@soundblue/seo",
   "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "description": "SEO utilities - meta tags, Open Graph, JSON-LD",
   "exports": {

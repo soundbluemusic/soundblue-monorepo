@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Pro-grade Web DAW, Rhythm Game & Creative Tools",
   "author": "Sound Blue Music",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "homepage": "https://tools.soundbluemusic.com",
   "repository": {
     "type": "git",

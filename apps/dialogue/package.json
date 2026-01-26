@@ -2,7 +2,7 @@
   "name": "dialogue",
   "version": "0.1.0",
   "description": "A conversational learning tool that works 100% offline",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

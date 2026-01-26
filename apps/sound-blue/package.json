@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Sound Blue - Music Artist & Producer",
   "author": "SoundBlueMusic",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "homepage": "https://soundbluemusic.com",
   "repository": {
     "type": "git",

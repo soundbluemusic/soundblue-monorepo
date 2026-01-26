@@ -2,6 +2,7 @@
   "name": "@soundblue/pwa",
   "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "description": "PWA utilities - config presets, hooks, and SW registration",
   "exports": {

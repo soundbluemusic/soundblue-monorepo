@@ -2,6 +2,7 @@
   "name": "@soundblue/ui-components",
   "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "description": "Unified UI components library (base, composite, icons)",
   "exports": {

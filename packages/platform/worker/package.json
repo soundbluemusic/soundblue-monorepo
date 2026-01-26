@@ -2,6 +2,7 @@
   "name": "@soundblue/worker",
   "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "description": "Web Worker utilities with dual implementation for SSG safety",
   "exports": {

@@ -2,6 +2,7 @@
   "name": "@soundblue/i18n",
   "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "description": "Internationalization utilities - locale context and hooks (platform layer)",
   "exports": {
