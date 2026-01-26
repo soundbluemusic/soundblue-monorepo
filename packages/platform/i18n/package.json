@@ -23,7 +23,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@soundblue/locale": "workspace:^1.0.0"
+    "@soundblue/locale": "workspace:*"
   },
   "peerDependencies": {
     "@tanstack/react-router": "^1.157.2",

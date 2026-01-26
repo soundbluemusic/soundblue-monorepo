@@ -187,7 +187,7 @@ describe('similarity - 유사도 계산', () => {
 
     it('매우 긴 문자열', () => {
       const longStr1 = '가나다라마바사아자차카타파하'.repeat(10);
-      const longStr2 = '가나다라마바사아자차카타파하'.repeat(10) + '!';
+      const longStr2 = `${'가나다라마바사아자차카타파하'.repeat(10)}!`;
       const result = similarity(longStr1, longStr2);
       expect(result).toBeGreaterThan(0.9);
     });

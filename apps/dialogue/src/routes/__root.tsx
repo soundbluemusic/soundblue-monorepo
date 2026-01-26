@@ -105,7 +105,7 @@ function RootLayout() {
                     document.documentElement.classList.add('dark');
                     document.documentElement.style.colorScheme = 'dark';
                   }
-                } catch (e) {}
+                } catch (e) { /* localStorage unavailable in SSR */ }
               })();
             `,
           }}
