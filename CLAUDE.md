@@ -2,6 +2,17 @@
 
 프로젝트 개요: @README.md | 아키텍처: @docs/ARCHITECTURE.md
 
+## Quick Start
+
+```bash
+pnpm install           # 의존성 설치
+pnpm dev:main          # Sound Blue 실행
+pnpm dev:tools         # Tools 실행
+pnpm dev:dialogue      # Dialogue 실행
+pnpm build             # 전체 빌드
+pnpm test              # 테스트 실행
+```
+
 ## 토큰 절약
 
 ### 기본 규칙
@@ -34,6 +45,36 @@
 
 ---
 
+## Tech Stack (현재 버전)
+
+### Frontend
+| Tech | Version | Notes |
+|------|---------|-------|
+| React | 19.2.3 | Latest |
+| TypeScript | 5.9.3 | Strict mode |
+| TanStack Start | 1.157.2 | SSR framework |
+| Tailwind CSS | 4.1.18 | v4 stable |
+| Vite | 8.0.0-beta.10 | **Rolldown bundler** |
+
+### Build & Quality
+| Tech | Version | Purpose |
+|------|---------|---------|
+| pnpm | 10.26.0 | Package manager |
+| Turbo | 2.7.5 | Monorepo orchestration |
+| Biome | 2.3.11 | Linting/formatting |
+| Vitest | 4.0.18 | Unit testing |
+| Playwright | 1.57.0 | E2E testing |
+
+### Key Dependencies
+| Package | Version | Purpose |
+|---------|---------|---------|
+| Zustand | 5.0.10 | State management |
+| Dexie | 4.2.1 | IndexedDB wrapper |
+| Tone.js | 15.1.22 | Audio synthesis |
+| Framer Motion | 12.29.0 | Animations |
+
+---
+
 ## Package Architecture
 
 ```
@@ -45,7 +86,7 @@ core/           ← 외부 import 금지
 
 | Layer | Packages | Rules |
 |-------|----------|-------|
-| `core/` | hangul, translator, nlu, audio-engine, locale | 브라우저 API 금지 |
+| `core/` | hangul, translator, nlu, audio-engine, locale, **text-processor** | 브라우저 API 금지 |
 | `platform/` | web-audio, storage, worker, i18n, seo, pwa | 이중 구현 (.browser.ts + .noop.ts) |
 | `ui/` | components (base, composite, icons) | React 컴포넌트 |
 
@@ -54,6 +95,30 @@ core/           ← 외부 import 금지
 // package.json exports
 { "browser": "./src/index.browser.ts", "default": "./src/index.noop.ts" }
 ```
+
+---
+
+## Apps
+
+### Sound Blue (soundbluemusic.com)
+- **Version**: 3.0.18-베타
+- **Features**: Music/Albums, Blog, AI Chat
+- **Rendering**: SSR (Cloudflare Workers)
+
+### Tools (tools.soundbluemusic.com)
+- **Version**: 2.0.0-alpha
+- **Available Tools** (11개):
+  | Category | Tools |
+  |----------|-------|
+  | Audio | Metronome, Drum Machine, Tap Tempo, Delay Calculator |
+  | Text | Translator (Ko↔En), Spell Checker, English Spell Checker |
+  | Visual | QR Generator, Color Harmony, Color Palette, Color Decomposer |
+- **Rendering**: SSR (Cloudflare Workers)
+
+### Dialogue (dialogue.soundbluemusic.com)
+- **Version**: 0.1.0
+- **Features**: Offline Q&A, Bilingual (EN/KO)
+- **Rendering**: SSR (Cloudflare Workers)
 
 ---
 
@@ -91,7 +156,7 @@ core/           ← 외부 import 금지
 ❌ 사용 안내 없는 도구 배포
 ✅ 모든 도구는 반드시 ToolGuide 컴포넌트 포함
 ```
-- 위치: `apps/tools/src/lib/toolGuides.ts`
+- 위치: `apps/tools/app/lib/toolGuides.ts`
 - 구조: 이 도구는 / 사용 방법 / 버튼 설명 (ko/en)
 - 상세: `.claude/rules/tools.md` 참조
 
@@ -125,6 +190,25 @@ core/           ← 외부 import 금지
 - Google Search Console 인증 (`google*.html`, 메타태그)
 - Bing Webmaster 인증 (`BingSiteAuth.xml`, 메타태그)
 - 기타 검색엔진/서비스 인증 파일
+
+---
+
+## Build & Scripts
+
+### 주요 명령어
+| Command | Description |
+|---------|-------------|
+| `pnpm prebuild:all` | 사전 동기화 + 타입 생성 (빌드 전 필수) |
+| `pnpm build` | 전체 빌드 (출력: `dist/`) |
+| `pnpm test` | Vitest 테스트 실행 |
+| `pnpm check:fix` | Biome 린트/포맷 자동 수정 |
+| `pnpm check:circular` | 순환 의존성 검사 |
+| `pnpm sync:context-dict` | Context 앱에서 사전 동기화 |
+
+### Build Output
+```
+apps/*/dist/client/    ← 빌드 결과물 (Vite 8 기준)
+```
 
 ---
 
@@ -185,6 +269,7 @@ core/           ← 외부 import 금지
 | TanStack Start | "TanStack Start changelog {현재연도}" | API 변경, 새 기능, SSR |
 | Tailwind CSS v4 | "Tailwind CSS v4 breaking changes {현재연도}" | 문법 변경, 마이그레이션 |
 | TypeScript | "TypeScript 5 new features {현재연도}" | 새 버전 기능 |
+| **Vite 8 / Rolldown** | "Vite 8 Rolldown {현재연도}" | Beta → Stable 전환 |
 
 **규칙**:
 1. 위 주제 관련 질문 시 → **WebSearch로 현재 연도 포함 검색**
@@ -204,5 +289,25 @@ core/           ← 외부 import 금지
 | Tailwind v4 | [tailwindcss.com](https://tailwindcss.com/docs/installation/vite) |
 | TanStack Start | [tanstack.com](https://tanstack.com/start/latest/docs/framework/react/overview) |
 | TypeScript | [typescriptlang.org](https://www.typescriptlang.org/docs/) |
+| Vite | [vite.dev](https://vite.dev/guide/) |
 
 **참조 우선순위**: 공식 문서 → GitHub Issues → Stack Overflow → 블로그
+
+---
+
+## 최근 주요 변경사항
+
+### Vite 8 Migration (Rolldown)
+- Vite 6.3 → 8.0.0-beta.10 업그레이드
+- OXC 플러그인 통합 (빠른 트랜스파일링)
+- 빌드 출력 경로: `build/` → `dist/`
+
+### Test Infrastructure
+- 패키지/앱 전반에 포괄적 테스트 스위트 추가
+- Spell checker: 125+ 테스트 케이스
+- Dialogue: Fuzzy QA matcher 테스트
+
+### Code Splitting
+- `.lazy.tsx` 패턴으로 라우트 기반 코드 분할
+- Sound Blue: `/chat.lazy.tsx`
+- Tools: TranslatorLayout 최적화
