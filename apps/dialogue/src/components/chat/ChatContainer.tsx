@@ -167,6 +167,8 @@ export function ChatContainer() {
     createConversation,
     addMessage,
     clearActive,
+    findEmptyConversation,
+    loadConversation,
   } = useChatStore();
 
   const { setResultContent } = useUIStore();
@@ -189,15 +191,22 @@ export function ChatContainer() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    // If no active conversation and not ghost mode, create one
+    // If no active conversation and not ghost mode
     if (!activeConversationId && !ghostMode) {
-      const welcomeMessage: Message = {
-        id: generateId(),
-        role: 'assistant',
-        content: m['app.welcome'](),
-        timestamp: Date.now(),
-      };
-      createConversation(welcomeMessage);
+      // Reuse existing empty conversation if available
+      const existingEmpty = findEmptyConversation();
+      if (existingEmpty) {
+        loadConversation(existingEmpty.id);
+      } else {
+        // Create new conversation only if no empty one exists
+        const welcomeMessage: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: m['app.welcome'](),
+          timestamp: Date.now(),
+        };
+        createConversation(welcomeMessage);
+      }
     }
 
     // If ghost mode, initialize with welcome message
@@ -211,7 +220,15 @@ export function ChatContainer() {
         },
       ]);
     }
-  }, [isHydrated, activeConversationId, ghostMode, createConversation, localMessages.length]);
+  }, [
+    isHydrated,
+    activeConversationId,
+    ghostMode,
+    createConversation,
+    localMessages.length,
+    findEmptyConversation,
+    loadConversation,
+  ]);
 
   // Scroll to bottom when messages change
   useEffect(() => {

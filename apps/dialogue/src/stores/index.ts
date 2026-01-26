@@ -3,6 +3,7 @@ export {
   createWelcomeMessage,
   type DeletedConversation,
   generateId,
+  isEmptyConversation,
   type Message,
   useChatStore,
 } from './chat-store';

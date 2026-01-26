@@ -46,6 +46,7 @@ interface ChatActions {
   clearActive: () => void;
   getActiveConversation: () => Conversation | undefined;
   renameConversation: (id: string, newTitle: string) => void;
+  findEmptyConversation: () => Conversation | undefined;
 }
 
 // Generate cryptographically secure unique ID
@@ -76,6 +77,13 @@ export function createWelcomeMessage(content: string): Message {
 }
 
 const TRASH_EXPIRY_DAYS = 30;
+
+/**
+ * Check if a conversation is empty (only welcome message, no user messages)
+ */
+export function isEmptyConversation(conv: Conversation): boolean {
+  return conv.messages.length <= 1 && conv.messages.every((m) => m.role === 'assistant');
+}
 
 export const useChatStore = create<ChatState & ChatActions>()(
   persist(
@@ -231,12 +239,17 @@ export const useChatStore = create<ChatState & ChatActions>()(
           ),
         }));
       },
+
+      findEmptyConversation: () => {
+        return get().conversations.find(isEmptyConversation);
+      },
     }),
     {
       name: 'dialogue-chat-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        conversations: state.conversations,
+        // Only persist conversations with user messages (not empty)
+        conversations: state.conversations.filter((c) => !isEmptyConversation(c)),
         deletedConversations: state.deletedConversations,
         ghostMode: state.ghostMode,
       }),
