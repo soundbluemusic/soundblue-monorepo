@@ -7,6 +7,7 @@ dist/
 build/
 *.tsbuildinfo
 .turbo/
+.astro/
 
 # Generated service workers (PWA build output)
 **/public/sw.js

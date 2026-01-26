@@ -1,0 +1,31 @@
+/* SoundBlue Theme Customization */
+
+:root {
+  --sl-color-accent-low: #f8e0db;
+  --sl-color-accent: #c9553d;
+  --sl-color-accent-high: #a84432;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #eceef2;
+  --sl-color-gray-2: #c1c5d0;
+  --sl-color-gray-3: #8b8fa5;
+  --sl-color-gray-4: #545969;
+  --sl-color-gray-5: #353841;
+  --sl-color-gray-6: #24272f;
+  --sl-color-black: #17181c;
+}
+
+:root[data-theme='dark'] {
+  --sl-color-accent-low: #3a1f1a;
+  --sl-color-accent: #e06b52;
+  --sl-color-accent-high: #f8a090;
+}
+
+/* Custom link styling */
+.sl-markdown-content a {
+  text-decoration-color: var(--sl-color-accent);
+  text-underline-offset: 0.2em;
+}
+
+.sl-markdown-content a:hover {
+  color: var(--sl-color-accent-high);
+}

@@ -33,12 +33,10 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        working-directory: docs/docs-site
+        run: pnpm install
 
-      - name: Build UI components (dependency)
-        run: pnpm --filter @soundblue/ui-components build
-
-      - name: Build docs
+      - name: Build docs (Astro Starlight)
         working-directory: docs/docs-site
         run: pnpm build
 
@@ -48,7 +46,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/docs-site/dist/client
+          path: docs/docs-site/dist
 
   deploy:
     environment:

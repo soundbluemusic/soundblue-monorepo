@@ -1,9 +1,0 @@
-{
-  "$schema": "https://tanstack.com/router/latest/schemas/tsr.config.schema.json",
-  "appDirectory": "src",
-  "rootDirectory": ".",
-  "routesDirectory": "./src/routes",
-  "generatedRouteTree": "./src/routeTree.gen.ts",
-  "routeFileIgnorePattern": ".test.",
-  "autoCodeSplitting": true
-}
