@@ -425,8 +425,8 @@ export const grammarRulesTests: TestLevel[] = [
         tests: [
           { id: 'g7-1', input: '그만큼 크다', expected: 'as big as', direction: 'ko-en' },
           { id: 'g7-2', input: '그만큼 크지 않다', expected: 'not as big as', direction: 'ko-en' },
-          { id: 'g7-3', input: '더 크다', expected: 'bigger/more', direction: 'ko-en' },
-          { id: 'g7-4', input: '가장 크다', expected: 'the biggest/most', direction: 'ko-en' },
+          { id: 'g7-3', input: '더 크다', expected: 'bigger / more', direction: 'ko-en' },
+          { id: 'g7-4', input: '가장 크다', expected: 'biggest / most', direction: 'ko-en' },
           { id: 'g7-5', input: '덜 중요하다', expected: 'less important', direction: 'ko-en' },
           { id: 'g7-6', input: '두 배 크다', expected: 'twice as big', direction: 'ko-en' },
           { id: 'g7-7', input: '훨씬 더 크다', expected: 'much bigger', direction: 'ko-en' },

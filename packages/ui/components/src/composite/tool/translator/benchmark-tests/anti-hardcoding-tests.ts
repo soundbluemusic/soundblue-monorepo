@@ -535,7 +535,7 @@ export const antiHardcodingTests: TestLevel[] = [
           {
             id: 'anti-l7-2',
             input: '가장 크다',
-            expected: 'biggest',
+            expected: 'the biggest',
             direction: 'ko-en',
           },
           {
@@ -559,7 +559,7 @@ export const antiHardcodingTests: TestLevel[] = [
           {
             id: 'anti-l7-6',
             input: '가장 나쁘다',
-            expected: 'worst',
+            expected: 'the worst',
             direction: 'ko-en',
           },
         ],

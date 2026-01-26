@@ -5833,15 +5833,16 @@ function handleSpecialKoreanPatterns(text: string): string | null {
     }
   }
 
-  // 가장 + 형용사 → {adj:superlative}
-  // g7-4: "가장 크다" → "biggest", "가장 행복하다" → "happiest"
+  // 가장 + 형용사 → the {adj:superlative}
+  // g7-4: "가장 크다" → "the biggest", "가장 행복하다" → "the happiest"
+  // 영문법: 최상급은 항상 정관사 "the"와 함께 사용
   const superlativeMatch = cleaned.match(/^가장\s+(.+)$/);
   if (superlativeMatch) {
     const adj = extractKoAdjective(superlativeMatch[1]);
     if (adj) {
       const superlative = toSuperlative(adj);
-      // "most beautiful" 같이 이미 "most"가 포함된 경우 그대로 반환
-      return superlative;
+      // 최상급은 항상 "the" 관사와 함께 반환 (the biggest, the most beautiful)
+      return `the ${superlative}`;
     }
   }
 
