@@ -1861,9 +1861,9 @@ function detectKoreanPassive(
 
     // 당하다 동사 (비난당하다 → 비난당했다, 비난당한다)
     if (passiveStem.endsWith('당하')) {
-      patterns.push(`${passiveStem.slice(0, -1)}했다`); // 당하 → 당했다
-      patterns.push(`${passiveStem}ㄴ다`); // 당한다
-      patterns.push(`${passiveStem}는`);
+      patterns.push(`${passiveStem.slice(0, -1)}했다`); // 비난당하 → 비난당했다
+      patterns.push(`${passiveStem.slice(0, -1)}한다`); // 비난당하 → 비난당한다 (현재)
+      patterns.push(`${passiveStem}는`); // 비난당하는
     }
 
     // 패턴 매칭

@@ -2527,6 +2527,19 @@ export function translateWithInfo(
       // 3. 한국어 이름 → 영어 음역 전처리
       processedSentence = replaceKoreanNames(processedSentence);
 
+      // ============================================
+      // 3.5. 피동문 우선 처리 (대명사 전처리 전에!)
+      // "그녀는 사랑받는다" → "She is loved"
+      // replaceKoreanPronouns가 "그녀는"을 "she"로 바꾸면
+      // "she 사랑받는다"가 되어 피동문 감지가 안 됨
+      // ============================================
+      const passivePreCheck = parseKorean(processedSentence);
+      if (passivePreCheck.passive && passivePreCheck.passiveVerbStem) {
+        translated = generateEnglish(passivePreCheck);
+        results.push(translated + (punctuation || ''));
+        continue;
+      }
+
       // 4. 한국어 대명사 → 영어 대명사 전처리
       processedSentence = replaceKoreanPronouns(processedSentence);
 

@@ -984,10 +984,44 @@ function generateWithAuxiliaryPattern(parsed: ParsedSentence): string {
 }
 
 /**
+ * 주어와 시제에 따른 be 동사 선택
+ *
+ * 현재: I am, you/we/they are, he/she/it is
+ * 과거: I/he/she/it was, you/we/they were
+ *
+ * @param subject 영어 주어 (대문자로 시작할 수 있음)
+ * @param tense 시제 ('past' | 'present')
+ */
+function selectBeVerb(subject: string, tense: string): string {
+  const normalizedSubject = subject.toLowerCase().trim();
+
+  if (tense === 'past') {
+    // were: you, we, they (복수/2인칭)
+    // was: I, he, she, it, 단수 명사
+    if (['you', 'we', 'they'].includes(normalizedSubject)) {
+      return 'were';
+    }
+    return 'was';
+  }
+
+  // 현재 시제
+  // am: I
+  // are: you, we, they
+  // is: he, she, it, 단수 명사
+  if (normalizedSubject === 'i') {
+    return 'am';
+  }
+  if (['you', 'we', 'they'].includes(normalizedSubject)) {
+    return 'are';
+  }
+  return 'is';
+}
+
+/**
  * 피동문 영어 생성 (g4: 수동태)
  *
  * 패턴: "문이 열렸다" → "The door was opened"
- * 시제에 따라 is/was 선택
+ * 주어와 시제에 따라 am/is/are, was/were 선택
  *
  * @param parsed 분석된 문장 (passive: true, passiveVerbStem 포함)
  */
@@ -1024,8 +1058,8 @@ function generatePassiveEnglish(parsed: ParsedSentence): string {
   const passiveInfo = getPassiveVerbInfo(parsed.passiveVerbStem || '');
   const pastParticiple = passiveInfo?.english || 'done';
 
-  // 시제에 따른 be 동사 선택
-  const beVerb = parsed.tense === 'past' ? 'was' : 'is';
+  // 주어와 시제에 따른 be 동사 선택
+  const beVerb = selectBeVerb(subject, parsed.tense || 'present');
 
   // 조합
   return `${subject} ${beVerb} ${pastParticiple}`.trim();
@@ -1075,8 +1109,16 @@ function getPassiveVerbInfo(stem: string): { english: string; base: string } | n
     칭찬받: { english: 'praised', base: '칭찬하다' },
     // -당하다
     비난당하: { english: 'criticized', base: '비난하다' },
-    // extra variations (종결어미 포함)
+    거부당하: { english: 'rejected', base: '거부하다' },
+    공격당하: { english: 'attacked', base: '공격하다' },
+    // extra variations (종결어미 포함 - 과거 시제)
     비난당했: { english: 'criticized', base: '비난하다' },
+    거부당했: { english: 'rejected', base: '거부하다' },
+    공격당했: { english: 'attacked', base: '공격하다' },
+    // extra variations (현재 시제 -당한다)
+    비난당한: { english: 'criticized', base: '비난하다' },
+    거부당한: { english: 'rejected', base: '거부하다' },
+    공격당한: { english: 'attacked', base: '공격하다' },
   };
 
   return PASSIVE_TO_ENGLISH[stem] || null;
