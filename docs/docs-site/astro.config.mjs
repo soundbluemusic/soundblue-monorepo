@@ -57,6 +57,24 @@ export default defineConfig({
             content: 'https://soundbluemusic.github.io/soundblue-monorepo/og-image.png',
           },
         },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'manifest',
+            href: '/soundblue-monorepo/manifest.json',
+          },
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'apple-touch-icon',
+            href: '/soundblue-monorepo/apple-touch-icon.png',
+          },
+        },
+        {
+          tag: 'script',
+          content: `if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/soundblue-monorepo/sw.js'); }`,
+        },
       ],
     }),
   ],

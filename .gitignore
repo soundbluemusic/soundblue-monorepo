@@ -12,6 +12,9 @@ build/
 # Generated service workers (PWA build output)
 **/public/sw.js
 **/public/workbox-*.js
+# Exception: manual service workers for PWA
+!apps/tools/public/sw.js
+!docs/docs-site/public/sw.js
 
 # Auto-generated sitemaps (except docs-site which is manual)
 **/public/sitemap*.xml
