@@ -4,4 +4,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://soundbluemusic.github.io/soundblue-monorepo/sitemap-index.xml
+Sitemap: https://soundbluemusic.github.io/soundblue-monorepo/sitemap.xml

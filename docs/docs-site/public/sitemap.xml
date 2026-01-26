@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <!-- English (default) -->
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.github.io/soundblue-monorepo/"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.github.io/soundblue-monorepo/ko/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://soundbluemusic.github.io/soundblue-monorepo/ja/"/>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/sound-blue</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.github.io/soundblue-monorepo/sound-blue"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.github.io/soundblue-monorepo/ko/sound-blue"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://soundbluemusic.github.io/soundblue-monorepo/ja/sound-blue"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/tools</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.github.io/soundblue-monorepo/tools"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.github.io/soundblue-monorepo/ko/tools"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://soundbluemusic.github.io/soundblue-monorepo/ja/tools"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/dialogue</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.github.io/soundblue-monorepo/dialogue"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.github.io/soundblue-monorepo/ko/dialogue"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://soundbluemusic.github.io/soundblue-monorepo/ja/dialogue"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soundbluemusic.github.io/soundblue-monorepo/about"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://soundbluemusic.github.io/soundblue-monorepo/ko/about"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://soundbluemusic.github.io/soundblue-monorepo/ja/about"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Korean -->
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ko/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ko/sound-blue</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ko/tools</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ko/dialogue</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ko/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Japanese -->
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ja/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ja/sound-blue</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ja/tools</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ja/dialogue</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundbluemusic.github.io/soundblue-monorepo/ja/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>

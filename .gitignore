@@ -12,9 +12,10 @@ build/
 **/public/sw.js
 **/public/workbox-*.js
 
-# Auto-generated sitemaps
+# Auto-generated sitemaps (except docs-site which is manual)
 **/public/sitemap*.xml
 **/public/sitemap*.xsl
+!docs/docs-site/public/sitemap.xml
 
 # Auto-generated i18n dictionaries
 apps/tools/app/tools/translator/dictionary/i18n-*.ts
