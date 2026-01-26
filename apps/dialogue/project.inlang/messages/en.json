@@ -78,6 +78,14 @@
   "app_copy": "Copy",
   "app_copied": "Copied",
   "app_openSourceLicenses": "Open Source Licenses",
+  "app_regenerate": "Regenerate",
+  "app_searchConversations": "Search conversations...",
+  "app_rename": "Rename",
+  "app_renameConversation": "Rename conversation",
+  "app_saveRename": "Save",
+  "app_thinkingProcess": "Thinking process",
+  "app_welcomeTitle": "How can I help you today?",
+  "app_welcomeSubtitle": "Try asking one of these questions",
   "changelog_title": "Changelog",
   "changelog_description": "Version history and updates"
 }

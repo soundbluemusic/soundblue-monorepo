@@ -1,5 +1,5 @@
 import { useToast } from '@soundblue/ui-components/base';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ConfirmDialog } from '~/components/ui/ConfirmDialog';
 import m from '~/lib/messages';
 import type { Conversation, Message } from '~/stores';
@@ -63,12 +63,32 @@ export function ConversationList({
     cleanupExpiredTrash,
     createConversation,
     toggleGhostMode,
+    renameConversation,
   } = useChatStore();
 
   const { toast } = useToast();
   const [showTrash, setShowTrash] = useState(false);
   const [permanentDeleteTargetId, setPermanentDeleteTargetId] = useState<string | null>(null);
   const [showEmptyTrashConfirm, setShowEmptyTrashConfirm] = useState(false);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Rename state
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const renameInputRef = useRef<HTMLInputElement>(null);
+
+  // Filter conversations based on search query
+  const filteredConversations = useMemo(() => {
+    if (!searchQuery.trim()) return conversations;
+    const query = searchQuery.toLowerCase();
+    return conversations.filter(
+      (conv) =>
+        conv.title.toLowerCase().includes(query) ||
+        conv.messages.some((msg) => msg.content.toLowerCase().includes(query)),
+    );
+  }, [conversations, searchQuery]);
 
   // Cleanup expired trash on mount
   useEffect(() => {
@@ -170,6 +190,48 @@ export function ConversationList({
     setDeleteTargetId(null);
   }, []);
 
+  // Rename handlers
+  const handleRenameClick = useCallback((e: React.MouseEvent, conv: Conversation) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingId(conv.id);
+    setEditingTitle(conv.title || '');
+    // Focus input after state update
+    setTimeout(() => renameInputRef.current?.focus(), 0);
+  }, []);
+
+  const handleRenameSubmit = useCallback(
+    (id: string) => {
+      const trimmed = editingTitle.trim();
+      if (trimmed) {
+        renameConversation(id, trimmed);
+      }
+      setEditingId(null);
+      setEditingTitle('');
+    },
+    [editingTitle, renameConversation],
+  );
+
+  const handleRenameKeyDown = useCallback(
+    (e: React.KeyboardEvent, id: string) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleRenameSubmit(id);
+      } else if (e.key === 'Escape') {
+        setEditingId(null);
+        setEditingTitle('');
+      }
+    },
+    [handleRenameSubmit],
+  );
+
+  const handleRenameBlur = useCallback(
+    (id: string) => {
+      handleRenameSubmit(id);
+    },
+    [handleRenameSubmit],
+  );
+
   const handleExport = useCallback((e: React.MouseEvent, conv: Conversation) => {
     e.preventDefault();
     e.stopPropagation();
@@ -253,52 +315,110 @@ export function ConversationList({
         </div>
       )}
 
-      {/* Conversation List */}
-      {conversations.length > 0 ? (
-        <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
-          {conversations.map((conv) => (
+      {/* Search Input */}
+      {conversations.length > 0 && (
+        <div className="relative mb-3">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={m['app.searchConversations']()}
+            className="w-full py-2 pl-9 pr-3 text-sm bg-[var(--color-bg-tertiary)] border border-[var(--color-border-primary)] rounded-lg placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-accent-primary)] focus:ring-2 focus:ring-[var(--color-accent-light)] transition-all duration-150"
+          />
+          {searchQuery && (
             <button
               type="button"
-              key={conv.id}
-              onClick={() => handleLoadConversation(conv)}
-              className={[
-                'group min-h-[44px] flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
-                activeConversationId === conv.id
-                  ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)]'
-                  : 'text-[var(--color-text-secondary)]',
-              ]
-                .filter(Boolean)
-                .join(' ')}
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors"
             >
-              <ChatIcon />
-              <div className="flex-1 min-w-0 text-left">
-                <div className="text-sm font-medium truncate">
-                  {conv.title || m['app.untitled']()}
-                </div>
-                <div className="text-xs text-[var(--color-text-tertiary)] truncate">
-                  {formatDate(conv.updatedAt)}
-                </div>
-              </div>
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                <button
-                  type="button"
-                  onClick={(e) => handleExport(e, conv)}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
-                  title={m['app.export']()}
-                >
-                  <ExportIcon />
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => handleDeleteClick(e, conv.id)}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-red-500/15 hover:text-[var(--color-error)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
-                  title={m['app.deleteChat']()}
-                >
-                  <TrashIcon />
-                </button>
-              </div>
+              <CloseIcon />
             </button>
+          )}
+        </div>
+      )}
+
+      {/* Conversation List */}
+      {filteredConversations.length > 0 ? (
+        <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
+          {filteredConversations.map((conv) => (
+            <div key={conv.id} className="relative">
+              {editingId === conv.id ? (
+                /* Rename Input */
+                <div className="flex items-center gap-2 py-2 px-3 bg-[var(--color-bg-tertiary)] rounded-lg">
+                  <ChatIcon />
+                  <input
+                    ref={renameInputRef}
+                    type="text"
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onKeyDown={(e) => handleRenameKeyDown(e, conv.id)}
+                    onBlur={() => handleRenameBlur(conv.id)}
+                    className="flex-1 py-1 px-2 text-sm bg-[var(--color-bg-primary)] border border-[var(--color-accent-primary)] rounded focus:outline-none"
+                    placeholder={m['app.untitled']()}
+                  />
+                </div>
+              ) : (
+                /* Conversation Button */
+                <button
+                  type="button"
+                  onClick={() => handleLoadConversation(conv)}
+                  className={[
+                    'group min-h-[44px] flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
+                    activeConversationId === conv.id
+                      ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)]'
+                      : 'text-[var(--color-text-secondary)]',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  <ChatIcon />
+                  <div className="flex-1 min-w-0 text-left">
+                    <div className="text-sm font-medium truncate">
+                      {conv.title || m['app.untitled']()}
+                    </div>
+                    <div className="text-xs text-[var(--color-text-tertiary)] truncate">
+                      {formatDate(conv.updatedAt)}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                    <button
+                      type="button"
+                      onClick={(e) => handleRenameClick(e, conv)}
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+                      title={m['app.rename']()}
+                    >
+                      <EditIcon />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleExport(e, conv)}
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+                      title={m['app.export']()}
+                    >
+                      <ExportIcon />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleDeleteClick(e, conv.id)}
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-red-500/15 hover:text-[var(--color-error)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+                      title={m['app.deleteChat']()}
+                    >
+                      <TrashIcon />
+                    </button>
+                  </div>
+                </button>
+              )}
+            </div>
           ))}
+        </div>
+      ) : searchQuery ? (
+        /* No search results */
+        <div className="flex-1 flex flex-col items-center justify-center text-center py-4 px-8">
+          <div className="w-12 h-12 mb-3 rounded-full bg-[var(--color-bg-tertiary)] flex items-center justify-center">
+            <SearchIcon />
+          </div>
+          <p className="text-sm text-[var(--color-text-tertiary)]">No conversations found</p>
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-center py-4 px-8">
@@ -489,6 +609,30 @@ function RestoreIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
       <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z" />
+    </svg>
+  );
+}
+
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" className={className}>
+      <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+    </svg>
+  );
+}
+
+function EditIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
     </svg>
   );
 }

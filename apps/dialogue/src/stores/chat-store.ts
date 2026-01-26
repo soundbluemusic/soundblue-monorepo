@@ -45,6 +45,7 @@ interface ChatActions {
   cleanupExpiredTrash: () => void;
   clearActive: () => void;
   getActiveConversation: () => Conversation | undefined;
+  renameConversation: (id: string, newTitle: string) => void;
 }
 
 // Generate cryptographically secure unique ID
@@ -221,6 +222,14 @@ export const useChatStore = create<ChatState & ChatActions>()(
         const state = get();
         if (!state.activeConversationId) return undefined;
         return state.conversations.find((c) => c.id === state.activeConversationId);
+      },
+
+      renameConversation: (id, newTitle) => {
+        set((state) => ({
+          conversations: state.conversations.map((c) =>
+            c.id === id ? { ...c, title: newTitle, updatedAt: Date.now() } : c,
+          ),
+        }));
       },
     }),
     {

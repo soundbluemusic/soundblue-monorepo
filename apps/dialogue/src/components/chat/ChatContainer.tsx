@@ -2,18 +2,136 @@ import { getLocalizedPath } from '@soundblue/i18n';
 import { getLocaleFromPath } from '@soundblue/locale';
 import { addToContext, analyzeInput, type ConversationTurn } from '@soundblue/nlu';
 import { useLocation, useNavigate } from '@tanstack/react-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import m from '~/lib/messages';
 import { detectLanguageSwitch, detectToolRequest, getResponse } from '~/lib/response-handler';
 import { generateId, type Message, useChatStore, useUIStore } from '~/stores';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 
+// Suggested prompts for welcome screen
+const SUGGESTED_PROMPTS = {
+  en: [
+    { icon: '💡', text: 'What can you help me with?' },
+    { icon: '🌐', text: 'How do I switch to Korean?' },
+    { icon: '🔧', text: 'Open the translator tool' },
+    { icon: '📱', text: 'Generate a QR code for me' },
+  ],
+  ko: [
+    { icon: '💡', text: '어떤 도움을 줄 수 있나요?' },
+    { icon: '🌐', text: '영어로 바꿔줘' },
+    { icon: '🔧', text: '번역기 열어줘' },
+    { icon: '📱', text: 'QR 코드 만들어줘' },
+  ],
+};
+
+// Thinking Block Component
+function ThinkingBlock() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  return (
+    <div className="flex gap-3 animate-fade-in-up">
+      {/* Avatar */}
+      <div className="w-8 h-8 rounded-full bg-[var(--color-bg-tertiary)] flex items-center justify-center shrink-0 text-sm font-medium text-[var(--color-text-secondary)]">
+        D
+      </div>
+
+      {/* Thinking content */}
+      <div className="flex-1 max-w-[75%]">
+        <div className="px-4 py-3 bg-[var(--color-bg-tertiary)] rounded-2xl rounded-bl-md">
+          {/* Header */}
+          <button
+            type="button"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="flex items-center gap-2 w-full bg-transparent border-none cursor-pointer text-left p-0"
+          >
+            <span className="text-sm font-medium text-[var(--color-text-secondary)]">
+              {m['app.thinking']?.() || 'Thinking...'}
+            </span>
+            <ChevronIcon
+              className={`transition-transform duration-200 ${isCollapsed ? '' : 'rotate-180'}`}
+            />
+          </button>
+
+          {/* Dots animation */}
+          <div className={`thinking-block-content ${isCollapsed ? 'collapsed' : 'expanded'} mt-2`}>
+            <div className="flex items-center gap-1.5">
+              <span className="thinking-dot" />
+              <span className="thinking-dot" />
+              <span className="thinking-dot" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Prompt Card Component
+interface PromptCardProps {
+  icon: string;
+  text: string;
+  onClick: () => void;
+}
+
+function PromptCard({ icon, text, onClick }: PromptCardProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="prompt-card flex items-center gap-3 p-4 bg-[var(--color-bg-secondary)] border border-[var(--color-border-primary)] rounded-xl text-left cursor-pointer hover:border-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+    >
+      <span className="text-2xl">{icon}</span>
+      <span className="text-sm text-[var(--color-text-primary)]">{text}</span>
+    </button>
+  );
+}
+
+// Welcome Screen Component
+interface WelcomeScreenProps {
+  onPromptSelect: (text: string) => void;
+  locale: string;
+}
+
+function WelcomeScreen({ onPromptSelect, locale }: WelcomeScreenProps) {
+  const prompts = locale === 'ko' ? SUGGESTED_PROMPTS.ko : SUGGESTED_PROMPTS.en;
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center p-8">
+      {/* Logo/Icon */}
+      <div className="w-20 h-20 rounded-full bg-[var(--color-accent-light)] flex items-center justify-center mb-6">
+        <span className="text-4xl">💬</span>
+      </div>
+
+      {/* Title */}
+      <h2 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">
+        {m['app.title']()}
+      </h2>
+      <p className="text-sm text-[var(--color-text-tertiary)] mb-8 text-center max-w-md">
+        {m['app.subtitle']()}
+      </p>
+
+      {/* Prompt Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
+        {prompts.map((prompt, index) => (
+          <PromptCard
+            key={index}
+            icon={prompt.icon}
+            text={prompt.text}
+            onClick={() => onPromptSelect(prompt.text)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ChatContainer() {
   const navigate = useNavigate();
   const location = useLocation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isThinking, setIsThinking] = useState(false);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
   const [userMessageCount, setUserMessageCount] = useState(0);
 
@@ -57,6 +175,16 @@ export function ChatContainer() {
   const activeConversation = getActiveConversation();
   const messages = ghostMode ? localMessages : (activeConversation?.messages ?? []);
 
+  // Extract locale from pathname to ensure it's tracked as dependency
+  const locale = getLocaleFromPath(location.pathname);
+
+  // Check if this is an empty conversation (only welcome message or no messages)
+  const isEmptyConversation = useMemo(() => {
+    if (messages.length === 0) return true;
+    if (messages.length === 1 && messages[0]?.role === 'assistant') return true;
+    return false;
+  }, [messages]);
+
   // Initialize with welcome message
   useEffect(() => {
     if (!isHydrated) return;
@@ -88,10 +216,7 @@ export function ChatContainer() {
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  // Extract locale from pathname to ensure it's tracked as dependency
-  const locale = getLocaleFromPath(location.pathname);
+  }, [messages, isThinking]);
 
   // Handle sending a message with advanced NLU
   const handleSend = useCallback(
@@ -260,8 +385,8 @@ export function ChatContainer() {
 
       setIsThinking(true);
 
-      // LLM-like response time: 0.1s ~ 0.5s (100ms ~ 500ms)
-      await new Promise((resolve) => setTimeout(resolve, 100 + Math.random() * 400));
+      // LLM-like response time: 0.3s ~ 0.8s
+      await new Promise((resolve) => setTimeout(resolve, 300 + Math.random() * 500));
 
       // Check if component is still mounted after async delay
       if (!isMountedRef.current) return;
@@ -299,6 +424,9 @@ export function ChatContainer() {
       // Final check before state updates
       if (!isMountedRef.current) return;
 
+      // Set streaming message for typing effect
+      setStreamingMessageId(assistantMessage.id);
+
       if (isGhostMode && userMessageCountRef.current < 3) {
         setLocalMessages((prev) => [...prev, assistantMessage]);
       } else {
@@ -306,8 +434,26 @@ export function ChatContainer() {
       }
 
       setIsThinking(false);
+
+      // Clear streaming after animation completes
+      setTimeout(
+        () => {
+          if (isMountedRef.current) {
+            setStreamingMessageId(null);
+          }
+        },
+        assistantResponse.length * 25 + 500,
+      ); // Approximate streaming time
     },
-    [ghostMode, addMessage, createConversation, locale, navigate],
+    [
+      ghostMode,
+      addMessage,
+      createConversation,
+      locale,
+      navigate,
+      location.pathname,
+      setResultContent,
+    ],
   );
 
   // Handle new chat
@@ -340,7 +486,14 @@ export function ChatContainer() {
   if (!isHydrated) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="animate-pulse text-[var(--color-text-tertiary)]">{m['app.thinking']()}</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <span className="thinking-dot" />
+            <span className="thinking-dot" />
+            <span className="thinking-dot" />
+          </div>
+          <span className="text-sm text-[var(--color-text-tertiary)]">{m['app.thinking']()}</span>
+        </div>
       </div>
     );
   }
@@ -348,49 +501,66 @@ export function ChatContainer() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-[var(--color-border-primary)]">
+      <div className="shrink-0 flex items-center justify-between p-4 border-b border-[var(--color-border-primary)]">
         <div>
           <h1 className="text-xl font-semibold">{m['app.title']()}</h1>
           <p className="text-sm text-[var(--color-text-tertiary)]">{m['app.subtitle']()}</p>
         </div>
         <div className="flex items-center gap-2">
           {ghostMode && (
-            <span className="px-2 py-1 text-xs bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/15 dark:text-yellow-400 rounded">
+            <span className="px-2 py-1 text-xs bg-[var(--color-ghost-light)] text-[var(--color-ghost)] rounded-full font-medium">
               {m['app.ghostMode']()}
             </span>
           )}
           <button
             type="button"
             onClick={handleNewChat}
-            className="px-4 py-1 text-sm bg-[var(--color-bg-tertiary)] border-none rounded-lg cursor-pointer transition-colors duration-150 hover:bg-[var(--color-bg-elevated)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-[var(--color-bg-tertiary)] border-none rounded-lg cursor-pointer transition-all duration-150 hover:bg-[var(--color-bg-elevated)] active:scale-95 focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
           >
-            {m['app.newChat']()}
+            <PlusIcon />
+            <span className="hidden sm:inline">{m['app.newChat']()}</span>
           </button>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-        {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} />
-        ))}
-        {isThinking && (
-          <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-full bg-[var(--color-bg-tertiary)] flex items-center justify-center shrink-0 text-sm font-medium text-[var(--color-text-secondary)]">
-              D
-            </div>
-            <div className="px-4 py-2 bg-[var(--color-bg-tertiary)] rounded-2xl rounded-bl-md">
-              <span className="animate-pulse">{m['app.thinking']()}</span>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+      {/* Messages or Welcome Screen */}
+      {isEmptyConversation && !isThinking ? (
+        <WelcomeScreen onPromptSelect={handleSend} locale={locale} />
+      ) : (
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+          {messages.map((message) => (
+            <ChatMessage
+              key={message.id}
+              message={message}
+              isStreaming={message.id === streamingMessageId}
+            />
+          ))}
+          {isThinking && <ThinkingBlock />}
+          <div ref={messagesEndRef} />
+        </div>
+      )}
 
       {/* Input */}
-      <div className="p-4 border-t border-[var(--color-border-primary)]">
+      <div className="shrink-0 p-4 border-t border-[var(--color-border-primary)]">
         <ChatInput onSend={handleSend} disabled={isThinking} />
       </div>
     </div>
+  );
+}
+
+// Icons
+function PlusIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" className={className}>
+      <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+    </svg>
   );
 }

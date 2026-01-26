@@ -78,6 +78,14 @@
   "app_copy": "복사",
   "app_copied": "복사됨",
   "app_openSourceLicenses": "오픈소스 라이센스",
+  "app_regenerate": "다시 생성",
+  "app_searchConversations": "대화 검색...",
+  "app_rename": "이름 변경",
+  "app_renameConversation": "대화 이름 변경",
+  "app_saveRename": "저장",
+  "app_thinkingProcess": "생각 과정",
+  "app_welcomeTitle": "무엇을 도와드릴까요?",
+  "app_welcomeSubtitle": "다음 질문을 시도해 보세요",
   "changelog_title": "변경 이력",
   "changelog_description": "버전별 업데이트 내역"
 }
