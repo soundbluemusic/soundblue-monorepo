@@ -43,6 +43,20 @@ export default defineConfig({
           tag: 'meta',
           attrs: { name: 'theme-color', content: '#c9553d' },
         },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image',
+            content: 'https://soundbluemusic.github.io/soundblue-monorepo/og-image.png',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'twitter:image',
+            content: 'https://soundbluemusic.github.io/soundblue-monorepo/og-image.png',
+          },
+        },
       ],
     }),
   ],
