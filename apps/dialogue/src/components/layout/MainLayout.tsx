@@ -27,7 +27,7 @@ const RESULT_MIN_WIDTH = 280;
 // Sidebar widths (px)
 const SIDEBAR_WIDTH = {
   collapsed: 56,
-  expanded: 208,
+  expanded: 256,
 } as const;
 
 export function MainLayout() {

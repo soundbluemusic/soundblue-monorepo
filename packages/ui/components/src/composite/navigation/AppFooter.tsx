@@ -3,8 +3,8 @@
 import type React from 'react';
 import { SERVICE_LINKS, SOCIAL_LINKS } from './serviceLinks';
 
-// Build time year to prevent hydration mismatch
-const BUILD_YEAR = 2025;
+// Current year - updated dynamically
+const CURRENT_YEAR = new Date().getFullYear();
 
 // Social icons
 function YouTubeIcon() {
@@ -156,8 +156,11 @@ export function AppFooter({
         </div>
 
         {/* Copyright */}
-        <p className="text-xs text-[var(--color-text-tertiary)] text-center">
-          &copy; {BUILD_YEAR} {brandName}. {labels.copyright}.
+        <p
+          className="text-xs text-[var(--color-text-tertiary)] text-center"
+          suppressHydrationWarning
+        >
+          &copy; {CURRENT_YEAR} {brandName}. {labels.copyright}.
         </p>
       </div>
     </footer>

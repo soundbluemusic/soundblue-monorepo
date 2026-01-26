@@ -47,7 +47,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
     <aside
       className={[
         'flex flex-col h-full border-r border-[var(--color-border-primary)] bg-[var(--color-bg-secondary)] transition-[width] duration-300',
-        sidebarCollapsed ? 'w-14' : 'w-52',
+        sidebarCollapsed ? 'w-14' : 'w-64',
       ]
         .filter(Boolean)
         .join(' ')}
