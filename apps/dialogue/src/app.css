@@ -161,6 +161,16 @@
 }
 
 /* ========================================
+   Dynamic Viewport Height (dvh) Fallback
+   For browsers that don't support dvh (Safari < 15.4)
+   ======================================== */
+
+.h-dvh {
+  height: 100vh; /* Fallback */
+  height: 100dvh;
+}
+
+/* ========================================
    Base Styles
    ======================================== */
 
@@ -171,6 +181,7 @@
 }
 
 html {
+  height: 100%;
   font-family: var(--font-family-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -182,10 +193,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 body {
+  height: 100%;
   margin: 0;
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   transition: background-color var(--transition-normal), color var(--transition-normal);
+  /* Prevent bounce scroll on iOS */
+  overscroll-behavior: none;
 }
 
 /* ========================================

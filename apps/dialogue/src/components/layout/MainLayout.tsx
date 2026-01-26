@@ -159,7 +159,7 @@ export function MainLayout() {
   }, [isMobile]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--color-bg-primary)]">
+    <div className="flex flex-col h-dvh bg-[var(--color-bg-primary)]">
       {/* Skip Link for Accessibility */}
       <a
         href="#main-content"
@@ -171,8 +171,8 @@ export function MainLayout() {
       {/* Header */}
       <Header />
 
-      {/* Main Content - min-h ensures footer is below fold */}
-      <main id="main-content" className="flex flex-1 min-h-[calc(100vh-3.5rem)] overflow-hidden">
+      {/* Main Content */}
+      <main id="main-content" className="flex flex-1 min-h-0 overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
           <button
@@ -199,9 +199,9 @@ export function MainLayout() {
         </div>
 
         {/* Main Area (Chat + Result Panel) */}
-        <div ref={mainRef} className="flex flex-1 overflow-hidden">
+        <div ref={mainRef} className="flex flex-1 min-h-0 overflow-hidden">
           {/* Mobile: Tab-based view */}
-          <div className="flex flex-col flex-1 min-h-[200px] md:hidden">
+          <div className="flex flex-col flex-1 min-h-0 md:hidden">
             {/* Tab Switcher */}
             <div className="flex shrink-0 border-b border-[var(--color-border-primary)] bg-[var(--color-bg-secondary)]">
               <button
@@ -249,10 +249,10 @@ export function MainLayout() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-hidden min-h-[150px]">
+            <div className="flex-1 min-h-0 overflow-hidden">
               {activeTab === 'chat' && <ChatContainer />}
               {activeTab === 'history' && (
-                <div className="h-full p-4 overflow-hidden">
+                <div className="h-full p-4 overflow-auto">
                   <ConversationList
                     onLoadConversation={handleLoadConversation}
                     onNewChat={handleNewChat}
@@ -265,10 +265,10 @@ export function MainLayout() {
           </div>
 
           {/* Desktop: 2 columns with resizable chat */}
-          <div className="hidden md:flex md:flex-1">
+          <div className="hidden md:flex md:flex-1 md:min-h-0">
             {/* Chat Area - width controlled by chatWidth state */}
             <div
-              className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-[200px]"
+              className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-0"
               style={{ width: chatWidth }}
             >
               <ChatContainer />
