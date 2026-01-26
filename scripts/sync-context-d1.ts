@@ -35,8 +35,8 @@ if (!ACCOUNT_ID || !API_TOKEN || !DATABASE_ID) {
 // D1 REST API URL
 const D1_API_URL = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
 
-// 출력 디렉토리
-const OUTPUT_DIR = join(__dirname, '../apps/tools/app/tools/translator/dictionary/external');
+// 출력 디렉토리 (apps/tools/src 경로 사용)
+const OUTPUT_DIR = join(__dirname, '../apps/tools/src/tools/translator/dictionary/external');
 const PUBLIC_DATA_DIR = join(__dirname, '../apps/tools/public/data/sentences');
 
 // 타입 정의

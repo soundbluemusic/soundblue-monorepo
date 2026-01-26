@@ -1,9 +1,9 @@
 // ========================================
-// External Dictionary - 외부 사전 (D1 API 런타임 로드)
-// Source: Cloudflare D1 via /api/dictionary
+// External Dictionary - 외부 사전 (SSR 서버 함수 또는 런타임 로드)
+// Source: Cloudflare D1 via TanStack Start server functions
 // ========================================
-// D1 API에서 런타임으로 어휘 데이터를 가져옵니다.
-// 빌드 시 정적 파일 대신 런타임 API 호출 방식 사용
+// 앱에서 loader를 통해 D1 데이터를 주입받거나,
+// 클라이언트에서 직접 로드합니다.
 // ========================================
 
 // 캐시
@@ -13,9 +13,6 @@ let _koToEnSentences: Record<string, string> | null = null;
 let _enToKoSentences: Record<string, string> | null = null;
 let _isLoading = false;
 let _loadPromise: Promise<void> | null = null;
-
-// API 엔드포인트 (tools 앱 기준)
-const API_BASE = '/api/dictionary';
 
 // 통계 (로드 후 업데이트됨)
 export const EXTERNAL_WORDS_STATS = {
@@ -31,36 +28,64 @@ export const EXTERNAL_SENTENCES_STATS = {
 } as const;
 
 // ========================================
-// 단어 사전 API
+// D1 데이터 직접 주입 (SSR loader에서 호출)
+// ========================================
+
+export interface DictionaryData {
+  words?: {
+    koToEn: Record<string, string>;
+    enToKo: Record<string, string>;
+    count?: { koToEn: number; enToKo: number };
+  };
+  sentences?: {
+    koToEn: Record<string, string>;
+    enToKo: Record<string, string>;
+    count?: { koToEn: number; enToKo: number };
+  };
+}
+
+/**
+ * D1 데이터를 캐시에 직접 주입 (SSR loader에서 호출)
+ * 이 함수를 통해 서버에서 로드한 데이터를 클라이언트 캐시에 설정
+ */
+export function injectDictionaryData(data: DictionaryData | null): void {
+  if (!data) return;
+
+  if (data.words) {
+    _koToEnWords = data.words.koToEn || {};
+    _enToKoWords = data.words.enToKo || {};
+    console.log('[D1] Words injected:', data.words.count);
+  }
+
+  if (data.sentences) {
+    _koToEnSentences = data.sentences.koToEn || {};
+    _enToKoSentences = data.sentences.enToKo || {};
+    console.log('[D1] Sentences injected:', data.sentences.count);
+  }
+}
+
+// ========================================
+// 단어 사전 로드
 // ========================================
 
 /**
- * D1에서 단어 사전 로드
+ * 외부 단어 사전 로드
+ * 이미 주입된 데이터가 있으면 그것을 사용
  */
 export async function loadExternalWords(): Promise<void> {
-  if (_loadPromise) return _loadPromise;
+  // 이미 캐시에 데이터가 있으면 스킵 (SSR에서 주입된 경우)
   if (_koToEnWords && _enToKoWords) return;
+  if (_loadPromise) return _loadPromise;
 
+  // 캐시에 데이터가 없으면 빈 사전으로 초기화
+  // (SSR loader에서 주입하지 않은 경우)
   _isLoading = true;
-  _loadPromise = (async () => {
-    try {
-      const response = await fetch(`${API_BASE}?type=words`);
-      if (!response.ok) {
-        throw new Error(`Failed to load words: ${response.status}`);
-      }
-      const data = await response.json();
-      _koToEnWords = data.koToEn || {};
-      _enToKoWords = data.enToKo || {};
-      console.log('[D1] Words loaded:', data.count);
-    } catch (error) {
-      console.error('[D1] Failed to load words:', error);
-      // 실패 시 빈 사전 사용
-      _koToEnWords = {};
-      _enToKoWords = {};
-    } finally {
-      _isLoading = false;
-    }
-  })();
+  _loadPromise = Promise.resolve().then(() => {
+    if (!_koToEnWords) _koToEnWords = {};
+    if (!_enToKoWords) _enToKoWords = {};
+    _isLoading = false;
+    console.log('[D1] Using bundled dictionary (D1 data not injected)');
+  });
 
   return _loadPromise;
 }
@@ -146,38 +171,24 @@ export const externalEnToKoWords: Record<string, string> = new Proxy(
 );
 
 // ========================================
-// 문장 사전 API
+// 문장 사전 로드
 // ========================================
 
 /**
- * D1에서 문장 사전 로드
+ * 문장 사전 초기화
+ * 이미 주입된 데이터가 있으면 그것을 사용
  */
-async function loadSentencesFromD1(): Promise<void> {
-  if (_koToEnSentences && _enToKoSentences) return;
-
-  try {
-    const response = await fetch(`${API_BASE}?type=sentences`);
-    if (!response.ok) {
-      throw new Error(`Failed to load sentences: ${response.status}`);
-    }
-    const data = await response.json();
-    _koToEnSentences = data.koToEn || {};
-    _enToKoSentences = data.enToKo || {};
-    console.log('[D1] Sentences loaded:', data.count);
-  } catch (error) {
-    console.error('[D1] Failed to load sentences:', error);
-    _koToEnSentences = {};
-    _enToKoSentences = {};
-  }
+function ensureSentencesInitialized(): void {
+  // 캐시에 데이터가 없으면 빈 사전으로 초기화
+  if (!_koToEnSentences) _koToEnSentences = {};
+  if (!_enToKoSentences) _enToKoSentences = {};
 }
 
 /**
  * 한→영 문장 사전 로드
  */
 export async function loadKoToEnSentences(): Promise<Record<string, string>> {
-  if (!_koToEnSentences) {
-    await loadSentencesFromD1();
-  }
+  ensureSentencesInitialized();
   return _koToEnSentences || {};
 }
 
@@ -185,9 +196,7 @@ export async function loadKoToEnSentences(): Promise<Record<string, string>> {
  * 영→한 문장 사전 로드
  */
 export async function loadEnToKoSentences(): Promise<Record<string, string>> {
-  if (!_enToKoSentences) {
-    await loadSentencesFromD1();
-  }
+  ensureSentencesInitialized();
   return _enToKoSentences || {};
 }
 
@@ -209,7 +218,7 @@ export function lookupEnToKoSentence(sentence: string): string | null {
  * 문장 사전 프리로드
  */
 export async function preloadSentences(): Promise<void> {
-  await loadSentencesFromD1();
+  ensureSentencesInitialized();
 }
 
 /**

@@ -4,4 +4,5 @@ packages:
   - 'packages/platform/*'
   - 'packages/ui/*'
   - 'docs/docs-site'
+  - 'uiux-studio'
   - '!apps/*-solid-backup'

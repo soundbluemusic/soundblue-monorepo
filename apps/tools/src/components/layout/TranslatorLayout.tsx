@@ -6,12 +6,20 @@
  * This layout bypasses ToolContainer to enable proper code splitting.
  * The translator module (~190KB) is only loaded when visiting /translator route.
  *
+ * D1 데이터 주입:
+ * - translator.tsx의 loader에서 D1 사전 데이터를 로드
+ * - 이 컴포넌트에서 Route.useLoaderData로 데이터를 받아 외부 사전에 주입
+ * - 번역기가 D1의 대규모 어휘 데이터를 활용할 수 있음
+ *
  * @module components/layout/TranslatorLayout
  */
 
 import { useParaglideI18n } from '@soundblue/i18n';
 import { useToast } from '@soundblue/ui-components/base';
-import { Translator } from '@soundblue/ui-components/composite/tool/translator';
+import {
+  injectDictionaryData,
+  Translator,
+} from '@soundblue/ui-components/composite/tool/translator';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import {
@@ -27,6 +35,7 @@ import {
 } from 'react';
 import m from '~/lib/messages';
 import { getToolGuide } from '~/lib/toolGuides';
+import { Route } from '~/routes/translator';
 import { useToolStore } from '~/stores/tool-store';
 import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator/settings';
 import { BottomNavigation } from '../home/BottomNavigation';
@@ -172,9 +181,19 @@ export function TranslatorLayout() {
     useToolStore();
   const { toast } = useToast();
 
+  // D1에서 로드한 사전 데이터 가져오기
+  const loaderData = Route.useLoaderData();
+
   const [urlCopied, setUrlCopied] = useState(false);
   const [urlCopyFailed, setUrlCopyFailed] = useState(false);
   const urlCopiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // D1 사전 데이터를 외부 사전 캐시에 주입
+  useEffect(() => {
+    if (loaderData?.dictionary) {
+      injectDictionaryData(loaderData.dictionary);
+    }
+  }, [loaderData]);
 
   // Sync store with translator tool on mount
   useEffect(() => {

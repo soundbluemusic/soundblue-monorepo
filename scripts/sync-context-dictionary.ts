@@ -22,8 +22,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE_URL =
   'https://raw.githubusercontent.com/soundbluemusic/public-monorepo/main/data/context';
 
-// 출력 디렉토리
-const OUTPUT_DIR = join(__dirname, '../apps/tools/app/tools/translator/dictionary/external');
+// 출력 디렉토리 (apps/tools/src 경로 사용)
+const OUTPUT_DIR = join(__dirname, '../apps/tools/src/tools/translator/dictionary/external');
 // JSON 데이터 출력 디렉토리 (public에서 서빙)
 const PUBLIC_DATA_DIR = join(__dirname, '../apps/tools/public/data/sentences');
 
