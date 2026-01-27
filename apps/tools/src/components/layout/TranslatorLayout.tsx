@@ -187,6 +187,8 @@ export function TranslatorLayout() {
   const [urlCopied, setUrlCopied] = useState(false);
   const [urlCopyFailed, setUrlCopyFailed] = useState(false);
   const urlCopiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isUrlSyncInitializedRef = useRef(false);
+  const prevSettingsRef = useRef<Partial<TranslatorSettings> | null>(null);
 
   // D1 사전 데이터를 외부 사전 캐시에 주입
   useEffect(() => {
@@ -207,8 +209,12 @@ export function TranslatorLayout() {
     };
   }, []);
 
-  // Read settings from URL on mount
+  // Read settings from URL on mount (ONE-TIME ONLY to prevent infinite loop)
   useEffect(() => {
+    // Skip if already initialized to prevent infinite loop
+    if (isUrlSyncInitializedRef.current) return;
+    isUrlSyncInitializedRef.current = true;
+
     const settings: Partial<TranslatorSettings> = {};
     let hasUrlSettings = false;
 
@@ -223,19 +229,36 @@ export function TranslatorLayout() {
     }
 
     if (hasUrlSettings) {
+      prevSettingsRef.current = settings;
       updateToolSettings('translator', settings);
     }
-  }, [searchParams, updateToolSettings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally run only on mount
+  }, []);
 
-  // Update URL when settings change
+  // Update URL when settings change (with change detection to prevent infinite loop)
   useEffect(() => {
     const settings = toolSettings.translator ?? {};
+
+    // Compare with previous settings to prevent unnecessary URL updates
+    const prev = prevSettingsRef.current;
+    const hasChanged =
+      !prev ||
+      prev.direction !== settings.direction ||
+      prev.formality !== settings.formality ||
+      prev.lastInput !== settings.lastInput;
+
+    if (!hasChanged) return;
+    prevSettingsRef.current = { ...settings };
+
     const urlUpdate = new URLSearchParams();
 
-    // Preserve special params
-    for (const param of PRESERVED_PARAMS) {
-      const value = searchParams.get(param);
-      if (value) urlUpdate.set(param, value);
+    // Preserve special params (read current URL directly to avoid dependency)
+    if (typeof window !== 'undefined') {
+      const currentParams = new URLSearchParams(window.location.search);
+      for (const param of PRESERVED_PARAMS) {
+        const value = currentParams.get(param);
+        if (value) urlUpdate.set(param, value);
+      }
     }
 
     // Set translator params
@@ -244,7 +267,7 @@ export function TranslatorLayout() {
     if (settings.lastInput) urlUpdate.set('text', settings.lastInput);
 
     setSearchParams(urlUpdate, { replace: true });
-  }, [toolSettings.translator, searchParams, setSearchParams]);
+  }, [toolSettings.translator, setSearchParams]);
 
   // Copy share URL
   const copyShareUrl = useCallback(async () => {

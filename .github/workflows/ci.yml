@@ -34,9 +34,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
-            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
             turbo-${{ runner.os }}-
 
       - name: Install dependencies
@@ -64,6 +63,9 @@ jobs:
       - name: Check circular dependencies
         run: pnpm check:circular
 
+      - name: Check React patterns (infinite loop prevention)
+        run: pnpm check:react-patterns
+
       - name: Dependency audit (security)
         run: pnpm audit --audit-level=high
         continue-on-error: true
@@ -90,9 +92,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
-            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
             turbo-${{ runner.os }}-
 
       - name: Install dependencies
@@ -142,13 +143,7 @@ jobs:
           path: apps
 
       - name: Fix artifact paths
-        run: |
-          for app in sound-blue tools dialogue; do
-            if [ -d "apps/$app/$app/dist" ]; then
-              mv apps/$app/$app/dist apps/$app/dist
-              rmdir apps/$app/$app 2>/dev/null || true
-            fi
-          done
+        run: bash scripts/fix-artifact-paths.sh
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
@@ -205,13 +200,7 @@ jobs:
           path: apps
 
       - name: Fix artifact paths
-        run: |
-          for app in sound-blue tools dialogue; do
-            if [ -d "apps/$app/$app/dist" ]; then
-              mv apps/$app/$app/dist apps/$app/dist
-              rmdir apps/$app/$app 2>/dev/null || true
-            fi
-          done
+        run: bash scripts/fix-artifact-paths.sh
 
       - name: Install Chrome for Lighthouse
         uses: browser-actions/setup-chrome@latest
@@ -252,13 +241,7 @@ jobs:
           path: apps
 
       - name: Fix artifact paths
-        run: |
-          for app in sound-blue tools dialogue; do
-            if [ -d "apps/$app/$app/dist" ]; then
-              mv apps/$app/$app/dist apps/$app/dist
-              rmdir apps/$app/$app 2>/dev/null || true
-            fi
-          done
+        run: bash scripts/fix-artifact-paths.sh
 
       - name: Check bundle size
         run: pnpm check:size
@@ -306,13 +289,7 @@ jobs:
           path: apps
 
       - name: Fix artifact paths
-        run: |
-          for app in sound-blue tools dialogue; do
-            if [ -d "apps/$app/$app/dist" ]; then
-              mv apps/$app/$app/dist apps/$app/dist
-              rmdir apps/$app/$app 2>/dev/null || true
-            fi
-          done
+        run: bash scripts/fix-artifact-paths.sh
 
       - name: Verify artifacts
         run: ls -la apps/${{ matrix.app }}/dist/

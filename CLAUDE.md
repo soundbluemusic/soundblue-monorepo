@@ -39,6 +39,7 @@ pnpm test              # 테스트 실행
 ## 상세 규칙 (필요시 참조)
 
 - **SEO 렌더링**: `.claude/rules/seo-rendering.md` ⚠️ SPA 금지
+- **React 패턴**: `.claude/rules/react-patterns.md` ⚠️ 무한 루프 방지
 - 번역기: `.claude/rules/translator.md`
 - 품질: `.claude/rules/quality.md`
 - 도구 개발: `.claude/rules/tools.md`
