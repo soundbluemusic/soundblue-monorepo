@@ -35,6 +35,7 @@ import {
 } from 'react';
 import m from '~/lib/messages';
 import { getToolGuide } from '~/lib/toolGuides';
+import { useDictionaryQuery } from '~/queries/dictionary';
 import { Route } from '~/routes/translator';
 import { useToolStore } from '~/stores/tool-store';
 import { defaultTranslatorSettings, type TranslatorSettings } from '~/tools/translator/settings';
@@ -181,8 +182,9 @@ export function TranslatorLayout() {
     useToolStore();
   const { toast } = useToast();
 
-  // D1에서 로드한 사전 데이터 가져오기
+  // D1에서 로드한 사전 데이터 가져오기 (SSR loader → TanStack Query 캐시)
   const loaderData = Route.useLoaderData();
+  const { data: dictionary } = useDictionaryQuery(loaderData?.dictionary);
 
   const [urlCopied, setUrlCopied] = useState(false);
   const [urlCopyFailed, setUrlCopyFailed] = useState(false);
@@ -190,12 +192,12 @@ export function TranslatorLayout() {
   const isUrlSyncInitializedRef = useRef(false);
   const prevSettingsRef = useRef<Partial<TranslatorSettings> | null>(null);
 
-  // D1 사전 데이터를 외부 사전 캐시에 주입
+  // D1 사전 데이터를 외부 사전 캐시에 주입 (TanStack Query에서 관리)
   useEffect(() => {
-    if (loaderData?.dictionary) {
-      injectDictionaryData(loaderData.dictionary);
+    if (dictionary) {
+      injectDictionaryData(dictionary);
     }
-  }, [loaderData]);
+  }, [dictionary]);
 
   // Sync store with translator tool on mount
   useEffect(() => {

@@ -238,7 +238,8 @@ export function Translator({
       if (inputText.trim()) {
         // Translate immediately with new direction or formality
         startTransition(() => {
-          const result = translate(inputText.trim(), settings.direction, {
+          const text = inputText.trim();
+          const result = translate(text, settings.direction, {
             formality: settings.formality,
           });
           setOutputText(result);

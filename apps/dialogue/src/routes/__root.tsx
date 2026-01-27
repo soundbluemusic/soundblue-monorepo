@@ -1,6 +1,8 @@
 import { getLocaleFromPath } from '@soundblue/i18n';
 import { SoftwareApplicationStructuredData, WebSiteStructuredData } from '@soundblue/seo';
 import { ColorblindProvider, ThemeProvider, ToastContainer } from '@soundblue/ui-components/base';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
   createRootRoute,
   HeadContent,
@@ -8,8 +10,9 @@ import {
   Scripts,
   ScrollRestoration,
 } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import m from '~/lib/messages';
+import { createQueryClient } from '~/lib/query-client';
 import { setLocale } from '~/paraglide/runtime';
 
 import '../app.css';
@@ -67,6 +70,8 @@ function PendingFallback() {
 
 function RootLayout() {
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+  // Create QueryClient once per component lifecycle (SSR-safe)
+  const [queryClient] = useState(() => createQueryClient());
 
   // Sync Paraglide locale with URL
   useEffect(() => {
@@ -111,12 +116,15 @@ function RootLayout() {
         />
       </head>
       <body>
-        <ThemeProvider storageKey="dialogue-theme" defaultTheme="system">
-          <ColorblindProvider storageKey="dialogue-colorblind">
-            <Outlet />
-            <ToastContainer position="bottom-right" />
-          </ColorblindProvider>
-        </ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider storageKey="dialogue-theme" defaultTheme="system">
+            <ColorblindProvider storageKey="dialogue-colorblind">
+              <Outlet />
+              <ToastContainer position="bottom-right" />
+            </ColorblindProvider>
+          </ThemeProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
