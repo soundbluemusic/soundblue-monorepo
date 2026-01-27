@@ -14,6 +14,9 @@
   /* Font Family */
   --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
+  /* Layout Dimensions */
+  --header-height: 56px;
+
   /* ========== Light Mode Colors - Enhanced contrast ========== */
   --color-bg-primary: #ffffff;     /* Lightest - main content */
   --color-bg-secondary: #f0f1f3;   /* Sidebar, cards (darker) */
@@ -168,6 +171,16 @@
 .h-dvh {
   height: 100vh; /* Fallback */
   height: 100dvh;
+}
+
+/* ========================================
+   Glue Footer Layout
+   Main content fills viewport, footer below fold
+   ======================================== */
+
+.main-viewport-height {
+  height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
 }
 
 /* ========================================
