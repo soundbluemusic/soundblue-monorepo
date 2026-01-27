@@ -16,6 +16,8 @@
 
   /* Layout Dimensions */
   --header-height: 56px;
+  --sidebar-width: 256px;
+  --sidebar-collapsed-width: 56px;
 
   /* ========== Light Mode Colors - Enhanced contrast ========== */
   --color-bg-primary: #ffffff;     /* Lightest - main content */
@@ -35,6 +37,10 @@
   --color-accent-primary: #3b82f6;
   --color-accent-secondary: #2563eb;
   --color-accent-light: rgba(59, 130, 246, 0.1);
+
+  /* Interactive States */
+  --color-interactive-hover: rgba(59, 130, 246, 0.08);
+  --color-interactive-active: rgba(59, 130, 246, 0.15);
 
   --color-success: #10b981;
   --color-success-light: rgba(34, 197, 94, 0.1);
@@ -90,6 +96,10 @@
   --color-accent-secondary: #3b82f6;
   --color-accent-light: rgba(96, 165, 250, 0.15);
 
+  /* Interactive States (Dark) */
+  --color-interactive-hover: rgba(96, 165, 250, 0.1);
+  --color-interactive-active: rgba(96, 165, 250, 0.18);
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
@@ -134,6 +144,9 @@
 
   --color-ghost: var(--color-ghost);
   --color-ghost-light: var(--color-ghost-light);
+
+  --color-interactive-hover: var(--color-interactive-hover);
+  --color-interactive-active: var(--color-interactive-active);
 }
 
 /* ========================================
@@ -181,6 +194,18 @@
 .main-viewport-height {
   height: calc(100vh - var(--header-height));
   height: calc(100dvh - var(--header-height));
+}
+
+/* ========================================
+   Layout Transitions
+   ======================================== */
+
+.sidebar-transition {
+  transition: transform var(--transition-slow) var(--ease-default);
+}
+
+.main-content-transition {
+  transition: margin-left var(--transition-fast) var(--ease-default);
 }
 
 /* ========================================

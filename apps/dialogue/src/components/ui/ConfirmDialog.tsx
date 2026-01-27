@@ -73,7 +73,7 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, title, message }: C
           <button
             type="button"
             onClick={onCancel}
-            className="min-h-[44px] px-5 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] bg-[var(--color-bg-secondary)] border border-[var(--color-border-primary)] rounded-lg cursor-pointer transition-colors duration-150 hover:bg-[var(--color-bg-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+            className="min-h-[44px] px-5 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] bg-[var(--color-bg-secondary)] border border-[var(--color-border-primary)] rounded-lg cursor-pointer transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
           >
             {m['app.cancel']()}
           </button>

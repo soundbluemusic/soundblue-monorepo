@@ -300,7 +300,7 @@ export function ConversationList({
               'flex items-center gap-4 w-full py-2.5 px-4 border-none rounded-lg text-sm cursor-pointer transition-colors duration-150 focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               ghostMode
                 ? 'bg-[var(--color-ghost-light)] text-[var(--color-ghost)]'
-                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]',
+                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-interactive-hover)]',
             ]
               .filter(Boolean)
               .join(' ')}
@@ -364,7 +364,7 @@ export function ConversationList({
                   type="button"
                   onClick={() => handleLoadConversation(conv)}
                   className={[
-                    'group min-h-[44px] flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
+                    'group min-h-[44px] flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
                     activeConversationId === conv.id
                       ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)]'
                       : 'text-[var(--color-text-secondary)]',
@@ -476,7 +476,7 @@ export function ConversationList({
               {deletedConversations.map((conv) => (
                 <div
                   key={conv.id}
-                  className="group flex items-center gap-3 py-2 px-4 text-sm text-[var(--color-text-tertiary)] rounded-lg hover:bg-[var(--color-bg-hover)]"
+                  className="group flex items-center gap-3 py-2 px-4 text-sm text-[var(--color-text-tertiary)] rounded-lg hover:bg-[var(--color-interactive-hover)]"
                 >
                   <ChatIcon />
                   <div className="flex-1 overflow-hidden">

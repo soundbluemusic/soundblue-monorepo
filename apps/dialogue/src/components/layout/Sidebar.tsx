@@ -69,7 +69,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
         <button
           type="button"
           onClick={toggleSidebarCollapse}
-          className="p-1.5 rounded-lg bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+          className="p-1.5 rounded-lg bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
           aria-label={sidebarCollapsed ? m['app.expandSidebar']() : m['app.collapseSidebar']()}
         >
           {sidebarCollapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
@@ -103,7 +103,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
             ghostMode
               ? 'bg-[var(--color-ghost-light)] text-[var(--color-ghost)]'
-              : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]',
+              : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-interactive-hover)]',
           ]
             .filter(Boolean)
             .join(' ')}
@@ -159,7 +159,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-[var(--color-bg-tertiary)] border-none cursor-pointer no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+              className="flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-[var(--color-bg-tertiary)] border-none cursor-pointer no-underline transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
             >
               <span className="text-[var(--color-accent-primary)]">
                 {resolvedTheme === 'dark' ? <MoonIcon /> : <SunIcon />}
@@ -176,7 +176,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
                   key={lang.code}
                   type="button"
                   className={[
-                    'flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
+                    'flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer no-underline transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
                     locale === lang.code &&
                       'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)]',
                   ]
@@ -210,7 +210,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             <button
               type="button"
               onClick={toggleTheme}
-              className="w-full flex justify-center p-2 rounded-lg bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-colors duration-150 hover:bg-[var(--color-bg-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+              className="w-full flex justify-center p-2 rounded-lg bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
               title={resolvedTheme === 'dark' ? m['app.lightMode']() : m['app.darkMode']()}
             >
               {resolvedTheme === 'dark' ? <MoonIcon /> : <SunIcon />}
@@ -224,7 +224,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             to={getLocalizedPath('/sitemap', locale)}
             preload="intent"
             className={[
-              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
+              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
             ]
               .filter(Boolean)
@@ -238,7 +238,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             to={getAboutUrl()}
             preload="intent"
             className={[
-              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
+              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
             ]
               .filter(Boolean)
@@ -252,7 +252,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             to={getLocalizedPath('/built-with', locale)}
             preload="intent"
             className={[
-              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
+              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
             ]
               .filter(Boolean)
@@ -266,7 +266,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             to={getLocalizedPath('/changelog', locale)}
             preload="intent"
             className={[
-              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
+              'flex w-full items-center py-2 rounded-lg text-sm bg-none border-none cursor-pointer text-[var(--color-text-secondary)] no-underline transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
               sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
             ]
               .filter(Boolean)

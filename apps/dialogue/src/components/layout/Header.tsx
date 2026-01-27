@@ -18,7 +18,7 @@ export function Header() {
   };
 
   return (
-    <header className="h-14 flex items-center justify-between px-4 border-b border-[var(--color-border-primary)]">
+    <header className="h-[var(--header-height)] flex items-center justify-between px-4 border-b border-[var(--color-border-primary)]">
       <div className="flex items-center gap-2">
         <span className="text-xl font-bold">{m['app.title']()}</span>
       </div>
@@ -32,7 +32,7 @@ export function Header() {
         <button
           type="button"
           onClick={toggleTheme}
-          className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-lg bg-none border-none cursor-pointer text-inherit transition-colors duration-150 hover:bg-[var(--color-bg-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-lg bg-none border-none cursor-pointer text-inherit transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
           title={resolvedTheme === 'dark' ? m['app.lightMode']() : m['app.darkMode']()}
         >
           {resolvedTheme === 'dark' ? (
@@ -60,7 +60,7 @@ export function Header() {
         <button
           type="button"
           onClick={toggleLocale}
-          className="min-w-[44px] min-h-[44px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-none border-none cursor-pointer text-inherit no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-none border-none cursor-pointer text-inherit no-underline transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
           title={locale === 'en' ? m['app.korean']() : m['app.english']()}
           aria-label={locale === 'en' ? m['app.korean']() : m['app.english']()}
         >
@@ -83,7 +83,7 @@ export function Header() {
         {/* About link */}
         <a
           href={locale === 'ko' ? '/ko/about' : '/about'}
-          className="min-h-[44px] flex items-center py-2 px-4 text-sm rounded-lg bg-none border-none cursor-pointer text-inherit no-underline transition-colors duration-150 hover:bg-[var(--color-bg-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+          className="min-h-[44px] flex items-center py-2 px-4 text-sm rounded-lg bg-none border-none cursor-pointer text-inherit no-underline transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
         >
           {m['app.about']()}
         </a>

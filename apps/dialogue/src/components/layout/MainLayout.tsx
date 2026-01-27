@@ -171,11 +171,11 @@ export function MainLayout() {
       {/* Header - fixed height */}
       <Header />
 
-      {/* Main Content - explicit height fills viewport minus header (56px = h-14) */}
+      {/* Main Content - explicit height fills viewport minus header */}
       <main
         id="main-content"
         className="flex overflow-hidden"
-        style={{ height: 'calc(100dvh - 56px)' }}
+        style={{ height: 'calc(100dvh - var(--header-height))' }}
       >
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
@@ -191,9 +191,9 @@ export function MainLayout() {
         <div
           className={[
             'z-50',
-            'max-md:fixed max-md:inset-0 max-md:left-0 max-md:pt-14',
+            'max-md:fixed max-md:inset-0 max-md:left-0 max-md:pt-[var(--header-height)]',
             'md:relative',
-            isHydrated && 'max-md:transition-transform max-md:duration-300 max-md:ease-in-out',
+            isHydrated && 'sidebar-transition',
             !sidebarOpen && 'max-md:-translate-x-full',
           ]
             .filter(Boolean)
