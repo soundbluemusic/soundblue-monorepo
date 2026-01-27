@@ -3,10 +3,13 @@
 /**
  * Sitemap generator for tools.soundbluemusic.com
  * Generates sitemap index with pages and tools sitemaps
+ *
+ * 🔄 AUTO-SYNC: Tools are imported from toolCategories.ts (Single Source of Truth)
  */
 
 import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { ALL_TOOLS } from '../src/lib/toolCategories.js';
 
 const SITE_URL = 'https://tools.soundbluemusic.com';
 const PUBLIC_DIR = 'public';
@@ -30,18 +33,15 @@ const PAGES: UrlDef[] = [
   { path: 'built-with', priority: '0.6', changefreq: 'monthly' },
   { path: 'benchmark', priority: '0.5', changefreq: 'weekly' },
   { path: 'sitemap', priority: '0.4', changefreq: 'weekly' },
+  { path: 'changelog', priority: '0.4', changefreq: 'monthly' },
 ];
 
-// Tool pages (actual existing tools)
-const TOOLS: UrlDef[] = [
-  { path: 'metronome', priority: '0.9', changefreq: 'weekly' },
-  { path: 'drum-machine', priority: '0.9', changefreq: 'weekly' },
-  { path: 'tap-tempo', priority: '0.8', changefreq: 'monthly' },
-  { path: 'qr', priority: '0.8', changefreq: 'monthly' },
-  { path: 'translator', priority: '0.9', changefreq: 'weekly' },
-  { path: 'spell-checker', priority: '0.8', changefreq: 'weekly' },
-  { path: 'english-spell-checker', priority: '0.8', changefreq: 'weekly' },
-];
+// 🔄 AUTO-GENERATED from toolCategories.ts - DO NOT EDIT MANUALLY
+const TOOLS: UrlDef[] = ALL_TOOLS.map((tool) => ({
+  path: tool.slug,
+  priority: '0.8',
+  changefreq: 'weekly' as const,
+}));
 
 // Generate URL (no trailing slash for cleaner URLs)
 function getUrl(path: string, locale?: 'ko'): string {

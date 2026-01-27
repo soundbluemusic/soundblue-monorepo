@@ -5,6 +5,8 @@
  * 2. Generate sitemap-pages.xml (static pages)
  * 3. Generate robots.txt
  *
+ * 🔄 AUTO-SYNC: Routes are scanned from src/routes directory
+ *
  * Structure:
  * sitemap_index.xml
  * ├── sitemap-pages.xml   (static pages)
@@ -12,6 +14,7 @@
  * └── sitemap-tracks.xml  (future: sound recordings)
  */
 
+import { readdirSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -19,33 +22,69 @@ const OUT_DIR = 'dist/client';
 const SITE_URL = 'https://soundbluemusic.com';
 const STYLESHEET_INSTRUCTION = '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>';
 
-// All static routes for sitemap-pages.xml
-const STATIC_ROUTES = [
-  { path: '/', changefreq: 'weekly', priority: '1.0' },
-  { path: '/ko/', changefreq: 'weekly', priority: '1.0' },
-  { path: '/about/', changefreq: 'monthly', priority: '0.9' },
-  { path: '/ko/about/', changefreq: 'monthly', priority: '0.9' },
-  { path: '/music/', changefreq: 'weekly', priority: '0.9' },
-  { path: '/ko/music/', changefreq: 'weekly', priority: '0.9' },
-  { path: '/sitemap/', changefreq: 'monthly', priority: '0.8' },
-  { path: '/ko/sitemap/', changefreq: 'monthly', priority: '0.8' },
-  { path: '/news/', changefreq: 'weekly', priority: '0.8' },
-  { path: '/ko/news/', changefreq: 'weekly', priority: '0.8' },
-  { path: '/blog/', changefreq: 'weekly', priority: '0.8' },
-  { path: '/ko/blog/', changefreq: 'weekly', priority: '0.8' },
-  { path: '/chat/', changefreq: 'monthly', priority: '0.7' },
-  { path: '/ko/chat/', changefreq: 'monthly', priority: '0.7' },
-  { path: '/built-with/', changefreq: 'monthly', priority: '0.6' },
-  { path: '/ko/built-with/', changefreq: 'monthly', priority: '0.6' },
-  { path: '/privacy/', changefreq: 'yearly', priority: '0.5' },
-  { path: '/ko/privacy/', changefreq: 'yearly', priority: '0.5' },
-  { path: '/terms/', changefreq: 'yearly', priority: '0.5' },
-  { path: '/ko/terms/', changefreq: 'yearly', priority: '0.5' },
-  { path: '/license/', changefreq: 'yearly', priority: '0.5' },
-  { path: '/ko/license/', changefreq: 'yearly', priority: '0.5' },
-  { path: '/sound-recording/', changefreq: 'yearly', priority: '0.5' },
-  { path: '/ko/sound-recording/', changefreq: 'yearly', priority: '0.5' },
-];
+// Route priority & changefreq configuration
+const ROUTE_CONFIG = {
+  index: { priority: '1.0', changefreq: 'weekly' },
+  about: { priority: '0.9', changefreq: 'monthly' },
+  music: { priority: '0.9', changefreq: 'weekly' },
+  blog: { priority: '0.8', changefreq: 'weekly' },
+  news: { priority: '0.8', changefreq: 'weekly' },
+  chat: { priority: '0.7', changefreq: 'monthly' },
+  sitemap: { priority: '0.6', changefreq: 'monthly' },
+  'built-with': { priority: '0.6', changefreq: 'monthly' },
+  changelog: { priority: '0.5', changefreq: 'monthly' },
+  privacy: { priority: '0.5', changefreq: 'yearly' },
+  terms: { priority: '0.5', changefreq: 'yearly' },
+  license: { priority: '0.5', changefreq: 'yearly' },
+  'sound-recording': { priority: '0.5', changefreq: 'yearly' },
+  offline: { priority: '0.3', changefreq: 'yearly' },
+};
+const DEFAULT_CONFIG = { priority: '0.5', changefreq: 'monthly' };
+
+// 🔄 AUTO-SYNC: Scan routes directory
+function scanRoutes() {
+  const routesDir = join(process.cwd(), 'src/routes');
+  const files = readdirSync(routesDir);
+
+  const routes = files
+    .filter(
+      (f) =>
+        f.endsWith('.tsx') &&
+        !f.startsWith('__') &&
+        !f.endsWith('.lazy.tsx') &&
+        f !== 'sitemap.tsx',
+    )
+    .map((f) => f.replace('.tsx', ''))
+    .map((name) => (name === 'index' ? '' : name));
+
+  // Add sitemap at the end
+  routes.push('sitemap');
+
+  return routes;
+}
+
+// Generate STATIC_ROUTES from scanned routes
+function generateStaticRoutes() {
+  const routes = scanRoutes();
+  const staticRoutes = [];
+
+  for (const route of routes) {
+    const config = ROUTE_CONFIG[route || 'index'] || DEFAULT_CONFIG;
+    const path = route === '' ? '/' : `/${route}/`;
+
+    // English route
+    staticRoutes.push({ path, ...config });
+    // Korean route
+    staticRoutes.push({
+      path: route === '' ? '/ko/' : `/ko/${route}/`,
+      ...config,
+    });
+  }
+
+  return staticRoutes;
+}
+
+const STATIC_ROUTES = generateStaticRoutes();
 
 // Sitemap index configuration
 const SITEMAP_INDEX_ENTRIES = [

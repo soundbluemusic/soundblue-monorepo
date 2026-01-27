@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && pnpm exec tsx scripts/postbuild-seo.ts",
+    "build": "vite build && pnpm exec tsx scripts/generate-sitemaps.ts && pnpm exec tsx scripts/postbuild-seo.ts",
     "prebuild": "pnpm --filter @soundblue/ui-components build",
     "start": "node dist/server/index.js",
     "typecheck": "tsc --noEmit",

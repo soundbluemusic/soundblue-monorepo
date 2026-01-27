@@ -8,270 +8,270 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root';
-import { Route as AboutRouteImport } from './routes/about';
-import { Route as BlogRouteImport } from './routes/blog';
-import { Route as BuiltWithRouteImport } from './routes/built-with';
-import { Route as ChangelogRouteImport } from './routes/changelog';
-import { Route as ChatRouteImport } from './routes/chat';
-import { Route as IndexRouteImport } from './routes/index';
-import { Route as KoAboutRouteImport } from './routes/ko/about';
-import { Route as KoBlogRouteImport } from './routes/ko/blog';
-import { Route as KoBuiltWithRouteImport } from './routes/ko/built-with';
-import { Route as KoChangelogRouteImport } from './routes/ko/changelog';
-import { Route as KoChatRouteImport } from './routes/ko/chat';
-import { Route as KoIndexRouteImport } from './routes/ko/index';
-import { Route as KoLicenseRouteImport } from './routes/ko/license';
-import { Route as KoMusicRouteImport } from './routes/ko/music';
-import { Route as KoNewsRouteImport } from './routes/ko/news';
-import { Route as KoOfflineRouteImport } from './routes/ko/offline';
-import { Route as KoPrivacyRouteImport } from './routes/ko/privacy';
-import { Route as KoSitemapRouteImport } from './routes/ko/sitemap';
-import { Route as KoSoundRecordingRouteImport } from './routes/ko/sound-recording';
-import { Route as KoTermsRouteImport } from './routes/ko/terms';
-import { Route as LicenseRouteImport } from './routes/license';
-import { Route as MusicRouteImport } from './routes/music';
-import { Route as NewsRouteImport } from './routes/news';
-import { Route as OfflineRouteImport } from './routes/offline';
-import { Route as PrivacyRouteImport } from './routes/privacy';
-import { Route as SitemapRouteImport } from './routes/sitemap';
-import { Route as SoundRecordingRouteImport } from './routes/sound-recording';
-import { Route as TermsRouteImport } from './routes/terms';
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SoundRecordingRouteImport } from './routes/sound-recording'
+import { Route as SitemapRouteImport } from './routes/sitemap'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as OfflineRouteImport } from './routes/offline'
+import { Route as NewsRouteImport } from './routes/news'
+import { Route as MusicRouteImport } from './routes/music'
+import { Route as LicenseRouteImport } from './routes/license'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as BuiltWithRouteImport } from './routes/built-with'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as KoIndexRouteImport } from './routes/ko/index'
+import { Route as KoTermsRouteImport } from './routes/ko/terms'
+import { Route as KoSoundRecordingRouteImport } from './routes/ko/sound-recording'
+import { Route as KoSitemapRouteImport } from './routes/ko/sitemap'
+import { Route as KoPrivacyRouteImport } from './routes/ko/privacy'
+import { Route as KoOfflineRouteImport } from './routes/ko/offline'
+import { Route as KoNewsRouteImport } from './routes/ko/news'
+import { Route as KoMusicRouteImport } from './routes/ko/music'
+import { Route as KoLicenseRouteImport } from './routes/ko/license'
+import { Route as KoChatRouteImport } from './routes/ko/chat'
+import { Route as KoChangelogRouteImport } from './routes/ko/changelog'
+import { Route as KoBuiltWithRouteImport } from './routes/ko/built-with'
+import { Route as KoBlogRouteImport } from './routes/ko/blog'
+import { Route as KoAboutRouteImport } from './routes/ko/about'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SoundRecordingRoute = SoundRecordingRouteImport.update({
   id: '/sound-recording',
   path: '/sound-recording',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SitemapRoute = SitemapRouteImport.update({
   id: '/sitemap',
   path: '/sitemap',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
   path: '/offline',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const MusicRoute = MusicRouteImport.update({
   id: '/music',
   path: '/music',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LicenseRoute = LicenseRouteImport.update({
   id: '/license',
   path: '/license',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ChatRoute = ChatRouteImport.update({
   id: '/chat',
   path: '/chat',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/chat.lazy').then((d) => d.Route));
+} as any).lazy(() => import('./routes/chat.lazy').then((d) => d.Route))
 const ChangelogRoute = ChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const BuiltWithRoute = BuiltWithRouteImport.update({
   id: '/built-with',
   path: '/built-with',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const BlogRoute = BlogRouteImport.update({
   id: '/blog',
   path: '/blog',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoIndexRoute = KoIndexRouteImport.update({
   id: '/ko/',
   path: '/ko/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoTermsRoute = KoTermsRouteImport.update({
   id: '/ko/terms',
   path: '/ko/terms',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoSoundRecordingRoute = KoSoundRecordingRouteImport.update({
   id: '/ko/sound-recording',
   path: '/ko/sound-recording',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoSitemapRoute = KoSitemapRouteImport.update({
   id: '/ko/sitemap',
   path: '/ko/sitemap',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoPrivacyRoute = KoPrivacyRouteImport.update({
   id: '/ko/privacy',
   path: '/ko/privacy',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoOfflineRoute = KoOfflineRouteImport.update({
   id: '/ko/offline',
   path: '/ko/offline',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoNewsRoute = KoNewsRouteImport.update({
   id: '/ko/news',
   path: '/ko/news',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoMusicRoute = KoMusicRouteImport.update({
   id: '/ko/music',
   path: '/ko/music',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoLicenseRoute = KoLicenseRouteImport.update({
   id: '/ko/license',
   path: '/ko/license',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoChatRoute = KoChatRouteImport.update({
   id: '/ko/chat',
   path: '/ko/chat',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/ko/chat.lazy').then((d) => d.Route));
+} as any).lazy(() => import('./routes/ko/chat.lazy').then((d) => d.Route))
 const KoChangelogRoute = KoChangelogRouteImport.update({
   id: '/ko/changelog',
   path: '/ko/changelog',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoBuiltWithRoute = KoBuiltWithRouteImport.update({
   id: '/ko/built-with',
   path: '/ko/built-with',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoBlogRoute = KoBlogRouteImport.update({
   id: '/ko/blog',
   path: '/ko/blog',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const KoAboutRoute = KoAboutRouteImport.update({
   id: '/ko/about',
   path: '/ko/about',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute;
-  '/about': typeof AboutRoute;
-  '/blog': typeof BlogRoute;
-  '/built-with': typeof BuiltWithRoute;
-  '/changelog': typeof ChangelogRoute;
-  '/chat': typeof ChatRoute;
-  '/license': typeof LicenseRoute;
-  '/music': typeof MusicRoute;
-  '/news': typeof NewsRoute;
-  '/offline': typeof OfflineRoute;
-  '/privacy': typeof PrivacyRoute;
-  '/sitemap': typeof SitemapRoute;
-  '/sound-recording': typeof SoundRecordingRoute;
-  '/terms': typeof TermsRoute;
-  '/ko/about': typeof KoAboutRoute;
-  '/ko/blog': typeof KoBlogRoute;
-  '/ko/built-with': typeof KoBuiltWithRoute;
-  '/ko/changelog': typeof KoChangelogRoute;
-  '/ko/chat': typeof KoChatRoute;
-  '/ko/license': typeof KoLicenseRoute;
-  '/ko/music': typeof KoMusicRoute;
-  '/ko/news': typeof KoNewsRoute;
-  '/ko/offline': typeof KoOfflineRoute;
-  '/ko/privacy': typeof KoPrivacyRoute;
-  '/ko/sitemap': typeof KoSitemapRoute;
-  '/ko/sound-recording': typeof KoSoundRecordingRoute;
-  '/ko/terms': typeof KoTermsRoute;
-  '/ko/': typeof KoIndexRoute;
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/blog': typeof BlogRoute
+  '/built-with': typeof BuiltWithRoute
+  '/changelog': typeof ChangelogRoute
+  '/chat': typeof ChatRoute
+  '/license': typeof LicenseRoute
+  '/music': typeof MusicRoute
+  '/news': typeof NewsRoute
+  '/offline': typeof OfflineRoute
+  '/privacy': typeof PrivacyRoute
+  '/sitemap': typeof SitemapRoute
+  '/sound-recording': typeof SoundRecordingRoute
+  '/terms': typeof TermsRoute
+  '/ko/about': typeof KoAboutRoute
+  '/ko/blog': typeof KoBlogRoute
+  '/ko/built-with': typeof KoBuiltWithRoute
+  '/ko/changelog': typeof KoChangelogRoute
+  '/ko/chat': typeof KoChatRoute
+  '/ko/license': typeof KoLicenseRoute
+  '/ko/music': typeof KoMusicRoute
+  '/ko/news': typeof KoNewsRoute
+  '/ko/offline': typeof KoOfflineRoute
+  '/ko/privacy': typeof KoPrivacyRoute
+  '/ko/sitemap': typeof KoSitemapRoute
+  '/ko/sound-recording': typeof KoSoundRecordingRoute
+  '/ko/terms': typeof KoTermsRoute
+  '/ko/': typeof KoIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute;
-  '/about': typeof AboutRoute;
-  '/blog': typeof BlogRoute;
-  '/built-with': typeof BuiltWithRoute;
-  '/changelog': typeof ChangelogRoute;
-  '/chat': typeof ChatRoute;
-  '/license': typeof LicenseRoute;
-  '/music': typeof MusicRoute;
-  '/news': typeof NewsRoute;
-  '/offline': typeof OfflineRoute;
-  '/privacy': typeof PrivacyRoute;
-  '/sitemap': typeof SitemapRoute;
-  '/sound-recording': typeof SoundRecordingRoute;
-  '/terms': typeof TermsRoute;
-  '/ko/about': typeof KoAboutRoute;
-  '/ko/blog': typeof KoBlogRoute;
-  '/ko/built-with': typeof KoBuiltWithRoute;
-  '/ko/changelog': typeof KoChangelogRoute;
-  '/ko/chat': typeof KoChatRoute;
-  '/ko/license': typeof KoLicenseRoute;
-  '/ko/music': typeof KoMusicRoute;
-  '/ko/news': typeof KoNewsRoute;
-  '/ko/offline': typeof KoOfflineRoute;
-  '/ko/privacy': typeof KoPrivacyRoute;
-  '/ko/sitemap': typeof KoSitemapRoute;
-  '/ko/sound-recording': typeof KoSoundRecordingRoute;
-  '/ko/terms': typeof KoTermsRoute;
-  '/ko': typeof KoIndexRoute;
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/blog': typeof BlogRoute
+  '/built-with': typeof BuiltWithRoute
+  '/changelog': typeof ChangelogRoute
+  '/chat': typeof ChatRoute
+  '/license': typeof LicenseRoute
+  '/music': typeof MusicRoute
+  '/news': typeof NewsRoute
+  '/offline': typeof OfflineRoute
+  '/privacy': typeof PrivacyRoute
+  '/sitemap': typeof SitemapRoute
+  '/sound-recording': typeof SoundRecordingRoute
+  '/terms': typeof TermsRoute
+  '/ko/about': typeof KoAboutRoute
+  '/ko/blog': typeof KoBlogRoute
+  '/ko/built-with': typeof KoBuiltWithRoute
+  '/ko/changelog': typeof KoChangelogRoute
+  '/ko/chat': typeof KoChatRoute
+  '/ko/license': typeof KoLicenseRoute
+  '/ko/music': typeof KoMusicRoute
+  '/ko/news': typeof KoNewsRoute
+  '/ko/offline': typeof KoOfflineRoute
+  '/ko/privacy': typeof KoPrivacyRoute
+  '/ko/sitemap': typeof KoSitemapRoute
+  '/ko/sound-recording': typeof KoSoundRecordingRoute
+  '/ko/terms': typeof KoTermsRoute
+  '/ko': typeof KoIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  '/': typeof IndexRoute;
-  '/about': typeof AboutRoute;
-  '/blog': typeof BlogRoute;
-  '/built-with': typeof BuiltWithRoute;
-  '/changelog': typeof ChangelogRoute;
-  '/chat': typeof ChatRoute;
-  '/license': typeof LicenseRoute;
-  '/music': typeof MusicRoute;
-  '/news': typeof NewsRoute;
-  '/offline': typeof OfflineRoute;
-  '/privacy': typeof PrivacyRoute;
-  '/sitemap': typeof SitemapRoute;
-  '/sound-recording': typeof SoundRecordingRoute;
-  '/terms': typeof TermsRoute;
-  '/ko/about': typeof KoAboutRoute;
-  '/ko/blog': typeof KoBlogRoute;
-  '/ko/built-with': typeof KoBuiltWithRoute;
-  '/ko/changelog': typeof KoChangelogRoute;
-  '/ko/chat': typeof KoChatRoute;
-  '/ko/license': typeof KoLicenseRoute;
-  '/ko/music': typeof KoMusicRoute;
-  '/ko/news': typeof KoNewsRoute;
-  '/ko/offline': typeof KoOfflineRoute;
-  '/ko/privacy': typeof KoPrivacyRoute;
-  '/ko/sitemap': typeof KoSitemapRoute;
-  '/ko/sound-recording': typeof KoSoundRecordingRoute;
-  '/ko/terms': typeof KoTermsRoute;
-  '/ko/': typeof KoIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/blog': typeof BlogRoute
+  '/built-with': typeof BuiltWithRoute
+  '/changelog': typeof ChangelogRoute
+  '/chat': typeof ChatRoute
+  '/license': typeof LicenseRoute
+  '/music': typeof MusicRoute
+  '/news': typeof NewsRoute
+  '/offline': typeof OfflineRoute
+  '/privacy': typeof PrivacyRoute
+  '/sitemap': typeof SitemapRoute
+  '/sound-recording': typeof SoundRecordingRoute
+  '/terms': typeof TermsRoute
+  '/ko/about': typeof KoAboutRoute
+  '/ko/blog': typeof KoBlogRoute
+  '/ko/built-with': typeof KoBuiltWithRoute
+  '/ko/changelog': typeof KoChangelogRoute
+  '/ko/chat': typeof KoChatRoute
+  '/ko/license': typeof KoLicenseRoute
+  '/ko/music': typeof KoMusicRoute
+  '/ko/news': typeof KoNewsRoute
+  '/ko/offline': typeof KoOfflineRoute
+  '/ko/privacy': typeof KoPrivacyRoute
+  '/ko/sitemap': typeof KoSitemapRoute
+  '/ko/sound-recording': typeof KoSoundRecordingRoute
+  '/ko/terms': typeof KoTermsRoute
+  '/ko/': typeof KoIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
@@ -300,8 +300,8 @@ export interface FileRouteTypes {
     | '/ko/sitemap'
     | '/ko/sound-recording'
     | '/ko/terms'
-    | '/ko/';
-  fileRoutesByTo: FileRoutesByTo;
+    | '/ko/'
+  fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
@@ -330,7 +330,7 @@ export interface FileRouteTypes {
     | '/ko/sitemap'
     | '/ko/sound-recording'
     | '/ko/terms'
-    | '/ko';
+    | '/ko'
   id:
     | '__root__'
     | '/'
@@ -360,238 +360,238 @@ export interface FileRouteTypes {
     | '/ko/sitemap'
     | '/ko/sound-recording'
     | '/ko/terms'
-    | '/ko/';
-  fileRoutesById: FileRoutesById;
+    | '/ko/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  AboutRoute: typeof AboutRoute;
-  BlogRoute: typeof BlogRoute;
-  BuiltWithRoute: typeof BuiltWithRoute;
-  ChangelogRoute: typeof ChangelogRoute;
-  ChatRoute: typeof ChatRoute;
-  LicenseRoute: typeof LicenseRoute;
-  MusicRoute: typeof MusicRoute;
-  NewsRoute: typeof NewsRoute;
-  OfflineRoute: typeof OfflineRoute;
-  PrivacyRoute: typeof PrivacyRoute;
-  SitemapRoute: typeof SitemapRoute;
-  SoundRecordingRoute: typeof SoundRecordingRoute;
-  TermsRoute: typeof TermsRoute;
-  KoAboutRoute: typeof KoAboutRoute;
-  KoBlogRoute: typeof KoBlogRoute;
-  KoBuiltWithRoute: typeof KoBuiltWithRoute;
-  KoChangelogRoute: typeof KoChangelogRoute;
-  KoChatRoute: typeof KoChatRoute;
-  KoLicenseRoute: typeof KoLicenseRoute;
-  KoMusicRoute: typeof KoMusicRoute;
-  KoNewsRoute: typeof KoNewsRoute;
-  KoOfflineRoute: typeof KoOfflineRoute;
-  KoPrivacyRoute: typeof KoPrivacyRoute;
-  KoSitemapRoute: typeof KoSitemapRoute;
-  KoSoundRecordingRoute: typeof KoSoundRecordingRoute;
-  KoTermsRoute: typeof KoTermsRoute;
-  KoIndexRoute: typeof KoIndexRoute;
+  IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  BlogRoute: typeof BlogRoute
+  BuiltWithRoute: typeof BuiltWithRoute
+  ChangelogRoute: typeof ChangelogRoute
+  ChatRoute: typeof ChatRoute
+  LicenseRoute: typeof LicenseRoute
+  MusicRoute: typeof MusicRoute
+  NewsRoute: typeof NewsRoute
+  OfflineRoute: typeof OfflineRoute
+  PrivacyRoute: typeof PrivacyRoute
+  SitemapRoute: typeof SitemapRoute
+  SoundRecordingRoute: typeof SoundRecordingRoute
+  TermsRoute: typeof TermsRoute
+  KoAboutRoute: typeof KoAboutRoute
+  KoBlogRoute: typeof KoBlogRoute
+  KoBuiltWithRoute: typeof KoBuiltWithRoute
+  KoChangelogRoute: typeof KoChangelogRoute
+  KoChatRoute: typeof KoChatRoute
+  KoLicenseRoute: typeof KoLicenseRoute
+  KoMusicRoute: typeof KoMusicRoute
+  KoNewsRoute: typeof KoNewsRoute
+  KoOfflineRoute: typeof KoOfflineRoute
+  KoPrivacyRoute: typeof KoPrivacyRoute
+  KoSitemapRoute: typeof KoSitemapRoute
+  KoSoundRecordingRoute: typeof KoSoundRecordingRoute
+  KoTermsRoute: typeof KoTermsRoute
+  KoIndexRoute: typeof KoIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/terms': {
-      id: '/terms';
-      path: '/terms';
-      fullPath: '/terms';
-      preLoaderRoute: typeof TermsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sound-recording': {
-      id: '/sound-recording';
-      path: '/sound-recording';
-      fullPath: '/sound-recording';
-      preLoaderRoute: typeof SoundRecordingRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/sound-recording'
+      path: '/sound-recording'
+      fullPath: '/sound-recording'
+      preLoaderRoute: typeof SoundRecordingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap': {
-      id: '/sitemap';
-      path: '/sitemap';
-      fullPath: '/sitemap';
-      preLoaderRoute: typeof SitemapRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/sitemap'
+      path: '/sitemap'
+      fullPath: '/sitemap'
+      preLoaderRoute: typeof SitemapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
-      id: '/privacy';
-      path: '/privacy';
-      fullPath: '/privacy';
-      preLoaderRoute: typeof PrivacyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/offline': {
-      id: '/offline';
-      path: '/offline';
-      fullPath: '/offline';
-      preLoaderRoute: typeof OfflineRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/offline'
+      path: '/offline'
+      fullPath: '/offline'
+      preLoaderRoute: typeof OfflineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/news': {
-      id: '/news';
-      path: '/news';
-      fullPath: '/news';
-      preLoaderRoute: typeof NewsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/music': {
-      id: '/music';
-      path: '/music';
-      fullPath: '/music';
-      preLoaderRoute: typeof MusicRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/music'
+      path: '/music'
+      fullPath: '/music'
+      preLoaderRoute: typeof MusicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/license': {
-      id: '/license';
-      path: '/license';
-      fullPath: '/license';
-      preLoaderRoute: typeof LicenseRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/license'
+      path: '/license'
+      fullPath: '/license'
+      preLoaderRoute: typeof LicenseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chat': {
-      id: '/chat';
-      path: '/chat';
-      fullPath: '/chat';
-      preLoaderRoute: typeof ChatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/changelog': {
-      id: '/changelog';
-      path: '/changelog';
-      fullPath: '/changelog';
-      preLoaderRoute: typeof ChangelogRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/built-with': {
-      id: '/built-with';
-      path: '/built-with';
-      fullPath: '/built-with';
-      preLoaderRoute: typeof BuiltWithRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/built-with'
+      path: '/built-with'
+      fullPath: '/built-with'
+      preLoaderRoute: typeof BuiltWithRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog': {
-      id: '/blog';
-      path: '/blog';
-      fullPath: '/blog';
-      preLoaderRoute: typeof BlogRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
-      id: '/about';
-      path: '/about';
-      fullPath: '/about';
-      preLoaderRoute: typeof AboutRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
-      id: '/';
-      path: '/';
-      fullPath: '/';
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/': {
-      id: '/ko/';
-      path: '/ko';
-      fullPath: '/ko/';
-      preLoaderRoute: typeof KoIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/'
+      path: '/ko'
+      fullPath: '/ko/'
+      preLoaderRoute: typeof KoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/terms': {
-      id: '/ko/terms';
-      path: '/ko/terms';
-      fullPath: '/ko/terms';
-      preLoaderRoute: typeof KoTermsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/terms'
+      path: '/ko/terms'
+      fullPath: '/ko/terms'
+      preLoaderRoute: typeof KoTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/sound-recording': {
-      id: '/ko/sound-recording';
-      path: '/ko/sound-recording';
-      fullPath: '/ko/sound-recording';
-      preLoaderRoute: typeof KoSoundRecordingRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/sound-recording'
+      path: '/ko/sound-recording'
+      fullPath: '/ko/sound-recording'
+      preLoaderRoute: typeof KoSoundRecordingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/sitemap': {
-      id: '/ko/sitemap';
-      path: '/ko/sitemap';
-      fullPath: '/ko/sitemap';
-      preLoaderRoute: typeof KoSitemapRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/sitemap'
+      path: '/ko/sitemap'
+      fullPath: '/ko/sitemap'
+      preLoaderRoute: typeof KoSitemapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/privacy': {
-      id: '/ko/privacy';
-      path: '/ko/privacy';
-      fullPath: '/ko/privacy';
-      preLoaderRoute: typeof KoPrivacyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/privacy'
+      path: '/ko/privacy'
+      fullPath: '/ko/privacy'
+      preLoaderRoute: typeof KoPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/offline': {
-      id: '/ko/offline';
-      path: '/ko/offline';
-      fullPath: '/ko/offline';
-      preLoaderRoute: typeof KoOfflineRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/offline'
+      path: '/ko/offline'
+      fullPath: '/ko/offline'
+      preLoaderRoute: typeof KoOfflineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/news': {
-      id: '/ko/news';
-      path: '/ko/news';
-      fullPath: '/ko/news';
-      preLoaderRoute: typeof KoNewsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/news'
+      path: '/ko/news'
+      fullPath: '/ko/news'
+      preLoaderRoute: typeof KoNewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/music': {
-      id: '/ko/music';
-      path: '/ko/music';
-      fullPath: '/ko/music';
-      preLoaderRoute: typeof KoMusicRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/music'
+      path: '/ko/music'
+      fullPath: '/ko/music'
+      preLoaderRoute: typeof KoMusicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/license': {
-      id: '/ko/license';
-      path: '/ko/license';
-      fullPath: '/ko/license';
-      preLoaderRoute: typeof KoLicenseRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/license'
+      path: '/ko/license'
+      fullPath: '/ko/license'
+      preLoaderRoute: typeof KoLicenseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/chat': {
-      id: '/ko/chat';
-      path: '/ko/chat';
-      fullPath: '/ko/chat';
-      preLoaderRoute: typeof KoChatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/chat'
+      path: '/ko/chat'
+      fullPath: '/ko/chat'
+      preLoaderRoute: typeof KoChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/changelog': {
-      id: '/ko/changelog';
-      path: '/ko/changelog';
-      fullPath: '/ko/changelog';
-      preLoaderRoute: typeof KoChangelogRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/changelog'
+      path: '/ko/changelog'
+      fullPath: '/ko/changelog'
+      preLoaderRoute: typeof KoChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/built-with': {
-      id: '/ko/built-with';
-      path: '/ko/built-with';
-      fullPath: '/ko/built-with';
-      preLoaderRoute: typeof KoBuiltWithRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/built-with'
+      path: '/ko/built-with'
+      fullPath: '/ko/built-with'
+      preLoaderRoute: typeof KoBuiltWithRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/blog': {
-      id: '/ko/blog';
-      path: '/ko/blog';
-      fullPath: '/ko/blog';
-      preLoaderRoute: typeof KoBlogRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/blog'
+      path: '/ko/blog'
+      fullPath: '/ko/blog'
+      preLoaderRoute: typeof KoBlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ko/about': {
-      id: '/ko/about';
-      path: '/ko/about';
-      fullPath: '/ko/about';
-      preLoaderRoute: typeof KoAboutRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ko/about'
+      path: '/ko/about'
+      fullPath: '/ko/about'
+      preLoaderRoute: typeof KoAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -624,17 +624,16 @@ const rootRouteChildren: RootRouteChildren = {
   KoSoundRecordingRoute: KoSoundRecordingRoute,
   KoTermsRoute: KoTermsRoute,
   KoIndexRoute: KoIndexRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
-import type { createStart } from '@tanstack/react-start';
-import type { getRouter } from './router.tsx';
-
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
 declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true;
-    router: Awaited<ReturnType<typeof getRouter>>;
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
   }
 }
