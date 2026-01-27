@@ -1,7 +1,7 @@
 // ========================================
 // External Dictionary - 외부 사전 (D1에서 자동 생성)
 // Source: Cloudflare D1 (Context App)
-// Generated: 2026-01-26T18:28:22.911Z
+// Generated: 2026-01-27T06:28:24.543Z
 // ========================================
 // ⚠️ 이 파일은 자동 생성됩니다. 직접 수정하지 마세요!
 // ⚠️ This file is auto-generated. Do not edit directly!
