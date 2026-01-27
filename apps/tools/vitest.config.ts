@@ -11,6 +11,8 @@ export default defineConfig({
       'src/**/*.{test,spec}.{ts,tsx}',
       'tests/**/*.{test,spec}.{ts,tsx}',
     ],
+    // SEO build tests require build artifacts - run separately in CI post-build
+    exclude: ['tests/seo-build/**', 'node_modules/**'],
     passWithNoTests: true,
     coverage: {
       provider: 'v8',
