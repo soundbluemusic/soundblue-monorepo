@@ -171,8 +171,12 @@ export function MainLayout() {
       {/* Header - fixed height */}
       <Header />
 
-      {/* Main Content - explicit height fills viewport minus header */}
-      <main id="main-content" className="main-viewport-height flex overflow-hidden shrink-0">
+      {/* Main Content - explicit height fills viewport minus header (56px = h-14) */}
+      <main
+        id="main-content"
+        className="flex overflow-hidden"
+        style={{ height: 'calc(100dvh - 56px)' }}
+      >
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
           <button
