@@ -79,10 +79,12 @@ function PromptCard({ icon, text, onClick }: PromptCardProps) {
     <button
       type="button"
       onClick={onClick}
-      className="prompt-card flex items-center gap-3 p-4 bg-[var(--color-bg-secondary)] border border-[var(--color-border-primary)] rounded-xl text-left cursor-pointer hover:border-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+      className="prompt-card flex items-center gap-3 p-4 bg-[var(--color-bg-secondary)] border border-[var(--color-border-primary)] rounded-xl text-left cursor-pointer hover:border-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 min-h-[72px]"
     >
-      <span className="text-2xl">{icon}</span>
-      <span className="text-sm text-[var(--color-text-primary)]">{text}</span>
+      <span className="text-2xl shrink-0">{icon}</span>
+      <span className="text-sm text-[var(--color-text-primary)] line-clamp-2 break-words">
+        {text}
+      </span>
     </button>
   );
 }
@@ -97,22 +99,22 @@ function WelcomeScreen({ onPromptSelect, locale }: WelcomeScreenProps) {
   const prompts = locale === 'ko' ? SUGGESTED_PROMPTS.ko : SUGGESTED_PROMPTS.en;
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-8">
+    <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 overflow-auto">
       {/* Logo/Icon */}
-      <div className="w-20 h-20 rounded-full bg-[var(--color-accent-light)] flex items-center justify-center mb-6">
-        <span className="text-4xl">💬</span>
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--color-accent-light)] flex items-center justify-center mb-4 sm:mb-6 shrink-0">
+        <span className="text-3xl sm:text-4xl">💬</span>
       </div>
 
       {/* Title */}
-      <h2 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">
+      <h2 className="text-xl sm:text-2xl font-bold text-[var(--color-text-primary)] mb-2 text-center">
         {m['app.title']()}
       </h2>
-      <p className="text-sm text-[var(--color-text-tertiary)] mb-8 text-center max-w-md">
+      <p className="text-xs sm:text-sm text-[var(--color-text-tertiary)] mb-6 sm:mb-8 text-center max-w-md px-2">
         {m['app.subtitle']()}
       </p>
 
-      {/* Prompt Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
+      {/* Prompt Cards - 반응형 그리드 개선 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full max-w-lg px-2">
         {prompts.map((prompt, index) => (
           <PromptCard
             key={index}

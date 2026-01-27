@@ -277,7 +277,7 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             {!sidebarCollapsed && <span className="truncate">{m['changelog.title']()}</span>}
           </Link>
 
-          {/* Offline Badge */}
+          {/* Offline Badge - 앱 특성 표시 (현재 네트워크 상태 아님) */}
           <div
             className={[
               'flex items-center mt-2 py-2 bg-[var(--color-success-light)] text-[var(--color-success)] rounded-lg text-xs font-medium',
@@ -285,9 +285,10 @@ export function Sidebar({ onNewChat, onLoadConversation }: SidebarProps) {
             ]
               .filter(Boolean)
               .join(' ')}
+            title={sidebarCollapsed ? 'Works 100% offline' : undefined}
           >
             <OfflineIcon />
-            {!sidebarCollapsed && <span>{m['app.offline']()}</span>}
+            {!sidebarCollapsed && <span className="truncate">{m['app.offline']()}</span>}
           </div>
         </div>
       </div>

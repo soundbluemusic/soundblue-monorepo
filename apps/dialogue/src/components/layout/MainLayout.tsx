@@ -171,12 +171,8 @@ export function MainLayout() {
       {/* Header - fixed height */}
       <Header />
 
-      {/* Main Content - explicit height fills viewport minus header */}
-      <main
-        id="main-content"
-        className="flex overflow-hidden"
-        style={{ height: 'calc(100dvh - var(--header-height))' }}
-      >
+      {/* Main Content - CSS 클래스로 dvh fallback 지원 */}
+      <main id="main-content" className="flex overflow-hidden main-viewport-height">
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
           <button
@@ -202,105 +198,107 @@ export function MainLayout() {
           <Sidebar onNewChat={handleNewChat} onLoadConversation={handleLoadConversation} />
         </div>
 
-        {/* Main Area (Chat + Result Panel) */}
+        {/* Main Area (Chat + Result Panel) - 조건부 렌더링으로 DOM 중복 방지 */}
         <div ref={mainRef} className="flex flex-1 min-h-0 overflow-hidden">
-          {/* Mobile: Tab-based view */}
-          <div className="flex flex-col flex-1 min-h-0 md:hidden">
-            {/* Tab Switcher */}
-            <div className="flex shrink-0 border-b border-[var(--color-border-primary)] bg-[var(--color-bg-secondary)]">
-              <button
-                type="button"
-                onClick={() => setActiveTab('chat')}
-                className={[
-                  'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
-                  activeTab === 'chat'
-                    ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
-                    : 'text-[var(--color-text-tertiary)]',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {m['app.title']()}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('history')}
-                className={[
-                  'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
-                  activeTab === 'history'
-                    ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
-                    : 'text-[var(--color-text-tertiary)]',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {m['app.history']()}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('result')}
-                className={[
-                  'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
-                  activeTab === 'result'
-                    ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
-                    : 'text-[var(--color-text-tertiary)]',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {m['app.results']()}
-              </button>
-            </div>
-
-            {/* Tab Content */}
-            <div className="flex-1 min-h-0 overflow-hidden">
-              {activeTab === 'chat' && <ChatContainer />}
-              {activeTab === 'history' && (
-                <div className="h-full p-4 overflow-auto">
-                  <ConversationList
-                    onLoadConversation={handleLoadConversation}
-                    onNewChat={handleNewChat}
-                    isMobile={true}
-                  />
-                </div>
-              )}
-              {activeTab === 'result' && <ResultPanel />}
-            </div>
-          </div>
-
-          {/* Desktop: 2 columns with resizable chat */}
-          <div className="hidden md:flex md:flex-1 md:min-h-0">
-            {/* Chat Area - width controlled by chatWidth state */}
-            <div
-              className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-0"
-              style={{ width: chatWidth }}
-            >
-              <ChatContainer />
-
-              {/* Resize Handle */}
-              <button
-                type="button"
-                onMouseDown={handleResizeStart}
-                aria-label={m['app.resizeChatPanel']()}
-                className="absolute -right-1 top-0 h-full w-3 cursor-col-resize flex items-center justify-center group bg-transparent border-none p-0"
-              >
-                <div
+          {isMobile ? (
+            /* Mobile: Tab-based view - 조건부 렌더링 */
+            <div className="flex flex-col flex-1 min-h-0">
+              {/* Tab Switcher */}
+              <div className="flex shrink-0 border-b border-[var(--color-border-primary)] bg-[var(--color-bg-secondary)]">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('chat')}
                   className={[
-                    'h-full w-1 transition-colors duration-150',
-                    'group-hover:bg-blue-500/30 group-active:bg-blue-500/30',
-                    isResizing && 'bg-blue-500/50',
+                    'min-h-[44px] min-w-[80px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
+                    activeTab === 'chat'
+                      ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
+                      : 'text-[var(--color-text-tertiary)]',
                   ]
                     .filter(Boolean)
                     .join(' ')}
-                />
-              </button>
-            </div>
+                >
+                  {m['app.title']()}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('history')}
+                  className={[
+                    'min-h-[44px] min-w-[80px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
+                    activeTab === 'history'
+                      ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
+                      : 'text-[var(--color-text-tertiary)]',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  {m['app.history']()}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('result')}
+                  className={[
+                    'min-h-[44px] min-w-[80px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
+                    activeTab === 'result'
+                      ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
+                      : 'text-[var(--color-text-tertiary)]',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  {m['app.results']()}
+                </button>
+              </div>
 
-            {/* Result Panel Area */}
-            <div className="flex-1 min-w-[280px]">
-              <ResultPanel isCompact={isTablet} />
+              {/* Tab Content */}
+              <div className="flex-1 min-h-0 overflow-hidden">
+                {activeTab === 'chat' && <ChatContainer />}
+                {activeTab === 'history' && (
+                  <div className="h-full p-4 overflow-auto">
+                    <ConversationList
+                      onLoadConversation={handleLoadConversation}
+                      onNewChat={handleNewChat}
+                      isMobile={true}
+                    />
+                  </div>
+                )}
+                {activeTab === 'result' && <ResultPanel />}
+              </div>
             </div>
-          </div>
+          ) : (
+            /* Desktop: 2 columns with resizable chat - 조건부 렌더링 */
+            <div className="flex flex-1 min-h-0">
+              {/* Chat Area - width controlled by chatWidth state */}
+              <div
+                className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-0"
+                style={{ width: chatWidth }}
+              >
+                <ChatContainer />
+
+                {/* Resize Handle */}
+                <button
+                  type="button"
+                  onMouseDown={handleResizeStart}
+                  aria-label={m['app.resizeChatPanel']()}
+                  className="absolute -right-1 top-0 h-full w-3 cursor-col-resize flex items-center justify-center group bg-transparent border-none p-0"
+                >
+                  <div
+                    className={[
+                      'h-full w-1 transition-colors duration-150',
+                      'group-hover:bg-blue-500/30 group-active:bg-blue-500/30',
+                      isResizing && 'bg-blue-500/50',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  />
+                </button>
+              </div>
+
+              {/* Result Panel Area */}
+              <div className="flex-1 min-w-[280px]">
+                <ResultPanel isCompact={isTablet} />
+              </div>
+            </div>
+          )}
         </div>
       </main>
 

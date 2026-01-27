@@ -140,29 +140,42 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
     <div
       className={`flex h-full flex-col items-center justify-center p-4 ${isCompact ? 'gap-3' : 'gap-6 p-6'}`}
     >
-      {/* 세계시간 - 시(hour)만 도시별로 */}
-      <div className={`flex items-end justify-center ${isCompact ? 'gap-2' : 'gap-4'}`}>
+      {/* 세계시간 - 시(hour)만 도시별로 (반응형 개선) */}
+      <div className={`flex items-end justify-center flex-wrap ${isCompact ? 'gap-2' : 'gap-4'}`}>
         {CITIES.map((city) => (
-          <div key={city.id} className="flex flex-col items-center gap-1">
-            <span className={isCompact ? 'text-base' : 'text-lg'}>{city.flag}</span>
+          <div key={city.id} className="flex flex-col items-center gap-1 min-w-[60px]">
+            <span
+              className={isCompact ? 'text-base' : 'text-lg'}
+              role="img"
+              aria-label={city.city.en}
+            >
+              {city.flag}
+            </span>
             <span
               className={`font-light tabular-nums text-[var(--color-text-primary)] ${isCompact ? 'text-2xl' : 'text-4xl'}`}
               suppressHydrationWarning
             >
               {getHour(city.timezone)}
             </span>
-            <span className="text-xs text-[var(--color-text-tertiary)]">{city.city[locale]}</span>
+            <span className="text-xs text-[var(--color-text-tertiary)] text-center truncate max-w-[80px]">
+              {city.city[locale]}
+            </span>
           </div>
         ))}
       </div>
 
-      {/* 공통 분:초 - 크게 표시 */}
+      {/* 공통 분:초 - 크게 표시 (콜론 분리로 UX 개선) */}
       <div className="flex items-baseline gap-1">
+        <span
+          className={`font-extralight text-[var(--color-text-tertiary)] ${isCompact ? 'text-2xl' : 'text-4xl'}`}
+        >
+          :
+        </span>
         <span
           className={`font-extralight tabular-nums tracking-tight text-[var(--color-accent-primary)] ${isCompact ? 'text-4xl' : 'text-6xl'}`}
           suppressHydrationWarning
         >
-          {`:${getMinuteSecond()}`}
+          {getMinuteSecond()}
         </span>
       </div>
 

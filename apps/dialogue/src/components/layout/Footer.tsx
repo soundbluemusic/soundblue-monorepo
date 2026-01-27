@@ -18,9 +18,9 @@ export function Footer({ className = '' }: FooterProps) {
   const locale = getLocaleFromPath(location.pathname) as 'en' | 'ko';
 
   return (
-    <div className={className}>
-      {/* App-specific tagline */}
-      <div className="border-t border-[var(--color-border-primary)] py-2 px-4 text-center bg-[var(--color-bg-secondary)]">
+    <div className={`${className} shrink-0`}>
+      {/* App-specific tagline - 대화형 앱에 맞게 간소화 */}
+      <div className="border-t border-[var(--color-border-primary)] py-3 px-4 text-center bg-[var(--color-bg-secondary)]">
         <p className="text-xs text-[var(--color-text-tertiary)]">
           <span>{m['app.title']()}</span>
           <span className="mx-2">·</span>

@@ -192,8 +192,32 @@
    ======================================== */
 
 .main-viewport-height {
+  /* Fallback for browsers without dvh support */
   height: calc(100vh - var(--header-height));
+  /* Modern browsers with dvh support */
   height: calc(100dvh - var(--header-height));
+  /* iOS Safari specific fix */
+  height: calc(100svh - var(--header-height));
+}
+
+/* Ensure fallback works when CSS variables fail */
+@supports not (height: 100dvh) {
+  .main-viewport-height {
+    height: calc(100vh - 56px);
+    /* Account for mobile browser chrome */
+    min-height: calc(100vh - 56px - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ========================================
+   Line Clamp Utility
+   ======================================== */
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ========================================

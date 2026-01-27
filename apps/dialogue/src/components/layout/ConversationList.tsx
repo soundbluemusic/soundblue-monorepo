@@ -381,11 +381,12 @@ export function ConversationList({
                       {formatDate(conv.updatedAt)}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  {/* 액션 버튼 - 터치 디바이스에서는 항상 표시, 데스크톱에서는 호버 시 표시 */}
+                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity duration-150">
                     <button
                       type="button"
                       onClick={(e) => handleRenameClick(e, conv)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 active:bg-[var(--color-accent-light)]"
                       title={m['app.rename']()}
                     >
                       <EditIcon />
@@ -393,7 +394,7 @@ export function ConversationList({
                     <button
                       type="button"
                       onClick={(e) => handleExport(e, conv)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 active:bg-[var(--color-accent-light)]"
                       title={m['app.export']()}
                     >
                       <ExportIcon />
@@ -401,7 +402,7 @@ export function ConversationList({
                     <button
                       type="button"
                       onClick={(e) => handleDeleteClick(e, conv.id)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-red-500/15 hover:text-[var(--color-error)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-red-500/15 hover:text-[var(--color-error)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 active:bg-red-500/15"
                       title={m['app.deleteChat']()}
                     >
                       <TrashIcon />
