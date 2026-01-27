@@ -13,6 +13,8 @@ export interface ResultContent {
   content: string;
   /** tool 타입일 때 어떤 도구인지 */
   tool?: ToolType;
+  /** translator 도구일 때 초기 입력 텍스트 */
+  initialText?: string;
 }
 
 interface UIState {

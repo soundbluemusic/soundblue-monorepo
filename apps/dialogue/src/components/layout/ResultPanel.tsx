@@ -59,7 +59,9 @@ export function ResultPanel({ isCompact = false }: ResultPanelProps) {
                   </div>
                 }
               >
-                {resultContent.tool === 'translator' && <Translator />}
+                {resultContent.tool === 'translator' && (
+                  <Translator initialText={resultContent.initialText} />
+                )}
                 {resultContent.tool === 'qr-generator' && <QRGenerator />}
               </Suspense>
             ) : (

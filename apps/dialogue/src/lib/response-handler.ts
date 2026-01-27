@@ -205,26 +205,33 @@ export interface ToolRequestResult {
   shouldOpenTool: boolean;
   tool?: ToolType;
   message?: string;
+  /** 번역기 요청 시 추출된 텍스트 */
+  extractedText?: string;
 }
 
 const TOOL_PATTERNS: Record<ToolType, { ko: RegExp[]; en: RegExp[] }> = {
   translator: {
     ko: [
       /번역기/i,
-      /번역\s*(해|좀|열어|보여|켜)/i,
+      // "번역해"로 끝나는 경우만 (예: "안녕 번역해", "번역해줘")
+      /번역\s*(해줘|해라|해|좀|열어|보여|켜)\s*$/i,
+      // "번역해"로 시작하는 경우만 (예: "번역해 안녕")
+      /^(번역\s*(해줘|해라|해)|이거\s*번역)/i,
       /번역\s*도구/i,
       /번역\s*기능/i,
       /통역/i,
-      /영어로\s*(번역|바꿔)/i,
-      /한국어로\s*(번역|바꿔)/i,
+      /영어로\s*(번역|바꿔)\s*$/i,
+      /한국어로\s*(번역|바꿔)\s*$/i,
     ],
     en: [
       /translator/i,
-      /translate/i,
+      // "translate"로 끝나거나 시작하는 경우만
+      /translate\s*$/i,
+      /^translate\s/i,
       /translation\s*tool/i,
       /open\s*translator/i,
       /show\s*translator/i,
-      /need\s*to\s*translate/i,
+      /need\s*to\s*translate\s*$/i,
     ],
   },
   'qr-generator': {
@@ -237,6 +244,54 @@ const TOOL_NAMES: Record<ToolType, { ko: string; en: string }> = {
   translator: { ko: '번역기', en: 'Translator' },
   'qr-generator': { ko: 'QR 코드 생성기', en: 'QR Code Generator' },
 };
+
+/**
+ * 번역 요청에서 텍스트를 추출하기 위한 패턴
+ * - 첫 번째 그룹: "텍스트 + 커맨드" 패턴
+ * - 두 번째 그룹: "커맨드 + 텍스트" 패턴
+ */
+const TRANSLATION_EXTRACT_PATTERNS: Record<'ko' | 'en', RegExp[]> = {
+  ko: [
+    // "안녕하세요 번역해" 패턴 (텍스트가 앞에)
+    /^(.+?)\s*(번역해줘|번역해라|번역해|이거\s*번역|번역)\s*$/i,
+    // "번역해 안녕하세요" 패턴 (텍스트가 뒤에)
+    /^(번역해줘|번역해라|번역해|이거\s*번역|번역)\s+(.+)$/i,
+  ],
+  en: [
+    // "hello translate" 패턴 (텍스트가 앞에)
+    /^(.+?)\s*(translate this|translate)\s*$/i,
+    // "translate hello" 패턴 (텍스트가 뒤에)
+    /^(translate this|translate)\s+(.+)$/i,
+  ],
+};
+
+/**
+ * 번역 요청에서 번역할 텍스트 추출
+ */
+function extractTextForTranslation(question: string, locale: string): string | undefined {
+  const patterns =
+    TRANSLATION_EXTRACT_PATTERNS[locale as 'ko' | 'en'] ?? TRANSLATION_EXTRACT_PATTERNS.en;
+
+  for (let i = 0; i < patterns.length; i++) {
+    const pattern = patterns[i];
+    if (!pattern) continue;
+    const match = question.match(pattern);
+    if (match) {
+      // 첫 번째 패턴 (텍스트 + 커맨드): match[1]이 텍스트
+      // 두 번째 패턴 (커맨드 + 텍스트): match[2]가 텍스트
+      const extracted = i === 0 ? match[1]?.trim() : match[2]?.trim();
+
+      if (extracted && extracted.length > 0) {
+        // 번역 커맨드 자체가 아닌지 확인
+        const isCommand = /^(번역|translate|통역)/i.test(extracted);
+        if (!isCommand) {
+          return extracted;
+        }
+      }
+    }
+  }
+  return undefined;
+}
 
 /**
  * Detect tool request from user input
@@ -252,6 +307,13 @@ export function detectToolRequest(question: string, locale: string): ToolRequest
     for (const pattern of localePatterns) {
       if (pattern.test(lowerQuestion)) {
         const toolName = TOOL_NAMES[tool][locale as 'ko' | 'en'] ?? TOOL_NAMES[tool].en;
+
+        // 번역기인 경우 텍스트 추출 시도
+        let extractedText: string | undefined;
+        if (tool === 'translator') {
+          extractedText = extractTextForTranslation(question, locale);
+        }
+
         return {
           shouldOpenTool: true,
           tool,
@@ -259,6 +321,7 @@ export function detectToolRequest(question: string, locale: string): ToolRequest
             locale === 'ko'
               ? `${toolName}를 열었습니다. 오른쪽 패널을 확인해주세요!`
               : `Opened ${toolName}. Check the right panel!`,
+          extractedText,
         };
       }
     }

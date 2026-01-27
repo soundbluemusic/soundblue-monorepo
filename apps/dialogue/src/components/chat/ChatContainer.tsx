@@ -337,6 +337,7 @@ export function ChatContainer() {
           title: toolNames[toolRequest.tool] || toolRequest.tool,
           content: '',
           tool: toolRequest.tool,
+          initialText: toolRequest.extractedText,
         });
 
         return;

@@ -74,6 +74,8 @@ interface TranslatorProps {
   onCopySuccess?: (text: string) => void;
   /** Callback when copy fails (for Toast integration) */
   onCopyError?: (error: unknown) => void;
+  /** 외부에서 주입하는 초기 입력 텍스트 (URL 파라미터보다 우선) */
+  initialText?: string;
 }
 
 export function Translator({
@@ -83,6 +85,7 @@ export function Translator({
   guideSlot,
   onCopySuccess,
   onCopyError,
+  initialText,
 }: TranslatorProps) {
   const messages = useMemo(() => ({ ...defaultMessages, ...propMessages }), [propMessages]);
   const [internalSettings, setInternalSettings] = useState(defaultTranslatorSettings);
@@ -131,10 +134,16 @@ export function Translator({
     setIsMounted(true);
   }, []);
 
-  // Load shared translation from URL on mount
+  // Load shared translation from URL on mount (initialText prop takes priority)
   useEffect(() => {
     if (isInitializedRef.current) return;
     isInitializedRef.current = true;
+
+    // initialText prop이 있으면 URL보다 우선
+    if (initialText) {
+      setInputText(initialText);
+      return;
+    }
 
     const sharedData = getSharedDataFromCurrentUrl();
     if (sharedData) {
@@ -149,7 +158,20 @@ export function Translator({
         window.history.replaceState({}, '', url.toString());
       }
     }
-  }, [settings.direction, handleSettingsChange]);
+  }, [settings.direction, handleSettingsChange, initialText]);
+
+  // Handle initialText prop changes after mount
+  const prevInitialTextRef = useRef(initialText);
+  useEffect(() => {
+    // Skip initial mount (handled above)
+    if (!isInitializedRef.current) return;
+
+    // Only update if initialText actually changed
+    if (initialText && initialText !== prevInitialTextRef.current) {
+      prevInitialTextRef.current = initialText;
+      setInputText(initialText);
+    }
+  }, [initialText]);
 
   // Translate function with useTransition for UI responsiveness
   const doTranslate = useCallback(() => {
