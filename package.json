@@ -22,6 +22,7 @@
     "check:versions": "pnpm exec syncpack list-mismatches",
     "check:size": "pnpm exec size-limit",
     "check:links": "node scripts/check-links.mjs",
+    "verify:ssr": "tsx scripts/verify-ssr.ts",
     "check:env": "pnpm exec dotenv-linter apps/*/.env* || true",
     "lighthouse": "pnpm exec lhci autorun",
     "validate": "pnpm typecheck && pnpm check && pnpm test",

@@ -1,4 +1,4 @@
-name: CI
+name: Quality Gate
 
 on:
   push:
@@ -6,21 +6,26 @@ on:
   pull_request:
     branches: [main]
 
+# 같은 workflow 중복 실행 방지 - 새 커밋 오면 이전 실행 취소
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: quality-gate-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # Job 1: Lint, Type Check, and Test (병렬 실행으로 빠른 피드백)
-  validate:
-    name: Validate
+  # ============================================================
+  # Stage 1: 빠른 검증 (빌드 불필요)
+  # ============================================================
+  fast-checks:
+    name: Fast Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
@@ -38,24 +43,36 @@ jobs:
           pnpm --filter dialogue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide &
           wait
 
-      - name: Run checks in parallel (lint, typecheck, test)
-        run: |
-          pnpm check &
-          pnpm typecheck &
-          pnpm test &
-          wait
+      - name: TypeScript check
+        run: pnpm typecheck
 
-  # Job 2: Build all apps (Turbo로 병렬 빌드)
+      - name: Lint
+        run: pnpm check
+
+      - name: Test with coverage
+        run: pnpm test
+
+      - name: Check circular dependencies
+        run: pnpm check:circular
+
+      - name: Dependency audit (security)
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
+
+  # ============================================================
+  # Stage 2: 빌드 (한 번만 실행, artifact로 공유)
+  # ============================================================
   build:
-    name: Build Apps
+    name: Build All Apps
     runs-on: ubuntu-latest
-    needs: validate
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
@@ -63,27 +80,343 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all apps (parallel via Turbo)
+      - name: Build all apps
         run: pnpm build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
+          name: build-output
           path: |
             apps/sound-blue/dist
-            apps/sound-blue/wrangler.toml
             apps/tools/dist
-            apps/tools/wrangler.toml
             apps/dialogue/dist
-            apps/dialogue/wrangler.toml
           retention-days: 1
 
-  # Job 3: Deploy to Cloudflare Workers (병렬 배포)
+  # ============================================================
+  # Stage 3: 빌드 결과 사용하는 테스트들 (병렬 실행)
+  # ============================================================
+
+  # Job 3-1: Playwright 테스트
+  playwright:
+    name: Playwright Tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: apps
+
+      - name: Fix artifact paths
+        run: |
+          for app in sound-blue tools dialogue; do
+            if [ -d "apps/$app/$app/dist" ]; then
+              mv apps/$app/$app/dist apps/$app/dist
+              rmdir apps/$app/$app 2>/dev/null || true
+            fi
+          done
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: pnpm test:e2e
+
+  # Job 3-2: Lighthouse CI
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: apps
+
+      - name: Fix artifact paths
+        run: |
+          for app in sound-blue tools dialogue; do
+            if [ -d "apps/$app/$app/dist" ]; then
+              mv apps/$app/$app/dist apps/$app/dist
+              rmdir apps/$app/$app 2>/dev/null || true
+            fi
+          done
+
+      - name: Install Chrome for Lighthouse
+        uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
+        id: setup-chrome
+
+      - name: Set Chrome path
+        run: echo "CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+
+      - name: Run Lighthouse CI
+        run: pnpm lhci autorun
+
+  # Job 3-3: 빌드 후 검증
+  post-build:
+    name: Post Build Checks
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: apps
+
+      - name: Fix artifact paths
+        run: |
+          for app in sound-blue tools dialogue; do
+            if [ -d "apps/$app/$app/dist" ]; then
+              mv apps/$app/$app/dist apps/$app/dist
+              rmdir apps/$app/$app 2>/dev/null || true
+            fi
+          done
+
+      - name: Check bundle size
+        run: pnpm check:size
+
+      - name: Verify SSR build
+        run: pnpm verify:ssr
+
+  # Job 3-4: UX 품질 테스트
+  ux-quality:
+    name: UX Quality Tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: apps
+
+      - name: Fix artifact paths
+        run: |
+          for app in sound-blue tools dialogue; do
+            if [ -d "apps/$app/$app/dist" ]; then
+              mv apps/$app/$app/dist apps/$app/dist
+              rmdir apps/$app/$app 2>/dev/null || true
+            fi
+          done
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run accessibility tests
+        run: pnpm exec playwright test tests/e2e/accessibility.spec.ts
+
+      - name: Run mobile tests
+        run: pnpm exec playwright test tests/e2e/mobile.spec.ts
+
+      - name: Run responsive tests
+        run: pnpm exec playwright test tests/e2e/responsive.spec.ts
+
+  # Job 3-5: PWA 및 보안 검증
+  pwa-security:
+    name: PWA & Security
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: apps
+
+      - name: Fix artifact paths
+        run: |
+          for app in sound-blue tools dialogue; do
+            if [ -d "apps/$app/$app/dist" ]; then
+              mv apps/$app/$app/dist apps/$app/dist
+              rmdir apps/$app/$app 2>/dev/null || true
+            fi
+          done
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run PWA tests
+        run: pnpm exec playwright test tests/e2e/pwa/
+
+      - name: Run security tests
+        run: pnpm exec playwright test tests/e2e/security/
+
+  # Job 3-6: Visual Regression 테스트
+  visual-regression:
+    name: Visual Regression
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: apps
+
+      - name: Fix artifact paths
+        run: |
+          for app in sound-blue tools dialogue; do
+            if [ -d "apps/$app/$app/dist" ]; then
+              mv apps/$app/$app/dist apps/$app/dist
+              rmdir apps/$app/$app 2>/dev/null || true
+            fi
+          done
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run visual regression tests
+        run: pnpm exec playwright test tests/e2e/visual-regression.spec.ts
+
+      - name: Upload screenshot diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-diffs
+          path: test-results/
+          retention-days: 7
+
+  # Job 3-7: SEO 및 i18n 테스트
+  seo-i18n:
+    name: SEO & i18n
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: apps
+
+      - name: Fix artifact paths
+        run: |
+          for app in sound-blue tools dialogue; do
+            if [ -d "apps/$app/$app/dist" ]; then
+              mv apps/$app/$app/dist apps/$app/dist
+              rmdir apps/$app/$app 2>/dev/null || true
+            fi
+          done
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run SEO tests
+        run: pnpm exec playwright test tests/e2e/seo.spec.ts
+
+      - name: Run i18n tests
+        run: pnpm exec playwright test tests/e2e/i18n.spec.ts
+
+  # ============================================================
+  # Stage 4: 배포 (main push에만, 모든 검증 통과 후)
+  # ============================================================
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: build
+    needs: [fast-checks, playwright, lighthouse, post-build, ux-quality, pwa-security, visual-regression, seo-i18n]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     strategy:
       matrix:
@@ -95,9 +428,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
@@ -108,13 +443,17 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-artifacts
-          path: artifact-temp
+          name: build-output
+          path: apps
 
-      - name: Move artifacts to apps folder
+      - name: Fix artifact paths
         run: |
-          cp -r artifact-temp/${{ matrix.app }}/dist apps/${{ matrix.app }}/
-          rm -rf artifact-temp
+          for app in sound-blue tools dialogue; do
+            if [ -d "apps/$app/$app/dist" ]; then
+              mv apps/$app/$app/dist apps/$app/dist
+              rmdir apps/$app/$app 2>/dev/null || true
+            fi
+          done
 
       - name: Verify artifacts
         run: ls -la apps/${{ matrix.app }}/dist/
@@ -122,3 +461,59 @@ jobs:
       - name: Deploy ${{ matrix.app }}
         working-directory: apps/${{ matrix.app }}
         run: pnpm exec wrangler deploy --config dist/server/wrangler.json
+
+      - name: Purge Cloudflare cache
+        run: |
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}'
+
+      - name: Wait for cache propagation
+        run: sleep 10
+
+      - name: Smoke test - Production URL
+        run: |
+          # 앱별 프로덕션 URL 매핑
+          case "${{ matrix.app }}" in
+            sound-blue) URL="https://soundbluemusic.com" ;;
+            tools) URL="https://tools.soundbluemusic.com" ;;
+            dialogue) URL="https://dialogue.soundbluemusic.com" ;;
+          esac
+
+          echo "🔍 Testing $URL"
+
+          # 1. HTTP 상태 확인
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ HTTP status $STATUS (expected 200)"
+            exit 1
+          fi
+          echo "✅ HTTP 200 OK"
+
+          # 2. HTML 응답 확인 (빈 페이지가 아닌지)
+          HTML=$(curl -s "$URL")
+          if [ ${#HTML} -lt 1000 ]; then
+            echo "❌ HTML too short (${#HTML} bytes) - possible empty page"
+            exit 1
+          fi
+          echo "✅ HTML response: ${#HTML} bytes"
+
+          # 3. 필수 요소 확인 (SSR 검증)
+          if ! echo "$HTML" | grep -q "</html>"; then
+            echo "❌ Missing </html> tag"
+            exit 1
+          fi
+          echo "✅ Valid HTML structure"
+
+          # 4. SPA 아닌지 확인 (빈 body 체크)
+          if echo "$HTML" | grep -q '<div id="root"></div>'; then
+            echo "⚠️ Warning: Possible SPA mode detected (empty root div)"
+          fi
+
+          # 5. 주요 자산 로드 확인
+          if echo "$HTML" | grep -qE '(\.js"|\.css")'; then
+            echo "✅ Assets referenced in HTML"
+          fi
+
+          echo "🎉 Smoke test passed for ${{ matrix.app }}"
