@@ -3,9 +3,6 @@
 import type React from 'react';
 import { SERVICE_LINKS, SOCIAL_LINKS } from './serviceLinks';
 
-// Current year - updated dynamically
-const CURRENT_YEAR = new Date().getFullYear();
-
 // Social icons
 function YouTubeIcon() {
   return (
@@ -83,6 +80,8 @@ export function AppFooter({
   className = '',
 }: AppFooterProps) {
   const labels = LABELS[locale];
+  // Get current year at render time (not module load time) for SSR compatibility
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer
@@ -160,7 +159,7 @@ export function AppFooter({
           className="text-xs text-[var(--color-text-tertiary)] text-center"
           suppressHydrationWarning
         >
-          &copy; {CURRENT_YEAR} {brandName}. {labels.copyright}.
+          &copy; {currentYear} {brandName}. {labels.copyright}.
         </p>
       </div>
     </footer>
