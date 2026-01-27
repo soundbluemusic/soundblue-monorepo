@@ -8,324 +8,324 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as TranslatorRouteImport } from './routes/translator'
-import { Route as TapTempoRouteImport } from './routes/tap-tempo'
-import { Route as SpellCheckerRouteImport } from './routes/spell-checker'
-import { Route as SitemapRouteImport } from './routes/sitemap'
-import { Route as QrRouteImport } from './routes/qr'
-import { Route as MetronomeRouteImport } from './routes/metronome'
-import { Route as EnglishSpellCheckerRouteImport } from './routes/english-spell-checker'
-import { Route as DrumMachineRouteImport } from './routes/drum-machine'
-import { Route as DelayCalculatorRouteImport } from './routes/delay-calculator'
-import { Route as ColorPaletteRouteImport } from './routes/color-palette'
-import { Route as ColorHarmonyRouteImport } from './routes/color-harmony'
-import { Route as ColorDecomposerRouteImport } from './routes/color-decomposer'
-import { Route as ChangelogRouteImport } from './routes/changelog'
-import { Route as BuiltWithRouteImport } from './routes/built-with'
-import { Route as BenchmarkRouteImport } from './routes/benchmark'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as KoIndexRouteImport } from './routes/ko/index'
-import { Route as KoTranslatorRouteImport } from './routes/ko/translator'
-import { Route as KoTapTempoRouteImport } from './routes/ko/tap-tempo'
-import { Route as KoSpellCheckerRouteImport } from './routes/ko/spell-checker'
-import { Route as KoSitemapRouteImport } from './routes/ko/sitemap'
-import { Route as KoQrRouteImport } from './routes/ko/qr'
-import { Route as KoMetronomeRouteImport } from './routes/ko/metronome'
-import { Route as KoEnglishSpellCheckerRouteImport } from './routes/ko/english-spell-checker'
-import { Route as KoDrumMachineRouteImport } from './routes/ko/drum-machine'
-import { Route as KoDelayCalculatorRouteImport } from './routes/ko/delay-calculator'
-import { Route as KoColorPaletteRouteImport } from './routes/ko/color-palette'
-import { Route as KoColorHarmonyRouteImport } from './routes/ko/color-harmony'
-import { Route as KoColorDecomposerRouteImport } from './routes/ko/color-decomposer'
-import { Route as KoChangelogRouteImport } from './routes/ko/changelog'
-import { Route as KoBuiltWithRouteImport } from './routes/ko/built-with'
-import { Route as KoBenchmarkRouteImport } from './routes/ko/benchmark'
-import { Route as KoAboutRouteImport } from './routes/ko/about'
+import { Route as rootRouteImport } from './routes/__root';
+import { Route as AboutRouteImport } from './routes/about';
+import { Route as BenchmarkRouteImport } from './routes/benchmark';
+import { Route as BuiltWithRouteImport } from './routes/built-with';
+import { Route as ChangelogRouteImport } from './routes/changelog';
+import { Route as ColorDecomposerRouteImport } from './routes/color-decomposer';
+import { Route as ColorHarmonyRouteImport } from './routes/color-harmony';
+import { Route as ColorPaletteRouteImport } from './routes/color-palette';
+import { Route as DelayCalculatorRouteImport } from './routes/delay-calculator';
+import { Route as DrumMachineRouteImport } from './routes/drum-machine';
+import { Route as EnglishSpellCheckerRouteImport } from './routes/english-spell-checker';
+import { Route as IndexRouteImport } from './routes/index';
+import { Route as KoAboutRouteImport } from './routes/ko/about';
+import { Route as KoBenchmarkRouteImport } from './routes/ko/benchmark';
+import { Route as KoBuiltWithRouteImport } from './routes/ko/built-with';
+import { Route as KoChangelogRouteImport } from './routes/ko/changelog';
+import { Route as KoColorDecomposerRouteImport } from './routes/ko/color-decomposer';
+import { Route as KoColorHarmonyRouteImport } from './routes/ko/color-harmony';
+import { Route as KoColorPaletteRouteImport } from './routes/ko/color-palette';
+import { Route as KoDelayCalculatorRouteImport } from './routes/ko/delay-calculator';
+import { Route as KoDrumMachineRouteImport } from './routes/ko/drum-machine';
+import { Route as KoEnglishSpellCheckerRouteImport } from './routes/ko/english-spell-checker';
+import { Route as KoIndexRouteImport } from './routes/ko/index';
+import { Route as KoMetronomeRouteImport } from './routes/ko/metronome';
+import { Route as KoQrRouteImport } from './routes/ko/qr';
+import { Route as KoSitemapRouteImport } from './routes/ko/sitemap';
+import { Route as KoSpellCheckerRouteImport } from './routes/ko/spell-checker';
+import { Route as KoTapTempoRouteImport } from './routes/ko/tap-tempo';
+import { Route as KoTranslatorRouteImport } from './routes/ko/translator';
+import { Route as MetronomeRouteImport } from './routes/metronome';
+import { Route as QrRouteImport } from './routes/qr';
+import { Route as SitemapRouteImport } from './routes/sitemap';
+import { Route as SpellCheckerRouteImport } from './routes/spell-checker';
+import { Route as TapTempoRouteImport } from './routes/tap-tempo';
+import { Route as TranslatorRouteImport } from './routes/translator';
 
 const TranslatorRoute = TranslatorRouteImport.update({
   id: '/translator',
   path: '/translator',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/translator.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/translator.lazy').then((d) => d.Route));
 const TapTempoRoute = TapTempoRouteImport.update({
   id: '/tap-tempo',
   path: '/tap-tempo',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SpellCheckerRoute = SpellCheckerRouteImport.update({
   id: '/spell-checker',
   path: '/spell-checker',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SitemapRoute = SitemapRouteImport.update({
   id: '/sitemap',
   path: '/sitemap',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const QrRoute = QrRouteImport.update({
   id: '/qr',
   path: '/qr',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const MetronomeRoute = MetronomeRouteImport.update({
   id: '/metronome',
   path: '/metronome',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const EnglishSpellCheckerRoute = EnglishSpellCheckerRouteImport.update({
   id: '/english-spell-checker',
   path: '/english-spell-checker',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DrumMachineRoute = DrumMachineRouteImport.update({
   id: '/drum-machine',
   path: '/drum-machine',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DelayCalculatorRoute = DelayCalculatorRouteImport.update({
   id: '/delay-calculator',
   path: '/delay-calculator',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ColorPaletteRoute = ColorPaletteRouteImport.update({
   id: '/color-palette',
   path: '/color-palette',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ColorHarmonyRoute = ColorHarmonyRouteImport.update({
   id: '/color-harmony',
   path: '/color-harmony',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ColorDecomposerRoute = ColorDecomposerRouteImport.update({
   id: '/color-decomposer',
   path: '/color-decomposer',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ChangelogRoute = ChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const BuiltWithRoute = BuiltWithRouteImport.update({
   id: '/built-with',
   path: '/built-with',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const BenchmarkRoute = BenchmarkRouteImport.update({
   id: '/benchmark',
   path: '/benchmark',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/benchmark.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/benchmark.lazy').then((d) => d.Route));
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoIndexRoute = KoIndexRouteImport.update({
   id: '/ko/',
   path: '/ko/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoTranslatorRoute = KoTranslatorRouteImport.update({
   id: '/ko/translator',
   path: '/ko/translator',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/ko/translator.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/ko/translator.lazy').then((d) => d.Route));
 const KoTapTempoRoute = KoTapTempoRouteImport.update({
   id: '/ko/tap-tempo',
   path: '/ko/tap-tempo',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoSpellCheckerRoute = KoSpellCheckerRouteImport.update({
   id: '/ko/spell-checker',
   path: '/ko/spell-checker',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoSitemapRoute = KoSitemapRouteImport.update({
   id: '/ko/sitemap',
   path: '/ko/sitemap',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoQrRoute = KoQrRouteImport.update({
   id: '/ko/qr',
   path: '/ko/qr',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoMetronomeRoute = KoMetronomeRouteImport.update({
   id: '/ko/metronome',
   path: '/ko/metronome',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoEnglishSpellCheckerRoute = KoEnglishSpellCheckerRouteImport.update({
   id: '/ko/english-spell-checker',
   path: '/ko/english-spell-checker',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoDrumMachineRoute = KoDrumMachineRouteImport.update({
   id: '/ko/drum-machine',
   path: '/ko/drum-machine',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoDelayCalculatorRoute = KoDelayCalculatorRouteImport.update({
   id: '/ko/delay-calculator',
   path: '/ko/delay-calculator',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoColorPaletteRoute = KoColorPaletteRouteImport.update({
   id: '/ko/color-palette',
   path: '/ko/color-palette',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoColorHarmonyRoute = KoColorHarmonyRouteImport.update({
   id: '/ko/color-harmony',
   path: '/ko/color-harmony',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoColorDecomposerRoute = KoColorDecomposerRouteImport.update({
   id: '/ko/color-decomposer',
   path: '/ko/color-decomposer',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoChangelogRoute = KoChangelogRouteImport.update({
   id: '/ko/changelog',
   path: '/ko/changelog',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoBuiltWithRoute = KoBuiltWithRouteImport.update({
   id: '/ko/built-with',
   path: '/ko/built-with',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const KoBenchmarkRoute = KoBenchmarkRouteImport.update({
   id: '/ko/benchmark',
   path: '/ko/benchmark',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/ko/benchmark.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/ko/benchmark.lazy').then((d) => d.Route));
 const KoAboutRoute = KoAboutRouteImport.update({
   id: '/ko/about',
   path: '/ko/about',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/benchmark': typeof BenchmarkRoute
-  '/built-with': typeof BuiltWithRoute
-  '/changelog': typeof ChangelogRoute
-  '/color-decomposer': typeof ColorDecomposerRoute
-  '/color-harmony': typeof ColorHarmonyRoute
-  '/color-palette': typeof ColorPaletteRoute
-  '/delay-calculator': typeof DelayCalculatorRoute
-  '/drum-machine': typeof DrumMachineRoute
-  '/english-spell-checker': typeof EnglishSpellCheckerRoute
-  '/metronome': typeof MetronomeRoute
-  '/qr': typeof QrRoute
-  '/sitemap': typeof SitemapRoute
-  '/spell-checker': typeof SpellCheckerRoute
-  '/tap-tempo': typeof TapTempoRoute
-  '/translator': typeof TranslatorRoute
-  '/ko/about': typeof KoAboutRoute
-  '/ko/benchmark': typeof KoBenchmarkRoute
-  '/ko/built-with': typeof KoBuiltWithRoute
-  '/ko/changelog': typeof KoChangelogRoute
-  '/ko/color-decomposer': typeof KoColorDecomposerRoute
-  '/ko/color-harmony': typeof KoColorHarmonyRoute
-  '/ko/color-palette': typeof KoColorPaletteRoute
-  '/ko/delay-calculator': typeof KoDelayCalculatorRoute
-  '/ko/drum-machine': typeof KoDrumMachineRoute
-  '/ko/english-spell-checker': typeof KoEnglishSpellCheckerRoute
-  '/ko/metronome': typeof KoMetronomeRoute
-  '/ko/qr': typeof KoQrRoute
-  '/ko/sitemap': typeof KoSitemapRoute
-  '/ko/spell-checker': typeof KoSpellCheckerRoute
-  '/ko/tap-tempo': typeof KoTapTempoRoute
-  '/ko/translator': typeof KoTranslatorRoute
-  '/ko/': typeof KoIndexRoute
+  '/': typeof IndexRoute;
+  '/about': typeof AboutRoute;
+  '/benchmark': typeof BenchmarkRoute;
+  '/built-with': typeof BuiltWithRoute;
+  '/changelog': typeof ChangelogRoute;
+  '/color-decomposer': typeof ColorDecomposerRoute;
+  '/color-harmony': typeof ColorHarmonyRoute;
+  '/color-palette': typeof ColorPaletteRoute;
+  '/delay-calculator': typeof DelayCalculatorRoute;
+  '/drum-machine': typeof DrumMachineRoute;
+  '/english-spell-checker': typeof EnglishSpellCheckerRoute;
+  '/metronome': typeof MetronomeRoute;
+  '/qr': typeof QrRoute;
+  '/sitemap': typeof SitemapRoute;
+  '/spell-checker': typeof SpellCheckerRoute;
+  '/tap-tempo': typeof TapTempoRoute;
+  '/translator': typeof TranslatorRoute;
+  '/ko/about': typeof KoAboutRoute;
+  '/ko/benchmark': typeof KoBenchmarkRoute;
+  '/ko/built-with': typeof KoBuiltWithRoute;
+  '/ko/changelog': typeof KoChangelogRoute;
+  '/ko/color-decomposer': typeof KoColorDecomposerRoute;
+  '/ko/color-harmony': typeof KoColorHarmonyRoute;
+  '/ko/color-palette': typeof KoColorPaletteRoute;
+  '/ko/delay-calculator': typeof KoDelayCalculatorRoute;
+  '/ko/drum-machine': typeof KoDrumMachineRoute;
+  '/ko/english-spell-checker': typeof KoEnglishSpellCheckerRoute;
+  '/ko/metronome': typeof KoMetronomeRoute;
+  '/ko/qr': typeof KoQrRoute;
+  '/ko/sitemap': typeof KoSitemapRoute;
+  '/ko/spell-checker': typeof KoSpellCheckerRoute;
+  '/ko/tap-tempo': typeof KoTapTempoRoute;
+  '/ko/translator': typeof KoTranslatorRoute;
+  '/ko/': typeof KoIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/benchmark': typeof BenchmarkRoute
-  '/built-with': typeof BuiltWithRoute
-  '/changelog': typeof ChangelogRoute
-  '/color-decomposer': typeof ColorDecomposerRoute
-  '/color-harmony': typeof ColorHarmonyRoute
-  '/color-palette': typeof ColorPaletteRoute
-  '/delay-calculator': typeof DelayCalculatorRoute
-  '/drum-machine': typeof DrumMachineRoute
-  '/english-spell-checker': typeof EnglishSpellCheckerRoute
-  '/metronome': typeof MetronomeRoute
-  '/qr': typeof QrRoute
-  '/sitemap': typeof SitemapRoute
-  '/spell-checker': typeof SpellCheckerRoute
-  '/tap-tempo': typeof TapTempoRoute
-  '/translator': typeof TranslatorRoute
-  '/ko/about': typeof KoAboutRoute
-  '/ko/benchmark': typeof KoBenchmarkRoute
-  '/ko/built-with': typeof KoBuiltWithRoute
-  '/ko/changelog': typeof KoChangelogRoute
-  '/ko/color-decomposer': typeof KoColorDecomposerRoute
-  '/ko/color-harmony': typeof KoColorHarmonyRoute
-  '/ko/color-palette': typeof KoColorPaletteRoute
-  '/ko/delay-calculator': typeof KoDelayCalculatorRoute
-  '/ko/drum-machine': typeof KoDrumMachineRoute
-  '/ko/english-spell-checker': typeof KoEnglishSpellCheckerRoute
-  '/ko/metronome': typeof KoMetronomeRoute
-  '/ko/qr': typeof KoQrRoute
-  '/ko/sitemap': typeof KoSitemapRoute
-  '/ko/spell-checker': typeof KoSpellCheckerRoute
-  '/ko/tap-tempo': typeof KoTapTempoRoute
-  '/ko/translator': typeof KoTranslatorRoute
-  '/ko': typeof KoIndexRoute
+  '/': typeof IndexRoute;
+  '/about': typeof AboutRoute;
+  '/benchmark': typeof BenchmarkRoute;
+  '/built-with': typeof BuiltWithRoute;
+  '/changelog': typeof ChangelogRoute;
+  '/color-decomposer': typeof ColorDecomposerRoute;
+  '/color-harmony': typeof ColorHarmonyRoute;
+  '/color-palette': typeof ColorPaletteRoute;
+  '/delay-calculator': typeof DelayCalculatorRoute;
+  '/drum-machine': typeof DrumMachineRoute;
+  '/english-spell-checker': typeof EnglishSpellCheckerRoute;
+  '/metronome': typeof MetronomeRoute;
+  '/qr': typeof QrRoute;
+  '/sitemap': typeof SitemapRoute;
+  '/spell-checker': typeof SpellCheckerRoute;
+  '/tap-tempo': typeof TapTempoRoute;
+  '/translator': typeof TranslatorRoute;
+  '/ko/about': typeof KoAboutRoute;
+  '/ko/benchmark': typeof KoBenchmarkRoute;
+  '/ko/built-with': typeof KoBuiltWithRoute;
+  '/ko/changelog': typeof KoChangelogRoute;
+  '/ko/color-decomposer': typeof KoColorDecomposerRoute;
+  '/ko/color-harmony': typeof KoColorHarmonyRoute;
+  '/ko/color-palette': typeof KoColorPaletteRoute;
+  '/ko/delay-calculator': typeof KoDelayCalculatorRoute;
+  '/ko/drum-machine': typeof KoDrumMachineRoute;
+  '/ko/english-spell-checker': typeof KoEnglishSpellCheckerRoute;
+  '/ko/metronome': typeof KoMetronomeRoute;
+  '/ko/qr': typeof KoQrRoute;
+  '/ko/sitemap': typeof KoSitemapRoute;
+  '/ko/spell-checker': typeof KoSpellCheckerRoute;
+  '/ko/tap-tempo': typeof KoTapTempoRoute;
+  '/ko/translator': typeof KoTranslatorRoute;
+  '/ko': typeof KoIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/benchmark': typeof BenchmarkRoute
-  '/built-with': typeof BuiltWithRoute
-  '/changelog': typeof ChangelogRoute
-  '/color-decomposer': typeof ColorDecomposerRoute
-  '/color-harmony': typeof ColorHarmonyRoute
-  '/color-palette': typeof ColorPaletteRoute
-  '/delay-calculator': typeof DelayCalculatorRoute
-  '/drum-machine': typeof DrumMachineRoute
-  '/english-spell-checker': typeof EnglishSpellCheckerRoute
-  '/metronome': typeof MetronomeRoute
-  '/qr': typeof QrRoute
-  '/sitemap': typeof SitemapRoute
-  '/spell-checker': typeof SpellCheckerRoute
-  '/tap-tempo': typeof TapTempoRoute
-  '/translator': typeof TranslatorRoute
-  '/ko/about': typeof KoAboutRoute
-  '/ko/benchmark': typeof KoBenchmarkRoute
-  '/ko/built-with': typeof KoBuiltWithRoute
-  '/ko/changelog': typeof KoChangelogRoute
-  '/ko/color-decomposer': typeof KoColorDecomposerRoute
-  '/ko/color-harmony': typeof KoColorHarmonyRoute
-  '/ko/color-palette': typeof KoColorPaletteRoute
-  '/ko/delay-calculator': typeof KoDelayCalculatorRoute
-  '/ko/drum-machine': typeof KoDrumMachineRoute
-  '/ko/english-spell-checker': typeof KoEnglishSpellCheckerRoute
-  '/ko/metronome': typeof KoMetronomeRoute
-  '/ko/qr': typeof KoQrRoute
-  '/ko/sitemap': typeof KoSitemapRoute
-  '/ko/spell-checker': typeof KoSpellCheckerRoute
-  '/ko/tap-tempo': typeof KoTapTempoRoute
-  '/ko/translator': typeof KoTranslatorRoute
-  '/ko/': typeof KoIndexRoute
+  __root__: typeof rootRouteImport;
+  '/': typeof IndexRoute;
+  '/about': typeof AboutRoute;
+  '/benchmark': typeof BenchmarkRoute;
+  '/built-with': typeof BuiltWithRoute;
+  '/changelog': typeof ChangelogRoute;
+  '/color-decomposer': typeof ColorDecomposerRoute;
+  '/color-harmony': typeof ColorHarmonyRoute;
+  '/color-palette': typeof ColorPaletteRoute;
+  '/delay-calculator': typeof DelayCalculatorRoute;
+  '/drum-machine': typeof DrumMachineRoute;
+  '/english-spell-checker': typeof EnglishSpellCheckerRoute;
+  '/metronome': typeof MetronomeRoute;
+  '/qr': typeof QrRoute;
+  '/sitemap': typeof SitemapRoute;
+  '/spell-checker': typeof SpellCheckerRoute;
+  '/tap-tempo': typeof TapTempoRoute;
+  '/translator': typeof TranslatorRoute;
+  '/ko/about': typeof KoAboutRoute;
+  '/ko/benchmark': typeof KoBenchmarkRoute;
+  '/ko/built-with': typeof KoBuiltWithRoute;
+  '/ko/changelog': typeof KoChangelogRoute;
+  '/ko/color-decomposer': typeof KoColorDecomposerRoute;
+  '/ko/color-harmony': typeof KoColorHarmonyRoute;
+  '/ko/color-palette': typeof KoColorPaletteRoute;
+  '/ko/delay-calculator': typeof KoDelayCalculatorRoute;
+  '/ko/drum-machine': typeof KoDrumMachineRoute;
+  '/ko/english-spell-checker': typeof KoEnglishSpellCheckerRoute;
+  '/ko/metronome': typeof KoMetronomeRoute;
+  '/ko/qr': typeof KoQrRoute;
+  '/ko/sitemap': typeof KoSitemapRoute;
+  '/ko/spell-checker': typeof KoSpellCheckerRoute;
+  '/ko/tap-tempo': typeof KoTapTempoRoute;
+  '/ko/translator': typeof KoTranslatorRoute;
+  '/ko/': typeof KoIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
     | '/about'
@@ -360,8 +360,8 @@ export interface FileRouteTypes {
     | '/ko/spell-checker'
     | '/ko/tap-tempo'
     | '/ko/translator'
-    | '/ko/'
-  fileRoutesByTo: FileRoutesByTo
+    | '/ko/';
+  fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
     | '/about'
@@ -396,7 +396,7 @@ export interface FileRouteTypes {
     | '/ko/spell-checker'
     | '/ko/tap-tempo'
     | '/ko/translator'
-    | '/ko'
+    | '/ko';
   id:
     | '__root__'
     | '/'
@@ -432,286 +432,286 @@ export interface FileRouteTypes {
     | '/ko/spell-checker'
     | '/ko/tap-tempo'
     | '/ko/translator'
-    | '/ko/'
-  fileRoutesById: FileRoutesById
+    | '/ko/';
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
-  BenchmarkRoute: typeof BenchmarkRoute
-  BuiltWithRoute: typeof BuiltWithRoute
-  ChangelogRoute: typeof ChangelogRoute
-  ColorDecomposerRoute: typeof ColorDecomposerRoute
-  ColorHarmonyRoute: typeof ColorHarmonyRoute
-  ColorPaletteRoute: typeof ColorPaletteRoute
-  DelayCalculatorRoute: typeof DelayCalculatorRoute
-  DrumMachineRoute: typeof DrumMachineRoute
-  EnglishSpellCheckerRoute: typeof EnglishSpellCheckerRoute
-  MetronomeRoute: typeof MetronomeRoute
-  QrRoute: typeof QrRoute
-  SitemapRoute: typeof SitemapRoute
-  SpellCheckerRoute: typeof SpellCheckerRoute
-  TapTempoRoute: typeof TapTempoRoute
-  TranslatorRoute: typeof TranslatorRoute
-  KoAboutRoute: typeof KoAboutRoute
-  KoBenchmarkRoute: typeof KoBenchmarkRoute
-  KoBuiltWithRoute: typeof KoBuiltWithRoute
-  KoChangelogRoute: typeof KoChangelogRoute
-  KoColorDecomposerRoute: typeof KoColorDecomposerRoute
-  KoColorHarmonyRoute: typeof KoColorHarmonyRoute
-  KoColorPaletteRoute: typeof KoColorPaletteRoute
-  KoDelayCalculatorRoute: typeof KoDelayCalculatorRoute
-  KoDrumMachineRoute: typeof KoDrumMachineRoute
-  KoEnglishSpellCheckerRoute: typeof KoEnglishSpellCheckerRoute
-  KoMetronomeRoute: typeof KoMetronomeRoute
-  KoQrRoute: typeof KoQrRoute
-  KoSitemapRoute: typeof KoSitemapRoute
-  KoSpellCheckerRoute: typeof KoSpellCheckerRoute
-  KoTapTempoRoute: typeof KoTapTempoRoute
-  KoTranslatorRoute: typeof KoTranslatorRoute
-  KoIndexRoute: typeof KoIndexRoute
+  IndexRoute: typeof IndexRoute;
+  AboutRoute: typeof AboutRoute;
+  BenchmarkRoute: typeof BenchmarkRoute;
+  BuiltWithRoute: typeof BuiltWithRoute;
+  ChangelogRoute: typeof ChangelogRoute;
+  ColorDecomposerRoute: typeof ColorDecomposerRoute;
+  ColorHarmonyRoute: typeof ColorHarmonyRoute;
+  ColorPaletteRoute: typeof ColorPaletteRoute;
+  DelayCalculatorRoute: typeof DelayCalculatorRoute;
+  DrumMachineRoute: typeof DrumMachineRoute;
+  EnglishSpellCheckerRoute: typeof EnglishSpellCheckerRoute;
+  MetronomeRoute: typeof MetronomeRoute;
+  QrRoute: typeof QrRoute;
+  SitemapRoute: typeof SitemapRoute;
+  SpellCheckerRoute: typeof SpellCheckerRoute;
+  TapTempoRoute: typeof TapTempoRoute;
+  TranslatorRoute: typeof TranslatorRoute;
+  KoAboutRoute: typeof KoAboutRoute;
+  KoBenchmarkRoute: typeof KoBenchmarkRoute;
+  KoBuiltWithRoute: typeof KoBuiltWithRoute;
+  KoChangelogRoute: typeof KoChangelogRoute;
+  KoColorDecomposerRoute: typeof KoColorDecomposerRoute;
+  KoColorHarmonyRoute: typeof KoColorHarmonyRoute;
+  KoColorPaletteRoute: typeof KoColorPaletteRoute;
+  KoDelayCalculatorRoute: typeof KoDelayCalculatorRoute;
+  KoDrumMachineRoute: typeof KoDrumMachineRoute;
+  KoEnglishSpellCheckerRoute: typeof KoEnglishSpellCheckerRoute;
+  KoMetronomeRoute: typeof KoMetronomeRoute;
+  KoQrRoute: typeof KoQrRoute;
+  KoSitemapRoute: typeof KoSitemapRoute;
+  KoSpellCheckerRoute: typeof KoSpellCheckerRoute;
+  KoTapTempoRoute: typeof KoTapTempoRoute;
+  KoTranslatorRoute: typeof KoTranslatorRoute;
+  KoIndexRoute: typeof KoIndexRoute;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/translator': {
-      id: '/translator'
-      path: '/translator'
-      fullPath: '/translator'
-      preLoaderRoute: typeof TranslatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/translator';
+      path: '/translator';
+      fullPath: '/translator';
+      preLoaderRoute: typeof TranslatorRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/tap-tempo': {
-      id: '/tap-tempo'
-      path: '/tap-tempo'
-      fullPath: '/tap-tempo'
-      preLoaderRoute: typeof TapTempoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/tap-tempo';
+      path: '/tap-tempo';
+      fullPath: '/tap-tempo';
+      preLoaderRoute: typeof TapTempoRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/spell-checker': {
-      id: '/spell-checker'
-      path: '/spell-checker'
-      fullPath: '/spell-checker'
-      preLoaderRoute: typeof SpellCheckerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/spell-checker';
+      path: '/spell-checker';
+      fullPath: '/spell-checker';
+      preLoaderRoute: typeof SpellCheckerRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/sitemap': {
-      id: '/sitemap'
-      path: '/sitemap'
-      fullPath: '/sitemap'
-      preLoaderRoute: typeof SitemapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/sitemap';
+      path: '/sitemap';
+      fullPath: '/sitemap';
+      preLoaderRoute: typeof SitemapRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/qr': {
-      id: '/qr'
-      path: '/qr'
-      fullPath: '/qr'
-      preLoaderRoute: typeof QrRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/qr';
+      path: '/qr';
+      fullPath: '/qr';
+      preLoaderRoute: typeof QrRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/metronome': {
-      id: '/metronome'
-      path: '/metronome'
-      fullPath: '/metronome'
-      preLoaderRoute: typeof MetronomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/metronome';
+      path: '/metronome';
+      fullPath: '/metronome';
+      preLoaderRoute: typeof MetronomeRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/english-spell-checker': {
-      id: '/english-spell-checker'
-      path: '/english-spell-checker'
-      fullPath: '/english-spell-checker'
-      preLoaderRoute: typeof EnglishSpellCheckerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/english-spell-checker';
+      path: '/english-spell-checker';
+      fullPath: '/english-spell-checker';
+      preLoaderRoute: typeof EnglishSpellCheckerRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/drum-machine': {
-      id: '/drum-machine'
-      path: '/drum-machine'
-      fullPath: '/drum-machine'
-      preLoaderRoute: typeof DrumMachineRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/drum-machine';
+      path: '/drum-machine';
+      fullPath: '/drum-machine';
+      preLoaderRoute: typeof DrumMachineRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/delay-calculator': {
-      id: '/delay-calculator'
-      path: '/delay-calculator'
-      fullPath: '/delay-calculator'
-      preLoaderRoute: typeof DelayCalculatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/delay-calculator';
+      path: '/delay-calculator';
+      fullPath: '/delay-calculator';
+      preLoaderRoute: typeof DelayCalculatorRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/color-palette': {
-      id: '/color-palette'
-      path: '/color-palette'
-      fullPath: '/color-palette'
-      preLoaderRoute: typeof ColorPaletteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/color-palette';
+      path: '/color-palette';
+      fullPath: '/color-palette';
+      preLoaderRoute: typeof ColorPaletteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/color-harmony': {
-      id: '/color-harmony'
-      path: '/color-harmony'
-      fullPath: '/color-harmony'
-      preLoaderRoute: typeof ColorHarmonyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/color-harmony';
+      path: '/color-harmony';
+      fullPath: '/color-harmony';
+      preLoaderRoute: typeof ColorHarmonyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/color-decomposer': {
-      id: '/color-decomposer'
-      path: '/color-decomposer'
-      fullPath: '/color-decomposer'
-      preLoaderRoute: typeof ColorDecomposerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/color-decomposer';
+      path: '/color-decomposer';
+      fullPath: '/color-decomposer';
+      preLoaderRoute: typeof ColorDecomposerRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/changelog': {
-      id: '/changelog'
-      path: '/changelog'
-      fullPath: '/changelog'
-      preLoaderRoute: typeof ChangelogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/changelog';
+      path: '/changelog';
+      fullPath: '/changelog';
+      preLoaderRoute: typeof ChangelogRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/built-with': {
-      id: '/built-with'
-      path: '/built-with'
-      fullPath: '/built-with'
-      preLoaderRoute: typeof BuiltWithRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/built-with';
+      path: '/built-with';
+      fullPath: '/built-with';
+      preLoaderRoute: typeof BuiltWithRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/benchmark': {
-      id: '/benchmark'
-      path: '/benchmark'
-      fullPath: '/benchmark'
-      preLoaderRoute: typeof BenchmarkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/benchmark';
+      path: '/benchmark';
+      fullPath: '/benchmark';
+      preLoaderRoute: typeof BenchmarkRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/about';
+      path: '/about';
+      fullPath: '/about';
+      preLoaderRoute: typeof AboutRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/';
+      path: '/';
+      fullPath: '/';
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/': {
-      id: '/ko/'
-      path: '/ko'
-      fullPath: '/ko/'
-      preLoaderRoute: typeof KoIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/';
+      path: '/ko';
+      fullPath: '/ko/';
+      preLoaderRoute: typeof KoIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/translator': {
-      id: '/ko/translator'
-      path: '/ko/translator'
-      fullPath: '/ko/translator'
-      preLoaderRoute: typeof KoTranslatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/translator';
+      path: '/ko/translator';
+      fullPath: '/ko/translator';
+      preLoaderRoute: typeof KoTranslatorRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/tap-tempo': {
-      id: '/ko/tap-tempo'
-      path: '/ko/tap-tempo'
-      fullPath: '/ko/tap-tempo'
-      preLoaderRoute: typeof KoTapTempoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/tap-tempo';
+      path: '/ko/tap-tempo';
+      fullPath: '/ko/tap-tempo';
+      preLoaderRoute: typeof KoTapTempoRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/spell-checker': {
-      id: '/ko/spell-checker'
-      path: '/ko/spell-checker'
-      fullPath: '/ko/spell-checker'
-      preLoaderRoute: typeof KoSpellCheckerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/spell-checker';
+      path: '/ko/spell-checker';
+      fullPath: '/ko/spell-checker';
+      preLoaderRoute: typeof KoSpellCheckerRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/sitemap': {
-      id: '/ko/sitemap'
-      path: '/ko/sitemap'
-      fullPath: '/ko/sitemap'
-      preLoaderRoute: typeof KoSitemapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/sitemap';
+      path: '/ko/sitemap';
+      fullPath: '/ko/sitemap';
+      preLoaderRoute: typeof KoSitemapRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/qr': {
-      id: '/ko/qr'
-      path: '/ko/qr'
-      fullPath: '/ko/qr'
-      preLoaderRoute: typeof KoQrRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/qr';
+      path: '/ko/qr';
+      fullPath: '/ko/qr';
+      preLoaderRoute: typeof KoQrRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/metronome': {
-      id: '/ko/metronome'
-      path: '/ko/metronome'
-      fullPath: '/ko/metronome'
-      preLoaderRoute: typeof KoMetronomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/metronome';
+      path: '/ko/metronome';
+      fullPath: '/ko/metronome';
+      preLoaderRoute: typeof KoMetronomeRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/english-spell-checker': {
-      id: '/ko/english-spell-checker'
-      path: '/ko/english-spell-checker'
-      fullPath: '/ko/english-spell-checker'
-      preLoaderRoute: typeof KoEnglishSpellCheckerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/english-spell-checker';
+      path: '/ko/english-spell-checker';
+      fullPath: '/ko/english-spell-checker';
+      preLoaderRoute: typeof KoEnglishSpellCheckerRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/drum-machine': {
-      id: '/ko/drum-machine'
-      path: '/ko/drum-machine'
-      fullPath: '/ko/drum-machine'
-      preLoaderRoute: typeof KoDrumMachineRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/drum-machine';
+      path: '/ko/drum-machine';
+      fullPath: '/ko/drum-machine';
+      preLoaderRoute: typeof KoDrumMachineRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/delay-calculator': {
-      id: '/ko/delay-calculator'
-      path: '/ko/delay-calculator'
-      fullPath: '/ko/delay-calculator'
-      preLoaderRoute: typeof KoDelayCalculatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/delay-calculator';
+      path: '/ko/delay-calculator';
+      fullPath: '/ko/delay-calculator';
+      preLoaderRoute: typeof KoDelayCalculatorRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/color-palette': {
-      id: '/ko/color-palette'
-      path: '/ko/color-palette'
-      fullPath: '/ko/color-palette'
-      preLoaderRoute: typeof KoColorPaletteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/color-palette';
+      path: '/ko/color-palette';
+      fullPath: '/ko/color-palette';
+      preLoaderRoute: typeof KoColorPaletteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/color-harmony': {
-      id: '/ko/color-harmony'
-      path: '/ko/color-harmony'
-      fullPath: '/ko/color-harmony'
-      preLoaderRoute: typeof KoColorHarmonyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/color-harmony';
+      path: '/ko/color-harmony';
+      fullPath: '/ko/color-harmony';
+      preLoaderRoute: typeof KoColorHarmonyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/color-decomposer': {
-      id: '/ko/color-decomposer'
-      path: '/ko/color-decomposer'
-      fullPath: '/ko/color-decomposer'
-      preLoaderRoute: typeof KoColorDecomposerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/color-decomposer';
+      path: '/ko/color-decomposer';
+      fullPath: '/ko/color-decomposer';
+      preLoaderRoute: typeof KoColorDecomposerRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/changelog': {
-      id: '/ko/changelog'
-      path: '/ko/changelog'
-      fullPath: '/ko/changelog'
-      preLoaderRoute: typeof KoChangelogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/changelog';
+      path: '/ko/changelog';
+      fullPath: '/ko/changelog';
+      preLoaderRoute: typeof KoChangelogRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/built-with': {
-      id: '/ko/built-with'
-      path: '/ko/built-with'
-      fullPath: '/ko/built-with'
-      preLoaderRoute: typeof KoBuiltWithRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/built-with';
+      path: '/ko/built-with';
+      fullPath: '/ko/built-with';
+      preLoaderRoute: typeof KoBuiltWithRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/benchmark': {
-      id: '/ko/benchmark'
-      path: '/ko/benchmark'
-      fullPath: '/ko/benchmark'
-      preLoaderRoute: typeof KoBenchmarkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/benchmark';
+      path: '/ko/benchmark';
+      fullPath: '/ko/benchmark';
+      preLoaderRoute: typeof KoBenchmarkRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/ko/about': {
-      id: '/ko/about'
-      path: '/ko/about'
-      fullPath: '/ko/about'
-      preLoaderRoute: typeof KoAboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/ko/about';
+      path: '/ko/about';
+      fullPath: '/ko/about';
+      preLoaderRoute: typeof KoAboutRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
@@ -750,16 +750,17 @@ const rootRouteChildren: RootRouteChildren = {
   KoTapTempoRoute: KoTapTempoRoute,
   KoTranslatorRoute: KoTranslatorRoute,
   KoIndexRoute: KoIndexRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { createStart } from '@tanstack/react-start';
+import type { getRouter } from './router.tsx';
+
 declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
   }
 }
