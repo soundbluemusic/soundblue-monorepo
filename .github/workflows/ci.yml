@@ -266,6 +266,9 @@ jobs:
       - name: Verify SSR build
         run: pnpm verify:ssr
 
+      - name: Run SEO build tests (dialogue)
+        run: pnpm --filter dialogue exec vitest run tests/seo-build/
+
   # ============================================================
   # Stage 4: 배포 (main push에만, 모든 검증 통과 후)
   # ============================================================

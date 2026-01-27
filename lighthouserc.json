@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./apps/sound-blue/.output/public",
+      "staticDistDir": "./apps/sound-blue/dist/client",
       "url": ["http://localhost/", "http://localhost/about/", "http://localhost/ko/"],
       "numberOfRuns": 3
     },

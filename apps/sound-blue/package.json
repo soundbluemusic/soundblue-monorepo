@@ -29,6 +29,7 @@
     "prebuild": "pnpm --filter @soundblue/ui-components build",
     "build:analyze": "ANALYZE=true vite build",
     "start": "node dist/server/index.js",
+    "preview": "vite preview --port 3000",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "biome format --write .",

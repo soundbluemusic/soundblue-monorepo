@@ -18,7 +18,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "deploy": "pnpm build && wrangler deploy",
-    "preview": "pnpm build && vite preview"
+    "preview": "vite preview --port 3002"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.9.0",

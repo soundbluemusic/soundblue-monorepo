@@ -11,6 +11,10 @@ export default defineConfig({
       'src/**/*.{test,spec}.{ts,tsx}',
       'tests/**/*.{test,spec}.{ts,tsx}',
     ],
+    exclude: [
+      '**/node_modules/**',
+      '**/seo-build/**', // CI post-build에서 별도 실행
+    ],
     passWithNoTests: true,
     coverage: {
       provider: 'v8',

@@ -17,6 +17,7 @@
     "build": "vite build && tsx scripts/generate-sitemaps.ts && tsx scripts/postbuild-seo.ts",
     "prebuild": "pnpm --filter @soundblue/ui-components build && tsx scripts/copy-dictionaries.ts",
     "start": "node dist/server/index.js",
+    "preview": "vite preview --port 3001",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
