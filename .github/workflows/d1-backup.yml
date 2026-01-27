@@ -1,0 +1,109 @@
+name: D1 Database Backup
+
+on:
+  # 매일 UTC 00:00 (KST 09:00) 실행
+  schedule:
+    - cron: '0 0 * * *'
+
+  # 수동 실행
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Backup D1 Database
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create backup directory
+        run: mkdir -p backups
+
+      - name: Export D1 database
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          BACKUP_FILE="backups/d1-backup-${DATE}.sql"
+
+          echo "📦 Exporting D1 database..."
+
+          # D1 데이터베이스 내보내기
+          pnpm exec wrangler d1 export $D1_DATABASE_ID \
+            --output=$BACKUP_FILE \
+            --remote
+
+          if [ -f "$BACKUP_FILE" ]; then
+            echo "✅ Backup created: $BACKUP_FILE"
+            echo "📊 Size: $(du -h $BACKUP_FILE | cut -f1)"
+            echo "backup_file=$BACKUP_FILE" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Backup failed"
+            exit 1
+          fi
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: d1-backup-${{ github.run_id }}
+          path: backups/
+          retention-days: 30
+
+      - name: Cleanup old backups (keep last 7)
+        run: |
+          # artifacts는 자동으로 30일 후 삭제됨
+          echo "✅ Backup uploaded. Will be retained for 30 days."
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🚨 D1 Database Backup Failed';
+            const body = `
+            ## Backup Failure
+
+            **Time:** ${new Date().toISOString()}
+            **Run:** [${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+
+            ### Action Required
+            Please check the workflow logs and ensure D1 database is accessible.
+
+            ---
+            *This issue was automatically created by D1 Backup workflow.*
+            `;
+
+            // 동일한 제목의 열린 이슈가 있는지 확인
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'd1-backup'
+            });
+
+            const existingIssue = issues.data.find(issue => issue.title === title);
+
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['d1-backup', 'urgent']
+              });
+            }

@@ -1,0 +1,124 @@
+name: Scheduled Health Check
+
+on:
+  # 6시간마다 실행
+  schedule:
+    - cron: '0 */6 * * *'
+
+  # 수동 실행
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: Production Health Check
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        site:
+          - name: sound-blue
+            url: https://soundbluemusic.com
+          - name: tools
+            url: https://tools.soundbluemusic.com
+          - name: dialogue
+            url: https://dialogue.soundbluemusic.com
+      fail-fast: false
+
+    steps:
+      - name: Check ${{ matrix.site.name }}
+        id: health
+        run: |
+          echo "🔍 Checking ${{ matrix.site.url }}"
+
+          # 1. HTTP 상태 확인
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ matrix.site.url }}")
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ HTTP $STATUS"
+            exit 1
+          fi
+          echo "✅ HTTP 200 OK"
+
+          # 2. 응답 시간 확인 (5초 이내)
+          RESPONSE_TIME=$(curl -s -o /dev/null -w "%{time_total}" --max-time 30 "${{ matrix.site.url }}")
+          echo "response_time=$RESPONSE_TIME" >> $GITHUB_OUTPUT
+
+          # 5초 초과 시 경고 (실패는 아님)
+          if (( $(echo "$RESPONSE_TIME > 5" | bc -l) )); then
+            echo "⚠️ Slow response: ${RESPONSE_TIME}s"
+          else
+            echo "✅ Response time: ${RESPONSE_TIME}s"
+          fi
+
+          # 3. HTML 유효성 확인
+          HTML=$(curl -s --max-time 30 "${{ matrix.site.url }}")
+          HTML_LENGTH=${#HTML}
+          echo "html_length=$HTML_LENGTH" >> $GITHUB_OUTPUT
+
+          if [ $HTML_LENGTH -lt 1000 ]; then
+            echo "❌ HTML too short ($HTML_LENGTH bytes)"
+            exit 1
+          fi
+          echo "✅ HTML length: $HTML_LENGTH bytes"
+
+          # 4. SSR 확인 (빈 root div가 아닌지)
+          if echo "$HTML" | grep -q '<div id="root"></div>'; then
+            echo "❌ SPA mode detected (empty root div)"
+            exit 1
+          fi
+          echo "✅ SSR verified"
+
+          # 5. 필수 태그 확인
+          if ! echo "$HTML" | grep -q '</html>'; then
+            echo "❌ Invalid HTML (missing </html>)"
+            exit 1
+          fi
+          echo "✅ Valid HTML structure"
+
+          echo "🎉 ${{ matrix.site.name }} is healthy!"
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 Health Check Failed: ${{ matrix.site.name }}`;
+            const body = `
+            ## Health Check Failure
+
+            **Site:** ${{ matrix.site.name }}
+            **URL:** ${{ matrix.site.url }}
+            **Time:** ${new Date().toISOString()}
+
+            ### Details
+            - HTTP Status: ${{ steps.health.outputs.status || 'N/A' }}
+            - Response Time: ${{ steps.health.outputs.response_time || 'N/A' }}s
+            - HTML Length: ${{ steps.health.outputs.html_length || 'N/A' }} bytes
+
+            ### Action Required
+            Please investigate immediately.
+
+            ---
+            *This issue was automatically created by Health Check workflow.*
+            `;
+
+            // 동일한 제목의 열린 이슈가 있는지 확인
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'health-check'
+            });
+
+            const existingIssue = issues.data.find(issue => issue.title === title);
+
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['health-check', 'urgent']
+              });
+            }
