@@ -159,7 +159,7 @@ export function MainLayout() {
   }, [isMobile]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--color-bg-primary)]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-bg-primary)]">
       {/* Skip Link for Accessibility */}
       <a
         href="#main-content"
@@ -168,139 +168,142 @@ export function MainLayout() {
         Skip to main content
       </a>
 
-      {/* Header */}
-      <Header />
+      {/* Viewport container - exactly fills screen height */}
+      <div className="h-dvh flex flex-col shrink-0">
+        {/* Header */}
+        <Header />
 
-      {/* Main Content - fills viewport height exactly (footer below fold) */}
-      <main id="main-content" className="main-viewport-height flex overflow-hidden">
-        {/* Mobile Sidebar Overlay */}
-        {isMobile && sidebarOpen && (
-          <button
-            type="button"
-            className="fixed inset-0 z-40 bg-black/50 border-none cursor-default md:hidden"
-            onClick={() => setSidebarOpen(false)}
-            aria-label={m['app.closeSidebar']()}
-          />
-        )}
+        {/* Main Content - fills remaining viewport height */}
+        <main id="main-content" className="flex-1 flex overflow-hidden">
+          {/* Mobile Sidebar Overlay */}
+          {isMobile && sidebarOpen && (
+            <button
+              type="button"
+              className="fixed inset-0 z-40 bg-black/50 border-none cursor-default md:hidden"
+              onClick={() => setSidebarOpen(false)}
+              aria-label={m['app.closeSidebar']()}
+            />
+          )}
 
-        {/* Sidebar */}
-        <div
-          className={[
-            'z-50',
-            'max-md:fixed max-md:inset-0 max-md:left-0 max-md:pt-14',
-            'md:relative',
-            isHydrated && 'max-md:transition-transform max-md:duration-300 max-md:ease-in-out',
-            !sidebarOpen && 'max-md:-translate-x-full',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-        >
-          <Sidebar onNewChat={handleNewChat} onLoadConversation={handleLoadConversation} />
-        </div>
-
-        {/* Main Area (Chat + Result Panel) */}
-        <div ref={mainRef} className="flex flex-1 min-h-0 overflow-hidden">
-          {/* Mobile: Tab-based view */}
-          <div className="flex flex-col flex-1 min-h-0 md:hidden">
-            {/* Tab Switcher */}
-            <div className="flex shrink-0 border-b border-[var(--color-border-primary)] bg-[var(--color-bg-secondary)]">
-              <button
-                type="button"
-                onClick={() => setActiveTab('chat')}
-                className={[
-                  'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
-                  activeTab === 'chat'
-                    ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
-                    : 'text-[var(--color-text-tertiary)]',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {m['app.title']()}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('history')}
-                className={[
-                  'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
-                  activeTab === 'history'
-                    ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
-                    : 'text-[var(--color-text-tertiary)]',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {m['app.history']()}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('result')}
-                className={[
-                  'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
-                  activeTab === 'result'
-                    ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
-                    : 'text-[var(--color-text-tertiary)]',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {m['app.results']()}
-              </button>
-            </div>
-
-            {/* Tab Content */}
-            <div className="flex-1 min-h-0 overflow-hidden">
-              {activeTab === 'chat' && <ChatContainer />}
-              {activeTab === 'history' && (
-                <div className="h-full p-4 overflow-auto">
-                  <ConversationList
-                    onLoadConversation={handleLoadConversation}
-                    onNewChat={handleNewChat}
-                    isMobile={true}
-                  />
-                </div>
-              )}
-              {activeTab === 'result' && <ResultPanel />}
-            </div>
+          {/* Sidebar */}
+          <div
+            className={[
+              'z-50',
+              'max-md:fixed max-md:inset-0 max-md:left-0 max-md:pt-14',
+              'md:relative',
+              isHydrated && 'max-md:transition-transform max-md:duration-300 max-md:ease-in-out',
+              !sidebarOpen && 'max-md:-translate-x-full',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            <Sidebar onNewChat={handleNewChat} onLoadConversation={handleLoadConversation} />
           </div>
 
-          {/* Desktop: 2 columns with resizable chat */}
-          <div className="hidden md:flex md:flex-1 md:min-h-0">
-            {/* Chat Area - width controlled by chatWidth state */}
-            <div
-              className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-0"
-              style={{ width: chatWidth }}
-            >
-              <ChatContainer />
-
-              {/* Resize Handle */}
-              <button
-                type="button"
-                onMouseDown={handleResizeStart}
-                aria-label={m['app.resizeChatPanel']()}
-                className="absolute -right-1 top-0 h-full w-3 cursor-col-resize flex items-center justify-center group bg-transparent border-none p-0"
-              >
-                <div
+          {/* Main Area (Chat + Result Panel) */}
+          <div ref={mainRef} className="flex flex-1 min-h-0 overflow-hidden">
+            {/* Mobile: Tab-based view */}
+            <div className="flex flex-col flex-1 min-h-0 md:hidden">
+              {/* Tab Switcher */}
+              <div className="flex shrink-0 border-b border-[var(--color-border-primary)] bg-[var(--color-bg-secondary)]">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('chat')}
                   className={[
-                    'h-full w-1 transition-colors duration-150',
-                    'group-hover:bg-blue-500/30 group-active:bg-blue-500/30',
-                    isResizing && 'bg-blue-500/50',
+                    'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
+                    activeTab === 'chat'
+                      ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
+                      : 'text-[var(--color-text-tertiary)]',
                   ]
                     .filter(Boolean)
                     .join(' ')}
-                />
-              </button>
+                >
+                  {m['app.title']()}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('history')}
+                  className={[
+                    'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
+                    activeTab === 'history'
+                      ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
+                      : 'text-[var(--color-text-tertiary)]',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  {m['app.history']()}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('result')}
+                  className={[
+                    'min-h-[44px] flex-1 py-2 text-sm font-medium text-center bg-none border-none cursor-pointer transition-colors duration-150',
+                    activeTab === 'result'
+                      ? 'border-b-2 border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]'
+                      : 'text-[var(--color-text-tertiary)]',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  {m['app.results']()}
+                </button>
+              </div>
+
+              {/* Tab Content */}
+              <div className="flex-1 min-h-0 overflow-hidden">
+                {activeTab === 'chat' && <ChatContainer />}
+                {activeTab === 'history' && (
+                  <div className="h-full p-4 overflow-auto">
+                    <ConversationList
+                      onLoadConversation={handleLoadConversation}
+                      onNewChat={handleNewChat}
+                      isMobile={true}
+                    />
+                  </div>
+                )}
+                {activeTab === 'result' && <ResultPanel />}
+              </div>
             </div>
 
-            {/* Result Panel Area */}
-            <div className="flex-1 min-w-[280px]">
-              <ResultPanel isCompact={isTablet} />
+            {/* Desktop: 2 columns with resizable chat */}
+            <div className="hidden md:flex md:flex-1 md:min-h-0">
+              {/* Chat Area - width controlled by chatWidth state */}
+              <div
+                className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-0"
+                style={{ width: chatWidth }}
+              >
+                <ChatContainer />
+
+                {/* Resize Handle */}
+                <button
+                  type="button"
+                  onMouseDown={handleResizeStart}
+                  aria-label={m['app.resizeChatPanel']()}
+                  className="absolute -right-1 top-0 h-full w-3 cursor-col-resize flex items-center justify-center group bg-transparent border-none p-0"
+                >
+                  <div
+                    className={[
+                      'h-full w-1 transition-colors duration-150',
+                      'group-hover:bg-blue-500/30 group-active:bg-blue-500/30',
+                      isResizing && 'bg-blue-500/50',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  />
+                </button>
+              </div>
+
+              {/* Result Panel Area */}
+              <div className="flex-1 min-w-[280px]">
+                <ResultPanel isCompact={isTablet} />
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
-      {/* Footer */}
+      {/* Footer - outside viewport container, visible only on scroll */}
       <Footer />
     </div>
   );
