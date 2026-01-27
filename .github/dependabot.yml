@@ -1,61 +1,67 @@
+# Dependabot configuration for pnpm monorepo
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Known limitations (pnpm monorepo):
+# - Sub-package updates may be missed: https://github.com/dependabot/dependabot-core/issues/10758
+# - pnpm-lock.yaml sync issues: https://github.com/dependabot/dependabot-core/issues/4993
+# - If issues occur frequently, consider Renovate as alternative
+
 version: 2
 updates:
-  # npm 패키지 업데이트
+  # npm packages
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      interval: "daily"
+      time: "04:00"
       timezone: "Asia/Seoul"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
-      - "automated"
     commit-message:
       prefix: "chore(deps)"
     groups:
-      # 개발 의존성 그룹
-      dev-dependencies:
+      tanstack:
         patterns:
-          - "@types/*"
-          - "@biomejs/*"
-          - "@playwright/*"
-          - "@storybook/*"
-          - "vitest"
-          - "typescript"
-        update-types:
-          - "minor"
-          - "patch"
-      # React 생태계 그룹
+          - "@tanstack/*"
+      cloudflare:
+        patterns:
+          - "@cloudflare/*"
+          - "wrangler"
       react:
         patterns:
           - "react"
           - "react-dom"
-          - "@tanstack/*"
-        update-types:
-          - "minor"
-          - "patch"
-      # Tailwind 그룹
+          - "@types/react*"
+      vite:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
       tailwind:
         patterns:
           - "tailwindcss"
           - "@tailwindcss/*"
-        update-types:
-          - "minor"
-          - "patch"
+      testing:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "playwright"
+          - "@playwright/*"
+      linting:
+        patterns:
+          - "@biomejs/*"
+          - "typescript"
     ignore:
-      # Major 버전은 수동 검토
+      # Major versions require manual review
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
 
-  # GitHub Actions 업데이트
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      interval: "daily"
+      time: "04:00"
       timezone: "Asia/Seoul"
     labels:
       - "dependencies"
