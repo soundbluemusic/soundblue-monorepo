@@ -26,14 +26,14 @@
     "@soundblue/locale": "workspace:*"
   },
   "peerDependencies": {
-    "@tanstack/react-router": "^1.157.2",
-    "react": "^19.2.3"
+    "@tanstack/react-router": "^1.157.16",
+    "react": "^19.2.4"
   },
   "devDependencies": {
-    "@tanstack/react-router": "^1.157.2",
+    "@tanstack/react-router": "^1.157.16",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.9",
-    "react": "^19.2.3",
+    "react": "^19.2.4",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   }
