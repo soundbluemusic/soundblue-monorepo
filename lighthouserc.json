@@ -3,7 +3,10 @@
     "collect": {
       "staticDistDir": "./apps/sound-blue/dist/client",
       "url": ["http://localhost/", "http://localhost/about/", "http://localhost/ko/"],
-      "numberOfRuns": 3
+      "numberOfRuns": 3,
+      "chromeLaunchConfig": {
+        "args": ["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"]
+      }
     },
     "assert": {
       "preset": "lighthouse:recommended",
