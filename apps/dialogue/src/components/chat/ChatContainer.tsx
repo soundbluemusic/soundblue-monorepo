@@ -131,7 +131,7 @@ function WelcomeScreen({ onPromptSelect, locale }: WelcomeScreenProps) {
 export function ChatContainer() {
   const navigate = useNavigate();
   const location = useLocation();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isThinking, setIsThinking] = useState(false);
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
@@ -232,9 +232,12 @@ export function ChatContainer() {
     loadConversation,
   ]);
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages change (only within chat container, not page)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   }, [messages, isThinking]);
 
   // Handle sending a message with advanced NLU
@@ -547,7 +550,7 @@ export function ChatContainer() {
       {isEmptyConversation && !isThinking ? (
         <WelcomeScreen onPromptSelect={handleSend} locale={locale} />
       ) : (
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
@@ -556,7 +559,6 @@ export function ChatContainer() {
             />
           ))}
           {isThinking && <ThinkingBlock />}
-          <div ref={messagesEndRef} />
         </div>
       )}
 
