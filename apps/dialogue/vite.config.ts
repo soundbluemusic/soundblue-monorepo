@@ -78,10 +78,16 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom', '@tanstack/react-router'],
   },
-  resolve: {
-    alias: {
-      '~': '/src',
-      '@': '/src',
+  // HMR 및 개발 서버 설정 - SSR 번들 동기화 문제 해결
+  server: {
+    hmr: {
+      overlay: true,
+    },
+    watch: {
+      // 모든 src 파일 변경 감지
+      ignored: ['!**/src/**'],
     },
   },
+  // alias는 viteTsConfigPaths()가 tsconfig.json에서 자동 처리
+  // 중복 설정 제거하여 충돌 방지
 });

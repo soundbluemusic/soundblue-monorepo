@@ -178,10 +178,10 @@ export function MainLayout() {
       {/* Header - fixed height */}
       <Header />
 
-      {/* Main Content - Takes full viewport height minus header, pushing footer below fold */}
+      {/* Main Content - Fixed height to push footer below fold */}
       <main
         id="main-content"
-        className="flex flex-col flex-1 h-[calc(100dvh-var(--header-height))] min-h-[calc(100dvh-var(--header-height))] overflow-hidden"
+        className="flex flex-col h-[calc(100dvh-var(--header-height))] overflow-hidden shrink-0"
       >
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
