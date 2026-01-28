@@ -38,6 +38,11 @@ Instructions for AI coding agents working on SoundBlue Monorepo.
 - Fix any test or type errors until the whole suite is green.
 - Both vitest AND browser UI must pass before declaring something "fixed".
 
+## Resource-heavy commands
+
+- Do **not** run tasks that spawn headless browsers (e.g. `pnpm check:size`, Lighthouse, Playwright, Puppeteer/estimo) without **explicit user confirmation**.
+- If a CI failure points to one of these tasks, explain the risk (multiple Chrome processes) and ask before running locally.
+
 ## Critical rules
 
 **NO SPA - SSR/SSG only:**
