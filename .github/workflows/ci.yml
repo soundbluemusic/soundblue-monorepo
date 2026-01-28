@@ -11,13 +11,20 @@ concurrency:
   group: quality-gate-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Turbo Remote Cache (Vercel)
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
 jobs:
   # ============================================================
-  # Stage 1: 빠른 검증 (빌드 불필요)
+  # Stage 1: 설치 + 빌드 + 빠른 검증 (통합)
   # ============================================================
-  fast-checks:
-    name: Fast Checks
+  build-and-check:
+    name: Build & Check
     runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache-keys.outputs.modules }}
     steps:
       - uses: actions/checkout@v4
 
@@ -28,22 +35,45 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
 
-      - name: Restore Turbo cache
+      - name: Generate cache keys
+        id: cache-keys
+        run: |
+          echo "modules=node-modules-${{ hashFiles('pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+          echo "turbo=turbo-${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      # 1. node_modules 캐시 (전체 워크플로우에서 공유)
+      - name: Cache node_modules
+        id: cache-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/*/node_modules
+          key: ${{ steps.cache-keys.outputs.modules }}
+          restore-keys: |
+            node-modules-
+
+      - name: Install dependencies
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+
+      # pnpm store도 캐시 (install 시 필요)
+      - name: Setup pnpm store
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: pnpm store prune
+
+      # 2. Turbo 캐시 (로컬 + 리모트)
+      - name: Cache Turbo
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          key: ${{ steps.cache-keys.outputs.turbo }}
           restore-keys: |
-            turbo-${{ runner.os }}-
+            turbo-
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build packages
-        run: pnpm turbo build --filter="@soundblue/*"
-
+      # 빌드 전 준비 (paraglide 등)
       - name: Generate paraglide (i18n)
         run: |
           pnpm --filter sound-blue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide &
@@ -51,6 +81,11 @@ jobs:
           pnpm --filter dialogue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide &
           wait
 
+      # 전체 빌드 (packages + apps) - Turbo Remote Cache 활용
+      - name: Build all
+        run: pnpm build
+
+      # 빠른 검증들 (빌드 후 실행)
       - name: TypeScript check
         run: pnpm typecheck
 
@@ -63,45 +98,14 @@ jobs:
       - name: Check circular dependencies
         run: pnpm check:circular
 
-      - name: Check React patterns (infinite loop prevention)
+      - name: Check React patterns
         run: pnpm check:react-patterns
 
-      - name: Dependency audit (security)
+      - name: Dependency audit
         run: pnpm audit --audit-level=high
         continue-on-error: true
 
-  # ============================================================
-  # Stage 2: 빌드 (한 번만 실행, artifact로 공유)
-  # ============================================================
-  build:
-    name: Build All Apps
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - name: Restore Turbo cache
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            turbo-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build all apps
-        run: pnpm build
-
+      # 빌드 결과물 업로드
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -113,14 +117,14 @@ jobs:
           retention-days: 1
 
   # ============================================================
-  # Stage 3: 빌드 결과 사용하는 테스트들 (병렬 실행)
+  # Stage 2: 빌드 결과 사용하는 테스트들 (병렬 실행)
   # ============================================================
 
-  # Job 3-1: 모든 Playwright 테스트 (통합)
+  # E2E 테스트
   e2e-tests:
-    name: E2E Tests (Playwright)
+    name: E2E Tests
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-check
     steps:
       - uses: actions/checkout@v4
 
@@ -131,10 +135,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      # 캐시된 node_modules 복원
+      - name: Restore node_modules
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/*/node_modules
+          key: ${{ needs.build-and-check.outputs.cache-key }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -145,7 +155,8 @@ jobs:
       - name: Fix artifact paths
         run: bash scripts/fix-artifact-paths.sh
 
-      - name: Cache Playwright browsers
+      # Playwright 캐시
+      - name: Cache Playwright
         uses: actions/cache@v4
         id: playwright-cache
         with:
@@ -160,7 +171,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps chromium
 
-      - name: Run all E2E tests
+      - name: Run E2E tests
         run: pnpm exec playwright test tests/e2e/
 
       - name: Upload test results
@@ -173,11 +184,11 @@ jobs:
             playwright-report/
           retention-days: 7
 
-  # Job 3-2: Lighthouse CI
+  # Lighthouse CI
   lighthouse:
-    name: Lighthouse CI
+    name: Lighthouse
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-check
     steps:
       - uses: actions/checkout@v4
 
@@ -188,10 +199,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Restore node_modules
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/*/node_modules
+          key: ${{ needs.build-and-check.outputs.cache-key }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -202,7 +218,7 @@ jobs:
       - name: Fix artifact paths
         run: bash scripts/fix-artifact-paths.sh
 
-      - name: Install Chrome for Lighthouse
+      - name: Install Chrome
         uses: browser-actions/setup-chrome@latest
         with:
           chrome-version: stable
@@ -214,11 +230,11 @@ jobs:
       - name: Run Lighthouse CI
         run: pnpm lhci autorun
 
-  # Job 3-3: 빌드 후 검증
+  # 빌드 후 검증
   post-build:
-    name: Post Build Checks
+    name: Post Build
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-check
     steps:
       - uses: actions/checkout@v4
 
@@ -229,10 +245,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Restore node_modules
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/*/node_modules
+          key: ${{ needs.build-and-check.outputs.cache-key }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -249,18 +270,18 @@ jobs:
       - name: Verify SSR build
         run: pnpm verify:ssr
 
-      - name: Run SEO build tests (all apps)
+      - name: Run SEO build tests
         run: |
           pnpm --filter dialogue exec vitest run tests/seo-build/
           pnpm --filter tools exec vitest run tests/seo-build/
 
   # ============================================================
-  # Stage 4: 배포 (main push에만, 모든 검증 통과 후)
+  # Stage 3: 배포 (main push에만, 모든 검증 통과 후)
   # ============================================================
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: [fast-checks, e2e-tests, lighthouse, post-build]
+    needs: [build-and-check, e2e-tests, lighthouse, post-build]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     strategy:
       matrix:
@@ -279,10 +300,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      # 캐시된 node_modules 복원 (install 불필요)
+      - name: Restore node_modules
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/*/node_modules
+          key: ${{ needs.build-and-check.outputs.cache-key }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -307,12 +334,11 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{"purge_everything":true}'
 
-      - name: Wait for cache propagation
+      - name: Wait for propagation
         run: sleep 10
 
-      - name: Smoke test - Production URL
+      - name: Smoke test
         run: |
-          # 앱별 프로덕션 URL 매핑
           case "${{ matrix.app }}" in
             sound-blue) URL="https://soundbluemusic.com" ;;
             tools) URL="https://tools.soundbluemusic.com" ;;
@@ -321,37 +347,24 @@ jobs:
 
           echo "🔍 Testing $URL"
 
-          # 1. HTTP 상태 확인
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
           if [ "$STATUS" != "200" ]; then
-            echo "❌ HTTP status $STATUS (expected 200)"
+            echo "❌ HTTP status $STATUS"
             exit 1
           fi
           echo "✅ HTTP 200 OK"
 
-          # 2. HTML 응답 확인 (빈 페이지가 아닌지)
           HTML=$(curl -s "$URL")
           if [ ${#HTML} -lt 1000 ]; then
-            echo "❌ HTML too short (${#HTML} bytes) - possible empty page"
+            echo "❌ HTML too short"
             exit 1
           fi
-          echo "✅ HTML response: ${#HTML} bytes"
+          echo "✅ HTML: ${#HTML} bytes"
 
-          # 3. 필수 요소 확인 (SSR 검증)
           if ! echo "$HTML" | grep -q "</html>"; then
-            echo "❌ Missing </html> tag"
+            echo "❌ Invalid HTML"
             exit 1
           fi
-          echo "✅ Valid HTML structure"
+          echo "✅ Valid HTML"
 
-          # 4. SPA 아닌지 확인 (빈 body 체크)
-          if echo "$HTML" | grep -q '<div id="root"></div>'; then
-            echo "⚠️ Warning: Possible SPA mode detected (empty root div)"
-          fi
-
-          # 5. 주요 자산 로드 확인
-          if echo "$HTML" | grep -qE '(\.js"|\.css")'; then
-            echo "✅ Assets referenced in HTML"
-          fi
-
-          echo "🎉 Smoke test passed for ${{ matrix.app }}"
+          echo "🎉 ${{ matrix.app }} deployed!"
