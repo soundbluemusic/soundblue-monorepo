@@ -61,6 +61,7 @@
     "storybook": "^10.2.0",
     "syncpack": "^13.0.4",
     "tailwindcss": "^4.1.18",
+    "tsx": "^4.21.0",
     "turbo": "^2.7.5",
     "wrangler": "^4.60.0"
   },
