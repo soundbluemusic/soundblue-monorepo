@@ -181,7 +181,7 @@ export function MainLayout() {
       {/* Main Content - Fixed height to push footer below fold */}
       <main
         id="main-content"
-        className="flex flex-col h-[calc(100dvh-var(--header-height))] overflow-hidden shrink-0"
+        className="flex flex-row h-[calc(100dvh-var(--header-height))] overflow-hidden shrink-0"
       >
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
