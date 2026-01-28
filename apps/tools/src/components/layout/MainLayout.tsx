@@ -58,17 +58,22 @@ export function MainLayout({ defaultTool }: MainLayoutProps) {
       >
         {activeTool ? (
           // Tool is open - show ToolContainer
-          <div className="h-[calc(100vh-var(--header-height)-16px)] max-md:h-[calc(100vh-52px-var(--bottom-nav-height)-16px)]">
-            <ToolContainer tool={activeTool} />
+          <div className="space-y-6">
+            <div className="h-[calc(100vh-var(--header-height)-16px)] max-md:h-[calc(100vh-52px-var(--bottom-nav-height)-16px)]">
+              <ToolContainer tool={activeTool} />
+            </div>
+            <div className="w-full max-w-4xl mx-auto">
+              <CategorySection />
+            </div>
           </div>
         ) : (
           // No tool open - show tool list (for when X button is clicked)
           <div className="w-full max-w-4xl mx-auto px-4 py-6">
             <div className="space-y-6">
               <PopularToolsSection onToolClick={openTool} />
+              <CategorySection />
               {/* Mobile only sections */}
-              <div className="md:hidden space-y-6">
-                <CategorySection />
+              <div className="md:hidden">
                 <NewUpdatedSection onToolClick={openTool} />
               </div>
             </div>

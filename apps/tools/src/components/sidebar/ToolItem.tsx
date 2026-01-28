@@ -1,6 +1,7 @@
 'use client';
 
 import { useParaglideI18n } from '@soundblue/i18n';
+import { useNavigate } from '@tanstack/react-router';
 import type { ToolInfo } from '~/lib/toolCategories';
 import { type ToolType, useToolStore } from '~/stores/tool-store';
 
@@ -15,14 +16,20 @@ interface ToolItemProps {
 }
 
 export function ToolItem({ tool, onClick, collapsed }: ToolItemProps) {
-  const { locale } = useParaglideI18n();
+  const { locale, localizedPath } = useParaglideI18n();
+  const navigate = useNavigate();
   const currentTool = useToolStore((state) => state.currentTool);
   const isActive = currentTool === tool.id;
+
+  const handleClick = () => {
+    onClick(tool.id);
+    navigate({ to: localizedPath(`/${tool.slug}`) });
+  };
 
   return (
     <button
       type="button"
-      onClick={() => onClick(tool.id)}
+      onClick={handleClick}
       className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-none bg-transparent text-sm transition-all duration-200 ease-out hover:bg-black/8 hover:text-foreground active:scale-[0.98] active:bg-black/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:hover:bg-white/12 dark:active:bg-white/18 ${
         isActive ? 'bg-brand/15 text-brand font-medium shadow-sm' : ''
       } ${collapsed ? 'justify-center p-2' : 'px-3 py-2'}`}

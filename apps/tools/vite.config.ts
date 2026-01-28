@@ -9,6 +9,7 @@ import viteTsConfigPaths from 'vite-tsconfig-paths';
 import { vitePluginPwa } from './pwa.config';
 
 const isAnalyze = process.env['ANALYZE'] === 'true';
+const disableInspector = process.env['DISABLE_CF_INSPECTOR'] === 'true';
 
 export default defineConfig({
   plugins: [
@@ -18,7 +19,10 @@ export default defineConfig({
       outdir: './src/paraglide',
     }),
     tailwindcss(),
-    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    cloudflare({
+      viteEnvironment: { name: 'ssr' },
+      inspectorPort: disableInspector ? false : undefined,
+    }),
     tanstackStart(),
     vitePluginPwa(),
     isAnalyze &&

@@ -6,7 +6,7 @@ import { expect, test } from '@playwright/test';
  */
 
 test.describe('Production Smoke Tests @production @smoke', () => {
-  test('homepage loads successfully', async ({ page, baseURL }) => {
+  test('homepage loads successfully', async ({ page }) => {
     const response = await page.goto('/');
     expect(response?.status()).toBe(200);
 
@@ -70,7 +70,7 @@ test.describe('Production Smoke Tests @production @smoke', () => {
     expect(errors).toHaveLength(0);
   });
 
-  test('Korean locale works', async ({ page, baseURL }) => {
+  test('Korean locale works', async ({ page }) => {
     // /ko 경로로 이동
     const response = await page.goto('/ko');
     expect(response?.status()).toBe(200);

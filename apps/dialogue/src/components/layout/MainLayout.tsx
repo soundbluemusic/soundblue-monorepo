@@ -76,12 +76,9 @@ export function MainLayout() {
 
   // Calculate dynamic max chat width to ensure Result Panel has minimum space
   const availableWidth = containerWidth > 0 ? containerWidth : 800; // fallback
-  // Result panel needs at least 250px to be usable
-  const MIN_RESULT_WIDTH = 250;
-
   const dynamicMaxChatWidth = Math.max(
     CHAT_WIDTH.min,
-    Math.min(CHAT_WIDTH.max, availableWidth - MIN_RESULT_WIDTH),
+    Math.min(CHAT_WIDTH.max, availableWidth - RESULT_MIN_WIDTH),
   );
 
   // Clamp current chatWidth if it exceeds new max

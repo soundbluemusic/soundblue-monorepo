@@ -2,7 +2,9 @@
 
 import { useParaglideI18n } from '@soundblue/i18n';
 import { Link, useRouterState } from '@tanstack/react-router';
+import { TOOL_CATEGORIES } from '~/lib/toolCategories';
 import { useToolStore } from '~/stores/tool-store';
+import { ToolCategory } from './ToolCategory';
 
 // ========================================
 // Icon Components
@@ -77,7 +79,7 @@ function ChangelogIcon() {
 
 export function ToolSidebar() {
   const { locale, localizedPath } = useParaglideI18n();
-  const { sidebarCollapsed } = useToolStore();
+  const { sidebarCollapsed, openTool } = useToolStore();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const t = {
@@ -137,6 +139,26 @@ export function ToolSidebar() {
           })}
         </ul>
       </nav>
+
+      <div className="mt-4 border-t border-[var(--color-border-primary)] pt-4">
+        <div
+          className={`px-4 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground ${
+            sidebarCollapsed ? 'sr-only' : ''
+          }`}
+        >
+          {locale === 'ko' ? '도구' : 'Tools'}
+        </div>
+        <div className="space-y-2 px-2 pb-4">
+          {TOOL_CATEGORIES.map((category) => (
+            <ToolCategory
+              key={category.id}
+              category={category}
+              onToolClick={openTool}
+              collapsed={sidebarCollapsed}
+            />
+          ))}
+        </div>
+      </div>
     </aside>
   );
 }

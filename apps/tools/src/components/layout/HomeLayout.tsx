@@ -189,9 +189,9 @@ export function HomeLayout() {
             // Default View
             <div className="space-y-6">
               <PopularToolsSection onToolClick={openTool} />
+              <CategorySection />
               {/* Mobile only sections */}
-              <div className="md:hidden space-y-6">
-                <CategorySection />
+              <div className="md:hidden">
                 <NewUpdatedSection onToolClick={openTool} />
               </div>
             </div>
