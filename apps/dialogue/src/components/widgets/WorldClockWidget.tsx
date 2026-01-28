@@ -17,14 +17,28 @@ interface CityTime {
   id: string;
   city: { ko: string; en: string };
   timezone: string;
-  flag: string;
+  countryCode: string; // ISO 3166-1 alpha-2 country code for flag image
 }
 
 const CITIES: CityTime[] = [
-  { id: 'seoul', city: { ko: '서울', en: 'Seoul' }, timezone: 'Asia/Seoul', flag: '🇰🇷' },
-  { id: 'newyork', city: { ko: '뉴욕', en: 'New York' }, timezone: 'America/New_York', flag: '🇺🇸' },
-  { id: 'london', city: { ko: '런던', en: 'London' }, timezone: 'Europe/London', flag: '🇬🇧' },
+  { id: 'seoul', city: { ko: '서울', en: 'Seoul' }, timezone: 'Asia/Seoul', countryCode: 'kr' },
+  {
+    id: 'newyork',
+    city: { ko: '뉴욕', en: 'New York' },
+    timezone: 'America/New_York',
+    countryCode: 'us',
+  },
+  {
+    id: 'london',
+    city: { ko: '런던', en: 'London' },
+    timezone: 'Europe/London',
+    countryCode: 'gb',
+  },
 ];
+
+// Flag image URL generator (flagcdn.com provides consistent cross-platform flag images)
+const getFlagUrl = (countryCode: string, size: number = 24) =>
+  `https://flagcdn.com/${size}x${Math.round(size * 0.75)}/${countryCode}.png`;
 
 // Cached Intl.DateTimeFormat instances - O(1) reuse instead of creating new formatters
 const hourFormatters = new Map<string, Intl.DateTimeFormat>();
@@ -144,13 +158,12 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
       <div className={`flex items-end justify-center flex-wrap ${isCompact ? 'gap-2' : 'gap-4'}`}>
         {CITIES.map((city) => (
           <div key={city.id} className="flex flex-col items-center gap-1 min-w-[60px]">
-            <span
-              className={isCompact ? 'text-base' : 'text-lg'}
-              role="img"
-              aria-label={city.city.en}
-            >
-              {city.flag}
-            </span>
+            <img
+              src={getFlagUrl(city.countryCode, isCompact ? 20 : 24)}
+              alt={city.city.en}
+              className={`rounded-sm ${isCompact ? 'w-5 h-[15px]' : 'w-6 h-[18px]'}`}
+              loading="lazy"
+            />
             <span
               className={`font-light tabular-nums text-[var(--color-text-primary)] ${isCompact ? 'text-2xl' : 'text-4xl'}`}
               suppressHydrationWarning
@@ -184,8 +197,14 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
         className={`text-[var(--color-text-tertiary)] ${isCompact ? 'flex flex-col items-center gap-1 text-xs' : 'flex gap-4 text-sm'}`}
       >
         {CITIES.map((city) => (
-          <span key={city.id} suppressHydrationWarning>
-            {`${city.flag} ${getDate(city.timezone)}`}
+          <span key={city.id} className="inline-flex items-center gap-1" suppressHydrationWarning>
+            <img
+              src={getFlagUrl(city.countryCode, 16)}
+              alt=""
+              className="w-4 h-3 rounded-sm inline-block"
+              loading="lazy"
+            />
+            {getDate(city.timezone)}
           </span>
         ))}
       </div>

@@ -249,7 +249,7 @@ export function MainLayout() {
               </div>
 
               {/* Tab Content */}
-              <div className="flex-1 min-h-0 overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-hidden h-full">
                 {activeTab === 'chat' && <ChatContainer />}
                 {activeTab === 'history' && (
                   <div className="h-full p-4 overflow-auto">
@@ -268,7 +268,7 @@ export function MainLayout() {
             <div className="flex flex-1 min-h-0">
               {/* Chat Area - width controlled by chatWidth state */}
               <div
-                className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-0"
+                className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-0 h-full"
                 style={{ width: chatWidth }}
               >
                 <ChatContainer />
