@@ -3,6 +3,7 @@ import m from '~/lib/messages';
 import { createWelcomeMessage, useChatStore, useUIStore } from '~/stores';
 import { ChatContainer } from '../chat/ChatContainer';
 import { ConversationList } from './ConversationList';
+import { Footer } from './Footer';
 import { Header } from './Header';
 import { ResultPanel } from './ResultPanel';
 import { Sidebar } from './Sidebar';
@@ -165,7 +166,7 @@ export function MainLayout() {
   }, [isMobile]);
 
   return (
-    <div className="h-screen h-dvh flex flex-col overflow-hidden bg-[var(--color-bg-primary)]">
+    <div className="min-h-dvh flex flex-col bg-[var(--color-bg-primary)]">
       {/* Skip Link for Accessibility */}
       <a
         href="#main-content"
@@ -177,8 +178,11 @@ export function MainLayout() {
       {/* Header - fixed height */}
       <Header />
 
-      {/* Main Content - flex-1로 남은 공간 모두 차지, 푸터는 보이지 않음 */}
-      <main id="main-content" className="flex flex-1 overflow-hidden">
+      {/* Main Content - Takes full viewport height minus header, pushing footer below fold */}
+      <main
+        id="main-content"
+        className="flex flex-col flex-1 h-[calc(100dvh-var(--header-height))] min-h-[calc(100dvh-var(--header-height))] overflow-hidden"
+      >
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
           <button
@@ -310,7 +314,9 @@ export function MainLayout() {
           )}
         </div>
       </main>
-      {/* Footer 제거 - 대화형 앱에서 푸터는 화면을 차지하여 UX 저하 */}
+
+      {/* Footer - Visible only when scrolling past the main content */}
+      <Footer className="shrink-0 z-10 relative" />
     </div>
   );
 }
