@@ -75,15 +75,22 @@ export function MainLayout() {
 
   // Calculate dynamic max chat width to ensure Result Panel has minimum space
   const availableWidth = containerWidth > 0 ? containerWidth : 800; // fallback
-  const dynamicMaxChatWidth = Math.min(
-    CHAT_WIDTH.max,
-    Math.max(CHAT_WIDTH.min, availableWidth - RESULT_MIN_WIDTH - 20), // 20px buffer
+  // Result panel needs at least 250px to be usable
+  const MIN_RESULT_WIDTH = 250;
+
+  const dynamicMaxChatWidth = Math.max(
+    CHAT_WIDTH.min,
+    Math.min(CHAT_WIDTH.max, availableWidth - MIN_RESULT_WIDTH),
   );
 
   // Clamp current chatWidth if it exceeds new max
   useEffect(() => {
     if (chatWidth > dynamicMaxChatWidth) {
       setChatWidth(dynamicMaxChatWidth);
+    }
+    // Also ensure it's not smaller than min
+    if (chatWidth < CHAT_WIDTH.min) {
+      setChatWidth(CHAT_WIDTH.min);
     }
   }, [dynamicMaxChatWidth, chatWidth]);
 
@@ -264,11 +271,11 @@ export function MainLayout() {
               </div>
             </div>
           ) : (
-            /* Desktop: 2 columns with resizable chat - 조건부 렌더링 */
-            <div className="flex flex-1 min-h-0">
+            /* Desktop: 2 columns with resizable chat */
+            <div className="flex flex-1 min-h-0 overflow-hidden">
               {/* Chat Area - width controlled by chatWidth state */}
               <div
-                className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-0 h-full"
+                className="relative shrink-0 border-r border-[var(--color-border-primary)] min-h-0 h-full flex flex-col"
                 style={{ width: chatWidth }}
               >
                 <ChatContainer />
@@ -278,7 +285,7 @@ export function MainLayout() {
                   type="button"
                   onMouseDown={handleResizeStart}
                   aria-label={m['app.resizeChatPanel']()}
-                  className="absolute -right-1 top-0 h-full w-3 cursor-col-resize flex items-center justify-center group bg-transparent border-none p-0"
+                  className="absolute -right-1 top-0 h-full w-3 cursor-col-resize flex items-center justify-center group bg-transparent border-none p-0 z-10"
                 >
                   <div
                     className={[
@@ -293,8 +300,11 @@ export function MainLayout() {
               </div>
 
               {/* Result Panel Area */}
-              <div className="flex-1 min-w-[280px]">
-                <ResultPanel isCompact={isTablet} />
+              <div className="flex-1 min-w-0 min-h-0 bg-[var(--color-bg-secondary)] relative">
+                {/* Remove hard min-width constraint that causes overflow, handle specialized min-width via grid or internal scrolling if needed */}
+                <div className="h-full w-full overflow-hidden">
+                  <ResultPanel isCompact={isTablet || containerWidth < 800} />
+                </div>
               </div>
             </div>
           )}
