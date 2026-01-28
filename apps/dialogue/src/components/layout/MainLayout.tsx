@@ -3,7 +3,6 @@ import m from '~/lib/messages';
 import { createWelcomeMessage, useChatStore, useUIStore } from '~/stores';
 import { ChatContainer } from '../chat/ChatContainer';
 import { ConversationList } from './ConversationList';
-import { Footer } from './Footer';
 import { Header } from './Header';
 import { ResultPanel } from './ResultPanel';
 import { Sidebar } from './Sidebar';
@@ -159,7 +158,7 @@ export function MainLayout() {
   }, [isMobile]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-bg-primary)]">
+    <div className="h-screen h-dvh flex flex-col overflow-hidden bg-[var(--color-bg-primary)]">
       {/* Skip Link for Accessibility */}
       <a
         href="#main-content"
@@ -171,8 +170,8 @@ export function MainLayout() {
       {/* Header - fixed height */}
       <Header />
 
-      {/* Main Content - CSS 클래스로 dvh fallback 지원 */}
-      <main id="main-content" className="flex overflow-hidden main-viewport-height">
+      {/* Main Content - flex-1로 남은 공간 모두 차지, 푸터는 보이지 않음 */}
+      <main id="main-content" className="flex flex-1 overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
           <button
@@ -301,9 +300,7 @@ export function MainLayout() {
           )}
         </div>
       </main>
-
-      {/* Footer - below viewport, visible only on scroll */}
-      <Footer />
+      {/* Footer 제거 - 대화형 앱에서 푸터는 화면을 차지하여 UX 저하 */}
     </div>
   );
 }
