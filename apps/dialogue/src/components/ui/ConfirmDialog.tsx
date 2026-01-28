@@ -1,5 +1,23 @@
+import { getLocaleFromPath } from '@soundblue/locale';
+import { useLocation } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef } from 'react';
-import m from '~/lib/messages';
+
+// i18n messages for ConfirmDialog (pathname 기반 locale 감지)
+const messages = {
+  en: {
+    deleteConfirmTitle: 'Delete Conversation',
+    deleteConfirmMessage:
+      'Saved conversations cannot be recovered. Are you sure you want to delete?',
+    cancel: 'Cancel',
+    confirm: 'Delete',
+  },
+  ko: {
+    deleteConfirmTitle: '대화 삭제',
+    deleteConfirmMessage: '저장된 대화는 되돌릴 수 없습니다. 정말 삭제하시겠습니까?',
+    cancel: '취소',
+    confirm: '삭제',
+  },
+} as const;
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -10,6 +28,10 @@ interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({ isOpen, onConfirm, onCancel, title, message }: ConfirmDialogProps) {
+  const location = useLocation();
+  const locale = getLocaleFromPath(location.pathname) === 'ko' ? 'ko' : 'en';
+  const t = messages[locale];
+
   const dialogRef = useRef<HTMLDialogElement>(null);
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -57,14 +79,14 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, title, message }: C
         {/* Header */}
         <div className="px-6 py-4 border-b border-[var(--color-border-primary)]">
           <h2 className="text-base font-semibold text-[var(--color-text-primary)] m-0">
-            {title ?? m['app.deleteConfirmTitle']()}
+            {title ?? t.deleteConfirmTitle}
           </h2>
         </div>
 
         {/* Body */}
         <div className="px-6 py-5">
           <p className="text-sm text-[var(--color-text-secondary)] m-0 leading-relaxed">
-            {message ?? m['app.deleteConfirmMessage']()}
+            {message ?? t.deleteConfirmMessage}
           </p>
         </div>
 
@@ -75,7 +97,7 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, title, message }: C
             onClick={onCancel}
             className="min-h-[44px] px-5 py-2.5 text-sm font-medium text-[var(--color-text-secondary)] bg-[var(--color-bg-secondary)] border border-[var(--color-border-primary)] rounded-lg cursor-pointer transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
           >
-            {m['app.cancel']()}
+            {t.cancel}
           </button>
           <button
             ref={confirmButtonRef}
@@ -83,7 +105,7 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, title, message }: C
             onClick={onConfirm}
             className="min-h-[44px] px-5 py-2.5 text-sm font-medium text-white bg-[var(--color-error)] border-none rounded-lg cursor-pointer transition-colors duration-150 hover:brightness-110 focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2"
           >
-            {m['app.confirm']()}
+            {t.confirm}
           </button>
         </div>
       </div>
