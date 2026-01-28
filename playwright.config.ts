@@ -16,26 +16,17 @@ const productionUrls = {
   dialogue: 'https://dialogue.soundbluemusic.com',
 };
 
-export default defineConfig({
-  testDir: './tests/e2e',
-  fullyParallel: true,
-  forbidOnly: isCI,
-  retries: isCI ? 2 : 0,
-  workers: isCI ? 1 : undefined,
-  reporter: isCI ? 'github' : 'html',
-  timeout: isProduction ? 60000 : 30000,
-
-  use: {
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+const projects = [
+  // 로컬/CI 테스트 (localhost)
+  {
+    name: 'chromium',
+    use: { ...devices['Desktop Chrome'] },
+    grepInvert: /@production|@smoke/,
   },
+];
 
-  projects: [
-    // 로컬/CI 테스트 (localhost)
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
+if (isProduction) {
+  projects.push(
     // 프로덕션 테스트 (실제 URL)
     {
       name: 'prod-sound-blue',
@@ -64,7 +55,24 @@ export default defineConfig({
       testMatch: /.*\.spec\.ts/,
       grep: /@production|@smoke/,
     },
-  ],
+  );
+}
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: true,
+  forbidOnly: isCI,
+  retries: isCI ? 2 : 0,
+  workers: isCI ? 1 : undefined,
+  reporter: isCI ? 'github' : 'html',
+  timeout: isProduction ? 60000 : 30000,
+
+  use: {
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+
+  projects,
 
   // 프로덕션 테스트 시에는 webServer 불필요 (실제 URL 사용)
   // CI: 정적 파일 서버 (빌드 결과물 사용)

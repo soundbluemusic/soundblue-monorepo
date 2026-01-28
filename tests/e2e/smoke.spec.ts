@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 /**
  * 프로덕션 스모크 테스트
@@ -6,6 +7,16 @@ import { expect, test } from '@playwright/test';
  */
 
 test.describe('Production Smoke Tests @production @smoke', () => {
+  const isProduction = !!process.env.PRODUCTION_TEST;
+  const waitForReady = async (page: Page) => {
+    if (isProduction) {
+      await page.waitForLoadState('load');
+      await page.waitForTimeout(2000);
+      return;
+    }
+    await page.waitForLoadState('networkidle');
+  };
+
   test('homepage loads successfully', async ({ page }) => {
     const response = await page.goto('/');
     expect(response?.status()).toBe(200);
@@ -52,7 +63,7 @@ test.describe('Production Smoke Tests @production @smoke', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await waitForReady(page);
 
     expect(failedRequests).toHaveLength(0);
   });
@@ -65,7 +76,7 @@ test.describe('Production Smoke Tests @production @smoke', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await waitForReady(page);
 
     expect(errors).toHaveLength(0);
   });

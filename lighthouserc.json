@@ -4,15 +4,8 @@
       "staticDistDir": "./apps/sound-blue/dist/client",
       "url": ["http://localhost/", "http://localhost/about/", "http://localhost/ko/"],
       "numberOfRuns": 3,
-      "puppeteerScript": null,
-      "chromeLaunchConfig": {
-        "chromePath": "",
-        "args": [
-          "--no-sandbox",
-          "--disable-gpu",
-          "--disable-dev-shm-usage",
-          "--disable-software-rasterizer"
-        ]
+      "settings": {
+        "chromeFlags": "--no-sandbox --disable-gpu --disable-dev-shm-usage --disable-software-rasterizer"
       }
     },
     "assert": {
