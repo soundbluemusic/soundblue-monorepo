@@ -102,7 +102,7 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 /** Label keys for primary navigation (mobile bottom nav, 4 items max) */
-const PRIMARY_NAV_KEYS: NavLabelKey[] = ['home', 'music', 'about', 'chat'];
+const PRIMARY_NAV_KEYS: NavLabelKey[] = ['home', 'music', 'about', 'blog'];
 
 /** Primary navigation items for mobile bottom nav (derived from NAV_ITEMS) */
 export const PRIMARY_NAV_ITEMS: NavItem[] = NAV_ITEMS.filter((item) =>
