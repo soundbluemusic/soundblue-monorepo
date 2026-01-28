@@ -39,7 +39,7 @@
     "@biomejs/biome": "^2.3.11",
     "@inlang/paraglide-js": "^2.9.1",
     "@inlang/plugin-json": "^5.1.56",
-    "@inlang/plugin-m-function-matcher": "^2.1.4",
+    "@inlang/plugin-m-function-matcher": "^2.2.0",
     "@inlang/plugin-message-format": "^4.2.0",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.57.0",
