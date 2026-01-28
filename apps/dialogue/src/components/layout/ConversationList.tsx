@@ -341,77 +341,86 @@ export function ConversationList({
       {/* Conversation List */}
       {filteredConversations.length > 0 ? (
         <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
-          {filteredConversations.map((conv) => (
-            <div key={conv.id} className="relative">
-              {editingId === conv.id ? (
-                /* Rename Input */
-                <div className="flex items-center gap-2 py-2 px-3 bg-[var(--color-bg-tertiary)] rounded-lg">
-                  <ChatIcon />
-                  <input
-                    ref={renameInputRef}
-                    type="text"
-                    value={editingTitle}
-                    onChange={(e) => setEditingTitle(e.target.value)}
-                    onKeyDown={(e) => handleRenameKeyDown(e, conv.id)}
-                    onBlur={() => handleRenameBlur(conv.id)}
-                    className="flex-1 py-1 px-2 text-sm bg-[var(--color-bg-primary)] border border-[var(--color-accent-primary)] rounded focus:outline-none"
-                    placeholder={m['app.untitled']()}
-                  />
-                </div>
-              ) : (
-                /* Conversation Button */
-                <button
-                  type="button"
-                  onClick={() => handleLoadConversation(conv)}
-                  className={[
-                    'group min-h-[44px] flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
-                    activeConversationId === conv.id
-                      ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)]'
-                      : 'text-[var(--color-text-secondary)]',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                >
-                  <ChatIcon />
-                  <div className="flex-1 min-w-0 text-left">
-                    <div className="text-sm font-medium truncate">
-                      {conv.title || m['app.untitled']()}
-                    </div>
-                    <div className="text-xs text-[var(--color-text-tertiary)] truncate">
-                      {formatDate(conv.updatedAt)}
-                    </div>
+          {filteredConversations.map((conv) => {
+            // 빈 대화 확인: 메시지가 없거나 assistant 메시지만 있는 경우
+            const isEmptyConversation =
+              conv.messages.length === 0 ||
+              (conv.messages.length === 1 && conv.messages[0]?.role === 'assistant');
+
+            return (
+              <div key={conv.id} className="relative">
+                {editingId === conv.id ? (
+                  /* Rename Input */
+                  <div className="flex items-center gap-2 py-2 px-3 bg-[var(--color-bg-tertiary)] rounded-lg">
+                    <ChatIcon />
+                    <input
+                      ref={renameInputRef}
+                      type="text"
+                      value={editingTitle}
+                      onChange={(e) => setEditingTitle(e.target.value)}
+                      onKeyDown={(e) => handleRenameKeyDown(e, conv.id)}
+                      onBlur={() => handleRenameBlur(conv.id)}
+                      className="flex-1 py-1 px-2 text-sm bg-[var(--color-bg-primary)] border border-[var(--color-accent-primary)] rounded focus:outline-none"
+                      placeholder={m['app.untitled']()}
+                    />
                   </div>
-                  {/* 액션 버튼 - 터치 디바이스에서는 항상 표시, 데스크톱에서는 호버 시 표시 */}
-                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity duration-150">
-                    <button
-                      type="button"
-                      onClick={(e) => handleRenameClick(e, conv)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 active:bg-[var(--color-accent-light)]"
-                      title={m['app.rename']()}
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => handleExport(e, conv)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 active:bg-[var(--color-accent-light)]"
-                      title={m['app.export']()}
-                    >
-                      <ExportIcon />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => handleDeleteClick(e, conv.id)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-red-500/15 hover:text-[var(--color-error)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 active:bg-red-500/15"
-                      title={m['app.deleteChat']()}
-                    >
-                      <TrashIcon />
-                    </button>
-                  </div>
-                </button>
-              )}
-            </div>
-          ))}
+                ) : (
+                  /* Conversation Button */
+                  <button
+                    type="button"
+                    onClick={() => handleLoadConversation(conv)}
+                    className={[
+                      'group min-h-[44px] flex w-full items-center gap-3 py-2 px-3 rounded-lg text-sm bg-none border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2',
+                      activeConversationId === conv.id
+                        ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-primary)]'
+                        : 'text-[var(--color-text-secondary)]',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
+                    <ChatIcon />
+                    <div className="flex-1 min-w-0 text-left">
+                      <div className="text-sm font-medium truncate">
+                        {conv.title || m['app.untitled']()}
+                      </div>
+                      <div className="text-xs text-[var(--color-text-tertiary)] truncate">
+                        {formatDate(conv.updatedAt)}
+                      </div>
+                    </div>
+                    {/* 액션 버튼 - 빈 대화(저장되지 않은 대화)에는 표시하지 않음 */}
+                    {!isEmptyConversation && (
+                      <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity duration-150">
+                        <button
+                          type="button"
+                          onClick={(e) => handleRenameClick(e, conv)}
+                          className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 active:bg-[var(--color-accent-light)]"
+                          title={m['app.rename']()}
+                        >
+                          <EditIcon />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleExport(e, conv)}
+                          className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-[var(--color-accent-light)] hover:text-[var(--color-accent-primary)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 active:bg-[var(--color-accent-light)]"
+                          title={m['app.export']()}
+                        >
+                          <ExportIcon />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteClick(e, conv.id)}
+                          className="min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 rounded-md bg-none border-none cursor-pointer text-[var(--color-text-tertiary)] transition-all duration-150 hover:bg-red-500/15 hover:text-[var(--color-error)] focus:outline-2 focus:outline-[var(--color-border-focus)] focus:outline-offset-2 active:bg-red-500/15"
+                          title={m['app.deleteChat']()}
+                        >
+                          <TrashIcon />
+                        </button>
+                      </div>
+                    )}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : searchQuery ? (
         /* No search results */
