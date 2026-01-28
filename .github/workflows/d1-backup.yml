@@ -58,7 +58,7 @@ jobs:
           fi
 
       - name: Upload backup artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: d1-backup-${{ github.run_id }}
           path: backups/
