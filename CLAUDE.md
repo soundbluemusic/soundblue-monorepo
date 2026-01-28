@@ -38,6 +38,7 @@ pnpm test              # 테스트 실행
 
 ## 상세 규칙 (필요시 참조)
 
+- **에이전트 검증**: `.claude/rules/agent-verification.md` ⚠️ "없음" 결론 전 코드 검증 필수
 - **SEO 렌더링**: `.claude/rules/seo-rendering.md` ⚠️ SPA 금지
 - **React 패턴**: `.claude/rules/react-patterns.md` ⚠️ 무한 루프 방지
 - 번역기: `.claude/rules/translator.md`
