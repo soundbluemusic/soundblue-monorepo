@@ -36,9 +36,9 @@ const CITIES: CityTime[] = [
   },
 ];
 
-// Flag image URL generator (flagcdn.com provides consistent cross-platform flag images)
-const getFlagUrl = (countryCode: string, size: number = 24) =>
-  `https://flagcdn.com/${size}x${Math.round(size * 0.75)}/${countryCode}.png`;
+// Flag image URL - use fixed size to avoid SSR/client hydration mismatch
+// CSS handles responsive sizing, URL stays constant
+const getFlagUrl = (countryCode: string) => `https://flagcdn.com/24x18/${countryCode}.png`;
 
 // Cached Intl.DateTimeFormat instances - O(1) reuse instead of creating new formatters
 const hourFormatters = new Map<string, Intl.DateTimeFormat>();
@@ -121,16 +121,16 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
     return getDateFormatter(timezone, locale).format(now);
   };
 
-  // 현재 로컬 날짜 (메인 캘린더용) - 날짜 변경시에만 재계산
-  const currentDate = useMemo(
-    () => ({
-      year: now?.getFullYear() ?? new Date().getFullYear(),
-      month: now?.getMonth() ?? new Date().getMonth(),
-      day: now?.getDate() ?? 0,
-      weekday: now?.getDay() ?? 0,
-    }),
-    [now?.getFullYear(), now?.getMonth(), now?.getDate(), now?.getDay()],
-  );
+  // 현재 로컬 날짜 (메인 캘린더용) - hydration 후에만 사용됨
+  const currentDate = useMemo(() => {
+    if (!now) return { year: 0, month: 0, day: 0, weekday: 0 };
+    return {
+      year: now.getFullYear(),
+      month: now.getMonth(),
+      day: now.getDate(),
+      weekday: now.getDay(),
+    };
+  }, [now]);
 
   // 미니 캘린더 데이터 생성 - 날짜 변경시에만 재계산
   const calendarDays = useMemo(() => {
@@ -159,9 +159,9 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
         {CITIES.map((city) => (
           <div key={city.id} className="flex flex-col items-center gap-1 min-w-[60px]">
             <img
-              src={getFlagUrl(city.countryCode, isCompact ? 20 : 24)}
+              src={getFlagUrl(city.countryCode)}
               alt={city.city.en}
-              className={`rounded-sm ${isCompact ? 'w-5 h-[15px]' : 'w-6 h-[18px]'}`}
+              className={`rounded-sm object-cover ${isCompact ? 'w-5 h-[15px]' : 'w-6 h-[18px]'}`}
               loading="lazy"
             />
             <span
@@ -199,9 +199,9 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
         {CITIES.map((city) => (
           <span key={city.id} className="inline-flex items-center gap-1" suppressHydrationWarning>
             <img
-              src={getFlagUrl(city.countryCode, 16)}
+              src={getFlagUrl(city.countryCode)}
               alt=""
-              className="w-4 h-3 rounded-sm inline-block"
+              className="w-4 h-3 rounded-sm inline-block object-cover"
               loading="lazy"
             />
             {getDate(city.timezone)}
@@ -209,52 +209,54 @@ export function WorldClockWidget({ isCompact = false }: WorldClockWidgetProps) {
         ))}
       </div>
 
-      {/* 구분선 */}
-      <div className="w-full max-w-sm h-px bg-[var(--color-border-primary)]" />
+      {/* 구분선 - 캘린더가 있을 때만 표시 */}
+      {now && <div className="w-full max-w-sm h-px bg-[var(--color-border-primary)]" />}
 
-      {/* 미니 캘린더 */}
-      <div className="flex flex-col items-center gap-2">
-        {/* 년월 표시 */}
-        <div
-          className={`font-medium text-[var(--color-text-primary)] ${isCompact ? 'text-base' : 'text-lg'}`}
-        >
-          {locale === 'ko'
-            ? `${currentDate.year}년 ${monthNames.ko[currentDate.month]}`
-            : `${monthNames.en[currentDate.month]} ${currentDate.year}`}
-        </div>
+      {/* 미니 캘린더 - hydration 후에만 렌더링 (SSR 불일치 방지) */}
+      {now && (
+        <div className="flex flex-col items-center gap-2">
+          {/* 년월 표시 */}
+          <div
+            className={`font-medium text-[var(--color-text-primary)] ${isCompact ? 'text-base' : 'text-lg'}`}
+          >
+            {locale === 'ko'
+              ? `${currentDate.year}년 ${monthNames.ko[currentDate.month]}`
+              : `${monthNames.en[currentDate.month]} ${currentDate.year}`}
+          </div>
 
-        {/* 요일 헤더 */}
-        <div
-          className={`grid grid-cols-7 text-center text-xs text-[var(--color-text-tertiary)] ${isCompact ? 'gap-0.5' : 'gap-1'}`}
-        >
-          {weekdayNames[locale].map((day) => (
-            <div
-              key={day}
-              className={`flex items-center justify-center ${isCompact ? 'w-6 h-5' : 'w-8 h-6'}`}
-            >
-              {day}
-            </div>
-          ))}
-        </div>
+          {/* 요일 헤더 */}
+          <div
+            className={`grid grid-cols-7 text-center text-xs text-[var(--color-text-tertiary)] ${isCompact ? 'gap-0.5' : 'gap-1'}`}
+          >
+            {weekdayNames[locale].map((day) => (
+              <div
+                key={day}
+                className={`flex items-center justify-center ${isCompact ? 'w-6 h-5' : 'w-8 h-6'}`}
+              >
+                {day}
+              </div>
+            ))}
+          </div>
 
-        {/* 날짜 그리드 */}
-        <div className={`grid grid-cols-7 ${isCompact ? 'gap-0.5' : 'gap-1'}`}>
-          {calendarDays.map((day, index) => (
-            <div
-              key={day ?? `empty-${index}`}
-              className={`flex items-center justify-center rounded-full transition-colors ${isCompact ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-sm'} ${
-                day === currentDate.day
-                  ? 'bg-[var(--color-accent-primary)] text-white font-semibold'
-                  : day
-                    ? 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]'
-                    : ''
-              }`}
-            >
-              {day}
-            </div>
-          ))}
+          {/* 날짜 그리드 */}
+          <div className={`grid grid-cols-7 ${isCompact ? 'gap-0.5' : 'gap-1'}`}>
+            {calendarDays.map((day, index) => (
+              <div
+                key={day ?? `empty-${index}`}
+                className={`flex items-center justify-center rounded-full transition-colors ${isCompact ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-sm'} ${
+                  day === currentDate.day
+                    ? 'bg-[var(--color-accent-primary)] text-white font-semibold'
+                    : day
+                      ? 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]'
+                      : ''
+                }`}
+              >
+                {day}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
