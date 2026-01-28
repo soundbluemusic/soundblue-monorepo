@@ -479,7 +479,7 @@ export function ChatContainer() {
     ],
   );
 
-  // Handle new chat
+  // Handle new chat - 빈 대화가 있으면 재사용
   const handleNewChat = useCallback(() => {
     // Reset user message count
     setUserMessageCount(0);
@@ -494,6 +494,14 @@ export function ChatContainer() {
         },
       ]);
     } else {
+      // 기존 빈 대화가 있으면 재사용
+      const existingEmpty = findEmptyConversation();
+      if (existingEmpty) {
+        loadConversation(existingEmpty.id);
+        return;
+      }
+
+      // 빈 대화가 없을 때만 새로 생성
       clearActive();
       const welcomeMessage: Message = {
         id: generateId(),
@@ -503,7 +511,7 @@ export function ChatContainer() {
       };
       createConversation(welcomeMessage);
     }
-  }, [ghostMode, clearActive, createConversation]);
+  }, [ghostMode, clearActive, createConversation, findEmptyConversation, loadConversation]);
 
   // Show loading state while hydrating
   if (!isHydrated) {
