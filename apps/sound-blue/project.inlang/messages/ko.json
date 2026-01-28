@@ -230,7 +230,8 @@
   "about_sections_projects_items": [
     "스트리밍 플랫폼에서 오리지널 음악 발매",
     "사운드 레코딩: 창작물을 위한 필드 레코딩 라이브러리",
-    "게임 및 영상을 위한 BGM, 사운드트랙 작업"
+    "게임 및 영상을 위한 BGM, 사운드트랙 작업",
+    "Tools: 뮤지션을 위한 무료 음악 도구 (메트로놈, 드럼 머신 등)"
   ],
   "about_sections_connect_title": "연결",
   "about_sections_connect_youtube": "YouTube에서 듣기",
@@ -296,5 +297,15 @@
   "music_emptyStateHint": "모든 발매 음악은 YouTube에서 확인 가능합니다.",
   "music_visitYouTube": "YouTube 채널",
   "changelog_title": "변경 이력",
-  "changelog_description": "버전별 업데이트 내역"
+  "changelog_description": "버전별 업데이트 내역",
+  "about_sections_explore_title": "둘러보기",
+  "about_sections_explore_music": "음악",
+  "about_sections_explore_music_desc": "Sound Blue 음악 듣기",
+  "about_sections_explore_tools": "음악 도구",
+  "about_sections_explore_tools_desc": "메트로놈, 드럼 머신 등",
+  "music_relatedLinks_title": "관련",
+  "music_relatedLinks_about": "소개",
+  "music_relatedLinks_about_desc": "Sound Blue 소개",
+  "music_relatedLinks_tools": "음악 도구",
+  "music_relatedLinks_tools_desc": "메트로놈, 드럼 머신 등"
 }

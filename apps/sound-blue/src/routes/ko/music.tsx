@@ -153,6 +153,39 @@ function Music() {
             {m['externalLinks.discography']()}
           </a>
         </section>
+
+        {/* Related Links */}
+        <section className="mt-12 pt-8 border-t border-border-default">
+          <h2 className="text-xl font-semibold text-content mb-4">
+            {m['music.relatedLinks.title']()}
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <a
+              href="/ko/about"
+              className="group block rounded-lg border border-border-default p-4 transition-colors hover:border-accent-primary hover:bg-surface-hover"
+            >
+              <h3 className="font-medium text-content group-hover:text-accent-primary">
+                {m['music.relatedLinks.about']()}
+              </h3>
+              <p className="mt-1 text-sm text-content-muted">
+                {m['music.relatedLinks.about.desc']()}
+              </p>
+            </a>
+            <a
+              href="https://tools.soundbluemusic.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block rounded-lg border border-border-default p-4 transition-colors hover:border-accent-primary hover:bg-surface-hover"
+            >
+              <h3 className="font-medium text-content group-hover:text-accent-primary">
+                {m['music.relatedLinks.tools']()} ↗
+              </h3>
+              <p className="mt-1 text-sm text-content-muted">
+                {m['music.relatedLinks.tools.desc']()}
+              </p>
+            </a>
+          </div>
+        </section>
       </div>
     </NavigationLayout>
   );

@@ -230,7 +230,8 @@
   "about_sections_projects_items": [
     "Original music releases on streaming platforms",
     "Sound Recording: Field recording library for creative works",
-    "BGM and soundtrack commissions for games and videos"
+    "BGM and soundtrack commissions for games and videos",
+    "Tools: Free music tools for musicians (Metronome, Drum Machine, etc.)"
   ],
   "about_sections_connect_title": "Connect",
   "about_sections_connect_youtube": "Listen on YouTube",
@@ -296,5 +297,15 @@
   "music_emptyStateHint": "All releases are available on YouTube.",
   "music_visitYouTube": "YouTube Channel",
   "changelog_title": "Changelog",
-  "changelog_description": "Version history and updates"
+  "changelog_description": "Version history and updates",
+  "about_sections_explore_title": "Explore",
+  "about_sections_explore_music": "Music",
+  "about_sections_explore_music_desc": "Listen to Sound Blue's music",
+  "about_sections_explore_tools": "Music Tools",
+  "about_sections_explore_tools_desc": "Metronome, drum machine, and more",
+  "music_relatedLinks_title": "Related",
+  "music_relatedLinks_about": "About",
+  "music_relatedLinks_about_desc": "About Sound Blue",
+  "music_relatedLinks_tools": "Music Tools",
+  "music_relatedLinks_tools_desc": "Metronome, drum machine, and more"
 }

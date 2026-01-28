@@ -93,6 +93,39 @@ function About() {
             </li>
           </ul>
         </section>
+
+        {/* Explore More - Internal Links */}
+        <section className="mt-12 pt-8 border-t border-border-default">
+          <h2 className="text-xl font-semibold text-content mb-4">
+            {m['about.sections.explore.title']()}
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <a
+              href="/music"
+              className="group block rounded-lg border border-border-default p-4 transition-colors hover:border-accent-primary hover:bg-surface-hover"
+            >
+              <h3 className="font-medium text-content group-hover:text-accent-primary">
+                {m['about.sections.explore.music']()}
+              </h3>
+              <p className="mt-1 text-sm text-content-muted">
+                {m['about.sections.explore.music.desc']()}
+              </p>
+            </a>
+            <a
+              href="https://tools.soundbluemusic.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block rounded-lg border border-border-default p-4 transition-colors hover:border-accent-primary hover:bg-surface-hover"
+            >
+              <h3 className="font-medium text-content group-hover:text-accent-primary">
+                {m['about.sections.explore.tools']()} ↗
+              </h3>
+              <p className="mt-1 text-sm text-content-muted">
+                {m['about.sections.explore.tools.desc']()}
+              </p>
+            </a>
+          </div>
+        </section>
       </div>
     </NavigationLayout>
   );

@@ -139,14 +139,14 @@ export interface ToolCategory {
  */
 export const TOOL_CATEGORIES: ToolCategory[] = [
   {
-    id: 'rhythm',
+    id: 'musicians',
     name: {
-      ko: '리듬',
-      en: 'Rhythm',
+      ko: '🎵 뮤지션용 도구',
+      en: '🎵 Musician Tools',
     },
     description: {
-      ko: '뮤지션을 위한 박자 도구',
-      en: 'Tempo tools for musicians',
+      ko: '연주와 작곡을 위한 음악 도구',
+      en: 'Music tools for performance and composition',
     },
     tools: [
       {
@@ -192,14 +192,14 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     ],
   },
   {
-    id: 'language',
+    id: 'writers',
     name: {
-      ko: '언어',
-      en: 'Language',
+      ko: '✍️ 작가용 도구',
+      en: '✍️ Writer Tools',
     },
     description: {
-      ko: '작가와 작사가를 위한 글쓰기 도구',
-      en: 'Writing tools for authors and lyricists',
+      ko: '글쓰기와 번역을 위한 언어 도구',
+      en: 'Language tools for writing and translation',
     },
     tools: [
       {
@@ -235,14 +235,14 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     ],
   },
   {
-    id: 'visual',
+    id: 'designers',
     name: {
-      ko: '비주얼',
-      en: 'Visual',
+      ko: '🎨 디자이너용 도구',
+      en: '🎨 Designer Tools',
     },
     description: {
-      ko: '비주얼 아티스트를 위한 색상 도구',
-      en: 'Color tools for visual artists',
+      ko: '색상과 디자인을 위한 시각 도구',
+      en: 'Visual tools for color and design',
     },
     tools: [
       {
@@ -278,14 +278,14 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     ],
   },
   {
-    id: 'utility',
+    id: 'marketers',
     name: {
-      ko: '유틸',
-      en: 'Utility',
+      ko: '📢 마케터용 도구',
+      en: '📢 Marketer Tools',
     },
     description: {
-      ko: '모든 창작자를 위한 도구',
-      en: 'Tools for all creators',
+      ko: '홍보와 공유를 위한 마케팅 도구',
+      en: 'Marketing tools for promotion and sharing',
     },
     tools: [
       {
