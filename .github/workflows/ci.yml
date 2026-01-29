@@ -34,7 +34,7 @@ jobs:
       - name: Generate cache keys
         id: cache-keys
         run: |
-          echo "modules=node-modules-${{ hashFiles('pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+          echo "modules=node-modules-v2-${{ hashFiles('pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
           echo "turbo=turbo-v2-${{ github.sha }}" >> $GITHUB_OUTPUT
 
       # 1. node_modules 캐시 (전체 워크플로우에서 공유)
@@ -46,18 +46,13 @@ jobs:
             node_modules
             apps/*/node_modules
             packages/*/*/node_modules
+            docs/*/node_modules
           key: ${{ steps.cache-keys.outputs.modules }}
           restore-keys: |
-            node-modules-
+            node-modules-v2-
 
       - name: Install dependencies
-        if: steps.cache-modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
-
-      # pnpm store도 캐시 (install 시 필요)
-      - name: Setup pnpm store
-        if: steps.cache-modules.outputs.cache-hit != 'true'
-        run: pnpm store prune
 
       # 2. Turbo 캐시 (로컬 + 리모트)
       - name: Cache Turbo
@@ -151,6 +146,7 @@ jobs:
             node_modules
             apps/*/node_modules
             packages/*/*/node_modules
+            docs/*/node_modules
           key: ${{ needs.build-and-check.outputs.cache-key }}
 
       - name: Download build artifacts
@@ -214,6 +210,7 @@ jobs:
             node_modules
             apps/*/node_modules
             packages/*/*/node_modules
+            docs/*/node_modules
           key: ${{ needs.build-and-check.outputs.cache-key }}
 
       - name: Download build artifacts
@@ -260,6 +257,7 @@ jobs:
             node_modules
             apps/*/node_modules
             packages/*/*/node_modules
+            docs/*/node_modules
           key: ${{ needs.build-and-check.outputs.cache-key }}
 
       - name: Download build artifacts
@@ -316,6 +314,7 @@ jobs:
             node_modules
             apps/*/node_modules
             packages/*/*/node_modules
+            docs/*/node_modules
           key: ${{ needs.build-and-check.outputs.cache-key }}
 
       - name: Download build artifacts
