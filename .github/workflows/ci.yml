@@ -35,7 +35,6 @@ jobs:
         id: cache-keys
         run: |
           echo "modules=node-modules-v2-${{ hashFiles('pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
-          echo "turbo=turbo-v2-${{ github.sha }}" >> $GITHUB_OUTPUT
 
       # 1. node_modules 캐시 (전체 워크플로우에서 공유)
       - name: Cache node_modules
@@ -54,15 +53,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 2. Turbo 캐시 (로컬 + 리모트)
-      - name: Cache Turbo
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: ${{ steps.cache-keys.outputs.turbo }}
-          restore-keys: |
-            turbo-v2-
-
       # 빌드 전 준비 (paraglide 등)
       - name: Generate paraglide (i18n)
         run: |
@@ -71,9 +61,9 @@ jobs:
           pnpm --filter dialogue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide &
           wait
 
-      # 전체 빌드 (packages + apps)
+      # 전체 빌드 (packages + apps) - CI에서는 turbo 캐시 무시하여 dist/ 누락 방지
       - name: Build all
-        run: pnpm build
+        run: pnpm build --force
 
       # 빌드 결과물 존재 검증
       - name: Verify build artifacts exist
