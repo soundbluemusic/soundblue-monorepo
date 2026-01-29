@@ -35,7 +35,7 @@ jobs:
         id: cache-keys
         run: |
           echo "modules=node-modules-${{ hashFiles('pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
-          echo "turbo=turbo-${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "turbo=turbo-v2-${{ github.sha }}" >> $GITHUB_OUTPUT
 
       # 1. node_modules 캐시 (전체 워크플로우에서 공유)
       - name: Cache node_modules
@@ -66,7 +66,7 @@ jobs:
           path: .turbo
           key: ${{ steps.cache-keys.outputs.turbo }}
           restore-keys: |
-            turbo-
+            turbo-v2-
 
       # 빌드 전 준비 (paraglide 등)
       - name: Generate paraglide (i18n)
@@ -76,9 +76,21 @@ jobs:
           pnpm --filter dialogue exec paraglide-js compile --project ./project.inlang --outdir ./app/paraglide &
           wait
 
-      # 전체 빌드 (packages + apps) - Turbo Remote Cache 활용
+      # 전체 빌드 (packages + apps)
       - name: Build all
         run: pnpm build
+
+      # 빌드 결과물 존재 검증
+      - name: Verify build artifacts exist
+        run: |
+          for app in sound-blue tools dialogue; do
+            if [ ! -d "apps/$app/dist/client" ] || [ ! -d "apps/$app/dist/server" ]; then
+              echo "ERROR: apps/$app/dist/ is missing client or server directory"
+              ls -la "apps/$app/dist/" 2>/dev/null || echo "  dist/ does not exist"
+              exit 1
+            fi
+            echo "✅ apps/$app/dist/ OK"
+          done
 
       # 빠른 검증들 (빌드 후 실행)
       - name: TypeScript check
