@@ -1,8 +1,14 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./apps/sound-blue/dist/client",
-      "url": ["http://localhost/", "http://localhost/about/", "http://localhost/ko/"],
+      "startServerCommand": "cd apps/sound-blue && npx wrangler dev --config dist/server/wrangler.json --port 9411",
+      "startServerReadyPattern": "Ready on",
+      "startServerReadyTimeout": 30000,
+      "url": [
+        "http://localhost:9411/",
+        "http://localhost:9411/about/",
+        "http://localhost:9411/ko/"
+      ],
       "numberOfRuns": 3,
       "settings": {
         "chromeFlags": "--no-sandbox --disable-gpu --disable-dev-shm-usage --disable-software-rasterizer"

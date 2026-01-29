@@ -5,7 +5,7 @@ import { defineConfig, devices } from '@playwright/test';
  * CI에서 전체 E2E 테스트 실행용
  */
 
-// CI에서는 정적 파일 서버 사용, 로컬에서는 vite preview 사용
+// CI에서는 wrangler dev로 SSR 서빙, 로컬에서는 vite preview 사용
 const isCI = !!process.env.CI;
 const isProduction = !!process.env.PRODUCTION_TEST;
 
@@ -75,14 +75,14 @@ export default defineConfig({
   projects,
 
   // 프로덕션 테스트 시에는 webServer 불필요 (실제 URL 사용)
-  // CI: 정적 파일 서버 (빌드 결과물 사용)
+  // CI: wrangler dev로 SSR 서빙 (빌드 결과물 + miniflare)
   // 로컬: vite preview (개발용)
   webServer: isProduction
     ? undefined
     : [
         {
           command: isCI
-            ? 'npx serve apps/sound-blue/dist/client -l 3000 -s'
+            ? 'cd apps/sound-blue && npx wrangler dev --config dist/server/wrangler.json --port 3000'
             : 'pnpm --filter sound-blue preview',
           url: 'http://localhost:3000',
           reuseExistingServer: !isCI,
@@ -90,7 +90,7 @@ export default defineConfig({
         },
         {
           command: isCI
-            ? 'npx serve apps/tools/dist/client -l 3001 -s'
+            ? 'cd apps/tools && npx wrangler dev --config dist/server/wrangler.json --port 3001'
             : 'pnpm --filter tools preview',
           url: 'http://localhost:3001',
           reuseExistingServer: !isCI,
@@ -98,7 +98,7 @@ export default defineConfig({
         },
         {
           command: isCI
-            ? 'npx serve apps/dialogue/dist/client -l 3002 -s'
+            ? 'cd apps/dialogue && npx wrangler dev --config dist/server/wrangler.json --port 3002'
             : 'pnpm --filter dialogue preview',
           url: 'http://localhost:3002',
           reuseExistingServer: !isCI,

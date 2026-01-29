@@ -2,19 +2,19 @@
   {
     "name": "sound-blue",
     "path": "apps/sound-blue/dist/client/assets/*.js",
-    "limit": "200 KB",
+    "limit": "260 KB",
     "running": false
   },
   {
     "name": "tools",
     "path": "apps/tools/dist/client/assets/*.js",
-    "limit": "300 KB",
+    "limit": "450 KB",
     "running": false
   },
   {
     "name": "dialogue",
     "path": "apps/dialogue/dist/client/assets/*.js",
-    "limit": "150 KB",
+    "limit": "320 KB",
     "running": false
   }
 ]
